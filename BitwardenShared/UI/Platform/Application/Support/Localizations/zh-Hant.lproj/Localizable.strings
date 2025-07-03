@@ -263,6 +263,7 @@
 "FileSource" = "檔案來源";
 "FeatureUnavailable" = "功能不可用";
 "MaxFileSize" = "檔案最大為 100MB。";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "更新加密金鑰前不能使用此功能。";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "需要遷移加密金鑰。請透過網頁版登入密碼庫以更新您的加密金鑰。";
 "LearnMore" = "深入了解";
@@ -580,7 +581,7 @@
 "RemovePassword" = "移除密碼";
 "AreYouSureRemoveSendPassword" = "您確定要移除此密碼嗎？";
 "RemovingSendPassword" = "正在移除密碼";
-"SendPasswordRemoved" = "已移除密碼。";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "您的帳戶中沒有 Send。";
 "CopyLink" = "複製連結";
 "ShareLink" = "共用連結";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

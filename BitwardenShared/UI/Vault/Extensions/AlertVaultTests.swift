@@ -141,7 +141,6 @@ class AlertVaultTests: BitwardenTestCase {
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
-            hasMasterPassword: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -157,7 +156,7 @@ class AlertVaultTests: BitwardenTestCase {
         try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+            .edit(cipherView: cipher)
         )
         capturedAction = nil
 
@@ -167,7 +166,7 @@ class AlertVaultTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.publicKey,
                 value: "publicKey",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: "123"
             )
@@ -180,7 +179,7 @@ class AlertVaultTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.privateKey,
                 value: "privateKey",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: "123"
             )
@@ -193,7 +192,7 @@ class AlertVaultTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.fingerprint,
                 value: "fingerprint",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: "123"
             )

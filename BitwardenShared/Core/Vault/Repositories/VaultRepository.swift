@@ -64,7 +64,7 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Download and decrypt an attachment and save the file to local storage on the device.
     ///
@@ -115,6 +115,10 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter id: The id of the organization to fetch.
     /// - Returns: The organization with such id or `nil` if not found.
     func fetchOrganization(withId id: String) async throws -> Organization?
+
+    /// Gets a list of item types for the current user can create.
+    ///
+    func getItemTypesUserCanCreate() async -> [CipherType]
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
@@ -551,6 +555,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let isMatchingCipher: (CipherListView) -> Bool = isActive
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
 
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherListView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
@@ -558,7 +563,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                 .filter { cipher in
                     filter.filterType.cipherFilter(cipher) &&
                         isMatchingCipher(cipher) &&
-                        (cipherFilter?(cipher) ?? true)
+                        (cipherFilter?(cipher) ?? true) &&
+                        self.filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
                 }
 
             var matchedCiphers: [CipherListView] = []
@@ -597,7 +603,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         from ciphers: [CipherListView],
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
-        let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        let hasPremiumFeaturesAccess = await doesActiveAccountHavePremium()
+        let userHasMasterPassword = await (try? stateService.getUserHasMasterPassword()) ?? false
 
         // Filter and sort the list.
         let activeCiphers = ciphers
@@ -611,7 +618,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         // Convert the CipherViews into VaultListItem.
         let totpItems: [VaultListItem] = try await activeCiphers
-            .asyncMap { try await totpItem(for: $0) }
+            .asyncMap { try await totpItem(for: $0, userHasMasterPassword: userHasMasterPassword) }
             .compactMap { $0 }
 
         return totpItems
@@ -619,10 +626,15 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// A transform to convert a `CipherListView` into a TOTP `VaultListItem`.
     ///
-    /// - Parameter cipherListView: The cipher view that may have a TOTP key.
+    /// - Parameters:
+    ///   - cipherListView: The cipher view that may have a TOTP key.
+    ///   - userHasMasterPassword: Whether the user has a master password.
     /// - Returns: A `VaultListItem` if the cipher supports TOTP.
     ///
-    private func totpItem(for cipherListView: CipherListView) async throws -> VaultListItem? {
+    private func totpItem(
+        for cipherListView: CipherListView,
+        userHasMasterPassword: Bool
+    ) async throws -> VaultListItem? {
         guard let id = cipherListView.id,
               cipherListView.type.loginListView?.totp != nil else {
             return nil
@@ -641,7 +653,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let listModel = VaultListTOTP(
             id: id,
             cipherListView: cipherListView,
-            requiresMasterPassword: cipherListView.reprompt == .password,
+            requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
             totpCode: code
         )
         return VaultListItem(
@@ -761,7 +773,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let items: [VaultListItem]
         switch group {
         case .card:
-            items = activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter(\.type.isCard).compactMap(VaultListItem.init)
         case let .collection(id, _, _):
             items = activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
@@ -803,8 +815,12 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         collections: [Collection],
         folders: [Folder] = []
     ) async throws -> [VaultListSection] {
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
-            .filter(filter.filterType.cipherFilter)
+            .filter { cipher in
+                filter.filterType.cipherFilter(cipher) &&
+                    filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
+            }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -844,6 +860,28 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter { !$0.items.isEmpty }
     }
 
+    /// Filters ciphers based on the organization's restrictItemTypes policy.
+    ///
+    /// - Parameters:
+    ///  - cipher: The cipher to check against the policy.
+    ///  - restrictItemTypesOrgIds: The list of organization IDs that are restricted by the policy.
+    ///  - Returns: `true` if the cipher is allowed by the policy, `false` otherwise.
+    ///
+    func filterBasedOnRestrictItemTypesPolicy(cipher: CipherListView, _ restrictItemTypesOrgIds: [String]) -> Bool {
+        guard !restrictItemTypesOrgIds.isEmpty, cipher.type.isCard else { return true }
+        guard let orgId = cipher.organizationId, !orgId.isEmpty else { return false }
+        return !restrictItemTypesOrgIds.contains(orgId)
+    }
+
+    /// If `FeatureFlag.removeCardPolicy` feature flag is enabled, gets the organization IDs that have the
+    /// `PolicyType.restrictItemTypes` policy active.
+    ///
+    /// - Returns: A list of organization IDs that have the restrictItemTypes policy enabled.
+    private func getRestrictItemTypesOrgIds() async -> [String] {
+        guard await configService.getFeatureFlag(.removeCardPolicy) else { return [] }
+        return await policyService.getOrganizationIdsForRestricItemTypesPolicy()
+    }
+
     /// Returns a list of the sections in the vault list from a sync response.
     ///
     /// - Parameters:
@@ -859,8 +897,12 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
-            .filter(filter.filterType.cipherFilter)
+            .filter { cipher in
+                filter.filterType.cipherFilter(cipher) &&
+                    filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
+            }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !ciphers.isEmpty else { return [] }
@@ -914,19 +956,24 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             )
         }
 
-        let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
+        let typesCardCount = activeCiphers.lazy.filter(\.type.isCard).count
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter(\.type.isLogin).count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
         let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
-        let types = [
-            VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
-            VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
+        var types = [VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount))]
+
+        // Only show the card section if there are cards or restrictItemTypes policy is not enabled.
+        if typesCardCount != 0 || restrictItemTypesOrgIds.isEmpty {
+            types.append(VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)))
+        }
+
+        types.append(contentsOf: [
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
             VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
             VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)),
-        ]
+        ])
 
         sections.append(contentsOf: [
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
@@ -1069,8 +1116,8 @@ extension DefaultVaultRepository: VaultRepository {
         return nil
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func downloadAttachment(_ attachmentView: AttachmentView, cipher: CipherView) async throws -> URL? {
@@ -1114,6 +1161,17 @@ extension DefaultVaultRepository: VaultRepository {
         return organizations.first(where: { $0.id == id })
     }
 
+    func getItemTypesUserCanCreate() async -> [CipherType] {
+        let itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
+        guard await configService.getFeatureFlag(.removeCardPolicy) else { return itemTypes }
+        let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
+        if !restrictItemTypesOrgIds.isEmpty {
+            return itemTypes.filter { $0 != .card }
+        }
+
+        return itemTypes
+    }
+
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
     }
@@ -1127,7 +1185,7 @@ extension DefaultVaultRepository: VaultRepository {
             return nil
         }
 
-        let accountHavePremium = try await doesActiveAccountHavePremium()
+        let accountHavePremium = await doesActiveAccountHavePremium()
         if !cipher.organizationUseTotp, !accountHavePremium {
             return nil
         }
@@ -1709,7 +1767,7 @@ private extension CipherListView {
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         return switch group {
         case .card:
-            type == .card
+            type.isCard
         case let .collection(id, _, _):
             collectionIds.contains(id)
         case let .folder(id, _):

@@ -20,7 +20,7 @@ struct AppearanceView: View {
 
             webSiteIconsToggle
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.appearance, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)

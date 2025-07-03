@@ -263,6 +263,7 @@
 "FileSource" = "Πηγή Αρχείου";
 "FeatureUnavailable" = "Μη διαθέσιμο χαρακτηριστικό";
 "MaxFileSize" = "Το μέγιστο μέγεθος αρχείου είναι 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Δεν μπορείτε να χρησιμοποιήσετε αυτήν τη δυνατότητα μέχρι να ενημερώσετε το κλειδί κρυπτογράφησης.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Απαιτείται μεταφορά του κλειδιού κρυπτογράφησης. Παρακαλούμε συνδεθείτε μέσω της διαδικτυακής κρύπτης για να ενημερώσετε το κλειδί κρυπτογράφησης.";
 "LearnMore" = "Μάθετε περισσότερα";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Αφαίρεση κωδικού πρόσβασης";
 "AreYouSureRemoveSendPassword" = "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;";
 "RemovingSendPassword" = "Αφαίρεση κωδικού...";
-"SendPasswordRemoved" = "Ο κωδικός έχει αφαιρεθεί.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Δεν υπάρχουν sends στο λογαριασμό σας.";
 "CopyLink" = "Αντιγραφή συνδέσμου";
 "ShareLink" = "Κοινοποίηση συνδέσμου";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

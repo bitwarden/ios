@@ -124,7 +124,7 @@ struct ViewItemView: View {
             )
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 }
 
@@ -138,7 +138,6 @@ struct ViewItemView_Previews: PreviewProvider {
             hasPremium: true
         )!
         state.type = CipherType.card
-        state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
@@ -165,7 +164,6 @@ struct ViewItemView_Previews: PreviewProvider {
                 value: "Value"
             ),
         ]
-        state.isMasterPasswordRePromptOn = false
         state.name = "Example"
         state.notes = "secure note"
         state.loginState.fido2Credentials = [

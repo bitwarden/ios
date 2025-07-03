@@ -48,6 +48,10 @@ struct VaultGroupState: Equatable, Sendable {
     /// The type of the new item button in the empty state and FAB to display based on which group
     /// type is shown.
     var newItemButtonType: NewItemButtonType? {
+        if let cipherType = CipherType(group: group), !itemTypesUserCanCreate.contains(cipherType) {
+            return nil
+        }
+
         switch group {
         case .card, .identity, .login, .secureNote:
             return .button
@@ -63,6 +67,9 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
+
+    /// List of available item type for creation.
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false

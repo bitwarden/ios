@@ -148,6 +148,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
+    /// The service that manages account timeout between apps.
+    public let sharedTimeoutService: SharedTimeoutService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -242,6 +245,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
+    ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
@@ -299,6 +303,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         reviewPromptService: ReviewPromptService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
+        sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
@@ -355,6 +360,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.reviewPromptService = reviewPromptService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
+        self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
@@ -538,9 +544,25 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService
         )
 
+        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+        )
+
+        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+            storage: sharedKeychainStorage
+        )
+
+        let sharedTimeoutService = DefaultSharedTimeoutService(
+            sharedKeychainRepository: sharedKeychainRepository,
+            timeProvider: timeProvider
+        )
+
         let vaultTimeoutService = DefaultVaultTimeoutService(
+            biometricsRepository: biometricsRepository,
             clientService: clientService,
             errorReporter: errorReporter,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider
         )
@@ -777,11 +799,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             storeType: .persisted
         )
 
-        let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            keychainService: keychainService
-        )
-
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
             sharedKeychainRepository: sharedKeychainRepository
         )
@@ -789,7 +806,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let authBridgeItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: authenticatorDataStore,
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
 
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
@@ -848,6 +866,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,

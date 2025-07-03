@@ -14,7 +14,7 @@ struct ViewSendItemView: View {
 
     var body: some View {
         content
-            .scrollView(padding: 12)
+            .scrollView()
             .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .overlay(alignment: .bottomTrailing) {
                 editItemFloatingActionButton {
@@ -182,7 +182,7 @@ struct ViewSendItemView: View {
 
             BitwardenTextValueField(
                 title: Localizations.deletionDate,
-                value: store.state.sendView.deletionDate.formatted(date: .abbreviated, time: .shortened),
+                value: store.state.sendView.deletionDate.dateTimeDisplay,
                 valueAccessibilityIdentifier: "ViewSendDeletionDateField"
             )
         }

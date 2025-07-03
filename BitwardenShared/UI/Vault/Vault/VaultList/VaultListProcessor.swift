@@ -35,6 +35,9 @@ final class VaultListProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
 
@@ -50,17 +53,20 @@ final class VaultListProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
@@ -136,12 +142,12 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
             switch item.itemType {
-            case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id), context: self)
+            case let .cipher(cipherListView, _):
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
-                coordinator.navigate(to: .viewItem(id: model.id))
+                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
@@ -201,6 +207,7 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
+        await loadItemTypesUserCanCreate()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -235,6 +242,12 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+    }
+
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
@@ -251,6 +264,21 @@ extension VaultListProcessor {
             await requestNotificationPermissions()
         default:
             break
+        }
+    }
+
+    /// Navigates to the view item view for the specified cipher. If the cipher requires master
+    /// password reprompt, this will prompt the user before navigation.
+    ///
+    /// - Parameters:
+    ///     - cipherListView: The cipher list view item for the cipher that will be shown in the view item view.
+    ///     - id: The cipher's identifier.
+    ///
+    private func navigateToViewItem(cipherListView: CipherListView, id: String) {
+        Task {
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+            }
         }
     }
 
@@ -490,10 +518,10 @@ enum MoreOptionsAction: Equatable {
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
-    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
+    case copyTotp(totpKey: TOTPKeyModel)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
+    case edit(cipherView: CipherView)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)

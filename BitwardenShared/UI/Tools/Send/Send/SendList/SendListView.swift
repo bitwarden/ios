@@ -113,7 +113,7 @@ private struct MainSendListView: View {
 
             Spacer()
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -128,7 +128,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .scrollView(padding: 12)
+            .scrollView()
         } else {
             SearchNoResultsView()
         }
@@ -150,7 +150,7 @@ private struct MainSendListView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a section that appears in the sends list.
@@ -226,17 +226,19 @@ struct SendListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refresh)
             }
-            .navigationBar(
-                title: store.state.navigationTitle,
-                titleDisplayMode: store.state.type == nil ? .large : .inline
-            )
+            .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                largeNavigationTitleToolbarItem(
+                    store.state.navigationTitle,
+                    hidden: store.state.type != nil
+                )
+
+                ToolbarItem(placement: .topBarTrailing) {
                     if !store.state.isInfoButtonHidden {
                         Button {
                             store.send(.infoButtonPressed)
                         } label: {
-                            Image(asset: Asset.Images.informationCircle24, label: Text(Localizations.aboutSend))
+                            Image(asset: Asset.Images.questionCircle24, label: Text(Localizations.aboutSend))
                                 .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         }
                         .frame(minHeight: 44)

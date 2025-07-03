@@ -14,15 +14,17 @@ struct SettingsView: View {
 
     var body: some View {
         settingsItems
-            .scrollView(padding: 12)
-            .navigationBar(
-                title: Localizations.settings,
-                titleDisplayMode: store.state.presentationMode == .preLogin ? .inline : .large
-            )
+            .scrollView()
+            .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
             .toolbar {
                 closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
                     store.send(.dismiss)
                 }
+
+                largeNavigationTitleToolbarItem(
+                    Localizations.settings,
+                    hidden: store.state.presentationMode != .tab
+                )
             }
     }
 

@@ -263,6 +263,7 @@
 "FileSource" = "Ffynhonnell y ffeil";
 "FeatureUnavailable" = "Nodwedd ddim ar gael";
 "MaxFileSize" = "100MB yw maint uchaf ffeiliau.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "You cannot use this feature until you update your encryption key.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Dysgu mwy";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
-"SendPasswordRemoved" = "Password has been removed.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

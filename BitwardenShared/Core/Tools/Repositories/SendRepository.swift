@@ -34,7 +34,7 @@ public protocol SendRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Validates the user's active account has a verified email.
     ///
@@ -170,8 +170,8 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Methods
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {

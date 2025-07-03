@@ -263,6 +263,7 @@
 "FileSource" = "File source";
 "FeatureUnavailable" = "Feature unavailable";
 "MaxFileSize" = "Maximum file size is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "You cannot use this feature until you update your encryption key.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Learn more";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Remove Password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
-"SendPasswordRemoved" = "Password has been removed.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "There are no sends in your account.";
 "CopyLink" = "Copy Link";
 "ShareLink" = "Share Link";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

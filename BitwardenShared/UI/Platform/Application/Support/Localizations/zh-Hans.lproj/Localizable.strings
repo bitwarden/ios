@@ -198,7 +198,7 @@
 "ExtensionActivated" = "扩展已激活！";
 "Icons" = "图标";
 "Translations" = "翻译";
-"ItemsForUri" = "%1$@ 的项目";
+"ItemsForUri" = "适用于 %1$@ 的项目";
 "NoItemsForUri" = "您的密码库中没有可用于 %1$@ 的项目。";
 "BitwardenAutofillServiceOverlay" = "当您选择一个输入字段并看到一个 Bitwarden 自动填充叠加层时，您可以点击它来启动自动填充服务。";
 "BitwardenAutofillServiceNotificationContent" = "点击此通知以自动填充密码库中的项目。";
@@ -263,6 +263,7 @@
 "FileSource" = "文件来源";
 "FeatureUnavailable" = "功能不可用";
 "MaxFileSize" = "文件最大为 100 MB。";
+"RequiredMaximumFileSizeIsX" = "必填。文件最大为 %1$@。";
 "UpdateKey" = "在您更新加密密钥前，您不能使用此功能。";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。";
 "LearnMore" = "进一步了解";
@@ -580,7 +581,7 @@
 "RemovePassword" = "移除密码";
 "AreYouSureRemoveSendPassword" = "确定要移除此密码吗？";
 "RemovingSendPassword" = "正在移除密码";
-"SendPasswordRemoved" = "密码已移除。";
+"SendPasswordRemoved" = "密码已移除";
 "NoSends" = "您的账户中没有 Send。";
 "CopyLink" = "复制链接";
 "ShareLink" = "分享链接";
@@ -1101,7 +1102,7 @@
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
-"ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n没有数据被删除。";
+"ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
 "RetryImport" = "重试导入";
 "ShowVault" = "显示密码库";
 "ImportNotAvailable" = "导入不可用";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "日志已删除";
 "AllLogsDeleted" = "所有日志已删除";
 "LoggingEndsOnDateAtTime" = "日志记录结束于 %1$@ %2$@";
+"YouMustAttachAFileToSaveThisSend" = "必须附加一个文件才能保存此 Send";
+"SendUpdated" = "Send 已更新";

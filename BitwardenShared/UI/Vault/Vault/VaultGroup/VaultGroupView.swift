@@ -95,7 +95,7 @@ struct VaultGroupView: View {
                         .buttonStyle(.primary(shouldFillWidth: false))
                     case .menu:
                         Menu {
-                            ForEach(CipherType.canCreateCases, id: \.hashValue) { type in
+                            ForEach(store.state.itemTypesUserCanCreate, id: \.hashValue) { type in
                                 Button(type.localizedName) {
                                     store.send(.addItemPressed(type))
                                 }
@@ -109,7 +109,7 @@ struct VaultGroupView: View {
                 .buttonStyle(.primary(shouldFillWidth: false))
             }
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays either the group or empty interface.
@@ -129,7 +129,9 @@ struct VaultGroupView: View {
                         store.send(.addItemPressed(nil))
                     }
                 case .menu:
-                    addVaultItemFloatingActionMenu { type in
+                    addVaultItemFloatingActionMenu(
+                        availableItemTypes: store.state.itemTypesUserCanCreate,
+                    ) { type in
                         store.send(.addItemPressed(type))
                     }
                 }
@@ -214,7 +216,7 @@ struct VaultGroupView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.

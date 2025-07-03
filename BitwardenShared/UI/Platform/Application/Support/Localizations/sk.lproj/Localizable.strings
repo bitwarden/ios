@@ -263,6 +263,7 @@
 "FileSource" = "Zdroj súboru";
 "FeatureUnavailable" = "Funkcia nie je k dispozícii";
 "MaxFileSize" = "Maximálna veľkosť súboru je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Povinné. Maximálna veľkosť súboru je %1$@.";
 "UpdateKey" = "Túto funkciu nemožno použiť, kým neaktualizujete svoj šifrovací kľúč.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Vyžaduje sa migrácia šifrovacieho kľúča. Na aktualizáciu šifrovacieho kľúča sa prihláste cez webový trezor.";
 "LearnMore" = "Zistiť viac";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Odstrániť heslo";
 "AreYouSureRemoveSendPassword" = "Naozaj chcete odstrániť heslo?";
 "RemovingSendPassword" = "Odstraňuje sa heslo";
-"SendPasswordRemoved" = "Heslo bolo odstránené.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Vo vašom účte nie je žiadny Send.";
 "CopyLink" = "Kopírovať odkaz";
 "ShareLink" = "Zdieľať odkaz";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log odstránený";
 "AllLogsDeleted" = "Všetky logy odstránené";
 "LoggingEndsOnDateAtTime" = "Logovanie končí %1$@ o %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Na uloženie tohto Sendu musíte priložiť súbor";
+"SendUpdated" = "Send bol aktualizovaný";

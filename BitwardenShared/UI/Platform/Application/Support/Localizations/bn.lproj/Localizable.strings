@@ -263,6 +263,7 @@
 "FileSource" = "ফাইল উৎস";
 "FeatureUnavailable" = "বৈশিষ্ট্য অনুপলব্ধ";
 "MaxFileSize" = "সর্বোচ্চ ফাইলের আকার ১০০ এমবি।";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "আপনি আপনার এনক্রিপশন কী হালনাগাদ না করা পর্যন্ত এই বৈশিষ্ট্যটি ব্যবহার করতে পারবেন না।";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "আরও জানুন";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
-"SendPasswordRemoved" = "Password has been removed.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

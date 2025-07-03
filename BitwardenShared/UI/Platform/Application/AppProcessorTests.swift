@@ -1372,4 +1372,59 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }
+
+    /// `securityStampChanged(userId:)` throws logging the user out which is logged and notifies the coordinator.
+    @MainActor
+    func test_securityStampChanged_throwsLogging() async {
+        coordinator.isLoadingOverlayShowing = true
+        authRepository.logoutResult = .failure(BitwardenTestError.example)
+
+        await subject.securityStampChanged(userId: "1")
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when error is `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_logOutInvalidGrant() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: IdentityTokenRefreshRequestError.invalidGrant)
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, nil)
+        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` throws logging the user out which is logged and notifies the coordinator
+    /// when error is `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_logOutInvalidGrantThrowsLogging() async throws {
+        coordinator.isLoadingOverlayShowing = true
+        authRepository.logoutResult = .failure(BitwardenTestError.example)
+
+        try await subject.onRefreshTokenError(error: IdentityTokenRefreshRequestError.invalidGrant)
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` doesn't perform log out when error is not `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_notInvalidGrant() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: BitwardenTestError.example)
+
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertTrue(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
 }

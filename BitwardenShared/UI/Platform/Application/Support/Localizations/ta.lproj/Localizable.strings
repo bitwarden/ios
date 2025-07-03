@@ -264,6 +264,7 @@
 "FileSource" = "கோப்பின் மூலம்";
 "FeatureUnavailable" = "அம்சம் கிடையாது";
 "MaxFileSize" = "அதிகபட்ச கோப்பு அளவு 100 மெ.பை.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "உங்கள் குறியாக்க விசையை புதுப்பிக்கும் வரை இந்த அம்சத்தைப் பயன்படுத்த முடியாது.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "மறையாக்க விசை பெயர்ப்பு தேவை. தயவுசெய்து வலைப் பெட்டகத்தில் உள்நுழைந்து உமது மறையாக்க விசையைப் புதுப்பிக்கவும்.";
 "LearnMore" = "மேலும் அறிக";
@@ -581,7 +582,7 @@
 "RemovePassword" = "கடவுச்சொல்லை அகற்று";
 "AreYouSureRemoveSendPassword" = "கடவுச்சொல்லை அகற்ற உறுதியா?";
 "RemovingSendPassword" = "கடவுச்சொல்லை அகற்றுகிறது";
-"SendPasswordRemoved" = "கடவுச்சொல் அகற்றப்பட்டது.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "உம் கணக்கில் Sends எவையுமில்லை.";
 "CopyLink" = "தொடுப்பை நகலெடு";
 "ShareLink" = "தொடுப்பைப் பகிர்";
@@ -1209,3 +1210,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

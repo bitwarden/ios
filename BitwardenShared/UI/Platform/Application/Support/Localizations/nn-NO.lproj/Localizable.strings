@@ -263,6 +263,7 @@
 "FileSource" = "Filkjelde";
 "FeatureUnavailable" = "Funksjon er utilgjengeleg";
 "MaxFileSize" = "Den høgste tillatne filstorleiken er 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Du kan ikkje bruka denne funksjonen før du rettar enkrypteringsnykelen din.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Ler meir";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Fjerna passord";
 "AreYouSureRemoveSendPassword" = "Er du trygg på at du vil fjerna passordet?";
 "RemovingSendPassword" = "Fjernar passord";
-"SendPasswordRemoved" = "Passordet er fjerna.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Det er ingen Send-ar i kontoen din.";
 "CopyLink" = "Skriv av lekk";
 "ShareLink" = "Del lekk";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

@@ -117,7 +117,7 @@ private struct SearchableVaultListView: View {
         }
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// The action card for importing login items.
@@ -192,7 +192,9 @@ private struct SearchableVaultListView: View {
             errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
-            addVaultItemFloatingActionMenu { type in
+            addVaultItemFloatingActionMenu(
+                availableItemTypes: store.state.itemTypesUserCanCreate,
+            ) { type in
                 store.send(.addItemPressed(type))
             } addFolder: {
                 store.send(.addFolder)
@@ -244,7 +246,7 @@ private struct SearchableVaultListView: View {
                 )
             )
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays the main vault interface, including sections for groups and
@@ -268,7 +270,7 @@ private struct SearchableVaultListView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.
@@ -350,10 +352,11 @@ struct VaultListView: View {
             }
             profileSwitcher
         }
-        .navigationTitle(store.state.navigationTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            largeNavigationTitleToolbarItem(store.state.navigationTitle)
+
+            ToolbarItem(placement: .topBarTrailing) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: { state in
