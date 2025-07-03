@@ -433,7 +433,7 @@ platform :ios do |options|
     end
 
     desc "Get latest published version"
-    lane :get_latest_version do
+    lane :get_latest_version do |options|
         app_store_build_number(
             api_key_path: options[:api_key_path],
             app_identifier: options[:app_identifier]
