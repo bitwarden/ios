@@ -1,3 +1,5 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
@@ -10,6 +12,7 @@ extension ServiceContainer {
     @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
+        appContextHelper: AppContextHelper = MockAppContextHelper(),
         appInfoService: AppInfoService = MockAppInfoService(),
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
@@ -41,12 +44,14 @@ extension ServiceContainer {
         nfcReaderService: NFCReaderService = MockNFCReaderService(),
         notificationService: NotificationService = MockNotificationService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
+        pendingAppIntentActionMediator: PendingAppIntentActionMediator = MockPendingAppIntentActionMediator(),
         policyService: PolicyService = MockPolicyService(),
         notificationCenterService: NotificationCenterService = MockNotificationCenterService(),
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
         reviewPromptService: ReviewPromptService = MockReviewPromptService(),
         sendRepository: SendRepository = MockSendRepository(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
+        sharedTimeoutService: SharedTimeoutService = MockSharedTimeoutService(),
         stateService: StateService = MockStateService(),
         syncService: SyncService = MockSyncService(),
         systemDevice: SystemDevice = MockSystemDevice(),
@@ -67,6 +72,7 @@ extension ServiceContainer {
                 client: httpClient,
                 environmentService: environmentService
             ),
+            appContextHelper: appContextHelper,
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             appInfoService: appInfoService,
             application: application,
@@ -100,11 +106,13 @@ extension ServiceContainer {
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
+            pendingAppIntentActionMediator: pendingAppIntentActionMediator,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
             reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             syncService: syncService,
             systemDevice: systemDevice,

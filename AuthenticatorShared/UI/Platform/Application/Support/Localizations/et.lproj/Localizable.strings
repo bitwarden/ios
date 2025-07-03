@@ -109,13 +109,13 @@
 "Export" = "Export";
 "Key" = "Key";
 "KeyReadError" = "Cannot read key.";
-"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
+"CannotAddAuthenticatorKey" = "Ei suuda autentimise võtit lisada?";
 "Import" = "Import";
 "Steam" = "Steam";
 "OtpType" = "OTP Type";
 "CreateVerificationCode" = "Create verification code";
 "ItemsExported" = "Verification codes exported";
-"ItemsImported" = "Vertification codes imported";
+"ItemsImported" = "Verification codes imported";
 "VerificationCodeAdded" = "Verification code added";
 "Data" = "Data";
 "Backup" = "Backup";
@@ -126,7 +126,7 @@
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
 "TakeMeToTheAppSettings" = "Take me to the app settings";
 "SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";
-"SyncWithBitwardenApp" = "Sync with Bitwarden app";
+"SyncWithBitwardenApp" = "Sünkroniseeri Bitwardeni rakendusega";
 "LocalCodes" = "Local codes";
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
 "CopyToBitwarden" = "Copy to Bitwarden";
@@ -150,6 +150,7 @@
 "VaultTimeout" = "Vault timeout";
 "ThirtyMinutes" = "30 minutes";
 "OnRestart" = "On app restart";
+"Custom" = "Custom";
 "SessionTimeout" = "Session timeout";
 "FileCouldNotBeProcessed" = "File could not be processed";
 "EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
 "UnexpectedDataFormat" = "Unexpected Data Format";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "The data format provided doesn’t match what’s expected. Please check your file and ensure the correct data types are used.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

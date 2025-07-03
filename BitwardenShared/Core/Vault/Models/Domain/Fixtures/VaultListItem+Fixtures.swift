@@ -6,16 +6,16 @@ import Foundation
 
 extension VaultListItem {
     static func fixture(
-        cipherView: CipherView = .fixture()
+        cipherListView: CipherListView = .fixture()
     ) -> VaultListItem {
-        VaultListItem(cipherView: cipherView)!
+        VaultListItem(cipherListView: cipherListView)!
     }
 
     static func fixture(
-        cipherView: CipherView = .fixture(),
+        cipherListView: CipherListView = .fixture(),
         fido2CredentialAutofillView: Fido2CredentialAutofillView
     ) -> VaultListItem {
-        VaultListItem(cipherView: cipherView, fido2CredentialAutofillView: fido2CredentialAutofillView)!
+        VaultListItem(cipherListView: cipherListView, fido2CredentialAutofillView: fido2CredentialAutofillView)!
     }
 
     static func fixtureGroup(
@@ -49,7 +49,7 @@ extension VaultListItem {
 extension VaultListTOTP {
     static func fixture(
         id: String = "123",
-        loginView: BitwardenSdk.LoginView = .fixture(
+        loginListView: BitwardenSdk.LoginListView = .fixture(
             totp: .standardTotpKey
         ),
         requiresMasterPassword: Bool = false,
@@ -59,7 +59,7 @@ extension VaultListTOTP {
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
-            loginView: loginView,
+            cipherListView: .fixture(type: .login(loginListView)),
             requiresMasterPassword: requiresMasterPassword,
             totpCode: .init(
                 code: totpCode,
@@ -71,7 +71,7 @@ extension VaultListTOTP {
 
     static func fixture(
         id: String = "123",
-        loginView: BitwardenSdk.LoginView = .fixture(
+        loginListView: BitwardenSdk.LoginListView = .fixture(
             totp: .standardTotpKey
         ),
         requiresMasterPassword: Bool = false,
@@ -83,7 +83,25 @@ extension VaultListTOTP {
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
-            loginView: loginView,
+            cipherListView: .fixture(type: .login(loginListView)),
+            requiresMasterPassword: requiresMasterPassword,
+            totpCode: totpCode
+        )
+    }
+
+    static func fixture(
+        id: String = "123",
+        cipherListView: CipherListView,
+        requiresMasterPassword: Bool = false,
+        totpCode: TOTPCodeModel = .init(
+            code: "123456",
+            codeGenerationDate: Date(),
+            period: 30
+        )
+    ) -> VaultListTOTP {
+        VaultListTOTP(
+            id: id,
+            cipherListView: cipherListView,
             requiresMasterPassword: requiresMasterPassword,
             totpCode: totpCode
         )

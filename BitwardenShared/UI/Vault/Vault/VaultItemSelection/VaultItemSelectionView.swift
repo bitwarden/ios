@@ -275,7 +275,7 @@ private struct VaultItemSelectionSearchableView: View {
 
 #Preview("Matching Items") {
     NavigationView {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
                 login: .fixture(username: "user@bitwarden.com"),

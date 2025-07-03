@@ -156,10 +156,22 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Tapping the floating action button dispatches the `.editPressed` action.`
     @MainActor
-    func test_editItemFloatingActionButton() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
-        try fab.button().tap()
+    func test_editItemFloatingActionButton() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
+    }
+
+    /// The edit item FAB is hidden if the item has been deleted.
+    @MainActor
+    func test_editItemFloatingActionButton_hidden_cipherDeleted() async throws {
+        processor.state.loadingState = .data(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: true)!)
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        XCTAssertTrue(fab.isHidden())
     }
 
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
@@ -365,7 +377,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         collectionIds: [String] = ["1", "2"],
         isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
-        isTOTPCodeVisible: Bool = true,
         hasPremium: Bool = true,
         hasTotp: Bool = true
     ) -> CipherItemState {
@@ -393,7 +404,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.fido2Credentials = [.fixture()]
         cipherState.loginState.isPasswordVisible = isPasswordVisible
-        cipherState.loginState.isTOTPCodeVisible = isTOTPCodeVisible
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
@@ -504,12 +514,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(loginState)
 
         assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_login_hiddenTotp() {
-        processor.state.loadingState = .data(loginState(isTOTPCodeVisible: false))
-        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
@@ -693,7 +697,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
-                id: "fake-id"
+                id: "fake-id",
+                type: .sshKey
             ),
             hasPremium: true
         )!

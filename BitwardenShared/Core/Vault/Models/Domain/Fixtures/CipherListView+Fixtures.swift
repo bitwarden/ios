@@ -8,27 +8,22 @@ extension CipherListView {
         folderId: String? = nil,
         collectionIds: [String] = [],
         key: String? = nil,
-        name: String = "Example",
-        subtitle: String = "email@example.com",
-        type: BitwardenSdk.CipherListViewType = .login(
-            LoginListView(
-                fido2Credentials: nil,
-                hasFido2: false,
-                username: nil,
-                totp: nil,
-                uris: nil
-            )
-        ),
-        favorite: Bool = true,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        type: BitwardenSdk.CipherListViewType = .login(.fixture()),
+        favorite: Bool = false,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         organizationUseTotp: Bool = false,
-        edit: Bool = false,
+        edit: Bool = true,
         permissions: BitwardenSdk.CipherPermissions? = nil,
         viewPassword: Bool = true,
         attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
         creationDate: Date = Date(),
         deletedDate: Date? = nil,
-        revisionDate: Date = Date()
+        revisionDate: Date = Date(),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
     ) -> CipherListView {
         .init(
             id: id,
@@ -46,9 +41,60 @@ extension CipherListView {
             permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
+        )
+    }
+
+    static func fixture(
+        id: String? = "1",
+        organizationId: String? = nil,
+        folderId: String? = nil,
+        collectionIds: [String] = [],
+        key: String? = nil,
+        login: LoginListView,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = true,
+        permissions: BitwardenSdk.CipherPermissions? = nil,
+        viewPassword: Bool = true,
+        attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
+        creationDate: Date = Date(),
+        deletedDate: Date? = nil,
+        revisionDate: Date = Date(),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: .login(login),
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 }

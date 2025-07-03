@@ -12,6 +12,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
@@ -25,6 +26,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
+    var pendingAppIntentActionMediator: MockPendingAppIntentActionMediator!
     var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
     var stateService: MockStateService!
@@ -39,10 +41,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
@@ -58,6 +61,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
+        pendingAppIntentActionMediator = MockPendingAppIntentActionMediator()
         policyService = MockPolicyService()
         stateService = MockStateService()
         syncService = MockSyncService()
@@ -66,6 +70,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AppProcessor(
+            appIntentMediator: appIntentMediator,
             appModule: appModule,
             debugDidEnterBackground: { [weak self] in self?.didEnterBackgroundCalled += 1 },
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
@@ -80,6 +85,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 migrationService: migrationService,
                 notificationService: notificationService,
+                pendingAppIntentActionMediator: pendingAppIntentActionMediator,
                 policyService: policyService,
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,
@@ -106,6 +112,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
+        pendingAppIntentActionMediator = nil
         policyService = nil
         router = nil
         stateService = nil
@@ -206,7 +213,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -218,7 +224,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
-    /// never timeout account is unlocked in extension.
+    /// never timeout account is unlocked in extension and there is no pending `AppIntent` actions.
     @MainActor
     func test_init_appForeground_checkAccountBecomeActive() async throws {
         // The processor checks for switched accounts when entering the foreground. Wait for the
@@ -237,6 +243,66 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
         XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
+    /// never timeout account is unlocked in extension and there is an empty collection of pending `AppIntent` actions.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActivePendingAppIntentActionsEmpty() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+        stateService.pendingAppIntentActions = []
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `init()` subscribes to will enter foreground events and doesn't handle accountBecameActive if the
+    /// never timeout account is unlocked in extension but there's a pending `.lockAll` `AppIntent`.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActiveEventDoesntHappenWhenPendingLockAllAppIntent() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+        stateService.pendingAppIntentActions = [.lockAll]
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertNotEqual(
             coordinator.events.last,
             AppEvent.accountBecameActive(
                 account,
@@ -433,6 +499,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter.errors.removeAll()
     }
 
+    /// `init()` subscribes to will pending App Intent actions publisher and handles an active user timeout.
+    @MainActor
+    func test_init_pendingAppIntentActionsTask() {
+        // Wait and reset for the first publisher default values which are `nil`.
+        waitFor(pendingAppIntentActionMediator.executePendingAppIntentActionsCalled)
+        pendingAppIntentActionMediator.executePendingAppIntentActionsCalled = false
+
+        stateService.pendingAppIntentActionsSubject.send([.lockAll])
+        waitFor(pendingAppIntentActionMediator.executePendingAppIntentActionsCalled)
+    }
+
     /// `init()` starts the upload-event timer and attempts to upload events.
     @MainActor
     func test_init_uploadEvents() {
@@ -463,6 +540,99 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncDoesNotThrow {
             try await subject.onNeedsUserInteraction()
         }
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is an account.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAll() async {
+        let account = Account.fixture()
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: account)
+        XCTAssertEqual(
+            coordinator.events,
+            [
+                .accountBecameActive(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                ),
+            ]
+        )
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is `nil`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAllNoData() async {
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: nil)
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is not an `Account`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAllDataNoAccount() async {
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: "noAccount")
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.didLogOutAll` when
+    /// pending app intent action is `.logOutAll`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_logOutAll() async {
+        await subject.onPendingAppIntentActionSuccess(.logOutAll, data: nil)
+        XCTAssertEqual(
+            coordinator.events,
+            [.didLogout(userId: nil, userInitiated: true)]
+        )
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` sets `setAuthCompletionRoute` as the generator when
+    /// pending app intent action is `.openGenerator` and the vault is locked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultLocked() async throws {
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles navigation to the generator screen when
+    /// pending app intent action is `.openGenerator` and the vault is unlocked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlocked() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.routes.last, .tab(.generator(.generator())))
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but will be timing out as the app is foregrounded.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but checking timing out as throws an error.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeoutError() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
     }
 
     /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
@@ -915,7 +1085,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -930,23 +1099,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_start_completeAutofillAccountSetupIfEnabled_autofillDisabled() async {
         autofillCredentialService.isAutofillCredentialsEnabled = false
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-        stateService.activeAccount = .fixture()
-        stateService.accounts = [.fixture()]
-        stateService.accountSetupAutofill["1"] = .setUpLater
-
-        let rootNavigator = MockRootNavigator()
-        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
-    }
-
-    /// `start(navigator:)` doesn't complete the accounts autofill setup if the native create
-    /// account flow feature flag is disabled.
-    @MainActor
-    func test_start_completeAutofillAccountSetupIfEnabled_featureFlagDisabled() async {
-        autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -965,7 +1117,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
         stateService.accountSetupAutofillError = BitwardenTestError.example
@@ -982,7 +1133,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_start_completeAutofillAccountSetupIfEnabled_noProgress() async {
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
 
@@ -1001,7 +1151,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -1222,5 +1371,60 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+    }
+
+    /// `securityStampChanged(userId:)` throws logging the user out which is logged and notifies the coordinator.
+    @MainActor
+    func test_securityStampChanged_throwsLogging() async {
+        coordinator.isLoadingOverlayShowing = true
+        authRepository.logoutResult = .failure(BitwardenTestError.example)
+
+        await subject.securityStampChanged(userId: "1")
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when error is `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_logOutInvalidGrant() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: IdentityTokenRefreshRequestError.invalidGrant)
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, nil)
+        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` throws logging the user out which is logged and notifies the coordinator
+    /// when error is `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_logOutInvalidGrantThrowsLogging() async throws {
+        coordinator.isLoadingOverlayShowing = true
+        authRepository.logoutResult = .failure(BitwardenTestError.example)
+
+        try await subject.onRefreshTokenError(error: IdentityTokenRefreshRequestError.invalidGrant)
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` doesn't perform log out when error is not `.invalidGrant`.
+    @MainActor
+    func test_onRefreshTokenError_notInvalidGrant() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: BitwardenTestError.example)
+
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertTrue(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.events.isEmpty)
     }
 }

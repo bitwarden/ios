@@ -56,6 +56,39 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
+    func test_perform_addItemPressed_fileType() async {
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
+    }
+
+    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
+    /// the user doesn't have premium.
+    @MainActor
+    func test_perform_addItemPressed_fileType_withoutPremium() async throws {
+        sendRepository.doesActivateAccountHavePremiumResult = false
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
+        )
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
+    func test_perform_addItemPressed_textType() async {
+        subject.state.type = .text
+        await subject.perform(.addItemPressed(.text))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .text))
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
@@ -194,7 +227,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -211,7 +244,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
@@ -236,7 +269,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -256,7 +289,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
@@ -413,33 +446,6 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(sections.isEmpty)
     }
 
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_nilType() {
-        subject.state.type = nil
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: nil))
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_fileType() {
-        subject.state.type = .file
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_textType() {
-        subject.state.type = .text
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: .text))
-    }
-
     /// `receive(_:)` with `.clearInfoUrl` clears the info url.
     @MainActor
     func test_receive_clearInfoUrl() {
@@ -476,14 +482,14 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .editItem(sendView))
     }
 
-    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
+    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the view send route.
     @MainActor
     func test_receive_sendListItemRow_sendListItemPressed_withSendView() {
         let sendView = SendView.fixture()
         let item = SendListItem(sendView: sendView)!
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        XCTAssertEqual(coordinator.routes.last, .editItem(sendView))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(sendView))
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the group send route.
@@ -493,6 +499,15 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
         XCTAssertEqual(coordinator.routes.last, .group(.file))
+    }
+
+    /// `receive(_:)` with `.sendListItemRow(.viewSend())` navigates to the view send route.
+    @MainActor
+    func test_receive_sendListItemRow_viewSend() {
+        let sendView = SendView.fixture()
+        subject.receive(.sendListItemRow(.viewSend(sendView)))
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(sendView))
     }
 
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.

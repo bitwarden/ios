@@ -21,6 +21,7 @@ final class VaultListProcessor: StateProcessor<
         & HasConfigService
         & HasErrorReporter
         & HasEventService
+        & HasFlightRecorder
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
@@ -33,6 +34,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
@@ -49,17 +53,20 @@ final class VaultListProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
@@ -81,6 +88,8 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissFlightRecorderToastBanner:
+            await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -103,6 +112,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -131,13 +142,15 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
             switch item.itemType {
-            case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id), context: self)
+            case let .cipher(cipherListView, _):
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
-                coordinator.navigate(to: .viewItem(id: model.id))
+                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
+        case .navigateToFlightRecorderSettings:
+            coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
@@ -194,6 +207,7 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
+        await loadItemTypesUserCanCreate()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -228,6 +242,19 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+    }
+
+    /// Dismisses the flight recorder toast banner for the active user.
+    ///
+    private func dismissFlightRecorderToastBanner() async {
+        state.isFlightRecorderToastBannerVisible = false
+        await services.flightRecorder.setFlightRecorderBannerDismissed()
+    }
+
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
@@ -237,6 +264,21 @@ extension VaultListProcessor {
             await requestNotificationPermissions()
         default:
             break
+        }
+    }
+
+    /// Navigates to the view item view for the specified cipher. If the cipher requires master
+    /// password reprompt, this will prompt the user before navigation.
+    ///
+    /// - Parameters:
+    ///     - cipherListView: The cipher list view item for the cipher that will be shown in the view item view.
+    ///     - id: The cipher's identifier.
+    ///
+    private func navigateToViewItem(cipherListView: CipherListView, id: String) {
+        Task {
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+            }
         }
     }
 
@@ -390,6 +432,15 @@ extension VaultListProcessor {
         }
     }
 
+    /// Streams the flight recorder enabled status.
+    ///
+    private func streamFlightRecorderLog() async {
+        for await log in await services.flightRecorder.activeLogPublisher().values {
+            state.activeFlightRecorderLog = log
+            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
+        }
+    }
+
     /// Streams the user's organizations.
     private func streamOrganizations() async {
         do {
@@ -422,11 +473,11 @@ extension VaultListProcessor {
                 }
 
                 // Dismiss the import logins action card once the vault has items in it.
-                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                if !value.isEmpty {
                     await setImportLoginsProgress(.complete)
                 }
                 // Dismiss the coach mark action cards once the vault has at least one login item in it.
-                if await services.configService.getFeatureFlag(.nativeCreateAccountFlow), value.hasLoginItems {
+                if value.hasLoginItems {
                     await services.stateService.setLearnNewLoginActionCardStatus(.complete)
                     await services.stateService.setLearnGeneratorActionCardStatus(.complete)
                 }
@@ -467,10 +518,10 @@ enum MoreOptionsAction: Equatable {
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
-    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
+    case copyTotp(totpKey: TOTPKeyModel)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
+    case edit(cipherView: CipherView)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)

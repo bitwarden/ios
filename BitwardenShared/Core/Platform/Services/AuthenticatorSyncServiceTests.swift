@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKitMocks
 import BitwardenSdk
 import Combine
@@ -92,7 +93,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     func test_createAuthenticatorKeyIfNeeded_keyAlreadyExists() async throws {
         setupInitialState()
         await subject.start()
-        let key = sharedKeychainRepository.generateKeyData()
+        let key = sharedKeychainRepository.generateMockKeyData()
         try await sharedKeychainRepository.setAuthenticatorKey(key)
 
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -485,6 +486,20 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         )
         try await waitForAsync {
             !self.errorReporter.errors.isEmpty
+        }
+    }
+
+    /// When the sync status updates, and is enabled,
+    /// then the last active time is updated in the shared keychain.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_setLastActiveTime() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        try await waitForAsync {
+            self.vaultTimeoutService.lastActiveTime["1"] != nil
         }
     }
 

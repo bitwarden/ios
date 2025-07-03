@@ -263,6 +263,7 @@
 "FileSource" = "Источник файла";
 "FeatureUnavailable" = "Функция недоступна";
 "MaxFileSize" = "Максимальный размер файла 100 МБ.";
+"RequiredMaximumFileSizeIsX" = "Обязательно. Максимальный размер файла %1$@.";
 "UpdateKey" = "Вы не можете использовать эту функцию, пока не обновите свой ключ шифрования.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Требуется миграция ключа шифрования. Чтобы обновить ключ шифрования, войдите через веб-хранилище.";
 "LearnMore" = "Узнать больше";
@@ -283,7 +284,7 @@
 "Number" = "Номер";
 "SecurityCode" = "Код безопасности";
 "TypeCard" = "Карта";
-"TypeIdentity" = "Личность";
+"TypeIdentity" = "Личная информация";
 "TypeLogin" = "Логин";
 "TypeSecureNote" = "Защищенная заметка";
 "Address1" = "Строка адреса 1";
@@ -388,7 +389,7 @@
 "BitwardenAutofillAlert2" = "Самый простой способ добавлять новые логины в хранилище - использовать расширение автозаполнения паролей Bitwarden. Дополнительные сведения об использовании расширения автозаполнения паролей Bitwarden находятся в разделе 'Настройки'.";
 "InvalidEmail" = "Неверный адрес email.";
 "Cards" = "Карты";
-"Identities" = "Личные данные";
+"Identities" = "Личная информация";
 "Logins" = "Логины";
 "SecureNotes" = "Защищенные заметки";
 "AllItems" = "Все элементы";
@@ -396,7 +397,7 @@
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
 "PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
 "PasswordSafe" = "Этот пароль не обнаружен в известных базах утечек. Можно продолжать его использовать.";
-"IdentityName" = "Название личности";
+"IdentityName" = "Название личной информации";
 "Value" = "Значение";
 "PasswordHistory" = "История паролей";
 "Types" = "Типы элементов";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Удалить пароль";
 "AreYouSureRemoveSendPassword" = "Вы уверены, что хотите удалить пароль?";
 "RemovingSendPassword" = "Удаление пароля";
-"SendPasswordRemoved" = "Пароль был удален.";
+"SendPasswordRemoved" = "Пароль удален";
 "NoSends" = "В вашем хранилище нет Send.";
 "CopyLink" = "Скопировать ссылку";
 "ShareLink" = "Поделиться ссылкой";
@@ -783,7 +784,7 @@
 "ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов";
 "ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт";
 "ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок";
-"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личностей";
+"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личной информации";
 "ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "US" = "США";
 "EU" = "Европа";
@@ -932,8 +933,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Нет письма? **[Вернитесь](https://)**, чтобы изменить свой адрес email.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Или **[авторизуйтесь](https://)**, возможно, у вас уже есть аккаунт.";
 "OpenEmailApp" = "Открыть приложение электронной почты";
-"SetPassword" = "Задать пароль";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Завершите создание аккаунта для %1$@, задав пароль.";
 "VerifyingEmail" = "Верификация email";
 "EmailVerified" = "Email подтвержден";
 "AccountSuccessfullyCreated" = "Аккаунт успешно создан!";
@@ -947,7 +946,7 @@
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Узнайте больше о создании надежных учетных данных, просмотрев гид.";
 "ExportVaultFilePwProtectInfo" = "Экспорт этого файла будет защищен паролем, и для расшифровки потребуется пароль файла.";
 "IntroCarouselPage1Title" = "Безопасность, приоритет";
-"IntroCarouselPage1Message" = "Сохраняйте логины, карты и личные данные в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно.";
+"IntroCarouselPage1Message" = "Сохраняйте логины, карты и личную информацию в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно.";
 "IntroCarouselPage2Title" = "Быстрая и простая авторизация";
 "IntroCarouselPage2Message" = "Настройте биометрическую разблокировку и автозаполнение, чтобы входить в свои аккаунты, не набирая ни одной буквы.";
 "IntroCarouselPage3Title" = "Сделайте авторизацию еще проще";
@@ -1146,6 +1145,12 @@
 "Identification" = "Идентификация";
 "Owner" = "Владелец";
 "VerifyYourIdentity" = "Подтвердите вашу личность";
+"LockCurrentAccount" = "Заблокировать текущий аккаунт";
+"ThisOperationIsNotAllowedOnThisAccount" = "Эта операция не разрешена для данного аккаунта";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Произошла ошибка при попытке заблокировать текущего пользователя";
+"LockAllAccounts" = "Заблокировать все аккаунты";
+"AllAccountsHaveBeenLocked" = "Все аккаунты заблокированы";
+"AnErrorOccurredWhileTryingToLockAllAccounts" = "Произошла ошибка при попытке заблокировать все аккаунты";
 "ShareErrorDetails" = "Поделиться информацией об ошибке";
 "FlightRecorder" = "Бортовой самописец";
 "EnableFlightRecorder" = "Включить бортовой самописец";
@@ -1170,7 +1175,13 @@
 "ExpiresOnXDate" = "Истекает %1$@";
 "ExpiresTomorrow" = "Истекает завтра";
 "DateRangeXToY" = "%1$@ в %2$@";
+"LogOutAllAccounts" = "Разлогинить все аккаунты";
+"AllAccountsHaveBeenLoggedOut" = "Все аккаунты разлогинены";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Произошла ошибка при попытке разлогинить все аккаунты";
 "SelfHostServerURL" = "URL собственного сервера";
+"OpenGenerator" = "Открыть генератор";
+"OpenPasswordGenerator" = "Открыть генератор паролей";
+"GeneratePassphrase" = "Создать парольную фразу";
 "AllowUniversalClipboard" = "Разрешить универсальный буфер обмена";
 "UseUniversalClipboardToCopyDescriptionLong" = "Используйте универсальный буфер обмена, чтобы копировать здесь и вставлять на других устройствах, авторизованных с тем же Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-код для Bitwarden должен состоять как минимум из %1$@ символов. Настройки PIN-кода будут сброшены, если вы полностью выйдете из приложения.";
@@ -1186,3 +1197,19 @@
 "AppSettings" = "Настройки приложения";
 "ViewFileSend" = "Просмотр файловой Send";
 "ViewTextSend" = "Просмотр тестовой Send";
+"DeleteSend" = "Удалить Send";
+"FlightRecorderOn" = "Бортовой самописец включен";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Бортовой самописец будет активен до %1$@ %2$@. Вернитесь к настройкам, чтобы отключить его сейчас.";
+"GoToSettings" = "Перейдите к настройкам";
+"SiriAndShortcutsAccess" = "Доступ к Siri и ярлыкам";
+"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Включите, чтобы разрешить приложению отвечать на запросы Siri и ярлыков с помощью App Intents.";
+"ThereIsNoActiveAccount" = "Нет ни одного активного аккаунта.";
+"NewFileSend" = "Новая файловая Send";
+"NewTextSend" = "Новая текстовая Send";
+"EditFileSend" = "Изменить файловую Send";
+"EditTextSend" = "Изменить тестовую Send";
+"LogDeleted" = "Лог удален";
+"AllLogsDeleted" = "Все логи удалены";
+"LoggingEndsOnDateAtTime" = "Логирование заканчивается %1$@ в %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Вы должны прикрепить файл, чтобы сохранить эту Send";
+"SendUpdated" = "Send обновлена";

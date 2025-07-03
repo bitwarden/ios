@@ -100,17 +100,12 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     /// Load the user's premium status and display an alert if they do not have access to premium features.
     private func loadPremiumStatus() async {
-        do {
-            // Fetch the user's premium status.
-            state.hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
+        // Fetch the user's premium status.
+        state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
-            // If the user does not have access to premium features, show an alert.
-            if !state.hasPremium {
-                coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
-            }
-        } catch {
-            await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
+        // If the user does not have access to premium features, show an alert.
+        if !state.hasPremium {
+            coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
         }
     }
 

@@ -6,6 +6,7 @@ import Foundation
 
 class MockCipherService: CipherService {
     var addCipherWithServerCiphers = [Cipher]()
+    var addCipherWithServerEncryptedFor: String?
     var addCipherWithServerResult: Result<Void, Error> = .success(())
 
     var cipherCountResult: Result<Int, Error> = .success(0)
@@ -22,6 +23,7 @@ class MockCipherService: CipherService {
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
+    var fetchCipherByIdResult: ((String) -> Result<Cipher?, Error>)?
     var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
 
     var fetchAllCiphersCalled = false
@@ -46,6 +48,7 @@ class MockCipherService: CipherService {
     var saveAttachmentWithServerResult: Result<Cipher, Error> = .success(.fixture())
 
     var shareCipherWithServerCiphers = [Cipher]()
+    var shareCipherWithServerEncryptedFor: String?
     var shareCipherWithServerResult: Result<Void, Error> = .success(())
 
     var syncCipherWithServerId: String?
@@ -55,13 +58,15 @@ class MockCipherService: CipherService {
     var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
     var updateCipherWithServerCiphers = [Cipher]()
+    var updateCipherWithServerEncryptedFor: String?
     var updateCipherWithServerResult: Result<Void, Error> = .success(())
 
     var updateCipherCollectionsWithServerCiphers = [Cipher]()
     var updateCipherCollectionsWithServerResult: Result<Void, Error> = .success(())
 
-    func addCipherWithServer(_ cipher: Cipher) async throws {
+    func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         addCipherWithServerCiphers.append(cipher)
+        addCipherWithServerEncryptedFor = encryptedFor
         try addCipherWithServerResult.get()
     }
 
@@ -96,7 +101,10 @@ class MockCipherService: CipherService {
 
     func fetchCipher(withId id: String) async throws -> Cipher? {
         fetchCipherId = id
-        return try fetchCipherResult.get()
+        guard let fetchCipherByIdResult else {
+            return try fetchCipherResult.get()
+        }
+        return try fetchCipherByIdResult(id).get()
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
@@ -118,8 +126,9 @@ class MockCipherService: CipherService {
         return try saveAttachmentWithServerResult.get()
     }
 
-    func shareCipherWithServer(_ cipher: Cipher) async throws {
+    func shareCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         shareCipherWithServerCiphers.append(cipher)
+        shareCipherWithServerEncryptedFor = encryptedFor
         try shareCipherWithServerResult.get()
     }
 
@@ -139,8 +148,9 @@ class MockCipherService: CipherService {
         return try updateCipherWithLocalStorageResult.get()
     }
 
-    func updateCipherWithServer(_ cipher: Cipher) async throws {
+    func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         updateCipherWithServerCiphers.append(cipher)
+        updateCipherWithServerEncryptedFor = encryptedFor
         try updateCipherWithServerResult.get()
     }
 

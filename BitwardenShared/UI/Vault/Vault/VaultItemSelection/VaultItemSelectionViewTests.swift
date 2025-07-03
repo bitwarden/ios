@@ -35,9 +35,11 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// Tapping the add item floating action button dispatches the `.addTapped` action.`
     @MainActor
-    func test_addFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
+    func test_addFloatingActionButton_tap() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
     }
 
@@ -95,9 +97,23 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example",
+                subtitle: "user@bitwarden.com"
+            ),
+            .fixture(
+                id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example Co",
+                subtitle: "user@bitwarden.com"
+            ),
         ]
         processor.state.vaultListSections = [
             VaultListSection(
@@ -115,9 +131,23 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     /// The search view renders correctly when there's search results.
     @MainActor
     func test_snapshot_cipherSelection_search() {
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example",
+                subtitle: "user@bitwarden.com"
+            ),
+            .fixture(
+                id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example Co",
+                subtitle: "user@bitwarden.com"
+            ),
         ]
         processor.state.searchResults = ciphers.compactMap(VaultListItem.init)
         processor.state.searchText = "Example"

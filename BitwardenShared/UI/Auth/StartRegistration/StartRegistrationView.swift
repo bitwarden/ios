@@ -81,25 +81,23 @@ struct StartRegistrationView: View {
     private var mainContent: some View {
         GeometryReader { proxy in
             VStack(spacing: 0) {
-                if store.state.isCreateAccountFeatureFlagEnabled {
-                    Spacer(minLength: 24)
+                Spacer(minLength: 24)
 
-                    Image(decorative: Asset.Images.logo)
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                        .frame(maxWidth: .infinity, maxHeight: 34)
-                        .padding(.horizontal, 12)
+                Image(decorative: Asset.Images.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .frame(maxWidth: .infinity, maxHeight: 34)
+                    .padding(.horizontal, 12)
 
-                    Spacer(minLength: 24)
-                }
+                Spacer(minLength: 24)
 
                 registrationDetails
             }
-            .padding(.top, store.state.isCreateAccountFeatureFlagEnabled ? 0 : 16)
+            .padding(.top, 0)
             .padding(.bottom, 16)
-            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
-            .scrollView(addVerticalPadding: false, padding: 12, showsIndicators: false)
+            .frame(minHeight: proxy.size.height)
+            .scrollView(addVerticalPadding: false, showsIndicators: false)
         }
     }
 
@@ -170,9 +168,7 @@ struct StartRegistrationView: View {
     StartRegistrationView(
         store: Store(
             processor: StateProcessor(
-                state: StartRegistrationState(
-                    isCreateAccountFeatureFlagEnabled: true
-                )
+                state: StartRegistrationState()
             )
         )
     )

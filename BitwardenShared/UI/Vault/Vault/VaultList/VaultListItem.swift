@@ -11,11 +11,11 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         /// The wrapped item is a cipher.
         ///
         /// - Parameters
-        ///   - CipherView: The cipher to wrap.
+        ///   - CipherListView: The cipher to wrap.
         ///   - Fido2CredentialAutofillView: Additional data from the main Fido2 credential
-        ///   of the `CipherView` to be displayed when needed (Optional).
+        ///   of the `CipherListView` to be displayed when needed (Optional).
         ///
-        case cipher(CipherView, Fido2CredentialAutofillView? = nil)
+        case cipher(CipherListView, Fido2CredentialAutofillView? = nil)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -43,31 +43,35 @@ extension VaultListItem {
     ///     Used to sort the TOTP code items after a refresh.
     var name: String {
         guard case let .totp(name, model) = itemType else { return "" }
-        return name + (model.loginView.username ?? "") + "\(model.id)"
+        return name + (model.cipherListView.type.loginListView?.username ?? "") + "\(model.id)"
     }
 }
 
 extension VaultListItem {
-    /// Initialize a `VaultListItem` from a `CipherView`.
+    /// Initialize a `VaultListItem` from a `CipherListView`.
     ///
-    /// - Parameter cipherView: The `CipherView` used to initialize the `VaultListItem`.
+    /// - Parameter cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
     ///
-    init?(cipherView: CipherView) {
-        guard let id = cipherView.id else { return nil }
-        self.init(id: id, itemType: .cipher(cipherView))
+    init?(cipherListView: CipherListView) {
+        guard let id = cipherListView.id else { return nil }
+        self.init(id: id, itemType: .cipher(cipherListView))
     }
 
-    /// Initialize a `VaultListItem` from a `CipherView`.
+    /// Initialize a `VaultListItem` from a `CipherListView`.
     /// - Parameters:
-    ///   - cipherView: The `CipherView` used to initialize the `VaultListItem`.
+    ///   - cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
     ///   - fido2CredentialAutofillView: The main Fido2 credential of the `cipherView` prepared for UI display.
-    init?(cipherView: CipherView, fido2CredentialAutofillView: Fido2CredentialAutofillView) {
-        guard let id = cipherView.id, cipherView.type == .login else { return nil }
-        self.init(id: id, itemType: .cipher(cipherView, fido2CredentialAutofillView))
+    init?(cipherListView: CipherListView, fido2CredentialAutofillView: Fido2CredentialAutofillView) {
+        guard let id = cipherListView.id, cipherListView.type.isLogin else { return nil }
+        self.init(id: id, itemType: .cipher(cipherListView, fido2CredentialAutofillView))
     }
 }
 
 extension VaultListItem {
+    var cipherDecorativeIconDataView: CipherDecorativeIconDataView? {
+        loginListView
+    }
+
     /// The RpId of the main Fido2 credential.
     var fido2CredentialRpId: String? {
         switch itemType {
@@ -163,14 +167,14 @@ extension VaultListItem {
     }
 
     /// The login view containing the uri's to download the special decorative icon, if applicable.
-    var loginView: BitwardenSdk.LoginView? {
+    var loginListView: BitwardenSdk.LoginListView? {
         switch itemType {
         case let .cipher(cipherView, _):
-            cipherView.login
+            return cipherView.type.loginListView
         case .group:
-            nil
+            return nil
         case let .totp(_, totpModel):
-            totpModel.loginView
+            return totpModel.cipherListView.type.loginListView
         }
     }
 
@@ -202,41 +206,14 @@ extension VaultListItem {
     }
 }
 
-extension CipherView {
-    var subtitle: String? {
-        switch type {
-        case .card:
-            var output = [card?.brand]
-            if let cardNumber = card?.number,
-               cardNumber.count > 4 {
-                // Show last 5 characters for amex, last 4 for all others.
-                let lastDigitsCount = (cardNumber.count > 5 && cardNumber.contains("^3[47]")) ? 5 : 4
-                let displayNumber = "*" + cardNumber.suffix(lastDigitsCount)
-                output.append(displayNumber)
-            }
-            return output.compactMap { $0 }.joined(separator: ", ")
-        case .identity:
-            return [identity?.firstName, identity?.lastName]
-                .compactMap { $0 }
-                .joined(separator: " ")
-        case .login:
-            return login?.username
-        case .secureNote:
-            return nil
-        case .sshKey:
-            return nil
-        }
-    }
-}
-
 public struct VaultListTOTP: Equatable, Sendable {
     /// The id of the associated Cipher.
     ///
     let id: String
 
-    /// The `BitwardenSdk.LoginView` used to populate the view.
+    /// The `BitwardenSdk.CipherListView` used to populate the view and regenerate codes.
     ///
-    let loginView: BitwardenSdk.LoginView
+    let cipherListView: BitwardenSdk.CipherListView
 
     /// Whether seeing the TOTP code requires a master password.
     let requiresMasterPassword: Bool

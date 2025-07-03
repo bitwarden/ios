@@ -150,6 +150,7 @@
 "VaultTimeout" = "Час очікування сховища";
 "ThirtyMinutes" = "30 хвилин";
 "OnRestart" = "Під час перезапуску програми";
+"Custom" = "Власний";
 "SessionTimeout" = "Час очікування сеансу";
 "FileCouldNotBeProcessed" = "Неможливо обробити файл";
 "EnsureItsValidJsonAndTryAgain" = "Перевірте, що це потрібний файл JSON, і повторіть спробу.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Потрібна допомога? Відвідайте наш довідковий центр.";
 "UnexpectedDataFormat" = "Неочікуваний формат даних";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Наданий формат даних не відповідає очікуваному формату. Перевірте ваш файл і переконайтеся, що використовуються правильні типи даних.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Ця функція ще недоступна користувачам із власним розміщенням сховища. [Докладніше](%1$@)";

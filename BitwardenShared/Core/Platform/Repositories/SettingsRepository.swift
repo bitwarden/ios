@@ -34,7 +34,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Updates the user's vault by syncing it with the API.
     ///
-    func fetchSync() async throws
+    func fetchSync(forceSync: Bool) async throws
 
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
@@ -49,6 +49,9 @@ protocol SettingsRepository: AnyObject {
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
+
+    /// Get the current value of the Siri & Shortcut access setting.
+    func getSiriAndShortcutsAccess() async throws -> Bool
 
     /// Get the current value of the sync to Authenticator setting.
     ///
@@ -84,6 +87,10 @@ protocol SettingsRepository: AnyObject {
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
 
+    /// Update the cached value of the Siri & Shortcuts setting.
+    /// - Parameter siriAndShortcutsAccess: Whether access is enabled.
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws
+
     /// Update the cached value of the sync to authenticator setting.
     ///
     /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
@@ -94,6 +101,12 @@ protocol SettingsRepository: AnyObject {
 
     /// The publisher to keep track of the list of the user's current folders.
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>>
+}
+
+extension SettingsRepository {
+    func fetchSync() async throws {
+        try await fetchSync(forceSync: true)
+    }
 }
 
 // MARK: - DefaultSettingsRepository
@@ -181,8 +194,8 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await folderService.editFolderWithServer(id: id, name: folder.name)
     }
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync(forceSync: true)
+    func fetchSync(forceSync: Bool) async throws {
+        try await syncService.fetchSync(forceSync: forceSync)
     }
 
     func getAllowSyncOnRefresh() async throws -> Bool {
@@ -199,6 +212,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await stateService.getSiriAndShortcutsAccess()
     }
 
     func getSyncToAuthenticator() async throws -> Bool {
@@ -223,6 +240,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
+    }
+
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await stateService.setSiriAndShortcutsAccess(siriAndShortcutsAccess)
     }
 
     func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {

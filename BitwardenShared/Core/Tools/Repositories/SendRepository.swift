@@ -34,7 +34,7 @@ public protocol SendRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Validates the user's active account has a verified email.
     ///
@@ -86,6 +86,13 @@ public protocol SendRepository: AnyObject {
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
+
+    /// A publisher for a send.
+    ///
+    /// - Parameter id: The ID of the send that is being subscribed to.
+    /// - Returns: A publisher for a send with a specified identifier.
+    ///
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>>
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -163,8 +170,8 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Methods
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
@@ -284,6 +291,16 @@ class DefaultSendRepository: SendRepository {
         try await sendService.sendsPublisher()
             .asyncTryMap { sends in
                 try await self.sendListItems(type: type, from: sends)
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>> {
+        try await sendService.sendPublisher(id: id)
+            .asyncTryMap { send in
+                guard let send else { return nil }
+                return try await self.clientService.sends().decrypt(send: send)
             }
             .eraseToAnyPublisher()
             .values

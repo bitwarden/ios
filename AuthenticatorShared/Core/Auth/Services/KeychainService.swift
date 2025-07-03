@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import BitwardenKit
 import Foundation
 
 // MARK: - KeychainService
@@ -112,6 +113,6 @@ class DefaultKeychainService: KeychainService {
     }
 }
 
-// MARK: - AuthenticatorKeychainService
+// MARK: - SharedKeychainService
 
-extension DefaultKeychainService: AuthenticatorKeychainService {}
+extension DefaultKeychainService: SharedKeychainService {}

@@ -3,7 +3,6 @@ import Foundation
 extension JSONDecoder.KeyDecodingStrategy {
     static var upperToLowerCamelCase: JSONDecoder.KeyDecodingStrategy {
         .custom { codingKeys in
-
             var key = JSONAnyCodingKey(codingKeys.last!)
 
             if let firstChar = key.stringValue.first {

@@ -137,6 +137,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self
     }
 
+    var hasOrganizations: Bool {
+        cipher.organizationId != nil || ownershipOptions.contains { !$0.isPersonal }
+    }
+
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
@@ -375,7 +379,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     init?(
         existing cipherView: CipherView,
-        hasMasterPassword: Bool = true,
         hasPremium: Bool,
         iconBaseURL: URL? = nil,
         showWebIcons: Bool = true
@@ -394,7 +397,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             isPersonalOwnershipDisabled: false,
             loginState: cipherView.loginItemState(
-                isTOTPCodeVisible: !(hasMasterPassword && cipherView.reprompt == .password),
                 showTOTP: hasPremium || cipherView.organizationUseTotp
             ),
             name: cipherView.name,
@@ -477,6 +479,10 @@ extension CipherItemState: ViewVaultItemState {
         case .add:
             return newCipherView()
         }
+    }
+
+    var cipherDecorativeIconDataView: CipherDecorativeIconDataView? {
+        loginView
     }
 
     var icon: ImageAsset {

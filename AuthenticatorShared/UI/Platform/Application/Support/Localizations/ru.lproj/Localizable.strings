@@ -1,4 +1,4 @@
-"About" = "О нас";
+"About" = "О приложении";
 "Add" = "Добавить";
 "AnErrorHasOccurred" = "Произошла ошибка.";
 "Cancel" = "Отменить";
@@ -44,7 +44,7 @@
 "FaceID" = "Face ID";
 "UseFaceIDToUnlock" = "Используйте Face ID для разблокировки";
 "Default" = "По умолчанию";
-"TryAgain" = "Попробуйте еще раз";
+"TryAgain" = "Попробуйте еще";
 "Dark" = "Темная";
 "Light" = "Светлая";
 "FiveMinutes" = "5 минут";
@@ -152,6 +152,7 @@
 "VaultTimeout" = "Тайм-аут хранилища";
 "ThirtyMinutes" = "30 минут";
 "OnRestart" = "При перезапуске приложения";
+"Custom" = "Пользовательский";
 "SessionTimeout" = "Таймаут сеанса";
 "FileCouldNotBeProcessed" = "Файл не может быть обработан";
 "EnsureItsValidJsonAndTryAgain" = "Убедитесь, что это корректный JSON, и повторите попытку.";
@@ -160,3 +161,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Нужна помощь? Посетите наш Центр помощи, чтобы получить рекомендации.";
 "UnexpectedDataFormat" = "Неожиданный формат данных";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Формат предоставленных данных не соответствует ожидаемому. Пожалуйста, проверьте ваш файл и убедитесь, что используются правильные типы данных.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Эта функция пока недоступна для пользователей собственных хостингов. [Подробнее](%1$@)";

@@ -6,7 +6,7 @@ import SwiftUI
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-private struct SearchableItemListView: View {
+private struct SearchableItemListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -162,6 +162,7 @@ private struct SearchableItemListView: View {
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
+            secondaryButtonText: Localizations.learnMore,
             titleText: Localizations.syncWithTheBitwardenApp,
             actionTapped: {
                 openURL(ExternalLinksConstants.passwordManagerSettings)
@@ -170,6 +171,9 @@ private struct SearchableItemListView: View {
                 Task {
                     await store.perform(.closeCard(.passwordManagerSync))
                 }
+            },
+            secondaryActionTapped: {
+                openURL(ExternalLinksConstants.totpSyncHelp)
             }
         )
         .padding(.top, 16)
@@ -233,7 +237,7 @@ private struct SearchableItemListView: View {
                         await store.perform(.moveToBitwardenPressed(item))
                     } label: {
                         HStack(spacing: 4) {
-                            Text(Localizations.copyToBitwarden)
+                            Text(Localizations.copyToBitwardenVault)
                             Spacer()
                             Image(decorative: Asset.Images.rightArrow)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))

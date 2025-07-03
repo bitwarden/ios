@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -277,7 +278,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if biometrics are enabled.
     @MainActor
     func test_perform_loadData_vaultUnlockSetupProgress_biometrics() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
 
@@ -293,7 +293,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if pin unlock is enabled.
     @MainActor
     func test_perform_loadData_vaultUnlockSetupProgress_pin() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
 
@@ -334,7 +333,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
     @MainActor
     func test_perform_streamSettingsBadge() {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -352,24 +350,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
     @MainActor
     func test_perform_streamSettingsBadge_error() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-
         await subject.perform(.streamSettingsBadge)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.streamSettingsBadge` doesn't load the badge state if the create account
-    /// feature flag is disabled.
-    @MainActor
-    func test_perform_streamSettingsBadge_nativeCreateAccountFlowDisabled() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.settingsBadgeSubject.send(.fixture())
-
-        await subject.perform(.streamSettingsBadge)
-
-        XCTAssertNil(subject.state.badgeState)
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -427,7 +410,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(syncEnabled)
     }
 
-    /// `perform(_:)` with `.toggleSyncWithAuthenticator` enables authenticator sync and updates the state.
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` enables authenticator sync,
+    /// updates the state, and attempts a sync.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_enable() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
@@ -439,6 +423,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         let syncEnabled = try await stateService.getSyncToAuthenticator()
         XCTAssertTrue(syncEnabled)
+
+        waitFor { settingsRepository.fetchSyncCalled }
+        XCTAssertEqual(settingsRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `.toggleSyncWithAuthenticator` correctly handles and logs errors.
@@ -454,7 +441,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` disables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_disable() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
@@ -477,7 +463,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_toggleUnlockWithBiometrics_disable_noPassword() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .logout
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         subject.state.sessionTimeoutAction = .lock
@@ -498,7 +483,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` enables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_enable() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
@@ -518,7 +502,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockWithPINCode_disable() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         vaultUnlockSetupHelper.setPinUnlockResult = true
 
@@ -536,7 +519,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_toggleUnlockWithPINCode_disable_noPassword() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .logout
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         subject.state.sessionTimeoutAction = .lock
         vaultUnlockSetupHelper.setPinUnlockResult = true
@@ -552,7 +534,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithPINCode` enables pin unlock and updates the state.
     @MainActor
     func test_receive_toggleUnlockWithPINCode_enable() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
         subject.state.isUnlockWithPINCodeOn = true
@@ -567,28 +548,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithPINCode` doesn't update the user's vault unlock setup
-    /// progress if the native create account feature flag is disabled.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_enable_nativeCreateAccountDisabled() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.accountSetupVaultUnlock["1"] = .setUpLater
-        subject.state.isUnlockWithPINCodeOn = true
-        vaultUnlockSetupHelper.setPinUnlockResult = false
-
-        await subject.perform(.toggleUnlockWithPINCode(true))
-        waitFor { !subject.state.isUnlockWithPINCodeOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertEqual(stateService.accountSetupVaultUnlock, ["1": .setUpLater])
-        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithPINCode` doesn't update the user's vault unlock setup
     /// progress if they don't yet have any progress.
     @MainActor
     func test_receive_toggleUnlockWithPINCode_enable_noVaultUnlockSetupProgress() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = true
         vaultUnlockSetupHelper.setPinUnlockResult = false
@@ -605,7 +567,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// user's vault unlock setup progress.
     @MainActor
     func test_receive_toggleUnlockWithPINCode_enable_vaultUnlockSetupError() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
         subject.state.isUnlockWithPINCodeOn = true
         vaultUnlockSetupHelper.setPinUnlockResult = false

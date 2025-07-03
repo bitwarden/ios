@@ -47,6 +47,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 
+    /// A route to the flight recorder settings in the settings tab.
+    case flightRecorderSettings
+
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
 
@@ -76,7 +79,10 @@ public enum VaultRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
+    ///     already been completed.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
 }

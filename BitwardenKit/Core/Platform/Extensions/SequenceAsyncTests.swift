@@ -27,7 +27,7 @@ final class SequenceAsyncTests: BitwardenTestCase {
         let input = [1, 2, 3]
         var output: [Int] = []
         await input.asyncForEach { number in
-            output.append(await asyncDouble(number))
+            await output.append(asyncDouble(number))
         }
         XCTAssertEqual(output, [2, 4, 6])
     }
@@ -38,7 +38,7 @@ final class SequenceAsyncTests: BitwardenTestCase {
         var output: [Int] = []
         await assertAsyncThrows {
             try await input.asyncForEach { number in
-                try output.append(await asyncDoubleWithError(number))
+                try await output.append(asyncDoubleWithError(number))
             }
         }
     }

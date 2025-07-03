@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 final class MockFlightRecorder: FlightRecorder {
+    var activeLogSubject = CurrentValueSubject<FlightRecorderData.LogMetadata?, Never>(nil)
     var deleteInactiveLogsCalled = false
     var deleteInactiveLogsResult: Result<Void, Error> = .success(())
     var deleteLogResult: Result<Void, Error> = .success(())
@@ -16,8 +17,13 @@ final class MockFlightRecorder: FlightRecorder {
     var fetchLogsResult: Result<[FlightRecorderLogMetadata], Error> = .success([])
     var isEnabledSubject = CurrentValueSubject<Bool, Never>(false)
     var logMessages = [String]()
+    var setFlightRecorderBannerDismissedCalled = false
 
     nonisolated init() {}
+
+    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never> {
+        activeLogSubject.eraseToAnyPublisher()
+    }
 
     func deleteInactiveLogs() async throws {
         deleteInactiveLogsCalled = true
@@ -50,5 +56,9 @@ final class MockFlightRecorder: FlightRecorder {
 
     func log(_ message: String, file: String, line: UInt) async {
         logMessages.append(message)
+    }
+
+    func setFlightRecorderBannerDismissed() async {
+        setFlightRecorderBannerDismissedCalled = true
     }
 }

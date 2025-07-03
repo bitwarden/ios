@@ -89,14 +89,26 @@ class FlightRecorderDataTests: BitwardenTestCase {
 
     /// `activeLog` sets the active log, archiving an existing log if there's already one active.
     func test_setActiveLog_existingLog() {
-        let log1 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        let log2 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        let log1 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 1, day: 1))
+        let log2 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 1, day: 2))
         var subject = FlightRecorderData(activeLog: log2, inactiveLogs: [log1])
 
-        let log3 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now)
+        let log3 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: Date(year: 2025, month: 1, day: 3))
         subject.activeLog = log3
 
         XCTAssertEqual(subject, FlightRecorderData(activeLog: log3, inactiveLogs: [log2, log1]))
+    }
+
+    /// Using `activeLog` to modify a property of the active log doesn't make the log inactive.
+    func test_setActiveLog_modifyExistingLogProperty() {
+        var subject = FlightRecorderData()
+        var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        subject.activeLog = log
+
+        subject.activeLog?.isBannerDismissed = true
+
+        log.isBannerDismissed = true
+        XCTAssertEqual(subject, FlightRecorderData(activeLog: log))
     }
 
     // MARK: FlightRecorderData.LogMetadata Tests
@@ -116,6 +128,42 @@ class FlightRecorderDataTests: BitwardenTestCase {
                 startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
             ).expirationDate,
             Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30)
+        )
+    }
+
+    /// `formattedEndDate` returns the log's formatted end date.
+    func test_logMetadata_formattedEndDate() {
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .oneHour,
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+            ).formattedEndDate,
+            "4/3/25"
+        )
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .eightHours,
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+            ).formattedEndDate,
+            "4/8/25"
+        )
+    }
+
+    /// `formattedEndDate` returns the log's formatted end time.
+    func test_logMetadata_formattedEndTime() {
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .oneHour,
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+            ).formattedEndTime,
+            "11:30 AM"
+        )
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .eightHours,
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+            ).formattedEndTime,
+            "6:30 PM"
         )
     }
 

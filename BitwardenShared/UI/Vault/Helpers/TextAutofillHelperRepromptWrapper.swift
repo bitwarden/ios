@@ -40,15 +40,15 @@ class TextAutofillHelperRepromptWrapper: TextAutofillHelper {
         self.userVerificationHelper.userVerificationDelegate = self
     }
 
-    func handleCipherForAutofill(cipherView: BitwardenSdk.CipherView) async throws {
+    func handleCipherForAutofill(cipherListView: CipherListView) async throws {
         do {
-            if cipherView.reprompt == .password,
+            if cipherListView.reprompt == .password,
                try await authRepository.hasMasterPassword(),
                try await userVerificationHelper.verifyMasterPassword() != .verified {
                 return
             }
 
-            try await textAutofillHelper.handleCipherForAutofill(cipherView: cipherView)
+            try await textAutofillHelper.handleCipherForAutofill(cipherListView: cipherListView)
         } catch UserVerificationError.cancelled {
             // No-op
         }

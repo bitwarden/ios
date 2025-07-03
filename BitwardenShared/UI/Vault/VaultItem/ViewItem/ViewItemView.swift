@@ -68,17 +68,11 @@ struct ViewItemView: View {
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if let state = store.state.loadingState.data {
-                    if isRestoredEnabled {
-                        toolbarButton(Localizations.restore) {
-                            await store.perform(.restorePressed)
-                        }
-                        .accessibilityIdentifier("RestoreButton")
-                    } else {
-                        editToolbarButton {
-                            store.send(.editPressed)
-                        }
+                if isRestoredEnabled {
+                    toolbarButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
                     }
+                    .accessibilityIdentifier("RestoreButton")
                 }
 
                 VaultItemManagementMenuView(
@@ -95,7 +89,7 @@ struct ViewItemView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            editItemFloatingActionButton {
+            editItemFloatingActionButton(hidden: !store.state.canEdit) {
                 store.send(.editPressed)
             }
         }
@@ -130,7 +124,7 @@ struct ViewItemView: View {
             )
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 }
 
@@ -138,32 +132,12 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
-    static var cipher = CipherView.fixture(
-        attachments: [
-            .fixture(
-                fileName: "selfieWithACat.png",
-                id: "1",
-                sizeName: "11.2 MB"
-            ),
-            .fixture(
-                fileName: "selfieWithAPotato.png",
-                id: "2",
-                sizeName: "18.7 MB"
-            ),
-        ],
-        id: "123",
-        login: .fixture(),
-        type: .login,
-        viewPassword: false
-    )
-
     static var cardState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .card),
             hasPremium: true
         )!
         state.type = CipherType.card
-        state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
@@ -179,7 +153,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var loginState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .login),
             hasPremium: true
         )!
         state.customFieldsState.customFields = [
@@ -190,7 +164,6 @@ struct ViewItemView_Previews: PreviewProvider {
                 value: "Value"
             ),
         ]
-        state.isMasterPasswordRePromptOn = false
         state.name = "Example"
         state.notes = "secure note"
         state.loginState.fido2Credentials = [
@@ -216,7 +189,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var secureNoteState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .secureNote),
             hasPremium: true
         )!
         state.notes = "secure note"
@@ -226,7 +199,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var sshKeyState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .sshKey),
             hasPremium: true
         )!
         state.name = "Example"
@@ -355,6 +328,27 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("SSH Key")
+    }
+
+    static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
+        CipherView.fixture(
+            attachments: [
+                .fixture(
+                    fileName: "selfieWithACat.png",
+                    id: "1",
+                    sizeName: "11.2 MB"
+                ),
+                .fixture(
+                    fileName: "selfieWithAPotato.png",
+                    id: "2",
+                    sizeName: "18.7 MB"
+                ),
+            ],
+            id: "123",
+            login: .fixture(),
+            type: forType,
+            viewPassword: false
+        )
     }
 }
 #endif

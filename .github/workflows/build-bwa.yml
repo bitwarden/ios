@@ -24,17 +24,28 @@ on:
 
 env:
   build-variant: ${{ inputs.build-variant || 'Production' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '16.3' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '16.4' }}
 
 jobs:
   build:
     name: Build
     runs-on: macos-15
+    permissions:
+      contents: read
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
 
     steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>Job Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -59,7 +70,7 @@ jobs:
           yeetd &
 
       - name: Log in to Azure
-        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+        uses: Azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -188,25 +199,3 @@ jobs:
             --file "build/Authenticator/Authenticator.ipa" \
             --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
-
-  crowdin-push:
-    name: Crowdin Push
-    if: github.ref == 'refs/heads/main'
-    needs:
-      - build
-    runs-on: ubuntu-22.04
-    env:
-      _CROWDIN_PROJECT_ID: "673718"
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Upload sources
-        uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
-        with:
-          config: crowdin-bwa.yml
-          upload_sources: true
-          upload_translations: false

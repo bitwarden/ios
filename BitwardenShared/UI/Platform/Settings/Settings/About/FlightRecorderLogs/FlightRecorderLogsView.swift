@@ -21,6 +21,10 @@ struct FlightRecorderLogsView: View {
         content
             .navigationBar(title: Localizations.recordedLogs, titleDisplayMode: .inline)
             .task { await store.perform(.loadData) }
+            .toast(store.binding(
+                get: \.toast,
+                send: FlightRecorderLogsAction.toastShown
+            ))
             .toolbar {
                 closeToolbarItem {
                     store.send(.dismiss)
@@ -63,7 +67,7 @@ struct FlightRecorderLogsView: View {
                 logRow(for: log)
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// A row view for a single log within the logs list.

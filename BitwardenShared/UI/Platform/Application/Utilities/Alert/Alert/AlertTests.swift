@@ -90,7 +90,7 @@ class AlertTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_vault_moreOptions_login_canViewPassowrd() async throws { // swiftlint:disable:this function_body_length
+    func test_vault_moreOptions_login_canViewPassword() async throws { // swiftlint:disable:this function_body_length
         var capturedAction: MoreOptionsAction?
         let action: (MoreOptionsAction) -> Void = { action in
             capturedAction = action
@@ -109,7 +109,6 @@ class AlertTests: BitwardenTestCase {
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
-            hasMasterPassword: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -131,7 +130,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+            .edit(cipherView: cipher)
         )
         capturedAction = nil
 
@@ -160,7 +159,7 @@ class AlertTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.password,
                 value: "password",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: .cipherClientCopiedPassword,
                 cipherId: "123"
             )
@@ -194,7 +193,6 @@ class AlertTests: BitwardenTestCase {
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
-            hasMasterPassword: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -216,7 +214,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+            .edit(cipherView: cipher)
         )
         capturedAction = nil
 

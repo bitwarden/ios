@@ -347,11 +347,29 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
     }
 
+    /// `sendPublisher()` throws an error if one occurs.
+    func test_sendPublisher_error() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.sendPublisher(id: "1")
+        }
+    }
+
+    /// `sendPublisher()` returns a publisher for a send.
+    func test_sendPublisher_withValues() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendDataStore.sendSubject.send(.fixture())
+
+        var iterator = try await subject.sendPublisher(id: "1").values.makeAsyncIterator()
+        let publisherValue = try await iterator.next()
+
+        try XCTAssertEqual(XCTUnwrap(publisherValue), .fixture())
+    }
+
     /// `sendsPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
     func test_sendsPublisher_withValues() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
-        sendDataStore.sendSubject.send([.fixture()])
+        sendDataStore.sendsSubject.send([.fixture()])
 
         var iterator = try await subject.sendsPublisher().values.makeAsyncIterator()
         let publisherValue = try await iterator.next()

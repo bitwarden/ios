@@ -17,7 +17,7 @@ class MockFido2CredentialStore: Fido2CredentialStore {
         try allCredentialsResult.get()
     }
 
-    func saveCredential(cred: BitwardenSdk.Cipher) async throws {
+    func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
         saveCredentialCalled = true
         if let saveCredentialError {
             throw saveCredentialError

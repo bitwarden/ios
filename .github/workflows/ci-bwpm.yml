@@ -1,15 +1,138 @@
 name: CI / Password Manager
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
 
 on:
   workflow_dispatch:
+    inputs:
+      build-variant:
+        description: "Build Variant"
+        required: true
+        default: "Beta"
+        type: choice
+        options:
+          - Beta
+          - Production
+      build-mode:
+        description: "Build Mode"
+        required: true
+        default: "Device"
+        type: choice
+        options:
+          - Device
+          - Simulator
+      version-name:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      version-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+      patch_version:
+        description: "Order 999 - Overrides Patch version"
+        type: boolean
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: true
+      xcode-version:
+          description: "Xcode Version Override - e.g. '15.2'"
+          type: string
+
+permissions:
+  contents: read
+  actions: write #required for dispatch-and-download.yml
 
 jobs:
+  version:
+    name: Calculate Version Name and Number
+    runs-on: ubuntu-22.04
+    outputs:
+      version_name: ${{ steps.version_info.outputs.version_name }}
+      version_number: ${{ steps.version_info.outputs.version_number }}
+    steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate version
+        if: ${{ inputs.version-number == '' || inputs.version-name == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ios
+          owner: bitwarden
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.version-name }}", "version_number": "${{ inputs.version-number }}"}'
+
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.version-number }}",
+              "version_name": "${{ inputs.version-name }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
+          fi
+
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
+      - name: Upload version info artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: version-info
+          path: version-info/version_info.json
+
   build-manual:
-    name: Build Manual
+    name: Build Manual - ${{ inputs.build-variant }} (${{ inputs.build-mode }})
+    needs: version
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    with:
+      bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
+      build-mode: ${{ inputs.build-mode }}
+      version-name: ${{ needs.version.outputs.version_name }}
+      version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
+      compiler-flags: ${{ inputs.compiler-flags }}
+      distribute: ${{ inputs.distribute }}
+    secrets: inherit
+
+  build-public:
+    name: Build CI
+    needs: version
+    if: ${{ github.event_name == 'push' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
-        env: [bwpm_prod]
+        include:
+          - bw-env: bwpm_prod
+            build-mode: Device
+          - bw-env: bwpm_prod
+            build-mode: Simulator
+          - bw-env: bwpm_beta
+            build-mode: Device
+            compiler-flags: DEBUG_MENU
     with:
-      environment: ${{ matrix.env }}
+      bw-env: ${{ matrix.bw-env }}
+      build-mode: ${{ matrix.build-mode }}
+      version-name: ${{ needs.version.outputs.version_name }}
+      version-number: ${{ needs.version.outputs.version_number }}
+      compiler-flags: ${{ matrix.compiler-flags }}
     secrets: inherit

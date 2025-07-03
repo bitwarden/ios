@@ -13,9 +13,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -30,8 +32,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -42,8 +46,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -63,8 +69,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         authRepository = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         stateService = nil
@@ -150,6 +158,18 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }
 
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
+    }
+
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
     /// policy settings.
     @MainActor
@@ -228,8 +248,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search() async {
-        let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
         subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         await subject.perform(.search("example"))
         XCTAssertEqual(subject.state.searchResults.count, 1)
@@ -239,7 +259,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
         )
     }
 
@@ -260,14 +280,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
             id: "1",
             itemType: .totp(
                 name: "refreshed totp",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "654321",
@@ -291,7 +311,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -308,7 +328,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -340,7 +360,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
         let task = Task {
             await subject.perform(.search("example"))
@@ -351,7 +371,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -368,7 +388,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -538,6 +558,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -686,9 +707,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        subject.receive(.itemPressed(.fixture(cipherView: .fixture(id: "id"))))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture(id: "id")
+
+        subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
@@ -700,10 +726,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
         subject.receive(.itemPressed(totpItem))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
@@ -773,6 +804,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_totpExpired_error() throws {
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,

@@ -11,7 +11,10 @@ class AddCipherRequestTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = AddCipherRequest(cipher: .fixture(revisionDate: Date(year: 2023, month: 10, day: 31)))
+        subject = AddCipherRequest(
+            cipher: .fixture(revisionDate: Date(year: 2023, month: 10, day: 31)),
+            encryptedFor: "1"
+        )
     }
 
     override func tearDown() {
@@ -27,6 +30,7 @@ class AddCipherRequestTests: BitwardenTestCase {
         assertInlineSnapshot(of: subject.body as CipherRequestModel?, as: .json) {
             """
             {
+              "encryptedFor" : "1",
               "favorite" : false,
               "lastKnownRevisionDate" : 720403200,
               "name" : "Bitwarden",

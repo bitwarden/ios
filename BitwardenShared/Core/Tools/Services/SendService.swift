@@ -70,6 +70,13 @@ protocol SendService {
 
     // MARK: Publishers
 
+    /// A publisher for a `Send`.
+    ///
+    /// - Parameter id: The ID of the `Send` to publish updates for.
+    /// - Returns: A publisher containing the encrypted send.
+    ///
+    func sendPublisher(id: String) async throws -> AnyPublisher<Send?, Error>
+
     /// A publisher for the list of sends.
     ///
     /// - Returns: The list of encrypted sends.
@@ -206,8 +213,13 @@ extension DefaultSendService {
         try await sendDataStore.replaceSends(sends.map(Send.init), userId: userId)
     }
 
+    func sendPublisher(id: String) async throws -> AnyPublisher<Send?, Error> {
+        let userId = try await stateService.getActiveAccountId()
+        return sendDataStore.sendPublisher(id: id, userId: userId)
+    }
+
     func sendsPublisher() async throws -> AnyPublisher<[Send], Error> {
         let userId = try await stateService.getActiveAccountId()
-        return sendDataStore.sendPublisher(userId: userId)
+        return sendDataStore.sendsPublisher(userId: userId)
     }
 }

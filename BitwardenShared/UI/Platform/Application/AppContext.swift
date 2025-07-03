@@ -2,7 +2,7 @@
 
 /// A type describing the context that the app is running within.
 ///
-public enum AppContext {
+public enum AppContext: Equatable {
     /// The app is running within the app extension.
     case appExtension
 

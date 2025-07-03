@@ -88,16 +88,19 @@ extension AuthRouter {
     ///     based on whether the user initiated this logout. If the user initiated the logout has an alternate account,
     ///     they will be switched to the alternate and go to the unlock sequence for that account.
     ///     Otherwise, the user will be directed to the landing screen.
+    ///     Furthermore, if no user ID is passed then all accounts have been logged out so they will be directed
+    ///     to the landing screen.
     ///
     ///     - Parameters:
-    ///       - userId: The id of the user that was logged out.
+    ///       - userId: The id of the user that was logged out. If `nil` all users haven been logged out.
     ///       - userInitiated: Did a user action initiate this logout?
     ///         If `true`, the app should attempt to switch to the next available account.
     ///     - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
     ///
-    func didLogoutRedirect(userId: String, userInitiated: Bool) async -> AuthRoute {
+    func didLogoutRedirect(userId: String?, userInitiated: Bool) async -> AuthRoute {
         // Try to get/set the available account. If `userInitiated`, attempt to switch to the next available account.
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: userInitiated) else {
+        guard let userId,
+              let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: userInitiated) else {
             return .landing
         }
         // Setup the unlock route for the newly active account.

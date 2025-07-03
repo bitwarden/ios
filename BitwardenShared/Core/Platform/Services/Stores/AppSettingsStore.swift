@@ -52,6 +52,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The pending actions to be executed after triggering an `AppIntent`.
+    var pendingAppIntentActions: [PendingAppIntentAction]? { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
 
@@ -452,6 +455,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
 
+    /// Sets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether the Siri & Shortcuts access is enabled.
+    ///   - userId: The user ID.
+    ///
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String)
+
     /// Sets the sync to Authenticator setting for the user.
     ///
     /// - Parameters:
@@ -513,6 +524,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    ///
+    func siriAndShortcutsAccess(userId: String) -> Bool
 
     /// Gets the sync to Authenticator setting for the user.
     ///
@@ -723,6 +741,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pendingAppIntentActions
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
@@ -732,6 +751,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
+        case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -815,6 +835,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case .pendingAppIntentActions:
+                key = "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentURLs:
@@ -835,6 +857,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .siriAndShortcutsAccess(userId):
+                key = "siriAndShortcutsAccess_\(userId)"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
@@ -916,6 +940,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var migrationVersion: Int {
         get { fetch(for: .migrationVersion) }
         set { store(newValue, for: .migrationVersion) }
+    }
+
+    var pendingAppIntentActions: [PendingAppIntentAction]? {
+        get { fetch(for: .pendingAppIntentActions) }
+        set { store(newValue, for: .pendingAppIntentActions) }
     }
 
     var preAuthEnvironmentURLs: EnvironmentURLData? {
@@ -1191,6 +1220,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
+        store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
+    }
+
+    func siriAndShortcutsAccess(userId: String) -> Bool {
+        fetch(for: .siriAndShortcutsAccess(userId: userId))
     }
 
     func syncToAuthenticator(userId: String) -> Bool {

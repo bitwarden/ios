@@ -97,7 +97,7 @@ extension View {
     ///
     func addItemFloatingActionButton(
         hidden: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
@@ -108,16 +108,42 @@ extension View {
         .accessibilityIdentifier("AddItemFloatingActionButton")
     }
 
+    /// Returns a floating action menu positioned at the bottom-right corner of the screen for
+    /// adding a send item.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether the menu button should be hidden.
+    ///   - action: The action to perform when a send type is tapped in the menu.
+    /// - Returns: A `FloatingActionMenu` configured for adding a send item.
+    ///
+    func addSendItemFloatingActionMenu(
+        hidden: Bool = false,
+        action: @escaping (SendType) async -> Void
+    ) -> some View {
+        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+            ForEach(SendType.allCases) { type in
+                AsyncButton(type.localizedName) {
+                    await action(type)
+                }
+            }
+        }
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+        .padding([.trailing, .bottom], 16)
+    }
+
     /// Returns a floating action menu positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
     ///   - hidden: Whether the menu button should be hidden.
+    ///   - availableItemTypes: The list of cipher item types available for creation.
     ///   - addItem: The action to perform when a new cipher item type is tapped in the menu.
     ///   - addFolder: The action to perform when the new folder button is tapped in the menu.
     /// - Returns: A `FloatingActionMenu` configured for adding a vault item for folder.
     ///
     func addVaultItemFloatingActionMenu(
         hidden: Bool = false,
+        availableItemTypes: [CipherType] = CipherType.canCreateCases,
         addItem: @escaping (CipherType) -> Void,
         addFolder: (() -> Void)? = nil
     ) -> some View {
@@ -131,7 +157,7 @@ extension View {
                 Divider()
             }
 
-            ForEach(CipherType.canCreateCases.reversed(), id: \.hashValue) { type in
+            ForEach(availableItemTypes, id: \.hashValue) { type in
                 Button(type.localizedName) {
                     addItem(type)
                 }
@@ -174,7 +200,7 @@ extension View {
     func floatingActionButton(
         hidden: Bool = false,
         image: Image,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         FloatingActionButton(
             image: image,

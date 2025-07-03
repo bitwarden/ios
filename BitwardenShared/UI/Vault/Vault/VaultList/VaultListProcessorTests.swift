@@ -19,6 +19,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
@@ -44,6 +46,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
@@ -58,6 +62,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authService: authService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             policyService: policyService,
@@ -69,6 +74,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject = VaultListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
@@ -83,6 +89,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         configService = nil
         coordinator = nil
         errorReporter = nil
+        flightRecorder = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
@@ -295,6 +303,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
+    }
+
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
     @MainActor
@@ -418,6 +438,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
+    @MainActor
+    func test_perform_dismissFlightRecorderToastBanner() async {
+        stateService.activeAccount = .fixture()
+        subject.state.isFlightRecorderToastBannerVisible = true
+
+        await subject.perform(.dismissFlightRecorderToastBanner)
+
+        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
+        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
@@ -667,14 +699,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search() async {
-        let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 1)
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
         )
     }
 
@@ -746,6 +778,45 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.importLoginsSetupProgress)
     }
 
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
+    /// the flight recorder banner if the user hasn't dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
+        try await waitForAsync { self.subject.state.isFlightRecorderToastBannerVisible }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, true)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { !self.subject.state.isFlightRecorderToastBannerVisible }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log but doesn't
+    /// display the flight recorder banner if the user has dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog_userDismissed() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        log.isBannerDismissed = true
+        flightRecorder.activeLogSubject.send(log)
+
+        try await waitForAsync { self.subject.state.activeFlightRecorderLog != nil }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
+    }
+
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
     @MainActor
     func test_perform_streamOrganizations() {
@@ -799,7 +870,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultContainsLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -823,7 +893,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// no login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultWithoutLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -871,7 +940,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list isn't empty.
     @MainActor
     func test_perform_streamVaultList_dismissImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 
@@ -891,7 +959,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list is empty.
     @MainActor
     func test_perform_streamVaultList_emptyImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 
@@ -1268,11 +1335,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        let item = VaultListItem.fixture()
-        subject.receive(.itemPressed(item: item))
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture()
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        subject.receive(.itemPressed(item: item))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.
@@ -1285,10 +1356,23 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
+        subject.receive(.itemPressed(item: totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.
+    @MainActor
+    func test_receive_navigateToFlightRecorderSettings() {
+        subject.receive(.navigateToFlightRecorderSettings)
+
+        XCTAssertEqual(coordinator.routes.last, .flightRecorderSettings)
     }
 
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.

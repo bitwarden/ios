@@ -17,29 +17,17 @@ struct ViewItemState: Equatable, Sendable {
         }
     }
 
+    /// Whether the cipher can be edited.
+    var canEdit: Bool {
+        loadingState.data?.cipher.deletedDate == nil
+    }
+
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
-    /// Whether the user has a master password.
-    var hasMasterPassword = true
-
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
-
-    /// A flag indicating if the master password has been verified yet.
-    var hasVerifiedMasterPassword = false
-
-    /// A flag indicating if the master password is required before interacting with this item.
-    var isMasterPasswordRequired: Bool {
-        guard !hasVerifiedMasterPassword else { return false }
-        return switch loadingState {
-        case let .data(state):
-            state.isMasterPasswordRePromptOn && hasMasterPassword
-        case .error, .loading:
-            false
-        }
-    }
 
     /// The view's navigation title.
     var navigationTitle: String {
@@ -70,26 +58,22 @@ extension ViewItemState {
     ///
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
-    ///   - hasMasterPassword: Whether the account has a master password.
     ///   - hasPremium: Does the account have premium features.
     ///   - iconBaseURL: The base url used to fetch icons.
     ///
     init?(
         cipherView: CipherView,
-        hasMasterPassword: Bool,
         hasPremium: Bool,
         iconBaseURL: URL?,
         restrictCipherItemDeletionFlagEnabled: Bool
     ) {
         guard var cipherItemState = CipherItemState(
             existing: cipherView,
-            hasMasterPassword: hasMasterPassword,
             hasPremium: hasPremium,
             iconBaseURL: iconBaseURL
         ) else { return nil }
         cipherItemState.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled
         self.init(loadingState: .data(cipherItemState))
-        self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory
         self.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled

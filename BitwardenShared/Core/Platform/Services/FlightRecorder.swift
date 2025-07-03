@@ -11,6 +11,12 @@ import OSLog
 /// local file.
 ///
 protocol FlightRecorder: Sendable, BitwardenLogger {
+    /// A publisher which publishes the active log of the flight recorder.
+    ///
+    /// - Returns: A publisher for the active log of the flight recorder.
+    ///
+    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never>
+
     /// Deletes all inactive flight recorder logs. This will not delete the currently active log.
     ///
     func deleteInactiveLogs() async throws
@@ -51,6 +57,11 @@ protocol FlightRecorder: Sendable, BitwardenLogger {
     ///   - line: The line number in the file that called the log method.
     ///
     func log(_ message: String, file: String, line: UInt) async
+
+    /// Sets a flag indicating that the flight recorder banner for the active log was viewed and
+    /// dismissed by the active user.
+    ///
+    func setFlightRecorderBannerDismissed() async
 }
 
 extension FlightRecorder {
@@ -148,7 +159,7 @@ actor DefaultFlightRecorder {
 
         if !disableLogLifecycleTimerForTesting {
             Task {
-                await dataSubject.send(stateService.getFlightRecorderData())
+                _ = await getFlightRecorderData() // Load the flight recorder data to the subject.
                 await self.configureLogLifecycleTimer()
             }
         }
@@ -350,6 +361,11 @@ actor DefaultFlightRecorder {
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
+    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never> {
+        _ = await getFlightRecorderData() // Ensure data has already been loaded to the subject.
+        return dataSubject.map { $0?.activeLog }.eraseToAnyPublisher()
+    }
+
     func deleteInactiveLogs() async throws {
         guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
@@ -416,11 +432,17 @@ extension DefaultFlightRecorder: FlightRecorder {
     }
 
     func log(_ message: String, file: String, line: UInt) async {
-        guard let log = await getFlightRecorderData()?.activeLog else { return }
+        guard var data = await getFlightRecorderData(), let log = data.activeLog else { return }
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)
         } catch {
+            // If there's an error writing to the file, disable the flight recorder. This prevents
+            // an infinite loop by logging an error to the error reporter which then tries again to
+            // log to the flight recorder, and so on.
+            data.activeLog = nil
+            await setFlightRecorderData(data)
+
             let fileName = URL(fileURLWithPath: file).lastPathComponent
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Flight Recorder Log Error",
@@ -428,5 +450,11 @@ extension DefaultFlightRecorder: FlightRecorder {
                 error: error
             ))
         }
+    }
+
+    func setFlightRecorderBannerDismissed() async {
+        guard var data = await getFlightRecorderData(), data.activeLog != nil else { return }
+        data.activeLog?.isBannerDismissed = true
+        await setFlightRecorderData(data)
     }
 }

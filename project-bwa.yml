@@ -16,17 +16,21 @@ options:
 settings:
   MARKETING_VERSION: 2024.6.1
   CURRENT_PROJECT_VERSION: 1
+include:
+  - path: Configs/local-sdk.yml
+    relativePaths: false
+    enable: ${LOCAL_SDK}
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: ce330bb3cb873c47041eb0e86f5c065b8799caa2
+    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.12.0
+    exactVersion: 11.14.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.3
+    exactVersion: 1.18.4
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
     exactVersion: 1.29.0

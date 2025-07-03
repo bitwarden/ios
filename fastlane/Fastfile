@@ -10,26 +10,426 @@
 # https://docs.fastlane.tools/plugins/available-plugins
 #
 
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:ios)
 
+APP_CONFIG_MAP = {
+  "password_manager" => {
+    project_filepath: "project-pm.yml",
+    build_ipa_path: "build/Bitwarden/Bitwarden.ipa",
+    build_dsyms_path: "build/Bitwarden.xcarchive/dSYMs",
+    build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app",
+    ci_build_info_filepath: "BitwardenShared/Core/Platform/Utilities/CIBuildInfo.swift",
+  },
+  "authenticator" => {
+    project_filepath: "project-bwa.yml",
+    build_ipa_path: "build/Authenticator/Authenticator.ipa",
+    build_dsyms_path: "build/Authenticator.xcarchive/dSYMs",
+    build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
+    ci_build_info_filepath: "AuthenticatorShared/Core/Platform/Utilities/CIBuildInfo.swift",
+  },
+}
+
+ARTIFACT_EXTENSION = {
+    "simulator" => "app",
+    "device" => "ipa",
+}
+
 platform :ios do |options|
+    before_all do
+        # Support running independent lanes without --env argument
+        if !lane_context[:ENVIRONMENT]
+            UI.important("--env argument is missing, skipping setting up fastlane environment...")
+            next
+        end
+
+        ensure_env_vars(
+            env_vars: ['_APP']
+        )
+        app = ENV["_APP"]
+        lane_context[:APP] = app
+        lane_context[:APP_CONFIG] = APP_CONFIG_MAP[app]
+    end
+
+    lane :setup_code_files do |options|
+        if(lane_context[:APP] == 'password_manager')
+            update_plists options
+        end
+        create_config_files options
+        update_version_info options
+    end
+
+    lane :post_build do |options|
+        prepare_artifacts options
+    end
+
+    lane :get_artifact_name do |options|
+        required_options = [
+            :build_mode,
+            :version_name,
+            :version_number,
+            :xcode_version,
+            :export_path,
+        ]
+        ensure_required_options(options, required_options)
+
+        ensure_env_vars(
+             env_vars: ['_BUNDLE_ID', '_BUILD_SCHEME']
+        )
+
+        build_mode = ensure_build_mode(options[:build_mode])
+        version_name = options[:version_name]
+        version_number = options[:version_number]
+        xcode_version = options[:xcode_version]
+        export_path = options[:export_path]
+
+        bundle_id = ENV["_BUNDLE_ID"]
+        build_scheme = ENV["_BUILD_SCHEME"]
+        ext = ARTIFACT_EXTENSION[build_mode]
+        app_config = lane_context[:APP_CONFIG]
+        UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+        UI.message "export_filepath: #{export_path}/#{build_scheme}.#{ext}"
+    end
+
+    desc "Load .env variables (underscore prefixed) to GITHUB_ENV"
+    lane :load_dotenv_file do |options|
+      envfile = Dotenv.parse(".env.#{lane_context[:ENVIRONMENT]}")
+
+      envfile.each do |key, value|
+        value_cleaned = Shellwords.shellescape(value.to_s.delete(" \t\r\n"))
+        sh "echo #{key}='#{value_cleaned}' >> $GITHUB_ENV"
+      end
+    end
+
+    desc "Update CI build info"
+    lane :update_ci_build_info do |options|
+        required_options = [
+            :repository,
+            :branch,
+            :commit_hash,
+            :ci_run_number,
+            :ci_run_attempt,
+        ]
+
+        ensure_required_options(options, required_options)
+
+        repository = options[:repository]
+        branch = options[:branch]
+        commit_hash = options[:commit_hash]
+        ci_run_number = options[:ci_run_number]
+        ci_run_attempt = options[:ci_run_attempt]
+        compiler_flags = options[:compiler_flags]
+
+        app_config = lane_context[:APP_CONFIG]
+        ci_build_info_filepath = app_config[:ci_build_info_filepath]
+
+        git_source = "#{repository}/#{branch}@#{commit_hash}"
+        ci_run_source = "#{repository}/actions/runs/#{ci_run_number}/attempts/#{ci_run_attempt}"
+
+        UI.message("🧱 Updating app CI Build info with:")
+        UI.message("🧱 commit: #{git_source}")
+        UI.message("💻 build source: #{ci_run_source}")
+        UI.message("🛠️ compiler flags: #{compiler_flags}")
+
+        Dir.chdir("..") do
+            FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
+            File.write(ci_build_info_filepath, <<~CONTENT)
+                enum CIBuildInfo {
+                    static let info: KeyValuePairs<String, String> = [
+                        "🧱 commit:": "#{git_source}",
+                        "💻 build source:": "#{ci_run_source}",
+                        "🛠️ compiler flags:": "#{compiler_flags}",
+                    ]
+                }
+            CONTENT
+        end
+
+        UI.success("🧱 Successfully updated app CI Build info")
+    end
+
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
-    upload_to_testflight(
-        skip_submission: false,
-        changelog: options[:changelog],
-        skip_waiting_for_build_processing: false,
-        api_key_path: options[:api_key_path],
-        ipa: options[:ipa_path],
-        localized_build_info: {
-            "default": {
-                whats_new: options[:changelog],
+        bundle_id = ENV["_BUNDLE_ID"] || "com.8bit.Bitwarden" #default to Bitwarden for backwards compatibility with old build workflows
+        upload_to_testflight(
+            skip_submission: false,
+            changelog: options[:changelog],
+            skip_waiting_for_build_processing: true,
+            notify_external_testers: false,
+            api_key_path: options[:api_key_path],
+            ipa: options[:ipa_path],
+            app_identifier: bundle_id,
+            localized_build_info: {
+                "default": {
+                    whats_new: options[:changelog],
+                }
             }
-        }
-    )
+        )
+    end
+
+    desc "Update plists for Password Manager"
+    private_lane :update_plists do |options|
+        required_options = [
+            :build_mode
+        ]
+        ensure_required_options(options, required_options)
+
+        ensure_env_vars(
+            env_vars: ['_BUNDLE_ID', '_PLIST_EXPORT_COMPLIANCE_CODE', '_APS_ENVIRONMENT_DEVICE', '_APS_ENVIRONMENT_SIMULATOR']
+        )
+
+        build_mode = ensure_build_mode(options[:build_mode])
+
+        update_plist(
+            plist_path: "Bitwarden/Application/Support/Info.plist",
+            block: proc do |plist|
+                plist["ITSEncryptionExportComplianceCode"] = ENV['_PLIST_EXPORT_COMPLIANCE_CODE']
+              end
+        )
+        UI.message("✅ Updated Info.plist with ITSEncryptionExportComplianceCode: #{ENV['_PLIST_EXPORT_COMPLIANCE_CODE']}")
+
+        aps_env = if(build_mode == 'device')
+            ENV['_APS_ENVIRONMENT_DEVICE']
+        else
+            ENV['_APS_ENVIRONMENT_SIMULATOR']
+        end
+        update_plist(
+            plist_path: "Bitwarden/Application/Support/Bitwarden.entitlements",
+            block: proc do |plist|
+                plist["aps-environment"] = aps_env
+              end
+        )
+        UI.message("✅ Updated Bitwarden.entitlements with aps-environment: #{aps_env}")
+
+        update_plist(
+            plist_path: "BitwardenWatchApp/GoogleService-Info.plist",
+            block: proc do |plist|
+                plist["BUNDLE_ID"] = ENV["_BUNDLE_ID"] + ".watchkitapp"
+              end
+        )
+        UI.message("✅ Updated GoogleService-Info.plist with BUNDLE_ID: #{ENV['_BUNDLE_ID']}.watchkitapp")
+    end
+
+    desc "Update version info in project yaml file"
+    private_lane :update_version_info do |options|
+      #require 'yaml'
+
+      required_options = [
+        :version_name,
+        :version_number,
+      ]
+
+      ensure_required_options(options, required_options)
+
+      app_config = lane_context[:APP_CONFIG]
+      project_filepath = app_config[:project_filepath]
+
+      version_name = options[:version_name]
+      version_number = options[:version_number]
+
+      UI.message("Updating #{project_filepath} with version name: #{version_name} and version number: #{version_number}")
+
+      update_version_yq(project_filepath, version_name, version_number)
+
+      UI.success("Updated #{project_filepath} version to #{version_name}(#{version_number})")
+    end
+
+    desc "Create config files with build variant and compiler flags"
+    private_lane :create_config_files do |options|
+      compiler_flags = options[:compiler_flags] || ''
+
+      ensure_env_vars(
+        env_vars: ['_BUNDLE_ID', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
+      )
+
+      export_options_file = "Configs/export_options.plist"
+
+      local_xcconfig_file = ENV["_LOCAL_XCCONFIG_PATH"]
+      bundle_id = ENV["_BUNDLE_ID"]
+      shared_app_group_id = ENV["_GROUP_ID"]
+      profile_prefix = ENV["_PROVISIONING_PROFILE_PREFIX"]
+      app_icon = ENV["_APP_ICON"]
+
+      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
+
+      Dir.chdir("..") do
+        FileUtils.mkdir_p(File.dirname(local_xcconfig_file))
+        FileUtils.mkdir_p(File.dirname(export_options_file))
+        File.write(local_xcconfig_file, xcconfig_content.map { |key, value| "#{key} = #{value}" }.join("\n"))
+        File.write(export_options_file, export_options_plist_content)
+      end
+
+      if compiler_flags.include?("SUPPORTS_CXP")
+        sh("./Scripts/alpha_update_cxp_infoplist.sh")
+      end
+
+      UI.success("Successfully created config files for #{bundle_id}")
+    end
+
+    def generate_xcconfig(app, bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+        case app
+            when "password_manager"
+                generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+            when "authenticator"
+                generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+        end
+    end
+
+    def generate_export_options_plist(app, bundle_id, profile_prefix)
+        case app
+            when "password_manager"
+                generate_export_options_plist_content_bwpm(bundle_id, profile_prefix)
+            when "authenticator"
+                generate_export_options_plist_content_bwa(bundle_id, profile_prefix)
+        end
+    end
+
+    def generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.8bit",
+        "BASE_BUNDLE_ID" => bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
+        "PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION" => "#{profile_prefix} Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION" => "#{profile_prefix} Autofill",
+        "PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION" => "#{profile_prefix} Share Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_APP" => "#{profile_prefix} Bitwarden Watch App",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION" => "#{profile_prefix} Bitwarden Watch Widget Extension",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+    end
+
+    def generate_export_options_plist_content_bwpm(bundle_id, profile_prefix)
+      <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store-connect</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_prefix} Bitwarden</string>
+              <key>#{bundle_id}.find-login-action-extension</key>
+              <string>#{profile_prefix} Extension</string>
+              <key>#{bundle_id}.autofill</key>
+              <string>#{profile_prefix} Autofill</string>
+              <key>#{bundle_id}.share-extension</key>
+              <string>#{profile_prefix} Share Extension</string>
+              <key>#{bundle_id}.watchkitapp</key>
+              <string>#{profile_prefix} Bitwarden Watch App</string>
+              <key>#{bundle_id}.watchkitapp.widget-extension</key>
+              <string>#{profile_prefix} Bitwarden Watch Widget Extension</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
+    end
+
+    def generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags = "")
+      {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.8bit",
+        "BASE_BUNDLE_ID" => bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden Authenticator",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+    end
+
+    def generate_export_options_plist_content_bwa(bundle_id, profile_prefix)
+      <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store-connect</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_prefix} Bitwarden Authenticator</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
+    end
+
+    desc "Prepare artifacts for upload to GitHub"
+    private_lane :prepare_artifacts do |options|
+        required_options = [
+            :build_mode,
+            :export_path
+        ]
+        ensure_required_options(options, required_options)
+
+        build_mode = ensure_build_mode(options[:build_mode])
+        export_path = options[:export_path]
+        app_config = lane_context[:APP_CONFIG]
+        build_ipa_path = app_config[:build_ipa_path]
+        build_dsyms_path = app_config[:build_dsyms_path]
+        build_app_path = app_config[:build_app_path]
+
+        Dir.chdir("..") do
+            case build_mode
+                when 'simulator'
+                    sh("cp -r #{build_app_path} #{export_path}")
+                when 'device'
+                    sh("cp #{build_ipa_path} #{export_path}")
+                    sh("cp -r #{build_dsyms_path}/*dSYM #{export_path}/dSYMs")
+                else
+                    UI.user_error!("Invalid build mode: #{build_mode}")
+            end
+        end
+    end
+
+    def ensure_required_options(options, required_options)
+        missing_options = required_options.select { |option| options[option].nil? || options[option].empty? }
+
+        unless missing_options.empty?
+            UI.user_error!("Missing required options: #{missing_options.join(', ')}")
+        end
+    end
+
+    def ensure_build_mode(build_mode)
+        build_mode_lower = build_mode.downcase()
+        unless build_mode_lower == 'simulator' || build_mode_lower == 'device'
+            UI.user_error!("Invalid build mode: #{build_mode}")
+        end
+        return build_mode_lower
+    end
+
+    def parse_env_list(env_value)
+        env_value.to_s.delete(" \t\r\n").split(',')
+    end
+
+    def update_version_yq(project_filepath, version_name, version_number)
+        Dir.chdir("..") do
+          sh("yq -i '.settings.MARKETING_VERSION = \"#{version_name}\"' '#{project_filepath}'")
+          sh("yq -i '.settings.CURRENT_PROJECT_VERSION = \"#{version_number}\"' '#{project_filepath}'")
+        end
+    end
+
+    def update_version_yaml(project_filepath, version_name, version_number)
+        project_yaml = YAML.load_file(project_filepath)
+
+        project_yaml['settings']['MARKETING_VERSION'] = version_name
+        project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
+
+        File.open(project_filepath, 'w') do |file|
+            file.write(project_yaml.to_yaml)
+        end
     end
 
     desc "Get latest published version"

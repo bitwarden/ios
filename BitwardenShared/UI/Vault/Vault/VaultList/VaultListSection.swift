@@ -22,7 +22,7 @@ extension [VaultListSection] {
             .contains { item in
                 if case let .group(group, count) = item.itemType, group == .login || group == .totp {
                     count > 0 // swiftlint:disable:this empty_count
-                } else if case let .cipher(cipherView, _) = item.itemType, cipherView.type == .login {
+                } else if case let .cipher(cipherView, _) = item.itemType, cipherView.type.isLogin {
                     true
                 } else if case .totp = item.itemType {
                     true

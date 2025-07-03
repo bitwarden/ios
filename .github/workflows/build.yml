@@ -86,6 +86,9 @@ jobs:
   build:
     name: Build
     runs-on: macos-15
+    permissions:
+      contents: read
+      actions: write #required for dispatch-and-download.yml
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
@@ -168,7 +171,7 @@ jobs:
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
-        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+        uses: Azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -402,6 +405,15 @@ jobs:
             --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
+      - name: Upload dSYM files to Crashlytics
+        if: ${{ env._BUILD_MODE == 'Device' }}
+        continue-on-error: true
+        run: |
+          find export/dSYMs -name "*.dSYM" \
+            -exec "build/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -gsp Bitwarden/Application/Support/GoogleService-Info.plist \
+            -p ios -- {} +
+
       - name: Upload app to TestFlight with Fastlane
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         run: |
@@ -411,7 +423,7 @@ jobs:
           Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
-          fastlane upload_build \
+          bundle exec fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
             ipa_path:"export/Bitwarden.ipa"

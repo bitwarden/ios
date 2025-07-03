@@ -242,7 +242,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
-    /// navigate the user to the PM app's settings.
+    /// navigate the user to the BWPM app's settings.
     @MainActor
     func test_receive_syncWithBitwardenAppTapped_installed() {
         application.canOpenUrlResponse = true
@@ -252,7 +252,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings App Store URL to
-    /// the state to navigate the user to the App Store when the PM app is not installed..
+    /// the state to navigate the user to the App Store when the BWPM app is not installed..
     @MainActor
     func test_receive_syncWithBitwardenAppTapped_notInstalled() {
         application.canOpenUrlResponse = false

@@ -73,9 +73,12 @@ extension CipherListView {
             permissions: cipher.permissions,
             viewPassword: cipher.viewPassword,
             attachments: UInt32(cipher.attachments?.count ?? 0),
+            hasOldAttachments: false,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            revisionDate: cipher.revisionDate
+            revisionDate: cipher.revisionDate,
+            copyableFields: [],
+            localData: cipher.localData.map(LocalDataView.init)
         )
     }
 }
@@ -84,7 +87,7 @@ extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
         case .card:
-            self = .card
+            self = .card(.init(brand: nil))
         case .identity:
             self = .identity
         case .login:

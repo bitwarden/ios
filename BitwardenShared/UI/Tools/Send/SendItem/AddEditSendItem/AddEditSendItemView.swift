@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -16,36 +17,24 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                if store.state.mode == .add {
-                    typePicker
-                    Divider()
+            VStack(alignment: .leading, spacing: 16) {
+                if store.state.isSendDisabled {
+                    InfoContainer(Localizations.sendDisabledWarning)
+                        .accessibilityIdentifier("DisabledSendPolicyLabel")
+                } else if store.state.isSendHideEmailDisabled {
+                    InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                        .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                 }
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if store.state.isSendDisabled {
-                            InfoContainer(Localizations.sendDisabledWarning)
-                                .accessibilityIdentifier("DisabledSendPolicyLabel")
-                        } else if store.state.isSendHideEmailDisabled {
-                            InfoContainer(Localizations.sendOptionsPolicyInEffect)
-                                .accessibilityIdentifier("HideEmailAddressPolicyLabel")
-                        }
+                sendDetails
 
-                        switch store.state.type {
-                        case .text:
-                            textSendAttributes
-                        case .file:
-                            fileSendAttributes
-                        }
+                additionalOptions
 
-                        sendDetails
-
-                        additionalOptions
-                    }
-                    .padding(12)
+                if store.state.mode == .edit {
+                    deleteSendButton
                 }
             }
+            .scrollView()
             .disabled(store.state.isSendDisabled)
 
             profileSwitcher
@@ -53,7 +42,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .backport.dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
-            title: store.state.mode.navigationTitle,
+            title: store.state.navigationTitle,
             titleDisplayMode: .inline
         )
         .toolbar {
@@ -92,21 +81,17 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 if store.state.mode == .edit {
                     optionsToolbarMenu {
                         if !store.state.isSendDisabled {
-                            AsyncButton(Localizations.shareLink) {
-                                await store.perform(.shareLinkPressed)
-                            }
-                            AsyncButton(Localizations.copyLink) {
-                                await store.perform(.copyLinkPressed)
-                            }
                             if store.state.originalSendView?.hasPassword ?? false {
                                 AsyncButton(Localizations.removePassword) {
                                     await store.perform(.removePassword)
                                 }
                             }
-                        }
-
-                        AsyncButton(Localizations.delete, role: .destructive) {
-                            await store.perform(.deletePressed)
+                            AsyncButton(Localizations.copyLink) {
+                                await store.perform(.copyLinkPressed)
+                            }
+                            AsyncButton(Localizations.shareLink) {
+                                await store.perform(.shareLinkPressed)
+                            }
                         }
                     }
                 }
@@ -123,44 +108,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The access count stepper.
-    @ViewBuilder private var accessCount: some View {
-        ContentBlock(dividerLeadingPadding: 16) {
-            BitwardenStepper(
-                value: store.binding(
-                    get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
-                ),
-                in: 0 ... Int.max,
-                allowTextFieldInput: true,
-                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
-            ) {
-                Text(Localizations.maximumAccessCount)
-                    .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            } footer: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(Localizations.maximumAccessCountInfo)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                    if let currentAccessCount = store.state.currentAccessCount {
-                        // Wrap these texts in a group so that the style guide can be set on
-                        // both of them at once.
-                        Group {
-                            Text("\(Localizations.currentAccessCount): ")
-                                + Text("\(currentAccessCount)")
-                                .fontWeight(.bold)
-                        }
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-                }
-            }
-            .accessibilityIdentifier("SendMaxAccessCountEntry")
-        }
-    }
-
     /// Additional options.
     @ViewBuilder private var additionalOptions: some View {
         ExpandableContent(
@@ -171,7 +118,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ),
             buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
         ) {
-            accessCount
+            SendItemAccessCountStepper(
+                currentAccessCount: store.state.currentAccessCount,
+                maximumAccessCount: store.binding(
+                    get: \.maximumAccessCount,
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
+                )
+            )
 
             BitwardenTextField(
                 title: Localizations.newPassword,
@@ -205,7 +158,16 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 )
             )
         }
-        .padding(.top, 8)
+    }
+
+    /// The button to delete the send.
+    private var deleteSendButton: some View {
+        AsyncButton {
+            await store.perform(.deletePressed)
+        } label: {
+            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+        }
+        .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }
 
     /// The deletion date field.
@@ -231,7 +193,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a file type send.
     @ViewBuilder private var fileSendAttributes: some View {
-        SectionView(Localizations.file, contentSpacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
                 if let fileName = store.state.fileName {
@@ -250,13 +212,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         }
                         .buttonStyle(.secondary())
                         .accessibilityIdentifier("SendChooseFileButton")
-                        .padding(.top, 4)
                     }
 
-                    Text(Localizations.maxFileSize)
-                        .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.leading, 12)
+                    Text(Localizations.requiredMaximumFileSizeIsX(
+                        ByteCountFormatter.string(fromByteCount: Int64(Constants.maxFileSizeBytes), countStyle: .binary)
+                    ))
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.leading, 12)
                 }
 
             case .edit:
@@ -280,7 +243,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
         }
-        .padding(.top, 8)
     }
 
     /// The name field.
@@ -321,6 +283,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
             nameField
 
+            switch store.state.type {
+            case .text:
+                textSendAttributes
+            case .file:
+                fileSendAttributes
+            }
+
             if store.state.type == .text {
                 ContentBlock {
                     BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
@@ -345,17 +314,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             )
         )
         .accessibilityIdentifier("SendTextContentEntry")
-    }
-
-    /// The type field.
-    @ViewBuilder private var typePicker: some View {
-        BitwardenSegmentedControl(
-            selection: store.binding(get: \.type, send: AddEditSendItemAction.typeChanged),
-            selections: SendType.allCases
-        )
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 }
 

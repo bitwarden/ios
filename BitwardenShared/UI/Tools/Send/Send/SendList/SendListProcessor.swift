@@ -46,6 +46,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func perform(_ effect: SendListEffect) async {
         switch effect {
+        case let .addItemPressed(sendType):
+            await addNewSend(sendType: sendType)
         case .loadData:
             await loadData()
         case let .search(text):
@@ -59,12 +61,15 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 services.pasteboardService.copy(url.absoluteString)
                 state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
             case let .deletePressed(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
+                let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
                     await self?.deleteSend(sendView)
                 }
                 coordinator.showAlert(alert)
             case let .removePassword(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
+                let alert = Alert.confirmationDestructive(
+                    title: Localizations.areYouSureRemoveSendPassword,
+                    destructiveTitle: Localizations.remove
+                ) { [weak self] in
                     await self?.removePassword(sendView)
                 }
                 coordinator.showAlert(alert)
@@ -79,8 +84,6 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func receive(_ action: SendListAction) {
         switch action {
-        case .addItemPressed:
-            coordinator.navigate(to: .addItem(type: state.type), context: self)
         case .clearInfoUrl:
             state.infoUrl = nil
         case .infoButtonPressed:
@@ -100,10 +103,12 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .sendListItemPressed(item):
                 switch item.itemType {
                 case let .send(sendView):
-                    coordinator.navigate(to: .editItem(sendView), context: self)
+                    coordinator.navigate(to: .viewItem(sendView), context: self)
                 case let .group(type, _):
                     coordinator.navigate(to: .group(type))
                 }
+            case let .viewSend(sendView):
+                coordinator.navigate(to: .viewItem(sendView), context: self)
             }
         case let .toastShown(toast):
             state.toast = toast
@@ -111,6 +116,24 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     }
 
     // MARK: Private Methods
+
+    /// Navigates to the add new send view. If the user is trying to add a new send type which
+    /// requires premium and they don't have premium this will instead show an error alert to the
+    /// user.
+    ///
+    /// - Parameter sendType: The type of send the user is trying to add.
+    ///
+    private func addNewSend(sendType: SendType) async {
+        if sendType.requiresPremium {
+            let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+
+            guard hasPremium else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+                return
+            }
+        }
+        coordinator.navigate(to: .addItem(type: sendType), context: self)
+    }
 
     /// Refreshes the user's vault, including sends.
     ///

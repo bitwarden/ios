@@ -131,9 +131,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appeared() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
         stateService.showWebIcons = true
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -175,7 +174,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
@@ -221,48 +219,16 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` observes whether or not a user has a master password.
-    @MainActor
-    func test_perform_appeared_noMasterPassword() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: false]
-
-        let cipherItem = CipherView.loginFixture(
-            id: "id"
-        )
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
-        vaultRepository.cipherDetailsSubject.send(cipherItem)
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        let expectedState = CipherItemState(
-            existing: cipherItem,
-            hasPremium: false,
-            iconBaseURL: URL(string: "https://example.com/icons")!
-        )!
-
-        XCTAssertFalse(subject.state.hasMasterPassword)
-        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
-        XCTAssertFalse(vaultRepository.fetchSyncCalled)
-    }
-
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
     @MainActor
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
 
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {
@@ -278,38 +244,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
-        XCTAssertTrue(subject.state.hasMasterPassword)
-        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
-        XCTAssertFalse(vaultRepository.fetchSyncCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` observe the premium status of a user.
-    @MainActor
-    func test_perform_appeared_unknownPremium() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
-
-        let cipherItem = CipherView.loginFixture(
-            id: "id"
-        )
-        vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
-        vaultRepository.cipherDetailsSubject.send(cipherItem)
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        let expectedState = CipherItemState(
-            existing: cipherItem,
-            hasPremium: false,
-            iconBaseURL: URL(string: "https://example.com/icons")!
-        )!
-
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -320,8 +254,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithFolder() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -364,7 +297,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         expectedState.folderName = "FolderTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -375,8 +307,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithOrganization() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -419,7 +350,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         expectedState.organizationName = "OrgTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -430,8 +360,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithOrganizationAndCollectionsDisplay() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.userHasMasterPassword = [account.profile.userId: true]
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -477,7 +406,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         expectedState.organizationName = "OrgTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -490,10 +418,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         configService.featureFlagsBool = [
             .restrictCipherItemDeletion: true,
         ]
-
-        let cipherItem = CipherView.loginFixture(
-            id: "id"
-        )
 
         let task = Task {
             await subject.perform(.appeared)
@@ -862,33 +786,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
-    /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
-    /// is enabled prior to deleting the cipher.
-    @MainActor
-    func test_perform_deletePressed_masterPasswordReprompt() async throws {
-        subject.state = try XCTUnwrap(
-            ViewItemState(
-                cipherView: .fixture(reprompt: .password),
-                hasMasterPassword: true,
-                hasPremium: false,
-                iconBaseURL: nil,
-                restrictCipherItemDeletionFlagEnabled: true
-            )
-        )
-        await subject.perform(.deletePressed)
-
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
-        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
-        let deleteConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(deleteConfirmationAlert, .deleteCipherConfirmation(isSoftDelete: true) {})
-        try await deleteConfirmationAlert.tapAction(title: Localizations.yes)
-
-        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "1")
-    }
-
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before permanently
     /// deleting the item from the trash.
     @MainActor
@@ -1027,48 +924,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
         XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
-    }
-
-    /// `perform(_:)` with `.restorePressed` reprompts the user for their master password if reprompt
-    /// is enabled prior to restore the item and displays toast if restoring succeeds.
-    @MainActor
-    func test_perform_restorePressed_masterPasswordReprompt() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123", reprompt: .password),
-            hasPremium: false
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState)
-        )
-        subject.state = state
-        vaultRepository.softDeleteCipherResult = .success(())
-        await subject.perform(.restorePressed)
-
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
-        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
-        XCTAssertNil(alert?.message)
-
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
-
-        XCTAssertNil(errorReporter.errors.first)
-        // Ensure the cipher is restored and the view is dismissed.
-        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
-        var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
-        XCTAssertTrue(delegate.itemRestoredCalled)
     }
 
     /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
@@ -1366,27 +1221,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
-    /// Tests that the despite a cipher having a `.password` re-prompt property, a
-    /// re-prompt will not be shown for a user that has no password.
-    @MainActor
-    func test_receive_editPressed_noPassword() {
-        subject.state.hasMasterPassword = false
-
-        // Although the cipher calls for a password reprompt, it won't be shown
-        // because the user has no password.
-        let cipherView = CipherView.fixture(reprompt: .password)
-        let loginState = CipherItemState(
-            existing: cipherView,
-            hasPremium: true
-        )!
-        subject.state.loadingState = .data(loginState)
-
-        subject.receive(.editPressed)
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
-        XCTAssertFalse(subject.state.hasMasterPassword)
-    }
-
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.
     @MainActor
     func test_receive_morePressed_attachments() throws {
@@ -1586,35 +1420,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
-    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
-    /// for `isPasswordVisible`.
-    @MainActor
-    func test_receive_passwordVisibilityPressed_withLoginState_withMasterPasswordReprompt() throws {
-        let cipherView = CipherView.fixture(
-            id: "123",
-            login: BitwardenSdk.LoginView(
-                username: nil,
-                password: nil,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: nil,
-                autofillOnPageLoad: nil,
-                fido2Credentials: nil
-            ),
-            name: "name",
-            reprompt: .password,
-            revisionDate: Date()
-        )
-        let loginState = CipherItemState(
-            existing: cipherView,
-            hasPremium: true
-        )!
-        subject.state.loadingState = .data(loginState)
-        subject.receive(.passwordVisibilityPressed)
-
-        XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
-    }
-
     /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
     /// the visibility of the `privateKey` field.
     @MainActor
@@ -1623,36 +1428,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
 
         XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
-    }
-
-    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
-    /// the visibility of the `privateKey` field when master password required.
-    @MainActor
-    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordReprompt() async throws {
-        initializeSshKeyState(reprompt: .password)
-        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.submitMasterPasswordReprompt(with: "password1234")
-
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
-
-        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
-        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
-    }
-
-    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
-    /// the visibility of the `privateKey` field when master password required.
-    @MainActor
-    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordRepromptCancelled() async throws {
-        initializeSshKeyState(reprompt: .password)
-        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapCancel()
-
-        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == false)
-        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
     }
 
     /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  but data is not loaded yet
@@ -1705,41 +1480,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.fingerprint)))
     }
 
-    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
-    /// needing password reprompt and is correct.
-    @MainActor
-    func test_receive_sshKeyItemAction_copyPressedWithPasswordReprompt() async throws {
-        initializeSshKeyState(reprompt: .password)
-
-        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.submitMasterPasswordReprompt(with: "password1234")
-
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
-        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
-
-        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
-    }
-
-    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
-    /// needing password reprompt and is cancelled.
-    @MainActor
-    func test_receive_sshKeyItemAction_copyPressedWithPasswordRepromptCancelled() async throws {
-        initializeSshKeyState(reprompt: .password)
-
-        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapCancel()
-
-        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
-
-        XCTAssertNil(pasteboardService.copiedString)
-        XCTAssertNil(subject.state.toast)
-    }
-
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withValue() {
@@ -1747,91 +1487,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)
-    }
-
-    /// Tapping the "Submit" button in the master password reprompt alert validates the entered
-    /// password and completes the action.
-    @MainActor
-    func test_masterPasswordReprompt_submitButtonPressed() async throws {
-        let cipherView = CipherView.fixture(
-            id: "123",
-            login: BitwardenSdk.LoginView(
-                username: nil,
-                password: nil,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: nil,
-                autofillOnPageLoad: nil,
-                fido2Credentials: nil
-            ),
-            name: "name",
-            reprompt: .password,
-            revisionDate: Date()
-        )
-        var cipherState = CipherItemState(
-            existing: cipherView,
-            hasPremium: true
-        )!
-        subject.state.loadingState = .data(cipherState)
-        subject.receive(.passwordVisibilityPressed)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.submitMasterPasswordReprompt(with: "password1234")
-
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
-
-        cipherState.loginState.isPasswordVisible = true
-        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
-        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
-    }
-
-    /// If validation the user's password fails, an error is logged.
-    @MainActor
-    func test_masterPasswordReprompt_submitButtonPressed_error() async throws {
-        struct ValidatePasswordError: Error {}
-        authRepository.validatePasswordResult = .failure(ValidatePasswordError())
-
-        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
-        let cipherState = CipherItemState(
-            existing: cipherView,
-            hasPremium: true
-        )!
-        subject.state.loadingState = .data(cipherState)
-        subject.receive(.passwordVisibilityPressed)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertNotNil(alert.alertTextFields.first)
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
-
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
-        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
-        XCTAssertTrue(errorReporter.errors.last is ValidatePasswordError)
-    }
-
-    /// If the user's password validation fails, an invalid password alert is presented.
-    @MainActor
-    func test_masterPasswordReprompt_submitButtonPressed_invalidPassword() async throws {
-        authRepository.validatePasswordResult = .success(false)
-
-        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
-        let cipherState = CipherItemState(
-            existing: cipherView,
-            hasPremium: true
-        )!
-        subject.state.loadingState = .data(cipherState)
-        subject.receive(.passwordVisibilityPressed)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertNotNil(alert.alertTextFields.first)
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
-
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
-        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
-
-        let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 
     /// `getter:rehydrationState` returns the proper state with the cipher id.

@@ -12,6 +12,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     var delegate: MockVaultCoordinatorDelegate!
     var errorReporter: MockErrorReporter!
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
@@ -24,12 +25,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         errorReporter = MockErrorReporter()
         delegate = MockVaultCoordinatorDelegate()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
@@ -44,6 +47,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         delegate = nil
         errorReporter = nil
+        masterPasswordRepromptHelper = nil
         module = nil
         stackNavigator = nil
         subject = nil
@@ -178,6 +182,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.navigate(to: .dismiss)
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
     }
 
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
@@ -336,10 +348,30 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
 
+        waitFor { !stackNavigator.actions.isEmpty }
+
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
+
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherId, "id")
+    }
+
+    /// `.navigate(to:)` with `.viewItem` presents the view item screen.
+    @MainActor
+    func test_navigateTo_viewItem_masterPasswordRepromptCheckCompleted() throws {
+        subject.navigate(to: .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+
+        waitFor { !stackNavigator.actions.isEmpty }
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
+
+        // If the reprompt check has already been done before navigating, it doesn't need to be done again.
+        XCTAssertNil(masterPasswordRepromptHelper.repromptForMasterPasswordCipherId)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -379,6 +411,7 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchAccountIsAutomatic = false
     var switchAccountUserId: String?
     var switchedAccounts = false
+    var switchToSettingsTabRoute: SettingsRoute?
     var userInitiated: Bool?
 
     func lockVault(userId: String?, isManuallyLocking: Bool) {
@@ -409,5 +442,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountIsAutomatic = isAutomatic
         switchAccountUserId = userId
         switchedAccounts = true
+    }
+
+    func switchToSettingsTab(route: SettingsRoute) {
+        switchToSettingsTabRoute = route
     }
 } // swiftlint:disable:this file_length

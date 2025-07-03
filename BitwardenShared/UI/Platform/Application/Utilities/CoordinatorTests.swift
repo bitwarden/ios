@@ -95,9 +95,9 @@ class CoordinatorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(stackNavigator.alerts.first)
         try await alert.tapAction(title: Localizations.shareErrorDetails)
 
-        try await waitForAsync { rootViewController.presentedViewController != nil }
-        let viewController = rootViewController.presentedViewController
-        XCTAssertTrue(viewController is UIActivityViewController)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view as? UIViewController is UIActivityViewController)
 
         XCTAssertEqual(errorReportBuilder.buildShareErrorLogError as? BitwardenTestError, .example)
         XCTAssertEqual(errorReportBuilder.buildShareErrorLogCallStack?.isEmpty, false)

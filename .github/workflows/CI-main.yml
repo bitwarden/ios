@@ -22,6 +22,10 @@ env:
   DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
   INTERNAL_BETA_PATCH_NUMBER: 999
 
+permissions:
+  contents: read
+  actions: write #required for dispatch-and-download.yml
+
 jobs:
   resolve-values:
     name: "Resolve values"

@@ -70,6 +70,34 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // s
     }
 }
 
+// MARK: - CipherListViewType
+
+class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `isLogin` returns whether the type is a login.
+    func test_isLogin() {
+        XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
+        XCTAssertFalse(CipherListViewType.card(.init(brand: nil)).isLogin)
+        XCTAssertFalse(CipherListViewType.identity.isLogin)
+        XCTAssertFalse(CipherListViewType.secureNote.isLogin)
+        XCTAssertFalse(CipherListViewType.sshKey.isLogin)
+    }
+
+    /// `loginListView` returns the `LoginListView` when the type is `.login`.
+    func test_loginListView() {
+        let expectedResult = LoginListView.fixture(fido2Credentials: [.fixture()], hasFido2: true)
+        XCTAssertEqual(
+            CipherListViewType.login(expectedResult).loginListView,
+            expectedResult
+        )
+        XCTAssertNil(CipherListViewType.card(.init(brand: nil)).loginListView)
+        XCTAssertNil(CipherListViewType.identity.loginListView)
+        XCTAssertNil(CipherListViewType.secureNote.loginListView)
+        XCTAssertNil(CipherListViewType.sshKey.loginListView)
+    }
+}
+
 // MARK: - CipherSSHKeyModel
 
 class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {

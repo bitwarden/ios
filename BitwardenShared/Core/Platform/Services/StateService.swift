@@ -41,7 +41,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: Whether the active account has access to premium features.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Gets the account for an id.
     ///
@@ -278,6 +278,10 @@ protocol StateService: AnyObject {
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
+    /// Gets the pending actions from `AppIntent`s.
+    /// - Returns: The pending actions to execute.
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]?
+
     /// Gets the environment URLs used by the app prior to the user authenticating.
     ///
     /// - Returns: The environment URLs used prior to user authentication.
@@ -314,6 +318,11 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets whether Siri & Shortcuts access is enabled.
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool
 
     /// Gets the sync to Authenticator value for an account.
     ///
@@ -613,6 +622,10 @@ protocol StateService: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
 
+    /// Sets the pending actions from `AppIntent`s.
+    /// - Parameter actions: Actions pending to be executed.
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async
+
     /// Set's the pin keys.
     ///
     /// - Parameters:
@@ -668,6 +681,13 @@ protocol StateService: AnyObject {
     /// - Parameter showWebIcons: Whether to show the website icons.
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
+
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent`.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws
 
     /// Sets the sync to authenticator value for an account.
     ///
@@ -764,6 +784,12 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for the pending App Intent actions.
+    ///
+    /// - Returns: A publisher for the pending App Intent actions.
+    ///
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never>
+
     /// A publisher for showing badges in the settings tab.
     ///
     /// - Returns: A publisher for showing badges in the settings tab.
@@ -784,6 +810,16 @@ protocol StateService: AnyObject {
 }
 
 extension StateService {
+    /// Appends the `action` to the current pending `AppIntent` actions.
+    func addPendingAppIntentAction(_ action: PendingAppIntentAction) async {
+        var actions = await getPendingAppIntentActions() ?? []
+        guard !actions.contains(action) else {
+            return
+        }
+        actions.append(action)
+        await setPendingAppIntentActions(actions: actions)
+    }
+
     /// Gets the account encryptions keys for the active account.
     ///
     /// - Returns: The account encryption keys.
@@ -972,6 +1008,12 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Gets whether Siri & Shortcuts access is enabled for the active account.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await getSiriAndShortcutsAccess(userId: nil)
     }
 
     /// Gets the sync to authenticator value for the active account.
@@ -1210,6 +1252,14 @@ extension StateService {
         try await setAppRehydrationState(rehydrationState, userId: nil)
     }
 
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent` for the active account.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: nil)
+    }
+
     /// Sets the sync to authenticator value for the active account.
     ///
     /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
@@ -1325,11 +1375,17 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
+
+    /// A subject containing the pending App Intent actions.
+    private var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
 
     /// A subject containing the settings badge value mapped to user ID.
     private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: SettingsBadgeState], Never>([:])
@@ -1358,6 +1414,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1403,17 +1460,22 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         }
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        let account = try await getActiveAccount()
-        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-        guard !hasPremiumPersonally else {
-            return true
-        }
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+            guard !hasPremiumPersonally else {
+                return true
+            }
 
-        let organizations = try await dataStore
-            .fetchAllOrganizations(userId: account.profile.userId)
-            .filter { $0.enabled && $0.usersGetPremium }
-        return !organizations.isEmpty
+            let organizations = try await dataStore
+                .fetchAllOrganizations(userId: account.profile.userId)
+                .filter { $0.enabled && $0.usersGetPremium }
+            return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func getAccount(userId: String?) throws -> Account {
@@ -1579,6 +1641,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
+        appSettingsStore.pendingAppIntentActions
+    }
+
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
         appSettingsStore.preAuthEnvironmentURLs
     }
@@ -1614,6 +1680,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
 
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
+    }
+
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.siriAndShortcutsAccess(userId: userId)
     }
 
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
@@ -1874,6 +1945,17 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
     }
 
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
+        guard !actions.isEmptyOrNil else {
+            appSettingsStore.pendingAppIntentActions = nil
+            pendingAppIntentActionsSubject.send(nil)
+            return
+        }
+
+        appSettingsStore.pendingAppIntentActions = actions
+        pendingAppIntentActionsSubject.send(actions)
+    }
+
     func setPinKeys(
         encryptedPin: String,
         pinProtectedUserKey: String,
@@ -1930,6 +2012,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setShowWebIcons(_ showWebIcons: Bool) async {
         appSettingsStore.disableWebIcons = !showWebIcons
         showWebIconsSubject.send(showWebIcons)
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: userId)
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
@@ -2027,6 +2114,13 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
         }
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        if pendingAppIntentActionsSubject.value == nil {
+            pendingAppIntentActionsSubject.value = appSettingsStore.pendingAppIntentActions
+        }
+        return pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

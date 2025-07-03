@@ -20,7 +20,7 @@
 "UseFingerprintToUnlock" = "Pro odemknutí použít otisk prstu";
 "Username" = "Uživatelské jméno";
 "ValidationFieldRequired" = "Pole %1$@ je vyžadováno.";
-"ValueHasBeenCopied" = "%1$@ zkopírována";
+"ValueHasBeenCopied" = "%1$@: zkopírováno";
 "Version" = "Verze";
 "Yes" = "Ano";
 "Close" = "Zavřít";
@@ -150,6 +150,7 @@
 "VaultTimeout" = "Časový limit trezoru";
 "ThirtyMinutes" = "30 minut";
 "OnRestart" = "Při restartu aplikace";
+"Custom" = "Vlastní";
 "SessionTimeout" = "Časový limit relace";
 "FileCouldNotBeProcessed" = "Soubor nelze zpracovat";
 "EnsureItsValidJsonAndTryAgain" = "Ujistěte se, že je to platný JSON a zkuste to znovu.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potřebujete pomoc? Navštivte naše centrum nápovědy pro další informace.";
 "UnexpectedDataFormat" = "Neočekávaný formát dat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Poskytnutý formát dat neodpovídá tomu, co se očekávalo. Zkontrolujte soubor a ujistěte se, že jsou použity správné datové typy.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Tato funkce zatím není dostupná pro vlastní hostované uživatele. [Další informace](%1$@)";

@@ -117,10 +117,16 @@ protocol AuthRepository: AnyObject {
     ///   - organizationId: The ID of the organization the user is leaving.
     func leaveOrganization(organizationId: String) async throws
 
+    /// Locks all vaults and clears decrypted data from memory
+    /// - Parameter isManuallyLocking: Whether the user is manually locking the account.
+    ///
+    func lockAllVaults(isManuallyLocking: Bool) async throws
+
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
     ///   - isManuallyLocking: Whether the user is manually locking the account.
+    ///
     func lockVault(userId: String?, isManuallyLocking: Bool) async
 
     /// Logs the user out of the specified account.
@@ -413,6 +419,9 @@ class DefaultAuthRepository {
     /// The services used by the application to make account related API requests.
     private let accountAPIService: AccountAPIService
 
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
+
     /// The service used that handles some of the auth logic.
     private let authService: AuthService
 
@@ -464,6 +473,7 @@ class DefaultAuthRepository {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
@@ -483,6 +493,7 @@ class DefaultAuthRepository {
     ///
     init(
         accountAPIService: AccountAPIService,
+        appContextHelper: AppContextHelper,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
@@ -500,6 +511,7 @@ class DefaultAuthRepository {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
+        self.appContextHelper = appContextHelper
         self.authService = authService
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
@@ -696,20 +708,6 @@ extension DefaultAuthRepository: AuthRepository {
             return nil
         }
 
-        guard await configService.getFeatureFlag(.refactorSsoDetailsEndpoint) else {
-            let response = try await organizationAPIService.getSingleSignOnDetails(email: email)
-
-            // If there is already an organization identifier associated with the user's email,
-            // attempt to start the single sign on process with that identifier.
-            guard response.ssoAvailable,
-                  response.verifiedDate != nil,
-                  let organizationIdentifier = response.organizationIdentifier,
-                  !organizationIdentifier.isEmpty else {
-                return nil
-            }
-            return organizationIdentifier
-        }
-
         let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
         return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }
@@ -725,16 +723,23 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        try await stateService.pinProtectedUserKey(userId: userId) != nil
+        try await vaultTimeoutService.isPinUnlockAvailable(userId: userId)
     }
 
     func isUserManagedByOrganization() async throws -> Bool {
-        guard await configService.getFeatureFlag(.accountDeprovisioning) else {
-            return false
-        }
-
         let orgs = try await organizationService.fetchAllOrganizations()
         return orgs.contains { $0.userIsManagedByOrganization }
+    }
+
+    func lockAllVaults(isManuallyLocking: Bool) async throws {
+        let accounts = try await stateService.getAccounts()
+        guard !accounts.isEmpty else {
+            return
+        }
+
+        for account in accounts {
+            await lockVault(userId: account.profile.userId, isManuallyLocking: isManuallyLocking)
+        }
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
@@ -760,6 +765,7 @@ extension DefaultAuthRepository: AuthRepository {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
         // Clear all user data.
+        try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
@@ -778,20 +784,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
-        let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
-        let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
-        guard hasMasterPassword else {
-            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
-            let isPinEnabled = try await isPinUnlockAvailable()
-            if isPinEnabled || isBiometricsEnabled {
-                return timeoutAction
-            } else {
-                // If the user doesn't have a master password and hasn't enabled a pin or
-                // biometrics, their timeout action needs to be logout.
-                return .logout
-            }
-        }
-        return timeoutAction
+        try await vaultTimeoutService.sessionTimeoutAction(userId: userId)
     }
 
     func requestOtp() async throws {
@@ -1105,9 +1098,11 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await clientService.crypto().initializeUserCrypto(
             req: InitUserCryptoRequest(
+                userId: account.profile.userId,
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
+                signingKey: nil,
                 method: method
             )
         )

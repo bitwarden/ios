@@ -10,23 +10,24 @@ class MockVaultClientService: VaultClientService {
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
     var clientPasswordHistory = MockClientPasswordHistory()
+    var generateTOTPCodeCipherParam: CipherListView?
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
 
-    func attachments() -> ClientAttachmentsProtocol {
+    func attachments() -> AttachmentsClientProtocol {
         clientAttachments
     }
 
-    func ciphers() -> ClientCiphersProtocol {
+    func ciphers() -> CiphersClientProtocol {
         clientCiphers
     }
 
-    func collections() -> ClientCollectionsProtocol {
+    func collections() -> CollectionsClientProtocol {
         clientCollections
     }
 
-    func folders() -> ClientFoldersProtocol {
+    func folders() -> FoldersClientProtocol {
         clientFolders
     }
 
@@ -39,26 +40,39 @@ class MockVaultClientService: VaultClientService {
         )
     }
 
-    func passwordHistory() -> ClientPasswordHistoryProtocol {
+    func generateTOTPCode(
+        for cipherListView: BitwardenSdk.CipherListView,
+        date: Date?
+    ) throws -> BitwardenShared.TOTPCodeModel {
+        generateTOTPCodeCipherParam = cipherListView
+        let code = try generateTOTPCodeResult.get()
+        return TOTPCodeModel(
+            code: code,
+            codeGenerationDate: date ?? timeProvider.presentTime,
+            period: totpPeriod
+        )
+    }
+
+    func passwordHistory() -> PasswordHistoryClientProtocol {
         clientPasswordHistory
     }
 }
 
 // MARK: - MockClientAttachments
 
-class MockClientAttachments: ClientAttachmentsProtocol {
+class MockClientAttachments: AttachmentsClientProtocol {
     var encryptedFilePaths = [String]()
     var decryptedBuffers = [Data]()
     var encryptedBuffers = [Data]()
 
-    func decryptBuffer(cipher _: Cipher, attachment _: Attachment, buffer: Data) throws -> Data {
+    func decryptBuffer(cipher _: Cipher, attachment _: AttachmentView, buffer: Data) throws -> Data {
         decryptedBuffers.append(buffer)
         return buffer
     }
 
     func decryptFile(
         cipher _: Cipher,
-        attachment _: Attachment,
+        attachment _: AttachmentView,
         encryptedFilePath: String,
         decryptedFilePath _: String
     ) throws {
@@ -86,14 +100,14 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 
 // MARK: - MockClientCiphers
 
-class MockClientCiphers: ClientCiphersProtocol {
+class MockClientCiphers: CiphersClientProtocol {
     var decryptResult: (Cipher) throws -> CipherView = { cipher in
         CipherView(cipher: cipher)
     }
 
     var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
     var decryptListError: Error?
-    var encryptCipherResult: Result<Cipher, Error>?
+    var encryptCipherResult: Result<EncryptionContext, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
     var moveToOrganizationCipher: CipherView?
@@ -119,12 +133,15 @@ class MockClientCiphers: ClientCiphersProtocol {
         return ciphers.map(CipherListView.init)
     }
 
-    func encrypt(cipherView: CipherView) throws -> Cipher {
+    func encrypt(cipherView: CipherView) throws -> EncryptionContext {
         encryptedCiphers.append(cipherView)
         if let encryptError {
             throw encryptError
         }
-        return try encryptCipherResult?.get() ?? Cipher(cipherView: cipherView)
+        return try encryptCipherResult?.get() ?? EncryptionContext(
+            encryptedFor: "1",
+            cipher: Cipher(cipherView: cipherView)
+        )
     }
 
     func moveToOrganization(
@@ -139,7 +156,7 @@ class MockClientCiphers: ClientCiphersProtocol {
 
 // MARK: - MockClientCollections
 
-class MockClientCollections: ClientCollectionsProtocol {
+class MockClientCollections: CollectionsClientProtocol {
     func decrypt(collection _: Collection) throws -> CollectionView {
         fatalError("Not implemented yet")
     }
@@ -151,7 +168,7 @@ class MockClientCollections: ClientCollectionsProtocol {
 
 // MARK: - MockClientFolders
 
-class MockClientFolders: ClientFoldersProtocol {
+class MockClientFolders: FoldersClientProtocol {
     var decryptFolderValueToDecrypt: Folder?
     var decryptFolderResult: Result<FolderView?, Error> = .success(nil)
 
@@ -181,7 +198,7 @@ class MockClientFolders: ClientFoldersProtocol {
 
 // MARK: - MockClientPasswordHistory
 
-class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
+class MockClientPasswordHistory: PasswordHistoryClientProtocol {
     var encryptedPasswordHistory = [PasswordHistoryView]()
 
     func decryptList(list: [PasswordHistory]) throws -> [PasswordHistoryView] {

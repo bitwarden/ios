@@ -56,8 +56,7 @@ struct UpdateMasterPasswordView: View {
                         PasswordStrengthIndicator(
                             passwordStrengthScore: store.state.passwordStrengthScore,
                             passwordTextCount: store.state.masterPassword.count,
-                            requiredTextCount: store.state.requiredPasswordCount,
-                            nativeCreateAccountFlow: true
+                            requiredTextCount: store.state.requiredPasswordCount
                         )
                         .padding(.vertical, 12)
                     }
@@ -105,7 +104,7 @@ struct UpdateMasterPasswordView: View {
                 )
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.updateMasterPassword)
         .navigationBarTitleDisplayMode(.inline)

@@ -35,7 +35,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
-    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActiveAccountHavePremiumResult: Bool = true
     var encryptedPinByUserId = [String: String]()
     var environmentURLs = [String: EnvironmentURLData]()
     var environmentURLsError: Error?
@@ -65,6 +65,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pendingAppIntentActions: [PendingAppIntentAction]?
+    var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
+    var pinProtectedUserKeyError: Error?
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -72,8 +75,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var rememberedOrgIdentifier: String?
     var reviewPromptData: ReviewPromptData?
     var setHasPerformedSyncAfterLoginError: Error?
+    var setManuallyLockedAccountError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
+    var siriAndShortcutsAccess = [String: Bool]()
     var timeoutAction = [String: SessionTimeoutAction]()
     var serverConfig = [String: ServerConfig]()
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
@@ -83,6 +88,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var setLastActiveTimeError: Error?
+    var setVaultTimeoutError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
@@ -93,6 +100,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
     var userHasMasterPassword = [String: Bool]()
+    var userHasMasterPasswordError: Error?
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
@@ -128,9 +136,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
+    func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try doesActiveAccountHavePremiumResult.get()
+        return doesActiveAccountHavePremiumResult
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
@@ -318,6 +326,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return passwordGenerationOptions[userId]
     }
 
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
+        pendingAppIntentActions
+    }
+
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
         preAuthEnvironmentURLs
     }
@@ -347,6 +359,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         showWebIcons
     }
 
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return siriAndShortcutsAccess[userId] ?? false
+    }
+
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
         try syncToAuthenticatorResult.get()
         let userId = try unwrapUserId(userId)
@@ -368,6 +385,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
         return userHasMasterPassword[userId] ?? true
     }
@@ -404,6 +422,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
+        if let pinProtectedUserKeyError { throw pinProtectedUserKeyError }
         let userId = try unwrapUserId(userId)
         return pinProtectedUserKeyValue[userId] ?? nil
     }
@@ -550,8 +569,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        if let setLastActiveTimeError { throw setLastActiveTimeError }
         let userId = try unwrapUserId(userId)
-        lastActiveTime[userId] = timeProvider.presentTime
+        lastActiveTime[userId] = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -572,6 +592,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        if let setManuallyLockedAccountError {
+            throw setManuallyLockedAccountError
+        }
+
         let userId = try unwrapUserId(userId)
         manuallyLockedAccounts[userId] = isLocked
     }
@@ -589,6 +613,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
+        pendingAppIntentActions = actions
     }
 
     func setPinKeys(
@@ -645,6 +673,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.showWebIcons = showWebIcons
     }
 
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.siriAndShortcutsAccess[userId] = siriAndShortcutsAccess
+    }
+
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
         try syncToAuthenticatorResult.get()
         let userId = try unwrapUserId(userId)
@@ -685,6 +718,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        if let setVaultTimeoutError { throw setVaultTimeoutError }
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
     }
@@ -737,6 +771,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

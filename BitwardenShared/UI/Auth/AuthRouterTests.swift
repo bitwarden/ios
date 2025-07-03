@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -429,6 +430,13 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             route,
             .complete
         )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    /// when no user ID is passed.
+    func test_handleAndRoute_didLogout_noUserID() async {
+        let route = await subject.handleAndRoute(.didLogout(userId: nil, userInitiated: false))
+        XCTAssertEqual(route, .landing)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`

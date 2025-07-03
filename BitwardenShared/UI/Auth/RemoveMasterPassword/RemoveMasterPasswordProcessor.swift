@@ -113,8 +113,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
     private func showLeaveOrganizationConfirmation() {
-        let alert = Alert.leaveOrganizationConfirmation(orgName: state.organizationName) {
-            [weak self] in
+        let alert = Alert.leaveOrganizationConfirmation(orgName: state.organizationName) { [weak self] in
             guard let self else { return }
             await leaveOrganization()
         }

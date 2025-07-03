@@ -509,4 +509,11 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
     }
+
+    /// `switchToSettingsTab(route:)` switches to the settings tab and navigates to the settings route.
+    @MainActor
+    func test_switchToSettingsTab() {
+        subject.switchToSettingsTab(route: .about)
+        XCTAssertEqual(module.tabCoordinator.routes, [.settings(.about)])
+    }
 } // swiftlint:disable:this file_length

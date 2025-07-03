@@ -12,7 +12,7 @@ struct FlightRecorderData: Codable, Equatable {
     /// The current log, if the flight recorder is active.
     var activeLog: LogMetadata? {
         didSet {
-            guard let oldValue else { return }
+            guard let oldValue, oldValue.id != activeLog?.id else { return }
             inactiveLogs.insert(oldValue, at: 0)
         }
     }
@@ -51,6 +51,9 @@ extension FlightRecorderData {
         /// The file name of the file on disk.
         let fileName: String
 
+        /// Whether the flight recorder toast banner has been dismissed for this log.
+        @DefaultFalse var isBannerDismissed = false
+
         /// The date the logging was started.
         let startDate: Date
 
@@ -63,6 +66,22 @@ extension FlightRecorderData {
                 value: Constants.flightRecorderLogExpirationDays,
                 to: endDate
             ) ?? endDate
+        }
+
+        /// The formatted end date for the log.
+        var formattedEndDate: String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            dateFormatter.timeStyle = .none
+            return dateFormatter.string(from: endDate)
+        }
+
+        /// The formatted end time for the log.
+        var formattedEndTime: String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .none
+            dateFormatter.timeStyle = .short
+            return dateFormatter.string(from: endDate)
         }
 
         var id: String {
