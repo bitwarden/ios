@@ -9,7 +9,8 @@ extension ItemListSection {
         ItemListSection(
             id: "example",
             items: [ItemListItem.fixture()],
-            name: "Section"
+            name: "Section",
+            isShared: false
         )
     }
 }

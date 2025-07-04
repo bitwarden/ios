@@ -98,7 +98,8 @@ extension ItemListSection {
                     )
                 ),
             ],
-            name: "Digits"
+            name: "Digits",
+            isShared: false
         )
     }
 }
