@@ -13,6 +13,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
@@ -31,6 +32,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
@@ -47,6 +49,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -66,6 +69,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         authRepository = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
@@ -152,6 +156,18 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
 
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
     }
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on

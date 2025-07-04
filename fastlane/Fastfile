@@ -148,10 +148,7 @@ platform :ios do |options|
 
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
-        ensure_env_vars(
-            env_vars: ['_BUNDLE_ID']
-        )
-
+        bundle_id = ENV["_BUNDLE_ID"] || "com.8bit.Bitwarden" #default to Bitwarden for backwards compatibility with old build workflows
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],
@@ -159,7 +156,7 @@ platform :ios do |options|
             notify_external_testers: false,
             api_key_path: options[:api_key_path],
             ipa: options[:ipa_path],
-            app_identifier: ENV["_BUNDLE_ID"],
+            app_identifier: bundle_id,
             localized_build_info: {
                 "default": {
                     whats_new: options[:changelog],

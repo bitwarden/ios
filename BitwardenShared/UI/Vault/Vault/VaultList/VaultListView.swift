@@ -192,7 +192,9 @@ private struct SearchableVaultListView: View {
             errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
-            addVaultItemFloatingActionMenu { type in
+            addVaultItemFloatingActionMenu(
+                availableItemTypes: store.state.itemTypesUserCanCreate,
+            ) { type in
                 store.send(.addItemPressed(type))
             } addFolder: {
                 store.send(.addFolder)
