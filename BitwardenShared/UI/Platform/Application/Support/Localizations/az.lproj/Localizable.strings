@@ -1209,5 +1209,5 @@
 "LogDeleted" = "Jurnal silinib";
 "AllLogsDeleted" = "Bütün jurnallar silinib";
 "LoggingEndsOnDateAtTime" = "%2$@ %1$@ vaxtı üzrə girişlər bitir";
-"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
-"SendUpdated" = "Send updated";
+"YouMustAttachAFileToSaveThisSend" = "Bu send-i saxlamaq üçün bir fayl əlavə etməlisiniz";
+"SendUpdated" = "Send güncəlləndi";

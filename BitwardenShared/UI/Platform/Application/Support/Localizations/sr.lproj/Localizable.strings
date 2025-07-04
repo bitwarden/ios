@@ -1210,5 +1210,5 @@
 "LogDeleted" = "Извештај је избрисан";
 "AllLogsDeleted" = "Сви извештаји су избрисани";
 "LoggingEndsOnDateAtTime" = "Пријављен завршено на %1$@ у %2$@";
-"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
-"SendUpdated" = "Send updated";
+"YouMustAttachAFileToSaveThisSend" = "Морате приложити датотеку да бисте сачували овај Send";
+"SendUpdated" = "Send ажурирано";

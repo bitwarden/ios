@@ -581,7 +581,7 @@
 "RemovePassword" = "Passwort entfernen";
 "AreYouSureRemoveSendPassword" = "Bist du sicher, dass du dieses Passwort entfernen möchtest?";
 "RemovingSendPassword" = "Passwort wird entfernt";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Passwort entfernt";
 "NoSends" = "Es gibt keine Sends in deinem Konto.";
 "CopyLink" = "Link kopieren";
 "ShareLink" = "Link teilen";
