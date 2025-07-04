@@ -4,39 +4,10 @@ import Combine
 import Foundation
 import OSLog
 
-// MARK: - VaultListSectionsBuilderFactory
-
-/// A factory protocol to make vault list builders.
-protocol VaultListSectionsBuilderFactory {
-    /// Makes a `VaultListSectionsBuilder` with prepared data.
-    /// - Parameter with: `VaultListPreparedData` to be used as input for the builder.
-    /// Then the caller can decide which parts of the prepared data to include by calling each of the builder methods.
-    /// - Returns: The builder for the vault list sections.
-    func make(withData preparedData: VaultListPreparedData) -> VaultListSectionsBuilder
-}
-
-// MARK: - DefaultVaultListSectionsBuilderFactory
-
-/// The default implemetnation of `VaultListSectionsBuilderFactory`.
-struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
-    /// The service used by the application to handle encryption and decryption tasks.
-    let clientService: ClientService
-    /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
-
-    func make(withData preparedData: VaultListPreparedData) -> VaultListSectionsBuilder {
-        DefaultVaultListSectionsBuilder(
-            clientService: clientService,
-            errorReporter: errorReporter,
-            withData: preparedData
-        )
-    }
-}
-
 // MARK: - VaultListSectionsBuilder
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
-protocol VaultListSectionsBuilder {
+protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// Adds a section with trash (deleted) items.
     /// - Returns: The builder for fluent code.
     func addTrashSection() -> VaultListSectionsBuilder
@@ -57,7 +28,7 @@ protocol VaultListSectionsBuilder {
 
     /// Adds a section items belonging to a group filtered in the prepared data.
     /// - Returns: The builder for fluent code.
-    func addGroupSection() async throws -> VaultListSectionsBuilder
+    func addGroupSection() -> VaultListSectionsBuilder
 
     /// Adds a section with TOTP items.
     /// - Returns: The builder for fluent code.
@@ -99,7 +70,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     /// Vault list data prepared to  be used by the builder.
     let preparedData: VaultListPreparedData
     /// The sections to build.
-    var sections: [VaultListSection] = []
+    private var sections: [VaultListSection] = []
 
     // MARK: Init
 
@@ -169,8 +140,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     func addFavoritesSection() -> VaultListSectionsBuilder {
         sections.append(VaultListSection(
             id: "Favorites",
-            items: preparedData.favorites
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
+            items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
             name: Localizations.favorites
         ))
         return self
@@ -238,14 +208,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         return self
     }
 
-    func addGroupSection() async throws -> VaultListSectionsBuilder {
+    func addGroupSection() -> VaultListSectionsBuilder {
         if !preparedData.groupItems.isEmpty {
             sections.append(
                 VaultListSection(
                     id: "Items",
                     items: preparedData
                         .groupItems
-                        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
+                        .sorted(using: VaultListItem.defaultSortDescriptor),
                     name: Localizations.items
                 )
             )

@@ -1226,7 +1226,7 @@ extension DefaultVaultRepository: VaultRepository {
                 itemType: .totp(name: name, totpModel: updatedModel)
             )
         }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
     }
 
     func repromptRequiredForCipher(id: String) async throws -> Bool {

@@ -157,12 +157,17 @@ class MockClientCiphers: CiphersClientProtocol {
 // MARK: - MockClientCollections
 
 class MockClientCollections: CollectionsClientProtocol {
+    var decryptListError: Error?
+
     func decrypt(collection _: Collection) throws -> CollectionView {
         fatalError("Not implemented yet")
     }
 
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
-        collections.map(CollectionView.init)
+        if let decryptListError {
+            throw decryptListError
+        }
+        return collections.map(CollectionView.init)
     }
 }
 

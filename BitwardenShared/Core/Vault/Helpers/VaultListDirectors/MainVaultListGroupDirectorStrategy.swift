@@ -80,7 +80,7 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
         if case let .collection(id, _, _) = filter.group {
             builder = try await builder.addCollectionsSection(nestedCollectionId: id)
         }
-        return try await builder
+        return builder
             .addGroupSection()
             .build()
     }

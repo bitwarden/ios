@@ -4,7 +4,7 @@ import BitwardenSdk
 // MARK: - VaultListPreparedDataBuilderFactory
 
 /// A factory protocol to make vault list prepared data builders.
-protocol VaultListPreparedDataBuilderFactory {
+protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
     /// Makes a builder for `VaultListPreparedData`.
     func make() -> VaultListPreparedDataBuilder
 }
@@ -37,7 +37,7 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 // MARK: - VaultListPreparedDataBuilder
 
 /// Builder to build prepared data for the vault list sections.
-protocol VaultListPreparedDataBuilder {
+protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     /// Adds collections to the arranged data.
     func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the arranged data.

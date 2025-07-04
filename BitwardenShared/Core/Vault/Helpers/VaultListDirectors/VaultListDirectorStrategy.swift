@@ -9,7 +9,7 @@ import Combine
 /// The strategies conformed by this protocol are built using a `VaultListDirectorStrategyFactory`.
 /// Additionally, typically one strategy goes one-to-one with each vault list representation/view.
 /// Example: `MainVaultListDirectorStrategy` is used to build the sections in the main vault tab of the app.
-protocol VaultListDirectorStrategy {
+protocol VaultListDirectorStrategy { // sourcery: AutoMockable
     /// Builds the vault list sections.
     /// - Parameters:
     ///   - filter: Filter to be used to build the sections.

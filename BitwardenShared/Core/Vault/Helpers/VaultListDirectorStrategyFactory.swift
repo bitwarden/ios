@@ -3,7 +3,7 @@ import BitwardenKit
 // MARK: - VaultListDirectorStrategyFactory
 
 /// Factory to create `VaultListDirectorStrategy`.
-protocol VaultListDirectorStrategyFactory {
+protocol VaultListDirectorStrategyFactory { // sourcery: AutoMockable
     /// Makes a `VaultListDirectorStrategy` from the specified filter.
     func make(filter: VaultListFilter) -> VaultListDirectorStrategy
 }
