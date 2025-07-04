@@ -2894,8 +2894,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         var iterator = try await subject.vaultListPublisher(
-            group: .card,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .card)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -2921,8 +2920,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher, cipherOrg1, cipherOrg2])
         configService.featureFlagsBool[.removeCardPolicy] = true
         var iterator = try await subject.vaultListPublisher(
-            group: .card,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .card)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
