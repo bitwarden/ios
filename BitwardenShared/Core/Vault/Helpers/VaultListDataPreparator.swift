@@ -39,12 +39,14 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
 struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     // MARK: Properties
 
-    /// The service used by the application to handle encryption and decryption tasks.
-    let clientService: ClientService
     /// The wrapper of the `CiphersClient` service for extended functionality.
     let ciphersClientWrapperService: CiphersClientWrapperService
+    /// The service used by the application to handle encryption and decryption tasks.
+    let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The service for managing the polices for the user.
+    let policyService: PolicyService
     /// The service used by the application to manage account state.
     let stateService: StateService
     /// The factory to make vault list prepared data builders.
@@ -65,13 +67,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
         preparedDataBuilder = preparedDataBuilder
-            .addFolders(folders: folders, filterType: filter.filterType)
-            .addCollections(collections: collections, filterType: filter.filterType)
+            .prepareFolders(folders: folders, filterType: filter.filterType)
+            .prepareCollections(collections: collections, filterType: filter.filterType)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers
         ) { decryptedCipher in
-            guard filter.filterType.cipherFilter(decryptedCipher) else {
+            guard filter.filterType.cipherFilter(decryptedCipher),
+                  await policyService.passesRestrictItemTypesPolicy(cipher: decryptedCipher) else {
                 return
             }
 
@@ -108,13 +111,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
         preparedDataBuilder = preparedDataBuilder
-            .addFolders(folders: folders, filterType: filter.filterType)
-            .addCollections(collections: collections, filterType: filter.filterType)
+            .prepareFolders(folders: folders, filterType: filter.filterType)
+            .prepareCollections(collections: collections, filterType: filter.filterType)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers
         ) { decryptedCipher in
-            guard filter.filterType.cipherFilter(decryptedCipher) else {
+            guard filter.filterType.cipherFilter(decryptedCipher),
+                  await policyService.passesRestrictItemTypesPolicy(cipher: decryptedCipher) else {
                 return
             }
 

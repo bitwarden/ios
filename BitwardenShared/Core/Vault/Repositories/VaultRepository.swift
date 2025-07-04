@@ -890,25 +890,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
-//        let director = DefaultVaultListDirectorStrategy(
-//            builder: DefaultVaultListBuilder(),
-//            clientService: clientService,
-//            errorReporter: errorReporter,
-//            stateService: stateService
-//        )
         let log = OSLog(subsystem: "com.8bit.bitwarden", category: .pointsOfInterest)
         os_signpost(.begin, log: log, name: StaticString("VaultListSections 1"))
-//
-//        let ret = try await director.build(
-//            from: ciphers,
-//            collections: collections,
-//            folders: folders,
-//            filter: filter
-//        )
-//
-//        os_signpost(.end, log: log, name: StaticString("VaultListSections 1"))
-//
-//        return ret
 
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)

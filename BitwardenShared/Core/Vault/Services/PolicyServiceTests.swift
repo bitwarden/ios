@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -6,6 +7,7 @@ import XCTest
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var organizationService: MockOrganizationService!
     var policyDataStore: MockPolicyDataStore!
     var stateService: MockStateService!
@@ -61,11 +63,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         organizationService = MockOrganizationService()
         policyDataStore = MockPolicyDataStore()
         stateService = MockStateService()
 
         subject = DefaultPolicyService(
+            configService: configService,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
             stateService: stateService
@@ -75,6 +79,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         organizationService = nil
         policyDataStore = nil
         stateService = nil

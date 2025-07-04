@@ -489,6 +489,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let policyService = DefaultPolicyService(
+            configService: configService,
             organizationService: organizationService,
             policyDataStore: dataStore,
             stateService: stateService
@@ -721,12 +722,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 errorReporter: errorReporter
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
-                clientService: clientService,
                 ciphersClientWrapperService: DefaultCiphersClientWrapperService(
                     clientService: clientService,
                     errorReporter: errorReporter
                 ),
+                clientService: clientService,
                 errorReporter: errorReporter,
+                policyService: policyService,
                 stateService: stateService,
                 vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
                     clientService: clientService,

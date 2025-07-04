@@ -38,12 +38,8 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
 /// Builder to build prepared data for the vault list sections.
 protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
-    /// Adds collections to the arranged data.
-    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the arranged data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
-    /// Adds folders to the arranged data.
-    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Adds a folder item to the arranged data.
     func addFolderItem(
         cipher: CipherListView,
@@ -64,6 +60,10 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the TOTP count in the arranged data.
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder
+    /// Prepares collections to the arranged data that then can be used for filtering.
+    func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
+    /// Prepares folders to the arranged data that then can be used for filtering.
+    func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
 }
 
 // MARK: - DefaultVaultListPreparedDataBuilder
@@ -100,26 +100,10 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     // MARK: Methods
 
-    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
-        if filterType == .allVaults {
-            arrangedData.collections = collections
-        } else if case let .organization(organization) = filterType {
-            arrangedData.collections = collections.filter { $0.id == organization.id }
-        }
-        return self
-    }
-
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.favorite,
            let favoriteListItem = VaultListItem(cipherListView: cipher) {
             arrangedData.favorites.append(favoriteListItem)
-        }
-        return self
-    }
-
-    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
-        if filterType == .allVaults {
-            arrangedData.folders = folders
         }
         return self
     }
@@ -237,6 +221,22 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             arrangedData.totpItemsCount += 1
         }
 
+        return self
+    }
+
+    func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
+        if filterType == .allVaults {
+            arrangedData.collections = collections
+        } else if case let .organization(organization) = filterType {
+            arrangedData.collections = collections.filter { $0.id == organization.id }
+        }
+        return self
+    }
+
+    func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
+        if filterType == .allVaults {
+            arrangedData.folders = folders
+        }
         return self
     }
 
