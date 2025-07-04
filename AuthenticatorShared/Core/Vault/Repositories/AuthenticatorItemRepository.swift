@@ -193,7 +193,8 @@ class DefaultAuthenticatorItemRepository {
             sections.append(ItemListSection(
                 id: "SyncError",
                 items: [.syncError()],
-                name: ""
+                name: "",
+                isShared: false
             ))
             return sections
         }
@@ -216,7 +217,7 @@ class DefaultAuthenticatorItemRepository {
             guard let items, !items.isEmpty else {
                 continue
             }
-            sections.append(ItemListSection(id: key, items: items, name: key))
+            sections.append(ItemListSection(id: key, items: items, name: key, isShared: true))
         }
 
         return sections
@@ -246,10 +247,11 @@ class DefaultAuthenticatorItemRepository {
         let useSyncValues = await isPasswordManagerSyncActive()
 
         return [
-            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
-            ItemListSection(id: useSyncValues ? "LocalCodes" : "Unorganized",
+            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites, isShared: false),
+            ItemListSection(id: useSyncValues ? Constants.localCodes : "Unorganized",
                             items: nonFavorites,
-                            name: useSyncValues ? Localizations.localCodes : ""),
+                            name: useSyncValues ? Localizations.localCodes : "",
+                            isShared: false),
         ]
         .filter { !$0.items.isEmpty }
     }

@@ -272,18 +272,26 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(title: String?, items: [ItemListItem]) -> some View {
+    private func groupView(title: String?, items: [ItemListItem], isShared: Bool) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
-                SectionHeaderView(title)
-            }
-            ForEach(items) { item in
-                if item.itemType == .syncError {
-                    Text(item.name)
-                        .styleGuide(.footnote)
-                } else {
-                    buildRow(item: item, isLastInSection: true)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                ExpandableHeaderView(title: title,
+                                     count: items.count,
+                                     isExpanded: !isShared) {
+                    ForEach(items) { item in
+                        buildRow(item: item, isLastInSection: true)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+            } else {
+                ForEach(items) { item in
+                    if item.itemType == .syncError {
+                        Text(item.name)
+                            .styleGuide(.footnote)
+                    } else {
+                        buildRow(item: item, isLastInSection: true)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
                 }
             }
         }
@@ -300,7 +308,9 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
 
             VStack(spacing: 20) {
                 ForEach(sections) { section in
-                    groupView(title: section.name, items: section.items)
+                    groupView(title: section.name,
+                              items: section.items,
+                              isShared: section.isShared)
                 }
             }
             .padding(16)
@@ -435,7 +445,8 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: "Favorites"
+                                        name: "Favorites",
+                                        isShared: false
                                     ),
                                     ItemListSection(
                                         id: "Section",
@@ -471,7 +482,8 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: "Personal"
+                                        name: "Personal",
+                                        isShared: false
                                     ),
                                 ]
                             )
@@ -523,7 +535,8 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: ""
+                                        name: "",
+                                        isShared: false
                                     ),
                                 ]
                             )
@@ -661,7 +674,8 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                 ItemListSection(
                                     id: "",
                                     items: [.syncError()],
-                                    name: ""
+                                    name: "",
+                                    isShared: false
                                 ),
                             ])
                         )

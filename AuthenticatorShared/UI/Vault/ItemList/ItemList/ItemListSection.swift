@@ -11,4 +11,7 @@ public struct ItemListSection: Equatable, Identifiable {
 
     /// The name of the section, displayed as a section header
     public let name: String
+
+    /// If the item is shared from Password Manager
+    public let isShared: Bool
 }
