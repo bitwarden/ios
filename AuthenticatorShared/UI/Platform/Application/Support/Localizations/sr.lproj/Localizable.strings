@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Синхронизујте са апликацијом Bitwarden";
 "LocalCodes" = "Локални кодови";
 "AccountsSyncedFromBitwardenApp" = "Налози су синхронизовани из апликације Bitwarden";
-"CopyToBitwarden" = "Копирај у Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "Скенирање је завршено";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Сачувајте овај кључ за аутентификацију овде или га додајте у пријаву у своју Bitwarden апликацију.";
 "SaveHere" = "Сачувај овде";

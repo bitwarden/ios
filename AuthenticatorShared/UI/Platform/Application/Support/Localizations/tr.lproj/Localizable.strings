@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Bitwarden uygulaması ile senkronize et";
 "LocalCodes" = "Yerel kodlar";
 "AccountsSyncedFromBitwardenApp" = "Bitwarden uygulamasından senkronize edilen hesaplar";
-"CopyToBitwarden" = "Bitwarden'a kopyala";
+"CopyToBitwardenVault" = "Bitwarden kasasına kopyala";
 "ScanComplete" = "Tarama tamamlandı";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Bu kimlik doğrulayıcı anahtarı buraya kaydedin veya Bitwarden uygulamanızdaki bir girişe ekleyin.";
 "SaveHere" = "Buraya kaydet";

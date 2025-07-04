@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Sünkroniseeri Bitwardeni rakendusega";
 "LocalCodes" = "Local codes";
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
-"CopyToBitwarden" = "Copy to Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "Scan complete";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
 "SaveHere" = "Save here";

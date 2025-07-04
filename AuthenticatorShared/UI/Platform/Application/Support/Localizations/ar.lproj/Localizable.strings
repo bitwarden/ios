@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "المزامنة مع تطبيق Bitwarden";
 "LocalCodes" = "الرموز المحلية";
 "AccountsSyncedFromBitwardenApp" = "تمت مزامنة الحسابات من تطبيق Bitwarden";
-"CopyToBitwarden" = "نسخ إلى Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "اكتمل الفحص";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "احفظ مفتاح المصادقة هذا هنا، أو أضفه إلى تسجيل الدخول في تطبيق Bitwarden الخاص بك.";
 "SaveHere" = "حفظ هنا";

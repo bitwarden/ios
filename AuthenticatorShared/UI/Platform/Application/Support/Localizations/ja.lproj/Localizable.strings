@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Bitwarden アプリと同期";
 "LocalCodes" = "ローカルのコード";
 "AccountsSyncedFromBitwardenApp" = "Bitwarden アプリからアカウントが同期されました";
-"CopyToBitwarden" = "Bitwarden にコピー";
+"CopyToBitwardenVault" = "Bitwarden 保管庫にコピー";
 "ScanComplete" = "スキャン完了";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "この認証キーをここに保存するか、Bitwarden アプリでログイン情報に追加してください。";
 "SaveHere" = "ここに保存";
@@ -150,7 +150,7 @@
 "VaultTimeout" = "保管庫のタイムアウト";
 "ThirtyMinutes" = "30分";
 "OnRestart" = "アプリの再起動時";
-"Custom" = "Custom";
+"Custom" = "カスタム";
 "SessionTimeout" = "セッションのタイムアウト";
 "FileCouldNotBeProcessed" = "ファイルを処理できませんでした";
 "EnsureItsValidJsonAndTryAgain" = "有効なJSONであることを確認し、もう一度やり直してください。";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "助けが必要ですか？ヘルプセンターのガイドをご覧ください。";
 "UnexpectedDataFormat" = "想定されていないデータフォーマット";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供されたデータ形式が想定と一致しません。ファイルを確認し、正しいデータ型が使用されているか確かめてください。";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "セルフホスティングのユーザーは、まだこの機能をご利用いただけません。 [詳細](%1$@)";

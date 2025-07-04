@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "与 Bitwarden App 同步";
 "LocalCodes" = "本地代码";
 "AccountsSyncedFromBitwardenApp" = "从 Bitwarden App 同步帐户";
-"CopyToBitwarden" = "复制到 Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "扫描完成";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "将此身份验证器密钥保存到此处，或将其添加到您的 Bitwarden 应用程序的登录中。";
 "SaveHere" = "另存至此";

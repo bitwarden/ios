@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Sinkroniziraj s Bitwarden aplikacijom";
 "LocalCodes" = "Lokalni kodovi";
 "AccountsSyncedFromBitwardenApp" = "Računi sinkronizirani iz Bitwarden aplikacije";
-"CopyToBitwarden" = "Kopiraj u Bitwarden";
+"CopyToBitwardenVault" = "Kopiraj u Bitwarden trezor";
 "ScanComplete" = "Skeniranje završeno";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Ovdje spremi autentifikatorski ključ ili ga dodaj prijavi u Bitwarden aplikaciji.";
 "SaveHere" = "Spremi ovdje";
@@ -150,7 +150,7 @@
 "VaultTimeout" = "Istek trezora";
 "ThirtyMinutes" = "30 minuta";
 "OnRestart" = "Pri ponovnom pokretanju";
-"Custom" = "Custom";
+"Custom" = "Prilagođeno";
 "SessionTimeout" = "Istek sesije";
 "FileCouldNotBeProcessed" = "Datoteka se ne može obraditi";
 "EnsureItsValidJsonAndTryAgain" = "Provjeri je li JSON ispravan i pokušaj ponovno.";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Trebaš pomoć? Za smjernice, posjeti naš centar za pomoć.";
 "UnexpectedDataFormat" = "Neočekivani oblik datoteke";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Navedeni format podataka ne odgovara očekivanom. Provjeri svoju datoteku i osiguraj da se koriste ispravne vrste podataka.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Ova značajka još nije dostupna za korisnike na vlastitom poslužitelju. [Saznaj više] (%1$@)";
