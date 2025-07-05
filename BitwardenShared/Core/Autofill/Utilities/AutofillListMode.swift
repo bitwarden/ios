@@ -1,5 +1,5 @@
 /// The mode in which the autofil list presents its items.
-public enum AutofillListMode {
+public enum AutofillListMode: Sendable {
     /// The autofill list shows all ciphers for autofill.
     /// This is used on autofill with text to insert.
     /// Only filters deleted items.

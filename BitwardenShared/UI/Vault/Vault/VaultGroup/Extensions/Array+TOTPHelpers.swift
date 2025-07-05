@@ -29,7 +29,7 @@ extension [VaultListItem] {
             }
         }
         return result.values
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
     }
 }
 

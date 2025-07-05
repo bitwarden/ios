@@ -291,19 +291,6 @@ public protocol VaultRepository: AnyObject {
     func vaultListPublisher(
         filter: VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
-
-    /// A publisher for the sections within a group of items in the vault list.
-    ///
-    /// - Parameters:
-    ///   - group: The group of items within the vault list to subscribe to.
-    ///   - filter: A filter to apply to the vault items.
-    /// - Returns: A publisher for the sections within a group of items in the vault list which will
-    ///     be notified as the data changes.
-    ///
-    func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 }
 
 extension VaultRepository {
@@ -343,16 +330,16 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's ciphers.
-    private let cipherService: CipherService
+    let cipherService: CipherService
 
     /// The service that handles common client functionality such as encryption and decryption.
-    private let clientService: ClientService
+    let clientService: ClientService
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
     /// The service for managing the collections for the user.
-    private let collectionService: CollectionService
+    let collectionService: CollectionService
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
@@ -361,7 +348,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     private let errorReporter: ErrorReporter
 
     /// The service used to manage syncing and updates to the user's folders.
-    private let folderService: FolderService
+    let folderService: FolderService
 
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
@@ -815,6 +802,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         collections: [Collection],
         folders: [Folder] = []
     ) async throws -> [VaultListSection] {
+//        try await MemorySamplingHelper.measureMemoryUsage(sampleInterval: 0.2) { [weak self] in
+//            guard let self else {
+//                return []
+//            }
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter { cipher in
@@ -858,6 +849,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         ]
         .compactMap { $0 }
         .filter { !$0.items.isEmpty }
+
+//        }
     }
 
     /// Filters ciphers based on the organization's restrictItemTypes policy.
@@ -897,6 +890,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
+        let log = OSLog(subsystem: "com.8bit.bitwarden", category: .pointsOfInterest)
+        os_signpost(.begin, log: log, name: StaticString("VaultListSections 1"))
+
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter { cipher in
@@ -994,7 +990,40 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
         }
 
-        return sections.filter { !$0.items.isEmpty }
+        let ret = sections.filter { !$0.items.isEmpty }
+
+        os_signpost(.end, log: log, name: StaticString("VaultListSections 1"))
+
+        return ret
+    }
+
+    open func vaultListPublisher(
+        filter: VaultListFilter
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await Publishers.CombineLatest3(
+            cipherService.ciphersPublisher(),
+            collectionService.collectionsPublisher(),
+            folderService.foldersPublisher()
+        )
+        .asyncTryMap { ciphers, collections, folders in
+            if let group = filter.group {
+                return try await self.vaultListItems(
+                    group: group,
+                    filter: filter,
+                    ciphers: ciphers,
+                    collections: collections,
+                    folders: folders
+                )
+            }
+            return try await self.vaultListSections(
+                from: ciphers,
+                collections: collections,
+                folders: folders,
+                filter: filter
+            )
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 }
 
@@ -1009,6 +1038,7 @@ extension DefaultVaultRepository: VaultRepository {
         let ciphers = try await cipherService.fetchAllCiphers()
         let collections = try await collectionService.fetchAllCollections(includeReadOnly: true)
         let folders = try await folderService.fetchAllFolders()
+
         return try await vaultListSections(
             from: ciphers,
             collections: collections,
@@ -1231,7 +1261,7 @@ extension DefaultVaultRepository: VaultRepository {
                 itemType: .totp(name: name, totpModel: updatedModel)
             )
         }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
     }
 
     func repromptRequiredForCipher(id: String) async throws -> Bool {
@@ -1356,24 +1386,14 @@ extension DefaultVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         return switch mode {
         case .all:
-            if let group {
-                try await vaultListPublisher(
-                    group: group,
-                    filter: VaultListFilter(
-                        addTOTPGroup: false,
-                        addTrashGroup: false,
-                        filterType: .allVaults
-                    )
+            try await vaultListPublisher(
+                filter: VaultListFilter(
+                    addTOTPGroup: false,
+                    addTrashGroup: false,
+                    filterType: .allVaults,
+                    group: group
                 )
-            } else {
-                try await vaultListPublisher(
-                    filter: VaultListFilter(
-                        addTOTPGroup: false,
-                        addTrashGroup: false,
-                        filterType: .allVaults
-                    )
-                )
-            }
+            )
         case .totp:
             try await totpCiphersAutofillPublisher()
         default:
@@ -1458,43 +1478,6 @@ extension DefaultVaultRepository: VaultRepository {
                 return ciphers.compactMap(VaultListItem.init)
             }
             return try await self.totpListItems(from: ciphers, filter: filter.filterType)
-        }
-        .eraseToAnyPublisher()
-        .values
-    }
-
-    func vaultListPublisher(
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { ciphers, collections, folders in
-            try await self.vaultListSections(from: ciphers, collections: collections, folders: folders, filter: filter)
-        }
-        .eraseToAnyPublisher()
-        .values
-    }
-
-    func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { ciphers, collections, folders in
-            try await self.vaultListItems(
-                group: group,
-                filter: filter,
-                ciphers: ciphers,
-                collections: collections,
-                folders: folders
-            )
         }
         .eraseToAnyPublisher()
         .values
@@ -1803,14 +1786,42 @@ public struct VaultListFilter: Sendable {
     /// The vault filter type.
     let filterType: VaultFilterType
 
+    /// The vault list group to filter.
+    let group: VaultListGroup?
+
+    /// The mode in which the autofill list is presented.
+    let mode: AutofillListMode?
+
+    /// The relying party identifier of the Fido2 request.
+    let rpID: String?
+
+    /// The URI used to filter ciphers that have a matching URI.
+    let uri: String?
+
     /// Initializes the filter.
     /// - Parameters:
     ///   - addTOTPGroup: Whether to add the TOTP group.
     ///   - addTrashGroup: Whether to add the trash group.
     ///   - filterType: The vault filter type.
-    init(addTOTPGroup: Bool = true, addTrashGroup: Bool = true, filterType: VaultFilterType) {
+    ///   - group: The vault list group to filter.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - uri: The URI used to filter ciphers that have a matching URI
+    init(
+        addTOTPGroup: Bool = true,
+        addTrashGroup: Bool = true,
+        filterType: VaultFilterType = .allVaults,
+        group: VaultListGroup? = nil,
+        mode: AutofillListMode? = nil,
+        rpID: String? = nil,
+        uri: String? = nil
+    ) {
         self.addTOTPGroup = addTOTPGroup
         self.addTrashGroup = addTrashGroup
         self.filterType = filterType
+        self.group = group
+        self.mode = mode
+        self.rpID = rpID
+        self.uri = uri
     }
 } // swiftlint:disable:this file_length

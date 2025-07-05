@@ -2860,8 +2860,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .card,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .card)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -2895,8 +2894,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         var iterator = try await subject.vaultListPublisher(
-            group: .card,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .card)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -2922,8 +2920,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher, cipherOrg1, cipherOrg2])
         configService.featureFlagsBool[.removeCardPolicy] = true
         var iterator = try await subject.vaultListPublisher(
-            group: .card,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .card)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -2949,8 +2946,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "1", name: "", organizationId: "1"),
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .collection(id: "1", name: "", organizationId: "1"))
         )
         .makeAsyncIterator()
         let vaultListSections = try await iterator.next()
@@ -2980,8 +2976,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         collectionService.collectionsSubject.send([workCollection, workDesignCollection, workEngineeringCollection])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "1", name: "", organizationId: "1"),
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .collection(id: "1", name: "", organizationId: "1"))
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3002,8 +2997,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .folder(id: "1", name: ""),
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .folder(id: "1", name: ""))
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3032,8 +3026,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         folderService.foldersSubject.send([workFolder, workDesignFolder, workEngineeringFolder])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .folder(id: "1", name: ""),
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .folder(id: "1", name: ""))
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3054,8 +3047,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .identity,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .identity)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3077,8 +3069,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .login,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .login)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3100,8 +3091,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .secureNote,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .secureNote)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3123,8 +3113,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .sshKey,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .sshKey)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3147,8 +3136,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .totp,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .totp)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
         let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
@@ -3169,8 +3157,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .totp,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .totp)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
         let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
@@ -3200,8 +3187,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .totp,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .totp)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
         let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
@@ -3240,8 +3226,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .totp,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .totp)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
         let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
@@ -3267,8 +3252,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .totp,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: VaultListGroup.totp)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3281,8 +3265,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(
-            group: .trash,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .trash)
         ).makeAsyncIterator()
         let vaultListSections = try await iterator.next()
 
@@ -3925,8 +3908,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .login,
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(filterType: .allVaults, group: .login)
         ).makeAsyncIterator()
         let items = try await iterator.next()
 
@@ -3953,9 +3935,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .login,
             filter: VaultListFilter(
-                filterType: .myVault
+                filterType: .myVault,
+                group: .login
             )
         ).makeAsyncIterator()
         let items = try await iterator.next()
@@ -3978,8 +3960,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .login,
-            filter: VaultListFilter(filterType: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")))
+            filter: VaultListFilter(
+                filterType: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")),
+                group: .login
+            )
         ).makeAsyncIterator()
         let items = try await iterator.next()
 
@@ -4005,12 +3989,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .collection(
-                id: "f96de98e-618a-4886-b396-66b92a385325",
-                name: "Engineering",
-                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
-            ),
-            filter: VaultListFilter(filterType: .allVaults)
+            filter: VaultListFilter(
+                filterType: .allVaults,
+                group: .collection(
+                    id: "f96de98e-618a-4886-b396-66b92a385325",
+                    name: "Engineering",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                )
+            )
         ).makeAsyncIterator()
         let items = try await iterator.next()
 

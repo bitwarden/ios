@@ -297,12 +297,16 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// `name` returns the expected value.
-    func test_name() {
-        XCTAssertEqual(subject.name, "")
+    /// `sortValue` returns the expected value.
+    func test_sortValue() {
+        subject = .fixture(cipherListView: .fixture(name: "CipherName"))
+        XCTAssertEqual(subject.sortValue, "CipherName")
+
+        subject = .fixtureGroup()
+        XCTAssertEqual(subject.sortValue, "")
 
         subject = .fixtureTOTP(totp: .fixture())
-        XCTAssertEqual(subject.name, "Name123")
+        XCTAssertEqual(subject.sortValue, "Name123")
     }
 
     /// `shouldShowFido2CredentialRpId` returns expected value.
