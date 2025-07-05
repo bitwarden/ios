@@ -107,6 +107,8 @@ class MockClientCiphers: CiphersClientProtocol {
 
     var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
     var decryptListError: Error?
+    var decryptListErrorWhenCiphers: (([Cipher]) -> Error?)?
+    var decryptListReceivedCiphersInvocations: [[Cipher]] = []
     var encryptCipherResult: Result<EncryptionContext, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
@@ -130,6 +132,10 @@ class MockClientCiphers: CiphersClientProtocol {
         if let decryptListError {
             throw decryptListError
         }
+        if let decryptListErrorWhenCiphers, let error = decryptListErrorWhenCiphers(ciphers) {
+            throw error
+        }
+        decryptListReceivedCiphersInvocations.append(ciphers)
         return ciphers.map(CipherListView.init)
     }
 

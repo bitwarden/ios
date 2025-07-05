@@ -72,9 +72,13 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
 class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     // MARK: Properties
 
+    /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
+    /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The service used by the application to manage account state.
     let stateService: StateService
+    /// The service used to get the present time.
     let timeProvider: TimeProvider
 
     /// The arranged data to build.
@@ -85,7 +89,13 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     var userHasMasterPassword: Bool?
 
     // MARK: Init
-
+    
+    /// Initializes a `DefaultVaultListPreparedDataBuilder`.
+    /// - Parameters:
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - stateService: The service used by the application to manage account state.
+    ///   - timeProvider: The service used to get the present time.
     init(
         clientService: ClientService,
         errorReporter: ErrorReporter,

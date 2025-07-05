@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - VaultListDataPreparatorTests
 
-class VaultListDataPreparatorTests: BitwardenTestCase {
+class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
@@ -211,5 +211,129 @@ class VaultListDataPreparatorTests: BitwardenTestCase {
             filter: VaultListFilter()
         )
         XCTAssertNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data filtering out cipher
+    /// when vault list filter is `.myVault` and the cipher belongs to an organization.
+    func test_prepareGroupData_withMyVaultFilterAndBelongingToOrganization() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            organizationId: "1"
+        )
+
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(filterType: .myVault, group: .login)
+        )
+
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data filtering out cipher
+    /// when not passing restrict item types policy.
+    func test_prepareGroupData_noPassingRestrictItemTypesPolicy() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            organizationId: "1"
+        )
+        policyService.passesRestrictItemTypesPolicyResult = false
+
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .login)
+        )
+
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
+    /// adding folder items when filtering by folder.
+    func test_prepareGroupData_folder() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1"
+        )
+
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .folder(id: "1", name: "Folder"))
+        )
+
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
+    /// adding incrementing collection count when filtering by collection.
+    func test_prepareGroupData_collection() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1"
+        )
+
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
+        )
+
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
+    /// when not filtering by folder nor collection.
+    func test_prepareGroupData_nonFolderNonCollection() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1"
+        )
+
+        let groups: [VaultListGroup] = [.card, .identity, .login, .noFolder, .secureNote, .sshKey, .totp, .trash]
+        for group in groups {
+            try await prepareGroupDataGenericTest(group: group)
+        }
+    }
+
+    // MARK: Private
+
+    /// Tests `prepareGroupData(from:collections:folders:filter:)` generically for most groups.
+    /// - Parameter group: The group to test.
+    private func prepareGroupDataGenericTest(group: VaultListGroup) async throws {
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: group)
+        )
+
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
+        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertNotNil(result)
     }
 }

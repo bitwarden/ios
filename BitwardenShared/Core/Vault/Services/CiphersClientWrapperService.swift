@@ -44,6 +44,7 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
 
     /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
+    /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
     // MARK: Methods
