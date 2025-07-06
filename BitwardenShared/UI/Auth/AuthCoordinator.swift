@@ -51,6 +51,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasCaptchaService
+        & HasClientCertificateService
         & HasClientService
         & HasConfigService
         & HasDeviceAPIService
@@ -699,6 +700,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
+            services: services,
             state: state
         )
         let view = SelfHostedView(store: Store(processor: processor))
