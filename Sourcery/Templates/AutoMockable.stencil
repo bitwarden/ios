@@ -1,12 +1,15 @@
 // swiftlint:disable line_length
 // swiftlint:disable variable_name
 
-import BitwardenKit
-import BitwardenSdk
-import Combine
 import Foundation
 
-@testable import BitwardenShared
+{% for import in argument.autoMockableImports %}
+import {{ import }}
+{% endfor %}
+
+{% for import in argument.autoMockableTestableImports %}
+@testable import {{ import }}
+{% endfor %}
 
 {% macro swiftifyMethodName name %}{{ name | replace:"(","_" | replace:")","" | replace:":","_" | replace:"`","" | snakeToCamelCase | lowerFirstWord }}{% endmacro %}
 

@@ -13,3 +13,6 @@ exclude:
   - TestHelpers
   - Fixtures
   
+args:
+  autoMockableImports: ["BitwardenKit", "BitwardenSdk", "Combine"]
+  autoMockableTestableImports: ["AuthenticatorShared"]
