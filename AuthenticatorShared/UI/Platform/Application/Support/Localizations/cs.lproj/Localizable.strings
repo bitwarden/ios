@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Synchronizovat s aplikací Bitwarden";
 "LocalCodes" = "Místní kódy";
 "AccountsSyncedFromBitwardenApp" = "Účty jsou synchronizovány z aplikace Bitwarden";
-"CopyToBitwarden" = "Kopírovat do Bitwardenu";
+"CopyToBitwardenVault" = "Kopírovat do trezoru Bitwarden";
 "ScanComplete" = "Prohledávání dokončeno";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Uložte tento ověřovací klíč zde nebo ho přidejte do Vaší aplikace Bitwarden.";
 "SaveHere" = "Uložit zde";

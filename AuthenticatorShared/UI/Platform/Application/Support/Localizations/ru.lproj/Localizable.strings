@@ -131,7 +131,7 @@
 "SyncWithBitwardenApp" = "Синхронизация с приложением Bitwarden";
 "LocalCodes" = "Локальные коды";
 "AccountsSyncedFromBitwardenApp" = "Учетные записи, синхронизированные из приложения Bitwarden";
-"CopyToBitwarden" = "Копирование в Bitwarden";
+"CopyToBitwardenVault" = "Скопировать в хранилище Bitwarden";
 "ScanComplete" = "Сканирование завершено";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Сохраните этот ключ аутентификатора здесь или добавьте его к логину в приложении Bitwarden.";
 "SaveHere" = "Сохранить здесь";
