@@ -248,7 +248,7 @@ class DefaultAuthenticatorItemRepository {
 
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites, isShared: false),
-            ItemListSection(id: useSyncValues ? Constants.localCodes : "Unorganized",
+            ItemListSection(id: useSyncValues ? "LocalCodes" : "Unorganized",
                             items: nonFavorites,
                             name: useSyncValues ? Localizations.localCodes : "",
                             isShared: false),
