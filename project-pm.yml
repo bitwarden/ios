@@ -165,6 +165,8 @@ targets:
       - path: swiftgen-pm.yml
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
+      - path: BitwardenShared/Sourcery/sourcery.yml
+        buildPhase: none
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -398,6 +400,9 @@ targets:
             PATH="/opt/homebrew/bin:$PATH"
           fi
           mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -417,6 +422,8 @@ targets:
           - "**/Fixtures/*"
       - path: GlobalTestHelpers
       - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:
       - target: Bitwarden
