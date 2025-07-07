@@ -114,14 +114,17 @@ jobs:
         run: |
           ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
 
+      - name: Install Homebrew Dependencies
+        run: |
+          brew update
+          brew bundle
+
       - name: Run Sourcery
         run: |
           mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
 
-      - name: Install Homebrew Dependencies and run bootstrap.sh
+      - name: Run bootstrap.sh
         run: |
-          brew update
-          brew bundle
           ./Scripts/bootstrap.sh
 
       - name: Build and test
