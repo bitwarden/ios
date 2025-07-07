@@ -362,6 +362,7 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
           - "**/__Snapshots__/*"
+          - "**/Sourcery/Generated/*"
       - path: BitwardenShared
         includes:
           - "**/__Snapshots__/*"

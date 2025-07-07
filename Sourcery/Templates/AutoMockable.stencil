@@ -1,6 +1,3 @@
-// You can ignore local changes using:
-// git update-index --assume-unchanged {pathToGeneratedFile}/AutoMockable.generated.swift
-
 // swiftlint:disable line_length
 // swiftlint:disable variable_name
 
@@ -8,6 +5,8 @@ import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
+
+@testable import BitwardenShared
 
 {% macro swiftifyMethodName name %}{{ name | replace:"(","_" | replace:")","" | replace:":","_" | replace:"`","" | snakeToCamelCase | lowerFirstWord }}{% endmacro %}
 
