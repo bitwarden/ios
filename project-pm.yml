@@ -391,6 +391,12 @@ targets:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -409,6 +415,8 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
