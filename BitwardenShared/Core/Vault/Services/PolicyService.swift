@@ -84,13 +84,13 @@ actor DefaultPolicyService: PolicyService {
     // MARK: Initialization
 
     /// Initialize a `DefaultPolicyService`.
-    /// 
+    ///
     /// - Parameters:
     ///   - configService: The service to get server-specified configuration.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
-    /// 
+    ///
     init(
         configService: ConfigService,
         organizationService: OrganizationService,

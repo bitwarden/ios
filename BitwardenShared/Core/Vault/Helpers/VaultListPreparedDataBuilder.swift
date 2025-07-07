@@ -89,7 +89,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     var userHasMasterPassword: Bool?
 
     // MARK: Init
-    
+
     /// Initializes a `DefaultVaultListPreparedDataBuilder`.
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
