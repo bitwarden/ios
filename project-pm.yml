@@ -165,8 +165,6 @@ targets:
       - path: swiftgen-pm.yml
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
-      - path: BitwardenShared/Sourcery/sourcery.yml
-        buildPhase: none
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -365,6 +363,7 @@ targets:
           - "**/Fixtures/*"
           - "**/__Snapshots__/*"
           - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
       - path: BitwardenShared
         includes:
           - "**/__Snapshots__/*"
@@ -376,6 +375,8 @@ targets:
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
+      - path: BitwardenShared/Sourcery/sourcery.yml
+        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - package: SwiftUIIntrospect
