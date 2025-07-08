@@ -684,6 +684,43 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 timeProvider: PreviewTimeProvider()
             )
         }.previewDisplayName("SyncError")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([
+                                ItemListSection.digitsFixture(accountNames: true),
+                                ItemListSection(
+                                    id: "",
+                                    items: [
+                                        ItemListItem(
+                                            id: "Shared One",
+                                            name: "Share",
+                                            accountName: "person@shared.com",
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: AuthenticatorItemView.fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                    ],
+                                    name: "example.com",
+                                    isShared: true
+                                ),
+                            ])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("SharedItems")
     }
 }
 #endif
