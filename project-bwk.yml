@@ -144,8 +144,21 @@ targets:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
+      - path: swiftgen-bwk.yml
+        buildPhase: none
     dependencies:
       - target: Networking
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwk.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenKit/Core/Application/Support/Generated/SpikeAssets.swift
+          - $(SRCROOT)/BitwardenKit/Core/Application/Support/Generated/SpikeLocalizations.swift
   BitwardenKitMocks:
     type: framework
     platform: iOS
