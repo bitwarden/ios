@@ -148,7 +148,7 @@ platform :ios do |options|
 
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
-        bundle_id = ENV["_BUNDLE_ID"] || "com.8bit.Bitwarden" #default to Bitwarden for backwards compatibility with old build workflows
+        bundle_id = ENV["_BUNDLE_ID"] || options[:bundle_id] || "com.8bit.bitwarden" # provides backwards compatibility with old build workflows
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],

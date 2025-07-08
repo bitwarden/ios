@@ -1128,6 +1128,18 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
     }
 
+    /// `start(navigator:)` doesn't log an error if there's no accounts.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_noAccounts() async throws {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
+    }
+
     /// `start(navigator:)` doesn't update the user's autofill setup progress if they have no
     /// current progress recorded.
     @MainActor

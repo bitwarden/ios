@@ -451,6 +451,8 @@ extension AppProcessor {
                 else { continue }
                 try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
             }
+        } catch StateServiceError.noAccounts {
+            // No-op: nothing to do if there's no accounts.
         } catch {
             services.errorReporter.log(error: error)
         }
