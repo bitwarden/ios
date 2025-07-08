@@ -38,31 +38,31 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
 /// Builder to build prepared data for the vault list sections.
 protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
-    /// Adds a favorite item to the arranged data.
+    /// Adds a favorite item to the prepared data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
-    /// Adds a folder item to the arranged data.
+    /// Adds a folder item to the prepared data.
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
         folders: [Folder]
     ) -> VaultListPreparedDataBuilder
-    /// Adds an item for a specific group to the arranged data.
+    /// Adds an item for a specific group to the prepared data.
     func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
-    /// Adds a no folder item to the arranged data.
+    /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
-    /// Builds the arranged data.
+    /// Builds the prepared data.
     func build() -> VaultListPreparedData
-    /// Increments the cipher type count in the arranged data.
+    /// Increments the cipher type count in the prepared data.
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
-    /// Increments the cipher deleted count in the arranged data.
+    /// Increments the cipher deleted count in the prepared data.
     func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder
-    /// Increments the collection count in the arranged data.
+    /// Increments the collection count in the prepared data.
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
-    /// Increments the TOTP count in the arranged data.
+    /// Increments the TOTP count in the prepared data.
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder
-    /// Prepares collections to the arranged data that then can be used for filtering.
+    /// Prepares collections to the prepared data that then can be used for filtering.
     func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
-    /// Prepares folders to the arranged data that then can be used for filtering.
+    /// Prepares folders to the prepared data that then can be used for filtering.
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
 }
 
@@ -81,8 +81,8 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     /// The service used to get the present time.
     let timeProvider: TimeProvider
 
-    /// The arranged data to build.
-    var arrangedData = VaultListPreparedData()
+    /// The prepared data to build.
+    var preparedData = VaultListPreparedData()
     /// Cache of whether the account has premium features access.
     var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
@@ -113,7 +113,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.favorite,
            let favoriteListItem = VaultListItem(cipherListView: cipher) {
-            arrangedData.favorites.append(favoriteListItem)
+            preparedData.favorites.append(favoriteListItem)
         }
         return self
     }
@@ -124,9 +124,9 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         folders: [Folder]
     ) -> VaultListPreparedDataBuilder {
         if let folderId = cipher.folderId, let folder = folders.first(where: { $0.id == folderId }) {
-            arrangedData.foldersCount[folderId, default: 0] += 1
-            if filter.filterType != .allVaults, !arrangedData.folders.contains(where: { $0.id == folderId }) {
-                arrangedData.folders.append(folder)
+            preparedData.foldersCount[folderId, default: 0] += 1
+            if filter.filterType != .allVaults, !preparedData.folders.contains(where: { $0.id == folderId }) {
+                preparedData.folders.append(folder)
             }
         }
 
@@ -139,7 +139,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     ) async -> any VaultListPreparedDataBuilder {
         guard cipher.deletedDate == nil else {
             if group == .trash, let trashItem = VaultListItem(cipherListView: cipher) {
-                arrangedData.groupItems.append(trashItem)
+                preparedData.groupItems.append(trashItem)
             }
             return self
         }
@@ -158,7 +158,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         case .totp:
             if await shouldIncludeTOTP(cipher: cipher),
                let totpItem = await totpItem(for: cipher) {
-                arrangedData.groupItems.append(totpItem)
+                preparedData.groupItems.append(totpItem)
             }
             return self
         case let .collection(id, _, _):
@@ -175,52 +175,52 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         guard let groupItem = VaultListItem(cipherListView: cipher) else {
             return self
         }
-        arrangedData.groupItems.append(groupItem)
+        preparedData.groupItems.append(groupItem)
         return self
     }
 
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.folderId == nil,
            let noFolderItem = VaultListItem(cipherListView: cipher) {
-            arrangedData.noFolderItems.append(noFolderItem)
+            preparedData.noFolderItems.append(noFolderItem)
         }
         return self
     }
 
     func build() -> VaultListPreparedData {
-        arrangedData
+        preparedData
     }
 
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         switch cipher.type {
         case .card:
-            arrangedData.countPerCipherType[.card, default: 0] += 1
+            preparedData.countPerCipherType[.card, default: 0] += 1
         case .identity:
-            arrangedData.countPerCipherType[.identity, default: 0] += 1
+            preparedData.countPerCipherType[.identity, default: 0] += 1
         case .login:
-            arrangedData.countPerCipherType[.login, default: 0] += 1
+            preparedData.countPerCipherType[.login, default: 0] += 1
         case .secureNote:
-            arrangedData.countPerCipherType[.secureNote, default: 0] += 1
+            preparedData.countPerCipherType[.secureNote, default: 0] += 1
         case .sshKey:
-            arrangedData.countPerCipherType[.sshKey, default: 0] += 1
+            preparedData.countPerCipherType[.sshKey, default: 0] += 1
         }
 
         return self
     }
 
     func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder {
-        arrangedData.ciphersDeletedCount += 1
+        preparedData.ciphersDeletedCount += 1
         return self
     }
 
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if !cipher.collectionIds.isEmpty,
-           let tempCollectionForCipher = arrangedData.collections.first(where: { collection in
+           let tempCollectionForCipher = preparedData.collections.first(where: { collection in
                guard let colId = collection.id else { return false }
                return cipher.collectionIds.contains(colId)
            }),
            let tempCollectionId = tempCollectionForCipher.id {
-            arrangedData.collectionsCount[tempCollectionId, default: 0] += 1
+            preparedData.collectionsCount[tempCollectionId, default: 0] += 1
         }
 
         return self
@@ -228,7 +228,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
         if await shouldIncludeTOTP(cipher: cipher) {
-            arrangedData.totpItemsCount += 1
+            preparedData.totpItemsCount += 1
         }
 
         return self
@@ -236,16 +236,16 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
         if filterType == .allVaults {
-            arrangedData.collections = collections
+            preparedData.collections = collections
         } else if case let .organization(organization) = filterType {
-            arrangedData.collections = collections.filter { $0.id == organization.id }
+            preparedData.collections = collections.filter { $0.id == organization.id }
         }
         return self
     }
 
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
         if filterType == .allVaults {
-            arrangedData.folders = folders
+            preparedData.folders = folders
         }
         return self
     }

@@ -58,12 +58,6 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     ) async throws -> [VaultListSection] {
         guard !ciphers.isEmpty else { return [] }
 
-        let log = OSLog(subsystem: "com.8bit.bitwarden", category: .pointsOfInterest)
-        os_signpost(.begin, log: log, name: StaticString("VaultListSections"))
-        defer {
-            os_signpost(.end, log: log, name: StaticString("VaultListSections"))
-        }
-
         guard let preparedData = try await vaultListDataPreparator.prepareData(
             from: ciphers,
             collections: collections,

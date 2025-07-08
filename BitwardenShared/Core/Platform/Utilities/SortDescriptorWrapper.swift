@@ -21,7 +21,7 @@ struct SortDescriptorWrapper<T> {
     ) {
         if #available(iOS 17, *) {
             // Use native SortDescriptor on iOS 17+
-            let native = SortDescriptor(keyPath, comparator: comparator)
+            let native = SortDescriptor(keyPath, comparator: comparator, order: order)
             _compare = { lhs, rhs in native.compare(lhs, rhs) }
         } else if #available(iOS 16, *) {
             let comparison = { (lhs: String, rhs: String) in
@@ -56,7 +56,7 @@ struct SortDescriptorWrapper<T> {
         order: SortOrder = .forward
     ) {
         if #available(iOS 17, *) {
-            let native = SortDescriptor<T>(keyPath, comparator: comparator)
+            let native = SortDescriptor<T>(keyPath, comparator: comparator, order: order)
             _compare = { lhs, rhs in native.compare(lhs, rhs) }
         } else if #available(iOS 16, *) {
             let comparison: (String?, String?) -> ComparisonResult = { lhs, rhs in
