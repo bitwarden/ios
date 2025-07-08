@@ -10,7 +10,8 @@ class VaultUnlockProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasApplication
+        & HasAuthRepository
         & HasBiometricsRepository
         & HasErrorReporter
         & HasStateService
@@ -130,10 +131,12 @@ class VaultUnlockProcessor: StateProcessor<
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
-        // If biometric unlock is available and enabled,
-        // attempt to unlock the vault with biometrics once.
+        // If biometric unlock is available and enabled, and the app isn't in the background
+        // (which can occur when receiving push notifications), attempt to unlock the vault with
+        // biometrics once.
         if case .available(_, true) = state.biometricUnlockStatus,
-           shouldAttemptAutomaticBiometricUnlock {
+           shouldAttemptAutomaticBiometricUnlock,
+           services.application?.applicationState != .background {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
         }
