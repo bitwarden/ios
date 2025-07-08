@@ -1,0 +1,5 @@
+"SpikeUnused" = "Spanish This string is unused by anything.";
+"SpikeBWK" = "Spanish This string is only used by BWK internally";
+"SpikeBWA" = "Spanish This string is only used by BWA";
+"SpikePM" = "Spanish This string is only used by PM";
+"SpikeBWAPM" = "Spanish This string is used by both BWA and PM";
