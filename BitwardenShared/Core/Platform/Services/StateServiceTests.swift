@@ -1323,11 +1323,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `isAuthenticated()` throws an error if there's no accounts.
-    func test_isAuthenticated_noAccount() async throws {
-        await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.isAuthenticated()
-        }
+    /// `isAuthenticated()` returns false if there's no accounts.
+    func test_isAuthenticated_noAccounts() async throws {
+        let isAuthenticated = try await subject.isAuthenticated()
+        XCTAssertFalse(isAuthenticated)
+    }
+
+    /// `isAuthenticated()` returns false if there's no active account.
+    func test_isAuthenticated_noActiveAccount() async throws {
+        appSettingsStore.state = State()
+
+        let isAuthenticated = try await subject.isAuthenticated()
+        XCTAssertFalse(isAuthenticated)
     }
 
     /// `logoutAccount()` clears any account data.
