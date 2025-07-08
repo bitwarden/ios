@@ -4,7 +4,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-extension VaultListPreparedDataBuilderMock {
+extension MockVaultListPreparedDataBuilder {
     func setUpFluentReturn() {
         addFavoriteItemCipherReturnValue = self
         addFolderItemCipherFilterFoldersReturnValue = self

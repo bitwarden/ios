@@ -15,8 +15,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: VaultListDataPreparator!
-    var vaultListPreparedDataBuilder: VaultListPreparedDataBuilderMock!
-    var vaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactoryMock!
+    var vaultListPreparedDataBuilder: MockVaultListPreparedDataBuilder!
+    var vaultListPreparedDataBuilderFactory: MockVaultListPreparedDataBuilderFactory!
 
     // MARK: Setup & Teardown
 
@@ -29,11 +29,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         policyService = MockPolicyService()
         stateService = MockStateService()
 
-        vaultListPreparedDataBuilder = VaultListPreparedDataBuilderMock()
+        vaultListPreparedDataBuilder = MockVaultListPreparedDataBuilder()
         vaultListPreparedDataBuilder.setUpFluentReturn()
         vaultListPreparedDataBuilder.buildReturnValue = VaultListPreparedData()
 
-        vaultListPreparedDataBuilderFactory = VaultListPreparedDataBuilderFactoryMock()
+        vaultListPreparedDataBuilderFactory = MockVaultListPreparedDataBuilderFactory()
         vaultListPreparedDataBuilderFactory.makeReturnValue = vaultListPreparedDataBuilder
 
         subject = DefaultVaultListDataPreparator(
