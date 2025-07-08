@@ -2,6 +2,18 @@ name: CI / Authenticator
 run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
 
 on:
+  push:
+    branches:
+      - main
+      - release/**/*
+    paths-ignore:
+      - Bitwarden/**
+      - BitwardenActionExtension/**
+      - BitwardenAutoFillExtension/**
+      - BitwardenShared/**
+      - BitwardenShareExtension/**
+      - BitwardenWatchApp/**
+      - BitwardenWatchWidgetExtension/**
   workflow_dispatch:
     inputs:
       build-mode:
