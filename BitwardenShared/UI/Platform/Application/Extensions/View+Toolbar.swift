@@ -231,6 +231,7 @@ extension View {
                 Text(title)
                     .styleGuide(.largeTitle, weight: .semibold)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("HeaderBarPageTitle")
             }
         }
 
