@@ -4,6 +4,23 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert notifying the user that one or more items in their vault were unable to be
+    /// decrypted.
+    ///
+    /// - Parameter cipherId: The identifier of the cipher that was unable to be decrypted.
+    /// - Returns: An alert notifying the user that one or more item in their vault were unable to
+    ///     be decrypted.
+    ///
+    static func cipherDecryptionFailure(cipherId: String?) -> Alert {
+        Alert(
+            title: Localizations.decryptionError,
+            message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n" + (cipherId ?? ""),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .default),
+            ]
+        )
+    }
+
     /// Returns an alert confirming cancelling the Credential Exchange export process.
     /// - Parameter action: The action to perform if the user confirms.
     /// - Returns: An alert confirming cancelling the Credential Exchange export process.

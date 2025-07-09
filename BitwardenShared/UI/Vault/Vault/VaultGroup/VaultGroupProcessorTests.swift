@@ -717,6 +717,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
+    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        subject.receive(.itemPressed(item))
+
+        XCTAssertEqual(coordinator.alertShown.last, .cipherDecryptionFailure(cipherId: "1"))
+    }
+
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     @MainActor
     func test_receive_itemPressed_group() {
