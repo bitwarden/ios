@@ -47,7 +47,7 @@ extension [ItemListSection] {
     ) -> [ItemListSection] {
         map { section in
             let updatedItems = section.items.updated(with: updatedValues, includeNewValues: includeNewValues)
-            return ItemListSection(id: section.id, items: updatedItems, name: section.name, isShared: section.isShared)
+            return ItemListSection(id: section.id, items: updatedItems, name: section.name)
         }
     }
 }

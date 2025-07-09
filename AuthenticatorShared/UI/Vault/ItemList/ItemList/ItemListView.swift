@@ -272,12 +272,10 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(title: String?, items: [ItemListItem], isShared: Bool) -> some View {
+    private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
-                ExpandableHeaderView(title: title,
-                                     count: items.count,
-                                     isExpanded: !isShared) {
+                ExpandableHeaderView(title: title, count: items.count) {
                     ForEach(items) { item in
                         buildRow(item: item, isLastInSection: true)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -308,9 +306,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
 
             VStack(spacing: 20) {
                 ForEach(sections) { section in
-                    groupView(title: section.name,
-                              items: section.items,
-                              isShared: section.isShared)
+                    groupView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
@@ -445,8 +441,7 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: "Favorites",
-                                        isShared: false
+                                        name: "Favorites"
                                     ),
                                     ItemListSection(
                                         id: "Section",
@@ -482,8 +477,7 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: "Personal",
-                                        isShared: false
+                                        name: "Personal"
                                     ),
                                 ]
                             )
@@ -535,8 +529,7 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                 )
                                             ),
                                         ],
-                                        name: "",
-                                        isShared: false
+                                        name: ""
                                     ),
                                 ]
                             )
@@ -674,8 +667,7 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                 ItemListSection(
                                     id: "",
                                     items: [.syncError()],
-                                    name: "",
-                                    isShared: false
+                                    name: ""
                                 ),
                             ])
                         )
@@ -712,7 +704,6 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                         ),
                                     ],
                                     name: "example.com",
-                                    isShared: true
                                 ),
                             ])
                         )

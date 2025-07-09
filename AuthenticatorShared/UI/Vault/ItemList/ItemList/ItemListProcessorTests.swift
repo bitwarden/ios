@@ -138,7 +138,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 )
             )
         )
-        let resultSection = ItemListSection(id: "", items: [result], name: "Items", isShared: false)
+        let resultSection = ItemListSection(id: "", items: [result], name: "Items")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([result])
@@ -184,8 +184,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let firstSection = ItemListSection(
             id: "",
             items: [firstItem],
-            name: "Items",
-            isShared: false
+            name: "Items"
         )
 
         let secondItem = ItemListItem.fixture(
@@ -200,8 +199,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let secondSection = ItemListSection(
             id: "",
             items: [secondItem],
-            name: "Items",
-            isShared: false
+            name: "Items"
         )
 
         let thirdModel = TOTPCodeModel(
@@ -214,7 +212,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: thirdModel
             )
         )
-        let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items", isShared: false)
+        let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items")
 
         authItemRepository.refreshTotpCodesResult = .success([secondItem])
         let task = Task {
@@ -452,7 +450,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 )
             )
         )
-        let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items", isShared: false)
+        let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
         subject.state.loadingState = .data([firstSection])
 
         let secondItem = ItemListItem.fixtureShared(
@@ -501,7 +499,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let results = [
             ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: "", items: results, name: "", isShared: false)
+        let resultSection = ItemListSection(id: "", items: results, name: "")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -539,8 +537,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             results[2], // Delta
             results[0], // Gamma
         ]
-        let resultSection = ItemListSection(id: "", items: results, name: "", isShared: false)
-        let sortedSection = ItemListSection(id: "", items: resultsSorted, name: "", isShared: false)
+        let resultSection = ItemListSection(id: "", items: results, name: "")
+        let sortedSection = ItemListSection(id: "", items: resultsSorted, name: "")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -569,7 +567,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let results = [
             ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: accountName, items: results, name: accountName, isShared: true)
+        let resultSection = ItemListSection(id: accountName, items: results, name: accountName)
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -599,7 +597,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let results = [
             ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: accountName, items: results, name: accountName, isShared: true)
+        let resultSection = ItemListSection(id: accountName, items: results, name: accountName)
 
         appSettingsStore.setHasSyncedAccount(name: accountName)
         authItemRepository.itemListSubject.send([resultSection])
@@ -629,7 +627,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
             ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: "", items: results, name: "Items", isShared: false)
+        let resultSection = ItemListSection(id: "", items: results, name: "Items")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -656,7 +654,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
             ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: "", items: results, name: "Items", isShared: false)
+        let resultSection = ItemListSection(id: "", items: results, name: "Items")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -684,7 +682,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_setupForegroundNotification() async throws {
         let item = ItemListItem.fixture()
-        let resultSection = ItemListSection(id: "", items: [item], name: "Items", isShared: false)
+        let resultSection = ItemListSection(id: "", items: [item], name: "Items")
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([item])
 

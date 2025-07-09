@@ -336,8 +336,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "Unorganized",
                                 items: expected,
-                                name: "",
-                                isShared: false),
+                                name: ""),
             ]
         )
     }
@@ -388,12 +387,10 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "Favorites",
                                 items: [favoritedItem],
-                                name: Localizations.favorites,
-                                isShared: false),
+                                name: Localizations.favorites),
                 ItemListSection(id: "Unorganized",
                                 items: [unorganizedItem],
-                                name: "",
-                                isShared: false),
+                                name: ""),
             ]
         )
     }
@@ -426,16 +423,13 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "Favorites",
                                 items: [favoritedItem],
-                                name: Localizations.favorites,
-                                isShared: false),
+                                name: Localizations.favorites),
                 ItemListSection(id: "LocalCodes",
                                 items: [unorganizedItem],
-                                name: Localizations.localCodes,
-                                isShared: false),
+                                name: Localizations.localCodes),
                 ItemListSection(id: "SyncError",
                                 items: [.syncError()],
-                                name: "",
-                                isShared: false),
+                                name: ""),
             ]
         )
     }
@@ -487,12 +481,10 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "Favorites",
                                 items: [favoritedItem],
-                                name: Localizations.favorites,
-                                isShared: false),
+                                name: Localizations.favorites),
                 ItemListSection(id: "Unorganized",
                                 items: [unorganizedItem],
-                                name: "",
-                                isShared: false),
+                                name: ""),
             ]
         )
     }
@@ -529,16 +521,13 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "Favorites",
                                 items: [favoritedItem],
-                                name: Localizations.favorites,
-                                isShared: false),
+                                name: Localizations.favorites),
                 ItemListSection(id: "LocalCodes",
                                 items: [unorganizedItem],
-                                name: Localizations.localCodes,
-                                isShared: false),
+                                name: Localizations.localCodes),
                 ItemListSection(id: "shared@example.com | Domain",
                                 items: [sharedListItem],
-                                name: "shared@example.com | Domain",
-                                isShared: true),
+                                name: "shared@example.com | Domain"),
             ]
         )
 
@@ -584,20 +573,16 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             [
                 ItemListSection(id: "",
                                 items: [neitherItem],
-                                name: "",
-                                isShared: true),
+                                name: ""),
                 ItemListSection(id: "Domain",
                                 items: [noEmailItem],
-                                name: "Domain",
-                                isShared: true),
+                                name: "Domain"),
                 ItemListSection(id: "shared@example.com",
                                 items: [noDomainItem],
-                                name: "shared@example.com",
-                                isShared: true),
+                                name: "shared@example.com"),
                 ItemListSection(id: "shared@example.com | Domain",
                                 items: [fullListItem],
-                                name: "shared@example.com | Domain",
-                                isShared: true),
+                                name: "shared@example.com | Domain"),
             ]
         )
     }

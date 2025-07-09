@@ -319,10 +319,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     }
                     let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
                     let sortedList = itemList.sorted(by: ItemListItem.localizedNameComparator)
-                    return ItemListSection(id: section.id,
-                                           items: sortedList,
-                                           name: section.name,
-                                           isShared: section.isShared)
+                    return ItemListSection(id: section.id, items: sortedList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
                 state.showMoveToBitwarden = await services.authenticatorItemRepository.isPasswordManagerSyncActive()

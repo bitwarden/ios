@@ -14,7 +14,7 @@ struct ExpandableHeaderView<Content: View>: View {
     let content: Content
 
     /// A var to determine if the content in the section is expanded or collapsed.
-    @State private var isExpanded: Bool
+    @State private var isExpanded: Bool = true
 
     /// A value indicating whether the expandable content is currently enabled or disabled.
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -75,7 +75,6 @@ struct ExpandableHeaderView<Content: View>: View {
     init(
         title: String,
         count: Int,
-        isExpanded: Bool,
         buttonAccessibilityIdentifier: String = "ExpandSectionButton",
         @ViewBuilder content: () -> Content
     ) {
@@ -83,7 +82,6 @@ struct ExpandableHeaderView<Content: View>: View {
         self.content = content()
         self.title = title
         self.count = count
-        self.isExpanded = isExpanded
     }
 }
 
@@ -95,7 +93,7 @@ struct ExpandableHeaderView<Content: View>: View {
     @Previewable @SwiftUI.State var isExpanded = false
 
     VStack {
-        ExpandableHeaderView(title: Localizations.localCodes, count: 3, isExpanded: true) {
+        ExpandableHeaderView(title: Localizations.localCodes, count: 3) {
             BitwardenTextValueField(value: "Option 1")
             BitwardenTextValueField(value: "Option 2")
             BitwardenTextValueField(value: "Option 3")
