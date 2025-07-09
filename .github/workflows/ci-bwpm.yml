@@ -2,6 +2,13 @@ name: CI / Password Manager
 run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
 
 on:
+  push:
+    branches:
+      - main
+      - release/**/*
+    paths-ignore:
+      - Authenticator/**
+      - AuthenticatorShared/**
   workflow_dispatch:
     inputs:
       build-variant:
@@ -42,63 +49,17 @@ on:
 
 permissions:
   contents: read
-  actions: write #required for dispatch-and-download.yml
 
 jobs:
   version:
     name: Calculate Version Name and Number
-    runs-on: ubuntu-22.04
-    outputs:
-      version_name: ${{ steps.version_info.outputs.version_name }}
-      version_number: ${{ steps.version_info.outputs.version_number }}
-    steps:
-      - name: Log inputs to job summary
-        run: |
-          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
-
-      - name: Calculate version
-        if: ${{ inputs.version-number == '' || inputs.version-name == '' }}
-        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
-        id: dispatch-version
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ios
-          owner: bitwarden
-          workflow: _version.yml
-          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.version-name }}", "version_number": "${{ inputs.version-number }}"}'
-
-      - name: Read version info
-        id: version_info
-        run: |
-          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
-          if [ ! -f version-info/version_info.json ]; then
-            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
-            json='{
-              "version_number": "${{ inputs.version-number }}",
-              "version_name": "${{ inputs.version-name }}"
-            }'
-
-            # file will be used by the upload step
-            mkdir version-info
-            echo "$json" > version-info/version_info.json
-          else
-              echo "::notice::version-version.json found!"
-          fi
-
-          content=$(cat version-info/version_info.json)
-          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
-          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
-
-      - name: Upload version info artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: version-info
-          path: version-info/version_info.json
+    uses: bitwarden/ios/.github/workflows/_version.yml@main
+    with:
+      base_version_number: 2300
+      version_name: ${{ inputs.version-name }}
+      version_number: ${{ inputs.version-number }}
+      patch_version: ${{ inputs.patch_version && '999' || '' }}
+    secrets: inherit
 
   build-manual:
     name: Build Manual - ${{ inputs.build-variant }} (${{ inputs.build-mode }})
@@ -111,7 +72,7 @@ jobs:
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
       compiler-flags: ${{ inputs.compiler-flags }}
-      distribute: ${{ inputs.distribute }}
+      distribute: ${{ inputs.distribute || true }} # placeholder default for the analyser failing the workflow run when this job is skipped
     secrets: inherit
 
   build-public:

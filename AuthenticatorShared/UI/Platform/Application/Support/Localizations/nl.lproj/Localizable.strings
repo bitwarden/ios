@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Synchroniseren met Bitwarden app";
 "LocalCodes" = "Lokale codes";
 "AccountsSyncedFromBitwardenApp" = "Accounts gesynchroniseerd vanuit Bitwarden app";
-"CopyToBitwarden" = "Kopiëren naar Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "Scan voltooid";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Sla deze authenticatorsleutel hier op of voeg hem toe aan een login in je Bitwarden app.";
 "SaveHere" = "Hier opslaan";
