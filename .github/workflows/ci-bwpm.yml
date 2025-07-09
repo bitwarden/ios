@@ -85,15 +85,19 @@ jobs:
         include:
           - bw-env: bwpm_prod
             build-mode: Device
+            distribute: true
           - bw-env: bwpm_prod
             build-mode: Simulator
+            distribute: false
           - bw-env: bwpm_beta
             build-mode: Device
             compiler-flags: DEBUG_MENU
+            distribute: true
     with:
       bw-env: ${{ matrix.bw-env }}
       build-mode: ${{ matrix.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }}
       compiler-flags: ${{ matrix.compiler-flags }}
+      distribute: ${{ matrix.distribute }}
     secrets: inherit
