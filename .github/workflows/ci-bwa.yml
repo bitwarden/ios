@@ -69,7 +69,7 @@ jobs:
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
       compiler-flags: ${{ inputs.compiler-flags }}
-      distribute: ${{ inputs.distribute }}
+      distribute: ${{ inputs.distribute || true }} # placeholder default for the analyser failing the workflow run when this job is skipped
     secrets: inherit
 
   build-public:
