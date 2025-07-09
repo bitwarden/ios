@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - VaultListPreparedDataBuilderTests
 
-class VaultListPreparedDataBuilderTests: BitwardenTestCase {
+class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientService: MockClientService!
@@ -212,5 +212,177 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase {
             .build()
 
         XCTAssertEqual(preparedData.ciphersDeletedCount, 3)
+    }
+
+    /// `incrementCollectionCount(cipher:)` increments the collection count for the cipher's collection
+    /// when the cipher belongs to a collection present in the prepared data.
+    func test_incrementCollectionCount_incrementsWhenCipherInCollection() {
+        let collection = Collection.fixture(id: "1")
+        let cipher = CipherListView.fixture(collectionIds: ["1"])
+        let preparedData = subject
+            .prepareCollections(collections: [collection], filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertEqual(preparedData.collectionsCount["1"], 1)
+    }
+
+    /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher
+    /// does not belong to any collection.
+    func test_incrementCollectionCount_doesNotIncrementWhenCipherHasNoCollection() {
+        let collection = Collection.fixture(id: "1")
+        let cipher = CipherListView.fixture(collectionIds: [])
+        let preparedData = subject
+            .prepareCollections(collections: [collection], filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertNil(preparedData.collectionsCount["1"])
+    }
+
+    /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher's collection
+    ///  is not present in the prepared data.
+    func test_incrementCollectionCount_doesNotIncrementWhenCollectionNotInPreparedData() {
+        let collection = Collection.fixture(id: "1")
+        let cipher = CipherListView.fixture(collectionIds: ["2"])
+        let preparedData = subject
+            .prepareCollections(collections: [collection], filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertNil(preparedData.collectionsCount["2"])
+        XCTAssertNil(preparedData.collectionsCount["1"])
+    }
+
+    /// `incrementTOTPCount(cipher:)` increments the TOTP items count when cipher has TOTP and user has access.
+    func test_incrementTOTPCount_incrementsWhenCipherHasTOTPAndAccess() async {
+        let cipher = CipherListView.fixture(type: .login(.fixture(totp: "123456")))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 1)
+    }
+
+    /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when cipher does not have TOTP.
+    func test_incrementTOTPCount_doesNotIncrementWhenCipherHasNoTOTP() async {
+        let cipher = CipherListView.fixture(type: .login(.fixture(totp: nil)))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 0)
+    }
+
+    /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when user does not have premium
+    ///  or organiation access.
+    func test_incrementTOTPCount_doesNotIncrementWhenNoAccess() async {
+        let cipher = CipherListView.fixture(type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 0)
+    }
+
+    /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when user has premium access
+    /// but cipher is not a login.
+    func test_incrementTOTPCount_doesNotIncrementWhenNotALogin() async {
+        let cipher = CipherListView.fixture(type: .secureNote)
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 0)
+    }
+
+    /// `incrementTOTPCount(cipher:)` increments the TOTP items count when cipher is in an organization
+    ///  with TOTP enabled.
+    func test_incrementTOTPCount_incrementsWhenOrgHasTotpEnabled() async {
+        let cipher = CipherListView.fixture(type: .login(.fixture(totp: "123456")), organizationUseTotp: true)
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 1)
+    }
+
+    /// `prepareCollections(collections:filterType:)` adds the collections to the prepared data
+    /// when filtering by all vaults.
+    func test_prepareCollections_allVaults() {
+        let preparedData = subject
+            .prepareCollections(
+                collections: [.fixture(id: "1"), .fixture(id: "2")],
+                filterType: .allVaults
+            )
+            .build()
+
+        XCTAssertEqual(preparedData.collections.count, 2)
+        XCTAssertEqual(preparedData.collections[safeIndex: 0]?.id, "1")
+        XCTAssertEqual(preparedData.collections[safeIndex: 1]?.id, "2")
+    }
+
+    /// `prepareCollections(collections:filterType:)` adds the proper collections to the prepared data
+    /// when filtering by organization.
+    func test_prepareCollections_organization() {
+        let preparedData = subject
+            .prepareCollections(
+                collections: [
+                    .fixture(id: "1", organizationId: "1"),
+                    .fixture(id: "2", organizationId: "7"),
+                    .fixture(id: "3", organizationId: "2"),
+                    .fixture(id: "4", organizationId: "1"),
+                    .fixture(id: "5", organizationId: "1"),
+                ],
+                filterType: .organization(.fixture(id: "1"))
+            )
+            .build()
+
+        XCTAssertEqual(preparedData.collections.count, 3)
+        XCTAssertEqual(preparedData.collections.map(\.id), ["1", "4", "5"])
+    }
+
+    /// `prepareCollections(collections:filterType:)` doesn't add collections to the prepared data
+    /// when filtering by my vault.
+    func test_prepareCollections_myVault() {
+        let preparedData = subject
+            .prepareCollections(
+                collections: [.fixture(id: "1"), .fixture(id: "2")],
+                filterType: .myVault
+            )
+            .build()
+
+        XCTAssertTrue(preparedData.collections.isEmpty)
+    }
+
+    /// `prepareFolders(folders:filterType:)` adds the folders to the prepared data when filtering by all vaults.
+    func test_prepareFolders() {
+        let preparedData = subject
+            .prepareFolders(
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
+                filterType: .allVaults
+            )
+            .build()
+
+        XCTAssertEqual(preparedData.folders.count, 2)
+        XCTAssertEqual(preparedData.folders[safeIndex: 0]?.id, "1")
+        XCTAssertEqual(preparedData.folders[safeIndex: 1]?.id, "2")
+    }
+
+    /// `prepareFolders(folders:filterType:)` doesn't add the folders to the prepared data
+    /// when filtering by my vault or organization.
+    func test_prepareFolders_filterMyVaultOrOrganization() {
+        let preparedData = subject
+            .prepareFolders(
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
+                filterType: .myVault
+            )
+            .prepareFolders(
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
+                filterType: .organization(.fixture())
+            )
+            .build()
+
+        XCTAssertTrue(preparedData.folders.isEmpty)
     }
 }

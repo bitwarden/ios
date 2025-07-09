@@ -1,3 +1,5 @@
+// swiftlint:disable identifier_name
+
 import BitwardenSdk
 import Combine
 import Foundation
@@ -29,3 +31,5 @@ class MockCiphersClientWrapperService: CiphersClientWrapperService {
         }
     }
 }
+
+// swiftlint:enable identifier_name

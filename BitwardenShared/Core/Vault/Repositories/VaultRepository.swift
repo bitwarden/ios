@@ -330,16 +330,16 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's ciphers.
-    let cipherService: CipherService
+    private let cipherService: CipherService
 
     /// The service that handles common client functionality such as encryption and decryption.
-    let clientService: ClientService
+    private let clientService: ClientService
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
     /// The service for managing the collections for the user.
-    let collectionService: CollectionService
+    private let collectionService: CollectionService
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
@@ -348,7 +348,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     private let errorReporter: ErrorReporter
 
     /// The service used to manage syncing and updates to the user's folders.
-    let folderService: FolderService
+    private let folderService: FolderService
 
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
@@ -367,6 +367,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
+
+    /// The factory to create vault list director strategies.
+    private let vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
 
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
@@ -389,6 +392,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - timeProvider: The service used to get the present time.
+    ///   - vaultListDirectorStrategyFactory: The factory to create vault list director strategies.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -405,6 +409,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         stateService: StateService,
         syncService: SyncService,
         timeProvider: TimeProvider,
+        vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherService = cipherService
@@ -420,6 +425,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         self.stateService = stateService
         self.syncService = syncService
         self.timeProvider = timeProvider
+        self.vaultListDirectorStrategyFactory = vaultListDirectorStrategyFactory
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -802,10 +808,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         collections: [Collection],
         folders: [Folder] = []
     ) async throws -> [VaultListSection] {
-//        try await MemorySamplingHelper.measureMemoryUsage(sampleInterval: 0.2) { [weak self] in
-//            guard let self else {
-//                return []
-//            }
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter { cipher in
@@ -849,8 +851,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         ]
         .compactMap { $0 }
         .filter { !$0.items.isEmpty }
-
-//        }
     }
 
     /// Filters ciphers based on the organization's restrictItemTypes policy.
@@ -890,9 +890,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
-        let log = OSLog(subsystem: "com.8bit.bitwarden", category: .pointsOfInterest)
-        os_signpost(.begin, log: log, name: StaticString("VaultListSections 1"))
-
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter { cipher in
@@ -990,40 +987,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
         }
 
-        let ret = sections.filter { !$0.items.isEmpty }
-
-        os_signpost(.end, log: log, name: StaticString("VaultListSections 1"))
-
-        return ret
-    }
-
-    open func vaultListPublisher(
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { ciphers, collections, folders in
-            if let group = filter.group {
-                return try await self.vaultListItems(
-                    group: group,
-                    filter: filter,
-                    ciphers: ciphers,
-                    collections: collections,
-                    folders: folders
-                )
-            }
-            return try await self.vaultListSections(
-                from: ciphers,
-                collections: collections,
-                folders: folders,
-                filter: filter
-            )
-        }
-        .eraseToAnyPublisher()
-        .values
+        return sections.filter { !$0.items.isEmpty }
     }
 }
 
@@ -1481,6 +1445,14 @@ extension DefaultVaultRepository: VaultRepository {
         }
         .eraseToAnyPublisher()
         .values
+    }
+
+    func vaultListPublisher(
+        filter: VaultListFilter
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await vaultListDirectorStrategyFactory
+            .make(filter: filter)
+            .build(filter: filter)
     }
 
     // MARK: Private

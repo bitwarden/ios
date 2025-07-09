@@ -238,7 +238,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         if filterType == .allVaults {
             preparedData.collections = collections
         } else if case let .organization(organization) = filterType {
-            preparedData.collections = collections.filter { $0.id == organization.id }
+            preparedData.collections = collections.filter { $0.organizationId == organization.id }
         }
         return self
     }

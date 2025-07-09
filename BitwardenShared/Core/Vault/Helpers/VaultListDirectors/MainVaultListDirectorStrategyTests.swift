@@ -161,7 +161,8 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         ])
     }
 
-    /// `build(filter:)` returns the sections built not adding TOTP group but adding trash group as indicated by the filter.
+    /// `build(filter:)` returns the sections built not adding TOTP group but adding trash group
+    /// as indicated by the filter.
     func test_build_returnsSectionsBuiltWithoutTOTPGroupButWithTrash() async throws {
         cipherService.ciphersSubject.value = [.fixture()]
         collectionService.collectionsSubject.value = []
