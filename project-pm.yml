@@ -24,7 +24,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 80dd7b284e5cdd09e065675b04f991a8ff7338fe
+    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -362,6 +362,8 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
           - "**/__Snapshots__/*"
+          - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
       - path: BitwardenShared
         includes:
           - "**/__Snapshots__/*"
@@ -373,6 +375,8 @@ targets:
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
+      - path: BitwardenShared/Sourcery/sourcery.yml
+        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - package: SwiftUIIntrospect
@@ -391,6 +395,15 @@ targets:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -409,6 +422,10 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared

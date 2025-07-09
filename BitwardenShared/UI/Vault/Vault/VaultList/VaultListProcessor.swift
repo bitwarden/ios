@@ -207,6 +207,7 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
+        await loadItemTypesUserCanCreate()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -239,6 +240,12 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
     }
 
     /// Dismisses the flight recorder toast banner for the active user.

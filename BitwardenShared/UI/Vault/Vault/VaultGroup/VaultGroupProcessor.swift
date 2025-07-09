@@ -102,6 +102,7 @@ final class VaultGroupProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await checkPersonalOwnershipPolicy()
+            await loadItemTypesUserCanCreate()
             await streamVaultList()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
@@ -171,6 +172,12 @@ final class VaultGroupProcessor: StateProcessor<
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master

@@ -1087,6 +1087,59 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isDisabled)
     }
 
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and true are policies enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(
+            result,
+            [.secureNote, .identity, .login],
+        )
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is false.
+    @MainActor
+    func test_getItemTypesUserCanCreate_flag_false() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = false
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and no policies apply to the user.
+    @MainActor
+    func test_getItemTypesUserCanCreate_no_policies() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = []
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
     /// is enable to auto copy the TOTP and cipher organization uses TOTP.
     func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTP() async throws {
@@ -2824,6 +2877,72 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items filtering cards from
+    /// individual and organizations vaults if restrict item type policy is enabled.
+    @MainActor
+    func test_vaultListPublisher_groups_card_restrictItemTypePolicy() async throws {
+        let cipherOrg1 = Cipher.fixture(id: "1", organizationId: "org1", type: .card)
+        let cipherOrg2 = Cipher.fixture(id: "2", organizationId: "org2", type: .card)
+        let cipher = Cipher.fixture(id: "3", type: .card)
+        cipherService.ciphersSubject.send([cipher, cipherOrg1, cipherOrg2])
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+        var iterator = try await subject.vaultListPublisher(
+            group: .card,
+            filter: VaultListFilter(filterType: .allVaults)
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherListView: .init(cipher: cipherOrg2))],
+                    name: Localizations.items
+                ),
+            ]
+        )
+    }
+
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items not excluding cards from
+    /// individual and organizations vaults if restrict item type policy is not enabled .
+    @MainActor
+    func test_vaultListPublisher_groups_card_restrictItemTypePolicy_disabled() async throws {
+        let cipherOrg1 = Cipher.fixture(id: "1", organizationId: "org1", type: .card)
+        let cipherOrg2 = Cipher.fixture(id: "2", organizationId: "org2", type: .card)
+        let cipher = Cipher.fixture(id: "3", type: .card)
+        cipherService.ciphersSubject.send([cipher, cipherOrg1, cipherOrg2])
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        var iterator = try await subject.vaultListPublisher(
+            group: .card,
+            filter: VaultListFilter(filterType: .allVaults)
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixture(cipherListView: .init(cipher: cipher)),
+                        .fixture(cipherListView: .init(cipher: cipherOrg1)),
+                        .fixture(cipherListView: .init(cipher: cipherOrg2)),
+                    ],
+                    name: Localizations.items
+                ),
+            ]
+        )
+    }
+
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
     func test_vaultListPublisher_groups_collection() async throws {
         let cipher = Cipher.fixture(collectionIds: ["1"], id: "1")
@@ -3377,6 +3496,62 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .init(
                 id: "Trash",
                 items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
+                name: Localizations.trash
+            ),
+        ]
+
+        XCTAssertEqual(vaultListSections, expectedResult)
+    }
+
+    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
+    /// without card section if restrict item policy is enabled for the user.
+    @MainActor
+    func test_vaultListPublisher_section_hide_card_restrictitempolicy_enabled() async throws {
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = false
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", organizationId: "org1", type: .card),
+        ]
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        folderService.foldersSubject.send([folder])
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        var iterator = try await subject.vaultListPublisher(
+            filter: VaultListFilter(filterType: .allVaults)
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 1),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 0)],
                 name: Localizations.trash
             ),
         ]

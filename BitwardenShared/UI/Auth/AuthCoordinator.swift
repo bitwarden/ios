@@ -44,6 +44,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     typealias Services = HasAccountAPIService
         & HasAppIdService
         & HasAppSettingsStore
+        & HasApplication
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
