@@ -39,7 +39,7 @@ jobs:
   build:
     name: Build ${{ inputs.bw-env }}
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
     env:

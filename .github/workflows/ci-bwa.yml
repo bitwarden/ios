@@ -82,11 +82,14 @@ jobs:
         include:
           - bw-env: bwa_prod
             build-mode: Device
+            distribute: true
           - bw-env: bwa_prod
             build-mode: Simulator
+            distribute: false
     with:
       bw-env: ${{ matrix.bw-env }}
       build-mode: ${{ matrix.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }}
+      distribute: ${{ matrix.distribute }}
     secrets: inherit
