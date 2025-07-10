@@ -108,7 +108,6 @@ jobs:
             if [ "$PRODUCT" = "Password Manager" ]; then
               PACKAGE_NAME="com.8bit.bitwarden"
               METADATA_PATH="metadata_bwpm_prod"
-              echo "product is Password Manager"
             elif [ "$PRODUCT" = "Authenticator" ]; then
               PACKAGE_NAME="com.bitwarden.authenticator"
               METADATA_PATH="metadata_bwa_prod"
