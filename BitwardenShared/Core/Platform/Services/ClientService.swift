@@ -328,6 +328,9 @@ protocol ClientBuilder {
 class DefaultClientBuilder: ClientBuilder {
     // MARK: Properties
 
+    /// The closure to make a `BitwardenSdkClient`. Specially useful in tests
+    private let clientMaker: ((ClientSettings?) -> BitwardenSdkClient)?
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -340,17 +343,19 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Initialization
 
     /// Initializes a new client.
-    /// 
+    ///
     /// - Parameters:
+    ///   - clientMaker: A closure to make a `BitwardenSdkClient`. Specially useful in tests.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sdkCipherRepository: The SDK cipher repository to use for client-managed stateful operations.
     ///   - settings: The settings applied to the client.
-    /// 
     init(
+        clientMaker: ((ClientSettings?) -> BitwardenSdkClient)? = nil,
         errorReporter: ErrorReporter,
         sdkCipherRepository: BitwardenSdk.CipherRepository,
         settings: ClientSettings? = nil
     ) {
+        self.clientMaker = clientMaker
         self.errorReporter = errorReporter
         self.sdkCipherRepository = sdkCipherRepository
         self.settings = settings
@@ -359,8 +364,12 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Methods
 
     func buildClient(for userId: String?) -> BitwardenSdkClient {
-        let client = Client(settings: settings)
-        guard let userId else {
+        let client = if let clientMaker {
+            clientMaker(settings)
+        } else {
+            Client(settings: settings)
+        }
+        guard userId != nil else {
             return client
         }
 
