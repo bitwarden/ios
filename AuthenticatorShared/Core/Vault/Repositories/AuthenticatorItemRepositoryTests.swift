@@ -432,6 +432,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                                 name: ""),
             ]
         )
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `itemListPublisher()` returns a favorites section and a local codes section as normal. Adds a syncError section
