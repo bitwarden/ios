@@ -8,6 +8,7 @@ import XCTest
 class MockExportVaultService: ExportVaultService {
     var didClearFiles = false
     var exportVaultContentsFormat: ExportFileType?
+    var exportVaultContentsRestrictedTypes: [CipherType]?
     var exportVaultContentResult: Result<String, Error> = .failure(BitwardenTestError.example)
     var mockFileName: String = "mockExport.json"
     var writeToFileResult: Result<URL, Error> = .failure(BitwardenTestError.example)
@@ -16,8 +17,12 @@ class MockExportVaultService: ExportVaultService {
         didClearFiles = true
     }
 
-    func exportVaultFileContents(format: BitwardenShared.ExportFileType) async throws -> String {
+    func exportVaultFileContents(
+        format: BitwardenShared.ExportFileType,
+        restrictedTypes: [BitwardenShared.CipherType],
+    ) async throws -> String {
         exportVaultContentsFormat = format
+        exportVaultContentsRestrictedTypes = restrictedTypes
         return try exportVaultContentResult.get()
     }
 

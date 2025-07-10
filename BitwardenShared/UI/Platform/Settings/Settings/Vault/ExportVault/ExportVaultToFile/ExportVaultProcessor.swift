@@ -129,8 +129,24 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             exportFormat = .encryptedJson(password: password)
         }
 
-        let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
+        let fileURL = try await services.exportVaultService.exportVault(
+            format: exportFormat,
+            restrictedTypes: getRestrictedTypes(),
+        )
         coordinator.navigate(to: .shareURL(fileURL))
+    }
+
+    /// Get the restricted types based on the organization's policies.
+    ///
+    /// - Returns: An array of restricted `CipherType`s.
+    ///
+    private func getRestrictedTypes() async -> [CipherType] {
+        let restrictedTypesOrgIds = await services.policyService.getOrganizationIdsForRestricItemTypesPolicy()
+        guard !restrictedTypesOrgIds.isEmpty else {
+            return []
+        }
+
+        return [.card]
     }
 
     /// Load any initial data for the view.

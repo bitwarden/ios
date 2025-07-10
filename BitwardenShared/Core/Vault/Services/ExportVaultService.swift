@@ -38,10 +38,13 @@ protocol ExportVaultService: AnyObject {
 
     /// Creates the file contents for an exported vault of a given file type.
     ///
-    /// - Parameter format: The format to use for vault export.
+    /// - Parameters:
+    ///   - format: The format of the exported file.
+    ///   - restrictedTypes: An array of `CipherType` that should be excluded from the export.
+    ///
     /// - Returns: A string representing the file content.
     ///
-    func exportVaultFileContents(format: ExportFileType) async throws -> String
+    func exportVaultFileContents(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> String
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -68,12 +71,13 @@ extension ExportVaultService {
     ///
     /// - Parameters:
     ///    - format: The format of the exported file.
+    ///    - restrictedTypes: An array of `CipherType` that should be excluded from the export.
     ///
     /// - Returns: A URL for the exported vault file.
     ///
-    func exportVault(format: ExportFileType) async throws -> URL {
+    func exportVault(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> URL {
         // Export the vault in the correct file content format.
-        let exportFileContents = try await exportVaultFileContents(format: format)
+        let exportFileContents = try await exportVaultFileContents(format: format, restrictedTypes: restrictedTypes)
 
         // Generate the file name.
         let fileName = generateExportFileName(extension: format.fileExtension)
@@ -161,12 +165,16 @@ class DefultExportVaultService: ExportVaultService {
         }
     }
 
-    func exportVaultFileContents(format: ExportFileType) async throws -> String {
+    func exportVaultFileContents(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> String {
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil }
-            .filter { $0.organizationId == nil }
+            .filter { cipher in
+                cipher.deletedDate == nil
+                    && cipher.organizationId == nil
+                    && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
+            }
+
         switch format {
         case .csv:
             exportFormat = .csv
