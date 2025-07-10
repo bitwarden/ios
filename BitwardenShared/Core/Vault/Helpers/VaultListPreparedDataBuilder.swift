@@ -11,7 +11,7 @@ protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
 
 // MARK: - DefaultVaultListPreparedDataBuilderFactory
 
-/// The default implemetnation of `VaultListPreparedDataBuilderFactory`.
+/// The default implementation of `VaultListPreparedDataBuilderFactory`.
 struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
     // swiftlint:disable:previous type_name
 
