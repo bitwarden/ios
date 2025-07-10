@@ -319,8 +319,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func isPasswordManagerSyncActive() async -> Bool {
-        guard await configService.getFeatureFlag(.enablePasswordManagerSync),
-              await sharedItemService.isSyncOn() else {
+        guard await sharedItemService.isSyncOn() else {
             return false
         }
         return true

@@ -115,14 +115,12 @@ struct SettingsView: View {
                         store.send(.exportItemsTapped)
                     }
 
-                    SettingsListItem(Localizations.backup, hasDivider: store.state.shouldShowSyncButton) {
+                    SettingsListItem(Localizations.backup, hasDivider: true) {
                         store.send(.backupTapped)
                     }
 
-                    if store.state.shouldShowSyncButton {
-                        syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
-                        defaultSaveOption
-                    }
+                    syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
+                    defaultSaveOption
                 }
                 .cornerRadius(10)
             }
@@ -259,15 +257,6 @@ struct SettingsView: View {
                         Text(Localizations.syncWithBitwardenApp)
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-
-                        Text(LocalizedStringKey(
-                            Localizations.thisFeatureIsNotYetAvailableForSelfHostedUsers(
-                                ExternalLinksConstants.totpSyncHelp
-                            )
-                        ))
-                        .styleGuide(.subheadline)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
@@ -312,9 +301,7 @@ struct SettingsView_Previews: PreviewProvider {
             SettingsView(
                 store: Store(
                     processor: StateProcessor(
-                        state: SettingsState(
-                            shouldShowSyncButton: true
-                        )
+                        state: SettingsState()
                     )
                 )
             )
@@ -325,8 +312,7 @@ struct SettingsView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: SettingsState(
-                            shouldShowDefaultSaveOption: true,
-                            shouldShowSyncButton: true
+                            shouldShowDefaultSaveOption: true
                         )
                     )
                 )
