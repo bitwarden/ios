@@ -6,7 +6,7 @@ import BitwardenSdk
 /// This decrypts and process data iteratively in batches to improve time and memory on the overall
 /// grouping/filtering/preparation.
 protocol VaultListDataPreparator { // sourcery: AutoMockable
-    /// Prepares data for the vault list builder based.
+    /// Prepares data for the vault list builder.
     /// - Parameters:
     ///   - ciphers: An array of `Cipher` objects to be processed.
     ///   - collections: An array of `Collection` objects to be processed.
