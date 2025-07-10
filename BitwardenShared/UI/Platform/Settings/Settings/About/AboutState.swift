@@ -16,9 +16,6 @@ struct AboutState {
     /// The flight recorder's active log metadata, if logging is enabled.
     var flightRecorderActiveLog: FlightRecorderData.LogMetadata?
 
-    /// Whether the flight recorder feature is enabled.
-    var isFlightRecorderFeatureFlagEnabled = false
-
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
 
