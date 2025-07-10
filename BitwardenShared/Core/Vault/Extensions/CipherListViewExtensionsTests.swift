@@ -13,7 +13,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase {
         XCTAssertTrue(CipherListView.fixture().passesRestrictItemTypesPolicy([]))
     }
 
-    /// `passesRestrictItemTypesPolicy(_:)` passes the policy when the cipher type is no `.card`.
+    /// `passesRestrictItemTypesPolicy(_:)` passes the policy when the cipher type is not `.card`.
     func test_passesRestrictItemTypesPolicy_noCardType() {
         XCTAssertTrue(CipherListView.fixture(type: .login(.fixture())).passesRestrictItemTypesPolicy(["1"]))
         XCTAssertTrue(CipherListView.fixture(type: .identity).passesRestrictItemTypesPolicy(["1"]))
