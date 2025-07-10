@@ -243,7 +243,7 @@ actor DefaultClientService: ClientService {
         guard !isPreAuth else {
             // If this client is being used for a new user prior to authentication, a user ID doesn't
             // exist for the user to map the client to, so return a new client.
-            return clientBuilder.buildClient()
+            return clientBuilder.buildClient(for: nil)
         }
 
         do {
@@ -272,7 +272,7 @@ actor DefaultClientService: ClientService {
                         "set in this scenario."
                 )
             )
-            return clientBuilder.buildClient()
+            return clientBuilder.buildClient(for: nil)
         }
     }
 
@@ -281,7 +281,7 @@ actor DefaultClientService: ClientService {
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
     private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
-        let client = clientBuilder.buildClient()
+        let client = clientBuilder.buildClient(for: userId)
 
         userClientArray.updateValue(client, forKey: userId)
         return client
@@ -315,10 +315,10 @@ actor DefaultClientService: ClientService {
 ///
 protocol ClientBuilder {
     /// Creates a `BitwardenSdkClient`.
-    ///
+    /// - Parameter userId: A user ID that the new client is being mapped to.
     /// - Returns: A new `BitwardenSdkClient`.
     ///
-    func buildClient() -> BitwardenSdkClient
+    func buildClient(for userId: String?) -> BitwardenSdkClient
 }
 
 // MARK: DefaultClientBuilder
@@ -331,26 +331,44 @@ class DefaultClientBuilder: ClientBuilder {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The SDK cipher repository to use for client-managed stateful operations.
+    private let sdkCipherRepository: BitwardenSdk.CipherRepository
+
     /// The settings applied to the client.
     private let settings: ClientSettings?
 
     // MARK: Initialization
 
     /// Initializes a new client.
-    ///
+    /// 
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - sdkCipherRepository: The SDK cipher repository to use for client-managed stateful operations.
     ///   - settings: The settings applied to the client.
-    ///
-    init(errorReporter: ErrorReporter, settings: ClientSettings? = nil) {
+    /// 
+    init(
+        errorReporter: ErrorReporter,
+        sdkCipherRepository: BitwardenSdk.CipherRepository,
+        settings: ClientSettings? = nil
+    ) {
         self.errorReporter = errorReporter
+        self.sdkCipherRepository = sdkCipherRepository
         self.settings = settings
     }
 
     // MARK: Methods
 
-    func buildClient() -> BitwardenSdkClient {
-        Client(settings: settings)
+    func buildClient(for userId: String?) -> BitwardenSdkClient {
+        let client = Client(settings: settings)
+        guard let userId else {
+            return client
+        }
+
+        client
+            .platform()
+            .state()
+            .registerCipherRepository(store: sdkCipherRepository)
+        return client
     }
 }
 
