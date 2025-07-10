@@ -1,4 +1,4 @@
-/// Helper class to save calls makes to mocks in order.
+/// Helper class to save calls made to mocks, in order.
 class MockCallOrderHelper {
     /// An array saving the calls in order.
     var callOrder: [String] = []
