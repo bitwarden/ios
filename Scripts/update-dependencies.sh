@@ -11,11 +11,11 @@ function get_latest_release() {
     local repo_path=$(echo "$repo_url" | sed 's|https://github.com/||')
     
     # First try to get the latest stable release (non-prerelease)
-    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases" | grep -A 1 '"prerelease": false' | grep '"tag_name":' | head -1 | sed -E 's/.*"tag_name": "([^"]*)",/\1/')
+    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases" | jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
     
     # If no stable releases found, fall back to tags but filter out beta/alpha/rc versions
     if [[ -z "$latest_tag" ]]; then
-        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | grep '"name":' | sed -E 's/.*"name": "([^"]*)",/\1/' | grep -v -E '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
+        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | jq -r '.[].name' | grep -v -E '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
     fi
     
     echo "$latest_tag"
@@ -26,7 +26,7 @@ function get_latest_commit() {
     local branch="$2"
     local repo_path=$(echo "$repo_url" | sed 's|https://github.com/||')
     
-    local latest_commit=$(curl -s "https://api.github.com/repos/$repo_path/commits/$branch" | grep '"sha":' | head -1 | sed -E 's/.*"sha": "([^"]*)",/\1/')
+    local latest_commit=$(curl -s "https://api.github.com/repos/$repo_path/commits/$branch" | jq -r '.sha')
     
     echo "$latest_commit"
 }
