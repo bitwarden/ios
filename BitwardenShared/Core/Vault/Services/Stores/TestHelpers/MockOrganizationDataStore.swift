@@ -6,6 +6,7 @@ import Combine
 class MockOrganizationDataStore: OrganizationDataStore {
     var deleteAllOrganizationsUserId: String?
 
+    var fetchAllOrganizationsUserId: String?
     var fetchAllOrganizationsResult: Result<[Organization], Error> = .success([])
 
     var organizationSubject = CurrentValueSubject<[Organization], Error>([])
@@ -18,7 +19,8 @@ class MockOrganizationDataStore: OrganizationDataStore {
     }
 
     func fetchAllOrganizations(userId: String) async throws -> [Organization] {
-        try fetchAllOrganizationsResult.get()
+        fetchAllOrganizationsUserId = userId
+        return try fetchAllOrganizationsResult.get()
     }
 
     func organizationPublisher(userId: String) -> AnyPublisher<[Organization], Error> {
