@@ -44,9 +44,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable additional error reporting.
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
 
-    /// A feature flag for the pre-login settings.
-    static let preLoginSettings = FeatureFlag(rawValue: "enable-pm-prelogin-settings")
-
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
         rawValue: "pm-15493-restrict-item-deletion-to-can-manage-permission"
@@ -72,7 +69,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
-            .preLoginSettings,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,
