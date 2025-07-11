@@ -9,12 +9,9 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherService: MockCipherService!
-    var clientService: MockClientService!
     var collectionService: MockCollectionService!
-    var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
     var mockCallOrderHelper: MockCallOrderHelper!
-    var stateService: MockStateService!
     var subject: MainVaultListDirectorStrategy!
     var vaultListDataPreparator: MockVaultListDataPreparator!
     var vaultListSectionsBuilder: MockVaultListSectionsBuilder!
@@ -26,11 +23,8 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         super.setUp()
 
         cipherService = MockCipherService()
-        clientService = MockClientService()
         collectionService = MockCollectionService()
-        errorReporter = MockErrorReporter()
         folderService = MockFolderService()
-        stateService = MockStateService()
         vaultListDataPreparator = MockVaultListDataPreparator()
 
         vaultListSectionsBuilder = MockVaultListSectionsBuilder()
@@ -41,11 +35,8 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         subject = MainVaultListDirectorStrategy(
             builderFactory: vaultListSectionsBuilderFactory,
             cipherService: cipherService,
-            clientService: clientService,
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
-            stateService: stateService,
             vaultListDataPreparator: vaultListDataPreparator
         )
     }
@@ -54,12 +45,9 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         super.tearDown()
 
         cipherService = nil
-        clientService = nil
         collectionService = nil
-        errorReporter = nil
         folderService = nil
         mockCallOrderHelper = nil
-        stateService = nil
         vaultListDataPreparator = nil
         vaultListSectionsBuilder = nil
         vaultListSectionsBuilderFactory = nil

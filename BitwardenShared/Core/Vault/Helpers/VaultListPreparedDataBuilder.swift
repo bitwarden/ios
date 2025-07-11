@@ -192,19 +192,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
-        switch cipher.type {
-        case .card:
-            preparedData.countPerCipherType[.card, default: 0] += 1
-        case .identity:
-            preparedData.countPerCipherType[.identity, default: 0] += 1
-        case .login:
-            preparedData.countPerCipherType[.login, default: 0] += 1
-        case .secureNote:
-            preparedData.countPerCipherType[.secureNote, default: 0] += 1
-        case .sshKey:
-            preparedData.countPerCipherType[.sshKey, default: 0] += 1
-        }
-
+        preparedData.countPerCipherType[CipherType(cipher.type), default: 0] += 1
         return self
     }
 

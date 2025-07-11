@@ -128,7 +128,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
         }
     }
 
-    /// `addTOTPSection()` adds the TOTP section empty when there are no TOTP items.
+    /// `addTOTPSection()` doesn't add the TOTP section when there are no TOTP items.
     func test_addTOTPSection_empty() {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -140,8 +140,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: sections.dump(), as: .lines) {
             """
-            Section[TOTP]: TOTP
-              (empty)
             """
         }
     }

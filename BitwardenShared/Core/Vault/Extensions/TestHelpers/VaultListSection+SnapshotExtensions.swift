@@ -1,3 +1,5 @@
+@testable import BitwardenShared
+
 // MARK: - VaultListSection
 
 extension VaultListSection {

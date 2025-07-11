@@ -13,16 +13,10 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
     let builderFactory: VaultListSectionsBuilderFactory
     /// The service used to manage syncing and updates to the user's ciphers.
     let cipherService: CipherService
-    /// The service used by the application to handle encryption and decryption tasks.
-    let clientService: ClientService
     /// The service for managing the collections for the user.
     let collectionService: CollectionService
-    /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
     /// The service used to manage syncing and updates to the user's folders.
     let folderService: FolderService
-    /// The service used by the application to manage account state.
-    let stateService: StateService
     /// The helper used to prepare data for the vault list builder.
     let vaultListDataPreparator: VaultListDataPreparator
 

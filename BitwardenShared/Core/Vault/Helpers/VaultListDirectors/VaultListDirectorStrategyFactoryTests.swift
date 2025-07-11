@@ -17,11 +17,8 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
 
         subject = DefaultVaultListDirectorStrategyFactory(
             cipherService: MockCipherService(),
-            clientService: MockClientService(),
             collectionService: MockCollectionService(),
-            errorReporter: MockErrorReporter(),
             folderService: MockFolderService(),
-            stateService: MockStateService(),
             vaultListBuilderFactory: MockVaultListSectionsBuilderFactory(),
             vaultListDataPreparator: MockVaultListDataPreparator()
         )

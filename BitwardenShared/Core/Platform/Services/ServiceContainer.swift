@@ -696,11 +696,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
-            clientService: clientService,
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
-            stateService: stateService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 errorReporter: errorReporter

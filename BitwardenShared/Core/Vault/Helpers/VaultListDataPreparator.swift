@@ -13,6 +13,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
     /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
     func prepareData(
         from ciphers: [Cipher],
         collections: [Collection],
@@ -27,6 +28,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
     /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
     func prepareGroupData(
         from ciphers: [Cipher],
         collections: [Collection],

@@ -6,12 +6,13 @@ import XCTest
 
 // MARK: - VaultListDataPreparatorTests
 
-class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class VaultListDataPreparatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
+    var mockCallOrderHelper: MockCallOrderHelper!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: VaultListDataPreparator!
@@ -30,7 +31,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         stateService = MockStateService()
 
         vaultListPreparedDataBuilder = MockVaultListPreparedDataBuilder()
-        vaultListPreparedDataBuilder.setUpFluentReturn()
+        mockCallOrderHelper = vaultListPreparedDataBuilder.setUpCallOrderHelper()
         vaultListPreparedDataBuilder.buildReturnValue = VaultListPreparedData()
 
         vaultListPreparedDataBuilderFactory = MockVaultListPreparedDataBuilderFactory()
@@ -52,6 +53,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService = nil
         clientService = nil
         errorReporter = nil
+        mockCallOrderHelper = nil
         policyService = nil
         stateService = nil
         vaultListPreparedDataBuilder = nil
@@ -83,15 +85,16 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(addTOTPGroup: true)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherDeletedCountCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementTOTPCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addFavoriteItemCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addNoFolderItemCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCipherTypeCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "incrementTOTPCount",
+            "addFolderItem",
+            "addFavoriteItem",
+            "addNoFolderItem",
+            "incrementCipherTypeCount",
+            "incrementCollectionCount",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -107,15 +110,15 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(addTOTPGroup: false)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherDeletedCountCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementTOTPCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addFavoriteItemCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addNoFolderItemCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCipherTypeCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "addFolderItem",
+            "addFavoriteItem",
+            "addNoFolderItem",
+            "incrementCipherTypeCount",
+            "incrementCollectionCount",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -134,15 +137,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(addTOTPGroup: true, filterType: .myVault)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherDeletedCountCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementTOTPCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFavoriteItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addNoFolderItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherTypeCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -162,15 +160,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter()
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherDeletedCountCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementTOTPCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFavoriteItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addNoFolderItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherTypeCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -190,15 +183,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter()
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCipherDeletedCountCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementTOTPCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFavoriteItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addNoFolderItemCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCipherTypeCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "incrementCipherDeletedCount",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -210,6 +199,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             folders: [],
             filter: VaultListFilter()
         )
+        XCTAssertTrue(mockCallOrderHelper.callOrder.isEmpty)
         XCTAssertNil(result)
     }
 
@@ -228,11 +218,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(filterType: .myVault, group: .login)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -252,11 +241,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(group: .login)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -274,11 +262,12 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(group: .folder(id: "1", name: "Folder"))
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "addFolderItem",
+            "addItemForGroup",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -296,11 +285,12 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "incrementCollectionCount",
+            "addItemForGroup",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -313,6 +303,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         let groups: [VaultListGroup] = [.card, .identity, .login, .noFolder, .secureNote, .sshKey, .totp, .trash]
         for group in groups {
+            mockCallOrderHelper.reset()
             try await prepareGroupDataGenericTest(group: group)
         }
     }
@@ -329,11 +320,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(group: group)
         )
 
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareFoldersFoldersFilterTypeCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.prepareCollectionsCollectionsFilterTypeCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.addFolderItemCipherFilterFoldersCalled)
-        XCTAssertFalse(vaultListPreparedDataBuilder.incrementCollectionCountCipherCalled)
-        XCTAssertTrue(vaultListPreparedDataBuilder.addItemForGroupWithCalled)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "addItemForGroup",
+        ])
         XCTAssertNotNil(result)
     }
 }

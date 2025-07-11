@@ -8,4 +8,9 @@ class MockCallOrderHelper {
     func recordCall(_ methodName: String) {
         callOrder.append(methodName)
     }
+
+    /// Resets the saved calls so they are empty.
+    func reset() {
+        callOrder.removeAll()
+    }
 }

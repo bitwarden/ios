@@ -224,17 +224,18 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addTOTPSection() -> VaultListSectionsBuilder {
-        sections.append(VaultListSection(
-            id: "TOTP",
-            items: preparedData.totpItemsCount > 0
-                ? [
+        if preparedData.totpItemsCount > 0 {
+            sections.append(VaultListSection(
+                id: "TOTP",
+                items: [
                     VaultListItem(
                         id: "Types.VerificationCodes",
                         itemType: .group(.totp, preparedData.totpItemsCount)
                     ),
-                ] : [],
-            name: Localizations.totp
-        ))
+                ],
+                name: Localizations.totp
+            ))
+        }
         return self
     }
 
@@ -279,7 +280,7 @@ struct VaultListPreparedData {
     var ciphersDeletedCount: Int = 0
     var collections: [Collection] = []
     var collectionsCount: [Uuid: Int] = [:]
-    var countPerCipherType: [BitwardenSdk.CipherType: Int] = [
+    var countPerCipherType: [CipherType: Int] = [
         .card: 0,
         .identity: 0,
         .login: 0,
