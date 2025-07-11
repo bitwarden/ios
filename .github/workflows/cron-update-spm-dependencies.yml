@@ -23,7 +23,7 @@ jobs:
       
       - name: Run update script
         run: |
-           ./Scripts/update-versions.sh
+           ./Scripts/update-dependencies.sh
 
       - name: Check for changes
         id: check-changes
