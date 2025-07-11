@@ -810,14 +810,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sharedTimeoutService: sharedTimeoutService
         )
 
+        let authenticatorClientService = DefaultClientService(
+            clientBuilder: clientBuilder,
+            configService: configService,
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
-            authRepository: authRepository,
             cipherDataStore: dataStore,
-            clientService: clientService,
+            clientService: authenticatorClientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService

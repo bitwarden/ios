@@ -42,7 +42,7 @@ class OrganizationServiceTests: XCTestCase {
 
     // MARK: Tests
 
-    /// `fetchAllOrganizations` returns all organizations,
+    /// `fetchAllOrganizations()` returns all organizations for the active user.
     func test_fetchAllOrganizations() async throws {
         let organizations: [Organization] = [
             .fixture(id: "1", name: "Organization 1"),
@@ -56,6 +56,22 @@ class OrganizationServiceTests: XCTestCase {
         let fetchedOrganizations = try await subject.fetchAllOrganizations()
 
         XCTAssertEqual(fetchedOrganizations, organizations)
+        XCTAssertEqual(organizationDataStore.fetchAllOrganizationsUserId, "1")
+    }
+
+    /// `fetchAllOrganizations(userId:)` returns all organizations for the user.
+    func test_fetchAllOrganizations_userId() async throws {
+        let organizations: [Organization] = [
+            .fixture(id: "1", name: "Organization 1"),
+            .fixture(id: "2", name: "Organization 2"),
+            .fixture(id: "3", name: "Organization 3"),
+        ]
+        organizationDataStore.fetchAllOrganizationsResult = .success(organizations)
+
+        let fetchedOrganizations = try await subject.fetchAllOrganizations(userId: "2")
+
+        XCTAssertEqual(fetchedOrganizations, organizations)
+        XCTAssertEqual(organizationDataStore.fetchAllOrganizationsUserId, "2")
     }
 
     /// `initializeOrganizationCrypto()` initializes the SDK for decrypting organization ciphers.
