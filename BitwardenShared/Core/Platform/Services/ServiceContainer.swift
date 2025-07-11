@@ -455,7 +455,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider
         )
 
-        let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
+            stateService: stateService
+        )
+
+        let sdkCipherRepository = SdkCipherRepository(cipherService: cipherService, errorReporter: errorReporter)
+
+        let clientBuilder = DefaultClientBuilder(
+            errorReporter: errorReporter,
+            sdkCipherRepository: sdkCipherRepository
+        )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
@@ -491,13 +503,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let policyService = DefaultPolicyService(
             organizationService: organizationService,
             policyDataStore: dataStore,
-            stateService: stateService
-        )
-
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            fileAPIService: apiService,
             stateService: stateService
         )
 
