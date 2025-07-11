@@ -15,6 +15,8 @@ app_info_plist_path="Bitwarden/Application/Support/Info.plist"
 
 if ! grep -q "SupportsCredentialExchange" $autofill_info_plist_path; then
   plutil -insert NSExtension.NSExtensionAttributes.ASCredentialProviderExtensionCapabilities.SupportsCredentialExchange -bool YES $autofill_info_plist_path
+  plutil -insert NSExtension.NSExtensionAttributes.ASCredentialProviderExtensionCapabilities.SupportedCredentialExchangeVersions -array $autofill_info_plist_path
+  plutil -insert NSExtension.NSExtensionAttributes.ASCredentialProviderExtensionCapabilities.SupportedCredentialExchangeVersions.0 -string "1.0" $autofill_info_plist_path
 fi
 
 if ! grep -q "ASCredentialExchangeActivityType" $app_info_plist_path; then
