@@ -46,7 +46,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
         }
     }
 
-    /// `addFavoritesSection()` adds the favorites section with the favorite items ordered by subtitle.
+    /// `addFavoritesSection()` adds the favorites section with the favorite items ordered by name.
     func test_addFavoritesSection() {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -66,6 +66,22 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
               - Cipher: MyFavoriteItem0
               - Cipher: MyFavoriteItem2
               - Cipher: MyFavoriteItem45
+            """
+        }
+    }
+
+    /// `addFavoritesSection()` doesn't add the favorites section when no favorites.
+    func test_addFavoritesSection_empty() {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                favorites: []
+            )
+        )
+
+        let sections = subject.addFavoritesSection().build()
+
+        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+            """
             """
         }
     }

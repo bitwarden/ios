@@ -133,16 +133,20 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             )
         }
 
-        sections.append(VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections))
+        if !collectionItems.isEmpty {
+            sections.append(VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections))
+        }
         return self
     }
 
     func addFavoritesSection() -> VaultListSectionsBuilder {
-        sections.append(VaultListSection(
-            id: "Favorites",
-            items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
-            name: Localizations.favorites
-        ))
+        if !preparedData.favorites.isEmpty {
+            sections.append(VaultListSection(
+                id: "Favorites",
+                items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: Localizations.favorites
+            ))
+        }
         return self
     }
 
@@ -200,7 +204,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         if showNoFolderCipherGroup, !preparedData.noFolderItems.isEmpty {
             sections.append(VaultListSection(
                 id: "NoFolder",
-                items: preparedData.noFolderItems,
+                items: preparedData.noFolderItems.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: Localizations.folderNone
             ))
         }

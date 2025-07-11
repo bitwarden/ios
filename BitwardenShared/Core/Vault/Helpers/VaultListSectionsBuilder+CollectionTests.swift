@@ -94,6 +94,34 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         )
     }
 
+    /// `addCollectionsSection(nestedCollectionId:)` doesn't add the collection section when there are no collection
+    /// items after filtering. In this case because all collection have `nil` Id.
+    func test_addCollectionsSection_noNestedCollectionIdWithAllCollectionsIdNil() async throws {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                collections: [
+                    .fixture(id: nil, organizationId: "1", name: "collection1"),
+                    .fixture(id: nil, organizationId: "1", name: "acollection2"),
+                ],
+                collectionsCount: [
+                    "1": 20,
+                    "2": 5,
+                ]
+            )
+        )
+
+        let sections = try await subject.addCollectionsSection().build()
+
+        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+            """
+            """
+        }
+        XCTAssertEqual(
+            errorReporter.errors.first as? NSError,
+            BitwardenError.dataError("Received a collection from the API with a missing ID.")
+        )
+    }
+
     /// `addCollectionsSection(nestedCollectionId:)` adds the collection section to the list of sections
     /// with the count of ciphers per collection under the nested collection ID.
     func test_addCollectionsSection_withNestedCollectionId() async throws {

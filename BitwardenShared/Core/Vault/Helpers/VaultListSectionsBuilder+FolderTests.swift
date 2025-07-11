@@ -141,9 +141,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     "2": 5,
                 ],
                 noFolderItems: [
-                    .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
+                    .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
                 ]
             )
         )
