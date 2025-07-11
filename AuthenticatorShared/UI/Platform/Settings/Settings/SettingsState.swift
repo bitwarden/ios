@@ -25,7 +25,6 @@ struct SettingsState: Equatable {
     var sessionTimeoutValue: SessionTimeoutValue = .never
 
     /// A flag to indicate if we should show the default save option menu.
-    /// Defaults to false, which indicates we should not show the menu.
     var shouldShowDefaultSaveOption = false
 
     /// A toast message to show in the view.

@@ -120,7 +120,10 @@ struct SettingsView: View {
                     }
 
                     syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
-                    defaultSaveOption
+
+                    if store.state.shouldShowDefaultSaveOption {
+                        defaultSaveOption
+                    }
                 }
                 .cornerRadius(10)
             }
@@ -165,18 +168,16 @@ struct SettingsView: View {
 
     /// The application's default save option picker view
     @ViewBuilder private var defaultSaveOption: some View {
-        if store.state.shouldShowDefaultSaveOption {
-            SettingsMenuField(
-                title: Localizations.defaultSaveOption,
-                options: DefaultSaveOption.allCases,
-                hasDivider: false,
-                selection: store.binding(
-                    get: \.defaultSaveOption,
-                    send: SettingsAction.defaultSaveChanged
-                )
+        SettingsMenuField(
+            title: Localizations.defaultSaveOption,
+            options: DefaultSaveOption.allCases,
+            hasDivider: false,
+            selection: store.binding(
+                get: \.defaultSaveOption,
+                send: SettingsAction.defaultSaveChanged
             )
-            .accessibilityIdentifier("DefaultSaveOptionChooser")
-        }
+        )
+        .accessibilityIdentifier("DefaultSaveOptionChooser")
     }
 
     /// The application's color theme picker view
@@ -257,6 +258,15 @@ struct SettingsView: View {
                         Text(Localizations.syncWithBitwardenApp)
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                        Text(LocalizedStringKey(
+                            Localizations.learnMoreLink(
+                                ExternalLinksConstants.totpSyncHelp
+                            )
+                        ))
+                        .styleGuide(.subheadline)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
@@ -301,23 +311,13 @@ struct SettingsView_Previews: PreviewProvider {
             SettingsView(
                 store: Store(
                     processor: StateProcessor(
-                        state: SettingsState()
-                    )
-                )
-            )
-        }.previewDisplayName("With Sync Row")
-
-        NavigationView {
-            SettingsView(
-                store: Store(
-                    processor: StateProcessor(
                         state: SettingsState(
                             shouldShowDefaultSaveOption: true
                         )
                     )
                 )
             )
-        }.previewDisplayName("With Sync & Default Options")
+        }.previewDisplayName("With Default Save Option")
     }
 }
 #endif
