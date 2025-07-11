@@ -11,11 +11,11 @@ function get_latest_release() {
     local repo_path=$(echo "$repo_url" | sed 's|https://github.com/||')
     
     # First try to get the latest stable release (non-prerelease)
-    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases" | jq -r 'if type == "array" then .[] | select(.prerelease == false or .prerelease == null) | .tag_name else empty end' 2>/dev/null | head -1)
+    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases" | jq -r '.[] | select(.prerelease == false or .prerelease == null) | .tag_name' | grep -viE '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
     
     # If no stable releases found, fall back to tags but filter out beta/alpha/rc versions
     if [[ -z "$latest_tag" ]]; then
-        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | jq -r 'if type == "array" then .[].name else empty end' 2>/dev/null | grep -v -iE '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
+        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | jq -r '.[] | select(.prerelease == false or .prerelease == null) | .tag_name' | grep -viE '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
     fi
     
     echo "$latest_tag"
@@ -37,11 +37,6 @@ function version_compare() {
     
     current_clean=$(echo "$current" | sed 's/^v//')
     latest_clean=$(echo "$latest" | sed 's/^v//')
-    
-    # Don't update if latest is a beta/pre-release version
-    if [[ "$latest_clean" =~ (beta|alpha|rc|pre|dev|snapshot) ]]; then
-        return 1
-    fi
     
     if [[ "$current_clean" == "$latest_clean" ]]; then
         return 1
