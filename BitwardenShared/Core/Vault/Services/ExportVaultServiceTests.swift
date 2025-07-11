@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - ExportVaultServiceTests
 
-final class ExportVaultServiceTests: BitwardenTestCase {
+final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let cardCipher = Cipher(
@@ -200,7 +200,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_csv() async throws {
         let fileType = ExportFileType.csv
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [])
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             clientService.mockExporters.ciphers,
@@ -216,7 +216,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_encryptedJSON() async throws {
         let fileType = ExportFileType.encryptedJson(password: "1234")
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [])
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             Set(clientService.mockExporters.ciphers),
@@ -234,7 +234,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_error_ciphers() async throws {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.exportVaultFileContents(format: .csv)
+            _ = try await subject.exportVaultFileContents(format: .csv, restrictedTypes: [])
         }
     }
 
@@ -243,7 +243,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_error_export() async throws {
         clientService.mockExporters.exportVaultResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.exportVaultFileContents(format: .csv)
+            _ = try await subject.exportVaultFileContents(format: .csv, restrictedTypes: [])
         }
     }
 
@@ -252,7 +252,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_error_folders() async throws {
         folderService.fetchAllFoldersResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.exportVaultFileContents(format: .csv)
+            _ = try await subject.exportVaultFileContents(format: .csv, restrictedTypes: [])
         }
     }
 
@@ -261,7 +261,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     func test_fileContent_json() async throws {
         let fileType = ExportFileType.json
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [])
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             clientService.mockExporters.ciphers,
@@ -272,6 +272,85 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                 secureNoteCipher,
             ]
         )
+    }
+
+    /// Test that no ciphers are filtered when restrictedTypes is empty
+    ///
+    func test_fileContent_restrictedTypes_empty() async throws {
+        let fileType = ExportFileType.json
+        clientService.mockExporters.exportVaultResult = .success("success")
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                cardCipher,
+                identityCipher,
+                loginCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// Test that login ciphers are excluded when restrictedTypes contains .login
+    ///
+    func test_fileContent_restrictedTypes_excludeLogin() async throws {
+        let fileType = ExportFileType.json
+        clientService.mockExporters.exportVaultResult = .success("success")
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [.login])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                cardCipher,
+                identityCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// Test that multiple cipher types are excluded when restrictedTypes contains multiple types
+    ///
+    func test_fileContent_restrictedTypes_excludeMultiple() async throws {
+        let fileType = ExportFileType.json
+        clientService.mockExporters.exportVaultResult = .success("success")
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [.login, .card])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                identityCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// Test that CSV export with restrictedTypes still applies login/secureNote filter
+    ///
+    func test_fileContent_restrictedTypes_csvWithRestrictions() async throws {
+        let fileType = ExportFileType.csv
+        clientService.mockExporters.exportVaultResult = .success("success")
+        _ = try await subject.exportVaultFileContents(format: fileType, restrictedTypes: [.login])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// Test that all cipher types are excluded when all types are in restrictedTypes
+    ///
+    func test_fileContent_restrictedTypes_excludeAll() async throws {
+        let fileType = ExportFileType.json
+        clientService.mockExporters.exportVaultResult = .success("success")
+        _ = try await subject.exportVaultFileContents(
+            format: fileType,
+            restrictedTypes: [.login, .secureNote, .card, .identity],
+        )
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.ciphers, [])
     }
 
     /// Test the file name formatting for CSV export type.
