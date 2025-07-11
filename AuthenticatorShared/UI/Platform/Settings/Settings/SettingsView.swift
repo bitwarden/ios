@@ -115,7 +115,7 @@ struct SettingsView: View {
                         store.send(.exportItemsTapped)
                     }
 
-                    SettingsListItem(Localizations.backup, hasDivider: true) {
+                    SettingsListItem(Localizations.backup) {
                         store.send(.backupTapped)
                     }
 
