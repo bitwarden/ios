@@ -140,18 +140,9 @@ class SettingsViewTests: BitwardenTestCase {
         )
     }
 
-    /// Tests the view renders correctly with the `shouldShowSyncButton` set to `true`.
+    /// Tests the view renders correctly with `shouldShowDefaultSaveOption` set to `true`.
     @MainActor
-    func test_viewRenderWithSyncRow() {
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
-
-    /// Tests the view renders correctly with `shouldShowDefaultSaveOption` and `shouldShowSyncButton` set to `true`.
-    @MainActor
-    func test_viewRenderWithSyncRowAndDefaultSaveOption() {
+    func test_viewRenderWithDefaultSaveOption() {
         processor.state.shouldShowDefaultSaveOption = true
         assertSnapshots(
             of: subject,
