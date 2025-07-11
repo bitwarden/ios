@@ -124,6 +124,14 @@
 		</dict>
 		<dict>
 			<key>File</key>
+			<string>Acknowledgements/Sourcery</string>
+			<key>Title</key>
+			<string>Sourcery</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
+		<dict>
+			<key>File</key>
 			<string>Acknowledgements/swift-custom-dump</string>
 			<key>Title</key>
 			<string>swift-custom-dump</string>
