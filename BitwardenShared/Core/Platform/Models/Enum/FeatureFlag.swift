@@ -30,9 +30,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         isRemotelyConfigured: false
     )
 
-    /// A feature flag for the flight recorder, which can be enabled to collect app logs.
-    static let flightRecorder = FeatureFlag(rawValue: "enable-pm-flight-recorder")
-
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
     /// which means it's easier to dev/QA the feature.
@@ -72,7 +69,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .emailVerification,
             .enableAuthenticatorSync,
             .enableCipherKeyEncryption,
-            .flightRecorder,
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
