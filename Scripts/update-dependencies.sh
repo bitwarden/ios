@@ -15,7 +15,7 @@ function get_latest_release() {
     
     # If no stable releases found, fall back to tags but filter out beta/alpha/rc versions
     if [[ -z "$latest_tag" ]]; then
-        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | jq -r '.[].name' | grep -v -E '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
+        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | jq -r '.[].name | select(test("(beta|alpha|rc|pre|dev|snapshot)"; "i") | not)' | head -1)
     fi
     
     echo "$latest_tag"
