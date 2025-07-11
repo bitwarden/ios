@@ -341,26 +341,10 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                        [Alert.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
-    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the `enablePasswordManagerSync`
-    /// feature flag is disabled.
-    @MainActor
-    func test_perform_moveToBitwardenPressed_featureFlagDisabled() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        application.canOpenUrlResponse = true
-        let localItem = ItemListItem.fixture()
-
-        await subject.perform(.moveToBitwardenPressed(localItem))
-
-        XCTAssertNil(authItemRepository.tempItem)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-        XCTAssertNil(subject.state.url)
-    }
-
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the Password Manager app is not
     /// installed - i.e. the `bitwarden://` urls cannot be opened.
     @MainActor
     func test_perform_moveToBitwardenPressed_passwordManagerAppNotInstalled() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = false
         let localItem = ItemListItem.fixture()
 
@@ -374,7 +358,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when called with a shared item.
     @MainActor
     func test_perform_moveToBitwardenPressed_sharedItem() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixtureShared()
 
@@ -686,7 +669,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([item])
 
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
 
         notificationCenterService.willEnterForegroundSubject.send()
@@ -1148,7 +1130,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
     @MainActor
     func test_determineItemListCardState_closed_download() async {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
         await subject.perform(.closeCard(.passwordManagerDownload))
         XCTAssertEqual(subject.state.itemListCardState, .none)
@@ -1157,30 +1138,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
     @MainActor
     func test_determineItemListCardState_closed_sync() async {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
         await subject.perform(.closeCard(.passwordManagerSync))
         XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 
-    /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
-    /// to false if the feature flag is turned off.
-    @MainActor
-    func test_determineItemListCardState_FeatureFlag_off() {
-        subject.state.itemListCardState = .passwordManagerSync
-        configService.featureFlagsBool = [.enablePasswordManagerSync: false]
-        let task = Task {
-            await self.subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.itemListCardState == .none)
-        task.cancel()
-    }
-
-    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
+    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if PM is not installed.
     @MainActor
     func test_determineItemListCardState_FeatureFlag_on_download() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
         let task = Task {
             await self.subject.perform(.appeared)
@@ -1190,10 +1155,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         task.cancel()
     }
 
-    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
+    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if PM is installed.
     @MainActor
     func test_determineItemListCardState_FeatureFlag_on_sync() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
         let task = Task {
             await self.subject.perform(.appeared)
@@ -1207,7 +1171,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// (when the BWPM app is not installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_download() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = false
         let task = Task {
@@ -1223,7 +1186,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// (when the BWPM app is installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_sync() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let task = Task {

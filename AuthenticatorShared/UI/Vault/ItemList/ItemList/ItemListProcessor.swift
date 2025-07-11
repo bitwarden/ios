@@ -340,8 +340,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Determine if the ItemListCard should be shown and which state to show.
     ///
     private func determineItemListCardState() async {
-        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
-              await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
+        guard await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application else {
             state.itemListCardState = .none
             return

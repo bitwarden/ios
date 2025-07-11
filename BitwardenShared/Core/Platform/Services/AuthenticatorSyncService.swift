@@ -129,9 +129,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     // MARK: Public Methods
 
     public func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
-        guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync) else {
-            return nil
-        }
         do {
             return try await authBridgeItemService.fetchTemporaryItem()
         } catch {
@@ -249,13 +246,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
-        guard
-            await configService.getFeatureFlag(
-                FeatureFlag.enableAuthenticatorSync,
-                defaultValue: false
-            )
-        else { return }
-
         if try await stateService.getSyncToAuthenticator(userId: userId) {
             enableSyncForUserId(userId)
         } else {

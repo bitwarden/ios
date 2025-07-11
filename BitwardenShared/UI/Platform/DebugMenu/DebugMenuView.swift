@@ -102,10 +102,6 @@ struct DebugMenuView: View {
                             feature: .emailVerification,
                             isEnabled: true
                         ),
-                        .init(
-                            feature: .enableAuthenticatorSync,
-                            isEnabled: false
-                        ),
                     ]
                 )
             )

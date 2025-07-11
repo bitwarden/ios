@@ -39,44 +39,18 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
         subject = nil
     }
 
-    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to true when both
-    /// the `.enablePasswordManagerSync` feature flag is enabled and sync is turned on.
+    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to true when sync is turned on.
     @MainActor
     func test_perform_appeared_allActive() async {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = true
 
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isPasswordManagerSyncActive)
     }
 
-    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when both
-    /// the `.enablePasswordManagerSync` feature flag is disabled and sync is turned off.
-    @MainActor
-    func test_perform_appeared_bothFalse() async {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        authItemRepository.pmSyncEnabled = false
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isPasswordManagerSyncActive)
-    }
-
-    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when
-    /// the `.enablePasswordManagerSync` feature flag is disabled and sync is turned on.
-    @MainActor
-    func test_perform_appeared_flagDisabled() async {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        authItemRepository.pmSyncEnabled = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isPasswordManagerSyncActive)
-    }
-
-    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when both
-    /// the `.enablePasswordManagerSync` feature flag is enabled but sync is turned off.
+    /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when sync is turned off.
     @MainActor
     func test_perform_appeared_syncOff() async {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = false
 
         await subject.perform(.appeared)

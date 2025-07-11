@@ -169,11 +169,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
-            state.shouldShowAuthenticatorSyncSection =
-                await services.configService.getFeatureFlag(.enableAuthenticatorSync)
-            if state.shouldShowAuthenticatorSyncSection {
-                state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
-            }
+
+            state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()

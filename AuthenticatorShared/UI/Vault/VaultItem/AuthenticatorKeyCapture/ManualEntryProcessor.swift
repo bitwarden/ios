@@ -47,8 +47,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         case .appeared:
             state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
 
-            guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
-                  await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+            guard await services.authenticatorItemRepository.isPasswordManagerSyncActive()
             else {
                 state.isPasswordManagerSyncActive = false
                 break
