@@ -175,7 +175,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     }
 
     /// `prepareData(from:collections:folders:filter:)` returns the prepared data without filtering out cipher even
-    /// with restrictem item types policy but with `.removeCardPolicy` off.
+    /// with restricted item types policy but with `.removeCardPolicy` off.
     @MainActor
     func test_prepareData_preparedDataNoFilteringOutCipherWithRestrictedItemsPolicyButCardFlagOff() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
