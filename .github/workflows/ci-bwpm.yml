@@ -1,5 +1,5 @@
 name: CI / Password Manager
-run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
 
 on:
   push:
