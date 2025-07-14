@@ -124,10 +124,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             defaultValue: false,
             isPreAuth: true
         )
-        state.isPreLoginSettingsEnabled = await services.configService.getFeatureFlag(
-            .preLoginSettings,
-            isPreAuth: true
-        )
     }
 
     /// Validate the currently entered email address and navigate to the login screen.

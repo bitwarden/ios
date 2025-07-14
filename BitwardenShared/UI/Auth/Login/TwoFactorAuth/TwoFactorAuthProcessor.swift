@@ -62,6 +62,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     override func perform(_ effect: TwoFactorAuthEffect) async {
         switch effect {
+        case .appeared:
+            guard state.authMethod == .email, !state.deviceVerificationRequired else { return }
+            await sendVerificationCodeEmail()
         case .beginDuoAuth:
             authenticateWithDuo()
         case .beginWebAuthn:
@@ -74,7 +77,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.verificationCode = duoToken
             await login()
         case .resendEmailTapped:
-            await resendEmail()
+            await sendVerificationCodeEmail()
         case .tryAgainTapped:
             services.nfcReaderService.startReading()
         }
@@ -94,7 +97,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.toast = newValue
         case let .verificationCodeChanged(newValue):
             state.verificationCode = newValue
-            state.continueEnabled = newValue.count >= (state.deviceVerificationRequired ? 8 : 6)
+            state.continueEnabled = !newValue.isEmpty
         }
     }
 
@@ -106,7 +109,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         case .recoveryCode:
             state.url = services.environmentService.recoveryCodeURL
         case .email:
-            Task { await resendEmail() }
+            Task { await sendVerificationCodeEmail() }
             state.authMethod = authMethod
         default:
             state.authMethod = authMethod
@@ -200,8 +203,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         }
     }
 
-    /// Resend the verification code email.
-    private func resendEmail() async {
+    /// Sends the verification code email.
+    private func sendVerificationCodeEmail() async {
         guard state.authMethod == .email else { return }
         do {
             coordinator.showLoadingOverlay(title: Localizations.submitting)

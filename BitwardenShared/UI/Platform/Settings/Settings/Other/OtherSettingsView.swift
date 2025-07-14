@@ -30,9 +30,7 @@ struct OtherSettingsView: View {
                     connectToWatch
                 }
 
-                if store.state.shouldShowSiriAndShortcutsAccess {
-                    siriAndShortcutsAccess
-                }
+                siriAndShortcutsAccess
             }
         }
         .scrollView()

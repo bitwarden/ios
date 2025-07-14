@@ -84,7 +84,6 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
             state.isSiriAndShortcutsAccessToggleOn = try await services.settingsRepository.getSiriAndShortcutsAccess()
             state.shouldShowConnectToWatchToggle = services.watchService.isSupported()
-            state.shouldShowSiriAndShortcutsAccess = await services.configService.getFeatureFlag(.appIntents)
         } catch {
             services.errorReporter.log(error: error)
         }

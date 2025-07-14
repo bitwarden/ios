@@ -4,6 +4,7 @@ import Combine
 public class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     public var errorToThrow: Error?
     public var replaceAllCalled = false
+    public var sharedItemsError: Error?
     public var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])
     public var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
     public var syncOn = false
@@ -53,7 +54,7 @@ public class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService 
 
     public func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeKit.AuthenticatorBridgeItemDataView], any Error> {
-        guard errorToThrow == nil else { throw errorToThrow! }
+        guard sharedItemsError == nil else { throw sharedItemsError! }
 
         return sharedItemsSubject.eraseToAnyPublisher()
     }
