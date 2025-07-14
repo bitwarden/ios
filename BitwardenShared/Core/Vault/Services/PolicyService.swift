@@ -37,11 +37,6 @@ protocol PolicyService: AnyObject {
     ///
     func isSendHideEmailDisabledByPolicy() async -> Bool
 
-    /// Whether the `cipher` passes the `.restrictItemTypes` policy.
-    /// - Parameter cipher: Cipher to check.
-    /// - Returns: `true` if it passes, `false` otherwise.
-    func passesRestrictItemTypesPolicy(cipher: CipherListView) async -> Bool
-
     /// Determines whether a policy applies to the active user.
     ///
     /// - Parameter policyType: The policy to check.
@@ -344,14 +339,6 @@ extension DefaultPolicyService {
         await policyAppliesToUser(.sendOptions) { policy in
             policy[.disableHideEmail]?.boolValue == true
         }
-    }
-
-    func passesRestrictItemTypesPolicy(cipher: CipherListView) async -> Bool {
-        guard await configService.getFeatureFlag(.removeCardPolicy) else {
-            return true
-        }
-        let restrictedOrganizationIds = await getOrganizationIdsForRestricItemTypesPolicy()
-        return cipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds)
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {
