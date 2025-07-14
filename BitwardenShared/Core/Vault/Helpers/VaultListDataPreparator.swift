@@ -1,6 +1,5 @@
 import BitwardenKit
 import BitwardenSdk
-import OSLog
 
 /// A object that prepares vault list data for the sections builder `VaultListSectionsBuilder`.
 ///
