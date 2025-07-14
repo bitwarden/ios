@@ -146,9 +146,9 @@ targets:
         buildPhase: none
       - path: swiftgen-bwk.yml
         buildPhase: none
-      - path: BitwardenKit/Core/Application/Support/Generated/Assets.swift
+      - path: BitwardenKit/Core/Application/Support/Generated/SpikeAssets.swift
         optional: true
-      - path: BitwardenKit/Core/Application/Support/Generated/Localizations.swift
+      - path: BitwardenKit/Core/Application/Support/Generated/SpikeLocalizations.swift
         optional: true
     dependencies:
       - target: Networking
