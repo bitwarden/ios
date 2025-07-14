@@ -6,11 +6,12 @@ import BitwardenKit
 extension RegionType {
     /// The name for this region, localized.
     var localizedName: String {
-        switch self {
-        case .europe: return Localizations.eu
-        case .selfHosted: return Localizations.selfHosted
-        case .unitedStates: return Localizations.us
-        }
+        localizedName2
+//        switch self {
+//        case .europe: return Localizations.eu
+//        case .selfHosted: return Localizations.selfHosted
+//        case .unitedStates: return Localizations.us
+//        }
     }
 
     /// A description of the base url for this region.
