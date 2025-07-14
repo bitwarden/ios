@@ -11,14 +11,6 @@ on:
       - AuthenticatorShared/**
   workflow_dispatch:
     inputs:
-      build-variant:
-        description: "Build Variant"
-        required: true
-        default: "Beta"
-        type: choice
-        options:
-          - Beta
-          - Production
       build-mode:
         description: "Build Mode"
         required: true
@@ -28,6 +20,14 @@ on:
           - Device
           - Simulator
           - CI
+      build-variant:
+        description: "Build Variant"
+        required: true
+        default: "Beta"
+        type: choice
+        options:
+          - Beta
+          - Production
       version-name:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
