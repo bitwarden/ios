@@ -152,7 +152,7 @@ private struct SearchableVaultListView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SpikeAssets.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -338,7 +338,7 @@ struct VaultListView: View {
                     send: VaultListAction.searchTextChanged
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: SpikeLocalizations.spikeBWAPM
             )
             .autocorrectionDisabled(true)
             .task(id: store.state.searchText) {

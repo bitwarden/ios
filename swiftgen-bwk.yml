@@ -16,4 +16,5 @@ xcassets:
     - templateName: swift5
       output: SpikeAssets.swift
       params:
+        enumName: SpikeAssets
         publicAccess: true

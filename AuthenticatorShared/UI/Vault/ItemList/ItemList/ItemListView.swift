@@ -43,7 +43,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(SpikeAssets.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .toast(store.binding(
             get: \.toast,
             send: ItemListAction.toastShown
@@ -357,13 +357,13 @@ struct ItemListView: View {
                     send: ItemListAction.searchTextChanged
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: SpikeLocalizations.spikeBWA
             )
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
         }
-        .navigationTitle(Localizations.verificationCodes)
+        .navigationTitle(SpikeLocalizations.spikeBWAPM)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             addToolbarItem(hidden: !store.state.showAddToolbarItem) {

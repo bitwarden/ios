@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -220,7 +221,7 @@ struct SendListView: View {
                     send: SendListAction.searchTextChanged
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: SpikeLocalizations.spikePM
             )
             .autocorrectionDisabled(true)
             .refreshable { [weak store] in
