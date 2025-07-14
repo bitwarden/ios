@@ -183,6 +183,11 @@ jobs:
         run: |
           ./Scripts/build.sh $_BUILD_PROJECT_PATH $_BUILD_SCHEME $_BUILD_MODE
 
+      - name: Spike Inspection
+        if: success() || failure()
+        run: |
+          ls -la BitwardenKit/Core/Application/Support/Generated/
+
       - name: Prepare artifacts for upload to GitHub
         run: |
           mkdir -p $_EXPORT_PATH
