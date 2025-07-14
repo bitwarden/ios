@@ -62,7 +62,7 @@ jobs:
   build-manual:
     name: Build Manual - ${{ inputs.build-mode }}
     needs: version
-    if: ${{ github.event_name == 'workflow_dispatch' || inputs.build-mode != 'CI' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: bwa_prod
