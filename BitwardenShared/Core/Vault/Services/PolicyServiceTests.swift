@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -6,6 +7,7 @@ import XCTest
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var organizationService: MockOrganizationService!
     var policyDataStore: MockPolicyDataStore!
     var stateService: MockStateService!
@@ -61,11 +63,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         organizationService = MockOrganizationService()
         policyDataStore = MockPolicyDataStore()
         stateService = MockStateService()
 
         subject = DefaultPolicyService(
+            configService: configService,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
             stateService: stateService
@@ -75,6 +79,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         organizationService = nil
         policyDataStore = nil
         stateService = nil
@@ -695,5 +700,63 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertTrue(policies.isEmpty)
+    }
+
+    /// `passesRestrictItemTypesPolicy(cipher:)` returns `true` when the `.removeCardPolicy` is enabled
+    /// and cipher passes restricted organization ids.
+    @MainActor
+    func test_passesRestrictItemTypesPolicy_cipherPassesRestrictedOrganizationIds() async {
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        let result: Policy = .fixture(organizationId: "1", type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "1")])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
+            organizationId: "2",
+            type: .card(.fixture())
+        ))
+        XCTAssertTrue(passes)
+    }
+
+    /// `passesRestrictItemTypesPolicy(cipher:)` returns `false` when the `.removeCardPolicy` is enabled
+    /// and cipher doesn't pass restricted organization ids.
+    @MainActor
+    func test_passesRestrictItemTypesPolicy_cipherOrganizationPartOfRestrictedOnes() async {
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        let result: Policy = .fixture(organizationId: "2", type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
+            organizationId: "2",
+            type: .card(.fixture())
+        ))
+        XCTAssertFalse(passes)
+    }
+
+    /// `passesRestrictItemTypesPolicy(cipher:)` returns `true` when the `.removeCardPolicy` is not enabled.
+    @MainActor
+    func test_passesRestrictItemTypesPolicy_removeCardPolicyDisabled() async {
+        configService.featureFlagsBool[.removeCardPolicy] = false
+        let result: Policy = .fixture(organizationId: "2", type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
+            organizationId: "2",
+            type: .card(.fixture())
+        ))
+        XCTAssertTrue(passes)
     }
 } // swiftlint:disable:this file_length

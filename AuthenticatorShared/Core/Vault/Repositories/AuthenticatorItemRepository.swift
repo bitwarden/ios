@@ -274,18 +274,25 @@ class DefaultAuthenticatorItemRepository {
     ///
     private func itemListSectionPublisher() async throws -> AnyPublisher<[ItemListSection], Error> {
         try await checkBWPMInstall()
-        return try await authenticatorItemService.authenticatorItemsPublisher()
-            .combineLatest(
-                sharedItemService.sharedItemsPublisher()
-                    .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
-                        self.syncError = true
-                        self.errorReporter.log(error: error)
+        let remoteItemsPublisher: any Publisher<[AuthenticatorBridgeItemDataView], any Error>
+        do {
+            remoteItemsPublisher = try await sharedItemService.sharedItemsPublisher()
+                .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
+                    self.syncError = true
+                    self.errorReporter.log(error: error)
 
-                        return Just([])
-                            .setFailureType(to: Error.self)
-                            .eraseToAnyPublisher()
-                    }
-            )
+                    return Just([])
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+        } catch {
+            syncError = true
+            errorReporter.log(error: error)
+            remoteItemsPublisher = Just([])
+                .setFailureType(to: Error.self)
+        }
+        return try await authenticatorItemService.authenticatorItemsPublisher()
+            .combineLatest(remoteItemsPublisher.eraseToAnyPublisher())
             .asyncTryMap { localItems, sharedItems in
                 let sections = try await self.itemListSections(from: localItems)
                 return await self.combinedSections(localSections: sections, sharedItems: sharedItems)

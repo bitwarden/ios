@@ -501,6 +501,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let policyService = DefaultPolicyService(
+            configService: configService,
             organizationService: organizationService,
             policyDataStore: dataStore,
             stateService: stateService
@@ -698,6 +699,32 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
+            cipherService: cipherService,
+            collectionService: collectionService,
+            folderService: folderService,
+            vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
+                clientService: clientService,
+                errorReporter: errorReporter
+            ),
+            vaultListDataPreparator: DefaultVaultListDataPreparator(
+                ciphersClientWrapperService: DefaultCiphersClientWrapperService(
+                    clientService: clientService,
+                    errorReporter: errorReporter
+                ),
+                clientService: clientService,
+                errorReporter: errorReporter,
+                policyService: policyService,
+                stateService: stateService,
+                vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
+                    clientService: clientService,
+                    errorReporter: errorReporter,
+                    stateService: stateService,
+                    timeProvider: timeProvider
+                )
+            )
+        )
+
         let vaultRepository = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
@@ -712,6 +739,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
+            vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService
         )
 
