@@ -28,7 +28,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         )
     )
 
-    let deletedCipehr = Cipher(
+    let deletedCipher = Cipher(
         cipherView: .loginFixture(
             deletedDate: .init(
                 year: 2023,
@@ -146,7 +146,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         cipherService.fetchAllCiphersResult = .success(
             [
                 cardCipher,
-                deletedCipehr,
+                deletedCipher,
                 identityCipher,
                 loginCipher,
                 loginOrgCipher,
