@@ -515,8 +515,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
+            policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let sendService = DefaultSendService(

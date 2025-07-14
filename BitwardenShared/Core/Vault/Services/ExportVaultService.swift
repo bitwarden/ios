@@ -40,11 +40,10 @@ protocol ExportVaultService: AnyObject {
     ///
     /// - Parameters:
     ///   - format: The format of the exported file.
-    ///   - restrictedTypes: An array of `CipherType` that should be excluded from the export.
     ///
     /// - Returns: A string representing the file content.
     ///
-    func exportVaultFileContents(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> String
+    func exportVaultFileContents(format: ExportFileType) async throws -> String
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -75,9 +74,9 @@ extension ExportVaultService {
     ///
     /// - Returns: A URL for the exported vault file.
     ///
-    func exportVault(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> URL {
+    func exportVault(format: ExportFileType) async throws -> URL {
         // Export the vault in the correct file content format.
-        let exportFileContents = try await exportVaultFileContents(format: format, restrictedTypes: restrictedTypes)
+        let exportFileContents = try await exportVaultFileContents(format: format)
 
         // Generate the file name.
         let fileName = generateExportFileName(extension: format.fileExtension)
@@ -119,6 +118,9 @@ class DefultExportVaultService: ExportVaultService {
     /// The time provider used by this service.
     private let timeProvider: TimeProvider
 
+    /// The service used by the application to manage the policy.
+    private let policyService: PolicyService
+
     // MARK: Initialization
 
     /// Initializes a new instance of the `DefaultExportVaultService`.
@@ -131,6 +133,7 @@ class DefultExportVaultService: ExportVaultService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
+    ///   - policyService: The service used by the application to manage the policy.   
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///
@@ -139,8 +142,9 @@ class DefultExportVaultService: ExportVaultService {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        policyService: PolicyService,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -148,6 +152,7 @@ class DefultExportVaultService: ExportVaultService {
         self.folderService = folderService
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.policyService = policyService
     }
 
     // MARK: Methods
@@ -165,8 +170,9 @@ class DefultExportVaultService: ExportVaultService {
         }
     }
 
-    func exportVaultFileContents(format: ExportFileType, restrictedTypes: [CipherType]) async throws -> String {
+    func exportVaultFileContents(format: ExportFileType) async throws -> String {
         var exportFormat: BitwardenSdk.ExportFormat
+        let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
             .filter { cipher in

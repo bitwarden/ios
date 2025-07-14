@@ -40,6 +40,13 @@ class MockPolicyService: PolicyService {
         policyAppliesToUserPolicies.map(\.organizationId)
     }
 
+    func getRestrictedItemCipherTypes() async -> [BitwardenShared.CipherType] {
+        guard policyAppliesToUserPolicies.isEmpty else {
+            return [.card]
+        }
+        return []
+    }
+
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         try getMasterPasswordPolicyOptionsResult.get()
     }

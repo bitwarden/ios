@@ -696,4 +696,91 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertTrue(policies.isEmpty)
     }
+
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types that apply to the user.
+    func test_getRestrictedItemCipherTypes() async {
+        let result: Policy = .fixture(type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let restrictedTypes: [CipherType] = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types that apply to the user when one
+    /// organization has the policy enabled but not another.
+    func test_getRestrictedItemCipherTypes_multipleOrganizations() async {
+        let result: Policy = .fixture(enabled: true, organizationId: "org-2", type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
+            result,
+        ])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when there are no organizations.
+    func test_getRestrictedItemCipherTypes_noOrganizations() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when there are no policies.
+    func test_getRestrictedItemCipherTypes_noPolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when the organization user is exempt from policies.
+    func test_getRestrictedItemCipherTypes_organizationExempt() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when the organization doesn't use policies.
+    func test_getRestrictedItemCipherTypes_organizationDoesNotUsePolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns restricted cipher types even if the organization is disabled.
+    func test_getRestrictedItemCipherTypes_organizationNotEnabled() async {
+        let result: Policy = .fixture(type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when the user is only invited to the organization.
+    func test_getRestrictedItemCipherTypes_organizationInvited() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
 } // swiftlint:disable:this file_length
