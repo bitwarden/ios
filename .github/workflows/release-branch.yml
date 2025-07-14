@@ -31,7 +31,7 @@ jobs:
           RC_PREFIX_DATE: "true" # replace with input if needed
         run: |
           if [ "$RC_PREFIX_DATE" = "true" ]; then
-            current_date=$(date +'%Y.%m')
+            current_date=$(date +'%Y.%-m')
             branch_name="release/${current_date}-rc${{ github.run_number }}"
           else
             branch_name="release/rc${{ github.run_number }}"
