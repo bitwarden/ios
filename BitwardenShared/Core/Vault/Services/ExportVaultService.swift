@@ -133,7 +133,7 @@ class DefultExportVaultService: ExportVaultService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
-    ///   - policyService: The service used by the application to manage the policy.   
+    ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///

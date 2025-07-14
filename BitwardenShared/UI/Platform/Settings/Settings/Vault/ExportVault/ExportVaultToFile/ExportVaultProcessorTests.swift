@@ -337,7 +337,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidVerificationCode))
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
-    
+
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
     @MainActor
     func test_receive_fileFormatTypeChanged() {
