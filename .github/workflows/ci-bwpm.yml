@@ -27,6 +27,7 @@ on:
         options:
           - Device
           - Simulator
+          - CI
       version-name:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -64,7 +65,7 @@ jobs:
   build-manual:
     name: Build Manual - ${{ inputs.build-variant }} (${{ inputs.build-mode }})
     needs: version
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
@@ -78,7 +79,7 @@ jobs:
   build-public:
     name: Build CI
     needs: version
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
