@@ -25,8 +25,8 @@ jobs:
           fetch-depth: 0
 
       - name: Create RC Branch
-        if: inputs.release_type == 'RC'
         id: rc_branch
+        if: inputs.release_type == 'RC'
         env:
           RC_PREFIX_DATE: "true" # replace with input if needed
         run: |
@@ -43,8 +43,8 @@ jobs:
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       - name: Create Hotfix Branch
-        if: inputs.release_type == 'Hotfix'
         id: hotfix_branch
+        if: inputs.release_type == 'Hotfix'
         run: |
           latest_tag=$(git tag -l --sort=-creatordate | head -n 1)
           if [ -z "$latest_tag" ]; then
@@ -53,6 +53,7 @@ jobs:
           fi
           branch_name="release/hotfix-${latest_tag}"
           echo "🌿 branch name: $branch_name"
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
           if git show-ref --verify --quiet "refs/remotes/origin/$branch_name"; then
             echo "# :fire: :warning: Hotfix branch already exists: ${branch_name}" >> $GITHUB_STEP_SUMMARY
             exit 0
@@ -60,12 +61,12 @@ jobs:
           git switch -c $branch_name $latest_tag
           git push origin $branch_name
           echo "# :fire: Hotfix branch: ${branch_name}" >> $GITHUB_STEP_SUMMARY
-          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       - name: Trigger CI Workflows
         env:
           GH_TOKEN: ${{ github.token }}
           _BRANCH_NAME: ${{ steps.rc_branch.outputs.branch_name || steps.hotfix_branch.outputs.branch_name }}
         run: |
+          echo "🌿 branch name: $_BRANCH_NAME"
           gh workflow run ci-bwpm.yml --ref $_BRANCH_NAME -f build-mode=CI
           gh workflow run ci-bwa.yml --ref $_BRANCH_NAME -f build-mode=CI
