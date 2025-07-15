@@ -437,7 +437,14 @@ jobs:
           Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
+          BUNDLE_ID="com.8bit.bitwarden"
+
+          if [ "$_BUILD_VARIANT" = "Beta" ]; then
+            BUNDLE_ID="com.8bit.bitwarden.beta"
+          fi
+
           bundle exec fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
-            ipa_path:"export/Bitwarden.ipa"
+            ipa_path:"export/Bitwarden.ipa" \
+            bundle_id:"$BUNDLE_ID"

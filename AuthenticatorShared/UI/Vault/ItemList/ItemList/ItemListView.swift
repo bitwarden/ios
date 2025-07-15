@@ -237,7 +237,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         await store.perform(.moveToBitwardenPressed(item))
                     } label: {
                         HStack(spacing: 4) {
-                            Text(Localizations.copyToBitwarden)
+                            Text(Localizations.copyToBitwardenVault)
                             Spacer()
                             Image(decorative: Asset.Images.rightArrow)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
@@ -275,15 +275,21 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
-                SectionHeaderView(title)
-            }
-            ForEach(items) { item in
-                if item.itemType == .syncError {
-                    Text(item.name)
-                        .styleGuide(.footnote)
-                } else {
-                    buildRow(item: item, isLastInSection: true)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                ExpandableHeaderView(title: title, count: items.count) {
+                    ForEach(items) { item in
+                        buildRow(item: item, isLastInSection: true)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+            } else {
+                ForEach(items) { item in
+                    if item.itemType == .syncError {
+                        Text(item.name)
+                            .styleGuide(.footnote)
+                    } else {
+                        buildRow(item: item, isLastInSection: true)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
                 }
             }
         }
@@ -670,6 +676,42 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 timeProvider: PreviewTimeProvider()
             )
         }.previewDisplayName("SyncError")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([
+                                ItemListSection.digitsFixture(accountNames: true),
+                                ItemListSection(
+                                    id: "",
+                                    items: [
+                                        ItemListItem(
+                                            id: "Shared One",
+                                            name: "Share",
+                                            accountName: "person@shared.com",
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: AuthenticatorItemView.fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                    ],
+                                    name: "example.com",
+                                ),
+                            ])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("SharedItems")
     }
 }
 #endif

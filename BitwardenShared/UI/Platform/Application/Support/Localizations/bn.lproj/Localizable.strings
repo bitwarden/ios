@@ -27,7 +27,7 @@
 "FingerprintDirection" = "Use your fingerprint to verify.";
 "Folder" = "ফোল্ডার";
 "FolderCreated" = "নতুন ফোল্ডার তৈরি হয়েছে।";
-"FolderDeleted" = "Folder deleted.";
+"FolderDeleted" = "নথি মোছা হয়েছে।";
 "FolderNone" = "কোন ফোল্ডার নেই";
 "Folders" = "ফোল্ডারসমূহ";
 "FolderUpdated" = "ফোল্ডার হালনাগাদকৃত।";
@@ -35,9 +35,9 @@
 "HelpAndFeedback" = "সহায়তা এবং প্রতিক্রিয়া";
 "Hide" = "লুকান";
 "InternetConnectionRequiredMessage" = "Please connect to the internet before continuing.";
-"InternetConnectionRequiredTitle" = "Internet connection required";
+"InternetConnectionRequiredTitle" = "ইন্টারনেট সংযোগ প্রয়োজন";
 "InvalidMasterPassword" = "Invalid master password. Try again.";
-"InvalidPIN" = "Invalid PIN. Try again.";
+"InvalidPIN" = "অবৈধ পিন। আবার চেষ্টা করুন।";
 "Launch" = "Launch";
 "LogIn" = "Log in";
 "LoginCredentials" = "Login credentials";
@@ -46,7 +46,7 @@
 "LogoutConfirmation" = "আপনি লগ আউট করতে চান?";
 "RemoveAccount" = "অ্যাকাউন্ট অপসারণ করুন";
 "RemoveAccountConfirmation" = "Are you sure you want to remove this account?";
-"AccountAlreadyAdded" = "Account already added";
+"AccountAlreadyAdded" = "অ্যাকাউন্ট ইতিমধ্যেই যোগ করা হয়েছে";
 "SwitchToAlreadyAddedAccountConfirmation" = "Would you like to switch to it now?";
 "MasterPassword" = "প্রধান পাসওয়ার্ড";
 "More" = "আরও";
@@ -65,9 +65,9 @@
 "ItemDeleted" = "Item deleted";
 "Submit" = "জমা দিন";
 "Sync" = "Sync";
-"ThankYou" = "ধন্যবাদ";
+"ThankYou" = "আপনাকে ধন্যবাদ";
 "Tools" = "টুলস";
-"UseFingerprintToUnlock" = "Use fingerprint to unlock";
+"UseFingerprintToUnlock" = "আনলক করতে আঙ্গুলের ছাপ ব্যবহার করুন";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";

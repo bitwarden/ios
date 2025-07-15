@@ -227,19 +227,35 @@ extension View {
     @ToolbarContentBuilder
     func largeNavigationTitleToolbarItem(_ title: String, hidden: Bool = false) -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            if !hidden {
+            if !hidden, !shouldHideLargeNavigationToolbarItem {
                 Text(title)
                     .styleGuide(.largeTitle, weight: .semibold)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("HeaderBarPageTitle")
             }
         }
 
         ToolbarItem(placement: .principal) {
-            if !hidden {
+            if !hidden, !shouldHideLargeNavigationToolbarItem {
                 // Hide the centered navigation title view with an empty view.
                 Text("")
                     .accessibilityHidden(true)
             }
         }
+    }
+}
+
+// MARK: Private
+
+extension View {
+    /// Whether the navigation bar's large title displayed on the leading edge should be hidden.
+    /// iPadOS 18+ moves the tab bar into the navigation bar. Since the selected tab matches the
+    /// navigation bar's title both don't need to be displayed. This fixes an issue where even
+    /// though the navigation bar was displayed inline, there was still extra padding in the
+    /// navigation bar where the centered title would be displayed below the tab bar.
+    ///
+    private var shouldHideLargeNavigationToolbarItem: Bool {
+        guard #available(iOS 18, *) else { return false }
+        return UIDevice.current.userInterfaceIdiom == .pad
     }
 }

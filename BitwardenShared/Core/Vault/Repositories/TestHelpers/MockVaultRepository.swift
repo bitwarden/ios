@@ -66,6 +66,8 @@ class MockVaultRepository: VaultRepository {
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
+    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
+
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
@@ -116,7 +118,6 @@ class MockVaultRepository: VaultRepository {
     var updateCipherCollectionsResult: Result<Void, Error> = .success(())
 
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
-    var vaultListGroupSubject = CurrentValueSubject<[VaultListSection], Error>([])
     var vaultListFilter: VaultListFilter?
 
     // MARK: Computed Properties
@@ -225,6 +226,10 @@ class MockVaultRepository: VaultRepository {
         try getDisableAutoTotpCopyResult.get()
     }
 
+    func getItemTypesUserCanCreate() async -> [BitwardenShared.CipherType] {
+        getItemTypesUserCanCreateResult
+    }
+
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
         try getTOTPKeyIfAllowedToCopyResult.get()
     }
@@ -323,12 +328,5 @@ class MockVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
-    }
-
-    func vaultListPublisher(
-        group _: BitwardenShared.VaultListGroup,
-        filter _: BitwardenShared.VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        vaultListGroupSubject.eraseToAnyPublisher().values
     }
 }

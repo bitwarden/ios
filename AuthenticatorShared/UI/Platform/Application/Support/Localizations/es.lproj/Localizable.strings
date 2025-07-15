@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Sincronizar con la aplicación Bitwarden";
 "LocalCodes" = "Códigos locales";
 "AccountsSyncedFromBitwardenApp" = "Cuentas sincronizadas desde la aplicación de Bitwarden";
-"CopyToBitwarden" = "Copiar a Bitwarden";
+"CopyToBitwardenVault" = "Copiar a caja fuerte de Bitwarden";
 "ScanComplete" = "Escaneo completo";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Guarda esta clave de autenticador aquí o agrégala a un inicio de sesión en tu aplicación de Bitwarden.";
 "SaveHere" = "Guardar aquí";
