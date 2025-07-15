@@ -134,7 +134,9 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         }
 
         if !collectionItems.isEmpty {
-            sections.append(VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections))
+            sections.append(
+                VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections)
+            )
         }
         return self
     }
