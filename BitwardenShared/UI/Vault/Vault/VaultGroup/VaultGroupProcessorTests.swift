@@ -116,7 +116,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_appeared() {
         let vaultListItem = VaultListItem.fixture()
         let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
-        vaultRepository.vaultListGroupSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send([vaultListSection])
 
         let task = Task {
             await subject.perform(.appeared)
@@ -130,8 +130,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
-    func test_perform_appeared_error_vaultListGroupSubjectFail() {
-        vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
+    func test_perform_appeared_error_vaultListSubjectFail() {
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -544,7 +544,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListGroupSubject.send([resultSection])
+        vaultRepository.vaultListSubject.send([resultSection])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(subject.state.loadingState.data == [newResultSection])
         task.cancel()
@@ -670,7 +670,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             name: "Items"
         )
-        vaultRepository.vaultListGroupSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send([vaultListSection])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
 
@@ -830,7 +830,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListGroupSubject.send([VaultListSection(id: "1", items: [result], name: "")])
+        vaultRepository.vaultListSubject.send([VaultListSection(id: "1", items: [result], name: "")])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()

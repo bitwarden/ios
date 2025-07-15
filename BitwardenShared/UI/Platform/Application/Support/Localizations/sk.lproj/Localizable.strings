@@ -363,8 +363,8 @@
 "Host" = "Hostiteľ";
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
-"URIMatchDetection" = "Spôsob mapovania URI";
-"MatchDetection" = "Spôsob mapovania";
+"URIMatchDetection" = "Zisťovanie zhody URI";
+"MatchDetection" = "Zisťovanie zhody";
 "YesAndSave" = "Áno, a uložiť";
 "AutofillAndSave" = "Automaticky vyplniť a uložiť";
 "Organization" = "Organizácia";
@@ -451,8 +451,8 @@
 "TwoMinutes" = "2 minúty";
 "ClearClipboard" = "Vymazať schránku";
 "ClearClipboardDescription" = "Automaticky vymazať skopírované hodnoty zo schránky.";
-"DefaultUriMatchDetection" = "Predvolený spôsob detekcie zhody URI";
-"DefaultUriMatchDetectionDescription" = "Vyberte si predvolený spôsob mapovania, ktorý bude použitý pre prihlasovacie údaje pri využití funkcií, ako je napríklad automatické vypĺňanie hesiel.";
+"DefaultUriMatchDetection" = "Predvolený spôsob zisťovania zhody URI";
+"DefaultUriMatchDetectionDescription" = "Vyberte predvolený spôsob zisťovania zhody URI, ktorý bude použitý pre prihlasovacie údaje pri využití funkcií, ako je napríklad automatické vypĺňanie hesiel.";
 "Theme" = "Motív";
 "ThemeDescription" = "Zmeniť motív aplikácie.";
 "ThemeDefault" = "Predvolené systémom";
@@ -581,7 +581,7 @@
 "RemovePassword" = "Odstrániť heslo";
 "AreYouSureRemoveSendPassword" = "Naozaj chcete odstrániť heslo?";
 "RemovingSendPassword" = "Odstraňuje sa heslo";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Heslo bolo odstránené";
 "NoSends" = "Vo vašom účte nie je žiadny Send.";
 "CopyLink" = "Kopírovať odkaz";
 "ShareLink" = "Zdieľať odkaz";
@@ -1153,7 +1153,7 @@
 "FlightRecorder" = "Čierna skrinka";
 "EnableFlightRecorder" = "Povoliť čiernu skrinku";
 "ExperiencingAnIssue" = "Máte problém?";
-"EnableTemporaryLoggingDescriptionLong" = "Povoľte dočasné logovanie na zhromažďovanie a kontrolu logov lokálne. Ak je povolené, stav aplikácií a sieťové hovory môžu byť zaznamenávané – ale nikdy citlivé informácie o trezore.";
+"EnableTemporaryLoggingDescriptionLong" = "Povoľte dočasné logovanie na zhromažďovanie a kontrolu logov lokálne. Ak je povolené, stav aplikácií a sieťové volania môžu byť zaznamenávané – ale nikdy citlivé informácie o trezore.";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "Ak chcete začať, nastavte trvanie logovania. Po uplynutí tejto doby sa logovanie automaticky vypne, čím získate čas na zachytenie činnosti pri reprodukovaní prípadných problémov.";
 "LoggingDuration" = "Trvanie logovania";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logy sa po 30 dňoch automaticky odstránia. Bitwarden má prístup k údajom logovania len keď ich zdieľate.";

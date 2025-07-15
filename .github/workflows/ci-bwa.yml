@@ -2,6 +2,18 @@ name: CI / Authenticator
 run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
 
 on:
+  push:
+    branches:
+      - main
+      - release/**/*
+    paths-ignore:
+      - Bitwarden/**
+      - BitwardenActionExtension/**
+      - BitwardenAutoFillExtension/**
+      - BitwardenShared/**
+      - BitwardenShareExtension/**
+      - BitwardenWatchApp/**
+      - BitwardenWatchWidgetExtension/**
   workflow_dispatch:
     inputs:
       build-mode:
@@ -57,7 +69,7 @@ jobs:
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
       compiler-flags: ${{ inputs.compiler-flags }}
-      distribute: ${{ inputs.distribute }}
+      distribute: ${{ inputs.distribute || true }} # placeholder default for the analyser failing the workflow run when this job is skipped
     secrets: inherit
 
   build-public:
@@ -70,11 +82,14 @@ jobs:
         include:
           - bw-env: bwa_prod
             build-mode: Device
+            distribute: true
           - bw-env: bwa_prod
             build-mode: Simulator
+            distribute: false
     with:
       bw-env: ${{ matrix.bw-env }}
       build-mode: ${{ matrix.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }}
+      distribute: ${{ matrix.distribute }}
     secrets: inherit

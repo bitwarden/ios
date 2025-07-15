@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Συγχρονισμός με την εφαρμογή Bitwarden";
 "LocalCodes" = "Τοπικοί κωδικοί";
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
-"CopyToBitwarden" = "Αντιγραφή στο Bitwarden";
+"CopyToBitwardenVault" = "Copy to Bitwarden vault";
 "ScanComplete" = "Η σάρωση ολοκληρώθηκε";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Αποθηκεύστε αυτό το κλειδί ελέγχου ταυτότητας εδώ ή προσθέστε το σε μια σύνδεση στο Bitwarden.";
 "SaveHere" = "Αποθήκευση εδώ";

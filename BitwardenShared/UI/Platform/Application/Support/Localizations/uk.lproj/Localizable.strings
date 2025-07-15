@@ -361,7 +361,7 @@
 "Default" = "Типово";
 "Exact" = "Точно";
 "Host" = "Вузол";
-"RegEx" = "Звичайний вираз";
+"RegEx" = "Регулярний вираз";
 "StartsWith" = "Починається з";
 "URIMatchDetection" = "Виявлення збігів URI";
 "MatchDetection" = "Виявлення збігів";
@@ -581,7 +581,7 @@
 "RemovePassword" = "Вилучити пароль";
 "AreYouSureRemoveSendPassword" = "Ви дійсно хочете вилучити пароль?";
 "RemovingSendPassword" = "Вилучення пароля";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Пароль вилучено";
 "NoSends" = "У вашому обліковому записі немає відправлень.";
 "CopyLink" = "Копіювати посилання";
 "ShareLink" = "Поділитись посиланням";
@@ -1208,6 +1208,6 @@
 "EditTextSend" = "Редагувати текстове відправлення";
 "LogDeleted" = "Журнал видалено";
 "AllLogsDeleted" = "Всі журнали видалено";
-"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
-"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
-"SendUpdated" = "Send updated";
+"LoggingEndsOnDateAtTime" = "Запис закінчується %1$@, %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Необхідно додати файл, щоб зберегти це відправлення";
+"SendUpdated" = "Відправлення оновлено";

@@ -415,9 +415,9 @@
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
 "ItemShared" = "项目已共享。";
 "SelectOneCollection" = "您必须至少选择一个集合。";
-"Share" = "共享";
+"Share" = "分享";
 "ShareAll" = "分享所有";
-"ShareItem" = "共享项目";
+"ShareItem" = "分享项目";
 "MoveToOrganization" = "移动到组织";
 "NoOrgsToList" = "没有可列出的组织。";
 "MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。";
