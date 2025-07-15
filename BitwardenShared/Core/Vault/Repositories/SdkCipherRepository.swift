@@ -3,44 +3,49 @@ import BitwardenSdk
 
 /// `CipherRepository` implementation to be used on SDK client-managed state.
 final class SdkCipherRepository: @unchecked Sendable, BitwardenSdk.CipherRepository {
-    /// The service used to manage syncing and updates to the user's ciphers.
-    let cipherService: CipherService
+    /// The data store for managing the persisted ciphers for the user.
+    let cipherDataStore: CipherDataStore
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The user ID of the SDK instance this repository belongs to.
+    let userId: String
 
     /// Initializes a `SdkCipherRepository`.
     /// - Parameters:
-    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
+    ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
-    init(cipherService: CipherService, errorReporter: ErrorReporter) {
-        self.cipherService = cipherService
+    ///   - userId: The user ID of the SDK instance this repository belongs to
+    init(
+        cipherDataStore: CipherDataStore,
+        errorReporter: ErrorReporter,
+        userId: String
+    ) {
+        self.cipherDataStore = cipherDataStore
         self.errorReporter = errorReporter
+        self.userId = userId
     }
 
     func get(id: String) async throws -> BitwardenSdk.Cipher? {
-        try await cipherService.fetchCipher(withId: id)
+        try await cipherDataStore.fetchCipher(withId: id, userId: userId)
     }
 
     func has(id: String) async throws -> Bool {
-        let cipher = try? await cipherService.fetchCipher(withId: id)
+        let cipher = try await cipherDataStore.fetchCipher(withId: id, userId: userId)
         return cipher != nil
     }
 
     func list() async throws -> [BitwardenSdk.Cipher] {
-        try await cipherService.fetchAllCiphers()
+        try await cipherDataStore.fetchAllCiphers(userId: userId)
     }
 
     func remove(id: String) async throws {
-        try await cipherService.deleteCipherWithLocalStorage(id: id)
+        try await cipherDataStore.deleteCipher(id: id, userId: userId)
     }
 
     func set(id: String, value: BitwardenSdk.Cipher) async throws {
         guard id == value.id else {
-            errorReporter.log(
-                error: BitwardenError.dataError("CipherRepository: Trying to update a cipher with mismatch IDs")
-            )
-            return
+            throw BitwardenError.dataError("CipherRepository: Trying to update a cipher with mismatch IDs")
         }
-        try await cipherService.updateCipherWithLocalStorage(value)
+        try await cipherDataStore.upsertCipher(value, userId: userId)
     }
 }

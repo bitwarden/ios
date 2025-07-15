@@ -6,7 +6,7 @@ final class MockClientBuilder: ClientBuilder {
     var clients = [MockClient]()
     var setupClientOnCreation: ((MockClient) -> Void)?
 
-    func buildClient(for userId: String?) -> BitwardenSdkClient {
+    func buildClient() -> BitwardenSdkClient {
         let client = MockClient()
         if let setupClientOnCreation {
             setupClientOnCreation(client)
