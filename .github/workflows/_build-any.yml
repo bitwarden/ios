@@ -39,6 +39,7 @@ jobs:
   build:
     name: Build ${{ inputs.bw-env }}
     runs-on: macos-15
+    timeout-minutes: 60
     permissions:
       contents: read
     env:
@@ -81,7 +82,7 @@ jobs:
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
-        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+        uses: Azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -153,6 +154,7 @@ jobs:
             build_mode:$_BUILD_MODE \
             version_name:$_VERSION_NAME \
             version_number:$_VERSION_NUMBER \
+            compiler_flags:"$_COMPILER_FLAGS"
 
           bundle exec fastlane update_ci_build_info \
             --env $_BW_ENV \
@@ -234,7 +236,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
-        if: env._BUILD_MODE == 'Device'
+        if: env._BUILD_MODE == 'Device' && false # Set to true to debug failing submissions
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
         run: |
@@ -264,7 +266,8 @@ jobs:
           Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
-          fastlane upload_build \
+          bundle exec fastlane upload_build \
+            --env $_BW_ENV \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
             ipa_path:"$_EXPORT_FILEPATH"

@@ -35,7 +35,7 @@ class MockVaultRepository: VaultRepository {
     var deleteCipherResult: Result<Void, Error> = .success(())
 
     var doesActiveAccountHavePremiumCalled = false
-    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActiveAccountHavePremiumResult: Bool = true
 
     var downloadAttachmentAttachment: AttachmentView?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
@@ -65,6 +65,8 @@ class MockVaultRepository: VaultRepository {
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
+
+    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
 
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
@@ -116,7 +118,6 @@ class MockVaultRepository: VaultRepository {
     var updateCipherCollectionsResult: Result<Void, Error> = .success(())
 
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
-    var vaultListGroupSubject = CurrentValueSubject<[VaultListSection], Error>([])
     var vaultListFilter: VaultListFilter?
 
     // MARK: Computed Properties
@@ -174,9 +175,9 @@ class MockVaultRepository: VaultRepository {
         try deleteCipherResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
+    func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try doesActiveAccountHavePremiumResult.get()
+        return doesActiveAccountHavePremiumResult
     }
 
     func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {
@@ -223,6 +224,10 @@ class MockVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try getDisableAutoTotpCopyResult.get()
+    }
+
+    func getItemTypesUserCanCreate() async -> [BitwardenShared.CipherType] {
+        getItemTypesUserCanCreateResult
     }
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
@@ -323,12 +328,5 @@ class MockVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
-    }
-
-    func vaultListPublisher(
-        group _: BitwardenShared.VaultListGroup,
-        filter _: BitwardenShared.VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        vaultListGroupSubject.eraseToAnyPublisher().values
     }
 }

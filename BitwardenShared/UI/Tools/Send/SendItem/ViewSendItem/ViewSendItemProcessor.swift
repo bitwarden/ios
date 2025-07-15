@@ -41,7 +41,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     override func perform(_ effect: ViewSendItemEffect) async {
         switch effect {
         case .deleteSend:
-            coordinator.showAlert(.confirmation(title: Localizations.areYouSureDeleteSend) {
+            coordinator.showAlert(.confirmationDestructive(title: Localizations.areYouSureDeleteSend) {
                 await self.deleteSend()
             })
         case .loadData:

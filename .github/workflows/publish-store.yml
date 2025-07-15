@@ -1,0 +1,18 @@
+
+name: Publish to iOS App Store
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+    publish:
+      runs-on: ubuntu-24.04
+      name: Promote build to Production in iOS App Store
+
+      steps:
+        - name: TEST STEP
+          run: exit 0

@@ -9,7 +9,7 @@ import Foundation
 class MockSendRepository: SendRepository {
     // MARK: Properties
 
-    var doesActivateAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActivateAccountHavePremiumResult: Bool = true
 
     var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
 
@@ -76,8 +76,8 @@ class MockSendRepository: SendRepository {
         return try updateSendResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try doesActivateAccountHavePremiumResult.get()
+    func doesActiveAccountHavePremium() async -> Bool {
+        doesActivateAccountHavePremiumResult
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {

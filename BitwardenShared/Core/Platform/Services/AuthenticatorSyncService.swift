@@ -239,7 +239,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 return
             }
         }
-        try sharedKeychainRepository.deleteAuthenticatorKey()
+        try await sharedKeychainRepository.deleteAuthenticatorKey()
     }
 
     /// Determine if the given userId has sync turned on and an unlocked vault. This method serves as the
@@ -276,6 +276,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             _ = await enableSyncTask?.result
 
             do {
+                try await vaultTimeoutService.setLastActiveTime(userId: userId)
                 guard await !vaultTimeoutService.isLocked(userId: userId) else {
                     let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
                     if authVaultKey != nil {

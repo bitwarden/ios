@@ -257,7 +257,48 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? WebAuthnError, .unableToDecodeCredential)
     }
 
-    /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn Connector flow on self-hosted vaults.
+    /// `perform(_:)` with `.appeared` sends the verification code email if the user's auth method
+    /// is email.
+    @MainActor
+    func test_perform_appeared_authMethodEmail_sendsVerificationCodeEmail() async {
+        subject.state.authMethod = .email
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
+        XCTAssertTrue(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.appeared` does not send the verification code email if the user's auth method
+    /// is email and device verification is required.
+    @MainActor
+    func test_perform_appeared_authMethodEmail_deviceVerificationRequired_doesNotSendVerificationCodeEmail() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(subject.state.toast)
+        XCTAssertFalse(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.appeared` does not send the verification code email if the user's auth
+    /// method is anything other than email.
+    @MainActor
+    func test_perform_appeared_authMethodAuthApp_doesNotSendVerificationCodeEmail() async {
+        subject.state.authMethod = .authenticatorApp
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(subject.state.toast)
+        XCTAssertFalse(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.beginWebAuthn` initiates the WebAuthn Connector flow on self-hosted vaults.
     @available(iOS 16.0, *)
     @MainActor
     func test_perform_beginWebAuthn_selfHosted() async throws {
@@ -742,26 +783,12 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// applicable.
     @MainActor
     func test_receive_verificationCodeChanged() {
-        subject.receive(.verificationCodeChanged("123"))
-        XCTAssertEqual(subject.state.verificationCode, "123")
+        subject.receive(.verificationCodeChanged(""))
+        XCTAssertEqual(subject.state.verificationCode, "")
         XCTAssertFalse(subject.state.continueEnabled)
 
         subject.receive(.verificationCodeChanged("123456"))
         XCTAssertEqual(subject.state.verificationCode, "123456")
-        XCTAssertTrue(subject.state.continueEnabled)
-    }
-
-    /// `receive(_:)` with `.verificationCodeChanged` updates the value in the state and enables the button if
-    /// applicable if device needs verification and code length is at least 8 characters.
-    @MainActor
-    func test_receive_verificationCodeChanged_deviceNeedsVerification() {
-        subject.state.deviceVerificationRequired = true
-        subject.receive(.verificationCodeChanged("123456"))
-        XCTAssertEqual(subject.state.verificationCode, "123456")
-        XCTAssertFalse(subject.state.continueEnabled)
-
-        subject.receive(.verificationCodeChanged("12345678"))
-        XCTAssertEqual(subject.state.verificationCode, "12345678")
         XCTAssertTrue(subject.state.continueEnabled)
     }
 }

@@ -85,7 +85,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -103,7 +103,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
@@ -160,7 +160,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -181,7 +181,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
@@ -242,6 +242,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
         XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.newSendCreated)])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -292,7 +293,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no premium shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = "filename"
@@ -309,7 +310,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noVerifiedEmail() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -327,7 +328,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = nil
@@ -339,14 +340,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
     /// `perform(_:)` with `.savePressed` and no file name shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -358,14 +362,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
     /// `perform(_:)` with `.savePressed` and file data that is too large shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
@@ -447,6 +454,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.sendUpdated)])
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an

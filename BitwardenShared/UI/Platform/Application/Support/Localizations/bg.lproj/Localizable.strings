@@ -263,6 +263,7 @@
 "FileSource" = "Източник на файла";
 "FeatureUnavailable" = "Функцията е недостъпна";
 "MaxFileSize" = "Големината на файла е най-много 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Задължително. Максималният размер на файловете е %1$@.";
 "UpdateKey" = "Трябва да обновите шифриращия си ключ, за да използвате тази възможност.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Необходима е промяна на шифриращия ключ. Впишете се в трезора си по уеб, за да обновите своя шифриращ ключ.";
 "LearnMore" = "Научете повече";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Премахване на парола";
 "AreYouSureRemoveSendPassword" = "Сигурни ли сте, че искате да премахнете паролата?";
 "RemovingSendPassword" = "Премахване на парола";
-"SendPasswordRemoved" = "Паролата е премахната.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Няма изпращания.";
 "CopyLink" = "Копиране на връзката";
 "ShareLink" = "Споделяне на връзката";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Журналът е изтрит";
 "AllLogsDeleted" = "Всички журнали са изтрити";
 "LoggingEndsOnDateAtTime" = "Записването на журнали приключва на %1$@ в %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Трябва да прикачите файл, за да запазите това Изпращане";
+"SendUpdated" = "Изпратеното е редактирано";

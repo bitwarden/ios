@@ -71,6 +71,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                userActivity.activityType == NSUserActivityTypeBrowsingWeb,
                let incomingURL = userActivity.webpageURL {
                 appProcessor.handleAppLinks(incomingURL: incomingURL)
+            } else if let url = connectionOptions.urlContexts.first?.url {
+                await appProcessor.openUrl(url)
             }
 
             #if SUPPORTS_CXP

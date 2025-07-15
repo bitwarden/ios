@@ -263,6 +263,7 @@
 "FileSource" = "Крыніца файла";
 "FeatureUnavailable" = "Функцыя недаступна";
 "MaxFileSize" = "Максімальны памер файла 100 МБ.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Вы не зможаце выкарыстоўваць гэту функцыю, пакуль не абнавіце свой ключ шыфравання.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Даведацца больш";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Выдаліць пароль";
 "AreYouSureRemoveSendPassword" = "Вы сапраўды хочаце выдаліць пароль?";
 "RemovingSendPassword" = "Выдаленне пароля";
-"SendPasswordRemoved" = "Пароль быў выдалены.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "У вашым Send'e адсутнічаюць уліковыя запісы.";
 "CopyLink" = "Скапіяваць спасылку";
 "ShareLink" = "Абагуліць спасылку";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

@@ -263,6 +263,7 @@
 "FileSource" = "Источник файла";
 "FeatureUnavailable" = "Функция недоступна";
 "MaxFileSize" = "Максимальный размер файла 100 МБ.";
+"RequiredMaximumFileSizeIsX" = "Обязательно. Максимальный размер файла %1$@.";
 "UpdateKey" = "Вы не можете использовать эту функцию, пока не обновите свой ключ шифрования.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Требуется миграция ключа шифрования. Чтобы обновить ключ шифрования, войдите через веб-хранилище.";
 "LearnMore" = "Узнать больше";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Удалить пароль";
 "AreYouSureRemoveSendPassword" = "Вы уверены, что хотите удалить пароль?";
 "RemovingSendPassword" = "Удаление пароля";
-"SendPasswordRemoved" = "Пароль был удален.";
+"SendPasswordRemoved" = "Пароль удален";
 "NoSends" = "В вашем хранилище нет Send.";
 "CopyLink" = "Скопировать ссылку";
 "ShareLink" = "Поделиться ссылкой";
@@ -1210,3 +1211,5 @@
 "LogDeleted" = "Лог удален";
 "AllLogsDeleted" = "Все логи удалены";
 "LoggingEndsOnDateAtTime" = "Логирование заканчивается %1$@ в %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Вы должны прикрепить файл, чтобы сохранить эту Send";
+"SendUpdated" = "Send обновлена";

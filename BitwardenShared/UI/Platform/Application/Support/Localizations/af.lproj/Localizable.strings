@@ -263,6 +263,7 @@
 "FileSource" = "Lêerbron";
 "FeatureUnavailable" = "Funksie Onbeskikbaar";
 "MaxFileSize" = "Maksimumlêergrootte is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "U kan nie hierdie funksie gebruik tot u u enkripsiesleutel bygewerk het nie.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Leer meer";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Verwyder wagwoord";
 "AreYouSureRemoveSendPassword" = "Is u seker u wil die wagwoord verwyder?";
 "RemovingSendPassword" = "Verwyder tans wagwoord";
-"SendPasswordRemoved" = "Wagwoord is verwyder.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Daar is geen Sends in u rekening nie.";
 "CopyLink" = "Kopieer skakel";
 "ShareLink" = "Deel skakel";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Sincronizar con la aplicación Bitwarden";
 "LocalCodes" = "Códigos locales";
 "AccountsSyncedFromBitwardenApp" = "Cuentas sincronizadas desde la aplicación de Bitwarden";
-"CopyToBitwarden" = "Copiar a Bitwarden";
+"CopyToBitwardenVault" = "Copiar a caja fuerte de Bitwarden";
 "ScanComplete" = "Escaneo completo";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Guarda esta clave de autenticador aquí o agrégala a un inicio de sesión en tu aplicación de Bitwarden.";
 "SaveHere" = "Guardar aquí";
@@ -150,7 +150,7 @@
 "VaultTimeout" = "Tiempo de espera de la caja fuerte";
 "ThirtyMinutes" = "30 minutos";
 "OnRestart" = "Al reiniciar la aplicación";
-"Custom" = "Custom";
+"Custom" = "Personalizado";
 "SessionTimeout" = "Tiempo de espera de sesión";
 "FileCouldNotBeProcessed" = "No se ha podido leer el archivo";
 "EnsureItsValidJsonAndTryAgain" = "Asegúrate de que sea un JSON válido e inténtalo de nuevo.";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "¿Necesitas ayuda? Visita nuestro Centro de Ayuda para obtener orientación.";
 "UnexpectedDataFormat" = "Formato de datos inesperado";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "El formato de datos proporcionado no coincide con lo esperado. Por favor, revise su archivo y asegúrese de que se utilicen los tipos de datos correctos.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Esta característica aún no está disponible para usuarios autoalojados. [Más información](%1$@)";

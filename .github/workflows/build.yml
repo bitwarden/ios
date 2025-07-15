@@ -171,7 +171,7 @@ jobs:
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
-        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+        uses: Azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -423,7 +423,14 @@ jobs:
           Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
+          BUNDLE_ID="com.8bit.bitwarden"
+
+          if [ "$_BUILD_VARIANT" = "Beta" ]; then
+            BUNDLE_ID="com.8bit.bitwarden.beta"
+          fi
+
           bundle exec fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
-            ipa_path:"export/Bitwarden.ipa"
+            ipa_path:"export/Bitwarden.ipa" \
+            bundle_id:"$BUNDLE_ID"

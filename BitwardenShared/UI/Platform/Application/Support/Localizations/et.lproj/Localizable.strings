@@ -263,6 +263,7 @@
 "FileSource" = "Faili allikas";
 "FeatureUnavailable" = "Funktsioon pole saadaval";
 "MaxFileSize" = "Maksimaalne faili suurus on 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Seda funktsiooni ei saa enne krüpteerimise võtme uuendamist kasutada.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Krüpteerimisvõtme ühendamine nõutud. Palun logi sisse läbi veebibrauseri, et uuendada enda krüpteerimisvõtit.";
 "LearnMore" = "Rohkem teavet";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Eemalda parool";
 "AreYouSureRemoveSendPassword" = "Soovid kindlasti selle parooli eemaldada?";
 "RemovingSendPassword" = "Parooli eemaldamine";
-"SendPasswordRemoved" = "Parool on eemaldatud";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Kontol pole ühtegi Sendi.";
 "CopyLink" = "Kopeeri link";
 "ShareLink" = "Jaga linki";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

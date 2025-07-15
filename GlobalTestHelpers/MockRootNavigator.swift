@@ -15,6 +15,13 @@ final class MockRootNavigator: RootNavigator {
         alerts.append(alert)
     }
 
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    ) {}
+
     func show(child: Navigator) {
         navigatorShown = child
     }

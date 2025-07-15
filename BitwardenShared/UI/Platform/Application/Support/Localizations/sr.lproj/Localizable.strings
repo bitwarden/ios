@@ -263,6 +263,7 @@
 "FileSource" = "Изворна датотека";
 "FeatureUnavailable" = "Функција је недоступна";
 "MaxFileSize" = "Максимална величина је 100МБ.";
+"RequiredMaximumFileSizeIsX" = "Потребно. Максимална величина је %1$@.";
 "UpdateKey" = "Не можете да користите ову способност док не промените Ваш кључ за шифровање.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Потребна је миграција кључа за шифровање. Пријавите се преко веб сефа да бисте ажурирали кључ за шифровање.";
 "LearnMore" = "Сазнај више";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Уклони лозинку";
 "AreYouSureRemoveSendPassword" = "Да ли сте сигурни да желите уклонити лозинку?";
 "RemovingSendPassword" = "Уклањање лозинке";
-"SendPasswordRemoved" = "Лозинка је уклоњена.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Нема слања на твом налогу.";
 "CopyLink" = "Копирај везу";
 "ShareLink" = "Подели везу";
@@ -1209,3 +1210,5 @@
 "LogDeleted" = "Извештај је избрисан";
 "AllLogsDeleted" = "Сви извештаји су избрисани";
 "LoggingEndsOnDateAtTime" = "Пријављен завршено на %1$@ у %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Морате приложити датотеку да бисте сачували овај Send";
+"SendUpdated" = "Send ажурирано";

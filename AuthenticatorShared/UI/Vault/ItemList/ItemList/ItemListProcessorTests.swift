@@ -686,10 +686,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([item])
 
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = false
+
         notificationCenterService.willEnterForegroundSubject.send()
 
         try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+        XCTAssertEqual(subject.state.itemListCardState, .passwordManagerDownload)
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests
@@ -1199,8 +1203,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         task.cancel()
     }
 
-    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
-    /// (when the PM app is not installed).
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the BWPM app
+    /// (when the BWPM app is not installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_download() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
@@ -1215,8 +1219,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 
-    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
-    /// (when the PM app is installed).
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the BWPM app
+    /// (when the BWPM app is installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_sync() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]

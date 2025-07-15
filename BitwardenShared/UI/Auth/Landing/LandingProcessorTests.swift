@@ -141,28 +141,25 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to true
     @MainActor
-    func test_perform_appeared_loadsFeatureFlag_true() async {
+    func test_perform_appeared_loadsFeatureFlag_true() async throws {
         configService.featureFlagsBoolPreAuth[.emailVerification] = true
-        configService.featureFlagsBoolPreAuth[.preLoginSettings] = true
         subject.state.emailVerificationFeatureFlag = false
-        subject.state.isPreLoginSettingsEnabled = false
 
         let task = Task {
             await subject.perform(.appeared)
         }
+        defer { task.cancel() }
         await task.value
+
         XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
-        XCTAssertTrue(subject.state.isPreLoginSettingsEnabled)
     }
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to false
     @MainActor
     func test_perform_appeared_loadsFeatureFlag_false() async {
         configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        configService.featureFlagsBoolPreAuth[.preLoginSettings] = false
         subject.state.emailVerificationFeatureFlag = true
-        subject.state.isPreLoginSettingsEnabled = true
 
         let task = Task {
             await subject.perform(.appeared)
@@ -170,7 +167,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await task.value
         XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
-        XCTAssertFalse(subject.state.isPreLoginSettingsEnabled)
     }
 
     /// `perform(.appeared)` with feature flag defaulting to false
@@ -185,7 +181,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await task.value
         XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
-        XCTAssertFalse(subject.state.isPreLoginSettingsEnabled)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.

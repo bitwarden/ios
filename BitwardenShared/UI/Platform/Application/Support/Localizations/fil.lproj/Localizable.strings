@@ -263,6 +263,7 @@
 "FileSource" = "Pinagmulan ng File";
 "FeatureUnavailable" = "Hindi available ang feature";
 "MaxFileSize" = "Hanggang sa 100 MB lang dapat ang mga file.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Hindi mo magagamit ang feature na ito hanggang sa i-update mo ang encryption key mo.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Kailangan ng migrasyon ng encryption key. Mangyaring mag-log in sa web vault para i-update ang iyong encryption key.";
 "LearnMore" = "Matuto pa";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Tanggalin ang password";
 "AreYouSureRemoveSendPassword" = "Sigurado ka bang gusto mong tanggalin ang password?";
 "RemovingSendPassword" = "Tinatanggal ang password";
-"SendPasswordRemoved" = "Natanggal ang password.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Walang mga Send sa account mo.";
 "CopyLink" = "Kopyahin ang link";
 "ShareLink" = "Ibahagi ang link";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

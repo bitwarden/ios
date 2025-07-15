@@ -263,6 +263,7 @@
 "FileSource" = "Sumber Berkas";
 "FeatureUnavailable" = "Fitur Tidak Tersedia";
 "MaxFileSize" = "Ukuran berkas maksimal adalah 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Anda tidak dapat menggunakan fitur ini sampai Anda memperbarui kunci enkripsi Anda.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Diperlukan migrasi kunci enkripsi. Silakan masuk melalui brankas web untuk memperbarui kunci enkripsi Anda.";
 "LearnMore" = "Pelajari Lebih Lanjut";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Hapus Kata Sandi";
 "AreYouSureRemoveSendPassword" = "Anda yakin ingin menghapus kata sandi?";
 "RemovingSendPassword" = "Menghapus kata sandi...";
-"SendPasswordRemoved" = "Kata sandi telah dihapus.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Tidak ada Send di akun Anda.";
 "CopyLink" = "Salin Tautan";
 "ShareLink" = "Membagikan tautan";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

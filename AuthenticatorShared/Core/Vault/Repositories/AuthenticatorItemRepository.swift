@@ -39,7 +39,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
 
     /// Determine if the `enablePasswordManagerSync` feature flag is enabled *and* the user
-    /// has turned sync on for at least one account in the PM app. If one or both of these is
+    /// has turned sync on for at least one account in the BWPM app. If one or both of these is
     /// not `true`, this returns `false`.
     ///
     /// - Returns: `true` if the sync feature flag is enabled and the user has actively synced an account.
@@ -55,10 +55,10 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
 
-    /// Create a temporary shared item based on a `AuthenticatorItemView` for sharing with the PM app.
+    /// Create a temporary shared item based on a `AuthenticatorItemView` for sharing with the BWPM app.
     /// This method will store it as a temporary item in the shared store.
     ///
-    /// - Parameter item: The item to be shared with the PM app
+    /// - Parameter item: The item to be shared with the BWPM app
     ///
     func saveTemporarySharedItem(_ item: AuthenticatorItemView) async throws
 
@@ -107,6 +107,9 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
+    /// Service to interface with the application.
+    private let application: Application
+
     /// Service from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
 
@@ -122,7 +125,7 @@ class DefaultAuthenticatorItemRepository {
     /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
     private let sharedItemService: AuthenticatorBridgeItemService
 
-    /// Flag to indicate if there was an error with the data synced from the PM app.
+    /// Flag to indicate if there was an error with the data synced from the BWPM app.
     private var syncError = false
 
     /// A protocol wrapping the present time.
@@ -136,6 +139,7 @@ class DefaultAuthenticatorItemRepository {
     /// Initialize a `DefaultAuthenticatorItemRepository`
     ///
     /// - Parameters:
+    ///   - application: Service to interact with the application.
     ///   - authenticatorItemService: Service to from which to fetch locally stored Authenticator items.
     ///   - configService: Service to determine if the sync feature flag is turned on.
     ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
@@ -145,6 +149,7 @@ class DefaultAuthenticatorItemRepository {
     ///   - timeProvider: A protocol wrapping the present time.
     ///   - totpService: A service for refreshing TOTP codes.
     init(
+        application: Application,
         authenticatorItemService: AuthenticatorItemService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
@@ -153,6 +158,7 @@ class DefaultAuthenticatorItemRepository {
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
+        self.application = application
         self.authenticatorItemService = authenticatorItemService
         self.configService = configService
         self.cryptographyService = cryptographyService
@@ -165,14 +171,14 @@ class DefaultAuthenticatorItemRepository {
     // MARK: Private Methods
 
     /// Combine sections that are locally stored with the list of the sections created with the shared items,
-    /// when sync with the PM app is enabled.
+    /// when sync with the BWPM app is enabled.
     ///
     /// Note: If the `enablePasswordManagerSync` feature flag is not enabled, or if the user has not yet
     /// turned on sync for any accounts, this method simply returns `localSections`.
     ///
     /// - Parameters:
     ///   - localSections: The [ItemListSection] sections for the items locally stored
-    ///   - sharedItems: The shared items that are coming in via sync with the PM app
+    ///   - sharedItems: The shared items that are coming in via sync with the BWPM app
     /// - Returns: A list of the sections to display in the item list
     ///
     private func combinedSections(
@@ -248,24 +254,45 @@ class DefaultAuthenticatorItemRepository {
         .filter { !$0.items.isEmpty }
     }
 
+    /// Checks to make sure the BWPM app is still installed, as that is required for having items shared
+    /// between the apps. If BWPM is found to be uninstalled, then this calls the shared item service to
+    /// purge all data in the shared storage.
+    ///
+    private func checkBWPMInstall() async throws {
+        guard await isPasswordManagerSyncActive(),
+              !(application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)) else {
+            return
+        }
+
+        try await sharedItemService.deleteAll()
+    }
+
     /// A Publisher that combines all of the locally stored code with the codes shared from the Bitwarden PM app. This
     /// publisher converts all of these into `[ItemListSection]` ready to be displayed in the ItemList.
     ///
     /// - Returns: An array of `ItemListSection` containing both locally stored and shared codes.
     ///
     private func itemListSectionPublisher() async throws -> AnyPublisher<[ItemListSection], Error> {
-        try await authenticatorItemService.authenticatorItemsPublisher()
-            .combineLatest(
-                sharedItemService.sharedItemsPublisher()
-                    .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
-                        self.syncError = true
-                        self.errorReporter.log(error: error)
+        try await checkBWPMInstall()
+        let remoteItemsPublisher: any Publisher<[AuthenticatorBridgeItemDataView], any Error>
+        do {
+            remoteItemsPublisher = try await sharedItemService.sharedItemsPublisher()
+                .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
+                    self.syncError = true
+                    self.errorReporter.log(error: error)
 
-                        return Just([])
-                            .setFailureType(to: Error.self)
-                            .eraseToAnyPublisher()
-                    }
-            )
+                    return Just([])
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+        } catch {
+            syncError = true
+            errorReporter.log(error: error)
+            remoteItemsPublisher = Just([])
+                .setFailureType(to: Error.self)
+        }
+        return try await authenticatorItemService.authenticatorItemsPublisher()
+            .combineLatest(remoteItemsPublisher.eraseToAnyPublisher())
             .asyncTryMap { localItems, sharedItems in
                 let sections = try await self.itemListSections(from: localItems)
                 return await self.combinedSections(localSections: sections, sharedItems: sharedItems)
@@ -385,4 +412,4 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         .eraseToAnyPublisher()
         .values
     }
-}
+} // swiftlint:disable:this file_length

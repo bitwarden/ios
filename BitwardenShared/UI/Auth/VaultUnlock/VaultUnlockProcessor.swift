@@ -10,7 +10,8 @@ class VaultUnlockProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasApplication
+        & HasAuthRepository
         & HasBiometricsRepository
         & HasErrorReporter
         & HasStateService
@@ -77,21 +78,10 @@ class VaultUnlockProcessor: StateProcessor<
         switch action {
         case .cancelPressed:
             appExtensionDelegate?.didCancel()
+        case .logOut:
+            showLogoutConfirmation()
         case let .masterPasswordChanged(masterPassword):
             state.masterPassword = masterPassword
-        case .morePressed:
-            let alert = Alert(
-                title: Localizations.options,
-                message: nil,
-                preferredStyle: .actionSheet,
-                alertActions: [
-                    AlertAction(title: Localizations.logOut, style: .default) { _ in
-                        self.showLogoutConfirmation()
-                    },
-                    AlertAction(title: Localizations.cancel, style: .cancel),
-                ]
-            )
-            coordinator.showAlert(alert)
         case let .pinChanged(pin):
             state.pin = pin
         case let .profileSwitcher(profileAction):
@@ -141,10 +131,12 @@ class VaultUnlockProcessor: StateProcessor<
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
-        // If biometric unlock is available and enabled,
-        // attempt to unlock the vault with biometrics once.
+        // If biometric unlock is available and enabled, and the app isn't in the background
+        // (which can occur when receiving push notifications), attempt to unlock the vault with
+        // biometrics once.
         if case .available(_, true) = state.biometricUnlockStatus,
-           shouldAttemptAutomaticBiometricUnlock {
+           shouldAttemptAutomaticBiometricUnlock,
+           services.application?.applicationState != .background {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
         }

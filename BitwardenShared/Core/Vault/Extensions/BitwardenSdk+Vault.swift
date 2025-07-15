@@ -229,6 +229,21 @@ extension CipherType {
             self = .sshKey
         }
     }
+
+    init(_ type: BitwardenSdk.CipherListViewType) {
+        switch type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login
+        case .secureNote:
+            self = .secureNote
+        case .sshKey:
+            self = .sshKey
+        }
+    }
 }
 
 extension FieldType {
@@ -345,6 +360,16 @@ extension BitwardenSdk.Cipher {
 extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
 
 extension BitwardenSdk.CipherListViewType {
+    /// Whether the type is card.
+    var isCard: Bool {
+        switch self {
+        case .card:
+            return true
+        default:
+            return false
+        }
+    }
+
     /// Whether the type is login.
     var isLogin: Bool {
         switch self {
