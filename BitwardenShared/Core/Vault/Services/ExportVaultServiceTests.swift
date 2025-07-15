@@ -279,7 +279,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_fileContent_restrictedTypes_empty() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
-        policyService.policyAppliesToUserPolicies = []
+        policyService.getRestrictedItemCipherTypesResult = []
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
@@ -297,14 +297,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_fileContent_restrictedTypes_excludeLogin() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                id: "restrict_item_type",
-                organizationId: "org1",
-                type: .restrictItemTypes,
-            ),
-        ]
+        policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
@@ -321,14 +314,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_fileContent_restrictedTypes_csvWithRestrictions() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                id: "restrict_item_type",
-                organizationId: "org1",
-                type: .restrictItemTypes,
-            ),
-        ]
+        policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.csv)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(

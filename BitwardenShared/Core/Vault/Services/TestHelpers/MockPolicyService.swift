@@ -27,6 +27,7 @@ class MockPolicyService: PolicyService {
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [PolicyType]()
     var policyAppliesToUserPolicies = [Policy]()
+    var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
     var replacePoliciesUserId: String?
@@ -43,10 +44,7 @@ class MockPolicyService: PolicyService {
     }
 
     func getRestrictedItemCipherTypes() async -> [BitwardenShared.CipherType] {
-        guard policyAppliesToUserPolicies.isEmpty else {
-            return [.card]
-        }
-        return []
+        getRestrictedItemCipherTypesResult
     }
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
