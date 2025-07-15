@@ -10,6 +10,7 @@ on:
         options:
           - RC
           - Hotfix
+          - Test
 
 jobs:
   create-release-branch:
@@ -24,22 +25,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create RC Branch
+      - name: Create RC or Test Branch
         id: rc_branch
-        if: inputs.release_type == 'RC'
+        if: inputs.release_type == 'RC' || inputs.release_type == 'Test'
         env:
-          RC_PREFIX_DATE: "true" # replace with input if needed
+          _TEST_MODE: ${{ inputs.release_type == 'Test' }}
+          _RELEASE_TYPE: ${{ inputs.release_type }}
         run: |
-          if [ "$RC_PREFIX_DATE" = "true" ]; then
-            current_date=$(date +'%Y.%-m')
-            branch_name="release/${current_date}-rc${{ github.run_number }}"
-          else
-            branch_name="release/rc${{ github.run_number }}"
+          current_date=$(date +'%Y.%-m')
+          branch_name="${current_date}-rc${{ github.run_number }}"
+
+          if [ "$_TEST_MODE" = "true" ]; then
+            branch_name="WORKFLOW-TEST-${branch_name}"
           fi
+          branch_name="release/${branch_name}"
+
           git switch main
           git switch -c $branch_name
           git push origin $branch_name
-          echo "# :cherry_blossom: RC branch: ${branch_name}" >> $GITHUB_STEP_SUMMARY
+          echo "# :cherry_blossom: ${_RELEASE_TYPE} branch: ${branch_name}" >> $GITHUB_STEP_SUMMARY
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       - name: Create Hotfix Branch
