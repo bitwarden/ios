@@ -149,6 +149,7 @@ targets:
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
     dependencies:
+      - target: BitwardenResources
       - target: Networking
   BitwardenKitMocks:
     type: framework
