@@ -92,6 +92,7 @@ jobs:
 
       - name: Get Azure Key Vault secrets
         id: get-kv-secrets
+        if: env._BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-ios
@@ -145,6 +146,7 @@ jobs:
           echo "✅ All secrets downloaded!"
 
       - name: Log out from Azure
+        if: env._BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Configure Keychain Access
