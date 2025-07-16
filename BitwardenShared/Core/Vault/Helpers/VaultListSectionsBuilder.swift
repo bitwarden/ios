@@ -12,6 +12,10 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addTrashSection() -> VaultListSectionsBuilder
 
+    /// Adds the list of IDs for ciphers which failed to decrypt.
+    /// - Returns: The builder for fluent code.
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder
+
     /// Adds a section with available collections or that correspond under the `nestedCollectionId` if passed.
     /// - Parameter nestedCollectionId: Filters the collections that are under the specified ID, if any.
     /// - Returns: The builder for fluent code.
@@ -97,6 +101,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         vaultListData.sections.append(
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
         )
+        return self
+    }
+
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
@@ -287,6 +296,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 /// Metadata helper object to hold temporary prepared (grouped, filtered, counted) data
 /// the builder can then use to build the list sections.
 struct VaultListPreparedData {
+    var cipherDecryptionFailureIds: [Uuid] = []
     var ciphersDeletedCount: Int = 0
     var collections: [Collection] = []
     var collectionsCount: [Uuid: Int] = [:]

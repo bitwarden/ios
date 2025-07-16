@@ -114,6 +114,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
             "addTrashSection",
         ])
     }
@@ -150,6 +151,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
         ])
     }
 
@@ -185,6 +187,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
             "addTrashSection",
         ])
     }
@@ -220,6 +223,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
         ])
     }
 }

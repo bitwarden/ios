@@ -72,6 +72,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             .addTypesSection()
             .addFoldersSection()
             .addCollectionsSection()
+            .addCipherDecryptionFailureIds()
 
         if filter.addTrashGroup {
             builder = builder.addTrashSection()

@@ -44,6 +44,24 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
 
     // MARK: Tests
 
+    /// `addCipherDecryptionFailure(cipher:)` adds the cipher ID to the prepared data when the
+    /// cipher failed to decrypt.
+    func test_addCipherDecryptionFailure() {
+        let cipher = CipherListView(cipherDecryptFailure: .fixture(id: "1"))
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.cipherDecryptionFailureIds, ["1"])
+    }
+
+    /// `addCipherDecryptionFailure(cipher:)` doesn't add the cipher ID to the prepared data when
+    /// the cipher failed to decrypt.
+    func test_addCipherDecryptionFailure_notDecryptFailure() {
+        let cipher = CipherListView.fixture()
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.cipherDecryptionFailureIds.isEmpty)
+    }
+
     /// `addFavoriteItem(cipher:)` adds a favorite list item to the prepared data when cipher is favorite.
     func test_addFavoriteItem_succeeds() {
         let cipher = CipherListView.fixture(favorite: true)
