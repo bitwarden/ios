@@ -33,14 +33,17 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service for managing sharing items to/from the Authenticator app.
     private let authBridgeItemService: AuthenticatorBridgeItemService
 
+    /// The service that handles common client functionality such as encryption and decryption
+    /// specifically for authenticator sync. This is a different `ClientService` from the rest of
+    /// the app to ensure vault unlock and syncing doesn't affect anything outside of authenticator
+    /// syncing.
+    private let authenticatorClientService: ClientService
+
     /// The Tasks listening for Cipher updates (one for each user, indexed by the userId).
     private var cipherPublisherTasks = [String: Task<Void, Error>]()
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherDataStore: CipherDataStore
-
-    /// The service that handles common client functionality such as encryption and decryption.
-    private let clientService: ClientService
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
@@ -85,8 +88,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameters:
     ///   - authBridgeItemService: The service for managing sharing items to/from the Authenticator app.
+    ///   - authenticatorClientService: The service that handles common client functionality such as encryption and decryption.
     ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
-    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
     ///   - keychainRepository: Keychain Repository for storing/accessing the Authenticator Vault Key.
@@ -98,8 +101,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     init(
         authBridgeItemService: AuthenticatorBridgeItemService,
+        authenticatorClientService: ClientService,
         cipherDataStore: CipherDataStore,
-        clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -109,8 +112,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.authBridgeItemService = authBridgeItemService
+        self.authenticatorClientService = authenticatorClientService
         self.cipherDataStore = cipherDataStore
-        self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -193,7 +196,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
               let activeId = try? await stateService.getActiveAccountId(),
               activeId == userId else { return }
 
-        let key = try await clientService.crypto().getUserEncryptionKey()
+        let key = try await authenticatorClientService.crypto().getUserEncryptionKey()
         try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
     }
 
@@ -214,7 +217,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 && cipher.login?.totp != nil
         }
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
-            try await self.clientService.vault(for: account.profile.userId).ciphers().decrypt(cipher: cipher)
+            try await self.authenticatorClientService.vault(for: account.profile.userId).ciphers().decrypt(cipher: cipher)
         }
 
         return decryptedCiphers.map { cipher in
@@ -325,10 +328,10 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             let items = try await decryptTOTPs(ciphers, account: account)
             try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
 
-            try await clientService.removeClient()
+            try await authenticatorClientService.removeClient()
         } catch {
             errorReporter.log(error: error)
-            try? await clientService.removeClient()
+            try? await authenticatorClientService.removeClient()
         }
     }
 
@@ -344,7 +347,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 guard let key = organization.key else { return }
                 result[organization.id] = key
             }
-        try await clientService.crypto().initializeOrgCrypto(
+        try await authenticatorClientService.crypto().initializeOrgCrypto(
             req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
         )
     }
@@ -359,7 +362,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         let account = try await stateService.getAccount(userId: userId)
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: userId)
 
-        try await clientService.crypto().initializeUserCrypto(
+        try await authenticatorClientService.crypto().initializeUserCrypto(
             req: InitUserCryptoRequest(
                 userId: account.profile.userId,
                 kdfParams: account.kdf.sdkKdf,

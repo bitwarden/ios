@@ -39,8 +39,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         subject = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
+            authenticatorClientService: clientService,
             cipherDataStore: cipherDataStore,
-            clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
