@@ -494,8 +494,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
-    /// feature flag is enabled and the user has turned on sync.
+    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account
+    /// when the user has turned on sync.
     @MainActor
     func test_itemListPublisher_syncOn() async throws {
         application.canOpenUrlResponse = true
@@ -538,8 +538,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(sharedItemService.storedItems, ["userId": [sharedItem]])
     }
 
-    /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
-    /// the feature flag is enabled and the user has turned on Sync for multiple accounts.
+    /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list
+    /// when the user has turned on Sync for multiple accounts.
     @MainActor
     func test_itemListPublisher_withMultipleAccountSync() async throws {
         sharedItemService.syncOn = true

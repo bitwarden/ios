@@ -598,8 +598,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false` when the feature flag is disabled
-    /// or the user has not yet turned sync on for at least one account.
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false`
+    /// when the user has not yet turned sync on for at least one account.
     @MainActor
     func test_perform_streamItemList_showMoveToBitwarden_false() {
         authItemRepository.pmSyncEnabled = false
@@ -625,7 +625,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(subject.state.showMoveToBitwarden)
     }
 
-    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when the feature flag is enabled
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when
     /// and the user has turned sync on for at least one account.
     @MainActor
     func test_perform_appeared_showMoveToBitwarden_true() {
@@ -1018,7 +1018,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `didCompleteAutomaticCapture` should not show any prompts or look at the defaults when the sync
-    /// is not active (either feature flag is disabled, or the user hasn't yet turned sync on). It should revert to the
+    /// is not active (the user hasn't yet turned sync on). It should revert to the
     /// pre-existing behavior and save the code locally.
     @MainActor
     func test_didCompleteAutomaticCapture_syncNotActive() async throws {
@@ -1145,7 +1145,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if PM is not installed.
     @MainActor
-    func test_determineItemListCardState_FeatureFlag_on_download() {
+    func test_determineItemListCardState_PM_notInstalled() {
         application.canOpenUrlResponse = false
         let task = Task {
             await self.subject.perform(.appeared)
@@ -1157,7 +1157,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// Tests that the `itemListCardState` is set to `passwordManagerSync` if PM is installed.
     @MainActor
-    func test_determineItemListCardState_FeatureFlag_on_sync() {
+    func test_determineItemListCardState_PM_installed() {
         application.canOpenUrlResponse = true
         let task = Task {
             await self.subject.perform(.appeared)

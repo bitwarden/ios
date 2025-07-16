@@ -828,7 +828,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertFalse(errorReporter.errors.isEmpty)
     }
 
-    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
+    /// When there is no item, `getTemporaryTotpItem()` always returns `nil`.
     ///
     @MainActor
     func test_getTemporaryTotpItem_noItem() async throws {
@@ -837,7 +837,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertNil(result)
     }
 
-    /// \`getTemporaryTotpItem()` returns the stored temporary item.
+    /// `getTemporaryTotpItem()` returns the stored temporary item.
     ///
     @MainActor
     func test_getTemporaryTotpItem_success() async throws {
@@ -1050,23 +1050,18 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     // MARK: - Private Methods
 
-    /// Helper function that sets up testing parameters based on the flags passed in
-    ///
-    /// Note: The defaults passed in set everything up for sync to work immediately - sync on and vault unlocked.
-    /// All that is necessary is to publish the sync setting or the vault status as-is to kick off sync. Override
-    /// to turn sync off.
+    /// Helper function that sets up the common test condition of sync being turned on.
     ///
     /// - Parameters:
-    ///   - syncOn: The state of the syncToAuthenticator feature flag. Defaults to `true`. `true` means sync is enabled.
     ///   - vaultLocked: The state of the vault - `true` means the vault is locked.
     ///     `false` means the vault is unlocked. Defaults to `false`
     ///
     @MainActor
-    private func setupInitialState(syncOn: Bool = true, vaultLocked: Bool = false) {
+    private func setupInitialState(vaultLocked: Bool = false) {
         cipherDataStore.cipherSubjectByUserId["1"] = CurrentValueSubject<[Cipher], Error>([])
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
-        stateService.syncToAuthenticatorByUserId["1"] = syncOn
+        stateService.syncToAuthenticatorByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = vaultLocked
     }
 } // swiftlint:disable:this file_length
