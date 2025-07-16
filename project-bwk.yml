@@ -189,6 +189,18 @@ targets:
         INFOPLIST_FILE: BitwardenResources/Info.plist
     sources:
       - path: BitwardenResources
+      - path: BitwardenResources/Generated/SharedAssets.swift
+        optional: true
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwr.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
   Networking:
     type: framework
     platform: iOS
