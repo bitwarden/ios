@@ -56,6 +56,10 @@ schemes:
       gatherCoverageData: true
       targets:
         - BitwardenKitTests
+  BitwardenResources:
+    build:
+      targets:
+        BitwardenResources: all
   Networking:
     build:
       targets:
@@ -177,6 +181,14 @@ targets:
       - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true
+  BitwardenResources:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenResources/Info.plist
+    sources:
+      - path: BitwardenResources
   Networking:
     type: framework
     platform: iOS
