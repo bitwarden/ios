@@ -2,7 +2,7 @@ import BitwardenKit
 import BitwardenSdk
 
 /// `CipherRepository` implementation to be used on SDK client-managed state.
-final class SdkCipherRepository: @unchecked Sendable, BitwardenSdk.CipherRepository {
+final class SdkCipherRepository: BitwardenSdk.CipherRepository {
     /// The data store for managing the persisted ciphers for the user.
     let cipherDataStore: CipherDataStore
     /// The service used by the application to report non-fatal errors.
