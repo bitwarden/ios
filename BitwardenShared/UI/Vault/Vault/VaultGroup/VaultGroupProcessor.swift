@@ -291,8 +291,8 @@ final class VaultGroupProcessor: StateProcessor<
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
                 filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
             ) {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
-                state.loadingState = .data(vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.sections.flatMap(\.items))
+                state.loadingState = .data(vaultList.sections)
             }
         } catch {
             services.errorReporter.log(error: error)

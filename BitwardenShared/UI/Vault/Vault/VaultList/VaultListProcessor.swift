@@ -479,10 +479,12 @@ extension VaultListProcessor {
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
-            for try await value in try await services.vaultRepository
+            for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
+
+                let value = vaultList.sections
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {

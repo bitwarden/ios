@@ -36,9 +36,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
     func test_addTrashSection() {
         setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
 
-        let sections = subject.addTrashSection().build()
+        let vaultListData = subject.addTrashSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Trash]: Trash
               - Group[Trash]: Trash (10)
@@ -58,9 +58,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addFavoritesSection().build()
+        let vaultListData = subject.addFavoritesSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Favorites]: Favorites
               - Cipher: MyFavoriteItem0
@@ -78,9 +78,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addFavoritesSection().build()
+        let vaultListData = subject.addFavoritesSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             """
         }
@@ -98,9 +98,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addGroupSection().build()
+        let vaultListData = subject.addGroupSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Items]: Items
               - Cipher: MyItem0
@@ -118,9 +118,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addGroupSection().build()
+        let vaultListData = subject.addGroupSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             """
         }
@@ -134,9 +134,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addTOTPSection().build()
+        let vaultListData = subject.addTOTPSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[TOTP]: TOTP
               - Group[Types.VerificationCodes]: Verification codes (20)
@@ -152,9 +152,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addTOTPSection().build()
+        let vaultListData = subject.addTOTPSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             """
         }
@@ -173,9 +173,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = subject.addTypesSection().build()
+        let vaultListData = subject.addTypesSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Types]: Types
               - Group[Types.Logins]: Login (15)
@@ -210,7 +210,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject
+        let vaultListData = try await subject
             .addTrashSection()
             .addCollectionsSection()
             .addFavoritesSection()
@@ -220,7 +220,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
             .addTypesSection()
             .build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Trash]: Trash
               - Group[Trash]: Trash (10)

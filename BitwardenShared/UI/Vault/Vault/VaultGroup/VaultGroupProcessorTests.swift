@@ -116,7 +116,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_appeared() {
         let vaultListItem = VaultListItem.fixture()
         let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
-        vaultRepository.vaultListSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -545,7 +545,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListSubject.send([resultSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [resultSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(subject.state.loadingState.data == [newResultSection])
         task.cancel()
@@ -671,7 +671,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             name: "Items"
         )
-        vaultRepository.vaultListSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
 
@@ -846,7 +846,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListSubject.send([VaultListSection(id: "1", items: [result], name: "")])
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [result], name: "")]
+        ))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()

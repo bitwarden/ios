@@ -952,7 +952,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 name: Localizations.passwordsForX("Bit")
             ),
         ]
-        vaultRepository.searchCipherAutofillSubject.value = expectedSections
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: expectedSections)
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -1003,7 +1003,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -1031,7 +1031,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [section]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [section])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)

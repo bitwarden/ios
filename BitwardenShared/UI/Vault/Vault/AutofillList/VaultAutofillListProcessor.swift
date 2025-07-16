@@ -349,7 +349,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 rpID: autofillAppExtensionDelegate?.rpID,
                 searchText: searchText
             )
-            for try await sections in searchResult {
+            for try await vaultListData in searchResult {
+                let sections = vaultListData.sections
                 state.ciphersForSearch = sections
                 state.showNoResults = sections.isEmpty
                 if let section = sections.first, !section.items.isEmpty {
@@ -374,7 +375,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 uri = "https://\(rpID)"
             }
 
-            for try await sections in try await services.vaultRepository.ciphersAutofillPublisher(
+            for try await vaultListData in try await services.vaultRepository.ciphersAutofillPublisher(
                 availableFido2CredentialsPublisher: services
                     .fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
@@ -387,6 +388,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     break
                 }
 
+                let sections = vaultListData.sections
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
