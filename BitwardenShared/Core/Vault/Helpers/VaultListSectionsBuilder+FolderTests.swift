@@ -51,9 +51,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -81,9 +81,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -115,9 +115,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection(nestedFolderId: "2").build()
+        let vaultListData = try await subject.addFoldersSection(nestedFolderId: "2").build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[3]: sub1 (15)
@@ -148,9 +148,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -187,9 +187,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -224,9 +224,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)

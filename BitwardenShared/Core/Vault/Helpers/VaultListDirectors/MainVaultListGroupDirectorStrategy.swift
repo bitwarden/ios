@@ -22,7 +22,7 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
 
     func build(
         filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await Publishers.CombineLatest3(
             cipherService.ciphersPublisher(),
             collectionService.collectionsPublisher(),
@@ -43,14 +43,14 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
     ///   - collections: Collections to filter and include in the sections.
     ///   - folders: Folders to filter and include in the sections.
     ///   - filter: Filter to be used to build the sections.
-    /// - Returns: Sections to be displayed to the user.
+    /// - Returns: Vault list data containing the sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> [VaultListSection] {
-        guard !ciphers.isEmpty else { return [] }
+    ) async throws -> VaultListData {
+        guard !ciphers.isEmpty else { return VaultListData() }
 
         guard let preparedGroupData = try await vaultListDataPreparator.prepareGroupData(
             from: ciphers,
@@ -58,7 +58,7 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
             folders: folders,
             filter: filter
         ) else {
-            return []
+            return VaultListData()
         }
 
         var builder = builderFactory.make(withData: preparedGroupData)

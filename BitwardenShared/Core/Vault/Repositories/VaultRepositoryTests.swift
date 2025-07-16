@@ -199,7 +199,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: nil,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
+        let publishedSections = try await iterator.next()?.sections
 
         XCTAssertEqual(
             publishedSections,
@@ -234,7 +234,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "TestingSection"
             ),
         ]
-        let publisher = Just(expectedSections)
+        let publisher = Just(VaultListData(sections: expectedSections))
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
 
@@ -248,8 +248,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uri: nil
         ).makeAsyncIterator()
 
-        let wrappedSections = try await iterator.next()
-        let sections = try XCTUnwrap(wrappedSections)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(vaultListDirectorStrategyFactory.makeFilterCalled)
         XCTAssertNotNil(vaultListDirectorStrategyFactory.makeFilterReceivedFilter)
@@ -324,8 +324,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -429,8 +429,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -515,8 +515,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -641,7 +641,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: nil,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
+        let publishedSections = try await iterator.next()?.sections
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
             """
@@ -681,8 +681,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: nil,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
-        let sections = try XCTUnwrap(publishedSections)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
@@ -1331,7 +1331,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1369,7 +1369,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1404,7 +1404,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "312321312"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1442,7 +1442,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1491,7 +1491,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "domain"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1551,8 +1551,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -1604,8 +1604,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
     }
@@ -1635,8 +1635,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -1736,8 +1736,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -1779,8 +1779,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
     }
@@ -1851,7 +1851,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "bcd"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(
             sections,
             [
@@ -1897,8 +1897,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         assertInlineSnapshot(of: dumpVaultListSections(sections), as: .lines) {
             """
@@ -1938,8 +1938,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
@@ -1970,7 +1970,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(sections?.count, 1)
         let section = try XCTUnwrap(sections?.first)
         XCTAssertEqual(section.items.count, 3)
@@ -2002,7 +2002,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
+        let sections = try await iterator.next()?.sections
         XCTAssertEqual(sections?.count, 1)
         let section = try XCTUnwrap(sections?.first)
         XCTAssertEqual(section.items.count, 1)
@@ -2810,7 +2810,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "TestingSection"
             ),
         ]
-        let publisher = Just(expectedSections)
+        let publisher = Just(VaultListData(sections: expectedSections))
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
 
@@ -2818,8 +2818,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let filter = VaultListFilter(addTOTPGroup: true)
         var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
-        let wrappedSections = try await iterator.next()
-        let sections = try XCTUnwrap(wrappedSections)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(vaultListDirectorStrategyFactory.makeFilterCalled)
         XCTAssertNotNil(vaultListDirectorStrategyFactory.makeFilterReceivedFilter)

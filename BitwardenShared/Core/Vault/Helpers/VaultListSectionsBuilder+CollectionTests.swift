@@ -51,9 +51,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addCollectionsSection().build()
+        let vaultListData = try await subject.addCollectionsSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Collections]: Collections
               - Group[2]: acollection2 (5)
@@ -80,9 +80,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addCollectionsSection().build()
+        let vaultListData = try await subject.addCollectionsSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Collections]: Collections
               - Group[2]: acollection2 (5)
@@ -110,9 +110,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addCollectionsSection().build()
+        let vaultListData = try await subject.addCollectionsSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             """
         }
@@ -141,9 +141,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             )
         )
 
-        let sections = try await subject.addCollectionsSection(nestedCollectionId: "2").build()
+        let vaultListData = try await subject.addCollectionsSection(nestedCollectionId: "2").build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Collections]: Collections
               - Group[3]: sub1 (15)

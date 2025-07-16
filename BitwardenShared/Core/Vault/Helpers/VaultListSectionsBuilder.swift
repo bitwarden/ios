@@ -38,9 +38,9 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addTypesSection() -> VaultListSectionsBuilder
 
-    /// Builds and returns the sections.
-    /// - Returns: The built sections.
-    func build() -> [VaultListSection]
+    /// Builds and returns the vault list data.
+    /// - Returns: The built vault list data.
+    func build() -> VaultListData
 }
 
 extension VaultListSectionsBuilder {
@@ -69,8 +69,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
     let preparedData: VaultListPreparedData
-    /// The sections to build.
-    private var sections: [VaultListSection] = []
+    /// The vault list data to build.
+    private var vaultListData = VaultListData()
 
     // MARK: Init
 
@@ -94,7 +94,9 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addTrashSection() -> VaultListSectionsBuilder {
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
-        sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
+        vaultListData.sections.append(
+            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
+        )
         return self
     }
 
@@ -134,7 +136,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         }
 
         if !collectionItems.isEmpty {
-            sections.append(
+            vaultListData.sections.append(
                 VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections)
             )
         }
@@ -143,7 +145,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addFavoritesSection() -> VaultListSectionsBuilder {
         if !preparedData.favorites.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "Favorites",
                 items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: Localizations.favorites
@@ -200,11 +202,13 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         }
 
         if !foldersVaultListItems.isEmpty {
-            sections.append(VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders))
+            vaultListData.sections.append(
+                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders)
+            )
         }
 
         if showNoFolderCipherGroup, !preparedData.noFolderItems.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "NoFolder",
                 items: preparedData.noFolderItems.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: Localizations.folderNone
@@ -216,7 +220,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addGroupSection() -> VaultListSectionsBuilder {
         if !preparedData.groupItems.isEmpty {
-            sections.append(
+            vaultListData.sections.append(
                 VaultListSection(
                     id: "Items",
                     items: preparedData
@@ -231,7 +235,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addTOTPSection() -> VaultListSectionsBuilder {
         if preparedData.totpItemsCount > 0 {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "TOTP",
                 items: [
                     VaultListItem(
@@ -269,12 +273,12 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             ),
         ]
 
-        sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
+        vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
     }
 
-    func build() -> [VaultListSection] {
-        sections
+    func build() -> VaultListData {
+        vaultListData
     }
 }
 
