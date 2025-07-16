@@ -296,11 +296,15 @@ extension VaultListProcessor {
                 state.toast = nil
                 takingTimeTask.cancel()
             }
-            guard let sections = try await services.vaultRepository.fetchSync(
-                forceSync: false,
-                filter: state.vaultFilterType
-            ) else { return }
-            state.loadingState = .data(sections)
+
+            try await services.vaultRepository.fetchSync(forceSync: false, filter: state.vaultFilterType)
+
+            if try await services.vaultRepository.isVaultEmpty() {
+                // Normally after syncing the database will publish the contents of the vault which is
+                // used to transition from the loading to loaded state. If the vault is empty, nothing
+                // will be published by the database, so it needs to be manually updated.
+                state.loadingState = .data([])
+            }
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
