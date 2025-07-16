@@ -46,6 +46,13 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
         }
     }
 
+    /// `addCipherDecryptionFailureIds()` adds the list of cipher decryption failure IDs to the vault list data.
+    func test_addCipherDecryptionFailuresIds() {
+        setUpSubject(withData: VaultListPreparedData(cipherDecryptionFailureIds: ["1", "2", "3"]))
+        let vaultListData = subject.addCipherDecryptionFailureIds().build()
+        XCTAssertEqual(vaultListData.cipherDecryptionFailureIds, ["1", "2", "3"])
+    }
+
     /// `addFavoritesSection()` adds the favorites section with the favorite items ordered by name.
     func test_addFavoritesSection() {
         setUpSubject(
