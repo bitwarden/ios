@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - ExportVaultServiceTests
 
-final class ExportVaultServiceTests: BitwardenTestCase {
+final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let cardCipher = Cipher(
@@ -28,7 +28,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         )
     )
 
-    let deletedCipehr = Cipher(
+    let deletedCipher = Cipher(
         cipherView: .loginFixture(
             deletedDate: .init(
                 year: 2023,
@@ -135,6 +135,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     var stateService: MockStateService!
     var subject: ExportVaultService!
     var timeProvider: MockTimeProvider!
+    var policyService: MockPolicyService!
 
     // MARK: Setup & Teardown
 
@@ -145,7 +146,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         cipherService.fetchAllCiphersResult = .success(
             [
                 cardCipher,
-                deletedCipehr,
+                deletedCipher,
                 identityCipher,
                 loginCipher,
                 loginOrgCipher,
@@ -155,6 +156,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         clientService = MockClientService()
         folderService = MockFolderService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         clientService.mockExporters.exportVaultResult = .success("success")
         folderService.fetchAllFoldersResult = .success(
@@ -176,8 +178,9 @@ final class ExportVaultServiceTests: BitwardenTestCase {
             clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
+            policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -190,17 +193,17 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         folderService = nil
         timeProvider = nil
         stateService = nil
+        policyService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// Test the exporter receives the correct content for CSV export type.
+    /// `exportVaultFileContents(format:)` applies the correct content for CSV export type.
     ///
     func test_fileContent_csv() async throws {
-        let fileType = ExportFileType.csv
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.csv)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             clientService.mockExporters.ciphers,
@@ -211,12 +214,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         )
     }
 
-    /// Test the exporter receives the correct content for encrypted JSON export type.
+    /// `exportVaultFileContents(format:)` applies the correct content for encrypted JSON export type.
     ///
     func test_fileContent_encryptedJSON() async throws {
-        let fileType = ExportFileType.encryptedJson(password: "1234")
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.encryptedJson(password: "1234"))
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             Set(clientService.mockExporters.ciphers),
@@ -229,7 +231,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         )
     }
 
-    /// Test the exporter throws on a cipher fetch error.
+    /// `exportVaultFileContents(format:)` throws on a cipher fetch error.
     ///
     func test_fileContent_error_ciphers() async throws {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
@@ -238,7 +240,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         }
     }
 
-    /// Test the exporter throws on an export error.
+    /// `exportVaultFileContents(format:)` throws on an export error.
     ///
     func test_fileContent_error_export() async throws {
         clientService.mockExporters.exportVaultResult = .failure(BitwardenTestError.example)
@@ -247,7 +249,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         }
     }
 
-    /// Test the exporter throws on a folder fetch error.
+    /// `exportVaultFileContents(format:)` throws on a folder fetch error.
     ///
     func test_fileContent_error_folders() async throws {
         folderService.fetchAllFoldersResult = .failure(BitwardenTestError.example)
@@ -256,12 +258,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         }
     }
 
-    /// Test the exporter receives the correct content for JSON export type.
+    /// `exportVaultFileContents(format:)` applies the correct content for JSON export type.
     ///
     func test_fileContent_json() async throws {
-        let fileType = ExportFileType.json
         clientService.mockExporters.exportVaultResult = .success("success")
-        _ = try await subject.exportVaultFileContents(format: fileType)
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             clientService.mockExporters.ciphers,
@@ -274,30 +275,80 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         )
     }
 
-    /// Test the file name formatting for CSV export type.
+    /// `exportVaultFileContents(format:)` doesn't filter ciphers if restrictedTypes is empty
+    ///
+    func test_fileContent_restrictedTypes_empty() async throws {
+        clientService.mockExporters.exportVaultResult = .success("success")
+        policyService.getRestrictedItemCipherTypesResult = []
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                cardCipher,
+                identityCipher,
+                loginCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// `exportVaultFileContents(format:)` excludes card ciphers when restrictedTypes contains `.card`
+    ///
+    func test_fileContent_restrictedTypes_excludeLogin() async throws {
+        clientService.mockExporters.exportVaultResult = .success("success")
+        policyService.getRestrictedItemCipherTypesResult = [.card]
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                identityCipher,
+                loginCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// `exportVaultFileContents(format:)` still applies login/secureNote filter when using CSV export with restrictedTypes
+    ///
+    func test_fileContent_restrictedTypes_csvWithRestrictions() async throws {
+        clientService.mockExporters.exportVaultResult = .success("success")
+        policyService.getRestrictedItemCipherTypesResult = [.card]
+        _ = try await subject.exportVaultFileContents(format: ExportFileType.csv)
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(
+            clientService.mockExporters.ciphers,
+            [
+                loginCipher,
+                secureNoteCipher,
+            ]
+        )
+    }
+
+    /// `generateExportFileName(extension:)` applies correct file name formatting for CSV export type.
     ///
     func test_fileName_csv() {
-        let fileType = ExportFileType.csv
         let expectedName = "bitwarden_export_20240214000000.csv"
-        let name = subject.generateExportFileName(extension: fileType.fileExtension)
+        let name = subject.generateExportFileName(extension: ExportFileType.csv.fileExtension)
         XCTAssertEqual(name, expectedName)
     }
 
-    /// Test the file name formatting for encrypted JSON export type.
+    /// `generateExportFileName(extension:)` applies correct file name formatting for encrypted JSON export type.
     ///
     func test_fileName_encryptedJSON() {
-        let fileType = ExportFileType.encryptedJson(password: "secure-password-1234?")
         let expectedName = "bitwarden_export_20240214000000.json"
-        let name = subject.generateExportFileName(extension: fileType.fileExtension)
+        let name = subject.generateExportFileName(
+            extension: ExportFileType.encryptedJson(password: "secure-password-1234?").fileExtension
+        )
         XCTAssertEqual(name, expectedName)
     }
 
-    /// Test the file name formatting for JSON export type.
+    /// `generateExportFileName(extension:)` applies correct file name formatting for JSON export type.
     ///
     func test_fileName_json() {
-        let fileType = ExportFileType.json
         let expectedName = "bitwarden_export_20240214000000.json"
-        let name = subject.generateExportFileName(extension: fileType.fileExtension)
+        let name = subject.generateExportFileName(extension: ExportFileType.json.fileExtension)
         XCTAssertEqual(name, expectedName)
     }
 }

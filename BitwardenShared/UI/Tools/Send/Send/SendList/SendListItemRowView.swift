@@ -160,11 +160,11 @@ struct SendListItemRowView: View {
                 }
 
                 Section("") {
-                    Button(Localizations.edit) {
-                        store.send(.editPressed(sendView))
-                    }
                     Button(Localizations.view) {
                         store.send(.viewSend(sendView))
+                    }
+                    Button(Localizations.edit) {
+                        store.send(.editPressed(sendView))
                     }
                     if sendView.hasPassword {
                         AsyncButton(Localizations.removePassword) {
@@ -206,7 +206,7 @@ struct SendListItemRowView: View {
                 iconStack(for: sendView)
             }
 
-            Text(sendView.deletionDate.formatted(date: .abbreviated, time: .shortened))
+            Text(sendView.deletionDate.dateTimeDisplay)
                 .styleGuide(.subheadline)
                 .lineLimit(1)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)

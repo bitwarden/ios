@@ -27,9 +27,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         isRemotelyConfigured: false
     )
 
-    /// A feature flag for the flight recorder, which can be enabled to collect app logs.
-    static let flightRecorder = FeatureFlag(rawValue: "enable-pm-flight-recorder")
-
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
     /// which means it's easier to dev/QA the feature.
@@ -43,9 +40,6 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// A feature flag to enable additional error reporting.
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
-
-    /// A feature flag for the pre-login settings.
-    static let preLoginSettings = FeatureFlag(rawValue: "enable-pm-prelogin-settings")
 
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
@@ -68,11 +62,9 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cipherKeyEncryption,
             .emailVerification,
             .enableCipherKeyEncryption,
-            .flightRecorder,
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
-            .preLoginSettings,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,

@@ -1,5 +1,5 @@
 name: CI / Authenticator
-run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
 
 on:
   push:
@@ -24,6 +24,7 @@ on:
         options:
           - Device
           - Simulator
+          - CI
       version-name:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -46,6 +47,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   version:
@@ -61,7 +63,7 @@ jobs:
   build-manual:
     name: Build Manual - ${{ inputs.build-mode }}
     needs: version
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: bwa_prod
@@ -69,13 +71,13 @@ jobs:
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
       compiler-flags: ${{ inputs.compiler-flags }}
-      distribute: ${{ inputs.distribute || true }} # placeholder default for the analyser failing the workflow run when this job is skipped
+      distribute: ${{ github.event_name == 'workflow_dispatch' && inputs.distribute }} # event_name check is a workaround for github failing the workflow run when triggered by push
     secrets: inherit
 
   build-public:
     name: Build CI
     needs: version
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
