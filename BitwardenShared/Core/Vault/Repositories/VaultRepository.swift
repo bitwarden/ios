@@ -15,10 +15,8 @@ public protocol VaultRepository: AnyObject {
     /// - Parameters:
     ///   - isRefresh: Whether the sync is being performed as a manual refresh.
     ///   - filter: The filter to apply to the vault.
-    /// - Returns: If a sync is performed without error, this returns `[VaultListSection]` to display.
     ///
-    @discardableResult
-    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws -> [VaultListSection]?
+    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws
 
     // MARK: Data Methods
 
@@ -994,21 +992,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    @discardableResult
-    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws -> [VaultListSection]? {
+    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
-        guard !forceSync || allowSyncOnRefresh else { return nil }
+        guard !forceSync || allowSyncOnRefresh else { return }
         try await syncService.fetchSync(forceSync: forceSync)
-        let ciphers = try await cipherService.fetchAllCiphers()
-        let collections = try await collectionService.fetchAllCollections(includeReadOnly: true)
-        let folders = try await folderService.fetchAllFolders()
-
-        return try await vaultListSections(
-            from: ciphers,
-            collections: collections,
-            folders: folders,
-            filter: VaultListFilter(filterType: filter)
-        )
     }
 
     // MARK: Data Methods

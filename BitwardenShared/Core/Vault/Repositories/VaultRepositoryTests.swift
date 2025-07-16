@@ -994,34 +994,31 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
 
         // If it's not a manual refresh, it should sync.
-        let automaticSections = try await subject.fetchSync(
+        try await subject.fetchSync(
             forceSync: false,
             filter: .allVaults
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(automaticSections)
 
         // If it's a manual refresh and the user has allowed sync on refresh,
         // it should sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        let manualSections = try await subject.fetchSync(
+        try await subject.fetchSync(
             forceSync: true,
             filter: .myVault
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(manualSections)
 
         // If it's a manual refresh and the user has not allowed sync on refresh,
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        let nilSections = try await subject.fetchSync(
+        try await subject.fetchSync(
             forceSync: true,
             filter: .allVaults
         )
         XCTAssertFalse(syncService.didFetchSync)
-        XCTAssertNil(nilSections)
     }
 
     /// `getDisableAutoTotpCopy()` gets the user's disable auto-copy TOTP value.
