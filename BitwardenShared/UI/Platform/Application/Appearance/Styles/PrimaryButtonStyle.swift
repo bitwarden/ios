@@ -22,7 +22,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     /// The background color of this button.
     var backgroundColor: Color {
         guard isEnabled else {
-            return Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+            return SharedAsset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
         return isDestructive
             ? SharedAsset.Colors.error.swiftUIColor

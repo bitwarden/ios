@@ -57,7 +57,7 @@ struct ManualEntryView: View {
             footerButtonContainer
         }
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .padding(.top, 12)

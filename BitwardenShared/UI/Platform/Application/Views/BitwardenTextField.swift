@@ -76,9 +76,9 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         }
         .padding(.leading, 16)
         .background(
-            isEnabled ?
-                Asset.Colors.backgroundSecondary.swiftUIColor :
-                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+            isEnabled
+                ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
@@ -173,8 +173,8 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .accessibilityLabel(title ?? "")
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
-                            ? SharedAsset.Colors.textPrimary.swiftUIColor :
-                            Asset.Colors.textDisabled.swiftUIColor
+                            ? SharedAsset.Colors.textPrimary.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor
                     )
                     .disabled(isTextFieldDisabled)
                 if isPassword, !isPasswordVisible {
@@ -186,8 +186,8 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         .accessibilityLabel(title ?? "")
                         .foregroundStyle(
                             isEnabled && !isTextFieldDisabled
-                                ? SharedAsset.Colors.textPrimary.swiftUIColor :
-                                Asset.Colors.textDisabled.swiftUIColor
+                                ? SharedAsset.Colors.textPrimary.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor
                         )
                 }
             }

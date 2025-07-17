@@ -27,9 +27,9 @@ struct SecondaryButtonStyle: ButtonStyle {
     /// The border stroke color.
     var borderColor: Color {
         if isDestructive {
-            Asset.Colors.error.swiftUIColor
+            SharedAsset.Colors.error.swiftUIColor
         } else if isReversed {
-            Asset.Colors.buttonOutlinedBorderReversed.swiftUIColor
+            SharedAsset.Colors.buttonOutlinedBorderReversed.swiftUIColor
         } else {
             isEnabled
                 ? SharedAsset.Colors.buttonOutlinedBorder.swiftUIColor
@@ -41,9 +41,9 @@ struct SecondaryButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         if isDestructive {
-            Asset.Colors.error.swiftUIColor
+            SharedAsset.Colors.error.swiftUIColor
         } else if isReversed {
-            Asset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
+            SharedAsset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
         } else {
             isEnabled
                 ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor

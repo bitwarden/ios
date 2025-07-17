@@ -37,8 +37,9 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
         }
         .padding(.leading, 16)
         .background(
-            isEnabled ? SharedAsset.Colors.backgroundSecondary.swiftUIColor :
-                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+            isEnabled
+                ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -87,8 +88,8 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                         )
                         .foregroundColor(
                             isEnabled
-                                ? SharedAsset.Colors.textSecondary.swiftUIColor :
-                                Asset.Colors.textDisabled.swiftUIColor
+                                ? SharedAsset.Colors.textSecondary.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor
                         )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
                 }

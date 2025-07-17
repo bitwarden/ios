@@ -68,7 +68,7 @@ struct ProfileSwitcherView: View {
         ZStack(alignment: .top) {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundSecondary.swiftUIColor
                 .frame(height: abs(min(scrollOffset.y, 0)))
                 .fixedSize(horizontal: false, vertical: true)
         }

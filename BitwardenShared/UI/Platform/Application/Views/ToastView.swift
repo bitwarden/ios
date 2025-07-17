@@ -144,7 +144,7 @@ extension View {
 
 #Preview("Toast Overlay") {
     NavigationView {
-        Asset.Colors.backgroundSecondary.swiftUIColor
+        SharedAsset.Colors.backgroundSecondary.swiftUIColor
             .toast(.constant(Toast(title: "Taos, NM!")))
     }
 }

@@ -184,11 +184,11 @@ struct ProfileSwitcherRow: View {
     private var trailingIconColor: Color {
         switch store.state.rowType {
         case .active:
-            Asset.Colors.iconPrimary.swiftUIColor
+            SharedAsset.Colors.iconPrimary.swiftUIColor
         case .alternate:
-            Asset.Colors.textSecondary.swiftUIColor
+            SharedAsset.Colors.textSecondary.swiftUIColor
         case .addAccount:
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundSecondary.swiftUIColor
         }
     }
 

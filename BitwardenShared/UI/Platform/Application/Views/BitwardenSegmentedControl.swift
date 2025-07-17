@@ -89,10 +89,10 @@ private struct SegmentButtonStyle: ButtonStyle {
 
     /// The color of the foreground elements in the button.
     var foregroundColor: Color {
-        guard isEnabled else { return Asset.Colors.buttonFilledDisabledForeground.swiftUIColor }
-        return isSelected ?
-            Asset.Colors.textInteraction.swiftUIColor :
-            Asset.Colors.textSecondary.swiftUIColor
+        guard isEnabled else { return SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor }
+        return isSelected
+            ? SharedAsset.Colors.textInteraction.swiftUIColor
+            : SharedAsset.Colors.textSecondary.swiftUIColor
     }
 
     // MARK: ButtonStyle
