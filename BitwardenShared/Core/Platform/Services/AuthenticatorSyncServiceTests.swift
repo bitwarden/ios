@@ -818,71 +818,29 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.username, "masked@example.com")
     }
 
-    /// When the feature flag is off, determineSyncForUserId should return early and do nothing.
-    ///
-    @MainActor
-    func test_determineSyncForUserId_featureFlagOff_doesNothing() async throws {
-        setupInitialState()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.start()
-
-        // Send a sync update (would normally trigger determineSyncForUserId)
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-
-        // Give the task some time to potentially process
-        try await Task.sleep(nanoseconds: 10_000_000)
-
-        // Assert that nothing happened
-        XCTAssertNil(sharedKeychainRepository.authenticatorKey)
-        XCTAssertNil(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"])
-        XCTAssertFalse(authBridgeItemService.replaceAllCalled)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
-
     /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
     ///
     @MainActor
     func test_getTemporaryTotpItem_error() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         authBridgeItemService.errorToThrow = BitwardenTestError.example
         let result = await subject.getTemporaryTotpItem()
         XCTAssertNil(result)
         XCTAssertFalse(errorReporter.errors.isEmpty)
     }
 
-    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
-    ///
-    @MainActor
-    func test_getTemporaryTotpItem_featureFlagOff() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        authBridgeItemService.tempItem = AuthenticatorBridgeItemDataView(
-            accountDomain: nil,
-            accountEmail: nil,
-            favorite: false,
-            id: "id",
-            name: "name",
-            totpKey: "totpKey",
-            username: nil
-        )
-        let result = await subject.getTemporaryTotpItem()
-        XCTAssertNil(result)
-    }
-
-    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
+    /// When there is no item, `getTemporaryTotpItem()` always returns `nil`.
     ///
     @MainActor
     func test_getTemporaryTotpItem_noItem() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         authBridgeItemService.tempItem = nil
         let result = await subject.getTemporaryTotpItem()
         XCTAssertNil(result)
     }
 
-    /// \`getTemporaryTotpItem()` returns the stored temporary item.
+    /// `getTemporaryTotpItem()` returns the stored temporary item.
     ///
     @MainActor
     func test_getTemporaryTotpItem_success() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         let expected = AuthenticatorBridgeItemDataView(
             accountDomain: nil,
             accountEmail: nil,
@@ -895,20 +853,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         authBridgeItemService.tempItem = expected
         let result = await subject.getTemporaryTotpItem()
         XCTAssertEqual(expected, result)
-    }
-
-    /// Starting the service when the feature flag is off should do nothing - no subscriptions or responses.
-    ///
-    @MainActor
-    func test_start_featureFlagOff() async throws {
-        setupInitialState()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.start()
-        try sharedKeychainRepository.deleteAuthenticatorKey()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-
-        try await Task.sleep(nanoseconds: 10_000_000)
-        XCTAssertNil(sharedKeychainRepository.authenticatorKey)
     }
 
     /// If the `start()` method is called multiple times, it should only start once - i.e. only one set of listeners,
@@ -1106,24 +1050,18 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     // MARK: - Private Methods
 
-    /// Helper function that sets up testing parameters based on the flags passed in
-    ///
-    /// Note: The defaults passed in set everything up for sync to work immediately - sync on and vault unlocked.
-    /// All that is necessary is to publish the sync setting or the vault status as-is to kick off sync. Override
-    /// to turn sync off.
+    /// Helper function that sets up the common test condition of sync being turned on.
     ///
     /// - Parameters:
-    ///   - syncOn: The state of the syncToAuthenticator feature flag. Defaults to `true`. `true` means sync is enabled.
     ///   - vaultLocked: The state of the vault - `true` means the vault is locked.
     ///     `false` means the vault is unlocked. Defaults to `false`
     ///
     @MainActor
-    private func setupInitialState(syncOn: Bool = true, vaultLocked: Bool = false) {
+    private func setupInitialState(vaultLocked: Bool = false) {
         cipherDataStore.cipherSubjectByUserId["1"] = CurrentValueSubject<[Cipher], Error>([])
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
-        stateService.syncToAuthenticatorByUserId["1"] = syncOn
+        stateService.syncToAuthenticatorByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = vaultLocked
     }
 } // swiftlint:disable:this file_length

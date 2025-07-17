@@ -501,6 +501,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
+    /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
+    /// vault is empty.
+    @MainActor
+    func test_perform_refreshVault_emptyVault() async {
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(subject.state.loadingState, .data([]))
+    }
+
     /// `perform(_:)` with `.refreshed` records an error and change the loading state
     /// to `.error` if there is no cached data.
     @MainActor
@@ -1041,6 +1054,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         defer { task.cancel() }
         try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
@@ -1048,12 +1062,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_tryAgain_success() async throws {
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
         subject.state.loadingState = .error(errorMessage: "error")
-        vaultRepository.fetchSyncResult = .success([section])
+        vaultRepository.fetchSyncResult = .success(())
+
+        await subject.perform(.tryAgainTapped)
         let task = Task {
-            await subject.perform(.tryAgainTapped)
+            await subject.perform(.streamVaultList)
         }
         defer { task.cancel() }
+        vaultRepository.vaultListSubject.send([section])
+
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
