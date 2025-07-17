@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ScrollViewModifier
@@ -65,7 +66,7 @@ extension View {
     ///
     func scrollView(
         addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
+        backgroundColor: Color = SharedAsset.Colors.backgroundPrimary.swiftUIColor,
         centerContentVertically: Bool = false,
         padding: CGFloat = 12,
         showsIndicators: Bool = true

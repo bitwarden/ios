@@ -59,29 +59,29 @@ public enum UI {
         let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
             for: FontFamily.DMSans.bold.font(size: 26)
         )
-        let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
+        let iconBadgeBackground = SharedAsset.Colors.iconBadgeBackground.color
         let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
             .font: FontFamily.DMSans.bold.font(size: 12),
             .foregroundColor: SharedAsset.Colors.iconBadgeForeground.color,
         ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
+        navigationBarAppearance.backgroundColor = SharedAsset.Colors.backgroundSecondary.color
         navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
         navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
         navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 
-        UIPageControl.appearance().currentPageIndicatorTintColor = Asset.Colors.textPrimary.color
-        UIPageControl.appearance().pageIndicatorTintColor = Asset.Colors.textPrimary.color.withAlphaComponent(0.3)
+        UIPageControl.appearance().currentPageIndicatorTintColor = SharedAsset.Colors.textPrimary.color
+        UIPageControl.appearance().pageIndicatorTintColor = SharedAsset.Colors.textPrimary.color.withAlphaComponent(0.3)
 
-        UIBarButtonItem.appearance().tintColor = Asset.Colors.textInteraction.color
+        UIBarButtonItem.appearance().tintColor = SharedAsset.Colors.textInteraction.color
 
         // Make the tab bar opaque.
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
-        tabBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
+        tabBarAppearance.backgroundColor = SharedAsset.Colors.backgroundSecondary.color
         tabBarAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
         tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = [
@@ -108,8 +108,8 @@ public enum UI {
         ]
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().tintColor = Asset.Colors.iconSecondary.color
-        UITabBar.appearance().unselectedItemTintColor = Asset.Colors.iconPrimary.color
+        UITabBar.appearance().tintColor = SharedAsset.Colors.iconSecondary.color
+        UITabBar.appearance().unselectedItemTintColor = SharedAsset.Colors.iconPrimary.color
 
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(
@@ -117,7 +117,7 @@ public enum UI {
             for: .normal
         )
 
-        UISearchBar.appearance().tintColor = Asset.Colors.textInteraction.color
+        UISearchBar.appearance().tintColor = SharedAsset.Colors.textInteraction.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
         let image = Asset.Images.circleX16.image
         let tintedImage = image.withTintColor(SharedAsset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)

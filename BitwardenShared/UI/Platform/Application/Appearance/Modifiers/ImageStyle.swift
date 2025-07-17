@@ -75,7 +75,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon16(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
@@ -91,7 +91,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon24(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
@@ -107,7 +107,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func rowIcon(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = true
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
@@ -124,7 +124,7 @@ extension ImageStyle {
     ///   - size: The size of the icon.
     ///
     static func viewIcon(
-        color: Color = Asset.Colors.illustrationOutline.swiftUIColor,
+        color: Color = SharedAsset.Colors.illustrationOutline.swiftUIColor,
         scaleWithFont: Bool = true,
         size: CGFloat = 36
     ) -> ImageStyle {

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 import UIKit
 
@@ -100,7 +101,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.backgroundColor = .clear
-        textView.tintColor = Asset.Colors.tintPrimary.color
+        textView.tintColor = SharedAsset.Colors.tintPrimary.color
         textView.textContainerInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)

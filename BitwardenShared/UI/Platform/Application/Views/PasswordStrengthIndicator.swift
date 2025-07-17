@@ -109,21 +109,21 @@ extension PasswordStrengthIndicator {
         init(score: UInt8?) {
             switch score {
             case 0, 1:
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = Localizations.weak
             case 2:
-                color = Asset.Colors.statusWeak2
+                color = SharedAsset.Colors.statusWeak2
                 text = Localizations.weak
             case 3:
-                color = Asset.Colors.statusGood
+                color = SharedAsset.Colors.statusGood
                 text = Localizations.good
             case 4:
-                color = Asset.Colors.statusStrong
+                color = SharedAsset.Colors.statusStrong
                 text = Localizations.strong
             default:
                 // Provide the initial color when not visible so the color isn't animated when the
                 // first segment appears.
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = nil
             }
 

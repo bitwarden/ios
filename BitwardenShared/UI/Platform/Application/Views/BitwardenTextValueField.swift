@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A standardized view used to display some text into a row of a list. This is commonly used in
