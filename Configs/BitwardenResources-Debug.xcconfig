@@ -1,0 +1,6 @@
+#include "./Common-bwpm.xcconfig"
+#include "./Base-Debug.xcconfig"
+#include? "./Local-bwpm.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).bitwarden-resources
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(BITWARDEN_FLAGS)

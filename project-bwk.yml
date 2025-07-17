@@ -185,8 +185,12 @@ targets:
   BitwardenResources:
     type: framework
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenResources-Debug.xcconfig
+      Release: Configs/BitwardenResources-Release.xcconfig
     settings:
       base:
+        APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: BitwardenResources/Info.plist
     sources:
       - path: BitwardenResources
