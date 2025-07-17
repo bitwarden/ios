@@ -395,6 +395,47 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
+    /// `itemListPublisher()` returns a publisher even if there is an error getting shared items.
+    /// The error is logged.
+    @MainActor
+    func test_itemListPublisher_sharedItemsError() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                                 accountEmail: "shared@example.com",
+                                                                 totpKey: "totpKey")
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+
+        authItemService.authenticatorItemsSubject.send(items)
+        sharedItemService.sharedItemsError = BitwardenTestError.example
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "LocalCodes",
+                                items: [unorganizedItem],
+                                name: Localizations.localCodes),
+                ItemListSection(id: "SyncError",
+                                items: [.syncError()],
+                                name: ""),
+            ]
+        )
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `itemListPublisher()` returns a favorites section and a local codes section as normal. Adds a syncError section
     /// when the sync process if throwing an error.
     @MainActor
@@ -429,6 +470,67 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                                 name: Localizations.localCodes),
                 ItemListSection(id: "SyncError",
                                 items: [.syncError()],
+                                name: ""),
+            ]
+        )
+    }
+
+    /// `itemListPublisher()` returns a favorites section, but not synced items
+    /// when the feature flag is false.
+    @MainActor
+    func test_itemListPublisher_syncFeatureFlagOff() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
+        sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                                 accountEmail: "shared@example.com",
+                                                                 totpKey: "totpKey")
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+
+        let unorganizedItem = ItemListItem.fixture(
+            id: items[0].id,
+            name: items[0].name,
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(authenticatorItem: items[0]),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+        let favoritedItem = ItemListItem.fixture(
+            id: items[1].id,
+            name: items[1].name,
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(authenticatorItem: items[1]),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+
+        authItemService.authenticatorItemsSubject.send(items)
+        sharedItemService.sharedItemsSubject.send([sharedItem])
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "Unorganized",
+                                items: [unorganizedItem],
                                 name: ""),
             ]
         )

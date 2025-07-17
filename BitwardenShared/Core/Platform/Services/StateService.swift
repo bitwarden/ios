@@ -1748,11 +1748,14 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
-        let userId = try getAccount(userId: userId).profile.userId
-
         do {
+            let userId = try getAccount(userId: userId).profile.userId
             _ = try await keychainRepository.getAccessToken(userId: userId)
             return true
+        } catch StateServiceError.noActiveAccount {
+            return false
+        } catch StateServiceError.noAccounts {
+            return false
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return false
         }

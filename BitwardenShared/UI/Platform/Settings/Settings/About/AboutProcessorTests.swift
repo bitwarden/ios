@@ -79,18 +79,6 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.version, "1.0 (1)")
     }
 
-    /// `perform(_:)` with `.loadData` loads the flight recorder feature flag.
-    @MainActor
-    func test_perform_loadData_flightRecorderFeatureFlag() async {
-        configService.featureFlagsBool[.flightRecorder] = true
-        await subject.perform(.loadData)
-        XCTAssertTrue(subject.state.isFlightRecorderFeatureFlagEnabled)
-
-        configService.featureFlagsBool[.flightRecorder] = false
-        await subject.perform(.loadData)
-        XCTAssertFalse(subject.state.isFlightRecorderFeatureFlagEnabled)
-    }
-
     /// `perform(_:)` with `.streamFlightRecorderLog` subscribes to the active flight recorder log.
     @MainActor
     func test_perform_streamFlightRecorderLog() async throws {

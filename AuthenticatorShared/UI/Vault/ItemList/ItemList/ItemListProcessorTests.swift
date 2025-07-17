@@ -686,10 +686,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([item])
 
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = false
+
         notificationCenterService.willEnterForegroundSubject.send()
 
         try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+        XCTAssertEqual(subject.state.itemListCardState, .passwordManagerDownload)
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests

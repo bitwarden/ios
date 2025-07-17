@@ -8,6 +8,7 @@ class MockPlatformClientService: PlatformClientService {
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
     var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
+    var stateMock = MockStateClient()
     var userFingerprintCalled = false
 
     func fido2() -> ClientFido2Service {
@@ -23,6 +24,10 @@ class MockPlatformClientService: PlatformClientService {
             throw loadFlagsError
         }
         featureFlags = flags
+    }
+
+    func state() -> StateClientProtocol {
+        stateMock
     }
 
     func userFingerprint(material fingerprintMaterial: String) throws -> String {

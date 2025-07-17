@@ -48,34 +48,11 @@ class OtherSettingsViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.connectToWatch))
     }
 
-    /// The Siri & Shortcuts access toggle is hidden if the feature is not enabled.
-    @MainActor
-    func test_siriAndShortcutsAccess_hidden() async throws {
-        processor.state.shouldShowSiriAndShortcutsAccess = false
-        XCTAssertThrowsError(
-            try subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.siriAndShortcutsAccess
-            )
-        )
-    }
-
-    /// The Siri & Shortcuts access toggle is visible if the feature is enabled.
-    @MainActor
-    func test_siriAndShortcutsAccess_visible() async throws {
-        processor.state.shouldShowSiriAndShortcutsAccess = true
-        XCTAssertNoThrow(
-            try subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.siriAndShortcutsAccess
-            )
-        )
-    }
-
     /// The view renders correctly.
     @MainActor
     func test_view_render() {
         processor.state.lastSyncDate = Date(year: 2023, month: 5, day: 14, hour: 16, minute: 52)
         processor.state.shouldShowConnectToWatchToggle = true
-        processor.state.shouldShowSiriAndShortcutsAccess = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

@@ -56,10 +56,6 @@ struct DefaultAppIntentMediator: AppIntentMediator {
 
     @available(iOSApplicationExtension 16, *)
     func canRunAppIntents() async throws -> Bool {
-        guard await configService.getFeatureFlag(.appIntents) else {
-            return false
-        }
-
         do {
             return try await stateService.getSiriAndShortcutsAccess()
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
