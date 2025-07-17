@@ -32,7 +32,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             Asset.Colors.buttonOutlinedBorderReversed.swiftUIColor
         } else {
             isEnabled
-                ? Asset.Colors.buttonOutlinedBorder.swiftUIColor
+                ? SharedAsset.Colors.buttonOutlinedBorder.swiftUIColor
                 : SharedAsset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
         }
     }
@@ -46,7 +46,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             Asset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
         } else {
             isEnabled
-                ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
+                ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor
                 : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
         }
     }

@@ -14,7 +14,7 @@ struct FieldLabelIconButtonStyle: ButtonStyle {
     /// The color of the foreground elements, including text and template images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor
             : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
     }
 

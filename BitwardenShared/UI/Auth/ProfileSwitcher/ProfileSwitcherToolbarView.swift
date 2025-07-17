@@ -59,8 +59,8 @@ extension View {
                         .accessibilityHidden(initials != nil)
                 }
             }
-            .foregroundColor(textColor ?? Asset.Colors.textInteraction.swiftUIColor)
-            .background(color ?? Asset.Colors.backgroundTertiary.swiftUIColor)
+            .foregroundColor(textColor ?? SharedAsset.Colors.textInteraction.swiftUIColor)
+            .background(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
             .clipShape(Circle())
     }
 }

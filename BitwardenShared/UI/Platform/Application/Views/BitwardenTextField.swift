@@ -173,7 +173,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .accessibilityLabel(title ?? "")
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
-                            ? Asset.Colors.textPrimary.swiftUIColor :
+                            ? SharedAsset.Colors.textPrimary.swiftUIColor :
                             Asset.Colors.textDisabled.swiftUIColor
                     )
                     .disabled(isTextFieldDisabled)
@@ -186,7 +186,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         .accessibilityLabel(title ?? "")
                         .foregroundStyle(
                             isEnabled && !isTextFieldDisabled
-                                ? Asset.Colors.textPrimary.swiftUIColor :
+                                ? SharedAsset.Colors.textPrimary.swiftUIColor :
                                 Asset.Colors.textDisabled.swiftUIColor
                         )
                 }

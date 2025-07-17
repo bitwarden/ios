@@ -13,7 +13,7 @@ struct BitwardenToggleStyle: ToggleStyle {
         Toggle(configuration)
             .styleGuide(.body)
             .foregroundColor(
-                isEnabled ? Asset.Colors.textPrimary.swiftUIColor :
+                isEnabled ? SharedAsset.Colors.textPrimary.swiftUIColor :
                     Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
             )
             .tint(SharedAsset.Colors.iconSecondary.swiftUIColor)

@@ -72,7 +72,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
             }
         }
         .background(
-            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+            isEnabled ? SharedAsset.Colors.backgroundSecondary.swiftUIColor :
                 Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
     }

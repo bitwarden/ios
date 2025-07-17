@@ -12,7 +12,7 @@ struct ToolbarButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 

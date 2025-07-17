@@ -55,7 +55,7 @@ struct ExpandableContent<Content: View>: View {
             .multilineTextAlignment(.leading)
             .foregroundStyle(
                 isEnabled
-                    ? Asset.Colors.textInteraction.swiftUIColor :
+                    ? SharedAsset.Colors.textInteraction.swiftUIColor :
                     Asset.Colors.textDisabled.swiftUIColor
             )
         }

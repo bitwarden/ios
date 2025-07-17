@@ -25,7 +25,7 @@ struct PrimaryButtonStyle: ButtonStyle {
             return Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
         return isDestructive
-            ? Asset.Colors.error.swiftUIColor
+            ? SharedAsset.Colors.error.swiftUIColor
             : SharedAsset.Colors.buttonFilledBackground.swiftUIColor
     }
 
@@ -33,7 +33,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledForeground.swiftUIColor
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 

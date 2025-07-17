@@ -59,7 +59,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
                     .multilineTextAlignment(.leading)
                     .foregroundColor(
                         isEnabled
-                            ? Asset.Colors.textPrimary.swiftUIColor :
+                            ? SharedAsset.Colors.textPrimary.swiftUIColor :
                             Asset.Colors.textDisabled.swiftUIColor
                     )
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)

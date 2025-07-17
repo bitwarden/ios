@@ -12,7 +12,7 @@ struct AccessoryButtonStyle: ButtonStyle {
         configuration.label
             .frame(width: 24, height: 24)
             .foregroundColor(
-                isEnabled ? Asset.Colors.iconPrimary.swiftUIColor :
+                isEnabled ? SharedAsset.Colors.iconPrimary.swiftUIColor :
                     Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
             )
             .opacity(configuration.isPressed ? 0.5 : 1)

@@ -14,7 +14,7 @@ struct CircleButtonStyle: ButtonStyle {
     /// The background color of this button.
     var backgroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledBackground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledBackground.swiftUIColor
             : SharedAsset.Colors.buttonFilledDisabledBackground.swiftUIColor
     }
 
@@ -24,7 +24,7 @@ struct CircleButtonStyle: ButtonStyle {
     /// The color of the foreground elements, including text and template images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledForeground.swiftUIColor
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
