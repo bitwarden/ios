@@ -22,11 +22,10 @@ class MockPolicyService: PolicyService {
 
     var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int)?, Error> = .success(nil)
 
-    var passesRestrictItemTypesPolicyResult = true
-
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [PolicyType]()
     var policyAppliesToUserPolicies = [Policy]()
+    var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
     var replacePoliciesUserId: String?
@@ -42,6 +41,10 @@ class MockPolicyService: PolicyService {
         policyAppliesToUserPolicies.map(\.organizationId)
     }
 
+    func getRestrictedItemCipherTypes() async -> [BitwardenShared.CipherType] {
+        getRestrictedItemCipherTypesResult
+    }
+
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         try getMasterPasswordPolicyOptionsResult.get()
     }
@@ -55,10 +58,6 @@ class MockPolicyService: PolicyService {
         value: Int
     )? {
         try fetchTimeoutPolicyValuesResult.get()
-    }
-
-    func passesRestrictItemTypesPolicy(cipher: BitwardenSdk.CipherListView) async -> Bool {
-        passesRestrictItemTypesPolicyResult
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

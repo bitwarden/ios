@@ -58,7 +58,7 @@ class MockVaultRepository: VaultRepository {
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
-    var fetchSyncResult: Result<[VaultListSection]?, Error> = .success([])
+    var fetchSyncResult: Result<Void, Error> = .success(())
 
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
 
@@ -216,10 +216,10 @@ class MockVaultRepository: VaultRepository {
     func fetchSync(
         forceSync: Bool,
         filter _: VaultFilterType
-    ) async throws -> [VaultListSection]? {
+    ) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
-        return try fetchSyncResult.get()
+        try fetchSyncResult.get()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

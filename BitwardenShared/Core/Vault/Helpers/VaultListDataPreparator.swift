@@ -45,6 +45,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     let ciphersClientWrapperService: CiphersClientWrapperService
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The service to get server-specified configuration.
+    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// The service for managing the polices for the user.
@@ -66,6 +68,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             return nil
         }
 
+        let restrictedOrganizationIds: [String] = await getRestrictedOrganizationIds()
+
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
         preparedDataBuilder = preparedDataBuilder
@@ -76,7 +80,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             ciphers: ciphers
         ) { decryptedCipher in
             guard filter.filterType.cipherFilter(decryptedCipher),
-                  await policyService.passesRestrictItemTypesPolicy(cipher: decryptedCipher) else {
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
                 return
             }
 
@@ -110,6 +114,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             return nil
         }
 
+        let restrictedOrganizationIds: [String] = await getRestrictedOrganizationIds()
+
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
         preparedDataBuilder = preparedDataBuilder
@@ -120,7 +126,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             ciphers: ciphers
         ) { decryptedCipher in
             guard filter.filterType.cipherFilter(decryptedCipher),
-                  await policyService.passesRestrictItemTypesPolicy(cipher: decryptedCipher) else {
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
                 return
             }
 
@@ -140,5 +146,16 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         }
 
         return preparedDataBuilder.build()
+    }
+
+    // MARK: Private
+
+    /// Returns the restricted organization IDs for the `.restrictItemTypes` policy if enabled.
+    /// - Returns: The restricted organization IDs.
+    func getRestrictedOrganizationIds() async -> [String] {
+        guard await configService.getFeatureFlag(.removeCardPolicy) else {
+            return []
+        }
+        return await policyService.getOrganizationIdsForRestricItemTypesPolicy()
     }
 }

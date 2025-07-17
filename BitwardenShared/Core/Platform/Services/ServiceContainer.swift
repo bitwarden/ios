@@ -455,11 +455,24 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider
         )
 
-        let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
+            stateService: stateService
+        )
+
+        let clientBuilder = DefaultClientBuilder(
+            errorReporter: errorReporter
+        )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
+            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
+                cipherDataStore: dataStore,
+                errorReporter: errorReporter
+            ),
             stateService: stateService
         )
 
@@ -495,13 +508,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService
         )
 
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            fileAPIService: apiService,
-            stateService: stateService
-        )
-
         let eventService = DefaultEventService(
             cipherService: cipherService,
             errorReporter: errorReporter,
@@ -516,8 +522,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
+            policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let sendService = DefaultSendService(
@@ -708,6 +715,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                     errorReporter: errorReporter
                 ),
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 stateService: stateService,

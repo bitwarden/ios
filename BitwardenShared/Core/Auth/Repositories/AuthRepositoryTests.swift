@@ -1044,16 +1044,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `isUserManagedByOrganization` returns false when the feature flag is off.
-    func test_isUserManagedByOrganization_false_featureFlagOff() async throws {
-        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
-        try await stateService.setActiveAccount(userId: "1")
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "One")])
-
-        let value = try await subject.isUserManagedByOrganization()
-        XCTAssertFalse(value)
-    }
-
     /// `isUserManagedByOrganization` returns false when the user isn't managed by an organization.
     func test_isUserManagedByOrganization_false() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
