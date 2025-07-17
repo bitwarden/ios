@@ -1203,6 +1203,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: account.profile.email,
                 privateKey: "private",
                 signingKey: nil,
+                securityState: nil,
                 method: .password(password: "NEW_PASSWORD", userKey: "encryptedUserKey")
             )
         )
@@ -1720,6 +1721,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
                 signingKey: nil,
+                securityState: nil,
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
@@ -1897,6 +1899,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "private",
                 signingKey: nil,
+                securityState: nil,
                 method: .keyConnector(masterKey: "key", userKey: "user")
             )
         )
@@ -1949,6 +1952,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "private",
                 signingKey: nil,
+                securityState: nil,
                 method: .keyConnector(masterKey: "key", userKey: "user")
             )
         )
@@ -2142,6 +2146,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
                 signingKey: nil,
+                securityState: nil,
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY")
@@ -2173,6 +2178,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
                 signingKey: nil,
+                securityState: nil,
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .userKey(protectedUserKey: "KEY")
@@ -2207,6 +2213,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
                 signingKey: nil,
+                securityState: nil,
                 method: .pin(pin: "123", pinProtectedUserKey: "123")
             )
         )

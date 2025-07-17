@@ -1103,6 +1103,7 @@ extension DefaultAuthRepository: AuthRepository {
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
                 signingKey: nil,
+                securityState: nil,
                 method: method
             )
         )
