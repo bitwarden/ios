@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ProfileSwitcherView
@@ -21,7 +22,7 @@ struct ProfileSwitcherView: View {
                     addAccountRow
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .transition(.move(edge: .top))
             .hidden(!store.state.isVisible)
             .fixedSize(horizontal: false, vertical: true)

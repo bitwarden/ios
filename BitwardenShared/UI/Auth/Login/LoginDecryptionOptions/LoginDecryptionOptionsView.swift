@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginDecryptionOptionsView
@@ -44,7 +45,7 @@ struct LoginDecryptionOptionsView: View {
             )
         ) {
             Text(Localizations.turnOffUsingPublicDevice)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                 .styleGuide(.footnote)
         }
         .accessibilityIdentifier("RememberThisDeviceToggle")
@@ -113,14 +114,14 @@ struct LoginDecryptionOptionsView: View {
                 store.state.email
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .multilineTextAlignment(.center)
 
             AsyncButton(Localizations.notYou) {
                 await store.perform(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouButton")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
     }

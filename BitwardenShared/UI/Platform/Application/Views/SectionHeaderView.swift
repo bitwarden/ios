@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SectionHeaderView
@@ -16,7 +17,7 @@ struct SectionHeaderView: View {
         Text(title)
             .styleGuide(.caption1, weight: .bold)
             .accessibilityAddTraits(.isHeader)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .textCase(.uppercase)
             .padding(.leading, 12)
     }

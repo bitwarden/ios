@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LandingView
@@ -76,7 +77,7 @@ struct LandingView: View {
                 Image(decorative: Asset.Images.logo)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity, maxHeight: 34)
                     .padding(.horizontal, 12)
 
@@ -96,7 +97,7 @@ struct LandingView: View {
             Text(Localizations.logInToBitwarden)
                 .styleGuide(.title2, weight: .semibold)
                 .multilineTextAlignment(.center)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .frame(maxWidth: .infinity)
 
             VStack(spacing: 8) {
@@ -141,12 +142,12 @@ struct LandingView: View {
             HStack(spacing: 4) {
                 Spacer()
                 Text(Localizations.newAroundHere)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 Button(Localizations.createAccount) {
                     store.send(.createAccountPressed)
                 }
                 .accessibilityIdentifier("CreateAccountButton")
-                .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                 Spacer()
             }
             .styleGuide(.footnote)

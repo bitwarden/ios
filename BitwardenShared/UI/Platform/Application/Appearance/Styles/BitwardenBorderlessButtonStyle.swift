@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenBorderlessButtonStyle
@@ -14,7 +15,7 @@ struct BitwardenBorderlessButtonStyle: ButtonStyle {
     var foregroundColor: Color {
         isEnabled
             ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
-            : Asset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+            : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
     }
 
     // MARK: ButtonStyle

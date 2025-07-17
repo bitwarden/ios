@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - IntroCarouselView
@@ -47,8 +48,8 @@ struct IntroCarouselView: View {
             .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
     }
 
@@ -87,7 +88,7 @@ struct IntroCarouselView: View {
         }
         .scrollView(
             addVerticalPadding: false,
-            backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor
+            backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor
         )
     }
 

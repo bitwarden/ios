@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: BitwardenSegmentedControl
@@ -44,13 +45,13 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
         }
         .background(
             Capsule()
-                .strokeBorder(Asset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
-                .background(Capsule().fill(Asset.Colors.backgroundSecondary.swiftUIColor))
+                .strokeBorder(SharedAsset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
+                .background(Capsule().fill(SharedAsset.Colors.backgroundSecondary.swiftUIColor))
                 .padding(2)
                 .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false)
         )
         .animation(.default, value: selection)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .clipShape(Capsule())
     }
 

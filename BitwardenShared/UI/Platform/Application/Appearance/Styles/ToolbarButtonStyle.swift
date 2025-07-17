@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ToolbarButtonStyle
@@ -12,7 +13,7 @@ struct ToolbarButtonStyle: ButtonStyle {
     var foregroundColor: Color {
         isEnabled
             ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {

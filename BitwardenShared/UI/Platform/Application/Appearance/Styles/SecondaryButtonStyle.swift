@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SecondaryButtonStyle
@@ -32,7 +33,7 @@ struct SecondaryButtonStyle: ButtonStyle {
         } else {
             isEnabled
                 ? Asset.Colors.buttonOutlinedBorder.swiftUIColor
-                : Asset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
         }
     }
 
@@ -46,7 +47,7 @@ struct SecondaryButtonStyle: ButtonStyle {
         } else {
             isEnabled
                 ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
-                : Asset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
         }
     }
 
@@ -117,7 +118,7 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
             .buttonStyle(.secondary(isReversed: true))
     }
     .padding()
-    .background(Asset.Colors.backgroundAlert.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundAlert.swiftUIColor)
 }
 
 #Preview("Sizes") {

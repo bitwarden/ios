@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - Menuable
@@ -81,7 +82,7 @@ struct BitwardenMenuField<
 
                 Text(footer)
                     .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .multilineTextAlignment(.leading)
                     .padding(.vertical, 12)
             }

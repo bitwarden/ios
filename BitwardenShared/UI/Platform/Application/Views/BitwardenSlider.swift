@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A custom slider view that allows for custom styling and accessibility.
@@ -47,11 +48,11 @@ struct BitwardenSlider: View {
                     )
 
                 Circle()
-                    .fill(Asset.Colors.sliderFilled.swiftUIColor)
+                    .fill(SharedAsset.Colors.sliderFilled.swiftUIColor)
                     .frame(width: 18, height: 18)
                     .overlay(
                         Circle()
-                            .stroke(Asset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
                     )
                     .onSizeChanged { size in
                         thumbSize = size

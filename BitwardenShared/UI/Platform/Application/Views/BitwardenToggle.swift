@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenToggle
@@ -45,7 +46,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
                     if let footer {
                         Text(footer)
                             .styleGuide(.subheadline)
-                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                     } else if let footerContent {
                         footerContent
                     }

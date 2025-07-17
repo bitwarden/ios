@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ViewCardItemView
@@ -44,7 +45,7 @@ struct ViewCardItemView: View {
             BitwardenField(title: Localizations.number) {
                 PasswordText(password: number, isPasswordVisible: isVisible)
                     .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("CardNumberEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
@@ -101,7 +102,7 @@ struct ViewCardItemView: View {
             BitwardenField(title: Localizations.securityCode) {
                 PasswordText(password: code, isPasswordVisible: isVisible)
                     .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("CardSecurityCodeEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
@@ -155,7 +156,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Empty View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Empty View State")
@@ -184,7 +185,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Visible View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Visible Add Edit State")
@@ -211,7 +212,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Hidden View State")
@@ -238,7 +239,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("No Expiration")
@@ -265,7 +266,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Year But Not Month")

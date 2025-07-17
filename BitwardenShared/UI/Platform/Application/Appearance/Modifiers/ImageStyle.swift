@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 
@@ -39,7 +40,7 @@ extension ImageStyle {
 
     /// An `ImageStyle` for applying common properties to an image in a floating action button.
     static let floatingActionButton = ImageStyle(
-        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+        color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
         scaleWithFont: false,
         width: 32,
         height: 32
@@ -58,7 +59,7 @@ extension ImageStyle {
     /// - Color: `Asset.Colors.iconSecondary`
     ///
     static let toolbarIcon = ImageStyle(
-        color: Asset.Colors.iconSecondary.swiftUIColor,
+        color: SharedAsset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
         width: 24,
         height: 24

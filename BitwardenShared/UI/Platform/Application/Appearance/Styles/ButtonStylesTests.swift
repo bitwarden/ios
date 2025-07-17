@@ -85,7 +85,7 @@ final class ButtonStylesTests: BitwardenTestCase {
         func titleView(_ title: String) -> some View {
             Text(title)
                 .styleGuide(.title3, weight: .bold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
     }
 

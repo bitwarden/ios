@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordStrengthIndicator
@@ -23,7 +24,7 @@ struct PasswordStrengthIndicator: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(asset: Asset.Colors.strokeDivider))
+                        .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
@@ -37,17 +38,17 @@ struct PasswordStrengthIndicator: View {
                 HStack(spacing: 4) {
                     if passwordTextCount >= requiredTextCount {
                         Image(asset: Asset.Images.check12)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
                     } else {
                         Circle()
-                            .stroke(Asset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
                             .frame(width: 10, height: 10)
                             .padding(.leading, 1)
                     }
 
                     Text(Localizations.xCharacters(requiredTextCount))
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .styleGuide(.footnote, weight: .bold)
                         .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                 }

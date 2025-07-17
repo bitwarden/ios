@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExpandableContent
@@ -103,6 +104,6 @@ struct ExpandableContent<Content: View>: View {
     }
     .padding()
     .frame(maxHeight: .infinity, alignment: .top)
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import SwiftUI
 
@@ -112,7 +113,7 @@ struct SendListItemRowView: View {
         HStack(spacing: 16) {
             Image(decorative: item.icon)
                 .scaledFrame(width: 22, height: 22)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.vertical, 19)
 
             switch item.itemType {
@@ -134,13 +135,13 @@ struct SendListItemRowView: View {
     private func groupLabel(for sendType: SendType, count: Int) -> some View {
         Text(sendType.localizedName)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
         Spacer()
 
         Text("\(count)")
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
     }
 
     /// An options menu to display for a send.
@@ -184,7 +185,7 @@ struct SendListItemRowView: View {
 
         } label: {
             Asset.Images.ellipsisHorizontal24.swiftUIImage
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
         .accessibilityIdentifier("SendOptionsButton")
     }
@@ -200,7 +201,7 @@ struct SendListItemRowView: View {
                 Text(sendView.name)
                     .styleGuide(.body)
                     .lineLimit(1)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("SendNameLabel")
 
                 iconStack(for: sendView)
@@ -209,7 +210,7 @@ struct SendListItemRowView: View {
             Text(sendView.deletionDate.dateTimeDisplay)
                 .styleGuide(.subheadline)
                 .lineLimit(1)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier("SendDateLabel")
         }
         .padding(.vertical, 9)
@@ -282,7 +283,7 @@ struct SendListItemRowView: View {
                     ForEachIndexed(row, id: \.self) { _, image in
                         image.asset
                             .scaledFrame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .accessibilityIdentifier(image.accessibilityID)
                     }
                 }

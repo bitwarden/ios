@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -59,7 +60,7 @@ struct MoveToOrganizationView: View {
         if store.state.ownershipOptions.isEmpty {
             Text(Localizations.noOrgsToList)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
                 .padding(16)
                 .frame(maxWidth: .infinity)

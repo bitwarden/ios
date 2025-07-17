@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 import UIKit
@@ -61,7 +62,7 @@ public enum UI {
         let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
         let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
             .font: FontFamily.DMSans.bold.font(size: 12),
-            .foregroundColor: Asset.Colors.iconBadgeForeground.color,
+            .foregroundColor: SharedAsset.Colors.iconBadgeForeground.color,
         ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
@@ -84,26 +85,26 @@ public enum UI {
         tabBarAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
         tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconSecondary.color,
+            .foregroundColor: SharedAsset.Colors.iconSecondary.color,
         ]
         tabBarAppearance.compactInlineLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconPrimary.color,
+            .foregroundColor: SharedAsset.Colors.iconPrimary.color,
         ]
         tabBarAppearance.inlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
         tabBarAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.inlineLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconSecondary.color,
+            .foregroundColor: SharedAsset.Colors.iconSecondary.color,
         ]
         tabBarAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconPrimary.color,
+            .foregroundColor: SharedAsset.Colors.iconPrimary.color,
         ]
         tabBarAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
         tabBarAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconSecondary.color,
+            .foregroundColor: SharedAsset.Colors.iconSecondary.color,
         ]
         tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: Asset.Colors.iconPrimary.color,
+            .foregroundColor: SharedAsset.Colors.iconPrimary.color,
         ]
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         UITabBar.appearance().standardAppearance = tabBarAppearance
@@ -119,7 +120,7 @@ public enum UI {
         UISearchBar.appearance().tintColor = Asset.Colors.textInteraction.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
         let image = Asset.Images.circleX16.image
-        let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
+        let tintedImage = image.withTintColor(SharedAsset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(Asset.Images.search16.image, for: .search, state: .normal)
 

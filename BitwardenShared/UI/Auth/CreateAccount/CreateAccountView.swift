@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - CreateAccountView
@@ -114,7 +115,7 @@ struct CreateAccountView: View {
             )
 
             Text(Localizations.masterPasswordHintDescription)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                 .styleGuide(.footnote)
         }
     }
@@ -129,7 +130,7 @@ struct CreateAccountView: View {
                     )
             }
             .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .padding(.bottom, 16)
 
             PasswordStrengthIndicator(
@@ -194,7 +195,7 @@ struct CreateAccountView: View {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
         .accessibilityIdentifier("AcceptPoliciesToggle")
-        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+        .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }

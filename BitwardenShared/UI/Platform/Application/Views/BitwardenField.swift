@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenField
@@ -116,7 +117,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                 if let footerContent = footerContent as? Text {
                     footerContent
                         .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 12)
                 } else {
@@ -265,7 +266,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         BitwardenField(title: "Title") {
             Text("Value")
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
 
         BitwardenField(title: "Title", footer: "Text footer") {
@@ -281,6 +282,6 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         }
     }
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 import SwiftUIIntrospect
 
@@ -131,7 +132,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
 
                 Text(footer)
                     .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .padding(.trailing, 16)
                     .padding(.vertical, 12)
             }
@@ -192,7 +193,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
             }
             .frame(maxWidth: .infinity, minHeight: 28)
         }
-        .tint(Asset.Colors.tintPrimary.swiftUIColor)
+        .tint(SharedAsset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
             isSecureFieldFocused = isPasswordAutoFocused
         }
