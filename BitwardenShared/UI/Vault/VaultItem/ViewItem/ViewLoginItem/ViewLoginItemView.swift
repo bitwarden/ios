@@ -132,10 +132,7 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdXY(
-                fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-            )
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay)
         )
         .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
