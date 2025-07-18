@@ -124,7 +124,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -166,7 +166,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {
@@ -209,7 +209,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -249,7 +249,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {

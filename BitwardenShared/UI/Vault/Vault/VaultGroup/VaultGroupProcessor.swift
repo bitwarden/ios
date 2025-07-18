@@ -142,8 +142,8 @@ final class VaultGroupProcessor: StateProcessor<
         case let .itemPressed(item):
             switch item.itemType {
             case let .cipher(cipherListView, _):
-                if cipherListView.isDecryptionFailure {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id))
+                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]))
                 } else {
                     navigateToViewItem(cipherListView: cipherListView, id: item.id)
                 }
@@ -285,8 +285,8 @@ final class VaultGroupProcessor: StateProcessor<
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
                 filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
             ) {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
-                state.loadingState = .data(vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.sections.flatMap(\.items))
+                state.loadingState = .data(vaultList.sections)
             }
         } catch {
             services.errorReporter.log(error: error)

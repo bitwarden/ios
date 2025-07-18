@@ -13,8 +13,8 @@ protocol VaultListDirectorStrategy { // sourcery: AutoMockable
     /// Builds the vault list sections.
     /// - Parameters:
     ///   - filter: Filter to be used to build the sections.
-    /// - Returns: Sections to be displayed to the user.
+    /// - Returns: Vault list data containing the sections to be displayed to the user.
     func build(
         filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 }

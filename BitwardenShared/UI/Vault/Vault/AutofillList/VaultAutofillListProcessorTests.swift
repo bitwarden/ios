@@ -186,7 +186,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -246,7 +246,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)

@@ -7,14 +7,16 @@ extension Alert {
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///
-    /// - Parameter cipherId: The identifier of the cipher that was unable to be decrypted.
+    /// - Parameter cipherIds: The identifiers of any ciphers that were unable to be decrypted.
     /// - Returns: An alert notifying the user that one or more item in their vault were unable to
     ///     be decrypted.
     ///
-    static func cipherDecryptionFailure(cipherId: String?) -> Alert {
+    static func cipherDecryptionFailure(cipherIds: [String]) -> Alert {
         Alert(
             title: Localizations.decryptionError,
-            message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n" + (cipherId ?? ""),
+            message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong
+                + "\n\n"
+                + cipherIds.joined(separator: "\n"),
             alertActions: [
                 AlertAction(title: Localizations.close, style: .default),
             ]
