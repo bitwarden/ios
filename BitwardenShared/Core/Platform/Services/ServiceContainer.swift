@@ -853,6 +853,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
+            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
+                cipherDataStore: dataStore,
+                errorReporter: errorReporter
+            ),
             stateService: stateService
         )
         let authenticatorSyncService = DefaultAuthenticatorSyncService(

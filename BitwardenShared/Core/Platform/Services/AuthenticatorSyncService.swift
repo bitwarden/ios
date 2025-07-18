@@ -359,6 +359,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
                 signingKey: nil,
+                securityState: nil,
                 method: .decryptedKey(decryptedUserKey: authenticatorKey)
             )
         )
