@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Bu istifadəçi silinə bilmir, çünki ən azı bir təşkilatın tək sahibidir. Lütfən bu təşkilatları silin və ya başqa bir istifadəçini yüksəldin.";
 "APasskeyAlreadyExistsForThisApplication" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur, ancaq yüklənərkən bir xəta baş verdi.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Bu cihazı tanımırıq. %1$@ ünvanına göndərilən 8 rəqəmli doğrulama kodunu daxil edin.";
 "ItemNameRequired" = "Element adı (tələb olunur)";
 "AutofillOptions" = "Avto-doldurma seçimləri";
 "WebsiteURI" = "Veb sayt (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "%2$@ %1$@ vaxtı üzrə girişlər bitir";
 "YouMustAttachAFileToSaveThisSend" = "Bu send-i saxlamaq üçün bir fayl əlavə etməlisiniz";
 "SendUpdated" = "Send güncəlləndi";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin.";

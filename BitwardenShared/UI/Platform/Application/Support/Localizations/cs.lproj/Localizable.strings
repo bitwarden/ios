@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tohoto uživatele nelze smazat, protože je jediným vlastníkem alespoň jedné organizace. Smažte tyto organizace nebo aktualizujte jiného uživatele.";
 "APasskeyAlreadyExistsForThisApplication" = "Přístupový klíč pro tuto aplikaci již existuje.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pro tuto aplikaci již existuje přístupový klíč, ale při načítání došlo k chybě.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Toto zařízení nelze rozpoznat. Zadejte osmimístný ověřovací kód, který byl zaslán e-mailem na %1$@.";
 "ItemNameRequired" = "Název položky (povinné)";
 "AutofillOptions" = "Volby automatického vyplňování";
 "WebsiteURI" = "Webová stránka (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Logování končí %1$@ v %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Pro uložení tohoto Send musíte připojit soubor";
 "SendUpdated" = "Send aktualizován";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Toto zařízení nepoznáváme. Zadejte kód zaslaný na Váš e-mail pro ověření Vaší totožnosti.";
