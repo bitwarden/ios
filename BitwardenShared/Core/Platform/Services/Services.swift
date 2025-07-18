@@ -19,6 +19,7 @@ typealias Services = HasAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasCaptchaService
+    & HasClientCertificateService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -157,6 +158,13 @@ protocol HasCameraService {
 protocol HasCaptchaService {
     /// The service used by the application to generate captcha related artifacts.
     var captchaService: CaptchaService { get }
+}
+
+/// Protocol for an object that provides a `ClientCertificateService`.
+///
+protocol HasClientCertificateService {
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    var clientCertificateService: ClientCertificateService { get }
 }
 
 /// Protocol for an object that provides a `ClientService`.

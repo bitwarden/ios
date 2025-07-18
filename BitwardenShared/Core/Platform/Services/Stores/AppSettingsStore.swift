@@ -249,6 +249,19 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
 
+    /// The client certificate configuration for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the client certificate configuration.
+    /// - Returns: The client certificate configuration for that user ID.
+    ///
+    func clientCertificateConfiguration(userId: String) -> ClientCertificateConfiguration?
+
+    /// The global client certificate configuration (not user-specific).
+    ///
+    /// - Returns: The global client certificate configuration.
+    ///
+    func globalClientCertificateConfiguration() -> ClientCertificateConfiguration?
+
     /// Sets the user's progress for autofill setup.
     ///
     /// - Parameters:
@@ -448,6 +461,20 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String)
+
+    /// Sets the client certificate configuration for a user.
+    ///
+    /// - Parameters:
+    ///   - configuration: The client certificate configuration.
+    ///   - userId: The user ID associated with the client certificate configuration.
+    ///
+    func setClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration, userId: String)
+
+    /// Sets the global client certificate configuration (not user-specific).
+    ///
+    /// - Parameter configuration: The client certificate configuration.
+    ///
+    func setGlobalClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration)
 
     /// Set whether to trust the device.
     ///
@@ -750,6 +777,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case rememberedOrgIdentifier
         case reviewPromptData
         case serverConfig(userId: String)
+        case clientCertificateConfiguration(userId: String)
+        case globalClientCertificateConfiguration
         case shouldTrustDevice(userId: String)
         case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
@@ -853,6 +882,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
+            case let .clientCertificateConfiguration(userId):
+                key = "clientCertificateConfiguration_\(userId)"
+            case .globalClientCertificateConfiguration:
+                key = "globalClientCertificateConfiguration"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
@@ -1094,6 +1127,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .serverConfig(userId: userId))
     }
 
+    func clientCertificateConfiguration(userId: String) -> ClientCertificateConfiguration? {
+        fetch(for: .clientCertificateConfiguration(userId: userId))
+    }
+
+    func globalClientCertificateConfiguration() -> ClientCertificateConfiguration? {
+        fetch(for: .globalClientCertificateConfiguration)
+    }
+
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
         store(autofillSetup, for: .accountSetupAutofill(userId: userId))
     }
@@ -1192,6 +1233,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
         store(config, for: .serverConfig(userId: userId))
+    }
+
+    func setClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration, userId: String) {
+        store(configuration, for: .clientCertificateConfiguration(userId: userId))
+    }
+
+    func setGlobalClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration) {
+        store(configuration, for: .globalClientCertificateConfiguration)
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
