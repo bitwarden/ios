@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AddEditItemView
@@ -263,7 +264,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Empty Add Edit State")
@@ -284,7 +285,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Auth Key")

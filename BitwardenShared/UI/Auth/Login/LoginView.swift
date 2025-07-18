@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginView
@@ -21,7 +22,7 @@ struct LoginView: View {
             loggedInAs
         }
         .scrollView()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -117,14 +118,14 @@ struct LoginView: View {
                 store.state.serverURLString
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .multilineTextAlignment(.center)
 
             Button(Localizations.notYou) {
                 store.send(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouLabel")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .styleGuide(.footnote)

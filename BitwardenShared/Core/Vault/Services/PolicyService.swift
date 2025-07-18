@@ -20,16 +20,22 @@ protocol PolicyService: AnyObject {
     ///
     func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
 
+    /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
+    /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
+    ///
+    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions?
+
     /// Get all active restricted item types policy organization ids that apply to the active user.
     ///
     /// - Returns: Active policy organization ids that apply to the user.
     ///
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String]
 
-    /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
-    /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
+    /// Get the restricted types based on the organization's policies.
     ///
-    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions?
+    /// - Returns: An array of restricted `CipherType`s.
+    ///
+    func getRestrictedItemCipherTypes() async -> [CipherType]
 
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
@@ -61,6 +67,9 @@ protocol PolicyService: AnyObject {
 actor DefaultPolicyService: PolicyService {
     // MARK: Properties
 
+    /// The service to get server-specified configuration.
+    let configService: ConfigService
+
     /// The data store for managing the persisted policies for the user.
     let policyDataStore: PolicyDataStore
 
@@ -78,15 +87,18 @@ actor DefaultPolicyService: PolicyService {
     /// Initialize a `DefaultPolicyService`.
     ///
     /// - Parameters:
+    ///   - configService: The service to get server-specified configuration.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        configService: ConfigService,
         organizationService: OrganizationService,
         policyDataStore: PolicyDataStore,
         stateService: StateService
     ) {
+        self.configService = configService
         self.organizationService = organizationService
         self.policyDataStore = policyDataStore
         self.stateService = stateService
@@ -266,12 +278,6 @@ extension DefaultPolicyService {
         return (timeoutAction, timeoutValue)
     }
 
-    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
-        await policiesApplyingToUser(.restrictItemTypes, filter: nil).map { policy in
-            policy.organizationId
-        }
-    }
-
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         let policies = await policiesApplyingToUser(.masterPassword) { $0.data != nil }
         guard !policies.isEmpty else { return nil }
@@ -327,6 +333,21 @@ extension DefaultPolicyService {
             requireSpecial: requireSpecial,
             enforceOnLogin: enforceOnLogin
         )
+    }
+
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
+        await policiesApplyingToUser(.restrictItemTypes, filter: nil).map { policy in
+            policy.organizationId
+        }
+    }
+
+    func getRestrictedItemCipherTypes() async -> [CipherType] {
+        let restrictedTypesOrgIds = await getOrganizationIdsForRestricItemTypesPolicy()
+        guard !restrictedTypesOrgIds.isEmpty else {
+            return []
+        }
+
+        return [.card]
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

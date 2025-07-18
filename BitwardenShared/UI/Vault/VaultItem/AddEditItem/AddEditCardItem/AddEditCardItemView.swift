@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AddEditCardItemView
@@ -130,7 +131,7 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Empty Add Edit State")
@@ -155,7 +156,7 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden Add Edit State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Hidden Add Edit State")
@@ -182,7 +183,7 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Visible Add Edit State")

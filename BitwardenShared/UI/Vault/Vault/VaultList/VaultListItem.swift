@@ -29,6 +29,11 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         case totp(name: String, totpModel: VaultListTOTP)
     }
 
+    // MARK: Static properties
+
+    /// The default sort descriptor to use to order `VaultListItem`s.
+    static let defaultSortDescriptor = SortDescriptorWrapper<VaultListItem>(\.sortValue, comparator: .localizedStandard)
+
     // MARK: Properties
 
     /// The identifier for the item.
@@ -39,11 +44,16 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
 }
 
 extension VaultListItem {
-    /// The name of the cipher for TOTP item types, otherwise ""
-    ///     Used to sort the TOTP code items after a refresh.
-    var name: String {
-        guard case let .totp(name, model) = itemType else { return "" }
-        return name + (model.cipherListView.type.loginListView?.username ?? "") + "\(model.id)"
+    /// What's used to sort `VaultListItem`s depending on its item type.
+    var sortValue: String {
+        return switch itemType {
+        case let .cipher(cipherListView, _):
+            cipherListView.name
+        case .group:
+            ""
+        case let .totp(name, model):
+            name + (model.cipherListView.type.loginListView?.username ?? "") + "\(model.id)"
+        }
     }
 }
 

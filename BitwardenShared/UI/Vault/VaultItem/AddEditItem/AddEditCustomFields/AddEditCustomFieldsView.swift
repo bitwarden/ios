@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -89,7 +90,7 @@ struct AddEditCustomFieldsView: View {
                             Text(field.linkedIdType?.localizedName ?? "")
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .styleGuide(.body)
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         }
                     } accessoryContent: {
                         menuOptions(index: index)
@@ -126,7 +127,7 @@ struct AddEditCustomFieldsView: View {
             Group {
                 if isInFieldLabel {
                     Asset.Images.cog16.swiftUIImage
-                        .imageStyle(.accessoryIcon16(color: Asset.Colors.textInteraction.swiftUIColor))
+                        .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.textInteraction.swiftUIColor))
                 } else {
                     Asset.Images.cog24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
@@ -175,7 +176,7 @@ struct AddEditCustomFieldsView_Previews: PreviewProvider {
         )
         .padding(16)
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
     }

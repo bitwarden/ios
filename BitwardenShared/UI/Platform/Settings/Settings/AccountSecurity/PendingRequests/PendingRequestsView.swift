@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PendingRequestsView
@@ -72,7 +73,7 @@ struct PendingRequestsView: View {
 
             Text(Localizations.noPendingRequests)
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -103,14 +104,14 @@ struct PendingRequestsView: View {
                 VStack(spacing: 0) {
                     Text(Localizations.fingerprintPhrase)
                         .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintValueLabel")
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
-                        .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintPhraseValue")
@@ -118,14 +119,14 @@ struct PendingRequestsView: View {
                     HStack {
                         Text(pendingRequest.requestDeviceType)
                             .styleGuide(.footnote)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .accessibilityIdentifier("DeviceTypeValueLabel")
 
                         Spacer()
 
                         Text(pendingRequest.creationDate.formatted(.dateTime))
                             .styleGuide(.footnote)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     }
                     .padding(.top, 4)
                 }
@@ -137,7 +138,7 @@ struct PendingRequestsView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("LoginRequestCell")
     }
 }

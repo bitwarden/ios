@@ -1,6 +1,7 @@
 // swiftlint:disable file_length
 
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -42,7 +43,7 @@ private struct SearchableVaultListView: View {
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(
             store.binding(
                 get: \.toast,
@@ -152,7 +153,7 @@ private struct SearchableVaultListView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -230,7 +231,7 @@ private struct SearchableVaultListView: View {
     private func errorViewWithRetry(errorMessage: String) -> some View {
         VStack(spacing: 24) {
             Text(errorMessage)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 12)

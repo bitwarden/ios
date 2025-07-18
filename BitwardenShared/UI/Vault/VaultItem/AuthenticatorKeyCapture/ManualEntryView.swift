@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ManualEntryView
@@ -40,7 +41,7 @@ struct ManualEntryView: View {
                 Text(Localizations.onceTheKeyIsSuccessfullyEntered)
                     .styleGuide(.body)
             }
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 12)
 
@@ -56,7 +57,7 @@ struct ManualEntryView: View {
             footerButtonContainer
         }
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .padding(.top, 12)
@@ -70,13 +71,13 @@ struct ManualEntryView: View {
             VStack(alignment: .center, spacing: 0.0, content: {
                 Text(Localizations.cannotAddAuthenticatorKey)
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                 AsyncButton {
                     await store.perform(.scanCodePressed)
                 } label: {
                     Text(Localizations.scanQRCode)
-                        .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                         .styleGuide(.callout)
                 }
                 .buttonStyle(InlineButtonStyle())

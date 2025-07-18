@@ -123,48 +123,20 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertNil(result)
     }
 
-    /// 'isPasswordManagerSyncActive` should return `false` when both the
-    /// `enablePasswordManagerSync` feature flag is disabled and the
-    /// `AuthenticatorBridgeItemService.syncOn` is `false`.
-    @MainActor
-    func test_isPasswordManagerSyncActive_bothOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        sharedItemService.syncOn = false
-
-        let syncActive = await subject.isPasswordManagerSyncActive()
-        XCTAssertFalse(syncActive)
-    }
-
-    /// 'isPasswordManagerSyncActive` should return `false` when the
-    /// `enablePasswordManagerSync` feature flag is disabled even if the
-    /// `AuthenticatorBridgeItemService.syncOn` is `true`.
-    @MainActor
-    func test_isPasswordManagerSyncActive_featureFlagDisabled() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        sharedItemService.syncOn = true
-
-        let syncActive = await subject.isPasswordManagerSyncActive()
-        XCTAssertFalse(syncActive)
-    }
-
-    /// 'isPasswordManagerSyncActive` should return `false` when the
-    /// `enablePasswordManagerSync` feature flag is enabled but the
+    /// `isPasswordManagerSyncActive` should return `false` when
     /// `AuthenticatorBridgeItemService.syncOn` is `false`.
     @MainActor
     func test_isPasswordManagerSyncActive_syncOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = false
 
         let syncActive = await subject.isPasswordManagerSyncActive()
         XCTAssertFalse(syncActive)
     }
 
-    /// 'isPasswordManagerSyncActive` should return `true` when the
-    /// `enablePasswordManagerSync` feature flag is enabled and the
+    /// `isPasswordManagerSyncActive` should return `true` when
     /// `AuthenticatorBridgeItemService.syncOn` is `true`.
     @MainActor
     func test_isPasswordManagerSyncActive_success() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
 
         let syncActive = await subject.isPasswordManagerSyncActive()
@@ -304,7 +276,6 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     /// `itemListPublisher()` returns a publisher for the items.
     @MainActor
     func test_itemListPublisher() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(id: "2", name: "Two"),
@@ -341,12 +312,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section (when the feature flag not enabled)
+    /// `itemListPublisher()` returns a favorites section.
     @MainActor
     func test_itemListPublisher_favorites() async throws {
-        sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
-        sharedItemService.syncOn = true
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
@@ -399,7 +367,6 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     /// The error is logged.
     @MainActor
     func test_itemListPublisher_sharedItemsError() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
@@ -440,7 +407,6 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     /// when the sync process if throwing an error.
     @MainActor
     func test_itemListPublisher_syncError() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
@@ -475,72 +441,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section, but not synced items
-    /// when the feature flag is false.
-    @MainActor
-    func test_itemListPublisher_syncFeatureFlagOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
-        sharedItemService.syncOn = true
-        let items = [
-            AuthenticatorItem.fixture(id: "1", name: "One"),
-            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
-        ]
-
-        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
-                                                                 accountEmail: "shared@example.com",
-                                                                 totpKey: "totpKey")
-        sharedItemService.storedItems = ["userId": [sharedItem]]
-
-        let unorganizedItem = ItemListItem.fixture(
-            id: items[0].id,
-            name: items[0].name,
-            totp: ItemListTotpItem.fixture(
-                itemView: AuthenticatorItemView(authenticatorItem: items[0]),
-                totpCode: TOTPCodeModel(
-                    code: "123456",
-                    codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
-        )
-        let favoritedItem = ItemListItem.fixture(
-            id: items[1].id,
-            name: items[1].name,
-            totp: ItemListTotpItem.fixture(
-                itemView: AuthenticatorItemView(authenticatorItem: items[1]),
-                totpCode: TOTPCodeModel(
-                    code: "123456",
-                    codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
-        )
-
-        authItemService.authenticatorItemsSubject.send(items)
-        sharedItemService.sharedItemsSubject.send([sharedItem])
-
-        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        XCTAssertEqual(
-            sections,
-            [
-                ItemListSection(id: "Favorites",
-                                items: [favoritedItem],
-                                name: Localizations.favorites),
-                ItemListSection(id: "Unorganized",
-                                items: [unorganizedItem],
-                                name: ""),
-            ]
-        )
-    }
-
-    /// `itemListPublisher()` returns a favorites section as before, when the feature flag is enabled, but
-    /// the user has not yet enabled sync.
+    /// `itemListPublisher()` returns a favorites section when the user has not yet enabled sync.
     @MainActor
     func test_itemListPublisher_syncOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
         sharedItemService.syncOn = false
         let items = [
@@ -591,12 +494,11 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
-    /// feature flag is enabled and the user has turned on sync.
+    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account
+    /// when the user has turned on sync.
     @MainActor
     func test_itemListPublisher_syncOn() async throws {
         application.canOpenUrlResponse = true
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
@@ -636,11 +538,10 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(sharedItemService.storedItems, ["userId": [sharedItem]])
     }
 
-    /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
-    /// the feature flag is enabled and the user has turned on Sync for multiple accounts.
+    /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list
+    /// when the user has turned on Sync for multiple accounts.
     @MainActor
     func test_itemListPublisher_withMultipleAccountSync() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let fullItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
                                                                accountEmail: "shared@example.com",
@@ -693,7 +594,6 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_itemListPublisher_bwpmUninstalled() async throws {
         application.canOpenUrlResponse = false
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),

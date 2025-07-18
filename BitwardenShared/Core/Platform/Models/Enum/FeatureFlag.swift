@@ -21,17 +21,11 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// This flag introduces a new flow for account creation
     static let emailVerification = FeatureFlag(rawValue: "email-verification")
 
-    /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    static let enableAuthenticatorSync = FeatureFlag(rawValue: "enable-pm-bwa-sync")
-
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(
         rawValue: "enableCipherKeyEncryption",
         isRemotelyConfigured: false
     )
-
-    /// A feature flag for the flight recorder, which can be enabled to collect app logs.
-    static let flightRecorder = FeatureFlag(rawValue: "enable-pm-flight-recorder")
 
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
@@ -46,9 +40,6 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// A feature flag to enable additional error reporting.
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
-
-    /// A feature flag for the pre-login settings.
-    static let preLoginSettings = FeatureFlag(rawValue: "enable-pm-prelogin-settings")
 
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
@@ -70,13 +61,10 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cxpImportMobile,
             .cipherKeyEncryption,
             .emailVerification,
-            .enableAuthenticatorSync,
             .enableCipherKeyEncryption,
-            .flightRecorder,
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
-            .preLoginSettings,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,

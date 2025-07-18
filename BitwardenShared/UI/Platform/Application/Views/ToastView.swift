@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - Toast
@@ -83,9 +84,9 @@ struct ToastView: View {
             .id(toast.id)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textReversed.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Asset.Colors.backgroundAlert.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundAlert.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 4)
@@ -143,7 +144,7 @@ extension View {
 
 #Preview("Toast Overlay") {
     NavigationView {
-        Asset.Colors.backgroundSecondary.swiftUIColor
+        SharedAsset.Colors.backgroundSecondary.swiftUIColor
             .toast(.constant(Toast(title: "Taos, NM!")))
     }
 }

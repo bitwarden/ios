@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExtensionActivationView
@@ -63,11 +64,11 @@ struct ExtensionActivationView: View {
         VStack(spacing: 64) {
             VStack(spacing: 20) {
                 Text(store.state.title)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.title3)
 
                 Text(store.state.message)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
             }
             .multilineTextAlignment(.center)
@@ -91,7 +92,7 @@ struct ExtensionActivationView: View {
                 .padding(16)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Asset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
+                        .strokeBorder(SharedAsset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
                 }
         case .autofillExtension:
             Image(decorative: Asset.Images.check24)
