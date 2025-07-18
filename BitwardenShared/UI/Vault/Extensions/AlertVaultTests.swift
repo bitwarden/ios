@@ -4,15 +4,30 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase {
-    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that one or more items in
-    /// their vault were unable to be decrypted.
+    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
+    /// vault was unable to be decrypted.
     func test_cipherDecryptionFailure() async throws {
-        let subject = Alert.cipherDecryptionFailure(cipherId: "123abc")
+        let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc"])
 
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
             Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc"
+        )
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
+
+    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that multiple items in
+    /// their vault were unable to be decrypted.
+    func test_cipherDecryptionFailure_multipleIds() async throws {
+        let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc", "789xyz"])
+
+        XCTAssertEqual(subject.title, Localizations.decryptionError)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc\n789xyz"
         )
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)
