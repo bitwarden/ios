@@ -13,6 +13,13 @@ protocol OrganizationService {
     ///
     func fetchAllOrganizations() async throws -> [Organization]
 
+    /// Fetches the organizations for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the organizations.
+    /// - Returns: The organizations for a user.
+    ///
+    func fetchAllOrganizations(userId: String) async throws -> [Organization]
+
     /// Initializes the SDK's crypto for any organizations the users is a member of, using the
     /// organizations already loaded into the data store.
     ///
@@ -84,7 +91,11 @@ class DefaultOrganizationService: OrganizationService {
 extension DefaultOrganizationService {
     func fetchAllOrganizations() async throws -> [Organization] {
         let userId = try await stateService.getActiveAccountId()
-        return try await organizationDataStore.fetchAllOrganizations(userId: userId)
+        return try await fetchAllOrganizations(userId: userId)
+    }
+
+    func fetchAllOrganizations(userId: String) async throws -> [Organization] {
+        try await organizationDataStore.fetchAllOrganizations(userId: userId)
     }
 
     func initializeOrganizationCrypto() async throws {
