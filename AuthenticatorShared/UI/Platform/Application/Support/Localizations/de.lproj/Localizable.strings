@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Benötigst du Hilfe? Besuch unser Hilfe-Zentrum für Unterstützung.";
 "UnexpectedDataFormat" = "Unerwartetes Datenformat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Das angegebene Datenformat entspricht nicht den Erwartungen. Bitte überprüfe deine Datei und stelle sicher, dass die korrekten Datentypen verwendet werden.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Diese Funktion ist für selbst gehostete Benutzer noch nicht verfügbar. [Mehr erfahren](%1$@)";
+"LearnMoreLink" = "[Mehr erfahren](%1$@)";

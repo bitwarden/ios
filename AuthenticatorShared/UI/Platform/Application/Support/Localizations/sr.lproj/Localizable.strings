@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Треба ли помоћ? Посетите наш центар за помоћ за упутства.";
 "UnexpectedDataFormat" = "Неочекивани формат података";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Наведени формат података не одговара очекиваном. Проверите своју датотеку и уверите се да се користе исправни типови података.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";
