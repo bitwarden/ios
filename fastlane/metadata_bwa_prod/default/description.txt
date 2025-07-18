@@ -1,0 +1,12 @@
+New from Bitwarden, provider of the password manager trusted by millions, Bitwarden Authenticator generates verification codes for two-factor authentication, ensuring your identity is verified when you log into accounts. Using industry-standards, Bitwarden Authenticator supports any website or application that uses TOTP.
+ 
+ADD AN EXTRA LAYER OF PROTECTION
+Generate verification codes to ensure your identity is verified, keeping your sensitive data out of reach of imposters.
+
+UNIVERSAL COMPATIBILITY
+Bitwarden Authenticator uses industry standard methods for verification code generation, so it will work with any website or application that utilizes time-based one-time passwords.
+
+EASY TO USE
+A simple, intuitive design and straightforward interface makes it easy to start incorporating authentication into your digital life 
+
+Bitwarden empowers organizations to secure passwords, developer secrets, and passkeys. Visit Bitwarden.com to learn more about Bitwarden Password Manager, Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
