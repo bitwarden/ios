@@ -35,6 +35,10 @@ final class VaultListProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
+    /// Whether the cipher decryption failure alert was shown to the user, if the vault has any
+    /// ciphers which failed to decrypt.
+    private(set) var hasShownCipherDecryptionFailureAlert = false
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -248,6 +252,17 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
+    /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
+    /// hasn't been shown yet, notify the user that a cipher(s) failed to decrypt.
+    ///
+    /// - Parameter cipherIds: The list of identifiers for ciphers which failed to decrypt.
+    ///
+    private func handleCipherDecryptionFailures(cipherIds: [Uuid]) {
+        guard !cipherIds.isEmpty, !hasShownCipherDecryptionFailureAlert else { return }
+        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds))
+        hasShownCipherDecryptionFailureAlert = true
+    }
+
     /// Handles the primary action for when a `VaultListItem` is tapped in the list.
     ///
     /// - Parameter item: The `VaultListItem` that was tapped.
@@ -255,8 +270,8 @@ extension VaultListProcessor {
     private func handleItemTapped(_ item: VaultListItem) {
         switch item.itemType {
         case let .cipher(cipherListView, _):
-            if cipherListView.isDecryptionFailure {
-                coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id) { stringToCopy in
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
                     self.services.pasteboardService.copy(stringToCopy)
                 })
             } else {
@@ -507,6 +522,8 @@ extension VaultListProcessor {
                     await services.stateService.setLearnNewLoginActionCardStatus(.complete)
                     await services.stateService.setLearnGeneratorActionCardStatus(.complete)
                 }
+                // Alert the user of any cipher decryption failures.
+                handleCipherDecryptionFailures(cipherIds: vaultList.cipherDecryptionFailureIds)
             }
         } catch {
             services.errorReporter.log(error: error)

@@ -883,6 +883,37 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
     }
 
+    /// `perform(_:)` with `.streamVaultList` displays an alert if the vault has any cipher
+    /// decryption failures.
+    @MainActor
+    func test_perform_streamVaultList_cipherDecryptionFailure() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.vaultListSubject.send(
+            VaultListData(cipherDecryptionFailureIds: ["1", "2"], sections: [])
+        )
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown.last, .cipherDecryptionFailure(cipherIds: ["1", "2"]))
+        XCTAssertTrue(subject.hasShownCipherDecryptionFailureAlert)
+
+        // As more data is published, the alert isn't shown again.
+        coordinator.alertShown.removeAll()
+        vaultRepository.vaultListSubject.send(
+            VaultListData(
+                cipherDecryptionFailureIds: ["1", "2"],
+                sections: [VaultListSection(id: "", items: [.fixture()], name: "")]
+            )
+        )
+        try await waitForAsync { self.subject.state.loadingState.data?.isEmpty == false }
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.streamVaultList` dismisses the coach marks if the vault contains any
     /// login items.
     @MainActor
@@ -1382,7 +1413,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.itemPressed(item: item))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
         try await alert.tapAction(title: Localizations.copy)
         XCTAssertEqual(pasteboardService.copiedString, "1")
