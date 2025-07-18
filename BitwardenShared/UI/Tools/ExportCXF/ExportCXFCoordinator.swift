@@ -80,7 +80,8 @@ extension ExportCXFCoordinator: HasErrorAlertServices {
 // MARK: - ExportCXFProcessorDelegate
 
 extension ExportCXFCoordinator: ExportCXFProcessorDelegate {
-    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor {
+    @MainActor
+    func presentationAnchorForASCredentialExportManager() async -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }

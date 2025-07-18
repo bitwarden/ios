@@ -15,8 +15,8 @@ protocol ExportCXFCiphersRepository {
     /// Export the credentials using the Credential Exchange flow.
     ///
     /// - Parameter data: Data to export.
-    @available(iOS 18.2, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws
+    @available(iOS 26.0, *)
+    func exportCredentials(data: ASImportableAccount, presentationAnchor: () async -> ASPresentationAnchor) async throws
     #endif
 
     /// Gets all ciphers to export in Credential Exchange flow.
@@ -28,7 +28,7 @@ protocol ExportCXFCiphersRepository {
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     ///
     /// - Returns: An `ASImportableAccount`
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount
     #endif
 }
@@ -93,10 +93,24 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     #if SUPPORTS_CXP
 
-    @available(iOS 18.2, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
-        try await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
-            .exportCredentials(ASExportedCredentialData(accounts: [data]))
+    @available(iOS 26.0, *)
+    func exportCredentials(
+        data: ASImportableAccount,
+        presentationAnchor: () async -> ASPresentationAnchor
+    ) async throws {
+        let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
+
+        let options = try await manager.requestExport(for: nil)
+
+        try await manager.exportCredentials(
+            ASExportedCredentialData(
+                accounts: [data],
+                formatVersion: options.formatVersion,
+                exporterRelyingPartyIdentifier: Bundle.main.appIdentifier,
+                exporterDisplayName: "Bitwarden",
+                timestamp: Date.now
+            )
+        )
     }
 
     #endif
@@ -108,7 +122,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     #if SUPPORTS_CXP
 
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount {
         let ciphers = try await getAllCiphersToExportCXF()
 
