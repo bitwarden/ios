@@ -173,6 +173,7 @@ targets:
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -382,6 +383,7 @@ targets:
       - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen

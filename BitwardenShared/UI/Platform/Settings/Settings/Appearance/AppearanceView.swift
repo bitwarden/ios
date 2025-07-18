@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AppearanceView
@@ -40,7 +41,7 @@ struct AppearanceView: View {
             ) {
                 Text(store.state.currentLanguage.title)
                     .styleGuide(.body)
-                    .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
                     .multilineTextAlignment(.leading)
             } accessoryContent: {
                 Asset.Images.chevronDown24.swiftUIImage

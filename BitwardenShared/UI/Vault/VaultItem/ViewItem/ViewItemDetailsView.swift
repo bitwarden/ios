@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -71,7 +72,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 ? Asset.Images.checkSquare16.swiftUIImage
                                 : Asset.Images.square16.swiftUIImage
                             image
-                                .imageStyle(.accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor))
+                                .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.textSecondary.swiftUIColor))
 
                             Text(customField.name ?? "")
                                 .styleGuide(.body)
@@ -79,7 +80,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     } else {
                         BitwardenField(title: customField.name) {
@@ -100,17 +101,17 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 // field's title is positioned correctly.
                                 Text(customField.value ?? "")
                                     .textSelection(.enabled)
-                                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                                     .styleGuide(.body)
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
                                         Asset.Images.link16.swiftUIImage
                                             .imageStyle(
-                                                .accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor)
+                                                .accessoryIcon16(color: SharedAsset.Colors.textSecondary.swiftUIColor)
                                             )
                                         Text(linkedIdType.localizedName)
-                                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                                             .styleGuide(.body)
                                     }
                                 }
@@ -236,11 +237,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Image(decorative: placeholderIconAsset)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Asset.Colors.illustrationOutline.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.illustrationOutline.swiftUIColor)
                     .accessibilityHidden(true)
                     .imageStyle(.viewIcon(size: 24))
                     .withCircularBackground(
-                        color: Asset.Colors.illustrationBgPrimary.swiftUIColor,
+                        color: SharedAsset.Colors.illustrationBgPrimary.swiftUIColor,
                         width: 36,
                         height: 36
                     )
@@ -252,7 +253,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             Text(store.state.name)
                 .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .multilineTextAlignment(.leading)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier(store.state.name)
                 .accessibilityLabel(Localizations.itemNameX(store.state.name))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -261,7 +262,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ? Asset.Images.starFilled24.swiftUIImage
                 : Asset.Images.star24.swiftUIImage
             image
-                .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.favorite)
                 .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
                 .buttonStyle(.accessory)
@@ -375,9 +376,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             store.send(.passwordHistoryPressed)
                         } label: {
                             Text("\(passwordHistoryCount)")
-                                .underline(color: Asset.Colors.textInteraction.swiftUIColor)
+                                .underline(color: SharedAsset.Colors.textInteraction.swiftUIColor)
                         }
-                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                         .id("passwordHistoryButton")
                     }
                     .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
@@ -387,7 +388,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
         .styleGuide(.subheadline)
         .multilineTextAlignment(.leading)
-        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
         .padding(.leading, 12)
     }
 
@@ -442,7 +443,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             HStack {
                 Text(attachment.fileName ?? "")
                     .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .lineLimit(1)
 
                 Spacer()
@@ -450,7 +451,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 if let sizeName = attachment.sizeName {
                     Text(sizeName)
                         .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .lineLimit(1)
                 }
 
@@ -458,7 +459,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     store.send(.downloadAttachment(attachment))
                 } label: {
                     Image(asset: Asset.Images.download24)
-                        .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
+                        .imageStyle(.rowIcon(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
             }
@@ -477,14 +478,14 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         HStack(alignment: .top) {
             Image(decorative: icon)
                 .resizable()
-                .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .scaledToFit()
                 .imageStyle(.accessoryIcon16(scaleWithFont: true))
                 .padding(.top, paddingTopBelongingViewImage)
 
             Text(name)
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
         .accessibilityElement(children: .combine)
     }

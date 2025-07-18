@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SecondaryButtonStyle
@@ -26,13 +27,13 @@ struct SecondaryButtonStyle: ButtonStyle {
     /// The border stroke color.
     var borderColor: Color {
         if isDestructive {
-            Asset.Colors.error.swiftUIColor
+            SharedAsset.Colors.error.swiftUIColor
         } else if isReversed {
-            Asset.Colors.buttonOutlinedBorderReversed.swiftUIColor
+            SharedAsset.Colors.buttonOutlinedBorderReversed.swiftUIColor
         } else {
             isEnabled
-                ? Asset.Colors.buttonOutlinedBorder.swiftUIColor
-                : Asset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
+                ? SharedAsset.Colors.buttonOutlinedBorder.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
         }
     }
 
@@ -40,13 +41,13 @@ struct SecondaryButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         if isDestructive {
-            Asset.Colors.error.swiftUIColor
+            SharedAsset.Colors.error.swiftUIColor
         } else if isReversed {
-            Asset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
+            SharedAsset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
         } else {
             isEnabled
-                ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
-                : Asset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+                ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
         }
     }
 
@@ -117,7 +118,7 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
             .buttonStyle(.secondary(isReversed: true))
     }
     .padding()
-    .background(Asset.Colors.backgroundAlert.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundAlert.swiftUIColor)
 }
 
 #Preview("Sizes") {

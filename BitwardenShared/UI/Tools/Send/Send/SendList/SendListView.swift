@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -53,7 +54,7 @@ private struct MainSendListView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
     }
 
     // MARK: Private views
@@ -188,7 +189,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -239,7 +240,7 @@ struct SendListView: View {
                             store.send(.infoButtonPressed)
                         } label: {
                             Image(asset: Asset.Images.questionCircle24, label: Text(Localizations.aboutSend))
-                                .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                         }
                         .frame(minHeight: 44)
                     }

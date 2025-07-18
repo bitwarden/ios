@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AppExtensionView
@@ -112,7 +113,7 @@ struct AppExtensionView: View {
     private var instructionsBody: some View {
         Text(message)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -121,7 +122,7 @@ struct AppExtensionView: View {
     private var instructionsTitle: some View {
         Text(title)
             .styleGuide(.title)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }

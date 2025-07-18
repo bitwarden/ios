@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - StartRegistrationView
@@ -86,7 +87,7 @@ struct StartRegistrationView: View {
                 Image(decorative: Asset.Images.logo)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity, maxHeight: 34)
                     .padding(.horizontal, 12)
 
@@ -122,8 +123,8 @@ struct StartRegistrationView: View {
                 send: StartRegistrationAction.toggleReceiveMarketing
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
@@ -150,8 +151,8 @@ struct StartRegistrationView: View {
     private var termsAndPrivacyText: some View {
         Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
     }

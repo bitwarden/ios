@@ -108,6 +108,7 @@ targets:
       - target: AuthenticatorShared
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -189,10 +190,12 @@ targets:
       - path: AuthenticatorShared/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
-      - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - target: BitwardenKit/Networking
       - package: SwiftProtobuf
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
+      - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
         script: |

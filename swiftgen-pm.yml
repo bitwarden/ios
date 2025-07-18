@@ -15,10 +15,10 @@ strings:
         lookupFunction: UI.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
-    - BitwardenShared/UI/Platform/Application/Support/Colors.xcassets
     - BitwardenShared/UI/Platform/Application/Support/Images.xcassets
   outputs:
     - templateName: swift5
       output: Assets.swift
       params:
+        forceFileNameEnum: true
         publicAccess: true

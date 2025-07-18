@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AboutView
@@ -53,7 +54,7 @@ struct AboutView: View {
     private var copyrightNotice: some View {
         Text(store.state.copyrightText)
             .styleGuide(.caption2)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
@@ -85,7 +86,7 @@ struct AboutView: View {
 
                     if let log = store.state.flightRecorderActiveLog {
                         Text(Localizations.loggingEndsOnDateAtTime(log.formattedEndDate, log.formattedEndTime))
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .styleGuide(.subheadline)
                     }
                 }

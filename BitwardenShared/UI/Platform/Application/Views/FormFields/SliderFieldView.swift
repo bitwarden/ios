@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SliderField
@@ -60,7 +61,7 @@ struct SliderFieldView<State>: View {
         HStack(alignment: .center, spacing: 16) {
             Text(field.title)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityHidden(true)
 
             BitwardenSlider(
@@ -88,7 +89,7 @@ struct SliderFieldView<State>: View {
 
             Text(String(Int(field.value)))
                 .styleGuide(.body, monoSpacedDigit: true)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
                 .accessibilityHidden(true)
                 .frame(minWidth: minTextWidth)

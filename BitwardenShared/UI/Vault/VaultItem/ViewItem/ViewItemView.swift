@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -50,7 +51,7 @@ struct ViewItemView: View {
                 details(for: viewState)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(
