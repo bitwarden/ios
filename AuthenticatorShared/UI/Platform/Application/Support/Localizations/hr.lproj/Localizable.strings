@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Trebaš pomoć? Za smjernice, posjeti naš centar za pomoć.";
 "UnexpectedDataFormat" = "Neočekivani oblik datoteke";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Navedeni format podataka ne odgovara očekivanom. Provjeri svoju datoteku i osiguraj da se koriste ispravne vrste podataka.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Ova značajka još nije dostupna za korisnike na vlastitom poslužitelju. [Saznaj više] (%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

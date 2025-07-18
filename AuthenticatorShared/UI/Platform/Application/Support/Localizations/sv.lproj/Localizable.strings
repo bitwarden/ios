@@ -66,7 +66,7 @@
 "GenericErrorMessage" = "Vi kunde inte behandla din begäran. Försök igen eller kontakta oss.";
 "VerificationCodes" = "Verifieringskoder";
 "ScanQRCode" = "Skanna QR-kod";
-"CannotScanQRCode" = "Kan inte skanna QR-koden?";
+"CannotScanQRCode" = "Kan du inte skanna QR-koden?";
 "EnterKeyManually" = "Ange nyckel manuellt";
 "Service" = "Tjänst";
 "Language" = "Språk";
@@ -81,7 +81,7 @@
 "ContinueToWebApp" = "Fortsätt till webbapp?";
 "ContinueToPrivacyPolicy" = "Fortsätt till integritetspolicy?";
 "ContinueToAppStore" = "Fortsätt till app store?";
-"PrivacyPolicyDescriptionLong" = "Kolla vår integritetspolicy på bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "Kolla in vår integritetspolicy på bitwarden.com.";
 "AppInfo" = "Appinfo";
 "SelectLanguage" = "Välj språk";
 "Advanced" = "Avancerat";
@@ -130,7 +130,7 @@
 "LocalCodes" = "Lokala koder";
 "AccountsSyncedFromBitwardenApp" = "Konton synkroniserade från Bitwarden-appen";
 "CopyToBitwardenVault" = "Kopiera till Bitwarden-valv";
-"ScanComplete" = "Skanning färdig";
+"ScanComplete" = "Skanningen är färdig";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Spara denna autentiseringsnyckel här eller lägg till den i en inloggning i din Bitwarden-app.";
 "SaveHere" = "Spara här";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Ställ in \"Spara till Bitwarden\" som din standardalternativ?";
@@ -138,8 +138,8 @@
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Du kan uppdatera dina standardalternativ i inställningarna.";
 "YesSetDefault" = "Ja, ställ in som standard";
 "NoAskMe" = "Nej, fråga mig";
-"DefaultSaveOption" = "Standardalternativ";
-"SaveToBitwarden" = "Spara på Bitwarden";
+"DefaultSaveOption" = "Spara alternativ som standard";
+"SaveToBitwarden" = "Spara till Bitwarden";
 "None" = "Ingen";
 "UnableToSyncCodesFromTheBitwardenApp" = "Det går inte att synkronisera koder från Bitwarden-appen. Se till att båda apparna är uppdaterade. Du kan fortfarande komma åt dina befintliga koder i Bitwarden-appen.";
 "FifteenMinutes" = "15 minuter";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Behöver du hjälp? Besök vårt Hjälpcenter för assistans.";
 "UnexpectedDataFormat" = "Oväntat dataformat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Det angivna dataformatet stämmer inte överens med det förväntade. Kontrollera din fil och se till att rätt datatyper används.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Denna funktion är ännu inte tillgänglig för användare med egen hosting. [Läs mer](%1$@)";
+"LearnMoreLink" = "[Läs mer](%1$@)";
