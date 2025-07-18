@@ -170,7 +170,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var iterator = try await subject.cipherPublisher().makeAsyncIterator()
         let publishedCiphers = try await iterator.next()
 
-        XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
+        XCTAssertEqual(publishedCiphers, ciphers.map { CipherListView(cipher: $0) })
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`

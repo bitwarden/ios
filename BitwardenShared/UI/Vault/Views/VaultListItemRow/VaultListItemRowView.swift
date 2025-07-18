@@ -79,7 +79,7 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        if !store.state.isFromExtension {
+                        if !store.state.isFromExtension, !cipherItem.isDecryptionFailure {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {

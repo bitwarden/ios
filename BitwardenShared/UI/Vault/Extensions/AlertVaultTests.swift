@@ -4,6 +4,21 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase {
+    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that one or more items in
+    /// their vault were unable to be decrypted.
+    func test_cipherDecryptionFailure() async throws {
+        let subject = Alert.cipherDecryptionFailure(cipherId: "123abc")
+
+        XCTAssertEqual(subject.title, Localizations.decryptionError)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc"
+        )
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
+
     /// `confirmCloneExcludesFido2Credential(action:)` constructs an alert to confirm whether to
     /// clone the item without the FIDO2 credential.
     func test_confirmCloneExcludesFido2Credential() async throws {

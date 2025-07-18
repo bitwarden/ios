@@ -58,12 +58,17 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
             let end = min(start + batchSize, ciphers.count)
 
             do {
-                let decryptedCiphers = try await clientService.vault().ciphers().decryptList(
+                let decryptResult = try await clientService.vault().ciphers().decryptListWithFailures(
                     ciphers: Array(ciphers[start ..< end])
                 )
 
-                for decryptedCipher in decryptedCiphers {
+                for decryptedCipher in decryptResult.successes {
                     try await onCipher(decryptedCipher)
+                }
+
+                for cipherDecryptFailure in decryptResult.failures {
+                    let cipherListView = CipherListView(cipherDecryptFailure: cipherDecryptFailure)
+                    try await onCipher(cipherListView)
                 }
             } catch {
                 errorReporter.log(error: error)
