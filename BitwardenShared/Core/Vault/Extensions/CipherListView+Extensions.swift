@@ -27,7 +27,7 @@ extension CipherListView {
     init(cipherDecryptFailure cipher: Cipher) {
         let type: CipherListViewType = switch cipher.type {
         case .card:
-            .card(CardListView(brand: cipher.card?.brand))
+            .card(CardListView(brand: nil))
         case .identity:
             .identity
         case .login:
