@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Käyttäjää ei voi poistaa, koska se on ainakin yhden organisaation ainoa omistaja. Poista nämä organisaatiot tai päivitä eri käyttäjä.";
 "APasskeyAlreadyExistsForThisApplication" = "Tälle sovellukselle löytyy jo pääsyavain.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Tällä sovellukselle löytyy jo pääsyavain, mutta sitä ladattaessa tapahtui virhe.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Laitetta ei tunnisteta. Syötä osoitteeseen %1$@ lähetetty kahdeksan numeroinen vahvistuskoodi.";
 "ItemNameRequired" = "Kohteen nimi (pakollinen)";
 "AutofillOptions" = "Automaattitäytön asetukset";
 "WebsiteURI" = "Verkkosivusto (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";

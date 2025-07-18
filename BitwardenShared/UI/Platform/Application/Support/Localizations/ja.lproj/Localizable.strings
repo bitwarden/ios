@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "このアプリにはすでにパスキーが存在します。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "このアプリのパスキーは既に存在しますが、読み込み中にエラーが発生しました。";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "このデバイスは未確認です。本人確認のため、 %1$@ に送信されたメール中の 8 桁の認証コードを入力してください。";
 "ItemNameRequired" = "アイテム名 (必須)";
 "AutofillOptions" = "自動入力のオプション";
 "WebsiteURI" = "ウェブサイト (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";

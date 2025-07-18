@@ -1129,7 +1129,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "לא ניתן למחוק משתמש זה בגלל שהוא הבעלים היחיד של לפחות ארגון אחד. נא למחוק את הארגונים האלה או לשדרג משתמש אחר.";
 "APasskeyAlreadyExistsForThisApplication" = "מפתח גישה כבר קיים עבור יישום זה.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "מפתח גישה כבר קיים עבור יישום זה אבל אירעה שגיאה בעת טעינתו.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "אנחנו לא מזהים את המכשיר הזה. הזן את קוד האימות בן 8 הספרות שנשלח בדוא\"ל אל %1$@.";
 "ItemNameRequired" = "שם פריט (נדרש)";
 "AutofillOptions" = "אפשרויות מילוי אוטומטי";
 "WebsiteURI" = "אתר אינטרנט (URI)";
@@ -1213,3 +1212,4 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
