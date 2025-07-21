@@ -371,8 +371,6 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-        optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
@@ -395,7 +393,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Sourcery
         script: |

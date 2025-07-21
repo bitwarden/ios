@@ -194,6 +194,8 @@ targets:
         INFOPLIST_FILE: BitwardenResources/Info.plist
     sources:
       - path: BitwardenResources
+      - path: BitwardenResources/Generated/Fonts.swift
+        optional: true
       - path: BitwardenResources/Generated/SharedAssets.swift
         optional: true
     preBuildScripts:
@@ -205,6 +207,7 @@ targets:
           mint run swiftgen config run --config "swiftgen-bwr.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
+          - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
   Networking:
     type: framework
