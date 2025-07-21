@@ -4,6 +4,8 @@ fonts:
   outputs:
     templateName: swift5
     output: Fonts.swift
+    params:
+      publicAccess: true
 xcassets:
   inputs:
     - BitwardenResources/Colors.xcassets
