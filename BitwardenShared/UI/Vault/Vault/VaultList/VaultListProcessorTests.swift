@@ -187,11 +187,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    /// In this case sync is flagged as periodic.
     @MainActor
     func test_perform_appeared() async {
         await subject.perform(.appeared)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.appeared` doesn't show an alert or log an error if the request was cancelled.
@@ -498,11 +500,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
-    /// vault is empty.
+    /// vault is empty; in this case sync is not flagged as periodic.
     @MainActor
     func test_perform_refreshVault_emptyVault() async {
         vaultRepository.isVaultEmptyResult = .success(true)
@@ -510,6 +513,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
         XCTAssertEqual(subject.state.loadingState, .data([]))
     }

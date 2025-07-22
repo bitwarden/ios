@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportLoginsSuccessView
@@ -79,17 +80,17 @@ struct ImportLoginsSuccessView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .styleGuide(.body, weight: .bold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                 if let subtitle {
                     Text(subtitle)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
             }
         }

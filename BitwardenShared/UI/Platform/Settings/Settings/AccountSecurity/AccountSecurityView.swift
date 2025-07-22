@@ -210,18 +210,16 @@ struct AccountSecurityView: View {
 
     /// The authenticator sync section.
     @ViewBuilder private var authenticatorSyncSection: some View {
-        if store.state.shouldShowAuthenticatorSyncSection {
-            SectionView(Localizations.authenticatorSync) {
-                BitwardenToggle(
-                    Localizations.allowAuthenticatorSyncing,
-                    isOn: store.bindingAsync(
-                        get: \.isAuthenticatorSyncEnabled,
-                        perform: AccountSecurityEffect.toggleSyncWithAuthenticator
-                    ),
-                    accessibilityIdentifier: Localizations.allowAuthenticatorSyncing
-                )
-                .contentBlock()
-            }
+        SectionView(Localizations.authenticatorSync) {
+            BitwardenToggle(
+                Localizations.allowAuthenticatorSyncing,
+                isOn: store.bindingAsync(
+                    get: \.isAuthenticatorSyncEnabled,
+                    perform: AccountSecurityEffect.toggleSyncWithAuthenticator
+                ),
+                accessibilityIdentifier: Localizations.allowAuthenticatorSyncing
+            )
+            .contentBlock()
         }
     }
 

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -142,7 +143,7 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
         )
-        .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
+        .background(Color(asset: SharedAsset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -163,7 +164,7 @@ private struct VaultItemSelectionSearchableView: View {
                     } icon: {
                         Asset.Images.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon16(
-                                color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                                color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true
                             ))
                     }
@@ -211,7 +212,7 @@ private struct VaultItemSelectionSearchableView: View {
                     vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         }
     }
 

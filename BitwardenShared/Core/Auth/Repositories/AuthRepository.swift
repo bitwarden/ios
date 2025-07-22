@@ -236,14 +236,6 @@ protocol AuthRepository: AnyObject {
     ///
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
 
-    /// Unlocks the Vault with the user's previously stored Authenticator Vault Key.
-    ///
-    /// User must have a previously stored Authenticator Vault Key or this method will throw.
-    ///
-    /// - Parameter userId: The account whose vault is being unlocked.
-    ///
-    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws
-
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
@@ -933,11 +925,6 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
-        let authenticatorKey = try await keychainService.getAuthenticatorVaultKey(userId: userId)
-        try await unlockVault(method: .decryptedKey(decryptedUserKey: authenticatorKey), hadUserInteraction: false)
-    }
-
     func unlockVaultWithBiometrics() async throws {
         let decryptedUserKey = try await biometricsRepository.getUserAuthKey()
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
@@ -1103,6 +1090,7 @@ extension DefaultAuthRepository: AuthRepository {
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
                 signingKey: nil,
+                securityState: nil,
                 method: method
             )
         )

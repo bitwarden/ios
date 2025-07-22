@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Kan deze gebruiker niet verwijderen omdat het de enige eigenaar is van ten minste één organisatie. Verwijder deze organisatie(s) of upgrade een andere gebruiker.";
 "APasskeyAlreadyExistsForThisApplication" = "Er bestaat al een passkey voor deze applicatie.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Er bestaat al een passkey voor deze applicatie, maar er is een fout opgetreden tijdens het laden ervan.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We herkennen dit apparaat niet. Voer de 8-cijferige verificatiecode in die gemaild is naar %1$@.";
 "ItemNameRequired" = "Itemnaam (verplicht)";
 "AutofillOptions" = "Instellingen automatisch invullen";
 "WebsiteURI" = "Website (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Loggen eindigt op %1$@ om %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Je moet een bestand bijvoegen voor het opslaan van deze Send";
 "SendUpdated" = "Send bijgewerkt";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren.";

@@ -1,5 +1,4 @@
-// MARK: - AsyncButton
-
+import BitwardenResources
 import SwiftUI
 
 /// A wrapper around SwiftUI's `Button` that used to trigger the region selector Alert
@@ -25,16 +24,16 @@ struct RegionSelector: View {
             HStack(spacing: 4) {
                 Group {
                     Text("\(selectorLabel): ")
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         + Text(regionName).bold()
-                        .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                 }
                 .styleGuide(.footnote)
                 .multilineTextAlignment(.leading)
 
                 Image(decorative: Asset.Images.chevronDown16)
                     .scaledFrame(width: 12, height: 12)
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
         }
         .accessibilityIdentifier("RegionSelectorDropdown")

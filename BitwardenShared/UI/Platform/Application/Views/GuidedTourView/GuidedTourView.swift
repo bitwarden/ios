@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A view that displays dimmed background with a spotlight and a coach-mark card.
@@ -120,7 +121,7 @@ struct GuidedTourView: View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 Text(store.state.progressText)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.caption1, weight: .bold)
                     .dynamicTypeSize(...maxDynamicTypeSize)
                     .smoothTransition(
@@ -134,13 +135,13 @@ struct GuidedTourView: View {
                     store.send(.dismissTapped)
                 } label: {
                     Image(asset: Asset.Images.close16, label: Text(Localizations.dismiss))
-                        .imageStyle(.accessoryIcon16(color: Asset.Colors.iconPrimary.swiftUIColor))
+                        .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                 }
             }
 
             Text(store.state.currentStepState.title)
                 .dynamicTypeSize(...maxDynamicTypeSize)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
                 .smoothTransition(
                     animation: .smooth(duration: animationDuration),
@@ -150,7 +151,7 @@ struct GuidedTourView: View {
             cardNavigationButtons()
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -164,7 +165,7 @@ struct GuidedTourView: View {
                 } label: {
                     Text(Localizations.back)
                         .styleGuide(.callout, weight: .semibold)
-                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .dynamicTypeSize(...maxDynamicTypeSize)
                 }
@@ -188,7 +189,7 @@ struct GuidedTourView: View {
                     store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done
                 )
                 .styleGuide(.callout, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .dynamicTypeSize(...maxDynamicTypeSize)
             }
@@ -434,7 +435,7 @@ struct GuidedTourView_Previews: PreviewProvider {
                 // disable the default FullScreenCover modal animation
                 transaction.disablesAnimations = true
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Circle")
@@ -459,7 +460,7 @@ struct GuidedTourView_Previews: PreviewProvider {
                 // disable the default FullScreenCover modal animation
                 transaction.disablesAnimations = true
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Rectangle")

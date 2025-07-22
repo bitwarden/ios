@@ -105,6 +105,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(sendRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(sendRepository.fetchSyncForceSync, false)
     }
 

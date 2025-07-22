@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - StepperField
@@ -50,7 +51,7 @@ struct StepperFieldView<State>: View {
         ) {
             Text(field.title)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
         .accessibilityIdentifier(field.accessibilityId ?? field.id)
     }

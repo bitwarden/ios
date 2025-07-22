@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "بحاجة إلى مساعدة؟ زر مركز المساعدة للحصول على التوجيه.";
 "UnexpectedDataFormat" = "تنسيق غير متوقع للبيانات";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "تنسيق البيانات المقدم لا يتطابق مع ما هو متوقع. الرجاء التحقق من الملف الخاص بك والتأكد من استخدام أنواع البيانات الصحيحة.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

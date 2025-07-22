@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultUnlockSetupView
@@ -28,7 +29,7 @@ struct VaultUnlockSetupView: View {
                         perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) }
                     )) {
                         Text(unlockMethod.title)
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     }
                     .accessibilityIdentifier(unlockMethod.accessibilityIdentifier)
                     .toggleStyle(.bitwarden)

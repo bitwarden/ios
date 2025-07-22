@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A view that allows the user to enter their master password to unlock the vault or logout of the
@@ -82,7 +83,7 @@ struct VaultUnlockView: View {
             }
         }
         .scrollView()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// The Toolbar item for the profile switcher view.
@@ -151,7 +152,7 @@ struct VaultUnlockView: View {
                 footerContent: {
                     Text(footerText)
                         .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
                         .padding(.vertical, 12)
                 }
@@ -180,7 +181,7 @@ struct VaultUnlockView: View {
                 footerContent: {
                     Text(footerText)
                         .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
                         .padding(.vertical, 12)
                 }

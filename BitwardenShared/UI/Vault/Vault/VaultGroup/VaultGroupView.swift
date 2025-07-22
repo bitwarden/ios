@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultGroupView
@@ -33,7 +34,7 @@ struct VaultGroupView: View {
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .task {
                 await store.perform(.appeared)
             }
@@ -76,7 +77,7 @@ struct VaultGroupView: View {
             Text(store.state.noItemsString)
                 .multilineTextAlignment(.center)
                 .styleGuide(.callout)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             if let newItemButtonType = store.state.newItemButtonType {
                 let newItemLabel = Label(
@@ -156,7 +157,7 @@ struct VaultGroupView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }

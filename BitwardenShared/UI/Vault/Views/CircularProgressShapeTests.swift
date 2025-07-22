@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import TestHelpers
@@ -15,14 +16,14 @@ final class CircularProgressShapeTests: BitwardenTestCase {
                 clockwise: true
             )
             .stroke(lineWidth: 3)
-            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.4,
                 clockwise: false
             )
             .stroke(lineWidth: 3)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.1,

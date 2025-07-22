@@ -58,6 +58,7 @@ class MockVaultRepository: VaultRepository {
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncIsPeriodic: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
@@ -215,10 +216,12 @@ class MockVaultRepository: VaultRepository {
 
     func fetchSync(
         forceSync: Bool,
-        filter _: VaultFilterType
+        filter _: VaultFilterType,
+        isPeriodic: Bool
     ) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
         try fetchSyncResult.get()
     }
 

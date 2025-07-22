@@ -231,6 +231,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_refreshed() async {
         await subject.perform(.refresh)
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: BitwardenBadge
@@ -32,7 +33,7 @@ struct BitwardenBadge: View {
     var body: some View {
         Text(badgeValue)
             .styleGuide(.callout, weight: .bold, includeLinePadding: false, includeLineSpacing: false)
-            .foregroundStyle(Asset.Colors.iconBadgeForeground.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.iconBadgeForeground.swiftUIColor)
             .onSizeChanged { textSize = $0 }
             // Add custom horizontal and vertical padding to ensure the frame of the badge is a
             // square. When the view is clipped to a circle, this ensures the frame of the view
@@ -40,7 +41,7 @@ struct BitwardenBadge: View {
             // space in the frame which can affect the layout when the badge is used.
             .padding(.horizontal, (circleDiameter - textSize.width) / 2 + badgePadding)
             .padding(.vertical, (circleDiameter - textSize.height) / 2 + badgePadding)
-            .background(Asset.Colors.iconBadgeBackground.swiftUIColor)
+            .background(SharedAsset.Colors.iconBadgeBackground.swiftUIColor)
             .clipShape(Circle())
     }
 }

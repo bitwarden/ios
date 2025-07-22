@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "无法删除此用户，因为它是至少一个组织的唯一所有者。请删除这些组织或升级其他用户。";
 "APasskeyAlreadyExistsForThisApplication" = "此应用程序已存在一个通行密钥。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此应用程序已存在一个通行密钥，但加载时发生错误。";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "我们无法识别这个设备。请输入发送到 %1$@ 的 8 位数验证码。";
 "ItemNameRequired" = "项目名称（必填）";
 "AutofillOptions" = "自动填充选项";
 "WebsiteURI" = "网站 (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "日志记录结束于 %1$@ %2$@";
 "YouMustAttachAFileToSaveThisSend" = "必须附加一个文件才能保存此 Send";
 "SendUpdated" = "Send 已更新";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。";

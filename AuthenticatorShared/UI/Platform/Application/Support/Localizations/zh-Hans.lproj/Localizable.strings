@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要帮助吗？请访问我们的帮助中心寻求帮助。";
 "UnexpectedDataFormat" = "意外的数据格式";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供的数据格式不符合预期，请检查您的文件并确保使用正确的数据类型。";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

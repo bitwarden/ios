@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportLoginsView
@@ -132,7 +133,7 @@ struct ImportLoginsView: View {
             ))
             .multilineTextAlignment(.center)
             .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
 
             VStack(spacing: 12) {
                 AsyncButton(step == totalSteps ? Localizations.done : Localizations.continue) {
@@ -146,7 +147,7 @@ struct ImportLoginsView: View {
                 .buttonStyle(.secondary())
             }
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()

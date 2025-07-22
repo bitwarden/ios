@@ -21,9 +21,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// This flag introduces a new flow for account creation
     static let emailVerification = FeatureFlag(rawValue: "email-verification")
 
-    /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    static let enableAuthenticatorSync = FeatureFlag(rawValue: "enable-pm-bwa-sync")
-
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(
         rawValue: "enableCipherKeyEncryption",
@@ -64,7 +61,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cxpImportMobile,
             .cipherKeyEncryption,
             .emailVerification,
-            .enableAuthenticatorSync,
             .enableCipherKeyEncryption,
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,

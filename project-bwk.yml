@@ -23,7 +23,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 33a7bb7334aeea402256633cbbffe7fb03501e40
+    revision: ad0761937f454e2785c50a9b8dc9be12f26af830
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -56,6 +56,10 @@ schemes:
       gatherCoverageData: true
       targets:
         - BitwardenKitTests
+  BitwardenResources:
+    build:
+      targets:
+        BitwardenResources: all
   Networking:
     build:
       targets:
@@ -145,6 +149,7 @@ targets:
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
     dependencies:
+      - target: BitwardenResources
       - target: Networking
   BitwardenKitMocks:
     type: framework
@@ -177,6 +182,33 @@ targets:
       - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true
+  BitwardenResources:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenResources-Debug.xcconfig
+      Release: Configs/BitwardenResources-Release.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: BitwardenResources/Info.plist
+    sources:
+      - path: BitwardenResources
+      - path: BitwardenResources/Generated/Fonts.swift
+        optional: true
+      - path: BitwardenResources/Generated/SharedAssets.swift
+        optional: true
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwr.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
+          - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
   Networking:
     type: framework
     platform: iOS
