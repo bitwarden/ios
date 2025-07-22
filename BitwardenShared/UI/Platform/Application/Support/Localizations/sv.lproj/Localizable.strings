@@ -373,8 +373,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "TryAgain" = "Försök igen";
 "YubiKeyInstructionIos" = "För att fortsätta, håll din YubiKey NEO mot baksidan av enheten.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Tillgänglighetstjänsten kan vara bra att använda när appar inte stöder standardtjänsten för autofyll.";
-"DatePasswordUpdated" = "Lösenordet uppdaterades";
-"DateUpdated" = "Uppdaterad";
 "AutofillActivated" = "Automatisk ifyllnad aktiverat!";
 "MustLogInMainAppAutofill" = "Du måste logga in i Bitwarden-appen innan du kan använda automatisk ifyllnad.";
 "AutofillSetup" = "Dina inloggningar är nu enkelt åtkomna direkt från ditt tangentbord när du loggar in i appar och webbplatser.";
@@ -874,7 +872,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden låter dig dela objekt i ditt valv med andra med hjälp av en organisation. Läs mer på webbplatsen bitwarden.com.";
 "RateAppDescriptionLong" = "Hjälp andra att ta reda på om Bitwarden är rätt för dem. Besök appbutiken och lämna en recension nu.";
 "DefaultDarkThemeDescriptionLong" = "Välj vilket tema som ska användas när enheten är i mörkt läge";
-"CreatedXY" = "Skapad %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "För många försök";
 "AccountLoggedOutBiometricExceeded" = "Kontot har loggats ut.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Din organisations behörigheter uppdaterades, vilket kräver att du anger ett huvudlösenord.";
@@ -1212,3 +1210,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "YouMustAttachAFileToSaveThisSend" = "Du måste bifoga en fil för att spara denna sändning";
 "SendUpdated" = "Skicka uppdaterat";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Vi känner inte igen den här enheten. Ange koden som skickats till din e-post för att verifiera din identitet.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";

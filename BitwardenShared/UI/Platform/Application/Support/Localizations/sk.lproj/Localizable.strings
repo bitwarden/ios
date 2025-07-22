@@ -372,8 +372,6 @@
 "TryAgain" = "Skúsiť Znovu";
 "YubiKeyInstructionIos" = "Ak chcete pokračovať, podržte YubiKey NEO na zadnej strane prístroja.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Služba uľahčenia prístupu môže byť užitočná pre aplikácie, ktoré nepodporujú štandardnú službu automatického vypĺňania.";
-"DatePasswordUpdated" = "Heslo bolo aktualizované";
-"DateUpdated" = "Aktualizované";
 "AutofillActivated" = "Automatické vypĺňanie aktivované!";
 "MustLogInMainAppAutofill" = "Pred použitím automatického vypĺňania sa najskôr musíte prihlásiť v hlavnej bitwarden aplikácií.";
 "AutofillSetup" = "Pri prihlasovaní do aplikácií a westránok sú teraz vaše prihlasovacie údaje dostupné priamo z klávesnice.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden vám umožňuje zdieľať vaše položky trezora s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com.";
 "RateAppDescriptionLong" = "Pomôžte ostatným zistiť, či je Bitwarden pre nich vhodný. Navštívte obchod s aplikáciami a pridajte hodnotenie.";
 "DefaultDarkThemeDescriptionLong" = "Vyberte tmavý motív, ktorý sa má použiť, keď sa používa tmavý režim v zariadení";
-"CreatedXY" = "Vytvorené %1$@, %2$@";
+"CreatedX" = "Vytvorené %1$@";
 "TooManyAttempts" = "Príliš veľa pokusov";
 "AccountLoggedOutBiometricExceeded" = "Účet bol odhlásený.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Povolenia vašej organizácie boli aktualizované, čo si vyžaduje nastavenie hlavného hesla.";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "Na uloženie tohto Sendu musíte priložiť súbor";
 "SendUpdated" = "Send bol aktualizovaný";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail.";
+"Created" = "Vytvorené: %1$@";
+"LastEdited" = "Naposledy upravené: %1$@";
+"PasswordLastUpdated" = "Naposledy upravené heslo: %1$@";

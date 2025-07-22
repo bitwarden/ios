@@ -372,8 +372,6 @@
 "TryAgain" = "Попробуйте снова";
 "YubiKeyInstructionIos" = "Для продолжения, удерживайте YubiKey NEO у задней панели устройства.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Служба специальных возможностей может быть полезна в случае, если приложения не поддерживают стандартную службу автозаполнения.";
-"DatePasswordUpdated" = "Пароль обновлен";
-"DateUpdated" = "Обновлено";
 "AutofillActivated" = "Автозаполнение активировано!";
 "MustLogInMainAppAutofill" = "Перед использованием автозаполнения необходимо войти в основное приложение Bitwarden.";
 "AutofillSetup" = "Теперь ваши логины легко доступны прямо с клавиатуры при входе в приложения и на сайты.";
@@ -875,7 +873,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden позволяет предоставлять доступ к элементам вашего хранилища другим пользователям с помощью организации. Более подробную информацию можно найти на сайте bitwarden.com.";
 "RateAppDescriptionLong" = "Помогите другим узнать, подходит ли им Bitwarden. Посетите магазин приложений и оставьте отзыв прямо сейчас.";
 "DefaultDarkThemeDescriptionLong" = "Выберите темную тему для использования при темном режиме устройства";
-"CreatedXY" = "Создано %1$@ в %2$@";
+"CreatedX" = "Создано %1$@";
 "TooManyAttempts" = "Слишком много попыток";
 "AccountLoggedOutBiometricExceeded" = "Аккаунт не авторизован.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Права доступа организации были обновлены, требуется установить мастер-пароль.";
@@ -1213,3 +1211,6 @@
 "YouMustAttachAFileToSaveThisSend" = "Вы должны прикрепить файл, чтобы сохранить эту Send";
 "SendUpdated" = "Send обновлена";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность.";
+"Created" = "Создано: %1$@";
+"LastEdited" = "Последнее редактирование: %1$@";
+"PasswordLastUpdated" = "Последнее обновление пароля: %1$@";

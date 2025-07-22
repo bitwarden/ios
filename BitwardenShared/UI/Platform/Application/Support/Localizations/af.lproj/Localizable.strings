@@ -372,8 +372,6 @@
 "TryAgain" = "Probeer weer";
 "YubiKeyInstructionIos" = "Hou u YubiKey NEO teen die rugkant van die toestel om voort te gaan.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Wagwoord bygewerk";
-"DateUpdated" = "Bygewerk";
 "AutofillActivated" = "Outovul geaktiveer!";
 "MustLogInMainAppAutofill" = "U moet op die hoof-Bitwarden-toep aanteken alvorens u Outovul kan gebruik.";
 "AutofillSetup" = "U aantekeninge is nou maklik bereikbaar vanaf u toetsbord terwyl op toeps en webwerwe aangeteken word.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website.";
 "RateAppDescriptionLong" = "Help others find out if Bitwarden is right for them. Visit the app store and leave a rating now.";
 "DefaultDarkThemeDescriptionLong" = "Choose the dark theme to use when your device’s dark mode is in use";
-"CreatedXY" = "Created %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Too many attempts";
 "AccountLoggedOutBiometricExceeded" = "Account logged out.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";

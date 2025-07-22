@@ -372,8 +372,6 @@
 "TryAgain" = "再試一次";
 "YubiKeyInstructionIos" = "若要繼續，請將您的 YubiKey 靠在裝置的背面。";
 "BitwardenAutofillAccessibilityServiceDescription2" = "當應用程式不支援標準的自動填入服務時，無障礙服務或許能夠幫助到您。";
-"DatePasswordUpdated" = "密碼更新於";
-"DateUpdated" = "更新於";
 "AutofillActivated" = "已啟用自動填入！";
 "MustLogInMainAppAutofill" = "您必須先登入 Bitwarden 應用程式，才可以使用自動填入功能。";
 "AutofillSetup" = "登入應用程式和網站時，您可以透過鍵盤輕鬆存取您的登入資料。";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden 可讓您透過組織與其他人共用您的密碼庫項目。請造訪 bitwarden.com 網站以了解更多資訊。";
 "RateAppDescriptionLong" = "幫助其他人了解 Bitwarden 是否適合他們。立即造訪 App Store 並留下評分。";
 "DefaultDarkThemeDescriptionLong" = "選擇當您的裝置使用深色模式時要使用的深色主題";
-"CreatedXY" = "建立於 %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "嘗試次數過多";
 "AccountLoggedOutBiometricExceeded" = "帳戶已登出。";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "您的組織的權限已更新，因此您必須設定主密碼。";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";

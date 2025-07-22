@@ -372,8 +372,6 @@
 "TryAgain" = "Thử lại";
 "YubiKeyInstructionIos" = "Để tiếp tục, hãy đặt YubiKey NEO của bạn dựa vào mặt lưng của thiết bị.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Bạn có thể cần dùng dịch vụ trợ năng vì một số ứng dụng không hỗ trợ dịch vụ tự động điền của Android.";
-"DatePasswordUpdated" = "Đã cập nhật mật khẩu";
-"DateUpdated" = "Cập nhật vào";
 "AutofillActivated" = "Đã bật Tự động điền!";
 "MustLogInMainAppAutofill" = "Bạn phải đăng nhập vào ứng dụng Bitwarden trước khi có thể sử dụng Tự động điền.";
 "AutofillSetup" = "Bây giờ, bạn có thể dễ dàng truy cập các thông tin đăng nhập của mình ngay từ bàn phím khi đăng nhập vào các ứng dụng và trang web.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden cho phép bạn chia sẻ các mục trong kho lưu trữ với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com.";
 "RateAppDescriptionLong" = "Giúp người khác tìm hiểu xem Bitwarden có phù hợp với họ không. Truy cập cửa hàng ứng dụng và đánh giá ngay bây giờ.";
 "DefaultDarkThemeDescriptionLong" = "Chọn chủ đề tối để sử dụng khi thiết bị của bạn đang sử dụng chế độ tối";
-"CreatedXY" = "Tạo lúc %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Thử quá nhiều lần";
 "AccountLoggedOutBiometricExceeded" = "Đã đăng xuất tài khoản.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Quyền truy cập của tổ chức bạn đã được cập nhật, yêu cầu bạn phải thiết lập mật khẩu chính.";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "Bạn phải đính kèm một tệp để lưu Send này";
 "SendUpdated" = "Đã cập nhật Send";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Chúng tôi không nhận diện được thiết bị này. Nhập mã được gửi đến email để xác minh danh tính của bạn.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";

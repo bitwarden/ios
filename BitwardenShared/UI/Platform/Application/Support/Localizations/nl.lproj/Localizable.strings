@@ -372,8 +372,6 @@
 "TryAgain" = "Opnieuw proberen";
 "YubiKeyInstructionIos" = "Houd je YubiKey NEO bij de achterkant van het apparaat om door te gaan.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "De toegankelijkheidsdienst kan handig zijn om te gebruiken als apps de standaard automatisch invullen dienst niet ondersteunen.";
-"DatePasswordUpdated" = "Wachtwoord bijgewerkt";
-"DateUpdated" = "Bijgewerkt";
 "AutofillActivated" = "Automatisch invullen geactiveerd!";
 "MustLogInMainAppAutofill" = "Je moet inloggen op de Bitwarden-app om Automatisch invullen te gebruiken.";
 "AutofillSetup" = "Je inloggevens zijn nu gemakkelijk vanaf het toetsenbord bereikbaar bij het inloggen op apps en websites.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Met Bitwarden kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com.";
 "RateAppDescriptionLong" = "Help anderen met beslissen of Bitwarden iets voor hen is. Bezoek de app store en laat een beoordeling achter.";
 "DefaultDarkThemeDescriptionLong" = "Kies het donkere thema dat je wilt gebruiken wanneer de donkere modus van je apparaat actief is";
-"CreatedXY" = "Aangemaakt %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Te veel pogingen";
 "AccountLoggedOutBiometricExceeded" = "Account uitgelogd.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "De organisatierechten zijn bijgewerkt, je moet een hoofdwachtwoord instellen.";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "Je moet een bestand bijvoegen voor het opslaan van deze Send";
 "SendUpdated" = "Send bijgewerkt";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";

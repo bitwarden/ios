@@ -372,8 +372,6 @@
 "TryAgain" = "Versuche es erneut";
 "YubiKeyInstructionIos" = "Um fortzufahren, halte deinen YubiKey NEO gegen die Rückseite des Gerätes.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Die Bedienungshilfen können möglicherweise hilfreich sein, wenn Apps nicht den Standard Auto-Ausfüllen-Dienst unterstützen.";
-"DatePasswordUpdated" = "Passwort aktualisiert";
-"DateUpdated" = "Aktualisiert";
 "AutofillActivated" = "Auto-Ausfüllen aktiviert!";
 "MustLogInMainAppAutofill" = "Du musst dich in der Bitwarden App anmelden, bevor du Auto-Ausfüllen nutzen kannst.";
 "AutofillSetup" = "Du kannst nun direkt von der Tastatur auf deine Zugangsdaten zugreifen, wenn du dich auf Webseiten oder in Apps anmeldest.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden erlaubt es dir, deine Tresor-Einträge mit anderen zu teilen, indem du eine Organisation verwendest. Erfahre mehr auf der bitwarden.com Website.";
 "RateAppDescriptionLong" = "Hilf anderen herauszufinden, ob Bitwarden das Richtige für sie ist. Besuche den App Store und hinterlasse jetzt eine Bewertung.";
 "DefaultDarkThemeDescriptionLong" = "Wähle das zu verwendende dunkle Design aus, während der Dark Mode deines Geräts aktiviert ist";
-"CreatedXY" = "Erstellt am %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Zu viele Versuche";
 "AccountLoggedOutBiometricExceeded" = "Konto abgemeldet.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Deine Organisationsberechtigungen wurden aktualisiert und verlangen, dass du ein Master-Passwort festlegen musst.";
@@ -1211,3 +1209,6 @@
 "YouMustAttachAFileToSaveThisSend" = "Du musst eine Datei anhängen, um dieses Send zu speichern";
 "SendUpdated" = "Send aktualisiert";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
