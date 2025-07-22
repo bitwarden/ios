@@ -127,7 +127,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             switch vaultItem.itemType {
             case let .cipher(cipher, fido2CredentialAutofillView):
                 if cipher.isDecryptionFailure {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipher.id))
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipher.id) { stringToCopy in
+                        self.services.pasteboardService.copy(stringToCopy)
+                    })
                 } else if #available(iOSApplicationExtension 17.0, *),
                           let autofillAppExtensionDelegate,
                           fido2CredentialAutofillView != nil || autofillAppExtensionDelegate.isCreatingFido2Credential {

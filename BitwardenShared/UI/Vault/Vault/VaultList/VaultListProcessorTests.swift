@@ -1373,7 +1373,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.itemPressed(item: item))
 
-        XCTAssertEqual(coordinator.alertShown.last, .cipherDecryptionFailure(cipherId: "1"))
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+
+        try await alert.tapAction(title: Localizations.copy)
+        XCTAssertEqual(pasteboardService.copiedString, "1")
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.

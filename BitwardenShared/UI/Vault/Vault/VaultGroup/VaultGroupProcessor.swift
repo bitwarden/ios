@@ -143,7 +143,9 @@ final class VaultGroupProcessor: StateProcessor<
             switch item.itemType {
             case let .cipher(cipherListView, _):
                 if cipherListView.isDecryptionFailure {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id))
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id) { stringToCopy in
+                        self.services.pasteboardService.copy(stringToCopy)
+                    })
                 } else {
                     navigateToViewItem(cipherListView: cipherListView, id: item.id)
                 }

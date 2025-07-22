@@ -7,16 +7,19 @@ extension Alert {
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///
-    /// - Parameter cipherId: The identifier of the cipher that was unable to be decrypted.
+    /// - Parameters:
+    ///   - cipherId: The identifier of the cipher that was unable to be decrypted.
+    ///   - copyAction: A closure that is called in response to tapping the copy button.
     /// - Returns: An alert notifying the user that one or more item in their vault were unable to
     ///     be decrypted.
     ///
-    static func cipherDecryptionFailure(cipherId: String?) -> Alert {
+    static func cipherDecryptionFailure(cipherId: String?, copyAction: @escaping (String) -> Void) -> Alert {
         Alert(
             title: Localizations.decryptionError,
             message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n" + (cipherId ?? ""),
             alertActions: [
-                AlertAction(title: Localizations.close, style: .default),
+                AlertAction(title: Localizations.copy, style: .default) { _ in copyAction(cipherId ?? "") },
+                AlertAction(title: Localizations.close, style: .cancel),
             ]
         )
     }
