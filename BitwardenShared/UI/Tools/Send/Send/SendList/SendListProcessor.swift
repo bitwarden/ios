@@ -139,7 +139,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func refresh() async {
         do {
-            try await services.sendRepository.fetchSync(forceSync: false)
+            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: false)
         } catch {
             await coordinator.showErrorAlert(error: error) {
                 await self.refresh()
@@ -215,7 +215,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                         // If a sync is needed and there are no sends in the user's vault, it could
                         // mean the initial sync hasn't completed so sync first.
                         do {
-                            try await services.sendRepository.fetchSync(forceSync: false)
+                            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: true)
                             state.loadingState = .data(sections)
                         } catch {
                             services.errorReporter.log(error: error)

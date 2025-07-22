@@ -54,10 +54,7 @@ struct AddEditLoginItemView: View {
         if let fido2Credential = store.state.fido2Credentials.first {
             BitwardenTextValueField(
                 title: Localizations.passkey,
-                value: Localizations.createdXY(
-                    fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                    fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-                ),
+                value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),
                 valueAccessibilityIdentifier: "LoginPasskeyEntry"
             ) {
                 if store.state.canViewPassword, store.state.editView {

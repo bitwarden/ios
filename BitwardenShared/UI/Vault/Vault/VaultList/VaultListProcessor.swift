@@ -107,7 +107,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
@@ -203,7 +203,7 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        await refreshVault()
+        await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
@@ -284,7 +284,9 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
             let takingTimeTask = Task {
                 try await Task.sleep(forSeconds: 5)
@@ -297,7 +299,11 @@ extension VaultListProcessor {
                 takingTimeTask.cancel()
             }
 
-            try await services.vaultRepository.fetchSync(forceSync: false, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(
+                forceSync: false,
+                filter: state.vaultFilterType,
+                isPeriodic: syncWithPeriodicCheck
+            )
 
             if try await services.vaultRepository.isVaultEmpty() {
                 // Normally after syncing the database will publish the contents of the vault which is
