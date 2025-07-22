@@ -14,7 +14,7 @@ files:
     dest: "/ios-watch/%original_file_name%"
     translation: "/BitwardenWatchApp/Localization/%osx_code%/%original_file_name%"
     update_option: update_as_unapproved
-  - source: "/BitwardenResources/Localization/en.lproj/Localizable.strings"
+  - source: "/BitwardenResources/Localizations/en.lproj/Localizable.strings"
     dest: "/ios-resources/%original_file_name%"
-    translation: "/BitwardeResources/Localization/%osx_code%/%original_file_name%"
+    translation: "/BitwardenResources/Localizations/%osx_code%/%original_file_name%"
     update_option: update_as_unapproved
