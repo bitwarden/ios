@@ -361,32 +361,30 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The updated date footer.
     private var updatedDate: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
+            Text(Localizations.created(store.state.cipher.creationDate.dateTimeDisplay))
+                .styleGuide(.callout)
+
+            Text(Localizations.lastEdited(store.state.updatedDate.dateTimeDisplay))
+                .styleGuide(.callout)
 
             if store.state.type == .login {
                 if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
-                    FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
+                    Text(Localizations.passwordLastUpdated(passwordUpdatedDate.dateTimeDisplay))
+                        .styleGuide(.callout)
                 }
 
                 if let passwordHistoryCount = store.state.loginState.passwordHistoryCount, passwordHistoryCount > 0 {
-                    HStack(spacing: 4) {
-                        Text(Localizations.passwordHistory + ":")
-
-                        Button {
-                            store.send(.passwordHistoryPressed)
-                        } label: {
-                            Text("\(passwordHistoryCount)")
-                                .underline(color: SharedAsset.Colors.textInteraction.swiftUIColor)
-                        }
-                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
-                        .id("passwordHistoryButton")
+                    Button {
+                        store.send(.passwordHistoryPressed)
+                    } label: {
+                        Text(Localizations.passwordHistory + ": \(passwordHistoryCount)")
+                            .styleGuide(.callout, weight: .semibold)
                     }
-                    .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
-                    .accessibilityElement(children: .combine)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
+                    .id("passwordHistoryButton")
                 }
             }
         }
-        .styleGuide(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
         .padding(.leading, 12)
