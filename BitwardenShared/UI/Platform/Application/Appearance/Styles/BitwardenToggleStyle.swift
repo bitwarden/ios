@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenToggleStyle
@@ -12,10 +13,11 @@ struct BitwardenToggleStyle: ToggleStyle {
         Toggle(configuration)
             .styleGuide(.body)
             .foregroundColor(
-                isEnabled ? Asset.Colors.textPrimary.swiftUIColor :
-                    Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                isEnabled
+                    ? SharedAsset.Colors.textPrimary.swiftUIColor
+                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
             )
-            .tint(Asset.Colors.iconSecondary.swiftUIColor)
+            .tint(SharedAsset.Colors.iconSecondary.swiftUIColor)
     }
 }
 

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - MasterPasswordGeneratorView
@@ -50,7 +51,7 @@ struct MasterPasswordGeneratorView: View {
         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -73,7 +74,7 @@ struct MasterPasswordGeneratorView: View {
         VStack(alignment: .center, spacing: 0) {
             Text(Localizations.writeThisPasswordDownAndKeepItSomewhereSafe)
                 .styleGuide(.footnote)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             Button {
@@ -81,7 +82,7 @@ struct MasterPasswordGeneratorView: View {
             } label: {
                 Text(Localizations.learnAboutOtherWaysToPreventAccountLockout)
                     .styleGuide(.footnote, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
             }
         }

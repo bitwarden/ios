@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordHintView
@@ -23,7 +24,7 @@ struct PasswordHintView: View {
             .textFieldConfiguration(.email)
         }
         .scrollView()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBar(title: Localizations.passwordHint, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SingleSignOnView
@@ -55,7 +56,7 @@ struct SingleSignOnView: View {
     private var instructionsText: some View {
         Text(Localizations.logInSsoSummary)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
     }
 }

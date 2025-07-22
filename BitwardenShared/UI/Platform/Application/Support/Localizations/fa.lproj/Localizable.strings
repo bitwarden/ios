@@ -1129,7 +1129,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "امکان حذف این کاربر وجود ندارد زیرا تنها مالک حداقل یک سازمان است. لطفاً این سازمان‌ها را حذف کنید یا مالکیت را به کاربر دیگری منتقل کنید.";
 "APasskeyAlreadyExistsForThisApplication" = "یک کلید عبور از قبل برای این برنامه وجود دارد.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "برای این برنامه قبلاً یک کلید عبور وجود دارد اما هنگام بارگذاری آن خطایی رخ داده است.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "ما این دستگاه را نمی‌شناسیم. کد تأیید ۸ رقمی را که به %1$@ ایمیل شده است، وارد کنید.";
 "ItemNameRequired" = "نام مورد (الزامی)";
 "AutofillOptions" = "گزینه‌های پر کردن خودکار";
 "WebsiteURI" = "وب‌سایت (نشانی اینترنتی)";
@@ -1213,3 +1212,4 @@
 "LoggingEndsOnDateAtTime" = "ورود در %1$@ در ساعت %2$@ پایان یافت";
 "YouMustAttachAFileToSaveThisSend" = "برای ارسال این پیام باید یک پرونده پیوست کنید";
 "SendUpdated" = "ارسال به‌روزرسانی شد";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";

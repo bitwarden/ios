@@ -1,0 +1,18 @@
+output_dir: BitwardenResources/Generated/
+fonts:
+  inputs: BitwardenResources/Fonts
+  outputs:
+    templateName: swift5
+    output: Fonts.swift
+    params:
+      publicAccess: true
+xcassets:
+  inputs:
+    - BitwardenResources/Colors.xcassets
+  outputs:
+    - templateName: swift5
+      output: SharedAssets.swift
+      params:
+        enumName: SharedAsset
+        forceFileNameEnum: true
+        publicAccess: true

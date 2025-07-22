@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - MasterPasswordGuidanceView
@@ -21,7 +22,7 @@ struct MasterPasswordGuidanceView: View {
                 Text(Localizations.aSecureMemorablePasswordDescriptionLong)
                     .styleGuide(.body)
             }
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .padding(.top, 12)
 
@@ -70,11 +71,11 @@ struct MasterPasswordGuidanceView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(LocalizedStringKey(title))
                 .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(LocalizedStringKey(subtitle))
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
         .padding(.vertical, 12)
         .padding(.trailing, 16) // Leading padding is handled by `NumberedList`.

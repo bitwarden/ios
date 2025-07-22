@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsMenuField
@@ -46,7 +47,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                     Text(title)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(
-                            (isEnabled ? Asset.Colors.textPrimary : Asset.Colors.textSecondary).swiftUIColor
+                            (isEnabled ? SharedAsset.Colors.textPrimary : SharedAsset.Colors.textSecondary).swiftUIColor
                         )
                         .padding(.vertical, 19)
                         .fixedSize(horizontal: false, vertical: true)
@@ -56,7 +57,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                     Text(selection.localizedName)
                         .accessibilityIdentifier(selectionAccessibilityID ?? "")
                         .multilineTextAlignment(.trailing)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier(selectionAccessibilityID ?? "")
                 }
             }
@@ -71,8 +72,9 @@ struct SettingsMenuField<T>: View where T: Menuable {
             }
         }
         .background(
-            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
-                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+            isEnabled
+                ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
     }
 

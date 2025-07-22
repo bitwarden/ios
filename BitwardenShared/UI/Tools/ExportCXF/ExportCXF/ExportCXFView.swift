@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExportCXFView
@@ -48,7 +49,7 @@ struct ExportCXFView: View {
         }
         .padding(.top, 8)
         .frame(maxWidth: .infinity)
-        .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
+        .scrollView(backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .safeAreaInset(edge: .bottom) {
             VStack {
                 if store.state.showMainButton {
@@ -66,7 +67,7 @@ struct ExportCXFView: View {
                 .accessibilityIdentifier("CancelButton")
             }
             .padding(.horizontal, 12)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         }
         .transition(.opacity)
         .animation(.easeInOut, value: store.state.status)

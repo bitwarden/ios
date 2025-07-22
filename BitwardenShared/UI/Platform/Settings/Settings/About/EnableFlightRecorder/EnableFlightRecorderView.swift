@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - EnableFlightRecorderView
@@ -45,9 +46,9 @@ struct EnableFlightRecorderView: View {
                     ExternalLinksConstants.helpAndFeedback
                 )
             ))
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
-        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         .multilineTextAlignment(.center)
         .styleGuide(.footnote)
     }
@@ -64,7 +65,7 @@ struct EnableFlightRecorderView: View {
             }
             .styleGuide(.body)
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
         .padding(.top, 12)
     }

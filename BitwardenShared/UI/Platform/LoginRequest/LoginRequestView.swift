@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginRequestView
@@ -72,11 +73,11 @@ struct LoginRequestView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.deviceType)
                 .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(store.state.request.requestDeviceType)
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("DeviceTypeValueLabel")
         }
@@ -91,7 +92,7 @@ struct LoginRequestView: View {
             )
         )
         .styleGuide(.body)
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.leading)
         .accessibilityIdentifier("LogInAttemptByLabel")
     }
@@ -101,12 +102,12 @@ struct LoginRequestView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localizations.fingerprintPhrase)
                 .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("FingerprintValueLabel")
 
             Text(store.state.request.fingerprintPhrase ?? "")
                 .styleGuide(.bodyMonospaced)
-                .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("FingerprintPhraseValue")
         }
@@ -117,11 +118,11 @@ struct LoginRequestView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.ipAddress)
                 .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(store.state.request.requestIpAddress)
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.leading)
         }
     }
@@ -131,11 +132,11 @@ struct LoginRequestView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.time)
                 .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(RelativeDateTimeFormatter().localizedString(for: store.state.request.creationDate, relativeTo: Date()))
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.leading)
         }
     }
@@ -144,7 +145,7 @@ struct LoginRequestView: View {
     private var titleText: some View {
         Text(Localizations.areYouTryingToLogIn)
             .styleGuide(.title, weight: .bold)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

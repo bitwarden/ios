@@ -1128,7 +1128,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nije moguće izbrisati ovog korisnika je isti jedini vlasnik barem jedne organizacije. Treba ili obrisati organizaciju ili drugog korisnika postaviti za vlasnika.";
 "APasskeyAlreadyExistsForThisApplication" = "Za ovu aplikaciju već postoji pristupni ključ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Za ovu aplikaciju već postoji pristupni ključ, ali je došlo do greške kod njegova učitavanja.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Ne prepoznajemo ovaj uređaj. Unesi 8-znamenkasti kôd za provjeru poslan e-poštom na %1$@.";
 "ItemNameRequired" = "Naziv stavke (obavezno)";
 "AutofillOptions" = "Postavke auto-ispune";
 "WebsiteURI" = "Web stranica (URI)";
@@ -1212,3 +1211,4 @@
 "LoggingEndsOnDateAtTime" = "Zapisivanje završava %1$@ u %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Moraš staviti datoteku u privitak za spremanje ovog Senda";
 "SendUpdated" = "Send ažuriran";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom.";

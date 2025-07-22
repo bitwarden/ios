@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ActionCard
@@ -73,7 +74,7 @@ struct ActionCard<LeadingContent: View>: View {
                 if let dismissButtonState {
                     AsyncButton(action: dismissButtonState.action) {
                         Image(asset: Asset.Images.close16, label: Text(dismissButtonState.title))
-                            .imageStyle(.accessoryIcon16(color: Asset.Colors.iconPrimary.swiftUIColor))
+                            .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }
                     .padding(-16) // ...but remove it to not affect layout.
@@ -85,14 +86,14 @@ struct ActionCard<LeadingContent: View>: View {
                     .buttonStyle(.primary(size: .medium))
             }
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Asset.Colors.strokeBorder.swiftUIColor)
+                .strokeBorder(SharedAsset.Colors.strokeBorder.swiftUIColor)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Asset.Colors.backgroundTertiary.swiftUIColor)
+                        .fill(SharedAsset.Colors.backgroundTertiary.swiftUIColor)
                 )
         )
     }

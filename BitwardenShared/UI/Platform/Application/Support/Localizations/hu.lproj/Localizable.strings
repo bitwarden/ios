@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Ez a felhasználó nem törölhető, mert legalább egy szervezet kizárólagos tulajdonosa. Töröljük ezeket a szervezeteket vagy térjünk át másik felhasználóra.";
 "APasskeyAlreadyExistsForThisApplication" = "Az alkalmazáshoz már létezik hozzáférési kulcs.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Már létezik jelszó ehhez az alkalmazáshoz, de hiba történt a betöltése során.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be a 8 számjegyű ellenőrző kódot, amelyet emailben lett elküldve %1$@ email címre.";
 "ItemNameRequired" = "Elem név (kötelező)";
 "AutofillOptions" = "Automatikus kitöltés opciók";
 "WebsiteURI" = "Webhely (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "A naplózás befejezése: %1$@ - %2$@";
 "YouMustAttachAFileToSaveThisSend" = "A Send elem mentéséhez csatolni kell egy fájlt.";
 "SendUpdated" = "A Send elem frissítésre került.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához.";

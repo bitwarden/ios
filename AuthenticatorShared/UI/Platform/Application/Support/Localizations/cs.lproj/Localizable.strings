@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potřebujete pomoc? Navštivte naše centrum nápovědy pro další informace.";
 "UnexpectedDataFormat" = "Neočekávaný formát dat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Poskytnutý formát dat neodpovídá tomu, co se očekávalo. Zkontrolujte soubor a ujistěte se, že jsou použity správné datové typy.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Tato funkce zatím není dostupná pro vlastní hostované uživatele. [Další informace](%1$@)";
+"LearnMoreLink" = "[Další informace](%1$@)";

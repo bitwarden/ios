@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "助けが必要ですか？ヘルプセンターのガイドをご覧ください。";
 "UnexpectedDataFormat" = "想定されていないデータフォーマット";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供されたデータ形式が想定と一致しません。ファイルを確認し、正しいデータ型が使用されているか確かめてください。";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "セルフホスティングのユーザーは、まだこの機能をご利用いただけません。 [詳細](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

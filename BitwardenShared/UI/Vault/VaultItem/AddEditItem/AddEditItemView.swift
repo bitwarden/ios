@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -93,7 +94,7 @@ struct AddEditItemView: View {
         .animation(.default, value: store.state.collectionsForOwner)
         .backport.dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)

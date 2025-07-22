@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TwoFactorAuthView
@@ -130,7 +131,7 @@ struct TwoFactorAuthView: View {
         VStack(spacing: 16) {
             Text(store.state.detailsText)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             if let detailImageAsset = store.state.detailImageAsset {

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A spinning circular activity indicator.
@@ -16,11 +17,11 @@ struct CircularActivityIndicator: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Asset.Colors.backgroundTertiary.swiftUIColor, style: strokeStyle)
+                .stroke(SharedAsset.Colors.backgroundTertiary.swiftUIColor, style: strokeStyle)
 
             Circle()
                 .trim(from: 0, to: 0.65)
-                .stroke(Asset.Colors.strokeBorder.swiftUIColor, style: strokeStyle)
+                .stroke(SharedAsset.Colors.strokeBorder.swiftUIColor, style: strokeStyle)
                 .rotationEffect(Angle(degrees: isSpinning ? 360 : 0))
                 .onAppear {
                     withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {

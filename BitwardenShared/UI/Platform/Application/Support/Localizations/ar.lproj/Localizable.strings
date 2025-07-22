@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "لا يمكن حذف هذا المستخدم لأنه المالك الوحيد لمنظمة واحدة على الأقل. الرجاء حذف هذه المنظمات أو ترقية مستخدم آخر.";
 "APasskeyAlreadyExistsForThisApplication" = "يوجد بالفعل مفتاح مرور لهذا التطبيق.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "يوجد بالفعل مفتاح مرور لهذا التطبيق ولكن حدث خطأ أثناء تحميله.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "نحن لا نعرف هذا الجهاز. أدخل رمز التحقق المكون من 8 أرقام الذي تم مراسلته بالبريد الإلكتروني إلى %1$@.";
 "ItemNameRequired" = "اسم العنصر (مطلوب)";
 "AutofillOptions" = "خيارات التعبئة التلقائية";
 "WebsiteURI" = "الموقع (URI)";
@@ -1212,3 +1211,4 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
