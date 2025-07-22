@@ -64,6 +64,8 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Prepares folders to the prepared data that then can be used for filtering.
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
+    /// Prepares the sections with restricted organization IDs after cipher item count.
+    func prepareSectionsRestrictions(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder
 }
 
 // MARK: - DefaultVaultListPreparedDataBuilder
@@ -234,6 +236,13 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
         if filterType == .allVaults {
             preparedData.folders = folders
+        }
+        return self
+    }
+
+    func prepareSectionsRestrictions(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder {
+        if !restrictedOrganizationIds.isEmpty {
+            preparedData.retrictItemOrganizationsEnabled = true
         }
         return self
     }

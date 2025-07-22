@@ -75,6 +75,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         preparedDataBuilder = preparedDataBuilder
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
+            .prepareSectionsRestrictions(restrictedOrganizationIds: restrictedOrganizationIds)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers

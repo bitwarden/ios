@@ -246,28 +246,39 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addTypesSection() -> VaultListSectionsBuilder {
-        let types = [
+        var types = [
             VaultListItem(
                 id: "Types.Logins",
                 itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0])
             ),
-            VaultListItem(
-                id: "Types.Cards",
-                itemType: .group(.card, preparedData.countPerCipherType[.card, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.Identities",
-                itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SecureNotes",
-                itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SSHKeys",
-                itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
-            ),
         ]
+
+        let cardCount = preparedData.countPerCipherType[.card, default: 0]
+        if !preparedData.retrictItemOrganizationsEnabled || cardCount != 0 {
+            types.append(
+                VaultListItem(
+                    id: "Types.Cards",
+                    itemType: .group(.card, cardCount)
+                ),
+            )
+        }
+
+        types.append(
+            contentsOf: [
+                VaultListItem(
+                    id: "Types.Identities",
+                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
+                ),
+                VaultListItem(
+                    id: "Types.SecureNotes",
+                    itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
+                ),
+                VaultListItem(
+                    id: "Types.SSHKeys",
+                    itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
+                ),
+            ]
+        )
 
         sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
@@ -298,5 +309,6 @@ struct VaultListPreparedData {
     var foldersCount: [Uuid: Int] = [:]
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
+    var retrictItemOrganizationsEnabled: Bool = false
     var totpItemsCount: Int = 0
 }
