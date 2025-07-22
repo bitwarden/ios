@@ -551,7 +551,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherListView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
-            let matchingCiphers = try await self.clientService.vault().ciphers().decryptList(ciphers: ciphers)
+            let matchingCiphers = try await self.clientService.vault().ciphers()
+                .decryptListWithFailures(ciphers: ciphers).successes
                 .filter { cipher in
                     filter.filterType.cipherFilter(cipher) &&
                         isMatchingCipher(cipher) &&
@@ -808,7 +809,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder] = []
     ) async throws -> [VaultListSection] {
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
-        let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
+        let ciphers = try await clientService.vault().ciphers().decryptListWithFailures(ciphers: ciphers)
+            .successes
             .filter { cipher in
                 filter.filterType.cipherFilter(cipher) &&
                     filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
@@ -890,7 +892,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
         let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
-        let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
+        let ciphers = try await clientService.vault().ciphers().decryptListWithFailures(ciphers: ciphers)
+            .successes
             .filter { cipher in
                 filter.filterType.cipherFilter(cipher) &&
                     filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
@@ -1312,7 +1315,8 @@ extension DefaultVaultRepository: VaultRepository {
     func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
-                try await self.clientService.vault().ciphers().decryptList(ciphers: ciphers)
+                try await self.clientService.vault().ciphers().decryptListWithFailures(ciphers: ciphers)
+                    .successes
                     .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             }
             .eraseToAnyPublisher()
@@ -1354,7 +1358,8 @@ extension DefaultVaultRepository: VaultRepository {
                 availableFido2CredentialsPublisher
             )
             .asyncTryMap { ciphers, availableFido2Credentials in
-                let decryptedCiphers = try await self.clientService.vault().ciphers().decryptList(ciphers: ciphers)
+                let decryptedCiphers = try await self.clientService.vault().ciphers()
+                    .decryptListWithFailures(ciphers: ciphers).successes
                 let matchingCiphers = await CipherMatchingHelper(
                     settingsService: self.settingsService,
                     stateService: self.stateService
@@ -1555,7 +1560,8 @@ extension DefaultVaultRepository: VaultRepository {
         guard let id = cipherView.id, let cipher = try await cipherService.fetchCipher(withId: id) else {
             return nil
         }
-        let decryptedCipherListViews = try await clientService.vault().ciphers().decryptList(ciphers: [cipher])
+        let decryptedCipherListViews = try await clientService.vault().ciphers()
+            .decryptListWithFailures(ciphers: [cipher]).successes
         guard let cipherListView = decryptedCipherListViews.first else {
             return nil
         }
