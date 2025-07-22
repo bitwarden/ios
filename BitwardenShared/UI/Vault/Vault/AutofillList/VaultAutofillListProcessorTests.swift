@@ -91,6 +91,17 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
+    /// `vaultItemTapped(_:)` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_perform_vaultItemTapped_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.vaultItemTapped(item))
+
+        XCTAssertEqual(coordinator.alertShown.last, .cipherDecryptionFailure(cipherId: "1"))
+    }
+
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
     /// if a cipher value was copied instead of autofilled.
     @MainActor
