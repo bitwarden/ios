@@ -13,10 +13,11 @@ public protocol VaultRepository: AnyObject {
     /// be used to subscribe to the vault data, which are updated as a result of the request.
     ///
     /// - Parameters:
-    ///   - isRefresh: Whether the sync is being performed as a manual refresh.
+    ///   - forceSync: Whether the sync is forced.
     ///   - filter: The filter to apply to the vault.
+    ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
     ///
-    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws
+    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws
 
     // MARK: Data Methods
 
@@ -992,10 +993,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws {
+    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         guard !forceSync || allowSyncOnRefresh else { return }
-        try await syncService.fetchSync(forceSync: forceSync)
+        try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)
     }
 
     // MARK: Data Methods
