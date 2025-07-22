@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordStrengthIndicator
@@ -23,7 +24,7 @@ struct PasswordStrengthIndicator: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(asset: Asset.Colors.strokeDivider))
+                        .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
@@ -37,17 +38,17 @@ struct PasswordStrengthIndicator: View {
                 HStack(spacing: 4) {
                     if passwordTextCount >= requiredTextCount {
                         Image(asset: Asset.Images.check12)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
                     } else {
                         Circle()
-                            .stroke(Asset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
                             .frame(width: 10, height: 10)
                             .padding(.leading, 1)
                     }
 
                     Text(Localizations.xCharacters(requiredTextCount))
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .styleGuide(.footnote, weight: .bold)
                         .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                 }
@@ -108,21 +109,21 @@ extension PasswordStrengthIndicator {
         init(score: UInt8?) {
             switch score {
             case 0, 1:
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = Localizations.weak
             case 2:
-                color = Asset.Colors.statusWeak2
+                color = SharedAsset.Colors.statusWeak2
                 text = Localizations.weak
             case 3:
-                color = Asset.Colors.statusGood
+                color = SharedAsset.Colors.statusGood
                 text = Localizations.good
             case 4:
-                color = Asset.Colors.statusStrong
+                color = SharedAsset.Colors.statusStrong
                 text = Localizations.strong
             default:
                 // Provide the initial color when not visible so the color isn't animated when the
                 // first segment appears.
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = nil
             }
 

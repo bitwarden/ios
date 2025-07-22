@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // swiftlint:disable file_length
@@ -462,7 +463,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
                     )
             }
             .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Views")

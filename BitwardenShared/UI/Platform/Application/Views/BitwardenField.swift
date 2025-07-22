@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenField
@@ -36,8 +37,9 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
         }
         .padding(.leading, 16)
         .background(
-            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
-                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+            isEnabled
+                ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -86,8 +88,8 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                         )
                         .foregroundColor(
                             isEnabled
-                                ? Asset.Colors.textSecondary.swiftUIColor :
-                                Asset.Colors.textDisabled.swiftUIColor
+                                ? SharedAsset.Colors.textSecondary.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor
                         )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
                 }
@@ -116,7 +118,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                 if let footerContent = footerContent as? Text {
                     footerContent
                         .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 12)
                 } else {
@@ -265,7 +267,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         BitwardenField(title: "Title") {
             Text("Value")
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
 
         BitwardenField(title: "Title", footer: "Text footer") {
@@ -281,6 +283,6 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         }
     }
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - FoldersView
@@ -16,7 +17,7 @@ struct FoldersView: View {
         VStack(alignment: .leading, spacing: 16) {
             if store.state.folders.isEmpty {
                 empty
-                    .background(Color(asset: Asset.Colors.backgroundPrimary))
+                    .background(Color(asset: SharedAsset.Colors.backgroundPrimary))
             } else {
                 folders
                     .scrollView()

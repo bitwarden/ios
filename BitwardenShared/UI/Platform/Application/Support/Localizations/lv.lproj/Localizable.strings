@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nevar izdzēst šo lietotāju, jo viņš ir vienīgais īpašnieks vismaz vienai apvienībai. Lūgums izdzēst šīs apvienības vai paaugstināt citu lietotāju.";
 "APasskeyAlreadyExistsForThisApplication" = "Šai lietotnei jau pastāv piekļuves atslēga.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Šai lietotnei jau pastāv piekļuves atslēga, bet atgadījās kļūda tās ielādēšanas laikā.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada 8 ciparu apliecinājuma kods, kas tika nosūtīts uz %1$@.";
 "ItemNameRequired" = "Vienuma nosaukums (nepieciešams)";
 "AutofillOptions" = "Automātiskās aizpildes iespējas";
 "WebsiteURI" = "Tīmekļvietne (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Žurnalēšana beigsies %1$@ %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Jāpievieno datne, lai saglabātu šo Send";
 "SendUpdated" = "Send atjaunināts";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti.";

@@ -24,7 +24,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 33a7bb7334aeea402256633cbbffe7fb03501e40
+    revision: ad0761937f454e2785c50a9b8dc9be12f26af830
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -173,6 +173,7 @@ targets:
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -370,8 +371,6 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-        optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
@@ -382,6 +381,7 @@ targets:
       - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
@@ -393,7 +393,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Sourcery
         script: |

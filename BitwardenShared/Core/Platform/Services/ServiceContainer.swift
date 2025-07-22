@@ -846,14 +846,27 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sharedTimeoutService: sharedTimeoutService
         )
 
+        // Note: `DefaultAuthenticatorSyncService` gets it's own `ClientService` that's separate
+        // from what the rest of the app uses. That ensures its vault unlock and syncing doesn't
+        // affect anything outside of authenticator syncing.
+        let authenticatorClientService = DefaultClientService(
+            clientBuilder: clientBuilder,
+            configService: configService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
+                cipherDataStore: dataStore,
+                errorReporter: errorReporter
+            ),
+            stateService: stateService
+        )
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
-            authRepository: authRepository,
+            authenticatorClientService: authenticatorClientService,
             cipherDataStore: dataStore,
-            clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService

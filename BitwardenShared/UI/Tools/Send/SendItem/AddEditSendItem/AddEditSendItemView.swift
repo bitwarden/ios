@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -40,7 +41,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             profileSwitcher
         }
         .backport.dismissKeyboardInteractively()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.navigationTitle,
             titleDisplayMode: .inline
@@ -185,7 +186,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
             Text(Localizations.deletionDateInfo)
                 .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
         }
@@ -201,7 +202,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         Text(fileName)
                             .styleGuide(.body)
                             .accessibilityIdentifier("SendCurrentFileNameLabel")
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     }
                 }
 
@@ -218,7 +219,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         ByteCountFormatter.string(fromByteCount: Int64(Constants.maxFileSizeBytes), countStyle: .binary)
                     ))
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .padding(.leading, 12)
                 }
 
@@ -228,7 +229,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         if let fileName = store.state.fileName {
                             Text(fileName)
                                 .styleGuide(.body)
-                                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         }
 
                         Spacer(minLength: 0)
@@ -236,7 +237,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         if let fileSize = store.state.fileSize {
                             Text(fileSize)
                                 .styleGuide(.footnote)
-                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                                 .multilineTextAlignment(.trailing)
                         }
                     }

@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -21,7 +22,7 @@ struct PasswordHistoryListView: View {
                 passwordHistoryList()
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
         .toast(store.binding(
             get: \.toast,
@@ -58,7 +59,7 @@ struct PasswordHistoryListView: View {
                     Spacer()
                     Text(Localizations.noPasswordsToList)
                         .font(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.center)
                         .padding(16)
                         .accessibilityIdentifier("NoPasswordsDisplayedLabel")
@@ -88,7 +89,7 @@ struct PasswordHistoryListView: View {
 
                 FormattedDateTimeView(date: passwordHistory.lastUsedDate)
                     .styleGuide(.subheadline)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .accessibilityIdentifier("GeneratedPasswordDateLabel")
             }
             .padding(.vertical, 10)

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AddEditIdentityItemView
@@ -291,7 +292,7 @@ struct AddEditIdentityItemView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .ignoresSafeArea()
     }
 }

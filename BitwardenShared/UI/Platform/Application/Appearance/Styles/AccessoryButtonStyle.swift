@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AccessoryButtonStyle
@@ -12,8 +13,9 @@ struct AccessoryButtonStyle: ButtonStyle {
         configuration.label
             .frame(width: 24, height: 24)
             .foregroundColor(
-                isEnabled ? Asset.Colors.iconPrimary.swiftUIColor :
-                    Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                isEnabled
+                    ? SharedAsset.Colors.iconPrimary.swiftUIColor
+                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
             )
             .opacity(configuration.isPressed ? 0.5 : 1)
             .contentShape(Rectangle())

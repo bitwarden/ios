@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de pelo menos uma organização. Por favor, elimine estas organizações ou atualize outro utilizador.";
 "APasskeyAlreadyExistsForThisApplication" = "Já existe uma chave de acesso para esta aplicação.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Já existe uma chave de acesso para esta aplicação, mas ocorreu um erro ao carregá-la.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Não reconhecemos este dispositivo. Introduza o código de verificação de 8 dígitos que foi enviado por e-mail para %1$@.";
 "ItemNameRequired" = "Nome do item (obrigatório)";
 "AutofillOptions" = "Opções de preenchimento automático";
 "WebsiteURI" = "Site (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "O registo termina a %1$@ às %2$@";
 "YouMustAttachAFileToSaveThisSend" = "É necessário anexar um ficheiro para guardar este Send";
 "SendUpdated" = "Send atualizado";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade.";

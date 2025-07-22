@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ContentBlock
@@ -67,7 +68,7 @@ extension ContentBlock {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -95,6 +96,6 @@ extension View {
         Text("Grapes 🍇").padding()
     }
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

@@ -1129,7 +1129,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Невозможно удалить этого пользователя, поскольку он является единственным владельцем по крайней мере одной организации. Пожалуйста, удалите эти организации или обновите другого пользователя.";
 "APasskeyAlreadyExistsForThisApplication" = "Для данного приложения уже существует passkey.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Passkey уже существует для этого приложения, но при его загрузке произошла ошибка.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Мы не распознали это устройство. Введите 8-значный код подтверждения, который был отправлен на email %1$@.";
 "ItemNameRequired" = "Название элемента (обязательно)";
 "AutofillOptions" = "Параметры автозаполнения";
 "WebsiteURI" = "Сайт (URI)";
@@ -1213,3 +1212,4 @@
 "LoggingEndsOnDateAtTime" = "Логирование заканчивается %1$@ в %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Вы должны прикрепить файл, чтобы сохранить эту Send";
 "SendUpdated" = "Send обновлена";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность.";
