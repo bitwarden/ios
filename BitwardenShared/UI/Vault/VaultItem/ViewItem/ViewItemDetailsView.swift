@@ -361,7 +361,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The updated date footer.
     private var updatedDate: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(Localizations.created(store.state.cipher.creationDate.dateTimeDisplay))
+            Text(BitwardenResources.Localizations.created(store.state.cipher.creationDate.dateTimeDisplay))
                 .styleGuide(.callout)
 
             Text(Localizations.lastEdited(store.state.updatedDate.dateTimeDisplay))
