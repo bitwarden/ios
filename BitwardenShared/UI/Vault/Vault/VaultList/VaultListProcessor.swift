@@ -141,14 +141,7 @@ final class VaultListProcessor: StateProcessor<
         case .disappeared:
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
+            handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -253,6 +246,27 @@ extension VaultListProcessor {
     private func dismissFlightRecorderToastBanner() async {
         state.isFlightRecorderToastBannerVisible = false
         await services.flightRecorder.setFlightRecorderBannerDismissed()
+    }
+
+    /// Handles the primary action for when a `VaultListItem` is tapped in the list.
+    ///
+    /// - Parameter item: The `VaultListItem` that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
     }
 
     /// Entry point to handling things around push notifications.
