@@ -254,7 +254,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         ]
 
         let cardCount = preparedData.countPerCipherType[.card, default: 0]
-        if !preparedData.retrictItemOrganizationsEnabled || cardCount != 0 {
+        if preparedData.restrictedOrganizationIds.isEmpty || cardCount != 0 {
             types.append(
                 VaultListItem(
                     id: "Types.Cards",
@@ -309,6 +309,6 @@ struct VaultListPreparedData {
     var foldersCount: [Uuid: Int] = [:]
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
-    var retrictItemOrganizationsEnabled: Bool = false
+    var restrictedOrganizationIds: [String] = []
     var totpItemsCount: Int = 0
 }
