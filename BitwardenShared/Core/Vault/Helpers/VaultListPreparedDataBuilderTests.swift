@@ -385,4 +385,14 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
 
         XCTAssertTrue(preparedData.folders.isEmpty)
     }
+
+    /// `test_prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds:)` adds restrictedOrganizationIds
+    /// to prepared data
+    func test_prepareRestrictItemsPolicyOrganizations() {
+        let restrictedOrganizationIds = ["org1", "org2"]
+        let preparedData = subject
+            .prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: restrictedOrganizationIds)
+            .build()
+        XCTAssertEqual(preparedData.restrictedOrganizationIds, restrictedOrganizationIds)
+    }
 }
