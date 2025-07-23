@@ -1127,7 +1127,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Dieser Benutzer kann nicht gelöscht werden, da er der einzige Eigentümer von mindestens einer Organisation ist. Bitte lösche diese Organisationen oder upgrade einen anderen Benutzer.";
 "APasskeyAlreadyExistsForThisApplication" = "Für diese Anwendung existiert bereits ein Passkey.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Für diese Anwendung existiert bereits ein Passkey, aber beim Laden ist ein Fehler aufgetreten.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Wir erkennen dieses Gerät nicht. Gib den 8-stelligen Verifizierungscode ein, der an %1$@ gesendet wurde.";
 "ItemNameRequired" = "Eintragsname (erforderlich)";
 "AutofillOptions" = "Auto-Ausfüllen Optionen";
 "WebsiteURI" = "Website (URI)";
@@ -1211,3 +1210,4 @@
 "LoggingEndsOnDateAtTime" = "Protokollierung endet am %1$@ um %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Du musst eine Datei anhängen, um dieses Send zu speichern";
 "SendUpdated" = "Send aktualisiert";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren.";

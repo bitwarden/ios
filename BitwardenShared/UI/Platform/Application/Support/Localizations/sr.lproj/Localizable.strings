@@ -1128,7 +1128,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Не могу да избришете овог корисника јер је једини власник најмање једне организације. Избришите ове организације или надоградите другог корисника.";
 "APasskeyAlreadyExistsForThisApplication" = "За ову апликацију већ постоји приступни кључ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Приступни кључ већ постоји за ову апликацију, али дошло је до грешке приликом учитавања.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Не препознајемо овај уређај. Унесите 8-цифрени верификациони кôд који је послат на %1$@.";
 "ItemNameRequired" = "Име ставке (неопходно)";
 "AutofillOptions" = "Опције Ауто-пуњења";
 "WebsiteURI" = "Вебсајт (URI)";
@@ -1212,3 +1211,4 @@
 "LoggingEndsOnDateAtTime" = "Пријављен завршено на %1$@ у %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Морате приложити датотеку да бисте сачували овај Send";
 "SendUpdated" = "Send ажурирано";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет.";

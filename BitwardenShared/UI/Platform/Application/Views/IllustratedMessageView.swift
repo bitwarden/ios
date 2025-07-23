@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - IllustratedMessageView
@@ -56,7 +57,7 @@ struct IllustratedMessageView<Accessory: View>: View {
                 }
             }
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
     }
 
@@ -198,7 +199,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         Button {} label: {
             Text(Localizations.learnMore)
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
     }
 }
@@ -273,7 +274,7 @@ private extension IllustratedMessageStyle {
 
 extension IllustratedMessageStyle {
     static let largeTextTintedIcon = IllustratedMessageStyle(
-        imageColor: Asset.Colors.iconSecondary.swiftUIColor,
+        imageColor: SharedAsset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
             both: iconSquareImageDimension
         ),

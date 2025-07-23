@@ -231,6 +231,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_refreshed() async {
         await subject.perform(.refresh)
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
@@ -715,6 +716,21 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        subject.receive(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+
+        try await alert.tapAction(title: Localizations.copy)
+        XCTAssertEqual(pasteboardService.copiedString, "1")
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.

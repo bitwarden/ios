@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -194,7 +195,7 @@ struct ViewIdentityItemView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .ignoresSafeArea()
     }
 }

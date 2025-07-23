@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   actions: read
+  id-token: write
 
 jobs:
   publish-release-password-manager:

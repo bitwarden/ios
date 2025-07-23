@@ -107,7 +107,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
@@ -141,14 +141,7 @@ final class VaultListProcessor: StateProcessor<
         case .disappeared:
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
+            handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -203,7 +196,7 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        await refreshVault()
+        await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
@@ -255,6 +248,27 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
+    /// Handles the primary action for when a `VaultListItem` is tapped in the list.
+    ///
+    /// - Parameter item: The `VaultListItem` that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
+    }
+
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
@@ -284,7 +298,9 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
             let takingTimeTask = Task {
                 try await Task.sleep(forSeconds: 5)
@@ -296,11 +312,19 @@ extension VaultListProcessor {
                 state.toast = nil
                 takingTimeTask.cancel()
             }
-            guard let sections = try await services.vaultRepository.fetchSync(
+
+            try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType
-            ) else { return }
-            state.loadingState = .data(sections)
+                filter: state.vaultFilterType,
+                isPeriodic: syncWithPeriodicCheck
+            )
+
+            if try await services.vaultRepository.isVaultEmpty() {
+                // Normally after syncing the database will publish the contents of the vault which is
+                // used to transition from the loading to loaded state. If the vault is empty, nothing
+                // will be published by the database, so it needs to be manually updated.
+                state.loadingState = .data([])
+            }
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {

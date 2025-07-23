@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ViewSendItemView
@@ -107,12 +108,12 @@ struct ViewSendItemView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localizations.sendLink)
                     .styleGuide(.title3, weight: .bold, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                 if let displayShareURL = store.state.displayShareURL {
                     Text(displayShareURL)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .lineLimit(1)
                         .accessibilityIdentifier("ViewSendShareLinkText")
                 }
@@ -156,13 +157,13 @@ struct ViewSendItemView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(file.fileName)
                                 .styleGuide(.body)
-                                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                                 .accessibilityIdentifier("ViewSendFileNameText")
 
                             if let fileSize = file.sizeName {
                                 Text(fileSize)
                                     .styleGuide(.footnote)
-                                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                     .multilineTextAlignment(.trailing)
                                     .accessibilityIdentifier("ViewSendFileSizeText")

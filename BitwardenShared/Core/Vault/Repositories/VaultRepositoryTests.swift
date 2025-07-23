@@ -170,7 +170,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var iterator = try await subject.cipherPublisher().makeAsyncIterator()
         let publishedCiphers = try await iterator.next()
 
-        XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
+        XCTAssertEqual(publishedCiphers, ciphers.map { CipherListView(cipher: $0) })
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
@@ -993,35 +993,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_fetchSync() async throws {
         stateService.activeAccount = .fixture()
 
-        // If it's not a manual refresh, it should sync.
-        let automaticSections = try await subject.fetchSync(
+        // If it's not a forced sync, it should sync.
+        try await subject.fetchSync(
             forceSync: false,
-            filter: .allVaults
+            filter: .allVaults,
+            isPeriodic: true
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(automaticSections)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
-        // If it's a manual refresh and the user has allowed sync on refresh,
+        // Same as before but to check `isPeriodic` is passed correctly.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = true
+        try await subject.fetchSync(
+            forceSync: false,
+            filter: .allVaults,
+            isPeriodic: false
+        )
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
+
+        // If it's a forced sync and the user has allowed sync on refresh,
         // it should sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        let manualSections = try await subject.fetchSync(
+        try await subject.fetchSync(
             forceSync: true,
-            filter: .myVault
+            filter: .myVault,
+            isPeriodic: true
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(manualSections)
+        XCTAssertTrue(syncService.fetchSyncIsPeriodic == true)
 
-        // If it's a manual refresh and the user has not allowed sync on refresh,
+        // If it's a forced sync and the user has not allowed sync on refresh,
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        let nilSections = try await subject.fetchSync(
+        try await subject.fetchSync(
             forceSync: true,
-            filter: .allVaults
+            filter: .allVaults,
+            isPeriodic: true
         )
         XCTAssertFalse(syncService.didFetchSync)
-        XCTAssertNil(nilSections)
     }
 
     /// `getDisableAutoTotpCopy()` gets the user's disable auto-copy TOTP value.

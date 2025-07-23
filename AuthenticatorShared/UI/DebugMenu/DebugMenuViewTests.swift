@@ -74,7 +74,7 @@ class DebugMenuViewTests: BitwardenTestCase {
     func test_snapshot_debugMenuWithFeatureFlags() {
         processor.state.featureFlags = [
             .init(
-                feature: .enablePasswordManagerSync,
+                feature: .testRemoteFeatureFlag,
                 isEnabled: true
             ),
         ]

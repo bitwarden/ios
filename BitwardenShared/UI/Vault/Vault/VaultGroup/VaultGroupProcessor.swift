@@ -142,7 +142,13 @@ final class VaultGroupProcessor: StateProcessor<
         case let .itemPressed(item):
             switch item.itemType {
             case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+                if cipherListView.isDecryptionFailure {
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherId: cipherListView.id) { stringToCopy in
+                        self.services.pasteboardService.copy(stringToCopy)
+                    })
+                } else {
+                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
+                }
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
@@ -233,7 +239,11 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(forceSync: true, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(
+                forceSync: true,
+                filter: state.vaultFilterType,
+                isPeriodic: false
+            )
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)

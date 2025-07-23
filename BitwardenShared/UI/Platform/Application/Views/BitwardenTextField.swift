@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 import SwiftUIIntrospect
 
@@ -75,9 +76,9 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         }
         .padding(.leading, 16)
         .background(
-            isEnabled ?
-                Asset.Colors.backgroundSecondary.swiftUIColor :
-                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+            isEnabled
+                ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
@@ -131,7 +132,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
 
                 Text(footer)
                     .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .padding(.trailing, 16)
                     .padding(.vertical, 12)
             }
@@ -172,8 +173,8 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .accessibilityLabel(title ?? "")
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
-                            ? Asset.Colors.textPrimary.swiftUIColor :
-                            Asset.Colors.textDisabled.swiftUIColor
+                            ? SharedAsset.Colors.textPrimary.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor
                     )
                     .disabled(isTextFieldDisabled)
                 if isPassword, !isPasswordVisible {
@@ -185,14 +186,14 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         .accessibilityLabel(title ?? "")
                         .foregroundStyle(
                             isEnabled && !isTextFieldDisabled
-                                ? Asset.Colors.textPrimary.swiftUIColor :
-                                Asset.Colors.textDisabled.swiftUIColor
+                                ? SharedAsset.Colors.textPrimary.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor
                         )
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 28)
         }
-        .tint(Asset.Colors.tintPrimary.swiftUIColor)
+        .tint(SharedAsset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
             isSecureFieldFocused = isPasswordAutoFocused
         }

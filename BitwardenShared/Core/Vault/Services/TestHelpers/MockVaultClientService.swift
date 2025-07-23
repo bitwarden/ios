@@ -109,6 +109,9 @@ class MockClientCiphers: CiphersClientProtocol {
     var decryptListError: Error?
     var decryptListErrorWhenCiphers: (([Cipher]) -> Error?)?
     var decryptListReceivedCiphersInvocations: [[Cipher]] = []
+    var decryptListWithFailuresReceivedCiphersInvocations: [[Cipher]] = [] // swiftlint:disable:this identifier_name
+    var decryptListWithFailuresResult: DecryptCipherListResult?
+    var decryptListWithFailuresResultClosure: (([Cipher]) -> DecryptCipherListResult)?
     var encryptCipherResult: Result<EncryptionContext, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
@@ -136,7 +139,18 @@ class MockClientCiphers: CiphersClientProtocol {
             throw error
         }
         decryptListReceivedCiphersInvocations.append(ciphers)
-        return ciphers.map(CipherListView.init)
+        return ciphers.map { CipherListView(cipher: $0) }
+    }
+
+    func decryptListWithFailures(ciphers: [Cipher]) -> DecryptCipherListResult {
+        decryptListWithFailuresReceivedCiphersInvocations.append(ciphers)
+        if let decryptListWithFailuresResultClosure {
+            return decryptListWithFailuresResultClosure(ciphers)
+        }
+        return decryptListWithFailuresResult ?? DecryptCipherListResult(
+            successes: ciphers.map { CipherListView(cipher: $0) },
+            failures: []
+        )
     }
 
     func encrypt(cipherView: CipherView) throws -> EncryptionContext {

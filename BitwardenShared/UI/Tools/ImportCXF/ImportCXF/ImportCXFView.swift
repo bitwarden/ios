@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportCXFView
@@ -26,7 +27,7 @@ struct ImportCXFView: View {
                     EmptyView()
                 case .importing:
                     ProgressView(value: store.state.progress)
-                        .tint(Asset.Colors.tintPrimary.swiftUIColor)
+                        .tint(SharedAsset.Colors.tintPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity)
                         .scaleEffect(x: 1, y: 3, anchor: .center)
                         .accessibilityIdentifier("ImportProgress")
@@ -44,7 +45,7 @@ struct ImportCXFView: View {
             }
             .padding(.top, 8)
             .frame(maxWidth: .infinity)
-            .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
+            .scrollView(backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .safeAreaInset(edge: .bottom) {
                 VStack {
                     if store.state.showMainButton {
@@ -64,7 +65,7 @@ struct ImportCXFView: View {
                     }
                 }
                 .padding(.horizontal, 12)
-                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             }
         }
         .transition(.opacity)

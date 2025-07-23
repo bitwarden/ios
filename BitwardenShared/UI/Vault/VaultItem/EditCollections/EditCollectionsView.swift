@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -36,7 +37,7 @@ struct EditCollectionsView: View {
         if store.state.collections.isEmpty {
             Text(Localizations.noCollectionsToList)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
                 .padding(16)
                 .frame(maxWidth: .infinity)
