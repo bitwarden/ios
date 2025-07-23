@@ -8,6 +8,9 @@ import SwiftUI
 struct AppearanceView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<AppearanceState, AppearanceAction, AppearanceEffect>
 
@@ -67,14 +70,26 @@ struct AppearanceView: View {
     /// The show website icons toggle.
     private var webSiteIconsToggle: some View {
         BitwardenToggle(
-            Localizations.showWebsiteIcons,
             footer: Localizations.showWebsiteIconsDescription,
             isOn: store.binding(
                 get: \.isShowWebsiteIconsToggleOn,
                 send: AppearanceAction.toggleShowWebsiteIcons
             ),
             accessibilityIdentifier: "ShowWebsiteIconsSwitch"
-        )
+        ) {
+            HStack(spacing: 8) {
+                Text(Localizations.showWebsiteIcons)
+
+                Button {
+                    openURL(ExternalLinksConstants.websiteIconsHelp)
+                } label: {
+                    Asset.Images.questionCircle16.swiftUIImage
+                        .scaledFrame(width: 16, height: 16)
+                        .accessibilityLabel(Localizations.learnMore)
+                }
+                .buttonStyle(.fieldLabelIcon)
+            }
+        }
         .contentBlock()
     }
 }
