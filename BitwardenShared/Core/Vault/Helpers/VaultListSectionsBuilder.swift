@@ -309,6 +309,7 @@ struct VaultListPreparedData {
     var foldersCount: [Uuid: Int] = [:]
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
+    /// Organization Ids with `.restrictItemTypes` enabled.
     var restrictedOrganizationIds: [String] = []
     var totpItemsCount: Int = 0
 }
