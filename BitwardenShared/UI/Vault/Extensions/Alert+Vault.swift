@@ -14,13 +14,14 @@ extension Alert {
     ///     be decrypted.
     ///
     static func cipherDecryptionFailure(cipherIds: [String], copyAction: @escaping (String) -> Void) -> Alert {
-        Alert(
+        let newlineSeparatedCipherIds = cipherIds.joined(separator: "\n")
+        return Alert(
             title: Localizations.decryptionError,
             message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong
                 + "\n\n"
-                + cipherIds.joined(separator: "\n"),
+                + newlineSeparatedCipherIds,
             alertActions: [
-                AlertAction(title: Localizations.copy, style: .default) { _ in copyAction(cipherId ?? "") },
+                AlertAction(title: Localizations.copy, style: .default) { _ in copyAction(newlineSeparatedCipherIds) },
                 AlertAction(title: Localizations.close, style: .cancel),
             ]
         )

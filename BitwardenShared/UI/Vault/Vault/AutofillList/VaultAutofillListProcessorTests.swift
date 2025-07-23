@@ -104,7 +104,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.vaultItemTapped(item))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
         try await alert.tapAction(title: Localizations.copy)
         XCTAssertEqual(pasteboardService.copiedString, "1")

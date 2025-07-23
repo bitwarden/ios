@@ -28,16 +28,22 @@ class AlertVaultTests: BitwardenTestCase {
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that multiple items in
     /// their vault were unable to be decrypted.
     func test_cipherDecryptionFailure_multipleIds() async throws {
-        let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc", "789xyz"])
+        var copyString: String?
+        let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc", "789xyz"]) { copyString = $0 }
 
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
             Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc\n789xyz"
         )
-        XCTAssertEqual(subject.alertActions.count, 1)
-        XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)
-        XCTAssertEqual(subject.alertActions.first?.style, .default)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.close)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.copy)
+        XCTAssertEqual(copyString, "123abc\n789xyz")
     }
 
     /// `confirmCloneExcludesFido2Credential(action:)` constructs an alert to confirm whether to
