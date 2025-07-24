@@ -25,6 +25,5 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.removeCardPolicy.isRemotelyConfigured)
 
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
-        XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
     }
 }
