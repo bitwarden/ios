@@ -62,8 +62,8 @@ class CoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `showErrorAlert(error:)` builds an alert to show for an error when mobile error
-    /// reporting is enabled, allowing the user to share the details of the error.
+    /// `showErrorAlert(error:)` builds an alert to show for an error, which allows the user to
+    /// share the details of the error.
     @MainActor
     func test_showErrorAlert() async throws {
         let rootViewController = UIViewController()
