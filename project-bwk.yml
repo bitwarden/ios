@@ -196,6 +196,8 @@ targets:
       - path: BitwardenResources
       - path: BitwardenResources/Generated/Fonts.swift
         optional: true
+      - path: BitwardenResources/Generated/Localizations.swift
+        optional: true
       - path: BitwardenResources/Generated/SharedAssets.swift
         optional: true
     preBuildScripts:
@@ -208,6 +210,7 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
+          - $(SRCROOT)/BitwardenResources/Generated/Localizations.swift
           - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
   Networking:
     type: framework
