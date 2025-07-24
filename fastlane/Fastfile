@@ -436,15 +436,8 @@ platform :ios do |options|
   lane :release_to_production do |options|
 
     changelog = options[:changelog]
-    auth_locales = ["en-US"]
-    pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+    locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
-
-    if options[:app_identifier] == "com.bitwarden.authenticator"
-      locales = auth_locales
-    else
-      locales = pw_manager_locales
-    end
 
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
