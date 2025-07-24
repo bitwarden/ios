@@ -187,6 +187,63 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
         }
     }
 
+    /// `addTypesSection()` adds the Types section with each item type count, or 0 if not found
+    /// with restrictedOrganizationIds and cards.
+    func test_addTypesSection_restrictedOrganizationIds_cards() {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                countPerCipherType: [
+                    .card: 10,
+                    .identity: 1,
+                    .login: 15,
+                    .secureNote: 2,
+                ],
+                restrictedOrganizationIds: ["org1", "org2"],
+            )
+        )
+
+        let sections = subject.addTypesSection().build()
+
+        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+            """
+            Section[Types]: Types
+              - Group[Types.Logins]: Login (15)
+              - Group[Types.Cards]: Card (10)
+              - Group[Types.Identities]: Identity (1)
+              - Group[Types.SecureNotes]: Secure note (2)
+              - Group[Types.SSHKeys]: SSH key (0)
+            """
+        }
+    }
+
+    /// `addTypesSection()` adds the Types section with each item type count, or 0 if not found
+    /// with restrictedOrganizationIds but no cards.
+    func test_addTypesSection_restrictedOrganizationIds_nocards() {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                countPerCipherType: [
+                    .card: 0,
+                    .identity: 1,
+                    .login: 15,
+                    .secureNote: 2,
+                ],
+                restrictedOrganizationIds: ["org1", "org2"],
+            )
+        )
+
+        let sections = subject.addTypesSection().build()
+
+        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+            """
+            Section[Types]: Types
+              - Group[Types.Logins]: Login (15)
+              - Group[Types.Identities]: Identity (1)
+              - Group[Types.SecureNotes]: Secure note (2)
+              - Group[Types.SSHKeys]: SSH key (0)
+            """
+        }
+    }
+
     /// `build()` returns the built sections.
     /// Using this test also to verify that sections get appended and to verify fluent code usage of the builder.
     func test_build() async throws { // swiftlint:disable:this function_body_length
