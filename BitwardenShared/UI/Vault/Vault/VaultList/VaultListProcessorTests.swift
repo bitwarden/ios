@@ -899,9 +899,21 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
 
         try await waitForAsync { !self.coordinator.alertShown.isEmpty }
-        XCTAssertEqual(coordinator.alertShown.last, .cipherDecryptionFailure(cipherIds: ["1", "2"]) { _ in })
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .cipherDecryptionFailure(cipherIds: ["1", "2"], isFromCipherTap: false) { _ in }
+        )
         try await coordinator.alertShown.last?.tapAction(title: Localizations.copy)
-        XCTAssertEqual(pasteboardService.copiedString, "1\n2")
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2))
+
+            1
+            2
+            """
+        )
         XCTAssertTrue(subject.hasShownCipherDecryptionFailureAlert)
 
         // As more data is published, the alert isn't shown again.
@@ -1418,7 +1430,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
         try await alert.tapAction(title: Localizations.copy)
-        XCTAssertEqual(pasteboardService.copiedString, "1")
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.

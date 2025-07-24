@@ -259,7 +259,7 @@ extension VaultListProcessor {
     ///
     private func handleCipherDecryptionFailures(cipherIds: [Uuid]) {
         guard !cipherIds.isEmpty, !hasShownCipherDecryptionFailureAlert else { return }
-        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds) { stringToCopy in
+        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds, isFromCipherTap: false) { stringToCopy in
             self.services.pasteboardService.copy(stringToCopy)
         })
         hasShownCipherDecryptionFailureAlert = true

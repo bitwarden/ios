@@ -3,9 +3,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AlertVaultTests: BitwardenTestCase {
+class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
-    /// vault was unable to be decrypted.
+    /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {
         var copyString: String?
         let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc"]) { copyString = $0 }
@@ -13,7 +13,7 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
-            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc"
+            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
@@ -22,19 +22,32 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
         try await subject.tapAction(title: Localizations.copy)
-        XCTAssertEqual(copyString, "123abc")
+        XCTAssertEqual(
+            copyString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong)
+
+            123abc
+            """
+        )
     }
 
-    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that multiple items in
-    /// their vault were unable to be decrypted.
-    func test_cipherDecryptionFailure_multipleIds() async throws {
+    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
+    /// vault was unable to be decrypted.
+    func test_cipherDecryptionFailure_isFromCipherTypeFalse() async throws {
         var copyString: String?
-        let subject = Alert.cipherDecryptionFailure(cipherIds: ["123abc", "789xyz"]) { copyString = $0 }
+        let subject = Alert.cipherDecryptionFailure(
+            cipherIds: ["123abc"],
+            isFromCipherTap: false
+        ) { stringToCopy in
+            copyString = stringToCopy
+        }
 
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
-            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n123abc\n789xyz"
+            Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
@@ -43,7 +56,50 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
         try await subject.tapAction(title: Localizations.copy)
-        XCTAssertEqual(copyString, "123abc\n789xyz")
+        XCTAssertEqual(
+            copyString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong)
+
+            123abc
+            """
+        )
+    }
+
+    /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that multiple items in
+    /// their vault were unable to be decrypted.
+    func test_cipherDecryptionFailure_isFromCipherTypeFalse_multipleIds() async throws {
+        var copyString: String?
+        let subject = Alert.cipherDecryptionFailure(
+            cipherIds: ["123abc", "789xyz"],
+            isFromCipherTap: false
+        ) { stringToCopy in
+            copyString = stringToCopy
+        }
+
+        XCTAssertEqual(subject.title, Localizations.decryptionError)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2)
+        )
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.close)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.copy)
+        XCTAssertEqual(
+            copyString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2))
+
+            123abc
+            789xyz
+            """
+        )
     }
 
     /// `confirmCloneExcludesFido2Credential(action:)` constructs an alert to confirm whether to
