@@ -68,9 +68,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             return nil
         }
 
-        let restrictedOrganizationIds: [String] = await getRestrictedOrganizationIds()
-
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         preparedDataBuilder = preparedDataBuilder
             .prepareFolders(folders: folders, filterType: filter.filterType)
@@ -114,9 +113,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             return nil
         }
 
-        let restrictedOrganizationIds: [String] = await getRestrictedOrganizationIds()
-
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         preparedDataBuilder = preparedDataBuilder
             .prepareFolders(folders: folders, filterType: filter.filterType)
@@ -150,12 +148,15 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
     // MARK: Private
 
-    /// Returns the restricted organization IDs for the `.restrictItemTypes` policy if enabled.
+    /// Returns the restricted organization IDs for the `.restrictItemTypes` policy if enabled
+    /// and adds them to the builder.
     /// - Returns: The restricted organization IDs.
-    func getRestrictedOrganizationIds() async -> [String] {
+    func prepareRestrictedOrganizationIds(builder: VaultListPreparedDataBuilder) async -> [String] {
         guard await configService.getFeatureFlag(.removeCardPolicy) else {
             return []
         }
-        return await policyService.getOrganizationIdsForRestricItemTypesPolicy()
+        let restrictedOrganizationIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
+        builder.prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: restrictedOrganizationIds)
+        return restrictedOrganizationIds
     }
 }
