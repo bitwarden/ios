@@ -6,6 +6,16 @@ fonts:
     output: Fonts.swift
     params:
       publicAccess: true
+strings:
+  inputs:
+    - BitwardenResources/Localizations/en.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Localizations.swift
+      params:
+        enumName: Localizations
+        publicAccess: true
+        lookupFunction: Resources.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
     - BitwardenResources/Colors.xcassets

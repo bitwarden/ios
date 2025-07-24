@@ -20,6 +20,7 @@ class MockCryptoClient: CryptoClientProtocol {
     var enrollAdminPasswordPublicKey: String?
     var enrollAdminPasswordResetResult: Result<String, Error> = .success("RESET_PASSWORD_KEY")
 
+    var getUserEncryptionKeyCalled = false
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
     var initializeOrgCryptoRequest: InitOrgCryptoRequest?
@@ -56,7 +57,8 @@ class MockCryptoClient: CryptoClientProtocol {
     }
 
     func getUserEncryptionKey() async throws -> String {
-        try getUserEncryptionKeyResult.get()
+        getUserEncryptionKeyCalled = true
+        return try getUserEncryptionKeyResult.get()
     }
 
     func initializeOrgCrypto(req: InitOrgCryptoRequest) async throws {

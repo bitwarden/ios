@@ -45,6 +45,12 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherDataStore: CipherDataStore
 
+    /// The service that handles common client functionality such as encryption and decryption.
+    /// This is only used to create the authenticator vault key when the vault is unlocked by the
+    /// user in the app and then `authenticatorClientService` handles any ongoing
+    /// encryption/decryption related to authenticator syncing.
+    private let clientService: ClientService
+
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
@@ -88,8 +94,10 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameters:
     ///   - authBridgeItemService: The service for managing sharing items to/from the Authenticator app.
-    ///   - authenticatorClientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - authenticatorClientService: The service that handles common client functionality such as
+    ///     encryption and decryption.
     ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
     ///   - keychainRepository: Keychain Repository for storing/accessing the Authenticator Vault Key.
@@ -103,6 +111,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         authBridgeItemService: AuthenticatorBridgeItemService,
         authenticatorClientService: ClientService,
         cipherDataStore: CipherDataStore,
+        clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -114,6 +123,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         self.authBridgeItemService = authBridgeItemService
         self.authenticatorClientService = authenticatorClientService
         self.cipherDataStore = cipherDataStore
+        self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -193,7 +203,11 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
               let activeId = try? await stateService.getActiveAccountId(),
               activeId == userId else { return }
 
-        let key = try await authenticatorClientService.crypto().getUserEncryptionKey()
+        // This requires `clientService` here (as opposed to `authenticatorClientService`) along
+        // with an unlocked vault in order to create the authenticator vault key. After the key is
+        // created, `authenticatorClientService` can handle ongoing vault decryption tasks to keep
+        // authenticator synced.
+        let key = try await clientService.crypto(for: userId).getUserEncryptionKey()
         try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
     }
 
@@ -214,7 +228,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 && cipher.login?.totp != nil
         }
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
-            try await self.authenticatorClientService.vault(for: account.profile.userId).ciphers().decrypt(cipher: cipher)
+            try await self.authenticatorClientService.vault(for: account.profile.userId).ciphers()
+                .decrypt(cipher: cipher)
         }
 
         return decryptedCiphers.map { cipher in
