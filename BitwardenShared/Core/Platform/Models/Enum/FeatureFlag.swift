@@ -27,14 +27,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         isRemotelyConfigured: false
     )
 
-    /// A flag to ignore the environment check for the two-factor authentication
-    /// notice. If this is on, then it will display even on self-hosted servers,
-    /// which means it's easier to dev/QA the feature.
-    static let ignore2FANoticeEnvironmentCheck = FeatureFlag(
-        rawValue: "ignore-2fa-notice-environment-check",
-        isRemotelyConfigured: false
-    )
-
     /// A feature flag for the import logins flow for new accounts.
     static let importLoginsFlow = FeatureFlag(rawValue: "import-logins-flow")
 
@@ -59,7 +51,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cipherKeyEncryption,
             .emailVerification,
             .enableCipherKeyEncryption,
-            .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
