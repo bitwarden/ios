@@ -863,6 +863,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authBridgeItemService: authBridgeItemService,
             authenticatorClientService: authenticatorClientService,
             cipherDataStore: dataStore,
+            clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
