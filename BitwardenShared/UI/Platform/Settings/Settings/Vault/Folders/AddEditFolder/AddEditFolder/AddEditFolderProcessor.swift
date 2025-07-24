@@ -23,8 +23,7 @@ protocol AddEditFolderDelegate: AnyObject {
 final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFolderAction, AddEditFolderEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Properties

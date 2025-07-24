@@ -15,7 +15,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & SendItemCoordinator.Module
         & SendItemModule
 
-    typealias Services = HasErrorAlertServices.ErrorAlertServices
+    typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService

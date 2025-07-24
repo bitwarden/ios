@@ -38,9 +38,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag for the import logins flow for new accounts.
     static let importLoginsFlow = FeatureFlag(rawValue: "import-logins-flow")
 
-    /// A feature flag to enable additional error reporting.
-    static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
-
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
         rawValue: "pm-15493-restrict-item-deletion-to-can-manage-permission"
@@ -64,7 +61,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .enableCipherKeyEncryption,
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
-            .mobileErrorReporting,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,

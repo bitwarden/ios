@@ -135,7 +135,7 @@ protocol HasRouter<Event, Route> {
 ///
 @MainActor
 protocol HasErrorAlertServices: Coordinator, HasNavigator {
-    typealias ErrorAlertServices = HasConfigService & HasErrorReportBuilder
+    typealias ErrorAlertServices = HasErrorReportBuilder
 
     /// The services needed to build an alert for an error that occurred.
     var errorAlertServices: ErrorAlertServices { get }
@@ -197,27 +197,25 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
     func showErrorAlert(error: Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        // Building the call stack outside of the closure results in a more accurate call stack
+        // since the closure is called from a new Task.
         let callStack = Thread.callStackSymbols.joined(separator: "\n")
-        let alert = if await errorAlertServices.configService.getFeatureFlag(.mobileErrorReporting) {
-            Alert.networkResponseError(
-                error,
-                shareErrorDetails: {
-                    let errorReport = await self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
-                        for: error,
-                        callStack: callStack
-                    )
+        let alert = Alert.networkResponseError(
+            error,
+            shareErrorDetails: {
+                let errorReport = await self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
+                    for: error,
+                    callStack: callStack
+                )
 
-                    let viewController = UIActivityViewController(
-                        activityItems: [errorReport],
-                        applicationActivities: nil
-                    )
-                    self.navigator?.present(viewController)
-                },
-                tryAgain: tryAgain
-            )
-        } else {
-            Alert.networkResponseError(error, tryAgain: tryAgain)
-        }
+                let viewController = UIActivityViewController(
+                    activityItems: [errorReport],
+                    applicationActivities: nil
+                )
+                self.navigator?.present(viewController)
+            },
+            tryAgain: tryAgain
+        )
         showAlert(alert, onDismissed: onDismissed)
     }
 }
