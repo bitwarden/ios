@@ -38,6 +38,7 @@ env:
 permissions:
   contents: read
   packages: read
+  id-token: write
 
 jobs:
     publish:
@@ -75,10 +76,18 @@ jobs:
             client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
         - name: Retrieve secrets
+          id: retrieve-secrets
           uses: bitwarden/gh-actions/get-keyvault-secrets@main
           with:
-            keyvault: ${{ env._KEY_VAULT }}
+            keyvault: "bitwarden-ci"
             secrets: "appcenter-ios-token"
+
+        - name: Get Azure Key Vault secrets
+          id: get-kv-secrets
+          uses: bitwarden/gh-actions/get-keyvault-secrets@main
+          with:
+            keyvault: "gh-ios"
+            secrets: "APP_STORE_CONNECT_AUTH_KEY"
 
         - name: Log out from Azure
           uses: bitwarden/gh-actions/azure-logout@main
@@ -97,7 +106,7 @@ jobs:
           run: |
             mkdir ~/private_keys
             cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-            ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+            ${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_AUTH_KEY }}
             EOF
 
         - name: Upload app to with Fastlane
