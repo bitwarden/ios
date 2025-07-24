@@ -437,11 +437,28 @@ platform :ios do |options|
 
     changelog = options[:changelog]
     locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+    # metadata_path = options[:metadata_path]
+
+    # locales.each do |locale|
+    #   dir = "#{metadata_path}/#{locale}"
+    #   FileUtils.mkdir_p(dir)
+    #   File.write("#{dir}/release_notes.txt", changelog)
+    # end
+
     metadata_path = options[:metadata_path]
 
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
+
+      # Copy all files from the root of metadata_path into this locale directory
+      Dir.glob("#{metadata_path}/*").each do |file|
+        next if File.directory?(file) # skip subdirectories unless you want to include them too
+
+        FileUtils.cp(file, dir)
+      end
+
+      # Write changelog to release_notes.txt
       File.write("#{dir}/release_notes.txt", changelog)
     end
 
