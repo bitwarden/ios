@@ -82,9 +82,6 @@ jobs:
             keyvault: "gh-ios"
             secrets: "APP-STORE-CONNECT-AUTH-KEY"
 
-        - name: Log out from Azure
-          uses: bitwarden/gh-actions/azure-logout@main
-
         - name: Download Fastlane credentials
           env:
             ACCOUNT_NAME: bitwardenci
@@ -94,6 +91,10 @@ jobs:
             mkdir -p $HOME/secrets
             az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
               --file $HOME/secrets/$FILE --output none
+
+
+        - name: Log out from Azure
+          uses: bitwarden/gh-actions/azure-logout@main
 
         - name: Set up private auth key
           run: |
