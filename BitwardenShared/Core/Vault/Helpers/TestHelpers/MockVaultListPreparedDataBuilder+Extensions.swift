@@ -8,6 +8,10 @@ extension MockVaultListPreparedDataBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
         let helper = MockCallOrderHelper()
 
+        addCipherDecryptionFailureCipherClosure = { _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addCipherDecryptionFailure")
+            return self
+        }
         addFavoriteItemCipherClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addFavoriteItem")
             return self
@@ -57,6 +61,7 @@ extension MockVaultListPreparedDataBuilder {
     }
 
     func setUpFluentReturn() {
+        addCipherDecryptionFailureCipherReturnValue = self
         addFavoriteItemCipherReturnValue = self
         addFolderItemCipherFilterFoldersReturnValue = self
         addItemForGroupWithReturnValue = self

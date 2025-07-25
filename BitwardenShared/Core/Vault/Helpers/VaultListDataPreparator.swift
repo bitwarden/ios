@@ -93,6 +93,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             }
 
             preparedDataBuilder = preparedDataBuilder
+                .addCipherDecryptionFailure(cipher: decryptedCipher)
                 .addFolderItem(cipher: decryptedCipher, filter: filter, folders: folders)
                 .addFavoriteItem(cipher: decryptedCipher)
                 .addNoFolderItem(cipher: decryptedCipher)

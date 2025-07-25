@@ -38,6 +38,8 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
 /// Builder to build prepared data for the vault list sections.
 protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
+    /// Adds a cipher item which failed to decrypt.
+    func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the prepared data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a folder item to the prepared data.
@@ -111,6 +113,13 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     // MARK: Methods
+
+    func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder {
+        if cipher.isDecryptionFailure, let id = cipher.id {
+            preparedData.cipherDecryptionFailureIds.append(id)
+        }
+        return self
+    }
 
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.favorite,

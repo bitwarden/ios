@@ -8,17 +8,36 @@ extension Alert {
     /// decrypted.
     ///
     /// - Parameters:
-    ///   - cipherId: The identifier of the cipher that was unable to be decrypted.
+    ///   - cipherIds: The identifiers of any ciphers that were unable to be decrypted.
+    ///   - isFromCipherTap: Whether the alert is being shown in response to a user tapping on a
+    ///     cipher which failed to decrypt or a general alert that is displayed when the vault loads.
     ///   - copyAction: A closure that is called in response to tapping the copy button.
-    /// - Returns: An alert notifying the user that one or more item in their vault were unable to
+    /// - Returns: An alert notifying the user that one or more items in their vault were unable to
     ///     be decrypted.
     ///
-    static func cipherDecryptionFailure(cipherId: String?, copyAction: @escaping (String) -> Void) -> Alert {
-        Alert(
+    static func cipherDecryptionFailure(
+        cipherIds: [String],
+        isFromCipherTap: Bool = true,
+        copyAction: @escaping (String) -> Void
+    ) -> Alert {
+        let message = if isFromCipherTap {
+            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
+        } else {
+            cipherIds.count == 1
+                ? Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong
+                : Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(cipherIds.count)
+        }
+
+        return Alert(
             title: Localizations.decryptionError,
-            message: Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong + "\n\n" + (cipherId ?? ""),
+            message: message,
             alertActions: [
-                AlertAction(title: Localizations.copy, style: .default) { _ in copyAction(cipherId ?? "") },
+                AlertAction(title: Localizations.copyErrorReport, style: .default, handler: { _ in
+                    let stringToCopy = Localizations.decryptionError
+                        + "\n" + message
+                        + "\n\n" + cipherIds.joined(separator: "\n")
+                    copyAction(stringToCopy)
+                }),
                 AlertAction(title: Localizations.close, style: .cancel),
             ]
         )
