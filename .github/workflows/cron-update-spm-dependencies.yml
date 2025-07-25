@@ -1,0 +1,67 @@
+name: Cron / Update SPM dependencies
+on:
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-spm-dependencies:
+    name: Update SPM dependencies
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+      
+      - name: Run update script
+        run: |
+           ./Scripts/update-dependencies.py
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet -- $PSL_FILE; then
+            echo "✅ No changes detected, skipping..."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "👀 Changes detected"
+
+      - name: Create branch and commit
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "📋 Committing project file updates..."
+
+          BRANCH_NAME="cron-update-spm-dependencies/$GITHUB_RUN_NUMBER-spm-update"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add $PSL_FILE
+          git commit -m "Update SPM dependencies"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "🌱 Branch created: $BRANCH_NAME"
+
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DUPLICATES_FOUND: ${{ steps.check-changes.outputs.duplicates_found }}
+          BASE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/
+        run: |
+          PR_BODY="Updates SPM dependencies"
+
+          # Use echo -e to interpret escape sequences and pipe to gh pr create
+          PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+            --title "Update SPM dependencies" \
+            --body-file - \
+            --base main \
+            --head $BRANCH_NAME \
+            --label "automated-pr" \
+            --label "t:ci")
