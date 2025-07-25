@@ -40,9 +40,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "pm-16442-remove-card-item-type-policy"
     )
 
-    /// A feature flag to enable SimpleLogin self-host alias generation
-    static let simpleLoginSelfHostAlias = FeatureFlag(rawValue: "simple-login-self-host-alias")
-
     public static var allCases: [FeatureFlag] {
         [
             .anonAddySelfHostAlias,
@@ -54,7 +51,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .importLoginsFlow,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
-            .simpleLoginSelfHostAlias,
         ]
     }
 }

@@ -70,9 +70,6 @@ extension GeneratorState {
         /// The base URL for the SimpleLogin api.
         var simpleLoginSelfHostServerUrl: String = ""
 
-        /// A flag indicating if the SimpleLogin selfhost is enabled.
-        var simpleLoginSelfHostServerUrlEnabled = false
-
         // MARK: Plus Addressed Email Properties
 
         /// The user's email for generating plus addressed emails.
