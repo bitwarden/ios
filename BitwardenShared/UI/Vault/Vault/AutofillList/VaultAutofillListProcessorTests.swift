@@ -107,7 +107,15 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
         try await alert.tapAction(title: Localizations.copy)
-        XCTAssertEqual(pasteboardService.copiedString, "1")
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
