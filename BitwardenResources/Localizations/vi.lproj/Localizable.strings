@@ -125,7 +125,7 @@
 "Fingerprint" = "Vân tay";
 "GeneratePassword" = "Tạo mật khẩu";
 "GetPasswordHint" = "Nhận gợi ý mật khẩu chính";
-"ImportItems" = "Nhập mục";
+"ImportItems" = "Nhập vào kho";
 "ImportItemsConfirmation" = "Bạn có thể nhập hàng loạt các mục từ kho lưu trữ trực tuyến bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?";
 "ImportItemsDescription" = "Dễ dàng nhập toàn bộ mật khẩu của bạn từ các ứng dụng quản lý mật khẩu khác.";
 "LastSync" = "Đồng bộ lúc:";
@@ -450,7 +450,7 @@
 "ClearClipboard" = "Xóa bảng nhớ tạm";
 "ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.";
 "DefaultUriMatchDetection" = "Cách nhận diện đường dẫn (URI)";
-"DefaultUriMatchDetectionDescription" = "Chọn cách thức mặc định hệ thống so khớp đường dẫn (URI) để xử lý đăng nhập khi thực hiện các thao tác như tự động điền.";
+"DefaultUriMatchDetectionDescription" = "Chọn cách hệ thống so khớp đường dẫn để xử lý đăng nhập khi thực hiện các thao tác như tự động điền.";
 "Theme" = "Giao diện";
 "ThemeDescription" = "Thay đổi màu sắc chủ đề của ứng dụng.";
 "ThemeDefault" = "Giống như hệ thống";
