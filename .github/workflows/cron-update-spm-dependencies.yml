@@ -19,7 +19,7 @@ jobs:
       
       - name: Run update script
         run: |
-           ./Scripts/update-dependencies.sh
+           ./Scripts/update-dependencies.py
 
       - name: Check for changes
         id: check-changes
