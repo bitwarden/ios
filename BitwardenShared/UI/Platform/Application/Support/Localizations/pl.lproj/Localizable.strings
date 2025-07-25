@@ -1213,5 +1213,8 @@
 "LastEdited" = "Zaktualizowano: %1$@";
 "PasswordLastUpdated" = "Ostatnia aktualizacja hasła: %1$@";
 "DecryptionError" = "Błąd odszyfrowywania";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nie mógł odszyfrować poniższych elementów sejfu. Skontaktuj się z działem obsługi klienta, aby uniknąć dalszej utraty danych.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nie mógł odszyfrować elementu sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nie mógł odszyfrować 1 elementu sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nie mógł odszyfrować %1$@ elementów sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
+"CopyErrorReport" = "Kopiuj raport błędu";
 "ErrorCannotDecrypt" = "[błąd: nie można odszyfrować]";

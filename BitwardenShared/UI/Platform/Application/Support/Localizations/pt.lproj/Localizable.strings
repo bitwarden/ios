@@ -1213,5 +1213,8 @@
 "LastEdited" = "Última edição: %1$@";
 "PasswordLastUpdated" = "Última atualização da palavra-passe: %1$@";
 "DecryptionError" = "Erro de desencriptação";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "O Bitwarden não conseguiu descriptografar o item do cofre listado abaixo. Contacte o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar este item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar 1 item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "O Bitwarden não conseguiu desencriptar %1$@ itens do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"CopyErrorReport" = "Copiar relatório de erros";
 "ErrorCannotDecrypt" = "[erro: não é possível desencriptar]";

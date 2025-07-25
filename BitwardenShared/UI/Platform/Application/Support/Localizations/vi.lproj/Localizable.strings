@@ -350,7 +350,7 @@
 "BitwardenAutofillGoToSettings" = "Chúng tôi không thể mở cài đặt tự động điền cho bạn. Bạn có thể đi đến cài đặt tự động điền theo cách thủ công bằng cách vào Cài đặt > Hệ thống > Ngôn ngữ và nhập liệu > Nâng cao > Dịch vụ tự động điền.";
 "CustomFieldName" = "Tên trường tùy chỉnh";
 "FieldTypeBoolean" = "Đúng/Sai";
-"FieldTypeHidden" = "Ẩn";
+"FieldTypeHidden" = "Bí ẩn";
 "FieldTypeLinked" = "Đã liên kết";
 "FieldTypeText" = "Văn bản";
 "NewCustomField" = "Trường tùy chỉnh mới";
@@ -465,8 +465,8 @@
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
 "AutofillBlockedUris" = "Tự động điền các đường dẫn bị chặn";
-"AskToAddLogin" = "Yêu cầu thêm thông tin đăng nhập";
-"AskToAddLoginDescription" = "Yêu cầu thêm mục nếu không tìm thấy nó trong kho của bạn.";
+"AskToAddLogin" = "Gợi ý thêm mục đăng nhập";
+"AskToAddLoginDescription" = "Gợi ý thêm mục nếu không tìm thấy mục nào trong kho trùng khớp.";
 "OnRestart" = "Khi khởi động lại ứng dụng";
 "AutofillServiceNotEnabled" = "Tính năng tự động điền giúp bạn dễ dàng truy cập an toàn vào kho lưu trữ Bitwarden từ các trang web và ứng dụng khác. Có vẻ như bạn chưa thiết lập dịch vụ tự động điền cho Bitwarden. Hãy thiết lập tính năng tự động điền cho Bitwarden từ màn hình \"Cài đặt\".";
 "ThemeAppliedOnRestart" = "Chủ đề sẽ được áp dụng khi khởi động lại ứng dụng.";
@@ -564,7 +564,7 @@
 "FileTypeIsNotSelected" = "Loại tập tin chưa được chọn, nhấn để chọn.";
 "TextTypeIsSelected" = "Loại văn bản được chọn.";
 "TextTypeIsNotSelected" = "Loại văn bản chưa được chọn, nhấn để chọn.";
-"DeletionDate" = "Ngày xóa";
+"DeletionDate" = "Xóa sau";
 "DeletionTime" = "Thời gian xóa";
 "DeletionDateInfo" = "Send sẽ được xóa vĩnh viễn vào ngày và giờ được chỉ định.";
 "PendingDelete" = "Đang chờ xóa";
@@ -757,7 +757,7 @@
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Bạn có chắc muốn từ chối tất cả các yêu cầu đăng nhập đang chờ?";
 "RequestsDeclined" = "Yêu cầu đã từ chối";
 "NoPendingRequests" = "Không có yêu cầu đang chờ phê duyệt";
-"EnableCamerPermissionToUseTheScanner" = "Cấp quyền máy ảnh để sử dụng trình quét";
+"EnableCamerPermissionToUseTheScanner" = "Cấp quyền truy cập máy ảnh để quét";
 "Language" = "Ngôn ngữ";
 "LanguageChangeXDescription" = "Ngôn ngữ đã được đổi thành %1$@. Khởi động lại ứng dụng để áp dụng";
 "LanguageChangeRequiresAppRestart" = "Thay đổi ngôn ngữ yêu cầu khởi động lại ứng dụng";
@@ -1037,11 +1037,11 @@
 "ImportSavedLogins" = "Nhập các thông tin đăng nhập đã lưu";
 "ImportSavedLoginsDescriptionLong" = "Sử dụng máy tính để nhập thông tin đăng nhập từ trình quản lý mật khẩu hiện có.";
 "ImportLogins" = "Nhập thông tin đăng nhập";
-"GiveYourVaultAHeadStart" = "Khởi động nhanh kho lưu trữ của bạn";
+"GiveYourVaultAHeadStart" = "Nhanh chóng tạo kho lưu trữ của bạn";
 "ImportLoginsDescriptionLong" = "Trên máy tính của bạn, hãy làm theo các bước sau để xuất các mật khẩu đã lưu từ trình duyệt hoặc trình quản lý mật khẩu khác. Sau đó, nhập chúng vào Bitwarden một cách an toàn.";
 "ImportLoginsLater" = "Nhập thông tin đăng nhập sau";
 "ImportLoginsLaterQuestion" = "Nhập thông tin đăng nhập sau?";
-"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bạn có thể hoàn tất bước này sau trong mục Cài đặt kho.";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bạn có thể hoàn tất bước này sau trong mục Kho lưu trữ của phần Cài đặt.";
 "DoYouHaveAComputerAvailable" = "Bạn có máy tính?";
 "DoYouHaveAComputerAvailableDescriptionLong" = "Các hướng dẫn sau đây sẽ chỉ bạn cách nhập thông tin đăng nhập từ máy tính để bàn hoặc laptop của bạn.";
 "StepXOfY" = "Bước %1$@ trong %2$@";
@@ -1052,10 +1052,10 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Bạn sẽ xóa tệp này sau khi quá trình nhập dữ liệu hoàn tất.";
 "NeedHelpCheckOutImportHelp" = "Cần trợ giúp? Hãy xem **[hướng dẫn nhập dữ liệu](%1$@)**";
 "LogInToBitwarden" = "Đăng nhập Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "Trên máy tính của bạn, mở một tab trình duyệt mới và **truy cập vào %1$@**.";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "Trên máy tính của bạn, mở một tab trình duyệt mới và **truy cập %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Đăng nhập Bitwarden bản web.**";
 "ImportLoginsToBitwarden" = "Nhập thông tin đăng nhập vào Bitwarden";
-"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Trong giao diện điều hướng của Bitwarden, **tìm tùy chọn Công cụ ** và **chọn Nhập dữ liệu.**";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Trong giao diện điều hướng của Bitwarden, tìm tùy chọn **Công cụ** và chọn **Nhập dữ liệu.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Điền vào biểu mẫu và **nhập tệp mật khẩu đã lưu của bạn.**";
 "SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Chọn Nhập dữ liệu** trong bản web, sau đó nhấn **Xong** bên dưới để hoàn tất quá trình đồng bộ hóa.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "Để đảm bảo an toàn cho bạn, hãy chắc chắn rằng bạn đã **xóa tệp mật khẩu đã lưu của mình.**";
@@ -1213,5 +1213,8 @@
 "LastEdited" = "Sửa đổi gần nhất: %1$@";
 "PasswordLastUpdated" = "Mật khẩu được cập nhật lần cuối: %1$@";
 "DecryptionError" = "Lỗi giải mã";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden không thể giải mã những mục bên dưới. Vui lòng liên hệ bộ phận hỗ trợ khách hàng để tránh mất thêm dữ liệu.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";

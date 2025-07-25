@@ -1213,5 +1213,8 @@
 "LastEdited" = "Naposledy upravené: %1$@";
 "PasswordLastUpdated" = "Naposledy upravené heslo: %1$@";
 "DecryptionError" = "Chyba dešifrovania";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nedokázal dešifrovať nižšie uvedenú položku trezoru. Kontaktujte oddelenie Customer Success, aby ste zabránili ďalšej strate údajov.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nedokázal dešifrovať túto položku trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nedokázal dešifrovať 1 položku trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nedokázal dešifrovať položky (%1$@) trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
+"CopyErrorReport" = "Kopírovať hlásenie o chybe";
 "ErrorCannotDecrypt" = "[chyba: nedá sa dešifrovať]";

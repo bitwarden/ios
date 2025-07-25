@@ -1213,5 +1213,8 @@
 "LastEdited" = "Pēdējoreiz labots: %1$@";
 "PasswordLastUpdated" = "Parole pēdējoreiz atjaunināta: %1$@";
 "DecryptionError" = "Atšifrēšanas kļūda";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt zemāk uzskaitīto glabātavas vienumu. Jāsazinās ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[kļūda: nevar atšifrēt]";
