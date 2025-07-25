@@ -21,7 +21,7 @@ extension Alert {
         copyAction: @escaping (String) -> Void
     ) -> Alert {
         let message = if isFromCipherTap {
-            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong
+            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
         } else {
             cipherIds.count == 1
                 ? Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong

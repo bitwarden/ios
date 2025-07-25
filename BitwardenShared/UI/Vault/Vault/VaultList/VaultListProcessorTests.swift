@@ -1434,7 +1434,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             pasteboardService.copiedString,
             """
             \(Localizations.decryptionError)
-            \(Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             1
             """

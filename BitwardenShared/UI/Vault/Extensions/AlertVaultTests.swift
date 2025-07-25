@@ -13,7 +13,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
-            Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong
+            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
@@ -26,7 +26,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             copyString,
             """
             \(Localizations.decryptionError)
-            \(Localizations.bitwardenCouldNotDecryptTheVaultItemDescriptionLong)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             123abc
             """
