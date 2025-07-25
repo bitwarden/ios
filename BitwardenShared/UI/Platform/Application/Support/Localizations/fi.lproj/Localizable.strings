@@ -372,8 +372,6 @@
 "TryAgain" = "Yritä uudelleen";
 "YubiKeyInstructionIos" = "Jatka pitämällä YubiKey NEO -suojausavainta laitteen taustaa vasten.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Esteettömyyspalvelu voi olla hyödyllinen sellaisten appien kanssa, jotka eivät tue tavallista automaattitäytön palvelua.";
-"DatePasswordUpdated" = "Salasana vaihdettiin";
-"DateUpdated" = "Päivitettiin";
 "AutofillActivated" = "Automaattinen täyttö on aktivoitu!";
 "MustLogInMainAppAutofill" = "Sinun on kirjauduttava Bitwardenin pääsovellukseen ennen kuin voit käyttää automaattista täyttöä.";
 "AutofillSetup" = "Kirjautumistietosi ovat nyt helposti saatavilla suoraan näppäimistöltäsi kun olet kirjautumassa sovelluksiin ja verkkosivustoille.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden mahdollistaa holvisi sisällön jakamisen organisaation avulla. Lue lisää osoitteesta bitwarden.com.";
 "RateAppDescriptionLong" = "Auta muita selvittämään sopiiko Bitwarden heille. Arvioi se sovelluskaupassa nyt.";
 "DefaultDarkThemeDescriptionLong" = "Valitse tumma teema kun laitteesi tumma tila on aktiivinen.";
-"CreatedXY" = "Luotu %1$@ - %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Liian monta yritystä";
 "AccountLoggedOutBiometricExceeded" = "Tili kirjattiin ulos.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

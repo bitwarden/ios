@@ -372,8 +372,6 @@
 "TryAgain" = "Prøv igen";
 "YubiKeyInstructionIos" = "For at fortsætte skal du holde din YubiKey NEO mod bagsiden af enheden.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Adgangskode opdateret";
-"DateUpdated" = "Opdateret";
 "AutofillActivated" = "Autoudfyld aktiveret!";
 "MustLogInMainAppAutofill" = "Du skal logge ind på den primære Bitwarden-app, før du kan bruge Autoudfyld.";
 "AutofillSetup" = "Dine logins kan nu nemt tilgås direkte fra dit tastatur, når du logger ind på apps og hjemmesider.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden muliggør deling af emner i din Boks med andre vha. en organisation. Læs mere på bitwarden.com-webstedet.";
 "RateAppDescriptionLong" = "Hjælp andre med at finde ud af, om Bitwarden er det rigtige for dem. Besøg App Store og skriv en bedømmelse nu.";
 "DefaultDarkThemeDescriptionLong" = "Vælg det mørke tema, der skal bruges, når enhedens mørke-tilstand er i brug";
-"CreatedXY" = "Oprettet %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "For mange forsøg";
 "AccountLoggedOutBiometricExceeded" = "Konto logget ud.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Organisationstilladelserne er blevet opdateret, og der kræves nu oprettelse af en hovedadgangskode.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

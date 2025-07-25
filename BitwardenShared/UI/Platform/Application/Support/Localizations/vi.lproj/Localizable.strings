@@ -372,8 +372,6 @@
 "TryAgain" = "Thử lại";
 "YubiKeyInstructionIos" = "Để tiếp tục, hãy đặt YubiKey NEO của bạn dựa vào mặt lưng của thiết bị.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Bạn có thể cần dùng dịch vụ trợ năng vì một số ứng dụng không hỗ trợ dịch vụ tự động điền của Android.";
-"DatePasswordUpdated" = "Đã cập nhật mật khẩu";
-"DateUpdated" = "Cập nhật vào";
 "AutofillActivated" = "Đã bật Tự động điền!";
 "MustLogInMainAppAutofill" = "Bạn phải đăng nhập vào ứng dụng Bitwarden trước khi có thể sử dụng Tự động điền.";
 "AutofillSetup" = "Bây giờ, bạn có thể dễ dàng truy cập các thông tin đăng nhập của mình ngay từ bàn phím khi đăng nhập vào các ứng dụng và trang web.";
@@ -519,12 +517,12 @@
 "AccountBiometricInvalidatedExtension" = "Chức năng tự động điền và mở khóa bằng sinh trắc học cho tài khoản này đã bị vô hiệu hóa cho đến khi xác minh mật khẩu chính.";
 "EnableSyncOnRefresh" = "Đồng bộ khi làm mới";
 "EnableSyncOnRefreshDescription" = "Đồng bộ kho bằng cách vuốt xuống.";
-"LogInSso" = "Đăng nhập một lần cho doanh nghiệp";
+"LogInSso" = "Đăng nhập một lần (SSO) cho doanh nghiệp";
 "LogInSsoSummary" = "Đăng nhập nhanh chóng thông qua cổng đăng nhập một lần của tổ chức của bạn. Vui lòng nhập mã định danh của tổ chức để bắt đầu.";
 "OrgIdentifier" = "Mã định danh tổ chức";
-"LoginSsoError" = "Hiện tại không thể đăng nhập bằng Đăng nhập một lần";
+"LoginSsoError" = "Hiện tại không thể đăng nhập bằng SSO";
 "SetMasterPassword" = "Đặt mật khẩu chính";
-"SetMasterPasswordSummary" = "Để hoàn tất quá trình đăng nhập bằng Đăng nhập một lần, vui lòng thiết lập mật khẩu chính để truy cập và bảo vệ kho lưu trữ của bạn.";
+"SetMasterPasswordSummary" = "Để hoàn tất quá trình đăng nhập bằng SSO, vui lòng thiết lập mật khẩu chính để truy cập và bảo vệ kho lưu trữ của bạn.";
 "MasterPasswordPolicyInEffect" = "Các chính sách của tổ chức yêu cầu mật khẩu chính của bạn phải đáp ứng các yêu cầu sau:";
 "PolicyInEffectMinComplexity" = "Độ mạnh tối thiểu %1$@";
 "PolicyInEffectMinLength" = "Độ dài tối thiểu %1$@";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden cho phép bạn chia sẻ các mục trong kho lưu trữ với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com.";
 "RateAppDescriptionLong" = "Giúp người khác tìm hiểu xem Bitwarden có phù hợp với họ không. Truy cập cửa hàng ứng dụng và đánh giá ngay bây giờ.";
 "DefaultDarkThemeDescriptionLong" = "Chọn chủ đề tối để sử dụng khi thiết bị của bạn đang sử dụng chế độ tối";
-"CreatedXY" = "Tạo lúc %1$@, %2$@";
+"CreatedX" = "Tạo lúc %1$@";
 "TooManyAttempts" = "Thử quá nhiều lần";
 "AccountLoggedOutBiometricExceeded" = "Đã đăng xuất tài khoản.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Quyền truy cập của tổ chức bạn đã được cập nhật, yêu cầu bạn phải thiết lập mật khẩu chính.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "Bạn phải đính kèm một tệp để lưu Send này";
 "SendUpdated" = "Đã cập nhật Send";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Chúng tôi không nhận diện được thiết bị này. Nhập mã được gửi đến email để xác minh danh tính của bạn.";
+"Created" = "Tạo lúc: %1$@";
+"LastEdited" = "Sửa đổi gần nhất: %1$@";
+"PasswordLastUpdated" = "Mật khẩu được cập nhật lần cuối: %1$@";
+"DecryptionError" = "Lỗi giải mã";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden không thể giải mã những mục bên dưới. Vui lòng liên hệ bộ phận hỗ trợ khách hàng để tránh mất thêm dữ liệu.";
+"ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";

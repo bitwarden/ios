@@ -372,8 +372,6 @@
 "TryAgain" = "Réessayer";
 "YubiKeyInstructionIos" = "Pour continuer, gardez votre Yubikey NEO à l'arrière de l'appareil.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Mot de passe mis à jour";
-"DateUpdated" = "Mis à jour";
 "AutofillActivated" = "Saisie automatique activée !";
 "MustLogInMainAppAutofill" = "Vous devez vous identifier sur l'application principale Bitwarden avant d'utiliser le remplissage automatique des mots de passe.";
 "AutofillSetup" = "Vos identifiants sont désormais facilement accessibles directement depuis votre clavier lorsque vous vous connectez à des applications et des sites web.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden vous permet de partager les éléments de votre coffre avec les autres en utilisant une organisation. Apprenez-en plus sur le site bitwarden.com.";
 "RateAppDescriptionLong" = "Aidez les autres à savoir si Bitwarden est fait pour eux. Visitez la boutique des applications et laissez une évaluation dès maintenant.";
 "DefaultDarkThemeDescriptionLong" = "Choisissez le thème sombre à utiliser lorsque le mode sombre de votre appareil est en cours d'utilisation";
-"CreatedXY" = "Créé le %1$@ à %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Trop de tentatives";
 "AccountLoggedOutBiometricExceeded" = "Compte déconnecté.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

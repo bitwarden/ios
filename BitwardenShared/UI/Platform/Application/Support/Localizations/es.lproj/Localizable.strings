@@ -372,8 +372,6 @@
 "TryAgain" = "Inténtelo de nuevo";
 "YubiKeyInstructionIos" = "Para continuar, mantén tu YubiKey NEO contra la parte trasera de tu dispositivo.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Contraseña actualizada";
-"DateUpdated" = "Actualizada";
 "AutofillActivated" = "¡Autorellenado activado!";
 "MustLogInMainAppAutofill" = "Debes identificarte en la aplicación principal de Bitwarden antes de poder utilizar Autorellenado.";
 "AutofillSetup" = "Sus inicios de sesión ahora son fácilmente accesibles directamente desde su teclado mientras inician sesión en aplicaciones y sitios web.";
@@ -874,7 +872,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden te permite compartir tus elementos de la caja fuerte con otros utilizando una organización. Más información en el sitio web de bitwarden.com.";
 "RateAppDescriptionLong" = "Ayuda a otros a averiguar si Bitwarden es correcto para ellos. Visita la tienda de aplicaciones y deja una calificación ahora.";
 "DefaultDarkThemeDescriptionLong" = "Elige el tema oscuro a usar cuando el modo oscuro de tu dispositivo esté en uso";
-"CreatedXY" = "Creado %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Demasiados intentos";
 "AccountLoggedOutBiometricExceeded" = "Sesión de la cuenta cerrada.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Los permisos de su organización han sido actualizados, requiriendo que establezca una contraseña maestra.";
@@ -1212,3 +1210,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

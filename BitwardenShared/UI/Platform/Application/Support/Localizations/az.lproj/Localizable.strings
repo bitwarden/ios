@@ -372,8 +372,6 @@
 "TryAgain" = "Yenidən sınayın";
 "YubiKeyInstructionIos" = "Davam etmək üçün Yubikey NEO-nuzu cihazınızın arxasına tutun.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Əlçatımlılıq xidməti, standart avto-doldurma xidmətini dəstəkləməyən tətbiqlərdə kömək edə bilər.";
-"DatePasswordUpdated" = "Parol güncəlləndi";
-"DateUpdated" = "Güncəlləndi";
 "AutofillActivated" = "Avto-doldurma aktivləşdirildi!";
 "MustLogInMainAppAutofill" = "Avto-doldurmanı istifadə edə bilmək üçün Bitwarden tətbiqində giriş etməlisiniz.";
 "AutofillSetup" = "Tətbiqlərdə və veb saytlarda giriş edərkən giriş məlumatlarınıza klaviaturadan asanlıqla müraciət edə bilərsiniz.";
@@ -581,7 +579,7 @@
 "RemovePassword" = "Parolu çıxart";
 "AreYouSureRemoveSendPassword" = "Parolu çıxartmaq istədiyinizə əminsiniz?";
 "RemovingSendPassword" = "Parol çıxarılır";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Parol silindi";
 "NoSends" = "Hesabınızda heç bir \"Send\" yoxdur.";
 "CopyLink" = "Bağlantını kopyala";
 "ShareLink" = "Bağlantını paylaş";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden, bir təşkilatı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza imkan verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət edin.";
 "RateAppDescriptionLong" = "Başqalarının Bitwarden-in onlar üçün uyğun olub-olmadığını öyrənməkdə kömək edin. Tətbiq mağazasını ziyarət edin və tətbiqimizi qiymətləndirin.";
 "DefaultDarkThemeDescriptionLong" = "Cihazınızda qaranlıq rejim açıq olduqda istifadə ediləcək qaranlıq temanı seçin";
-"CreatedXY" = "Yaradıldı: %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Həddən artıq cəhd";
 "AccountLoggedOutBiometricExceeded" = "Hesabdan çıxış edildi.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "Bu send-i saxlamaq üçün bir fayl əlavə etməlisiniz";
 "SendUpdated" = "Send güncəlləndi";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";
