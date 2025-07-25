@@ -1214,5 +1214,8 @@
 "LastEdited" = "Zadnje uređeno: %1$@";
 "PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
 "DecryptionError" = "Pogreška pri dešifriranju";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati stavku trezora navedenu u nastavku. Obrati se odjelu za korisničku podršku za izbjegavanje dodatnog gubitka podataka.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";

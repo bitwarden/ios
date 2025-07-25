@@ -338,7 +338,7 @@
 "NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Il n'y a aucun élément dans la corbeille.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
-"AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
+"AutofillServiceDescription" = "Le service de remplissage automatique Bitwarden utilise Android Autofill Framework pour vous aider à remplir les informations de connexion dans d'autres applications de votre appareil.";
 "BitwardenAutofillServiceDescription" = "Use the Bitwarden autofill service to fill login information into other apps.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Ouvrir les paramètres de remplissage automatique";
 "FaceID" = "Face ID";
@@ -346,7 +346,7 @@
 "UseFaceIDToUnlock" = "Utiliser Face ID pour déverrouiller";
 "VerifyFaceID" = "S'authentifier avec Face ID";
 "WindowsHello" = "Windows Hello";
-"BitwardenCredentialProviderGoToSettings" = "We were unable to automatically open the Android credential provider settings menu for you. You can navigate to the credential provider settings menu manually from Android Settings > System > Passwords & accounts > Passwords, passkeys and data services.";
+"BitwardenCredentialProviderGoToSettings" = "Nous n’avons pas pu ouvrir automatiquement le menu des paramètres du fournisseur d’informations d’identification Android pour vous. Vous pouvez accéder manuellement au menu des paramètres du fournisseur d'informations d'identification à partir de Paramètres Android > Système > Mots de passe et comptes > Mots de passe, clés de passe et services de données.";
 "BitwardenAutofillGoToSettings" = "Nous n'avons pas pu ouvrir automatiquement le menu des paramètres de saisie automatique d'Android. Vous pouvez manuellement naviguer vers le menu des paramètres de saisie automatique à partir des paramètres Android > Système > Langues et saisie > Paramètres avancés > Service de saisie automatique.";
 "CustomFieldName" = "Nom du champ personnalisé";
 "FieldTypeBoolean" = "Booléen";
@@ -543,8 +543,8 @@
 "InlineAutofill" = "Utiliser le remplissage automatique intégré";
 "InlineAutofillDescription" = "Utilisez le remplissage automatique intégré si votre méthode de saisie (clavier) sélectionnée le supporte. Si votre configuration n'est pas prise en charge (ou si cette option est désactivée), le remplissage automatique par défaut sera utilisé.";
 "Accessibility" = "Utiliser l'accessibilité";
-"AccessibilityDescription" = "Use the Bitwarden Accessibility Service to autofill your logins across apps and the web. When set up, we'll display a popup when login fields are selected.";
-"AccessibilityDescription2" = "Use the Bitwarden Accessibility Service to autofill your logins across apps and the web. (Requires Draw-Over to be turned on as well)";
+"AccessibilityDescription" = "Utilisez le service d'accessibilité Bitwarden pour remplir automatiquement vos connexions entre les applications et le Web. Une fois configuré, nous afficherons une fenêtre contextuelle lorsque les champs de connexion seront sélectionnés.";
+"AccessibilityDescription2" = "Utilisez le service d'accessibilité Bitwarden pour remplir automatiquement vos connexions entre les applications et le Web. (Nécessite que Draw-Over soit également activé)";
 "AccessibilityDescription3" = "Utilisez le service d'accessibilité Bitwarden pour utiliser la tuile de remplissage automatique rapide et/ou afficher une popup en utilisant la superposition (si activée).";
 "AccessibilityDescription4" = "Requis pour utiliser la tuile de remplissage automatique rapide ou pour améliorer le service de remplissage automatique en utilisant la superposition (si activée).";
 "DrawOver" = "Utiliser la superposition";
@@ -905,10 +905,10 @@
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Votre clé d'accès sera enregistrée dans votre coffre Bitwarden";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Votre clé d'accès sera enregistrée votre coffre Bitwarden pour %1$@";
 "PasskeysNotSupportedForThisApp" = "Clés d'accès non supportées par cette application";
-"PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Passkey operation failed because browser is not privileged";
+"PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "L'opération Passkey a échoué car le navigateur n'est pas privilégié";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "L'opération de la clé d'accès a échoué car la signature du navigateur ne correspond pas";
-"PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
-"PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
+"PasskeyOperationFailedBecauseOfMissingAssetLinks" = "L'opération de clé de passe a échoué en raison de liens d'actifs manquants";
+"PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "L'opération de clé de passe a échoué car l'application n'a pas été trouvée dans les liens d'actifs";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "L'opération de la clé d'accès a échoué car l'application n'a pas pu être vérifiée";
 "RemindMeLater" = "Me le rappeler plus tard";
 "Notice" = "Remarque";
@@ -927,7 +927,7 @@
 "WeSentAnEmailTo" = "We sent an email to %1$@";
 "SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
-"OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Ou **[connectez-vous](https://)**, vous avez peut-être déjà un compte.";
 "OpenEmailApp" = "Open email app";
 "VerifyingEmail" = "Verifying email";
 "EmailVerified" = "E-mail vérifié";
@@ -987,7 +987,7 @@
 "XCharacters" = "%1$@ Characters";
 "RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
 "RestartRegistration" = "Restart registration";
-"ExpiredLink" = "Expired link";
+"ExpiredLink" = "Lien expiré";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
@@ -1213,5 +1213,8 @@
 "LastEdited" = "Last edited: %1$@";
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Decryption error";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
