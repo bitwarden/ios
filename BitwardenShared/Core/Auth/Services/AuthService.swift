@@ -614,9 +614,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             do {
                 let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
                 try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
-                if await configService.getFeatureFlag(.importLoginsFlow) {
-                    try await stateService.setAccountSetupImportLogins(.incomplete)
-                }
+                try await stateService.setAccountSetupImportLogins(.incomplete)
                 try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)

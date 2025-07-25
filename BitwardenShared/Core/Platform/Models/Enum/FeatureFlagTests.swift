@@ -18,7 +18,6 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.cxpExportMobile.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cxpImportMobile.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.removeCardPolicy.isRemotelyConfigured)
 

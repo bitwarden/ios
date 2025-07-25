@@ -5,8 +5,7 @@
 final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, VaultSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasEnvironmentService
+    typealias Services = HasEnvironmentService
         & HasErrorReporter
         & HasStateService
 
@@ -83,7 +82,6 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     /// Streams the state of the badges in the settings tab.
     ///
     private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.badgeState = badgeState

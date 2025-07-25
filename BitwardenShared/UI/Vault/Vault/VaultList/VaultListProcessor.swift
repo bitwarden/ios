@@ -18,7 +18,6 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
-        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -463,7 +462,6 @@ extension VaultListProcessor {
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress

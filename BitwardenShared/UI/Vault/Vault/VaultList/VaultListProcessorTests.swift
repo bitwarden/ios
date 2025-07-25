@@ -16,7 +16,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
@@ -43,7 +42,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
@@ -60,7 +58,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
-            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -86,7 +83,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
-        configService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
@@ -756,7 +752,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// whenever it changes.
     @MainActor
     func test_perform_streamAccountSetupProgress() {
-        configService.featureFlagsBool[.importLoginsFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -775,24 +770,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// setup progress fails.
     @MainActor
     func test_perform_streamAccountSetupProgress_error() async {
-        configService.featureFlagsBool[.importLoginsFlow] = true
-
         await subject.perform(.streamAccountSetupProgress)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.streamAccountSetupProgress` doesn't load the account setup progress
-    /// if the import logins feature flag is disabled.
-    @MainActor
-    func test_perform_streamAccountSetupProgress_importLoginsFlowDisabled() async {
-        configService.featureFlagsBool[.importLoginsFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.settingsBadgeSubject.send(.fixture())
-
-        await subject.perform(.streamAccountSetupProgress)
-
-        XCTAssertNil(subject.state.importLoginsSetupProgress)
     }
 
     /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
