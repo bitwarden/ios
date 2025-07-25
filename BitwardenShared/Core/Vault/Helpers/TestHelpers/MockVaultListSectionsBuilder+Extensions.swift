@@ -24,11 +24,11 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addTypesSection")
             return self
         }
-        addFoldersSectionNestedFolderIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addFoldersSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addFoldersSection")
             return self
         }
-        addCollectionsSectionNestedCollectionIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addCollectionsSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addCollectionsSection")
             return self
         }

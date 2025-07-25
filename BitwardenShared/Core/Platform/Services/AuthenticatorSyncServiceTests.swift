@@ -603,7 +603,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     /// The sync service should handle multiple vaults being sync'd at the same time.
     ///
     @MainActor
-    func test_determineSyncForUserId_unlockMultipleVaults() async throws { // swiftlint:disable:this function_body_length
+    func test_determineSyncForUserId_unlockMultipleVaults() async throws {
+        // swiftlint:disable:previous function_body_length
         setupInitialState()
         cipherDataStore.cipherSubjectByUserId["2"] = CurrentValueSubject<[Cipher], Error>([])
         await subject.start()
@@ -959,7 +960,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(items.first?.id, "1234")
         XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
         XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
-        XCTAssertEqual(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"])
+        XCTAssertEqual(
+            authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"]
+        )
         XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
 

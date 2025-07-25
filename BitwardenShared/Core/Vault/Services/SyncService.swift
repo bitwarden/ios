@@ -255,7 +255,7 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        if isPeriodic && lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
+        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
             return false
         }
 

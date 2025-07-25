@@ -164,6 +164,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
+        // swiftlint:disable:previous function_body_length
         guard !preparedData.folders.isEmpty else {
             return self
         }
