@@ -729,7 +729,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
-        try await alert.tapAction(title: Localizations.copy)
+        try await alert.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             pasteboardService.copiedString,
             """

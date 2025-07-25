@@ -903,7 +903,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             coordinator.alertShown.last,
             .cipherDecryptionFailure(cipherIds: ["1", "2"], isFromCipherTap: false) { _ in }
         )
-        try await coordinator.alertShown.last?.tapAction(title: Localizations.copy)
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             pasteboardService.copiedString,
             """
@@ -1429,7 +1429,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
-        try await alert.tapAction(title: Localizations.copy)
+        try await alert.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             pasteboardService.copiedString,
             """

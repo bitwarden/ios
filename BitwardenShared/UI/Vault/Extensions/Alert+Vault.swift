@@ -32,7 +32,7 @@ extension Alert {
             title: Localizations.decryptionError,
             message: message,
             alertActions: [
-                AlertAction(title: Localizations.copy, style: .default, handler: { _ in
+                AlertAction(title: Localizations.copyErrorReport, style: .default, handler: { _ in
                     let stringToCopy = Localizations.decryptionError
                         + "\n" + message
                         + "\n\n" + cipherIds.joined(separator: "\n")

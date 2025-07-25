@@ -16,12 +16,12 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
         )
         XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.copyErrorReport)
         XCTAssertEqual(subject.alertActions[0].style, .default)
         XCTAssertEqual(subject.alertActions[1].title, Localizations.close)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
-        try await subject.tapAction(title: Localizations.copy)
+        try await subject.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             copyString,
             """
@@ -50,12 +50,12 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong
         )
         XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.copyErrorReport)
         XCTAssertEqual(subject.alertActions[0].style, .default)
         XCTAssertEqual(subject.alertActions[1].title, Localizations.close)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
-        try await subject.tapAction(title: Localizations.copy)
+        try await subject.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             copyString,
             """
@@ -84,12 +84,12 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2)
         )
         XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.copy)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.copyErrorReport)
         XCTAssertEqual(subject.alertActions[0].style, .default)
         XCTAssertEqual(subject.alertActions[1].title, Localizations.close)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
-        try await subject.tapAction(title: Localizations.copy)
+        try await subject.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
             copyString,
             """
