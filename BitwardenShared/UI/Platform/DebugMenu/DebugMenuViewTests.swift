@@ -22,7 +22,7 @@ class DebugMenuViewTests: BitwardenTestCase {
             state: DebugMenuState(
                 featureFlags: [
                     .init(
-                        feature: .testLocalFeatureFlag,
+                        feature: .testFeatureFlag,
                         isEnabled: false
                     ),
                 ]
@@ -56,7 +56,7 @@ class DebugMenuViewTests: BitwardenTestCase {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
-        let featureFlagName = FeatureFlag.testLocalFeatureFlag.rawValue
+        let featureFlagName = FeatureFlag.testFeatureFlag.rawValue
         let toggle = try subject.inspect().find(viewWithAccessibilityIdentifier: featureFlagName).toggle()
         try toggle.tap()
         XCTAssertEqual(processor.effects.last, .toggleFeatureFlag(featureFlagName, true))

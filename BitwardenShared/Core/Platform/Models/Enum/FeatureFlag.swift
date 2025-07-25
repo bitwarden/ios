@@ -19,10 +19,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     static let emailVerification = FeatureFlag(rawValue: "email-verification")
 
     /// An SDK flag that enables individual cipher encryption.
-    static let enableCipherKeyEncryption = FeatureFlag(
-        rawValue: "enableCipherKeyEncryption",
-        isRemotelyConfigured: false
-    )
+    static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(

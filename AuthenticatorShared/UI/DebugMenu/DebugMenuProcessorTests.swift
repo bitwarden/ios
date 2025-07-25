@@ -50,7 +50,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.featureFlags.isEmpty)
 
         let flag = DebugMenuFeatureFlag(
-            feature: .testLocalFeatureFlag,
+            feature: .testFeatureFlag,
             isEnabled: false
         )
 
@@ -72,7 +72,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_toggleFeatureFlag() async {
         let flag = DebugMenuFeatureFlag(
-            feature: .testLocalFeatureFlag,
+            feature: .testFeatureFlag,
             isEnabled: true
         )
 
