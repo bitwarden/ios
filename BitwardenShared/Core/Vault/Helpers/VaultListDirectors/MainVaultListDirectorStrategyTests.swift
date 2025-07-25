@@ -30,7 +30,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         vaultListSectionsBuilder = MockVaultListSectionsBuilder()
         mockCallOrderHelper = vaultListSectionsBuilder.setUpCallOrderHelper()
         vaultListSectionsBuilderFactory = MockVaultListSectionsBuilderFactory()
-        vaultListSectionsBuilderFactory.makeWithDataReturnValue = vaultListSectionsBuilder
+        vaultListSectionsBuilderFactory.makeReturnValue = vaultListSectionsBuilder
 
         subject = MainVaultListDirectorStrategy(
             builderFactory: vaultListSectionsBuilderFactory,
@@ -74,7 +74,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = nil
+        vaultListDataPreparator.prepareDataReturnValue = nil
 
         var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
@@ -88,7 +88,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
         vaultListSectionsBuilder.buildReturnValue = VaultListData(
             sections: [
@@ -125,7 +125,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
         vaultListSectionsBuilder.buildReturnValue = VaultListData(
             sections: [
@@ -162,7 +162,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
         vaultListSectionsBuilder.buildReturnValue = VaultListData(
             sections: [
@@ -198,7 +198,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
         vaultListSectionsBuilder.buildReturnValue = VaultListData(
             sections: [

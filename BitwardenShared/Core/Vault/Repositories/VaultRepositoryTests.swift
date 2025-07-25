@@ -59,7 +59,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = MockStateService()
 
         vaultListDirectorStrategy = MockVaultListDirectorStrategy()
-        vaultListDirectorStrategyFactory.makeFilterReturnValue = vaultListDirectorStrategy
+        vaultListDirectorStrategyFactory.makeReturnValue = vaultListDirectorStrategy
 
         subject = DefaultVaultRepository(
             cipherService: cipherService,
@@ -238,7 +238,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
 
-        vaultListDirectorStrategy.buildFilterReturnValue = AsyncThrowingPublisher(publisher)
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -251,9 +251,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
 
-        XCTAssertTrue(vaultListDirectorStrategyFactory.makeFilterCalled)
-        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeFilterReceivedFilter)
-        XCTAssertTrue(vaultListDirectorStrategy.buildFilterCalled)
+        XCTAssertTrue(vaultListDirectorStrategyFactory.makeCalled)
+        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeReceivedFilter)
+        XCTAssertTrue(vaultListDirectorStrategy.buildCalled)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
         XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
@@ -2830,16 +2830,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
 
-        vaultListDirectorStrategy.buildFilterReturnValue = AsyncThrowingPublisher(publisher)
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
         let filter = VaultListFilter(addTOTPGroup: true)
         var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
 
-        XCTAssertTrue(vaultListDirectorStrategyFactory.makeFilterCalled)
-        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeFilterReceivedFilter)
-        XCTAssertTrue(vaultListDirectorStrategy.buildFilterCalled)
+        XCTAssertTrue(vaultListDirectorStrategyFactory.makeCalled)
+        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeReceivedFilter)
+        XCTAssertTrue(vaultListDirectorStrategy.buildCalled)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
         XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")

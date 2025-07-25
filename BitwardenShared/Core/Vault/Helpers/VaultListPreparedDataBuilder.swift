@@ -67,6 +67,7 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     /// Prepares folders to the prepared data that then can be used for filtering.
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Prepares the sections with restricted organization IDs.
+    @discardableResult
     func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder
 }
 

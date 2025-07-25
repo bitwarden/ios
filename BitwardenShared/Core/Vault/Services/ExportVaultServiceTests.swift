@@ -310,7 +310,8 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
-    /// `exportVaultFileContents(format:)` still applies login/secureNote filter when using CSV export with restrictedTypes
+    /// `exportVaultFileContents(format:)` still applies login/secureNote filter when using CSV export
+    /// with restrictedTypes.
     ///
     func test_fileContent_restrictedTypes_csvWithRestrictions() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
