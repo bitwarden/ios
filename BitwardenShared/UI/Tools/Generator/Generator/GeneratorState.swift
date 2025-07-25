@@ -471,15 +471,13 @@ extension GeneratorState {
                         title: Localizations.apiKeyRequiredParenthesis
                     )
                 )
-                if usernameState.simpleLoginSelfHostServerUrlEnabled {
-                    fields.append(contentsOf: [
-                        textField(
-                            accessibilityId: "SimpleLoginSelfHosteUrlEntry",
-                            keyPath: \.usernameState.simpleLoginSelfHostServerUrl,
-                            title: Localizations.selfHostServerURL
-                        ),
-                    ])
-                }
+                fields.append(contentsOf: [
+                    textField(
+                        accessibilityId: "SimpleLoginSelfHosteUrlEntry",
+                        keyPath: \.usernameState.simpleLoginSelfHostServerUrl,
+                        title: Localizations.selfHostServerURL
+                    ),
+                ])
             }
 
             groups.append(FormSectionGroup(fields: fields, id: "ForwardedEmailGroup"))

@@ -199,8 +199,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     private func loadFlags() async {
         state.usernameState.addyIOSelfHostServerUrlEnabled = await services.configService
             .getFeatureFlag(.anonAddySelfHostAlias)
-        state.usernameState.simpleLoginSelfHostServerUrlEnabled = await services.configService
-            .getFeatureFlag(.simpleLoginSelfHostAlias)
     }
 
     /// Checks the eligibility of the generator Login action card.
