@@ -372,8 +372,6 @@
 "TryAgain" = "Zkusit znovu";
 "YubiKeyInstructionIos" = "Pro pokračování podržte YubiKey NEO u zadní části zařízení.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Služba přístupnosti může být užitečná, pokud aplikace nepodporují standardní službu automatického vyplňování.";
-"DatePasswordUpdated" = "Heslo bylo aktualizováno";
-"DateUpdated" = "Aktualizováno";
 "AutofillActivated" = "Automatické vyplňování aktivováno!";
 "MustLogInMainAppAutofill" = "Před použitím automatického vyplňování se musíte nejdříve přihlásit v hlavní aplikaci Bitwardenu.";
 "AutofillSetup" = "Vaše přihlašovací údaje jsou nyní snadno přístupné přímo z Vaší klávesnice během přihlašování do aplikací či webů.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com.";
 "RateAppDescriptionLong" = "Pomozte ostatním zjistit, zda je Bitwarden pro ně správný. Navštivte obchod s aplikacemi a zanechte hodnocení.";
 "DefaultDarkThemeDescriptionLong" = "Vybere tmavý motiv při použití tmavého režimu Vašeho zařízení.";
-"CreatedXY" = "Vytvořeno %1$@, %2$@";
+"CreatedX" = "Vytvořeno %1$@";
 "TooManyAttempts" = "Příliš mnoho pokusů";
 "AccountLoggedOutBiometricExceeded" = "Účet byl odhlášen.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Oprávnění Vaší organizace byla aktualizována. To vyžaduje nastavení hlavního hesla.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tohoto uživatele nelze smazat, protože je jediným vlastníkem alespoň jedné organizace. Smažte tyto organizace nebo aktualizujte jiného uživatele.";
 "APasskeyAlreadyExistsForThisApplication" = "Přístupový klíč pro tuto aplikaci již existuje.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pro tuto aplikaci již existuje přístupový klíč, ale při načítání došlo k chybě.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Toto zařízení nelze rozpoznat. Zadejte osmimístný ověřovací kód, který byl zaslán e-mailem na %1$@.";
 "ItemNameRequired" = "Název položky (povinné)";
 "AutofillOptions" = "Volby automatického vyplňování";
 "WebsiteURI" = "Webová stránka (URI)";
@@ -1211,3 +1208,10 @@
 "LoggingEndsOnDateAtTime" = "Logování končí %1$@ v %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Pro uložení tohoto Send musíte připojit soubor";
 "SendUpdated" = "Send aktualizován";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Toto zařízení nepoznáváme. Zadejte kód zaslaný na Váš e-mail pro ověření Vaší totožnosti.";
+"Created" = "Vytvořeno: %1$@";
+"LastEdited" = "Naposledy upraveno: %1$@";
+"PasswordLastUpdated" = "Poslední aktualizace hesla: %1$@";
+"DecryptionError" = "Chyba dešifrování";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat níže uvedenou položku trezoru. Kontaktujte zákaznickou podporu a vyhněte se další ztrátě dat.";
+"ErrorCannotDecrypt" = "[chyba: nelze dešifrovat]";

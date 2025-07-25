@@ -16,6 +16,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -32,6 +33,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
 
@@ -44,6 +46,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                pasteboardService: pasteboardService,
                 stateService: stateService,
                 vaultRepository: vaultRepository
             ),
@@ -61,6 +64,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        pasteboardService = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
@@ -89,6 +93,21 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+    }
+
+    /// `vaultItemTapped(_:)` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_perform_vaultItemTapped_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.vaultItemTapped(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+
+        try await alert.tapAction(title: Localizations.copy)
+        XCTAssertEqual(pasteboardService.copiedString, "1")
     }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast

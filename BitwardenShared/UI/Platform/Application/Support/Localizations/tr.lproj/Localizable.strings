@@ -372,8 +372,6 @@
 "TryAgain" = "Yeniden dene";
 "YubiKeyInstructionIos" = "Devam etmek için Yubikey NEO'nuzu cihazınız arkasına doğru tutun.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Erişilebilirlik hizmeti, standart otomatik doldurma hizmetini desteklemeyen uygulamalarda işe yarayabilir.";
-"DatePasswordUpdated" = "Parola güncellendi";
-"DateUpdated" = "Güncelleme";
 "AutofillActivated" = "Otomatik doldurma etkinleştirildi!";
 "MustLogInMainAppAutofill" = "Otomatik doldurmayı kullanabilmek için Bitwarden ana uygulamasına giriş yapmalısınız.";
 "AutofillSetup" = "Uygulamalara ve web sitelerine giriş yaparken artık hesaplarınıza klavyenizden kolayca ulaşabilirsiniz.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden'ın kuruluş özelliğini kullanarak kasanızdaki kayıtları başkalarıyla paylaşabilirsiniz. Daha fazla bilgi için bitwarden.com sitesini ziyaret edin.";
 "RateAppDescriptionLong" = "Bitwarden'ı başkalarına da tanımak ister misiniz? Uygulama mağazasını ziyaret edip Bitwarden'ı değerlendirin.";
 "DefaultDarkThemeDescriptionLong" = "Cihazınızın koyu modu kullanımdayken kullanılacak koyu temayı seçin";
-"CreatedXY" = "Oluşturulma: %1$@ %2$@";
+"CreatedX" = "Oluşturulma: %1$@";
 "TooManyAttempts" = "Çok fazla deneme";
 "AccountLoggedOutBiometricExceeded" = "Hesabın oturumu kapatıldı.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Kuruluş izinleriniz güncellendi ve bir ana parola belirlemeniz gerekiyor.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "Bu uygulama için bir geçiş anahtarı zaten mevcut.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
 "ItemNameRequired" = "Kayıt adı (gerekli)";
 "AutofillOptions" = "Otomatik doldurma seçenekleri";
 "WebsiteURI" = "Web sitesi (URI)";
@@ -1211,3 +1208,10 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Bu Send'i kaydetmek için bir dosya eklemelisiniz";
 "SendUpdated" = "Send güncellendi";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin.";
+"Created" = "Oluşturulma: %1$@";
+"LastEdited" = "Son düzenleme: %1$@";
+"PasswordLastUpdated" = "Son parola güncellemesi: %1$@";
+"DecryptionError" = "Deşifre hatası";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

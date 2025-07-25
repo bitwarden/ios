@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -62,7 +63,7 @@ struct AttachmentsView: View {
 
             Text(Localizations.maxFileSize)
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.leading, 12)
         }
     }
@@ -73,7 +74,7 @@ struct AttachmentsView: View {
             BitwardenField {
                 Text(fileName)
                     .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             }
             .contentBlock()
         }
@@ -100,7 +101,7 @@ struct AttachmentsView: View {
             Text(Localizations.noAttachments)
                 .accessibilityIdentifier("NoAttachmentsLabel")
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
     }
 
@@ -115,7 +116,7 @@ struct AttachmentsView: View {
             HStack {
                 Text(attachment.fileName ?? "")
                     .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .lineLimit(1)
 
                 Spacer()
@@ -123,7 +124,7 @@ struct AttachmentsView: View {
                 if let sizeName = attachment.sizeName {
                     Text(sizeName)
                         .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .lineLimit(1)
                 }
 
@@ -131,7 +132,7 @@ struct AttachmentsView: View {
                     store.send(.deletePressed(attachment))
                 } label: {
                     Image(asset: Asset.Images.trash24)
-                        .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
+                        .imageStyle(.rowIcon(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.delete)
             }

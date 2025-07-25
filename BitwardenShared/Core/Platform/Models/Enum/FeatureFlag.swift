@@ -21,20 +21,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// This flag introduces a new flow for account creation
     static let emailVerification = FeatureFlag(rawValue: "email-verification")
 
-    /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    static let enableAuthenticatorSync = FeatureFlag(rawValue: "enable-pm-bwa-sync")
-
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(
         rawValue: "enableCipherKeyEncryption",
-        isRemotelyConfigured: false
-    )
-
-    /// A flag to ignore the environment check for the two-factor authentication
-    /// notice. If this is on, then it will display even on self-hosted servers,
-    /// which means it's easier to dev/QA the feature.
-    static let ignore2FANoticeEnvironmentCheck = FeatureFlag(
-        rawValue: "ignore-2fa-notice-environment-check",
         isRemotelyConfigured: false
     )
 
@@ -64,9 +53,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cxpImportMobile,
             .cipherKeyEncryption,
             .emailVerification,
-            .enableAuthenticatorSync,
             .enableCipherKeyEncryption,
-            .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
             .removeCardPolicy,

@@ -431,4 +431,62 @@ platform :ios do |options|
             file.write(project_yaml.to_yaml)
         end
     end
+
+  desc "Submit iOS app to the App Store"
+  lane :release_to_production do |options|
+
+    changelog = options[:changelog]
+    auth_locales = ["en-US"]
+    pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+    metadata_path = options[:metadata_path]
+
+    if options[:packageName] == "com.bitwarden.authenticator"
+      locales = auth_locales
+    else
+      locales = pw_manager_locales
+    end
+
+    locales.each do |locale|
+      dir = "#{metadata_path}/#{locale}"
+      FileUtils.mkdir_p(dir)
+      File.write("#{dir}/release_notes.txt", changelog)
+    end
+
+    notes = locales.each_with_object({}) do |locale, hash|
+      file_path = "./#{metadata_path}/#{locale}/release_notes.txt"
+      if File.exist?(file_path)
+        hash[locale] = File.read(file_path)
+      else
+        UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+      end
+    end
+
+    deliver(
+      force: true,
+      app_identifier: options[:app_identifier],
+      edit_live: false,
+      build_number: options[:build_number],
+      app_version: options[:app_version],
+      submit_for_review: options[:submit_release],
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      automatic_release: options[:submit_release],
+      api_key_path: options[:api_key_path],
+      run_precheck_before_submit: false,
+      metadata_path: options[:metadata_path],
+      release_notes: notes
+    )
+  end
+    desc "Get latest published version"
+    lane :get_latest_version do |options|
+        app_store_build_number(
+            api_key_path: options[:api_key_path],
+            app_identifier: options[:app_identifier]
+        )
+        latest_version_name = lane_context[SharedValues::LATEST_VERSION]
+        latest_version_number = lane_context[SharedValues::LATEST_BUILD_NUMBER]
+
+        UI.message("version_name: #{latest_version_name}")
+        UI.message("version_number: #{latest_version_number}")
+    end
 end

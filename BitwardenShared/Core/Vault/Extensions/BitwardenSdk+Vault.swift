@@ -229,6 +229,21 @@ extension CipherType {
             self = .sshKey
         }
     }
+
+    init(_ type: BitwardenSdk.CipherListViewType) {
+        switch type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login
+        case .secureNote:
+            self = .secureNote
+        case .sshKey:
+            self = .sshKey
+        }
+    }
 }
 
 extension FieldType {

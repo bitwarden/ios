@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -169,7 +170,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -226,7 +227,7 @@ private struct VaultAutofillListSearchableView: View {
                                 } icon: {
                                     Asset.Images.plus16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
-                                            color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                                            color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
                                             scaleWithFont: true
                                         ))
                                 }

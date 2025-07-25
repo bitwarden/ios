@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ScanCodeView
@@ -21,7 +22,7 @@ struct ScanCodeView: View {
 
     var body: some View {
         content
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .navigationTitle(Localizations.scanQrTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -60,7 +61,7 @@ struct ScanCodeView: View {
                     Group {
                         Text(Localizations.cannotScanQRCode + " ")
                             + Text(Localizations.enterKeyManually)
-                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                     }
                     .styleGuide(.body)
                     .multilineTextAlignment(.center)
@@ -69,7 +70,7 @@ struct ScanCodeView: View {
             )
             .buttonStyle(InlineButtonStyle())
         }
-        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
         .environment(\.colorScheme, .dark)
     }
 
@@ -131,7 +132,7 @@ struct ScanCodeView: View {
     private func qrCornerGuides(length: CGFloat) -> some View {
         CornerBorderShape(cornerLength: length * 0.1, lineWidth: 3)
             .stroke(lineWidth: 3)
-            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             .frame(
                 width: length * 0.65,
                 height: length * 0.65

@@ -372,8 +372,6 @@
 "TryAgain" = "Mēģini vēlreiz";
 "YubiKeyInstructionIos" = "Lai turpinātu, turi YubiKey NEO pie ierīces aizmugures!";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Pieejamības pakalpojums var būt noderīgs gadījumos, kad lietotnes neatbalsta automātisko aizpildi.";
-"DatePasswordUpdated" = "Parole atjaunināta";
-"DateUpdated" = "Atjaunināts";
 "AutofillActivated" = "Automātiskā aizpilde iespējota!";
 "MustLogInMainAppAutofill" = "Vispirms ir jāpiesakās galvenajā Bitwarden lietotnē, lai varētu izmantot automātisko aizpildi.";
 "AutofillSetup" = "Pieteikšanās vienumi tagad ir viegli pieejami tastatūrā, kad notiek pieteikšanās lietotnēs un tīmekļvietnēs.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden nodrošina iespēju kopīgot savas glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vairāk var uzzināt tīmekļvietnē bitwarden.com.";
 "RateAppDescriptionLong" = "Var palīdzēt citiem noskaidrot, vai Bitwarden tiem der. To var izdarīt lietotņu veikalā, atstājot vērtējumu.";
 "DefaultDarkThemeDescriptionLong" = "Izvēlēties izmantot tumšo izskatu, kad tiek izmantots ierīces tumšais izskats";
-"CreatedXY" = "Izveidots %1$@, %2$@";
+"CreatedX" = "Izveidots %1$@";
 "TooManyAttempts" = "Pārāk daudz mēģinājumu";
 "AccountLoggedOutBiometricExceeded" = "Konts tika izrakstīts.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Apvienības atļaujas tika atjauninātas, un tās pieprasa iestatīt galveno paroli.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nevar izdzēst šo lietotāju, jo viņš ir vienīgais īpašnieks vismaz vienai apvienībai. Lūgums izdzēst šīs apvienības vai paaugstināt citu lietotāju.";
 "APasskeyAlreadyExistsForThisApplication" = "Šai lietotnei jau pastāv piekļuves atslēga.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Šai lietotnei jau pastāv piekļuves atslēga, bet atgadījās kļūda tās ielādēšanas laikā.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada 8 ciparu apliecinājuma kods, kas tika nosūtīts uz %1$@.";
 "ItemNameRequired" = "Vienuma nosaukums (nepieciešams)";
 "AutofillOptions" = "Automātiskās aizpildes iespējas";
 "WebsiteURI" = "Tīmekļvietne (URI)";
@@ -1211,3 +1208,10 @@
 "LoggingEndsOnDateAtTime" = "Žurnalēšana beigsies %1$@ %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Jāpievieno datne, lai saglabātu šo Send";
 "SendUpdated" = "Send atjaunināts";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti.";
+"Created" = "Izveidots: %1$@";
+"LastEdited" = "Pēdējoreiz labots: %1$@";
+"PasswordLastUpdated" = "Parole pēdējoreiz atjaunināta: %1$@";
+"DecryptionError" = "Atšifrēšanas kļūda";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt zemāk uzskaitīto glabātavas vienumu. Jāsazinās ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
+"ErrorCannotDecrypt" = "[kļūda: nevar atšifrēt]";

@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Yardıma mı ihtiyacınız var? Rehberlik için Yardım Merkezimizi ziyaret edin.";
 "UnexpectedDataFormat" = "Beklenmeyen Veri Formatı";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Sağlanan veri biçimi beklenenle eşleşmiyor. Lütfen dosyanızı kontrol edin ve doğru veri türlerinin kullanıldığından emin olun.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Bu özellik, kendi kendine barındırılan kullanıcılar için henüz mevcut değil. [Daha fazla bilgi edinin](%1$@)";
+"LearnMoreLink" = "[Dahasını öğren](%1$@)";

@@ -75,10 +75,6 @@ struct DebugMenuView: View {
             processor: StateProcessor(
                 state: .init(
                     featureFlags: [
-                        .init(
-                            feature: .enablePasswordManagerSync,
-                            isEnabled: true
-                        ),
                     ]
                 )
             )

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SetMasterPasswordView
@@ -71,7 +72,7 @@ struct SetMasterPasswordView: View {
                     footerContent: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
-                                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                                 .styleGuide(.footnote)
 
                             Button {
@@ -87,7 +88,7 @@ struct SetMasterPasswordView: View {
             }
         }
         .scrollView()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

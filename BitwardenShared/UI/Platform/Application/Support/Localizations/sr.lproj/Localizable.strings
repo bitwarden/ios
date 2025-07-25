@@ -372,8 +372,6 @@
 "TryAgain" = "Покушајте опет";
 "YubiKeyInstructionIos" = "Да бисте наставили, држите YubiKey NEO на задњој страни уређаја.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Услуга приступачности може бити корисна за употребу када апликације не подржавају стандардну услугу ауто-попуњавања.";
-"DatePasswordUpdated" = "Лозинка ажурирана";
-"DateUpdated" = "Промењено";
 "AutofillActivated" = "Ауто-пуњење активирано!";
 "MustLogInMainAppAutofill" = "Морате се пријавити на главну апликацију Bitwarden пре употребе ауто-попуњавања.";
 "AutofillSetup" = "Вашим пријавама је сада лако приступити са тастатуре док се пријављујете у апликације и на веб локације.";
@@ -874,7 +872,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden вам омогућава да делите ставке сефа са другима користећи организацију. Сазнајте више на веб локацију bitwarden.com.";
 "RateAppDescriptionLong" = "Помозите другима да сазнају да ли је Bitwarden прави за њих. Посетите продавницу апликација и оставите оцену.";
 "DefaultDarkThemeDescriptionLong" = "Одаберите тамну тему коју ћете користити када се користи тамни режим вашег уређаја";
-"CreatedXY" = "Креирано %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Превише покушаја";
 "AccountLoggedOutBiometricExceeded" = "Налог је одјављен.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Дозволе за вашу организацију су ажуриране, што захтева да поставите главну лозинку.";
@@ -1128,7 +1126,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Не могу да избришете овог корисника јер је једини власник најмање једне организације. Избришите ове организације или надоградите другог корисника.";
 "APasskeyAlreadyExistsForThisApplication" = "За ову апликацију већ постоји приступни кључ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Приступни кључ већ постоји за ову апликацију, али дошло је до грешке приликом учитавања.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Не препознајемо овај уређај. Унесите 8-цифрени верификациони кôд који је послат на %1$@.";
 "ItemNameRequired" = "Име ставке (неопходно)";
 "AutofillOptions" = "Опције Ауто-пуњења";
 "WebsiteURI" = "Вебсајт (URI)";
@@ -1212,3 +1209,10 @@
 "LoggingEndsOnDateAtTime" = "Пријављен завршено на %1$@ у %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Морате приложити датотеку да бисте сачували овај Send";
 "SendUpdated" = "Send ажурирано";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

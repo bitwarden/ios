@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - FlightRecorderLogsView
@@ -79,7 +80,7 @@ struct FlightRecorderLogsView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(log.formattedLoggingDateRange)
                     .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityLabel(log.loggingDateRangeAccessibilityLabel)
 
                 HStack(spacing: 16) {
@@ -92,7 +93,7 @@ struct FlightRecorderLogsView: View {
                     }
                 }
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -107,7 +108,7 @@ struct FlightRecorderLogsView: View {
                 .disabled(log.isActiveLog)
             } label: {
                 Asset.Images.ellipsisHorizontal24.swiftUIImage
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
             .accessibilityLabel(Localizations.more)
             .accessibilityIdentifier("FlightRecorderLogOptionsButton")

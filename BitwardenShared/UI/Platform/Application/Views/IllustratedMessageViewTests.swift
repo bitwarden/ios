@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -23,7 +24,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             } label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             }
         }
         let button = try subject.inspect().find(button: Localizations.learnMore)
@@ -76,7 +77,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             Button {} label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             }
         }
         assertSnapshots(

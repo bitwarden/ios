@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 import UIKit
 
@@ -93,14 +94,15 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.adjustsFontForContentSizeCategory = true
         textView.autocapitalizationType = .sentences
         textView.delegate = context.coordinator
-        textView.textColor = isEnabled ? Asset.Colors.textPrimary.color :
-            Asset.Colors.textDisabled.color
+        textView.textColor = isEnabled
+            ? SharedAsset.Colors.textPrimary.color
+            : SharedAsset.Colors.textDisabled.color
         textView.isScrollEnabled = false
         textView.isEditable = isEditable
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.backgroundColor = .clear
-        textView.tintColor = Asset.Colors.tintPrimary.color
+        textView.tintColor = SharedAsset.Colors.tintPrimary.color
         textView.textContainerInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)

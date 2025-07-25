@@ -372,8 +372,6 @@
 "TryAgain" = "Próbáluk újra";
 "YubiKeyInstructionIos" = "A folytatáshoz tartsuk lenyomva a YubiKey NEO-t a készülék hátoldalán.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "A kisegítő szolgáltatás segítségére lehet azon appok esetében, amelyek nem támogatják a szabványos automata-kitöltő szolgáltatást.";
-"DatePasswordUpdated" = "A jelszó frissítésre került.";
-"DateUpdated" = "Frissítve";
 "AutofillActivated" = "Az automatikus kitöltés bekapcsolásra került.";
 "MustLogInMainAppAutofill" = "Az automatikus kitöltő szolgáltatás használata előtt be kell jelentkezni a fő Bitwarden alkalmazásba.";
 "AutofillSetup" = "Az alkalmazásokba és webhelyekre a belépési adatok most már könnyedén elérhető a billentyűzetről.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "A Bitwarden lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen.";
 "RateAppDescriptionLong" = "Segítsünk másoknak megtudni, hogy a Bitwarden megfelelő-e számukra. Látogassunk el az alkalmazásboltba és értékeljünk most.";
 "DefaultDarkThemeDescriptionLong" = "Válasszuk a sötét témát az eszköz sötét módban történő használata esetén.";
-"CreatedXY" = "Létrehozta: %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Túl sok próbálkozás történt";
 "AccountLoggedOutBiometricExceeded" = "A fiók kijelentkezett.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "A szervezeti jogosultságok frissítésre kerültek, ezért be kell állítani egy mesterjelszót.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Ez a felhasználó nem törölhető, mert legalább egy szervezet kizárólagos tulajdonosa. Töröljük ezeket a szervezeteket vagy térjünk át másik felhasználóra.";
 "APasskeyAlreadyExistsForThisApplication" = "Az alkalmazáshoz már létezik hozzáférési kulcs.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Már létezik jelszó ehhez az alkalmazáshoz, de hiba történt a betöltése során.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be a 8 számjegyű ellenőrző kódot, amelyet emailben lett elküldve %1$@ email címre.";
 "ItemNameRequired" = "Elem név (kötelező)";
 "AutofillOptions" = "Automatikus kitöltés opciók";
 "WebsiteURI" = "Webhely (URI)";
@@ -1211,3 +1208,10 @@
 "LoggingEndsOnDateAtTime" = "A naplózás befejezése: %1$@ - %2$@";
 "YouMustAttachAFileToSaveThisSend" = "A Send elem mentéséhez csatolni kell egy fájlt.";
 "SendUpdated" = "A Send elem frissítésre került.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

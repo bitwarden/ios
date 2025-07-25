@@ -243,7 +243,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `fetchSync()` syncs if the last sync time is greater than 30 minutes ago and the account has
+    /// `fetchSync()` syncs if the last sync time is greater than 30 minutes ago, is periodic and the account has
     /// newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithRevisions() async throws {
         client.results = [
@@ -257,7 +257,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertNotNil(cipherService.replaceCiphersCiphers)
@@ -268,7 +268,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `fetchSync()` doesn't sync if the last sync time is greater than 30 minutes but fetching
+    /// `fetchSync()` doesn't sync if the last sync time is greater than 30 minutes, is periodic but fetching
     /// the account revision date fails.
     func test_fetchSync_needsSync_lastSyncTime_older30Mins_revisionsError() async throws {
         let lastSyncTime = try XCTUnwrap(
@@ -279,7 +279,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = lastSyncTime
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
@@ -287,7 +287,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(stateService.lastSyncTimeByUserId["1"], lastSyncTime)
     }
 
-    /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago but the
+    /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago, is periodic but the
     /// account doesn't have newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithoutRevisions() async throws {
         let lastRevision = try XCTUnwrap(timeProvider.presentTime.addingTimeInterval(-24 * 60 * 60))
@@ -302,7 +302,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
@@ -313,7 +313,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `fetchSync()` doesn't sync if the last sync time is within the last 30 minutes.
+    /// `fetchSync()` doesn't sync if the last sync time is within the last 30 minutes and is periodic.
     func test_fetchSync_needsSync_lastSyncTime_newer30Mins() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
@@ -322,10 +322,35 @@ class SyncServiceTests: BitwardenTestCase {
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
+    }
+
+    /// `fetchSync()` syncs if the last sync time is not greater than 30 minutes ago, is not periodic
+    /// and the account has newer revisions.
+    func test_fetchSync_notPeriodicNotOlder30MinsWithRevisions() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+        let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            lastSync
+        )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: false)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime
+        )
     }
 
     /// `fetchSync()` syncs if there's no existing last sync time.

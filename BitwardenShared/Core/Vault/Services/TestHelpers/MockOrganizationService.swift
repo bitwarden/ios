@@ -6,6 +6,8 @@ import Combine
 class MockOrganizationService: OrganizationService {
     var fetchAllOrganizationsResult: Result<[Organization], Error> = .success([])
 
+    var fetchAllOrganizationsUserIdResult: Result<[Organization], Error> = .success([])
+
     var initializeOrganizationCryptoCalled = false
     var initializeOrganizationCryptoError: Error?
 
@@ -18,6 +20,10 @@ class MockOrganizationService: OrganizationService {
 
     func fetchAllOrganizations() async throws -> [Organization] {
         try fetchAllOrganizationsResult.get()
+    }
+
+    func fetchAllOrganizations(userId: String) async throws -> [Organization] {
+        try fetchAllOrganizationsUserIdResult.get()
     }
 
     func initializeOrganizationCrypto() async throws {

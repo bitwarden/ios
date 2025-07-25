@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TOTPCountdownTimerView
@@ -29,13 +30,13 @@ struct TOTPCountdownTimerView: View {
                 .accessibilityHidden(true)
             Text(timer.displayTime ?? "")
                 .styleGuide(.caption2Monospaced, monoSpacedDigit: true)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
         .padding(6)
         .background {
             CircularProgressShape(progress: timer.remainingFraction, clockwise: true)
                 .stroke(lineWidth: 3)
-                .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                 .animation(
                     .smooth(
                         duration: TOTPCountdownTimerView.timerInterval

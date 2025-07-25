@@ -372,8 +372,6 @@
 "TryAgain" = "Pokušaj ponovno";
 "YubiKeyInstructionIos" = "Za nastavak, približi YubiKey NEO stražnjoj strani uređaja.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Usluga pristupačnosti može biti korisna kada aplikacije ne podržavaju standardnu uslugu automatskog popunjavanja.";
-"DatePasswordUpdated" = "Lozinka ažurirana";
-"DateUpdated" = "Ažurirano";
 "AutofillActivated" = "Automatsko popunjavanje uključeno!";
 "MustLogInMainAppAutofill" = "Prije korištenja automatskog popunjavanja, moraš se prijaviti u glavnu Bitwarden aplikaciju. ";
 "AutofillSetup" = "Tvojim prijavama sada je lako pristupiti izravno s tipkovnice prilikom prijava u aplikacijama i na web stranicama.";
@@ -874,7 +872,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden omogućuje dijeljenje trezora s drugima pomoću organizacijskog računa. Za više informacija posjeti bitwarden.com.";
 "RateAppDescriptionLong" = "Želiš preporučiti Bitwarden drugima? Posjeti app store i ostavi recenziju.";
 "DefaultDarkThemeDescriptionLong" = "Odaberi tamnu temu kada se tvoj uređaj nalazi u tamnom načinu rada";
-"CreatedXY" = "Stvoreno %1$@, %2$@";
+"CreatedX" = "Stvoreno %1$@";
 "TooManyAttempts" = "Previše pokušaja";
 "AccountLoggedOutBiometricExceeded" = "Račun odjavljen.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Moraš postaviti glavnu lozinku jer su dopuštenja tvoje organizacije ažurirana.";
@@ -1128,7 +1126,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nije moguće izbrisati ovog korisnika je isti jedini vlasnik barem jedne organizacije. Treba ili obrisati organizaciju ili drugog korisnika postaviti za vlasnika.";
 "APasskeyAlreadyExistsForThisApplication" = "Za ovu aplikaciju već postoji pristupni ključ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Za ovu aplikaciju već postoji pristupni ključ, ali je došlo do greške kod njegova učitavanja.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Ne prepoznajemo ovaj uređaj. Unesi 8-znamenkasti kôd za provjeru poslan e-poštom na %1$@.";
 "ItemNameRequired" = "Naziv stavke (obavezno)";
 "AutofillOptions" = "Postavke auto-ispune";
 "WebsiteURI" = "Web stranica (URI)";
@@ -1212,3 +1209,10 @@
 "LoggingEndsOnDateAtTime" = "Zapisivanje završava %1$@ u %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Moraš staviti datoteku u privitak za spremanje ovog Senda";
 "SendUpdated" = "Send ažuriran";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom.";
+"Created" = "Stvoreno: %1$@";
+"LastEdited" = "Zadnje uređeno: %1$@";
+"PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
+"DecryptionError" = "Pogreška pri dešifriranju";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati stavku trezora navedenu u nastavku. Obrati se odjelu za korisničku podršku za izbjegavanje dodatnog gubitka podataka.";
+"ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";

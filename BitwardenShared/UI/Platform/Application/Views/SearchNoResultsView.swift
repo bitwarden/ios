@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SearchNoResultsView
@@ -24,12 +25,12 @@ struct SearchNoResultsView<Content: View>: View {
                         Image(decorative: Asset.Images.search24)
                             .resizable()
                             .frame(width: 74, height: 74)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
                             .multilineTextAlignment(.center)
                             .styleGuide(.callout)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     }
                     .accessibilityIdentifier("NoSearchResultsLabel")
                     .padding(.horizontal, 16)
@@ -37,7 +38,7 @@ struct SearchNoResultsView<Content: View>: View {
                 }
             }
         }
-        .background(Color(asset: Asset.Colors.backgroundPrimary))
+        .background(Color(asset: SharedAsset.Colors.backgroundPrimary))
     }
 
     // MARK: Initialization

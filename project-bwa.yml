@@ -23,7 +23,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
+    revision: ad0761937f454e2785c50a9b8dc9be12f26af830
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -108,6 +108,7 @@ targets:
       - target: AuthenticatorShared
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -189,10 +190,12 @@ targets:
       - path: AuthenticatorShared/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
-      - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - target: BitwardenKit/Networking
       - package: SwiftProtobuf
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
+      - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
         script: |

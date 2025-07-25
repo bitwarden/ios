@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - RemoveMasterPasswordView
@@ -16,19 +17,19 @@ struct RemoveMasterPasswordView: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localizations.removeMasterPasswordConfirmDomain)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(Localizations.keyConnectorOrganization)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(store.state.organizationName)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
                 Text(Localizations.keyConnectorDomain)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(store.state.keyConnectorUrl)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
             }
             .multilineTextAlignment(.leading)

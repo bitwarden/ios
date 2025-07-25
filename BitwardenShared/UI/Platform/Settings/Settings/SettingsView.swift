@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsView
@@ -33,7 +34,7 @@ struct SettingsView: View {
     /// The chevron shown in the settings list item.
     private var chevron: some View {
         Image(asset: Asset.Images.chevronRight16)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
     }
 
     /// The settings items.

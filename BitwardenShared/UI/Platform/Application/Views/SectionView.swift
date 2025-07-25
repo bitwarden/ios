@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SectionView
@@ -66,7 +67,7 @@ struct SectionView_Previews: PreviewProvider {
             }
         }
         .padding(16)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
     }
 }
 #endif

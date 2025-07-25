@@ -372,8 +372,6 @@
 "TryAgain" = "Нов опит";
 "YubiKeyInstructionIos" = "За да продължите, задръжте устройството YubiKey NEO към гърба на телефона.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Услугата за достъпност може да е полезна, когато програмите не поддържат стандартната услуга за попълване.";
-"DatePasswordUpdated" = "Обновена парола";
-"DateUpdated" = "Обновено";
 "AutofillActivated" = "Автоматично дописване!";
 "MustLogInMainAppAutofill" = "За да ползвате автоматичното дописване, трябва първо да се впишете в основната програма на Битуорден.";
 "AutofillSetup" = "Можете лесно да достъпите записите с потребителски имена и пароли от клавиатурата при вписване в програми и сайтове.";
@@ -581,7 +579,7 @@
 "RemovePassword" = "Премахване на парола";
 "AreYouSureRemoveSendPassword" = "Сигурни ли сте, че искате да премахнете паролата?";
 "RemovingSendPassword" = "Премахване на парола";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Паролата е премахната";
 "NoSends" = "Няма изпращания.";
 "CopyLink" = "Копиране на връзката";
 "ShareLink" = "Споделяне на връзката";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Битуорден позволява да споделяте части от трезора си чрез използването на организация. Научете повече на сайта bitwarden.com.";
 "RateAppDescriptionLong" = "Помогнете на другите да разберат дали Битуорден е подходящ за тях. Посетете магазина за приложения и дайте оценка още сега.";
 "DefaultDarkThemeDescriptionLong" = "Изберете коя тъмна тема да се използва когато е включен тъмният режим на устройството Ви";
-"CreatedXY" = "Създадено на %1$@, %2$@";
+"CreatedX" = "Създадено: %1$@";
 "TooManyAttempts" = "Твърде много опити";
 "AccountLoggedOutBiometricExceeded" = "Акаунтът е отписан.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Този потребител не може да бъде изтрит, тъй като е единственият собственик на поне една организация. Трябва да изтриете съответните организации или да повишите друг потребител.";
 "APasskeyAlreadyExistsForThisApplication" = "За това приложение вече съществува секретен ключ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "За това приложение вече съществува секретен ключ, но имаше грешка при зареждането му.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Това устройство е непознато. Въведете 8-цифрения код за потвърждаване, който беше изпратен на %1$@.";
 "ItemNameRequired" = "Име на елемента (задължително)";
 "AutofillOptions" = "Опции за автоматично попълване";
 "WebsiteURI" = "Уеб сайт (адрес)";
@@ -1211,3 +1208,10 @@
 "LoggingEndsOnDateAtTime" = "Записването на журнали приключва на %1$@ в %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Трябва да прикачите файл, за да запазите това Изпращане";
 "SendUpdated" = "Изпратеното е редактирано";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си.";
+"Created" = "Създадено: %1$@";
+"LastEdited" = "Последна редакция: %1$@";
+"PasswordLastUpdated" = "Последна промяна на паролата: %1$@";
+"DecryptionError" = "Грешка при дешифриране";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Битуорден не може да дешифрира елемента от трезора, посочен по-долу. Свържете се с поддръжката, за да избегнете загубата на данни.";
+"ErrorCannotDecrypt" = "[грешка: не може да се дешифрира]";
