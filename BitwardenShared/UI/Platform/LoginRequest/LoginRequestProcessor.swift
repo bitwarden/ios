@@ -21,7 +21,6 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     // MARK: Types
 
     typealias Services = HasAuthService
-        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
