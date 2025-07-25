@@ -372,8 +372,6 @@
 "TryAgain" = "נסה שוב";
 "YubiKeyInstructionIos" = "להמשך, קרב את מפתח הYubiKey NEO לגב המכשיר.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "שירות הנגישות עשוי להיות מועיל לשימוש כאשר יישומים לא תומכים בשירות המילוי האוטומטי הרגיל.";
-"DatePasswordUpdated" = "הסיסמה עודכנה";
-"DateUpdated" = "עודכן";
 "AutofillActivated" = "מילוי אוטומטי הופעל!";
 "MustLogInMainAppAutofill" = "חובה להתחבר לאפליקציה הראשית של Bitwarden לפני שתוכל להשתמש בהשלמה האוטומטית.";
 "AutofillSetup" = "כל פרטי הכניסה שלך נגישים ישירות מהמקלדת ברגע החיבור לאפליקציות ולאתרים.";
@@ -875,7 +873,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden מאפשר לך לשתף את פריטי הכספת שלך עם אחרים על ידי שימוש בארגון. למד עוד באתר האינטרנט bitwarden.com.";
 "RateAppDescriptionLong" = "עזור לאחרים לגלות אם Bitwarden מתאים להם. בקר בחנות האפליקציות והשאר דירוג עכשיו.";
 "DefaultDarkThemeDescriptionLong" = "בחר את ערכת הנושא הכהה שבה יש להשתמש כאשר המצב הכהה של המכשיר שלך נמצא בשימוש";
-"CreatedXY" = "נוצר ב־%1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "יותר מדי ניסיונות";
 "AccountLoggedOutBiometricExceeded" = "החשבון התנתק.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "הרשאות הארגון שלך עודכנו, מה שמאלץ אותך להגדיר סיסמה ראשית.";
@@ -1213,3 +1211,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

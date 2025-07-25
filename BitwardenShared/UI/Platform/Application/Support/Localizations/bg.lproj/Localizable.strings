@@ -372,8 +372,6 @@
 "TryAgain" = "Нов опит";
 "YubiKeyInstructionIos" = "За да продължите, задръжте устройството YubiKey NEO към гърба на телефона.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Услугата за достъпност може да е полезна, когато програмите не поддържат стандартната услуга за попълване.";
-"DatePasswordUpdated" = "Обновена парола";
-"DateUpdated" = "Обновено";
 "AutofillActivated" = "Автоматично дописване!";
 "MustLogInMainAppAutofill" = "За да ползвате автоматичното дописване, трябва първо да се впишете в основната програма на Битуорден.";
 "AutofillSetup" = "Можете лесно да достъпите записите с потребителски имена и пароли от клавиатурата при вписване в програми и сайтове.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Битуорден позволява да споделяте части от трезора си чрез използването на организация. Научете повече на сайта bitwarden.com.";
 "RateAppDescriptionLong" = "Помогнете на другите да разберат дали Битуорден е подходящ за тях. Посетете магазина за приложения и дайте оценка още сега.";
 "DefaultDarkThemeDescriptionLong" = "Изберете коя тъмна тема да се използва когато е включен тъмният режим на устройството Ви";
-"CreatedXY" = "Създадено на %1$@, %2$@";
+"CreatedX" = "Създадено: %1$@";
 "TooManyAttempts" = "Твърде много опити";
 "AccountLoggedOutBiometricExceeded" = "Акаунтът е отписан.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "Трябва да прикачите файл, за да запазите това Изпращане";
 "SendUpdated" = "Изпратеното е редактирано";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си.";
+"Created" = "Създадено: %1$@";
+"LastEdited" = "Последна редакция: %1$@";
+"PasswordLastUpdated" = "Последна промяна на паролата: %1$@";
+"DecryptionError" = "Грешка при дешифриране";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Битуорден не може да дешифрира елемента от трезора, посочен по-долу. Свържете се с поддръжката, за да избегнете загубата на данни.";
+"ErrorCannotDecrypt" = "[грешка: не може да се дешифрира]";

@@ -372,8 +372,6 @@
 "TryAgain" = "Tentar novamente";
 "YubiKeyInstructionIos" = "Para continuar, segure a sua YubiKey NEO contra a parte de trás do dispositivo.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "O serviço de acessibilidade pode ser útil para se usar quando os aplicativos não são compatíveis com o serviço de autopreenchimento padrão.";
-"DatePasswordUpdated" = "Senha Atualizada";
-"DateUpdated" = "Atualizado";
 "AutofillActivated" = "Autopreenchimento Ativado!";
 "MustLogInMainAppAutofill" = "Você deve iniciar a sessão no aplicativo principal do Bitwarden, antes de poder usar o Autopreenchimento.";
 "AutofillSetup" = "Suas credenciais agora são facilmente acessíveis diretamente do seu teclado, enquanto você faz login em aplicativos e sites.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "O Bitwarden permite compartilhar os seus itens do cofre com outros ao utilizar uma organização. Gostaria de visitar o site bitwarden.com para saber mais?";
 "RateAppDescriptionLong" = "Ajude outros a descobrir se o Bitwarden é adequado para eles. Visite a loja de aplicativos e deixe uma avaliação agora.";
 "DefaultDarkThemeDescriptionLong" = "Usar o tema escuro quando o modo escuro do seu dispositivo estiver ativado";
-"CreatedXY" = "Criado em %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Tentativas demais";
 "AccountLoggedOutBiometricExceeded" = "Conta desconectada.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha mestra.";
@@ -1200,7 +1198,7 @@
 "GoToSettings" = "Go to settings";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts access";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
-"ThereIsNoActiveAccount" = "There is no active account.";
+"ThereIsNoActiveAccount" = "Não há nenhuma conta ativa.";
 "NewFileSend" = "New file Send";
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
@@ -1211,3 +1209,9 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";
