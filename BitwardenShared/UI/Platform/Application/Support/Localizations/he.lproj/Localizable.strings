@@ -1215,5 +1215,8 @@
 "LastEdited" = "Last edited: %1$@";
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Decryption error";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden could not decrypt the vault item listed below. Contact customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";

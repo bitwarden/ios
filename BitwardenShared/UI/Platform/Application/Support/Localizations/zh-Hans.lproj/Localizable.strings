@@ -1213,5 +1213,8 @@
 "LastEdited" = "最后编辑于：%1$@";
 "PasswordLastUpdated" = "密码最后更新于：%1$@";
 "DecryptionError" = "解密错误";
-"BitwardenCouldNotDecryptTheVaultItemDescriptionLong" = "Bitwarden 无法解密下面列出的密码库项目。联系客户成功以避免额外的数据丢失。";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[错误：无法解密]";
