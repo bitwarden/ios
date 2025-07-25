@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 

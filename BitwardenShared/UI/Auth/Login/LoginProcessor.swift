@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 

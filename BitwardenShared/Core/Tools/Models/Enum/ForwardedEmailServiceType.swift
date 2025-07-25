@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// The service used to generate a forwarded email alias.
 ///
 enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable {

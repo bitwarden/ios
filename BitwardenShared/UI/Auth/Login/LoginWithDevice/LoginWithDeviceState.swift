@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - LoginWithDeviceState
 
 /// An object that defines the current state of the `LoginWithDeviceView`.

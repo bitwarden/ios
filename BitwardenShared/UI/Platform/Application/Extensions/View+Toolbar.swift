@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// Helper functions extended off the `View` protocol for supporting buttons and menus in toolbars.

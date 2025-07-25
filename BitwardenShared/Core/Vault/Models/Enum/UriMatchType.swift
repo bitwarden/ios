@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// An enum that describes how a URI should be matched for autofill to occur.
 ///
 enum UriMatchType: Int, CaseIterable, Codable, Equatable, Hashable, Menuable {

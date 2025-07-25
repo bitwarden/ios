@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // swiftlint:disable file_length
 
 // MARK: - GeneratorType

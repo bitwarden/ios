@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector

@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// Represents the result of imported credentials or credentials to export of one type.
 struct CXFCredentialsResult: Equatable, Sendable {
     // MARK: Types

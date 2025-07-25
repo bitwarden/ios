@@ -1,3 +1,5 @@
+import BitwardenResources
+
 extension Alert {
     /// An alert notifying the user that the TOTP key scan was unsuccessful.
     ///

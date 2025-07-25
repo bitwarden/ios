@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 /// Protocol for a helper that is used to get the options available for autofilling.

@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest

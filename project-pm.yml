@@ -164,7 +164,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
-      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
+      - path: BitwardenResources/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -371,8 +371,6 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: BitwardenWatchShared
       - path: BitwardenShared/Sourcery/sourcery.yml
         buildPhase: none
@@ -393,7 +391,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Sourcery
         script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then

@@ -1,3 +1,5 @@
+import BitwardenResources
+
 struct ExportCXFState: Equatable, Sendable {
     // MARK: Types
 

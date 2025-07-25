@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - Alert+Account
 
 extension Alert {

@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 /// An enum that represents how long to enable the flight recorder.

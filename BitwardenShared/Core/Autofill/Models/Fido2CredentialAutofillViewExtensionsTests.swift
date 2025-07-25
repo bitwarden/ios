@@ -1,6 +1,7 @@
 import BitwardenSdk
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
 class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name

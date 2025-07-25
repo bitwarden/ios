@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - VaultUnlockSetupHelper
 
 /// A protocol for a helper used to set up vault unlock methods.

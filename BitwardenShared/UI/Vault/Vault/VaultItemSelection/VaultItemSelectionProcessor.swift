@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - VaultItemSelectionProcessor
 
 /// The processor used to manage state and handle actions for the vault item selection screen.

@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - PendingRequestsProcessor

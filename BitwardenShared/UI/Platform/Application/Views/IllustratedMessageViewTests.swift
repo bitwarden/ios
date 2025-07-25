@@ -16,18 +16,18 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         let subject: IllustratedMessageView = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
-            title: BitwardenShared.Localizations.setUpUnlock,
-            message: BitwardenShared.Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
         ) {
             Button {
                 tapped = true
             } label: {
-                Text(BitwardenShared.Localizations.learnMore)
+                Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             }
         }
-        let button = try subject.inspect().find(button: BitwardenShared.Localizations.learnMore)
+        let button = try subject.inspect().find(button: Localizations.learnMore)
         try button.tap()
         XCTAssertTrue(tapped)
     }
@@ -37,8 +37,8 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         let subject = IllustratedMessageView(
             image: Asset.Images.plus24,
             style: .largeTextTintedIcon,
-            title: BitwardenShared.Localizations.importPasswords,
-            message: BitwardenShared.Localizations.startImportCXFDescriptionLong
+            title: Localizations.importPasswords,
+            message: Localizations.startImportCXFDescriptionLong
         )
         assertSnapshots(
             of: subject,
@@ -54,8 +54,8 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
-            title: BitwardenShared.Localizations.setUpUnlock,
-            message: BitwardenShared.Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
         )
         assertSnapshots(
             of: subject,
@@ -71,11 +71,11 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
-            title: BitwardenShared.Localizations.setUpUnlock,
-            message: BitwardenShared.Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
         ) {
             Button {} label: {
-                Text(BitwardenShared.Localizations.learnMore)
+                Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             }
@@ -94,8 +94,8 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .smallImage,
-            title: BitwardenShared.Localizations.setUpUnlock,
-            message: BitwardenShared.Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
         )
         assertSnapshots(
             of: subject,

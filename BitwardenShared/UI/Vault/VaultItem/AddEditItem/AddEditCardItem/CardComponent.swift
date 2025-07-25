@@ -1,5 +1,6 @@
 // MARK: - CardComponent
 
+import BitwardenResources
 import Foundation
 
 /// An enumeration defining various components associated with credit and debit cards.

@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - AutoFillProcessor
 
 /// The processor used to manage state and handle actions for the auto-fill screen.

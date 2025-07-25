@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest

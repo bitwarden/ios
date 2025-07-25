@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - CaptchaURLError

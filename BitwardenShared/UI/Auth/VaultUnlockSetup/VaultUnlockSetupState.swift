@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - VaultUnlockSetupState
 
 /// An object that defines the current state of a `VaultUnlockSetupView`.

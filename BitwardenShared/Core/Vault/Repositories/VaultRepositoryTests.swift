@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import InlineSnapshotTesting

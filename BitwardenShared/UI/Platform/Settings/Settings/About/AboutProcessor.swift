@@ -1,5 +1,6 @@
 // MARK: - AboutProcessor
 
+import BitwardenResources
 import Foundation
 
 /// The processor used to manage state and handle actions for the `AboutView`.

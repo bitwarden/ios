@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - ViewSendItemProcessor
 
 /// The processor used to manage state and handle actions for the view send item screen.

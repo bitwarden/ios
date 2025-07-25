@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - PasswordHintProcessor
 
 /// The processor used to manage state and handle actions for the passwort hint screen.

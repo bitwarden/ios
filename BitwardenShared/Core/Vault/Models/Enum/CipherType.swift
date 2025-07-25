@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// An enum describing the type of data contained in a cipher.
 ///
 public enum CipherType: Int, Codable, Sendable {

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 /// A delegate of `SelfHostedProcessor` that is notified when the user saves their environment settings.

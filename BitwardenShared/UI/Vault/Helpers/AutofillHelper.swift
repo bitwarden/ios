@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 /// A helper class to handle when a cipher is selected for autofill.

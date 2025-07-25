@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// The type of data stored in a cipher custom field.
 ///
 enum FieldType: Int, Codable, Menuable {
