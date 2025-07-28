@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 import UIKit
@@ -13,7 +14,14 @@ public enum UI {
     public static var animated = true
 
     /// The language code at initialization.
-    public static var initialLanguageCode: String?
+    public static var initialLanguageCode: String? {
+        get {
+            Resources.initialLanguageCode
+        }
+        set {
+            Resources.initialLanguageCode = newValue
+        }
+    }
 
     #if DEBUG
     /// App-wide flag that allows overriding the OS level sizeCategory for testing.
