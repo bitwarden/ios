@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 /// An object that defines the current state of a `SettingsView`.

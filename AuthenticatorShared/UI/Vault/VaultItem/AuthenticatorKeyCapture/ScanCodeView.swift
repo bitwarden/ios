@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ScanCodeView

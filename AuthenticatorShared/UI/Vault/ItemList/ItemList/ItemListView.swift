@@ -1,6 +1,7 @@
 // swiftlint:disable file_length
 
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SearchableItemListView
