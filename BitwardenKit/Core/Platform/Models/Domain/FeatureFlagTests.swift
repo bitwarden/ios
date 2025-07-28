@@ -8,9 +8,9 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `name` formats the raw value of a feature flag
     func test_name() {
-        XCTAssertEqual(FeatureFlag.testLocalFeatureFlag.name, "Test Local Feature Flag")
-        XCTAssertEqual(FeatureFlag.testLocalInitialBoolFlag.name, "Test Local Initial Bool Flag")
-        XCTAssertEqual(FeatureFlag.testLocalInitialIntFlag.name, "Test Local Initial Int Flag")
-        XCTAssertEqual(FeatureFlag.testLocalInitialStringFlag.name, "Test Local Initial String Flag")
+        XCTAssertEqual(FeatureFlag.testFeatureFlag.name, "Test Feature Flag")
+        XCTAssertEqual(FeatureFlag.testInitialBoolFlag.name, "Test Initial Bool Flag")
+        XCTAssertEqual(FeatureFlag.testInitialIntFlag.name, "Test Initial Int Flag")
+        XCTAssertEqual(FeatureFlag.testInitialStringFlag.name, "Test Initial String Flag")
     }
 }

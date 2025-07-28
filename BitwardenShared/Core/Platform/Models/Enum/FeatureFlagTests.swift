@@ -10,16 +10,4 @@ final class FeatureFlagTests: BitwardenTestCase {
     func test_initialValues() {
         XCTAssertNil(FeatureFlag.cipherKeyEncryption.initialValue?.boolValue)
     }
-
-    /// `getter:isRemotelyConfigured` returns the correct value for each flag.
-    func test_isRemotelyConfigured() {
-        XCTAssertTrue(FeatureFlag.cipherKeyEncryption.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.cxpExportMobile.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.cxpImportMobile.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.removeCardPolicy.isRemotelyConfigured)
-
-        XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
-    }
 }

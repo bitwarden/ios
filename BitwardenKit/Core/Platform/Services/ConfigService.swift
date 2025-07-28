@@ -241,9 +241,6 @@ public class DefaultConfigService: ConfigService {
         }
         #endif
 
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.boolValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.boolValue
             ?? flag.initialValue?.boolValue
@@ -256,9 +253,6 @@ public class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Int {
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.intValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.intValue
             ?? flag.initialValue?.intValue
@@ -271,9 +265,6 @@ public class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> String? {
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.stringValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.stringValue
             ?? flag.initialValue?.stringValue
