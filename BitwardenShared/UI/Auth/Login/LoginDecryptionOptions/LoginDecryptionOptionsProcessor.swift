@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - LoginDecryptionOptionsProcessor
 
 /// The processor used to manage state and handle actions for the login with decryption option screen.

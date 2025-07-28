@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// The type of password to generate.
 ///
 enum PasswordGeneratorType: String, CaseIterable, Codable, Equatable, Menuable {

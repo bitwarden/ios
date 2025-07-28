@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 /// An enumeration of groups of items displayed in the vault list.

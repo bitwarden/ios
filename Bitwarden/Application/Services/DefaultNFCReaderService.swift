@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenShared
 import Combine
 import CoreNFC

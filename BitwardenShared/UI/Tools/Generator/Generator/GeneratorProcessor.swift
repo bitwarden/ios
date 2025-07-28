@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import OSLog
 
@@ -82,7 +83,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
-            await loadFlags()
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
@@ -192,13 +192,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
-
-    /// Loads feature flags and updates state accordingly.
-    ///
-    private func loadFlags() async {
-        state.usernameState.addyIOSelfHostServerUrlEnabled = await services.configService
-            .getFeatureFlag(.anonAddySelfHostAlias)
-    }
 
     /// Checks the eligibility of the generator Login action card.
     ///

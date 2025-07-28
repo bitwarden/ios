@@ -100,7 +100,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .addyIO
-        subject.usernameState.addyIOSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """

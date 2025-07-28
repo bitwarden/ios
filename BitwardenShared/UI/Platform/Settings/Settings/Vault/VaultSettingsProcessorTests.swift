@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -6,7 +7,6 @@ import XCTest
 class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -18,7 +18,6 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -27,7 +26,6 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         subject = VaultSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 stateService: stateService
@@ -73,7 +71,6 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
     @MainActor
     func test_perform_streamSettingsBadge() {
-        configService.featureFlagsBool[.importLoginsFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -91,8 +88,6 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
     @MainActor
     func test_perform_streamSettingsBadge_error() async {
-        configService.featureFlagsBool[.importLoginsFlow] = true
-
         await subject.perform(.streamSettingsBadge)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
