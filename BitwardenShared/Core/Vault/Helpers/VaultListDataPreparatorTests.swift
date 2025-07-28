@@ -93,6 +93,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "incrementTOTPCount",
+            "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
             "addNoFolderItem",
@@ -117,6 +118,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareFolders",
             "prepareCollections",
+            "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
             "addNoFolderItem",
@@ -168,6 +170,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
         ])
@@ -197,6 +200,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "incrementTOTPCount",
+            "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
             "addNoFolderItem",
@@ -226,9 +230,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "incrementTOTPCount",
+            "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
             "addNoFolderItem",
@@ -316,6 +322,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
         ])
@@ -410,7 +417,20 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "2")]
 
-        try await prepareGroupDataGenericTest(group: .card)
+        let result = try await subject.prepareGroupData(
+            from: [.fixture()],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .card)
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareFolders",
+            "prepareCollections",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
     }
 
     // MARK: Private

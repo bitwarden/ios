@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 import ViewInspector
 import XCTest

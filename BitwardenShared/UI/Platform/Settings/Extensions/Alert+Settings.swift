@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - Alert + Settings
 
 extension Alert {

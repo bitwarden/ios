@@ -372,8 +372,6 @@
 "TryAgain" = "Inténtelo de nuevo";
 "YubiKeyInstructionIos" = "Para continuar, mantén tu YubiKey NEO contra la parte trasera de tu dispositivo.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Contraseña actualizada";
-"DateUpdated" = "Actualizada";
 "AutofillActivated" = "¡Autorellenado activado!";
 "MustLogInMainAppAutofill" = "Debes identificarte en la aplicación principal de Bitwarden antes de poder utilizar Autorellenado.";
 "AutofillSetup" = "Sus inicios de sesión ahora son fácilmente accesibles directamente desde su teclado mientras inician sesión en aplicaciones y sitios web.";
@@ -874,7 +872,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden te permite compartir tus elementos de la caja fuerte con otros utilizando una organización. Más información en el sitio web de bitwarden.com.";
 "RateAppDescriptionLong" = "Ayuda a otros a averiguar si Bitwarden es correcto para ellos. Visita la tienda de aplicaciones y deja una calificación ahora.";
 "DefaultDarkThemeDescriptionLong" = "Elige el tema oscuro a usar cuando el modo oscuro de tu dispositivo esté en uso";
-"CreatedXY" = "Creado %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Demasiados intentos";
 "AccountLoggedOutBiometricExceeded" = "Sesión de la cuenta cerrada.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Los permisos de su organización han sido actualizados, requiriendo que establezca una contraseña maestra.";
@@ -1128,7 +1126,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
 "ItemNameRequired" = "Item name (required)";
 "AutofillOptions" = "Autofill options";
 "WebsiteURI" = "Website (URI)";
@@ -1212,3 +1209,13 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

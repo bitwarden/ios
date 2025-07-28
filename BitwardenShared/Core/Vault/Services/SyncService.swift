@@ -15,12 +15,6 @@ protocol SyncService: AnyObject {
 
     // MARK: Methods
 
-    /// Performs an API request to sync the user's vault data.
-    ///
-    /// - Parameter forceSync: Whether syncing should be forced, bypassing the account revision and
-    ///     minimum sync interval checks.
-    func fetchSync(forceSync: Bool) async throws
-
     /// Deletes the cipher specified in the notification data in local storage.
     ///
     /// - Parameter data: The notification data for the cipher delete action.
@@ -38,6 +32,14 @@ protocol SyncService: AnyObject {
     /// - Parameter data: The notification data for the send delete action.
     ///
     func deleteSend(data: SyncSendNotification) async throws
+
+    /// Performs an API request to sync the user's vault data.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    ///   - isPeriodic: Whether this is a periodic sync to take into consideration the minimum sync interval.
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     /// Synchronizes the cipher specified in the notification data with the server.
     ///
@@ -65,6 +67,17 @@ protocol SyncService: AnyObject {
     ///
     /// - Returns: A bool indicating if the user needs a sync or not.
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool
+}
+
+extension SyncService {
+    /// Performs an API request to sync the user's vault data.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    func fetchSync(forceSync: Bool) async throws {
+        try await fetchSync(forceSync: forceSync, isPeriodic: false)
+    }
 }
 
 // MARK: - SyncServiceDelegate
@@ -207,7 +220,12 @@ class DefaultSyncService: SyncService {
     }
 
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
-        try await needsSync(forceSync: false, onlyCheckLocalData: onlyCheckLocalData, userId: userId)
+        try await needsSync(
+            forceSync: false,
+            isPeriodic: onlyCheckLocalData,
+            onlyCheckLocalData: onlyCheckLocalData,
+            userId: userId
+        )
     }
 
     // MARK: Private
@@ -219,10 +237,16 @@ class DefaultSyncService: SyncService {
     ///     sync interval checks.
     ///   - onlyCheckLocalData: If `true` it will only check local data to establish whether sync is needed.
     ///     Otherwise, it can also perform requests to server to have additional data to check.
+    ///   - isPeriodic: If `true`then needs to check if the minimum sync interval has been reached to trigger a sync.
     ///   - userId: The user ID of the account to sync.
     /// - Returns: Whether a sync should be performed.
     ///
-    private func needsSync(forceSync: Bool, onlyCheckLocalData: Bool = false, userId: String) async throws -> Bool {
+    private func needsSync(
+        forceSync: Bool,
+        isPeriodic: Bool = false,
+        onlyCheckLocalData: Bool = false,
+        userId: String
+    ) async throws -> Bool {
         guard !forceSync, let lastSyncTime = try await stateService.getLastSyncTime(userId: userId) else {
             return true
         }
@@ -231,9 +255,10 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < timeProvider.presentTime else {
+        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
             return false
         }
+
         guard !onlyCheckLocalData else {
             return true
         }
@@ -260,11 +285,13 @@ class DefaultSyncService: SyncService {
 }
 
 extension DefaultSyncService {
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
-        guard try await needsSync(forceSync: forceSync, userId: userId) else { return }
+        guard try await needsSync(forceSync: forceSync, isPeriodic: isPeriodic, userId: userId) else {
+            return
+        }
 
         let response = try await syncAPIService.getSync()
 

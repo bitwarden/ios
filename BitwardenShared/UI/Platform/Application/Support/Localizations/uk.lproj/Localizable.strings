@@ -372,8 +372,6 @@
 "TryAgain" = "Спробуйте знову";
 "YubiKeyInstructionIos" = "Щоб продовжити, утримуйте YubiKey NEO навпроти задньої частини пристрою.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Служба доступності може бути корисною, коли програми не підтримують стандартну службу автозаповнення.";
-"DatePasswordUpdated" = "Пароль оновлено";
-"DateUpdated" = "Оновлено";
 "AutofillActivated" = "Автозаповнення активовано!";
 "MustLogInMainAppAutofill" = "Потрібно увійти в основну програму Bitwarden, щоб використовувати автозаповнення.";
 "AutofillSetup" = "Тепер ви можете легко отримувати доступ до своїх записів з клавіатури під час входу в програмах і на вебсайтах.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden дозволяє доступ до записів сховища спільно з іншими користувачами за допомогою організації. Дізнайтеся більше про це на вебсайті bitwarden.com.";
 "RateAppDescriptionLong" = "Допоможіть іншим дізнатися про Bitwarden. Оцініть програму в App Store.";
 "DefaultDarkThemeDescriptionLong" = "Використовуйте темну тему автоматично з налаштуваннями вашого пристрою";
-"CreatedXY" = "Створено %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Забагато спроб";
 "AccountLoggedOutBiometricExceeded" = "Ви вийшли з облікового запису.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Неможливо видалити цього користувача, оскільки він є єдиним власником принаймні однієї організації. Спершу видаліть ці організації або надайте повноваження іншому користувачу.";
 "APasskeyAlreadyExistsForThisApplication" = "Ключ доступу для цієї програми вже існує.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ключ доступу для цієї програми вже існує, але під час його завантаження виникла помилка.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Ми не впізнаємо цей пристрій. Введіть восьмизначний код підтвердження, надісланий на %1$@.";
 "ItemNameRequired" = "Назва запису (обов'язково)";
 "AutofillOptions" = "Параметри автозаповнення";
 "WebsiteURI" = "Вебсайт (URI)";
@@ -1211,3 +1208,13 @@
 "LoggingEndsOnDateAtTime" = "Запис закінчується %1$@, %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Необхідно додати файл, щоб зберегти це відправлення";
 "SendUpdated" = "Відправлення оновлено";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

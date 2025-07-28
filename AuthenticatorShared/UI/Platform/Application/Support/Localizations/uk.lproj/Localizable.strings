@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Потрібна допомога? Відвідайте наш довідковий центр.";
 "UnexpectedDataFormat" = "Неочікуваний формат даних";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Наданий формат даних не відповідає очікуваному формату. Перевірте ваш файл і переконайтеся, що використовуються правильні типи даних.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Ця функція ще недоступна користувачам із власним розміщенням сховища. [Докладніше](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

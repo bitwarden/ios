@@ -192,7 +192,7 @@
 "Validating" = "A validar";
 "VerificationCode" = "Código de verificação";
 "ViewItem" = "Ver item";
-"WebVault" = "Cofre Web Bitwarden";
+"WebVault" = "Cofre web Bitwarden";
 "Lost2FAApp" = "Perdeu a aplicação de autenticação?";
 "Items" = "Itens";
 "ExtensionActivated" = "Extensão ativada!";
@@ -372,8 +372,6 @@
 "TryAgain" = "Tentar novamente";
 "YubiKeyInstructionIos" = "Para continuar, segure a sua YubiKey NEO contra a parte de trás do dispositivo.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Pode ser útil utilizar o serviço de acessibilidade quando as aplicações não suportam o serviço de preenchimento automático padrão.";
-"DatePasswordUpdated" = "Palavra-passe atualizada a";
-"DateUpdated" = "Atualizado a";
 "AutofillActivated" = "Preenchimento automático ativado!";
 "MustLogInMainAppAutofill" = "Tem de iniciar sessão na aplicação Bitwarden principal antes de poder utilizar o preenchimento automático.";
 "AutofillSetup" = "As suas credenciais estão agora facilmente acessíveis a partir do seu teclado ao iniciar sessão em aplicações e sites.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "O Bitwarden permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com.";
 "RateAppDescriptionLong" = "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de aplicações e deixe uma classificação agora.";
 "DefaultDarkThemeDescriptionLong" = "Escolha o tema escuro a utilizar quando o modo escuro do seu dispositivo estiver a ser utilizado";
-"CreatedXY" = "Criada a %1$@, %2$@";
+"CreatedX" = "Criado a %1$@";
 "TooManyAttempts" = "Demasiadas tentativas";
 "AccountLoggedOutBiometricExceeded" = "Conta com sessão terminada.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "As permissões da sua organização foram atualizadas, exigindo a definição de uma palavra-passe mestra.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de pelo menos uma organização. Por favor, elimine estas organizações ou atualize outro utilizador.";
 "APasskeyAlreadyExistsForThisApplication" = "Já existe uma chave de acesso para esta aplicação.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Já existe uma chave de acesso para esta aplicação, mas ocorreu um erro ao carregá-la.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Não reconhecemos este dispositivo. Introduza o código de verificação de 8 dígitos que foi enviado por e-mail para %1$@.";
 "ItemNameRequired" = "Nome do item (obrigatório)";
 "AutofillOptions" = "Opções de preenchimento automático";
 "WebsiteURI" = "Site (URI)";
@@ -1211,3 +1208,13 @@
 "LoggingEndsOnDateAtTime" = "O registo termina a %1$@ às %2$@";
 "YouMustAttachAFileToSaveThisSend" = "É necessário anexar um ficheiro para guardar este Send";
 "SendUpdated" = "Send atualizado";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade.";
+"Created" = "Criado: %1$@";
+"LastEdited" = "Última edição: %1$@";
+"PasswordLastUpdated" = "Última atualização da palavra-passe: %1$@";
+"DecryptionError" = "Erro de desencriptação";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar este item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar 1 item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "O Bitwarden não conseguiu desencriptar %1$@ itens do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
+"CopyErrorReport" = "Copiar relatório de erros";
+"ErrorCannotDecrypt" = "[erro: não é possível desencriptar]";

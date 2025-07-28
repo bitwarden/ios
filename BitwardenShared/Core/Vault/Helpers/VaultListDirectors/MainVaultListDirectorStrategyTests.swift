@@ -30,7 +30,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         vaultListSectionsBuilder = MockVaultListSectionsBuilder()
         mockCallOrderHelper = vaultListSectionsBuilder.setUpCallOrderHelper()
         vaultListSectionsBuilderFactory = MockVaultListSectionsBuilderFactory()
-        vaultListSectionsBuilderFactory.makeWithDataReturnValue = vaultListSectionsBuilder
+        vaultListSectionsBuilderFactory.makeReturnValue = vaultListSectionsBuilder
 
         subject = MainVaultListDirectorStrategy(
             builderFactory: vaultListSectionsBuilderFactory,
@@ -63,9 +63,9 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         folderService.foldersSubject.value = []
 
         var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
-        let sections = try await iteratorPublisher.next()
+        let vaultListData = try await iteratorPublisher.next()
 
-        XCTAssertEqual(sections, [])
+        XCTAssertEqual(vaultListData, VaultListData())
     }
 
     /// `build(filter:)` returns empty when preparing data fails to return data.
@@ -74,12 +74,12 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = nil
+        vaultListDataPreparator.prepareDataReturnValue = nil
 
         var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
-        let sections = try await iteratorPublisher.next()
+        let vaultListData = try await iteratorPublisher.next()
 
-        XCTAssertEqual(sections, [])
+        XCTAssertEqual(vaultListData, VaultListData())
     }
 
     /// `build(filter:)` returns the sections built adding TOTP group and trash group as indicated by the filter.
@@ -88,13 +88,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
-        vaultListSectionsBuilder.buildReturnValue = [
-            VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
-            VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
-            VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-        ]
+        vaultListSectionsBuilder.buildReturnValue = VaultListData(
+            sections: [
+                VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
+                VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
+                VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
+            ]
+        )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
@@ -103,15 +105,16 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             )
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
-        let sections = try XCTUnwrap(result)
+        let vaultListData = try XCTUnwrap(result)
 
-        XCTAssertEqual(sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
+        XCTAssertEqual(vaultListData.sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "addTOTPSection",
             "addFavoritesSection",
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
             "addTrashSection",
         ])
     }
@@ -122,13 +125,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
-        vaultListSectionsBuilder.buildReturnValue = [
-            VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
-            VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
-            VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-        ]
+        vaultListSectionsBuilder.buildReturnValue = VaultListData(
+            sections: [
+                VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
+                VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
+                VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
+            ]
+        )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
@@ -137,15 +142,16 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             )
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
-        let sections = try XCTUnwrap(result)
+        let vaultListData = try XCTUnwrap(result)
 
-        XCTAssertEqual(sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
+        XCTAssertEqual(vaultListData.sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "addTOTPSection",
             "addFavoritesSection",
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
         ])
     }
 
@@ -156,13 +162,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
-        vaultListSectionsBuilder.buildReturnValue = [
-            VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
-            VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
-            VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-        ]
+        vaultListSectionsBuilder.buildReturnValue = VaultListData(
+            sections: [
+                VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
+                VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
+                VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
+            ]
+        )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
@@ -171,14 +179,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             )
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
-        let sections = try XCTUnwrap(result)
+        let vaultListData = try XCTUnwrap(result)
 
-        XCTAssertEqual(sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
+        XCTAssertEqual(vaultListData.sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "addFavoritesSection",
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
             "addTrashSection",
         ])
     }
@@ -189,13 +198,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
         collectionService.collectionsSubject.value = []
         folderService.foldersSubject.value = []
 
-        vaultListDataPreparator.prepareDataFromCollectionsFoldersFilterReturnValue = VaultListPreparedData()
+        vaultListDataPreparator.prepareDataReturnValue = VaultListPreparedData()
 
-        vaultListSectionsBuilder.buildReturnValue = [
-            VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
-            VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
-            VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-        ]
+        vaultListSectionsBuilder.buildReturnValue = VaultListData(
+            sections: [
+                VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
+                VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
+                VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
+            ]
+        )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
@@ -204,14 +215,15 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             )
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
-        let sections = try XCTUnwrap(result)
+        let vaultListData = try XCTUnwrap(result)
 
-        XCTAssertEqual(sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
+        XCTAssertEqual(vaultListData.sections.map(\.id), ["TestID1", "TestID2", "TestID3"])
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "addFavoritesSection",
             "addTypesSection",
             "addFoldersSection",
             "addCollectionsSection",
+            "addCipherDecryptionFailureIds",
         ])
     }
 }

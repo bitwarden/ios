@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -18,7 +19,6 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
-        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -34,6 +34,10 @@ final class VaultListProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// Whether the cipher decryption failure alert was shown to the user, if the vault has any
+    /// ciphers which failed to decrypt.
+    private(set) var hasShownCipherDecryptionFailureAlert = false
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
@@ -107,7 +111,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
@@ -141,14 +145,7 @@ final class VaultListProcessor: StateProcessor<
         case .disappeared:
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
+            handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -203,7 +200,7 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        await refreshVault()
+        await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
@@ -255,6 +252,40 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
+    /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
+    /// hasn't been shown yet, notify the user that a cipher(s) failed to decrypt.
+    ///
+    /// - Parameter cipherIds: The list of identifiers for ciphers which failed to decrypt.
+    ///
+    private func handleCipherDecryptionFailures(cipherIds: [Uuid]) {
+        guard !cipherIds.isEmpty, !hasShownCipherDecryptionFailureAlert else { return }
+        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds, isFromCipherTap: false) { stringToCopy in
+            self.services.pasteboardService.copy(stringToCopy)
+        })
+        hasShownCipherDecryptionFailureAlert = true
+    }
+
+    /// Handles the primary action for when a `VaultListItem` is tapped in the list.
+    ///
+    /// - Parameter item: The `VaultListItem` that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
+    }
+
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
@@ -284,7 +315,9 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
             let takingTimeTask = Task {
                 try await Task.sleep(forSeconds: 5)
@@ -297,7 +330,11 @@ extension VaultListProcessor {
                 takingTimeTask.cancel()
             }
 
-            try await services.vaultRepository.fetchSync(forceSync: false, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(
+                forceSync: false,
+                filter: state.vaultFilterType,
+                isPeriodic: syncWithPeriodicCheck
+            )
 
             if try await services.vaultRepository.isVaultEmpty() {
                 // Normally after syncing the database will publish the contents of the vault which is
@@ -426,7 +463,6 @@ extension VaultListProcessor {
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
@@ -459,10 +495,12 @@ extension VaultListProcessor {
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
-            for try await value in try await services.vaultRepository
+            for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
+
+                let value = vaultList.sections
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
@@ -485,6 +523,8 @@ extension VaultListProcessor {
                     await services.stateService.setLearnNewLoginActionCardStatus(.complete)
                     await services.stateService.setLearnGeneratorActionCardStatus(.complete)
                 }
+                // Alert the user of any cipher decryption failures.
+                handleCipherDecryptionFailures(cipherIds: vaultList.cipherDecryptionFailureIds)
             }
         } catch {
             services.errorReporter.log(error: error)

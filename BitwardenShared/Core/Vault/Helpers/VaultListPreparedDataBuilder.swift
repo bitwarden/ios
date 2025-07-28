@@ -38,6 +38,8 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
 /// Builder to build prepared data for the vault list sections.
 protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
+    /// Adds a cipher item which failed to decrypt.
+    func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the prepared data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a folder item to the prepared data.
@@ -64,6 +66,9 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Prepares folders to the prepared data that then can be used for filtering.
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
+    /// Prepares the sections with restricted organization IDs.
+    @discardableResult
+    func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder
 }
 
 // MARK: - DefaultVaultListPreparedDataBuilder
@@ -109,6 +114,13 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     // MARK: Methods
+
+    func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder {
+        if cipher.isDecryptionFailure, let id = cipher.id {
+            preparedData.cipherDecryptionFailureIds.append(id)
+        }
+        return self
+    }
 
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.favorite,
@@ -235,6 +247,12 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         if filterType == .allVaults {
             preparedData.folders = folders
         }
+        return self
+    }
+
+    @discardableResult
+    func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder {
+        preparedData.restrictedOrganizationIds = restrictedOrganizationIds
         return self
     }
 

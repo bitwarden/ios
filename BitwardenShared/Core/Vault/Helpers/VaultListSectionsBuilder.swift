@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -11,6 +12,10 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// Adds a section with trash (deleted) items.
     /// - Returns: The builder for fluent code.
     func addTrashSection() -> VaultListSectionsBuilder
+
+    /// Adds the list of IDs for ciphers which failed to decrypt.
+    /// - Returns: The builder for fluent code.
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder
 
     /// Adds a section with available collections or that correspond under the `nestedCollectionId` if passed.
     /// - Parameter nestedCollectionId: Filters the collections that are under the specified ID, if any.
@@ -38,9 +43,9 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addTypesSection() -> VaultListSectionsBuilder
 
-    /// Builds and returns the sections.
-    /// - Returns: The built sections.
-    func build() -> [VaultListSection]
+    /// Builds and returns the vault list data.
+    /// - Returns: The built vault list data.
+    func build() -> VaultListData
 }
 
 extension VaultListSectionsBuilder {
@@ -69,8 +74,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
     let preparedData: VaultListPreparedData
-    /// The sections to build.
-    private var sections: [VaultListSection] = []
+    /// The vault list data to build.
+    private var vaultListData = VaultListData()
 
     // MARK: Init
 
@@ -94,7 +99,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addTrashSection() -> VaultListSectionsBuilder {
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
-        sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
+        vaultListData.sections.append(
+            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
+        )
+        return self
+    }
+
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
@@ -134,7 +146,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         }
 
         if !collectionItems.isEmpty {
-            sections.append(
+            vaultListData.sections.append(
                 VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections)
             )
         }
@@ -143,7 +155,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addFavoritesSection() -> VaultListSectionsBuilder {
         if !preparedData.favorites.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "Favorites",
                 items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: Localizations.favorites
@@ -153,6 +165,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
+        // swiftlint:disable:previous function_body_length
         guard !preparedData.folders.isEmpty else {
             return self
         }
@@ -200,11 +213,13 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         }
 
         if !foldersVaultListItems.isEmpty {
-            sections.append(VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders))
+            vaultListData.sections.append(
+                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders)
+            )
         }
 
         if showNoFolderCipherGroup, !preparedData.noFolderItems.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "NoFolder",
                 items: preparedData.noFolderItems.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: Localizations.folderNone
@@ -216,7 +231,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addGroupSection() -> VaultListSectionsBuilder {
         if !preparedData.groupItems.isEmpty {
-            sections.append(
+            vaultListData.sections.append(
                 VaultListSection(
                     id: "Items",
                     items: preparedData
@@ -231,7 +246,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addTOTPSection() -> VaultListSectionsBuilder {
         if preparedData.totpItemsCount > 0 {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "TOTP",
                 items: [
                     VaultListItem(
@@ -246,35 +261,46 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addTypesSection() -> VaultListSectionsBuilder {
-        let types = [
+        var types = [
             VaultListItem(
                 id: "Types.Logins",
                 itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0])
             ),
-            VaultListItem(
-                id: "Types.Cards",
-                itemType: .group(.card, preparedData.countPerCipherType[.card, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.Identities",
-                itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SecureNotes",
-                itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SSHKeys",
-                itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
-            ),
         ]
 
-        sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
+        let cardCount = preparedData.countPerCipherType[.card, default: 0]
+        if preparedData.restrictedOrganizationIds.isEmpty || cardCount != 0 {
+            types.append(
+                VaultListItem(
+                    id: "Types.Cards",
+                    itemType: .group(.card, cardCount)
+                ),
+            )
+        }
+
+        types.append(
+            contentsOf: [
+                VaultListItem(
+                    id: "Types.Identities",
+                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
+                ),
+                VaultListItem(
+                    id: "Types.SecureNotes",
+                    itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
+                ),
+                VaultListItem(
+                    id: "Types.SSHKeys",
+                    itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
+                ),
+            ]
+        )
+
+        vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
     }
 
-    func build() -> [VaultListSection] {
-        sections
+    func build() -> VaultListData {
+        vaultListData
     }
 }
 
@@ -283,6 +309,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 /// Metadata helper object to hold temporary prepared (grouped, filtered, counted) data
 /// the builder can then use to build the list sections.
 struct VaultListPreparedData {
+    var cipherDecryptionFailureIds: [Uuid] = []
     var ciphersDeletedCount: Int = 0
     var collections: [Collection] = []
     var collectionsCount: [Uuid: Int] = [:]
@@ -298,5 +325,7 @@ struct VaultListPreparedData {
     var foldersCount: [Uuid: Int] = [:]
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
+    /// Organization Ids with `.restrictItemTypes` policy enabled.
+    var restrictedOrganizationIds: [String] = []
     var totpItemsCount: Int = 0
 }

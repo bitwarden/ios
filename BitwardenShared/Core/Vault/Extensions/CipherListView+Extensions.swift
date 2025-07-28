@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 extension CipherListView {
@@ -16,5 +17,58 @@ extension CipherListView {
             return false
         }
         return !restrictItemTypesOrgIds.contains(orgId)
+    }
+}
+
+extension CipherListView {
+    var isDecryptionFailure: Bool {
+        name == Localizations.errorCannotDecrypt
+    }
+
+    init(cipherDecryptFailure cipher: Cipher) {
+        let type: CipherListViewType = switch cipher.type {
+        case .card:
+            .card(CardListView(brand: nil))
+        case .identity:
+            .identity
+        case .login:
+            .login(
+                LoginListView(
+                    fido2Credentials: nil,
+                    hasFido2: cipher.login?.fido2Credentials != nil,
+                    username: nil,
+                    totp: nil,
+                    uris: nil
+                )
+            )
+        case .secureNote:
+            .secureNote
+        case .sshKey:
+            .sshKey
+        }
+
+        self.init(
+            id: cipher.id,
+            organizationId: cipher.organizationId,
+            folderId: cipher.folderId,
+            collectionIds: cipher.collectionIds,
+            key: cipher.key,
+            name: Localizations.errorCannotDecrypt,
+            subtitle: "",
+            type: type,
+            favorite: cipher.favorite,
+            reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
+            edit: cipher.edit,
+            permissions: cipher.permissions,
+            viewPassword: cipher.viewPassword,
+            attachments: UInt32(cipher.attachments?.count ?? 0),
+            hasOldAttachments: false,
+            creationDate: cipher.creationDate,
+            deletedDate: cipher.deletedDate,
+            revisionDate: cipher.revisionDate,
+            copyableFields: [],
+            localData: nil
+        )
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsListItem
@@ -45,7 +46,7 @@ struct SettingsListItem<Content: View>: View {
                     Text(name)
                         .styleGuide(.body)
                         .accessibilityIdentifier(nameAccessibilityID ?? "")
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
@@ -56,14 +57,14 @@ struct SettingsListItem<Content: View>: View {
 
                     trailingContent()
                         .styleGuide(.body)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.trailing)
                 }
                 .padding(.horizontal, icon == nil ? 16 : 12)
             }
         }
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     // MARK: Initialization
@@ -124,6 +125,6 @@ struct SettingsListItem<Content: View>: View {
         }
     }
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

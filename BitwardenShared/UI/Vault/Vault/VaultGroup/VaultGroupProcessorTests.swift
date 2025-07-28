@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -116,7 +117,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_appeared() {
         let vaultListItem = VaultListItem.fixture()
         let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
-        vaultRepository.vaultListSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -231,6 +232,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_refreshed() async {
         await subject.perform(.refresh)
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
@@ -544,7 +546,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListSubject.send([resultSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [resultSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(subject.state.loadingState.data == [newResultSection])
         task.cancel()
@@ -670,7 +672,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             name: "Items"
         )
-        vaultRepository.vaultListSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
 
@@ -715,6 +717,29 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        subject.receive(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
@@ -830,7 +855,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListSubject.send([VaultListSection(id: "1", items: [result], name: "")])
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [result], name: "")]
+        ))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()

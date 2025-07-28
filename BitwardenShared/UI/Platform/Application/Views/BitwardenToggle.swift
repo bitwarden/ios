@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenToggle
@@ -45,7 +46,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
                     if let footer {
                         Text(footer)
                             .styleGuide(.subheadline)
-                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                     } else if let footerContent {
                         footerContent
                     }
@@ -125,12 +126,14 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     /// Initialize a `BitwardenToggle` with no footer.
     ///
     /// - Parameters:
+    ///   - footer: The footer text displayed below the toggle.
     ///   - isOn: A binding for whether the toggle is on.
     ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
     ///   - accessibilityLabel: The accessibility label for the toggle.
     ///   - title: The content to display in the title of the toggle.
     ///
     init(
+        footer: String? = nil,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
         accessibilityLabel: String? = nil,
@@ -140,7 +143,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
         self.accessibilityLabel = accessibilityLabel
         self.titleContent = titleContent()
         _isOn = isOn
-        footer = nil
+        self.footer = footer
         footerContent = nil
     }
 }

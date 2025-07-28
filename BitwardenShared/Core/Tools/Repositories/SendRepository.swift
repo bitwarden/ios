@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -45,9 +46,10 @@ public protocol SendRepository: AnyObject {
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
-    /// - Parameter forceSync: Whether the sync should be forced.
-    ///
-    func fetchSync(forceSync: Bool) async throws
+    /// - Parameters:
+    ///   - forceSync: Whether the sync should be forced.
+    ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     /// Performs an API request to remove the password on the provided send.
     ///
@@ -224,10 +226,10 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: API Methods
 
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         if !forceSync || allowSyncOnRefresh {
-            try await syncService.fetchSync(forceSync: forceSync)
+            try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)
         }
     }
 

@@ -4,6 +4,10 @@ extension MockVaultListSectionsBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
         let helper = MockCallOrderHelper()
 
+        addCipherDecryptionFailureIdsClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addCipherDecryptionFailureIds")
+            return self
+        }
         addTOTPSectionClosure = { () -> VaultListSectionsBuilder in
             helper.recordCall("addTOTPSection")
             return self
@@ -20,11 +24,11 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addTypesSection")
             return self
         }
-        addFoldersSectionNestedFolderIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addFoldersSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addFoldersSection")
             return self
         }
-        addCollectionsSectionNestedCollectionIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addCollectionsSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addCollectionsSection")
             return self
         }

@@ -124,7 +124,7 @@
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Armazene todas as suas credenciais e sincronize os códigos de verificação diretamente com a app Authenticator.";
 "DownloadTheBitwardenApp" = "Descarregar a app Bitwarden";
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Permita a sincronização da app Authenticator nas definições para ver todos os seus códigos de verificação aqui.";
-"TakeMeToTheAppSettings" = "Ir às definições da aplicação";
+"TakeMeToTheAppSettings" = "Ir às definições da app";
 "SyncWithTheBitwardenApp" = "Sincronizar com a app Bitwarden";
 "SyncWithBitwardenApp" = "Sincronizar com a app Bitwarden";
 "LocalCodes" = "Códigos locais";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Precisa de ajuda? Visite o nosso Centro de ajuda para obter orientação.";
 "UnexpectedDataFormat" = "Formato de dados inesperado";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "O formato dos dados fornecidos não corresponde ao que é esperado. Por favor, verifique o seu ficheiro e certifique-se de que são utilizados os tipos de dados corretos.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Esta funcionalidade ainda não está disponível para utilizadores auto-hospedados. [Saiba mais](%1$@)";
+"LearnMoreLink" = "[Saber mais](%1$@)";

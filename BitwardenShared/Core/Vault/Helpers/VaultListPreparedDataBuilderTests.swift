@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultListPreparedDataBuilderTests
 
 class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -43,6 +45,24 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     }
 
     // MARK: Tests
+
+    /// `addCipherDecryptionFailure(cipher:)` adds the cipher ID to the prepared data when the
+    /// cipher failed to decrypt.
+    func test_addCipherDecryptionFailure() {
+        let cipher = CipherListView(cipherDecryptFailure: .fixture(id: "1"))
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.cipherDecryptionFailureIds, ["1"])
+    }
+
+    /// `addCipherDecryptionFailure(cipher:)` doesn't add the cipher ID to the prepared data when
+    /// the cipher failed to decrypt.
+    func test_addCipherDecryptionFailure_notDecryptFailure() {
+        let cipher = CipherListView.fixture()
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.cipherDecryptionFailureIds.isEmpty)
+    }
 
     /// `addFavoriteItem(cipher:)` adds a favorite list item to the prepared data when cipher is favorite.
     func test_addFavoriteItem_succeeds() {
@@ -384,5 +404,15 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
 
         XCTAssertTrue(preparedData.folders.isEmpty)
+    }
+
+    /// `test_prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds:)` adds restrictedOrganizationIds
+    /// to prepared data
+    func test_prepareRestrictItemsPolicyOrganizations() {
+        let restrictedOrganizationIds = ["org1", "org2"]
+        let preparedData = subject
+            .prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: restrictedOrganizationIds)
+            .build()
+        XCTAssertEqual(preparedData.restrictedOrganizationIds, restrictedOrganizationIds)
     }
 }

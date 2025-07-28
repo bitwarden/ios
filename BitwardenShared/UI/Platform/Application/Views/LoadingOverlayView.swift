@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A loading overlay which shows a circular activity indicator with text below it.
@@ -15,12 +16,12 @@ struct LoadingOverlayView: View {
             CircularActivityIndicator()
 
             Text(state.title)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.headline, weight: .semibold)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.opacity(0.9).ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor.opacity(0.9).ignoresSafeArea())
         .accessibilityIdentifier("LoadingViewImage")
     }
 }

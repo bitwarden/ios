@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsPickerField
@@ -37,7 +38,7 @@ struct SettingsPickerField: View {
                 HStack {
                     Text(title)
                         .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .padding(.vertical, 19)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -46,7 +47,7 @@ struct SettingsPickerField: View {
                     Text(customTimeoutValue)
                         .accessibilityLabel(customTimeoutAccessibilityLabel)
                         .multilineTextAlignment(.trailing)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
                 .styleGuide(.body)
                 .id(title)
@@ -68,7 +69,7 @@ struct SettingsPickerField: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     // MARK: Initialization

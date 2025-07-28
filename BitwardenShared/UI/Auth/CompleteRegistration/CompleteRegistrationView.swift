@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - CompleteRegistrationView
@@ -82,12 +83,12 @@ struct CompleteRegistrationView: View {
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
             Image(decorative: Asset.Images.questionCircle24)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localizations.whatMakesAPasswordStrong)
                     .styleGuide(.body, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .multilineTextAlignment(.leading)
 
                 Button {
@@ -95,13 +96,13 @@ struct CompleteRegistrationView: View {
                 } label: {
                     Text(Localizations.learnMore)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -140,14 +141,14 @@ struct CompleteRegistrationView: View {
             footerContent: {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                         .styleGuide(.footnote)
 
                     Button {
                         store.send(.preventAccountLockTapped)
                     } label: {
                         Text(Localizations.learnAboutWaysToPreventAccountLockout)
-                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                             .styleGuide(.footnote, weight: .bold)
                             .multilineTextAlignment(.leading)
                     }

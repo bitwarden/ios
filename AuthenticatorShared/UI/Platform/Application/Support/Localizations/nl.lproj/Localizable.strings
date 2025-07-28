@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Hulp nodig? Bezoek ons Helpcentrum voor hulp.";
 "UnexpectedDataFormat" = "Onverwacht gegevensformaat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Het verstrekte gegevensformaat komt niet overeen met wat wordt verwacht. Controleer je bestand en zorg ervoor dat de juiste gegevenstypen worden gebruikt.";
-"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";
+"LearnMoreLink" = "[Learn more](%1$@)";

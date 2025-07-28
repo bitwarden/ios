@@ -74,6 +74,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             Bitwarden.debug.dylib:   0x0000000000000000
             BitwardenShared:         0x0000000000000000
             BitwardenKit:            0x0000000000000000
+            BitwardenResources:      0x0000000000000000
             BitwardenSharedTests:    0x0000000000000000
             BitwardenKitMocks:       0x0000000000000000
 
@@ -108,6 +109,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             Bitwarden.debug.dylib:   0x0000000000000000
             BitwardenShared:         0x0000000000000000
             BitwardenKit:            0x0000000000000000
+            BitwardenResources:      0x0000000000000000
             BitwardenSharedTests:    0x0000000000000000
             BitwardenKitMocks:       0x0000000000000000
 
@@ -141,6 +143,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             Bitwarden.debug.dylib:   0x0000000000000000
             BitwardenShared:         0x0000000000000000
             BitwardenKit:            0x0000000000000000
+            BitwardenResources:      0x0000000000000000
             BitwardenSharedTests:    0x0000000000000000
             BitwardenKitMocks:       0x0000000000000000
 

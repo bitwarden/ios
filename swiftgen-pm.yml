@@ -1,24 +1,10 @@
 output_dir: BitwardenShared/UI/Platform/Application/Support/Generated/
-fonts:
-  inputs: BitwardenShared/UI/Platform/Application/Support/Fonts
-  outputs:
-    templateName: swift5
-    output: Fonts.swift
-strings:
-  inputs: BitwardenShared/UI/Platform/Application/Support/Localizations/en.lproj
-  outputs:
-    - templateName: structured-swift5
-      output: Localizations.swift
-      params:
-        enumName: Localizations
-        publicAccess: true
-        lookupFunction: UI.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
-    - BitwardenShared/UI/Platform/Application/Support/Colors.xcassets
     - BitwardenShared/UI/Platform/Application/Support/Images.xcassets
   outputs:
     - templateName: swift5
       output: Assets.swift
       params:
+        forceFileNameEnum: true
         publicAccess: true

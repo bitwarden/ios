@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -142,7 +143,13 @@ final class VaultGroupProcessor: StateProcessor<
         case let .itemPressed(item):
             switch item.itemType {
             case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                        self.services.pasteboardService.copy(stringToCopy)
+                    })
+                } else {
+                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
+                }
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
@@ -233,7 +240,11 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(forceSync: true, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(
+                forceSync: true,
+                filter: state.vaultFilterType,
+                isPeriodic: false
+            )
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
@@ -281,8 +292,8 @@ final class VaultGroupProcessor: StateProcessor<
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
                 filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
             ) {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
-                state.loadingState = .data(vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.sections.flatMap(\.items))
+                state.loadingState = .data(vaultList.sections)
             }
         } catch {
             services.errorReporter.log(error: error)

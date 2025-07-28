@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenStepper
@@ -150,7 +151,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
                 } else {
                     Text(String(value))
                         .styleGuide(.body, weight: .semibold)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
             }
             .frame(width: valueWidth)
@@ -205,7 +206,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
         .focused($isTextFieldFocused)
         .keyboardType(.numberPad)
         .styleGuide(.bodySemibold)
-        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         .multilineTextAlignment(.center)
         .textFieldStyle(.plain)
         .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")

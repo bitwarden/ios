@@ -372,8 +372,6 @@
 "TryAgain" = "حاول مرة أخرى";
 "YubiKeyInstructionIos" = "للمتابعة، استمر بالضغط على Yubikey NEO على ظهر الجهاز.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "قد تكون خدمة الوصول مفيدة للاستخدام عندما لا تدعم التطبيقات خدمة الملء التلقائي القياسية.";
-"DatePasswordUpdated" = "تم تحديث كلمة المرور";
-"DateUpdated" = "تم التحديث";
 "AutofillActivated" = "تفعيل التعبئة التلقائية!";
 "MustLogInMainAppAutofill" = "يجب عليك تسجيل الدخول إلى تطبيق بت واردن الرئيسي قبل أن تتمكن من استخدام التعبئة التلقائية.";
 "AutofillSetup" = "تسجيلات الدخول الخاصة بك الآن يمكن الوصول إليها بسهولة من لوحة المفاتيح الخاصة بك أثناء تسجيل الدخول إلى التطبيقات ومواقع الويب.";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "يتيح لك بت واردن مشاركة عناصر خزانتك مع الآخرين باستخدام حساب المؤسسة. تعرف على المزيد على موقع bitwarden.com على شبكة الإنترنت.";
 "RateAppDescriptionLong" = "ساعد الآخرين في معرفة ما إذا كان بت واردن مناسبا لهم. قم بزيارة متجر التطبيقات وترك التقييم الآن.";
 "DefaultDarkThemeDescriptionLong" = "اختر السمة المظلمة لاستخدامها عند استخدام الوضع المظلم لجهازك";
-"CreatedXY" = "أنشئ %1$@، %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "لقد أجريت محاولات كثيرة";
 "AccountLoggedOutBiometricExceeded" = "تم تسجيل الخروج من الحساب.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "تم تحديث أذونات مؤسستك ، مما يتطلب عليك تعيين كلمة مرور رئيسية.";
@@ -1127,7 +1125,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "لا يمكن حذف هذا المستخدم لأنه المالك الوحيد لمنظمة واحدة على الأقل. الرجاء حذف هذه المنظمات أو ترقية مستخدم آخر.";
 "APasskeyAlreadyExistsForThisApplication" = "يوجد بالفعل مفتاح مرور لهذا التطبيق.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "يوجد بالفعل مفتاح مرور لهذا التطبيق ولكن حدث خطأ أثناء تحميله.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "نحن لا نعرف هذا الجهاز. أدخل رمز التحقق المكون من 8 أرقام الذي تم مراسلته بالبريد الإلكتروني إلى %1$@.";
 "ItemNameRequired" = "اسم العنصر (مطلوب)";
 "AutofillOptions" = "خيارات التعبئة التلقائية";
 "WebsiteURI" = "الموقع (URI)";
@@ -1212,3 +1209,13 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";
