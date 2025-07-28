@@ -1213,8 +1213,8 @@
 "LastEdited" = "Последна редакция: %1$@";
 "PasswordLastUpdated" = "Последна промяна на паролата: %1$@";
 "DecryptionError" = "Грешка при дешифриране";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Битуорден не може да дешифрира този елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Битуорден не може да дешифрира 1 елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Битуорден не може да дешифрира %1$@ елемента от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
+"CopyErrorReport" = "Копиране на доклада за грешката";
 "ErrorCannotDecrypt" = "[грешка: не може да се дешифрира]";

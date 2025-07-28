@@ -111,7 +111,7 @@
 "EditItem" = "Wysig item";
 "EnableAutomaticSyncing" = "Aktiveer outomatiese sinchronisering";
 "EnterEmailForHint" = "Voer u rekening-e-posadres in om u hoofwagwoordwenk te kry.";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "Heraktiveer toepuitbreiding";
 "ExtensionAlmostDone" = "Amper klaar!";
 "ExtensionEnable" = "Aktiveer toepuitbreiding";
 "ExtensionInSafari" = "In Safari vind u Bitwarden onder die Deel-piktogram (wenk: rol na regs op die onderste ry van het kieslys).";
@@ -242,7 +242,7 @@
 "UnableToOpenFile" = "U toestel kan nie hierdie tipe lêer open nie.";
 "Downloading" = "Laai tans af…";
 "AttachmentLargeWarning" = "Hierdie aanhegsel is %1$@ groot. Is u seker u wil dit op u toestel aflaai?";
-"AuthenticatorKey" = "Authenticator key";
+"AuthenticatorKey" = "Waarmerksleutel";
 "VerificationCodeTotp" = "Bevestigingskode (TOTP)";
 "AuthenticatorKeyAdded" = "Waarmerksleutel toegevoeg.";
 "AuthenticatorKeyReadError" = "Kan nie waarmerksleutel lees nie.";
@@ -429,7 +429,7 @@
 "YourAccountsFingerprint" = "U rekening se vingerafdrukfrase";
 "LearnOrgConfirmation" = "Met ’n organisasierekening kan u u Bitwarden-kluisitems met ander deel. Wil u na bitwarden.com se webwerf gaan om meer hieroor te leer?";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
-"Export" = "Export";
+"Export" = "Uitstuur";
 "ExportVault" = "Stuur kluis uit";
 "LockNow" = "Vergrendel nou";
 "PIN" = "PIN";
@@ -579,7 +579,7 @@
 "RemovePassword" = "Verwyder wagwoord";
 "AreYouSureRemoveSendPassword" = "Is u seker u wil die wagwoord verwyder?";
 "RemovingSendPassword" = "Verwyder tans wagwoord";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Wagwoord geverwydered";
 "NoSends" = "Daar is geen Sends in u rekening nie.";
 "CopyLink" = "Kopieer skakel";
 "ShareLink" = "Deel skakel";
@@ -920,7 +920,7 @@
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
 "FilePassword" = "File password";
-"ConfirmFilePassword" = "Confirm file password";
+"ConfirmFilePassword" = "Bevesting lêer-wagwoord";
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
@@ -937,7 +937,7 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
-"NewItem" = "New item";
+"NewItem" = "Nuwe item";
 "ExploreTheGenerator" = "Explore the generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
@@ -997,7 +997,7 @@
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
 "SetUpLaterQuestion" = "Set up later?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
-"Confirm" = "Confirm";
+"Confirm" = "Bevestig";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
@@ -1013,7 +1013,7 @@
 "BackToSettings" = "Back to settings";
 "YoureAllSet" = "You're all set!";
 "AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
-"GetStarted" = "Get started";
+"GetStarted" = "Val weg";
 "Dismiss" = "Dismiss";
 "SaveAndProtectYourData" = "Save and protect your data";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
@@ -1074,15 +1074,15 @@
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
-"ImportError" = "Import error";
+"ImportError" = "Invoer fout";
 "NoLoginsWereImported" = "No logins were imported";
 "ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
 "LoginsImported" = "Logins imported";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
-"Done" = "Done";
-"Next" = "Next";
+"Done" = "Klaar";
+"Next" = "Volgende";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -1138,7 +1138,7 @@
 "PersonalDetails" = "Personal details";
 "ContactInfo" = "Contact info";
 "Identification" = "Identification";
-"Owner" = "Owner";
+"Owner" = "Eienaar";
 "VerifyYourIdentity" = "Verify your identity";
 "LockCurrentAccount" = "Lock current account";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
@@ -1192,7 +1192,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
-"DeleteSend" = "Delete Send";
+"DeleteSend" = "Skrap Send";
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
