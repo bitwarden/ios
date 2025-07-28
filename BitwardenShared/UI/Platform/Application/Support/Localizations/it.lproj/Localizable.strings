@@ -871,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden ti consente di condividere gli elementi della tua cassaforte con altri usando un'organizzazione. Scopri di più su bitwarden.com.";
 "RateAppDescriptionLong" = "Aiuta gli altri a decidere se Bitwarden è adatto a loro. Visita l'App Store e lascia una recensione.";
 "DefaultDarkThemeDescriptionLong" = "Scegli il tema scuro da usare quando il tuo dispositivo è in modalità scura";
-"CreatedX" = "Created %1$@";
+"CreatedX" = "Creato: %1$@";
 "TooManyAttempts" = "Troppi tentativi";
 "AccountLoggedOutBiometricExceeded" = "Account uscito.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Le autorizzazioni della tua organizzazione sono state aggiornate, obbligandoti a impostare una password principale.";
@@ -1209,10 +1209,10 @@
 "YouMustAttachAFileToSaveThisSend" = "È necessario allegare un file per salvare questo Send";
 "SendUpdated" = "Send aggiornato";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Dispositivo non riconosciuto. Inserisci il codice che è stato inviato alla tua email.";
-"Created" = "Created: %1$@";
-"LastEdited" = "Last edited: %1$@";
-"PasswordLastUpdated" = "Password last updated: %1$@";
-"DecryptionError" = "Decryption error";
+"Created" = "Creazione: %1$@";
+"LastEdited" = "Ultima modifica: %1$@";
+"PasswordLastUpdated" = "Ultimo aggiornamento della password: %1$@";
+"DecryptionError" = "Errore di decrittazione";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";

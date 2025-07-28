@@ -111,7 +111,7 @@
 "EditItem" = "ഇനം തിരുത്തുക";
 "EnableAutomaticSyncing" = "ഓട്ടോമാറ്റിക് സമന്വയം പ്രാപ്തമാക്കുക";
 "EnterEmailForHint" = "നിങ്ങളുടെപ്രാഥമിക പാസ്‌വേഡ് സൂചന ലഭിക്കുന്നതിന് നിങ്ങളുടെ അക്കൗണ്ടിന്റെ ഇമെയിൽ വിലാസം നൽകുക.";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "ആപ്പ് എക്സ്റ്റൻഷൻ വീണ്ടും പ്രവർത്തനക്ഷമമാക്കുക";
 "ExtensionAlmostDone" = "ഏതാണ്ട് പൂർത്തിയായി!";
 "ExtensionEnable" = "ആപ്പ് എക്സ്റ്റൻഷൻ പ്രവർത്തനക്ഷമമാക്കുക";
 "ExtensionInSafari" = "Safariയിൽ, Bitwarden കണ്ടുപിടിക്കാൻ ഷെയർ ഐക്കൺ ഉപയോഗിക്കുക (സൂചന: മെനുവിന്റെ താഴത്തെ വരിയിൽ വലതുവശത്തേക്ക് സ്ക്രോൾ ചെയ്യുക).";
@@ -997,7 +997,7 @@
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
 "SetUpLaterQuestion" = "Set up later?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
-"Confirm" = "Confirm";
+"Confirm" = "സ്ഥിരീകരിക്കുക";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
@@ -1138,7 +1138,7 @@
 "PersonalDetails" = "Personal details";
 "ContactInfo" = "Contact info";
 "Identification" = "Identification";
-"Owner" = "Owner";
+"Owner" = "ഉടമ";
 "VerifyYourIdentity" = "Verify your identity";
 "LockCurrentAccount" = "Lock current account";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
@@ -1192,7 +1192,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
-"DeleteSend" = "Delete Send";
+"DeleteSend" = "Send ഇല്ലാതാക്കുക";
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";

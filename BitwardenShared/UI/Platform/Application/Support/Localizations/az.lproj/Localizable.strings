@@ -871,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden, bir təşkilatı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza imkan verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət edin.";
 "RateAppDescriptionLong" = "Başqalarının Bitwarden-in onlar üçün uyğun olub-olmadığını öyrənməkdə kömək edin. Tətbiq mağazasını ziyarət edin və tətbiqimizi qiymətləndirin.";
 "DefaultDarkThemeDescriptionLong" = "Cihazınızda qaranlıq rejim açıq olduqda istifadə ediləcək qaranlıq temanı seçin";
-"CreatedX" = "Created %1$@";
+"CreatedX" = "Yaradıldı: %1$@";
 "TooManyAttempts" = "Həddən artıq cəhd";
 "AccountLoggedOutBiometricExceeded" = "Hesabdan çıxış edildi.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.";
@@ -1209,10 +1209,10 @@
 "YouMustAttachAFileToSaveThisSend" = "Bu send-i saxlamaq üçün bir fayl əlavə etməlisiniz";
 "SendUpdated" = "Send güncəlləndi";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin.";
-"Created" = "Created: %1$@";
-"LastEdited" = "Last edited: %1$@";
-"PasswordLastUpdated" = "Password last updated: %1$@";
-"DecryptionError" = "Decryption error";
+"Created" = "Yaradıldı: %1$@";
+"LastEdited" = "Son düzəliş: %1$@";
+"PasswordLastUpdated" = "Son parol güncəlləməsi: %1$@";
+"DecryptionError" = "Şifrə açma xətası";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";

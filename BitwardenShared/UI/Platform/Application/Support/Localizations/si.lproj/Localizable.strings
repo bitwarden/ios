@@ -188,7 +188,7 @@
 "TwoStepLogin" = "Two-step login";
 "UnlockWith" = "Unlock with %1$@";
 "UnlockWithPIN" = "Unlock with PIN code";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
+"UnlockWithUnknownBiometrics" = "ජෛව විද්යාව සමඟ අගුළු ඇරීම";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "View item";
@@ -1192,7 +1192,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
-"DeleteSend" = "Delete Send";
+"DeleteSend" = "යවන්න මකන්න";
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";

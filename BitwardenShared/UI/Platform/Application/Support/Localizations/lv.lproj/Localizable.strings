@@ -579,7 +579,7 @@
 "RemovePassword" = "Noņemt paroli";
 "AreYouSureRemoveSendPassword" = "Vai tiešām noņemt paroli?";
 "RemovingSendPassword" = "Noņem paroli";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Parole noņemta";
 "NoSends" = "Kontā nav neviena Send.";
 "CopyLink" = "Ievietot saiti starpliktuvē";
 "ShareLink" = "Kopīgot saiti";
@@ -1213,8 +1213,8 @@
 "LastEdited" = "Pēdējoreiz labots: %1$@";
 "PasswordLastUpdated" = "Parole pēdējoreiz atjaunināta: %1$@";
 "DecryptionError" = "Atšifrēšanas kļūda";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt šo glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt 1 glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nevarēja atšifrēt %1$@ glabātavas vienumus. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
+"CopyErrorReport" = "Ievietot kļūdas ziņojumu starpliktuvē";
 "ErrorCannotDecrypt" = "[kļūda: nevar atšifrēt]";

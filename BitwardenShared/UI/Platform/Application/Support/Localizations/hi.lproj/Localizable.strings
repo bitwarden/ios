@@ -39,7 +39,7 @@
 "InvalidMasterPassword" = "मास्टर पासवर्ड गलत है। वापस कोशिश करें।";
 "InvalidPIN" = "पिन गलत है। वापस कोशिश करें।";
 "Launch" = "खोलें";
-"LogIn" = "Log in";
+"LogIn" = "Log In";
 "LoginCredentials" = "Login credentials";
 "LogInNoun" = "लॉगइन";
 "LogOut" = "लॉगआउट करें";
@@ -111,7 +111,7 @@
 "EditItem" = "आइटम बदलें";
 "EnableAutomaticSyncing" = "ऑटो-सिंक ऑन करें";
 "EnterEmailForHint" = "मास्टर पासवर्ड हिंट लेने के लिए अपने अकाउंट का ईमेल पता डालें।";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "ऐप एक्सटेंशन वापस ऑन करें";
 "ExtensionAlmostDone" = "खत्म होने ही वाला है!";
 "ExtensionEnable" = "ऐप एक्सटेंशन ऑन करें";
 "ExtensionInSafari" = "सफारी में, शेयर आइकन से बिटवार्डन को ढूंढें (हिंट: मेन्यू के सबसे निचले पट्टी पर राइट में जाएं)।";
@@ -188,7 +188,7 @@
 "TwoStepLogin" = "टू-स्टेप लॉगइन";
 "UnlockWith" = "%1$@ से खोलें";
 "UnlockWithPIN" = "पिन कोड से खोलें";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
+"UnlockWithUnknownBiometrics" = "बायोमेट्रिक्स का उपयोग कर अनलॉक करें";
 "Validating" = "चेक कर रहे";
 "VerificationCode" = "वेरिफिकेशन कोड";
 "ViewItem" = "आइटम देखें";
@@ -910,7 +910,7 @@
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Passkey operation failed because app could not be verified";
-"RemindMeLater" = "Remind me later";
+"RemindMeLater" = "बाद में मुझे याद कराएं";
 "Notice" = "Notice";
 "AppInfo" = "App info";
 "Browse" = "Browse";
@@ -1192,7 +1192,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
-"DeleteSend" = "Delete Send";
+"DeleteSend" = " Send हटाए";
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
