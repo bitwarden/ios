@@ -266,8 +266,13 @@ jobs:
         if: ${{ env._BUILD_MODE == 'Device' }}
         continue-on-error: true
         run: |
+          echo "finding dsyms:"
+          find . -name "upload-symbols" -type f
+
+          echo ""
+          echo "finish finding dsyms"
           find $_EXPORT_PATH/dSYMs -name "*.dSYM" \
-            -exec "build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -exec "./build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
             -gsp $_CRASHLYTICS_PATH \
             -p ios -- {} +
 
