@@ -5,9 +5,6 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
-    /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
-    static let anonAddySelfHostAlias = FeatureFlag(rawValue: "anon-addy-self-host-alias")
-
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
 
@@ -42,7 +39,6 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
-            .anonAddySelfHostAlias,
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,

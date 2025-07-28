@@ -15,9 +15,6 @@ extension GeneratorState {
 
         // MARK: Properties
 
-        /// A flag indicating if the addy IO selfhost is enabled.
-        var addyIOSelfHostServerUrlEnabled = false
-
         /// An optional website host used to generate usernames (either plus addressed or catch all).
         var emailWebsite: String?
 
