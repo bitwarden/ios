@@ -1213,8 +1213,8 @@
 "LastEdited" = "Naposledy upraveno: %1$@";
 "PasswordLastUpdated" = "Poslední aktualizace hesla: %1$@";
 "DecryptionError" = "Chyba dešifrování";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat tuto položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat 1 položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nemohl dešifrovat %1$@ položek trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
+"CopyErrorReport" = "Zkopírovat zprávu o chybě";
 "ErrorCannotDecrypt" = "[chyba: nelze dešifrovat]";

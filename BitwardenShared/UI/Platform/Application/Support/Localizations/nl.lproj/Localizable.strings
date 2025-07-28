@@ -1213,8 +1213,8 @@
 "LastEdited" = "Laatst bewerkt: %1$@";
 "PasswordLastUpdated" = "Wachtwoord laatst bijgewerkt: %1$@";
 "DecryptionError" = "Ontsleutelingsfout";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden kon het onderstaande kluisitem niet ontsleutelen. Kopieer deze foutenrapporte en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden kon één kluisitem niet ontsleutelen. Kopieer deze foutenrapporte en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden kon %1$@ kluisitems niet ontsleutelen. Kopieer deze foutenrapportage en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
+"CopyErrorReport" = "Foutrapportage kopiëren";
 "ErrorCannotDecrypt" = "[fout: kan niet ontsleutelen]";
