@@ -14,10 +14,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
 
-    /// Flag to enable/disable email verification during registration
-    /// This flag introduces a new flow for account creation
-    static let emailVerification = FeatureFlag(rawValue: "email-verification")
-
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
@@ -31,7 +27,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,
-            .emailVerification,
             .enableCipherKeyEncryption,
             .removeCardPolicy,
         ]
