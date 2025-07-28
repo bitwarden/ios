@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import Foundation
 
 // MARK: - SingleSignOnFlowDelegate

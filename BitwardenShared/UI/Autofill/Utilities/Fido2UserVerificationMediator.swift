@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - Fido2UserVerificationMediatorDelegate

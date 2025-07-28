@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - StartRegistrationState
