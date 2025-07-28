@@ -24,9 +24,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         isRemotelyConfigured: false
     )
 
-    /// A feature flag for the import logins flow for new accounts.
-    static let importLoginsFlow = FeatureFlag(rawValue: "import-logins-flow")
-
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
         rawValue: "pm-15493-restrict-item-deletion-to-can-manage-permission"
@@ -44,7 +41,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cipherKeyEncryption,
             .emailVerification,
             .enableCipherKeyEncryption,
-            .importLoginsFlow,
             .removeCardPolicy,
             .restrictCipherItemDeletion,
         ]
