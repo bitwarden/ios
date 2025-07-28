@@ -90,37 +90,4 @@ class ViewItemStateTests: BitwardenTestCase {
         let subject = ViewItemState()
         XCTAssertEqual(subject.navigationTitle, "")
     }
-
-    /// `restrictCipherItemDeletionFlagEnabled` default value is false.
-    func test_restrictCipherItemDeletionFlagEnabled() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            )
-        )
-        XCTAssertFalse(subject.restrictCipherItemDeletionFlagEnabled)
-    }
-
-    /// `restrictCipherItemDeletionFlagEnabled` is correctly initialized.
-    func test_restrictCipherItemDeletionFlagEnabled_value() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            restrictCipherItemDeletionFlagEnabled: true
-        )
-        XCTAssertTrue(subject.restrictCipherItemDeletionFlagEnabled)
-    }
 }

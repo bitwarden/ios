@@ -110,9 +110,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
-    /// A flag indicating if cipher permissions should be used.
-    var restrictCipherItemDeletionFlag: Bool = false
-
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
 
@@ -157,7 +154,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
         // backwards compatibility for old server versions
-        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+        guard let cipherPermissions = cipher.permissions else {
             guard !collectionIds.isEmpty else { return true }
             return allUserCollections.contains { collection in
                 guard let id = collection.id else { return false }
@@ -172,7 +169,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether or not this item can be restored by the user.
     var canBeRestored: Bool {
         // backwards compatibility for old server versions
-        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+        guard let cipherPermissions = cipher.permissions else {
             return isSoftDeleted
         }
 
@@ -243,11 +240,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             organizationId = newValue?.organizationId
             collectionIds = []
         }
-    }
-
-    var restrictCipherItemDeletionFlagEnabled: Bool {
-        get { restrictCipherItemDeletionFlag }
-        set { restrictCipherItemDeletionFlag = newValue }
     }
 
     /// The flag indicating if we should show the learn new login action card.
