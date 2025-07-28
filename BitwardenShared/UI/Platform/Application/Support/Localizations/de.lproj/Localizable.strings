@@ -871,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden erlaubt es dir, deine Tresor-Einträge mit anderen zu teilen, indem du eine Organisation verwendest. Erfahre mehr auf der bitwarden.com Website.";
 "RateAppDescriptionLong" = "Hilf anderen herauszufinden, ob Bitwarden das Richtige für sie ist. Besuche den App Store und hinterlasse jetzt eine Bewertung.";
 "DefaultDarkThemeDescriptionLong" = "Wähle das zu verwendende dunkle Design aus, während der Dark Mode deines Geräts aktiviert ist";
-"CreatedX" = "Created %1$@";
+"CreatedX" = "%1$@ erstellt";
 "TooManyAttempts" = "Zu viele Versuche";
 "AccountLoggedOutBiometricExceeded" = "Konto abgemeldet.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Deine Organisationsberechtigungen wurden aktualisiert und verlangen, dass du ein Master-Passwort festlegen musst.";
@@ -1209,10 +1209,10 @@
 "YouMustAttachAFileToSaveThisSend" = "Du musst eine Datei anhängen, um dieses Send zu speichern";
 "SendUpdated" = "Send aktualisiert";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren.";
-"Created" = "Created: %1$@";
-"LastEdited" = "Last edited: %1$@";
-"PasswordLastUpdated" = "Password last updated: %1$@";
-"DecryptionError" = "Decryption error";
+"Created" = "Erstellt: %1$@";
+"LastEdited" = "Zuletzt bearbeitet: %1$@";
+"PasswordLastUpdated" = "Passwort zuletzt aktualisiert: %1$@";
+"DecryptionError" = "Entschlüsselungsfehler";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";

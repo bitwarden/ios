@@ -111,7 +111,7 @@
 "EditItem" = "বস্তু সম্পাদনা";
 "EnableAutomaticSyncing" = "Allow automatic syncing";
 "EnterEmailForHint" = "আপনার প্রধান পাসওয়ার্ডের ইঙ্গিতটি পেতে আপনার অ্যাকাউন্টের ইমেল ঠিকানা প্রবেশ করুন।";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "এক্সটেনশনটি আবার সক্রিয় করুন";
 "ExtensionAlmostDone" = "প্রায় হয়ে গেছে!";
 "ExtensionEnable" = "Activate app extension";
 "ExtensionInSafari" = "In Safari, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the menu).";
@@ -188,7 +188,7 @@
 "TwoStepLogin" = "Two-step login";
 "UnlockWith" = "Unlock with %1$@";
 "UnlockWithPIN" = "Unlock with PIN code";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
+"UnlockWithUnknownBiometrics" = "বায়োমেট্রিক্স দিয়ে আনলক করুন";
 "Validating" = "কার্যকর করা হচ্ছে";
 "VerificationCode" = "যাচাইকরণ কোড";
 "ViewItem" = "View item";

@@ -39,7 +39,7 @@
 "InvalidMasterPassword" = "செல்லாத பிரதான கடவுச்சொல். மீண்டும் முயலவும்.";
 "InvalidPIN" = "செல்லாத கடவெண். மீண்டும் முயலவும்.";
 "Launch" = "ஏவு";
-"LogIn" = "Log in";
+"LogIn" = "உள்நுழை";
 "LoginCredentials" = "Login credentials";
 "LogInNoun" = "உள்நுழைவு";
 "LogOut" = "வெளியேறு";
@@ -111,7 +111,7 @@
 "EditItem" = "உருப்படியைத் திருத்து";
 "EnableAutomaticSyncing" = "தானியங்கு ஒத்திசைவை அனுமதி";
 "EnterEmailForHint" = "உமது பிரதான கடவுச்சொல் குறிப்பைப் பெற உமது கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடு.";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "செயலி நீட்டிப்பை மீண்டும் இயக்கு";
 "ExtensionAlmostDone" = "கிட்டத்தட்ட முடிந்தது!";
 "ExtensionEnable" = "செயலி நீட்டிப்பை இயக்கு";
 "ExtensionInSafari" = "Safari இல், பகிர்வு படவுருவைப் பயன்படுத்தி Bitwarden ஐ கண்டறியவும் (குறிப்பு: பட்டியலின் கீழ் வரிசையில் வலதுபுறமாக உருட்டவும்).";
@@ -243,7 +243,7 @@
 "UnableToOpenFile" = "உங்கள் சாதனத்தால் இவ்வகை கோப்பை திறக்க இயலாது.";
 "Downloading" = "பதிவிறக்குகிறது…";
 "AttachmentLargeWarning" = "இந்த இணைப்பு அளவு %1$@ ஆகும். இதை உங்கள் சாதனத்தில் பதிவிறக்க விரும்புகிறீர்களா?";
-"AuthenticatorKey" = "Authenticator key";
+"AuthenticatorKey" = "அங்கீகரிப்பான் விசை";
 "VerificationCodeTotp" = "சரிபார்ப்புக் குறியீடு (TOTP)";
 "AuthenticatorKeyAdded" = "அங்கீகார விசை சேர்க்கப்பட்டது.";
 "AuthenticatorKeyReadError" = "அங்கீகார விசையை படிக்க இயலவில்லை.";
@@ -881,7 +881,7 @@
 "ChooseALoginToSaveThisPasskeyTo" = "Choose a login to save this passkey to";
 "SavePasskeyAsNewLogin" = "கடவுவிசையைப் புதிய உள்நுழைவாகச் சேமி";
 "SavePasskey" = "கடவுவிசையைச் சேமி";
-"PasskeysForX" = "Passkeys for %1$@";
+"PasskeysForX" = "%1$@-க்கானக் கடவுவிசைகள்";
 "PasswordsForX" = "Passwords for %1$@";
 "OverwritePasskey" = "கடவுவிசையை மேலெழுதவா?";
 "ThisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey" = "This item already contains a passkey. Are you sure you want to overwrite the current passkey?";
@@ -979,8 +979,8 @@
 "BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Be careful to keep your written password somewhere secret and safe.";
 "ChooseYourMasterPassword" = "Choose your master password";
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
-"MasterPasswordRequired" = "Master password (required)";
-"RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"MasterPasswordRequired" = "பிரதான கடவுச்சொல் (தேவை)";
+"RetypeMasterPasswordRequired" = "பிரதான கடவுச்சொல்லை மீண்டும் உள்ளிடு (தேவை)";
 "RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
