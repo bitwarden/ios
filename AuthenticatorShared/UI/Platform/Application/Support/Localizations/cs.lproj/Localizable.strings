@@ -68,7 +68,7 @@
 "ScanQRCode" = "Naskenovat QR kód";
 "CannotScanQRCode" = "Nelze naskenovat QR kód?";
 "EnterKeyManually" = "Zadat klíč ručně";
-"Service" = "Služba";
+"Service" = "Název";
 "Language" = "Jazyk";
 "LanguageChangeXDescription" = "Jazyk byl změněn na %1$@. Pro zobrazení změn restartujte aplikaci.";
 "LanguageChangeRequiresAppRestart" = "Změna jazyka vyžaduje restart aplikace";
