@@ -99,7 +99,7 @@
 "UseYourDeviceCameraToScanCodes" = "Utilize a câmara do seu dispositivo para ler códigos";
 "ScanTheQRCodeInYourSettings" = "Digitalize o código QR nas suas definições de verificação de dois passos para qualquer conta.";
 "SignInUsingUniqueCodes" = "Inicie sessão utilizando códigos únicos";
-"WhenUsingTwoStepVerification" = "Ao utilizar a verificação de dois passos, introduz o seu nome de utilizador e palavra-passe e um código gerado nesta aplicação.";
+"WhenUsingTwoStepVerification" = "Ao utilizar a verificação de dois passos, introduz o seu nome de utilizador e palavra-passe e um código gerado nesta app.";
 "GetStarted" = "Começar";
 "LaunchTutorial" = "Iniciar tutorial";
 "Help" = "Ajuda";
@@ -137,7 +137,7 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Definir \"Guardar localmente\" como opção de gravação predefinida?";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Pode atualizar a sua predefinição a qualquer altura nas definições.";
 "YesSetDefault" = "Sim, definir predefinição";
-"NoAskMe" = "Não, perguntar-me";
+"NoAskMe" = "Não, perguntem-me";
 "DefaultSaveOption" = "Opção de guardar predefinida";
 "SaveToBitwarden" = "Guardar no Bitwarden";
 "None" = "Nenhum";

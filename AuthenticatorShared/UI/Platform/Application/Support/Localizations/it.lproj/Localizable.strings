@@ -129,7 +129,7 @@
 "SyncWithBitwardenApp" = "Sincronizza con l'app Bitwarden";
 "LocalCodes" = "Codici locali";
 "AccountsSyncedFromBitwardenApp" = "Account sincronizzati dall'app Bitwarden";
-"CopyToBitwardenVault" = "Copy to Bitwarden vault";
+"CopyToBitwardenVault" = "Copia nella cassaforte di Bitwarden";
 "ScanComplete" = "Scansione completata";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Salva qui questa chiave di autenticazione, o aggiungila ad un login su Bitwarden.";
 "SaveHere" = "Salva qui";
@@ -150,7 +150,7 @@
 "VaultTimeout" = "Timeout cassaforte";
 "ThirtyMinutes" = "30 minuti";
 "OnRestart" = "Al riavvio dell'app";
-"Custom" = "Custom";
+"Custom" = "Personalizzati";
 "SessionTimeout" = "Timeout della sessione";
 "FileCouldNotBeProcessed" = "Il file non può essere processato";
 "EnsureItsValidJsonAndTryAgain" = "Assicurati che sia un JSON valido e riprova.";
@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Hai bisogno di aiuto? Visita il nostro Centro Assistenza per la guida.";
 "UnexpectedDataFormat" = "Formato Dati Inatteso";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Il formato dei dati fornito non corrisponde a quello atteso. Si prega di controllare il file e assicurarsi che i tipi di dati corretti siano utilizzati.";
-"LearnMoreLink" = "[Learn more](%1$@)";
+"LearnMoreLink" = "[Scopri di più](%1$@)";
