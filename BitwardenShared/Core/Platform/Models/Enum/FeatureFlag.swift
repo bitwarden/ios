@@ -21,11 +21,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
-    /// A feature flag for the use of new cipher permission properties.
-    static let restrictCipherItemDeletion = FeatureFlag(
-        rawValue: "pm-15493-restrict-item-deletion-to-can-manage-permission"
-    )
-
     /// A feature flag to enable the removal of card item types.
     static let removeCardPolicy = FeatureFlag(
         rawValue: "pm-16442-remove-card-item-type-policy"
@@ -39,7 +34,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .emailVerification,
             .enableCipherKeyEncryption,
             .removeCardPolicy,
-            .restrictCipherItemDeletion,
         ]
     }
 }
