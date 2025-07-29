@@ -189,8 +189,6 @@ targets:
         buildPhase: none
       - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
         optional: true
       - path: AuthenticatorShared/Sourcery/sourcery.yml
@@ -212,7 +210,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Protobuf
         script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then

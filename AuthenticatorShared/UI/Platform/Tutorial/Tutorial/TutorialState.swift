@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - TutorialState
 
 /// An object that defines the current state of a `TutorialView`.
