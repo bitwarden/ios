@@ -458,9 +458,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
             Group {
                 Text(Localizations.important + ": ")
                     .bold() +
-                    Text(Localizations
-                        .yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(16)
-                    )
+                    Text("Your master password cannot be recovered if you forget it! 16 characters minimum.")
             }
             .styleGuide(.footnote)
             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
