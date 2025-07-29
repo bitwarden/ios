@@ -82,9 +82,9 @@ struct AppExtensionView: View {
     /// The activate button.
     private var activateButton: some View {
         Button(
-            store.state.extensionEnabled ?
-                Localizations.reactivateAppExtension :
-                Localizations.extensionEnable
+            store.state.extensionEnabled
+                ? Localizations.reactivateAppExtension
+                : Localizations.extensionEnable
         ) {
             store.send(.activateButtonTapped)
         }
