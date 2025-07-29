@@ -58,7 +58,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     func test_validate_with400AccountAlreadyExists() throws {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountAccountAlreadyExists.data
+            body: APITestData.registerFinishAccountAlreadyExists.data
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -73,7 +73,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     func test_validate_with400CaptchaError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountCaptchaFailure.data
+            body: APITestData.registerFinishCaptchaFailure.data
         )
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
@@ -89,7 +89,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     func test_validate_with400InvalidEmailFormat() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountInvalidEmailFormat.data
+            body: APITestData.registerFinishInvalidEmailFormat.data
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -112,7 +112,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.createAccountSuccess.data
+            body: APITestData.registerFinishSuccess.data
         )
 
         XCTAssertNoThrow(try subject.validate(response))
