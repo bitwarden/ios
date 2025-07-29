@@ -142,8 +142,9 @@ extension GeneratorState.UsernameState {
     /// generated.
     var canGenerateUsername: Bool {
         switch usernameGeneratorType {
-        case .catchAllEmail,
-             .plusAddressedEmail,
+        case .catchAllEmail:
+            !domain.isEmpty
+        case .plusAddressedEmail,
              .randomWord:
             true
         case .forwardedEmail:
