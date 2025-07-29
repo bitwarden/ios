@@ -1218,9 +1218,9 @@
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[错误：无法解密]";
-"AccountName" = "帐户名称";
+"AccountName" = "账户名称";
 "AccountsSyncedFromBitwardenApp" = "从 Bitwarden App 同步帐户";
-"AddANewCodeToSecure" = "添加一个新代码来保护您的帐户";
+"AddANewCodeToSecure" = "添加一个新的代码以保护您的账户。";
 "AddCode" = "添加代码";
 "Advanced" = "高级选项";
 "Algorithm" = "算法";
@@ -1228,12 +1228,12 @@
 "Backup" = "备份";
 "BitwardenAuthenticator" = "Bitwarden 身份验证器";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden 身份验证器数据已备份，并且可以使用您的定期设备备份恢复。";
-"CopyToBitwardenVault" = "Copy to Bitwarden vault";
+"CopyToBitwardenVault" = "复制到 Bitwarden 密码库";
 "CreateVerificationCode" = "创建验证码";
 "Data" = "数据";
 "DefaultSaveOption" = "默认保存选项";
 "DownloadTheBitwardenApp" = "下载 Bitwarden App";
-"EnsureItsValidJsonAndTryAgain" = "请确保它是有效的 JSON 文件并重试";
+"EnsureItsValidJsonAndTryAgain" = "请确保它是有效的 JSON 文件然后重试。";
 "ExportItemsConfirmationTitle" = "确认项目导出";
 "ExportItemsWarning" = "已包含未加密格式的项目数据导出，您不应通过不安全的渠道(例如电子邮件)存储或发送导出的文件，请在使用后立即删除。";
 "FileCouldNotBeProcessed" = "无法处理文件";
@@ -1247,7 +1247,7 @@
 "Key" = "密钥";
 "KeyReadError" = "无法读取密钥。";
 "LaunchTutorial" = "打开教程";
-"LearnMoreLink" = "[Learn more](%1$@)";
+"LearnMoreLink" = "[了解更多](%1$@)";
 "LocalCodes" = "本地代码";
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要帮助吗？请访问我们的帮助中心寻求帮助。";
 "NinetySeconds" = "90 秒";
