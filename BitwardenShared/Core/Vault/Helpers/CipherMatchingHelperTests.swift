@@ -36,7 +36,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
 
     var settingsService: MockSettingsService!
     var stateService: MockStateService!
-    var subject: CipherMatchingHelper!
+    var subject: DefaultCipherMatchingHelper!
 
     // MARK: Setup & Teardown
 
@@ -46,7 +46,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         settingsService = MockSettingsService()
         stateService = MockStateService()
 
-        subject = CipherMatchingHelper(
+        subject = DefaultCipherMatchingHelper(
             settingsService: settingsService,
             stateService: stateService
         )

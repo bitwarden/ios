@@ -236,8 +236,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return connectToWatchByUserId[userId] ?? false
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try unwrapUserId(userId)
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        guard let userId = try? unwrapUserId(userId) else {
+            return .domain
+        }
         return defaultUriMatchTypeByUserId[userId] ?? .domain
     }
 

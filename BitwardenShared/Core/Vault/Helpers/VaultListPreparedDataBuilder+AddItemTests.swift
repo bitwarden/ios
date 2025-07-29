@@ -286,4 +286,34 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
 
         XCTAssertTrue(preparedData.groupItems.isEmpty)
     }
+
+    /// `addItem(withMatchResult:cipher:)` with `.exact` match result adds an item to the `exactMatchItems` collection.
+    func test_addItem_exactMatchResult() async {
+        let cipher = CipherListView.fixture()
+        let preparedData = await subject.addItem(withMatchResult: .exact, cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, cipher.id)
+    }
+
+    /// `addItem(withMatchResult:cipher:)` with `.fuzzy` match result adds an item to the `fuzzyMatchItems` collection.
+    func test_addItem_fuzzyMatchResult() async {
+        let cipher = CipherListView.fixture()
+        let preparedData = await subject.addItem(withMatchResult: .fuzzy, cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, cipher.id)
+    }
+
+    /// `addItem(withMatchResult:cipher:)` with `.none` match result doesn't add an item
+    ///  to neither the `exactMatchItems` nor the `fuzzyMatchItems` collections.
+    func test_addItem_noneMatchResult() async {
+        let cipher = CipherListView.fixture()
+        let preparedData = await subject.addItem(withMatchResult: .none, cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
 }

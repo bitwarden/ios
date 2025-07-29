@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - VaultListSectionsBuilderTests
 
-class VaultListSectionsBuilderTests: BitwardenTestCase {
+class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientService: MockClientService!
@@ -32,16 +32,91 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `addTrashSection()` adds the trash section to the list of sections with the count of deleted ciphers.
-    func test_addTrashSection() {
-        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
+    /// `addAutofillPasswordsSection()` adds a vault section combinining exact and fuzzy match items.
+    func test_addAutofillPasswordsSection() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact42")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact2")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy11")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy10")),
+            ]
+        ))
 
-        let vaultListData = subject.addTrashSection().build()
+        let vaultListData = subject.addAutofillPasswordsSection().build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Trash]: Trash
-              - Group[Trash]: Trash (10)
+            Section[]: 
+              - Cipher: Exact1
+              - Cipher: Exact2
+              - Cipher: Exact42
+              - Cipher: Fuzzy10
+              - Cipher: Fuzzy11
+            """
+        }
+    }
+
+    /// `addAutofillPasswordsSection()` adds a vault section with exact match items when no fuzzy items are present.
+    func test_addAutofillPasswordsSection_onlyExact() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact42")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact2")),
+            ],
+            fuzzyMatchItems: []
+        ))
+
+        let vaultListData = subject.addAutofillPasswordsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[]: 
+              - Cipher: Exact1
+              - Cipher: Exact2
+              - Cipher: Exact42
+            """
+        }
+    }
+
+    /// `addAutofillPasswordsSection()` adds a vault section with fuzzy match items when no exact items are present.
+    func test_addAutofillPasswordsSection_onlyFuzzy() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Fuzzy42")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Fuzzy1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Fuzzy2")),
+            ]
+        ))
+
+        let vaultListData = subject.addAutofillPasswordsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[]: 
+              - Cipher: Fuzzy1
+              - Cipher: Fuzzy2
+              - Cipher: Fuzzy42
+            """
+        }
+    }
+
+    /// `addAutofillPasswordsSection()` doesn't add vault section when no exact nor fuzzy match items.
+    func test_addAutofillPasswordsSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: []
+        ))
+
+        let vaultListData = subject.addAutofillPasswordsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
             """
         }
     }
@@ -163,6 +238,20 @@ class VaultListSectionsBuilderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
+            """
+        }
+    }
+
+    /// `addTrashSection()` adds the trash section to the list of sections with the count of deleted ciphers.
+    func test_addTrashSection() {
+        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
+
+        let vaultListData = subject.addTrashSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Trash]: Trash
+              - Group[Trash]: Trash (10)
             """
         }
     }

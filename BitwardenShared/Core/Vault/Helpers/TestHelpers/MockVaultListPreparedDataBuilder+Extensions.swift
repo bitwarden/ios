@@ -24,6 +24,10 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("addItemForGroup")
             return self
         }
+        addItemWithMatchResultCipherClosure = { _, _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addItemWithMatchResultCipher")
+            return self
+        }
         addNoFolderItemClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addNoFolderItem")
             return self

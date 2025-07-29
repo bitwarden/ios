@@ -156,7 +156,7 @@ class AutofillHelper {
     private func handleMissingValueForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) {
         guard let login = cipherView.login,
               !login.username.isEmptyOrNil ||
-              !login.password.isEmptyOrNil ||
+              !login.password.isEmptyOrNil ||   
               !login.totp.isEmptyOrNil
         else {
             coordinator.showAlert(.defaultAlert(title: Localizations.noUsernamePasswordConfigured))

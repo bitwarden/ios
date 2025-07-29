@@ -35,12 +35,25 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> VaultListPreparedData?
+
+    /// Prepares autofill's passwords data for the vault list builder.
+    /// - Parameters:
+    ///   - ciphers: An array of `Cipher` objects to be processed.
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
+    func prepareAutofillPasswordsData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData?
 }
 
 /// Default implementation of `VaultListDataPreparator`.
 struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     // MARK: Properties
 
+    /// The helper to handle filtering ciphers that match a URI.
+    let cipherMatchingHelper: CipherMatchingHelper
     /// The wrapper of the `CiphersClient` service for extended functionality.
     let ciphersClientWrapperService: CiphersClientWrapperService
     /// The service used by the application to handle encryption and decryption tasks.
@@ -142,6 +155,46 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             }
 
             preparedDataBuilder = await preparedDataBuilder.addItem(forGroup: group, with: decryptedCipher)
+        }
+
+        return preparedDataBuilder.build()
+    }
+
+    func prepareAutofillPasswordsData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData? {
+        guard !ciphers.isEmpty, let uri = filter.uri else {
+            return nil
+        }
+
+        let (matchingDomains, matchingFuzzyDomains) = await cipherMatchingHelper.getMatchingDomains(
+            matchUri: uri
+        )
+        let defaultMatchType = await stateService.getDefaultUriMatchType()
+
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+
+        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+            ciphers: ciphers
+        ) { decryptedCipher in
+            guard decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                return
+            }
+
+            let matchResult = cipherMatchingHelper.doesCipherMatch(
+                cipher: decryptedCipher,
+                defaultMatchType: defaultMatchType,
+                matchUri: uri,
+                matchingDomains: matchingDomains,
+                matchingFuzzyDomains: matchingFuzzyDomains
+            )
+
+            preparedDataBuilder = await preparedDataBuilder.addItem(
+                withMatchResult: matchResult,
+                cipher: decryptedCipher
+            )
         }
 
         return preparedDataBuilder.build()

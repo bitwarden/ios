@@ -604,36 +604,64 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.totp` mode.
     func test_ciphersAutofillPublisher_mode_totp() async throws {
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://bitwarden.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ],
-                    totp: "123"
-                ),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
+//        let ciphers: [Cipher] = [
+//            .fixture(
+//                id: "1",
+//                login: .fixture(
+//                    uris: [
+//                        .fixture(
+//                            uri: "https://bitwarden.com",
+//                            match: .exact
+//                        ),
+//                    ]
+//                ),
+//                name: "Bitwarden"
+//            ),
+//            .fixture(
+//                creationDate: Date(year: 2024, month: 1, day: 1),
+//                id: "2",
+//                login: .fixture(
+//                    uris: [
+//                        .fixture(
+//                            uri: "https://example.com",
+//                            match: .exact
+//                        ),
+//                    ],
+//                    totp: "123"
+//                ),
+//                name: "Example",
+//                revisionDate: Date(year: 2024, month: 1, day: 1)
+//            ),
+//        ]
+        let expectedSections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    VaultListItem(
+                        id: "1",
+                        itemType: .totp(
+                            name: "Example",
+                            totpModel: VaultListTOTP(
+                                id: "2",
+                                cipherListView: .fixture(),
+                                requiresMasterPassword: false,
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: .now,
+                                    period: 30
+                                )
+                            )
+                        )
+                    ),
+                ],
+                name: ""
             ),
         ]
-        cipherService.ciphersSubject.value = ciphers
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -644,52 +672,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ).makeAsyncIterator()
         let publishedSections = try await iterator.next()?.sections
 
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
+        try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
             """
-            Section: 
+            Section[]: 
               - TOTP: 2 Example 123 456 
             """
         }
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
-    /// doesn't return the item on `.totp` mode because of Totp generation throwing.
-    func test_ciphersAutofillPublisher_mode_totpThrowsOnGeneration() async throws {
-        let ciphers: [Cipher] = [
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ],
-                    totp: "123"
-                ),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-        ]
-        cipherService.ciphersSubject.value = ciphers
-        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+    /// doesn't return the item on `.totp` mode because of the vault list publisher buildthrows.
+    func test_ciphersAutofillPublisher_mode_totpThrows() async throws {
+        vaultListDirectorStrategy.buildThrowableError = BitwardenTestError.example
 
-        var iterator = try await subject.ciphersAutofillPublisher(
-            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
-                .availableCredentialsForAuthenticationPublisher(),
-            mode: .totp,
-            rpID: nil,
-            uri: "https://example.com"
-        ).makeAsyncIterator()
-        let vaultListData = try await iterator.next()
-        let sections = try XCTUnwrap(vaultListData?.sections)
-
-        XCTAssertTrue(sections.isEmpty)
-        XCTAssertEqual(
-            errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for cipher id 2")]
-        )
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.ciphersAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .totp,
+                rpID: nil,
+                uri: "https://example.com"
+            )
+        }
     }
 
     /// `createAutofillListExcludedCredentialSection(from:)` creates a `VaultListSection`
