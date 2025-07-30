@@ -537,6 +537,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         var subject = GeneratorState().usernameState
 
         subject.usernameGeneratorType = .catchAllEmail
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.domain = "example.com"
         XCTAssertTrue(subject.canGenerateUsername)
 
         subject.usernameGeneratorType = .plusAddressedEmail

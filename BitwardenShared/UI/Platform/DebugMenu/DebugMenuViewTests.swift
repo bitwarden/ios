@@ -90,7 +90,7 @@ class DebugMenuViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_debugMenuWithFeatureFlags() {
         processor.state.featureFlags = [
-            .init(feature: .emailVerification, isEnabled: true),
+            .init(feature: .testFeatureFlag, isEnabled: true),
         ]
         assertSnapshot(
             of: subject,

@@ -44,9 +44,6 @@ public enum AuthRoute: Equatable {
     ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
     case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
 
-    /// A route to the create account screen.
-    case createAccount
-
     /// A route that dismisses a presented sheet.
     case dismiss
 

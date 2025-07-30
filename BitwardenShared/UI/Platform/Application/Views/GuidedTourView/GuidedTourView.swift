@@ -92,8 +92,10 @@ struct GuidedTourView: View {
             .animation(.smooth(duration: animationDuration), value: shouldRotateArrow)
             .position(
                 x: calculateArrowAbsoluteXPosition(),
-                y: isArrowVisible ? calculateArrowAbsoluteYPosition() :
-                    (shouldRotateArrow ? calculateArrowAbsoluteYPosition() - arrowSize.height
+                y: isArrowVisible
+                    ? calculateArrowAbsoluteYPosition()
+                    : (shouldRotateArrow
+                        ? calculateArrowAbsoluteYPosition() - arrowSize.height
                         : calculateArrowAbsoluteYPosition() + arrowSize.height)
             )
             .smoothTransition(animation: .smooth(duration: animationDuration), value: store.state.currentIndex)
