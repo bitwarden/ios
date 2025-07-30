@@ -42,15 +42,7 @@ class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAc
     override func perform(_ effect: IntroCarouselEffect) async {
         switch effect {
         case .createAccount:
-            let isEmailVerificationEnabled: Bool = await services.configService.getFeatureFlag(
-                .emailVerification,
-                isPreAuth: true
-            )
-            if isEmailVerificationEnabled {
-                coordinator.navigate(to: .startRegistration, context: self)
-            } else {
-                coordinator.navigate(to: .createAccount)
-            }
+            coordinator.navigate(to: .startRegistration, context: self)
         }
     }
 
@@ -69,11 +61,5 @@ class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAc
 extension IntroCarouselProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
         // No-op: the carousel doesn't show the region so there's nothing to do here.
-    }
-
-    func switchToLegacyCreateAccountFlow() {
-        coordinator.navigate(to: .dismissWithAction(DismissAction {
-            self.coordinator.navigate(to: .createAccount)
-        }))
     }
 }

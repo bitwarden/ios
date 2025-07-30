@@ -13,52 +13,9 @@ public extension APITestData {
 
     // MARK: Create Account
 
-    /// Test data with a validation error of "Email 'j@a.com' is already taken."
-    static let createAccountAccountAlreadyExists = loadFromJsonBundle(
-        resource: "CreateAccountAccountAlreadyExists",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data with a CAPTCHA validation error.
-    static let createAccountCaptchaFailure = loadFromJsonBundle(
-        resource: "CreateAccountCaptchaFailure",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data with a validation error of "The field Email must be a string with a maximum length of 256."
-    static let createAccountEmailExceedsMaxLength = loadFromJsonBundle(
-        resource: "CreateAccountEmailExceedsMaxLength",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data with a validation error of
-    /// "The field MasterPasswordHint must be a string with a maximum length of 50."
-    static let createAccountHintTooLong = loadFromJsonBundle(
-        resource: "CreateAccountHintTooLong",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data with a validation error of "The Email field is not a supported e-mail address format."
-    static let createAccountInvalidEmailFormat = loadFromJsonBundle(
-        resource: "CreateAccountInvalidEmailFormat",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
     /// Test data of an invalid model state with no validation errors.
     static let createAccountNilValidationErrors = loadFromJsonBundle(
         resource: "CreateAccountNilValidationErrors",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data of a request to create an account for `example@email.com`
-    static let createAccountRequest = loadFromJsonBundle(
-        resource: "CreateAccountRequest",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data of a successful account creation.
-    static let createAccountSuccess = loadFromJsonBundle(
-        resource: "CreateAccountSuccess",
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 
@@ -89,6 +46,45 @@ public extension APITestData {
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 
+    // MARK: Register Finish
+
+    /// Test data with a validation error of "Email 'j@a.com' is already taken."
+    static let registerFinishAccountAlreadyExists = loadFromJsonBundle(
+        resource: "RegisterFinishAccountAlreadyExists",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
+    /// Test data with a CAPTCHA validation error.
+    static let registerFinishCaptchaFailure = loadFromJsonBundle(
+        resource: "RegisterFinishCaptchaFailure",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
+    /// Test data with a validation error of
+    /// "The field MasterPasswordHint must be a string with a maximum length of 50."
+    static let registerFinishHintTooLong = loadFromJsonBundle(
+        resource: "RegisterFinishHintTooLong",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
+    /// Test data with a validation error of "The Email field is not a supported e-mail address format."
+    static let registerFinishInvalidEmailFormat = loadFromJsonBundle(
+        resource: "RegisterFinishInvalidEmailFormat",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
+    /// Test data of a request to create an account for `example@email.com`
+    static let registerFinishRequest = loadFromJsonBundle(
+        resource: "RegisterFinishRequest",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
+    /// Test data of a successful account creation.
+    static let registerFinishSuccess = loadFromJsonBundle(
+        resource: "RegisterFinishSuccess",
+        bundle: BitwardenKitMocksBundleFinder.bundle
+    )
+
     // MARK: Request Password Hint
 
     /// Test data for a failure for password hint.
@@ -114,12 +110,6 @@ public extension APITestData {
     /// Test data with a validation error of
     static let startRegistrationInvalidEmailFormat = loadFromJsonBundle(
         resource: "StartRegistrationInvalidEmailFormat",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
-    /// Test data with a validation error of "The Email field is not a supported e-mail address format."
-    static let startRegistrationCaptchaFailure = loadFromJsonBundle(
-        resource: "StartRegistrationCaptchaFailure",
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 
