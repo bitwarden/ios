@@ -50,7 +50,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[]: 
+            Section[AutofillPasswords]: 
               - Cipher: Exact1
               - Cipher: Exact2
               - Cipher: Exact42
@@ -75,7 +75,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[]: 
+            Section[AutofillPasswords]: 
               - Cipher: Exact1
               - Cipher: Exact2
               - Cipher: Exact42
@@ -98,7 +98,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[]: 
+            Section[AutofillPasswords]: 
               - Cipher: Fuzzy1
               - Cipher: Fuzzy2
               - Cipher: Fuzzy42

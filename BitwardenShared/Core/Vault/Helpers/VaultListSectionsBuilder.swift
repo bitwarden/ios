@@ -115,7 +115,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
 
         vaultListData.sections.append(VaultListSection(
-            id: "",
+            id: "AutofillPasswords",
             items: matchingItems,
             name: ""
         ))
@@ -340,12 +340,12 @@ struct VaultListPreparedData {
         .secureNote: 0,
         .sshKey: 0,
     ]
+    var exactMatchItems: [VaultListItem] = []
     var favorites: [VaultListItem] = []
     var folders: [Folder] = []
     var foldersCount: [Uuid: Int] = [:]
-    var groupItems: [VaultListItem] = []
-    var exactMatchItems: [VaultListItem] = []
     var fuzzyMatchItems: [VaultListItem] = []
+    var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
     /// Organization Ids with `.restrictItemTypes` policy enabled.
     var restrictedOrganizationIds: [String] = []

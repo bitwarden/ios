@@ -257,7 +257,3 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         return .none
     }
 }
-
-struct CipherMatchingMetadata {
-
-}
