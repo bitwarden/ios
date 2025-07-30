@@ -1257,7 +1257,7 @@
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Doba obnovení";
-"RequiredInformationIsMissing" = "Požadované informace chybí: %1$@. Zkontrolujte pole a zkuste to znovu.";
+"RequiredInformationIsMissing" = "Chybí požadované informace: %1$@. Zkontrolujte pole a zkuste to znovu.";
 "RequiredInformationMissing" = "Chybí požadované informace";
 "SaveHere" = "Uložit zde";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Uložte tento ověřovací klíč zde nebo ho přidejte do Vaší aplikace Bitwarden.";
