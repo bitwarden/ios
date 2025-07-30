@@ -100,7 +100,7 @@ struct DebugMenuView: View {
                 state: .init(
                     featureFlags: [
                         .init(
-                            feature: .emailVerification,
+                            feature: FeatureFlag(rawValue: "feature-flag"),
                             isEnabled: true
                         ),
                     ]

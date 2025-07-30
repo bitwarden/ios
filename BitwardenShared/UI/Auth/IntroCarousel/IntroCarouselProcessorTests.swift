@@ -37,18 +37,9 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.createAccount` navigates to the create account view.
+    /// `perform(_:)` with `.createAccount` navigates to the start registration view.
     @MainActor
     func test_perform_createAccount() async {
-        await subject.perform(.createAccount)
-        XCTAssertEqual(coordinator.routes.last, .createAccount)
-    }
-
-    /// `perform(_:)` with `.createAccount` navigates to the start registration view if email
-    /// verification is enabled.
-    @MainActor
-    func test_perform_createAccount_emailVerificationEnabled() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
         await subject.perform(.createAccount)
         XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }
@@ -71,20 +62,5 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     func test_receive_logIn() {
         subject.receive(.logIn)
         XCTAssertEqual(coordinator.routes.last, .landing)
-    }
-
-    /// `switchToLegacyCreateAccountFlow()` dismisses the currently presented view and navigates to
-    /// create account.
-    @MainActor
-    func test_switchToLegacyCreateAccountFlow() throws {
-        subject.switchToLegacyCreateAccountFlow()
-
-        let dismissRoute = try XCTUnwrap(coordinator.routes.last)
-        guard case let .dismissWithAction(action) = dismissRoute else {
-            return XCTFail("Expected route `.dismissWithAction` not found.")
-        }
-        action?.action()
-
-        XCTAssertEqual(coordinator.routes, [.dismissWithAction(action), .createAccount])
     }
 }

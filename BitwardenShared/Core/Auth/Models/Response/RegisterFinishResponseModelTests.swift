@@ -14,7 +14,7 @@ class RegisterFinishResponseModelTests: BitwardenTestCase {
 
     /// Tests the successful decoding of a JSON response.
     func test_decode_success() throws {
-        let json = APITestData.createAccountSuccess.data
+        let json = APITestData.registerFinishSuccess.data
         let decoder = JSONDecoder()
         let subject = try decoder.decode(RegisterFinishResponseModel.self, from: json)
         XCTAssertEqual(subject.captchaBypassToken, "captchaBypassToken")

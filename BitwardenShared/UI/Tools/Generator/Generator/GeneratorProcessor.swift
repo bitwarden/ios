@@ -98,8 +98,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     override func receive(_ action: GeneratorAction) { // swiftlint:disable:this function_body_length
-        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue ?
-            .generateNewValue(shouldSave: true) : nil
+        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue
+            ? .generateNewValue(shouldSave: true)
+            : nil
 
         switch action {
         case .copyGeneratedValue:
