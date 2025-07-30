@@ -83,11 +83,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func receive(_ action: LandingAction) {
         switch action {
         case .createAccountPressed:
-            if state.emailVerificationFeatureFlag {
-                coordinator.navigate(to: .startRegistration, context: self)
-            } else {
-                coordinator.navigate(to: .createAccount)
-            }
+            coordinator.navigate(to: .startRegistration, context: self)
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):
@@ -112,17 +108,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func refreshConfig() async {
         await services.configService.getConfig(
             forceRefresh: true,
-            isPreAuth: true
-        )
-        await loadFeatureFlag()
-    }
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
-            FeatureFlag.emailVerification,
-            defaultValue: false,
             isPreAuth: true
         )
     }
@@ -222,12 +207,6 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
 extension LandingProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
         await regionHelper.loadRegion()
-    }
-
-    func switchToLegacyCreateAccountFlow() {
-        coordinator.navigate(to: .dismissWithAction(DismissAction {
-            self.coordinator.navigate(to: .createAccount)
-        }))
     }
 }
 

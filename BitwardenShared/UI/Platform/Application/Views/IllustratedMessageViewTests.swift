@@ -13,7 +13,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     @MainActor
     func test_button_tap() throws {
         var tapped = false
-        let subject: IllustratedMessageView = IllustratedMessageView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,

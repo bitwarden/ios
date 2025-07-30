@@ -328,7 +328,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Standard vs Bold Italic")
 
-        VStack {
+        VStack(alignment: .leading) {
             Button("Sample Button", action: {})
                 .buttonStyle(.primary())
                 .styleGuide(.callout)
@@ -337,9 +337,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
             Group {
                 Text(Localizations.important + ": ")
                     .bold() +
-                    Text(Localizations
-                        .yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(16)
-                    )
+                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
             }
             .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))

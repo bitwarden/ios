@@ -60,8 +60,9 @@ extension Account {
                 avatarColor: nil,
                 email: tokenPayload.email,
                 emailVerified: nil,
-                forcePasswordResetReason: identityTokenResponseModel.forcePasswordReset ?
-                    .adminForcePasswordReset : nil,
+                forcePasswordResetReason: identityTokenResponseModel.forcePasswordReset
+                    ? .adminForcePasswordReset
+                    : nil,
                 hasPremiumPersonally: tokenPayload.hasPremium,
                 kdfIterations: identityTokenResponseModel.kdfIterations,
                 kdfMemory: identityTokenResponseModel.kdfMemory,

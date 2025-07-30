@@ -27,9 +27,6 @@ struct LandingState: Equatable {
     /// A toast message to show in the view.
     var toast: Toast?
 
-    /// Flag to use email verification or not
-    var emailVerificationFeatureFlag: Bool = true
-
     // MARK: Initialization
 
     /// Creates a new `LandingState`.
