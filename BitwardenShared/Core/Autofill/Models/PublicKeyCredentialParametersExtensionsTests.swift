@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class PublicKeyCredentialParametersExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class PublicKeyCredentialParametersExtensionsTests: BitwardenTestCase {
     let publicKeyType = "public-key"
 
     // MARK: Tests

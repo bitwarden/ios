@@ -421,7 +421,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
     }
 }
 
-class MockFido2UserVerificationMediatorDelegate: // swiftlint:disable:this type_name
+class MockFido2UserVerificationMediatorDelegate:
     MockUserVerificationHelperDelegate,
     Fido2UserVerificationMediatorDelegate {
     var onNeedsUserInteractionCalled = false

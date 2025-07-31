@@ -79,6 +79,9 @@ type_contents_order:
     - other_method
     - subscript
 
+type_name:
+  max_length: 50
+
 identifier_name:
   excluded:
     - id

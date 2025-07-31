@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `excludedCredentialsList()` gets the excluded credential list using the

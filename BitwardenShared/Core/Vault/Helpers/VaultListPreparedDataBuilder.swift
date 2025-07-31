@@ -13,8 +13,6 @@ protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
 
 /// The default implementation of `VaultListPreparedDataBuilderFactory`.
 struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
-    // swiftlint:disable:previous type_name
-
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
