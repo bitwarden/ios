@@ -6,7 +6,6 @@ import XCTest
 
 // MARK: - ASAuthorizationPublicKeyCredentialDescriptorExtensionTests
 
-// swiftlint:disable:next type_name
 class PublicKeyCredentialDescriptorExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
@@ -26,8 +25,6 @@ class PublicKeyCredentialDescriptorExtensionsTests: BitwardenTestCase {
 
 /// A mock of `ASAuthorizationPublicKeyCredentialDescriptor`.
 class MockASAuthorizationPublicKeyCredentialDescriptor: NSObject, ASAuthorizationPublicKeyCredentialDescriptor {
-    // swiftlint:disable:previous type_name
-
     // MARK: Properties
 
     static var supportsSecureCoding = false

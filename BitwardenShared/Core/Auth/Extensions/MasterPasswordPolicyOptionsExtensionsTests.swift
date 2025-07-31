@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `isInEffect` returns `false` if none of the policy options apply.
