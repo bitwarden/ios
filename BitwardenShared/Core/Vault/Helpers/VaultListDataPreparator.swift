@@ -52,8 +52,8 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
 struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     // MARK: Properties
 
-    /// The helper to handle filtering ciphers that match a URI.
-    let cipherMatchingHelper: CipherMatchingHelper
+    /// The factory to create cipher matching helpers.
+    let cipherMatchingHelperFactory: CipherMatchingHelperFactory
     /// The wrapper of the `CiphersClient` service for extended functionality.
     let ciphersClientWrapperService: CiphersClientWrapperService
     /// The service used by the application to handle encryption and decryption tasks.
@@ -168,10 +168,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             return nil
         }
 
-        let (matchingDomains, matchingFuzzyDomains) = await cipherMatchingHelper.getMatchingDomains(
-            matchUri: uri
-        )
-        let defaultMatchType = await stateService.getDefaultUriMatchType()
+        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
         let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
@@ -183,13 +180,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            let matchResult = cipherMatchingHelper.doesCipherMatch(
-                cipher: decryptedCipher,
-                defaultMatchType: defaultMatchType,
-                matchUri: uri,
-                matchingDomains: matchingDomains,
-                matchingFuzzyDomains: matchingFuzzyDomains
-            )
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
 
             preparedDataBuilder = await preparedDataBuilder.addItem(
                 withMatchResult: matchResult,

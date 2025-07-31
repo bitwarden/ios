@@ -19,6 +19,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
 
         settingsService = MockSettingsService()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
+        stateService.defaultUriMatchTypeByUserId["1"] = .domain
 
         subject = DefaultCipherMatchingHelper(
             settingsService: settingsService,
@@ -36,59 +38,59 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
 
     // MARK: Tests
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when cipher is not a login.
-    func test_doesCipherMatch_noLogin() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when there's no URI to match.
+    func test_doesCipherMatch_noURIToMatch() async {
+        subject.uriToMatch = nil
+        let result = subject.doesCipherMatch(
+            cipher: .fixture(
+                type: .login(.fixture())
+            )
+        )
+        XCTAssertEqual(result, .none)
+    }
+
+    /// `doesCipherMatch(cipher:)` returns `.none` when cipher is not a login.
+    func test_doesCipherMatch_noLogin() async {
+        subject.uriToMatch = "example.com"
         let noLoginTypes: [CipherListViewType] = [.card(.fixture()), .identity, .secureNote, .sshKey]
         for type in noLoginTypes {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: type
-                ),
-                defaultMatchType: .domain,
-                matchUri: "example.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when cipher is a login but doesn't have URIs.
-    func test_doesCipherMatch_loginNoUris() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when cipher is a login but doesn't have URIs.
+    func test_doesCipherMatch_loginNoUris() async {
+        subject.uriToMatch = "example.com"
         let result = subject.doesCipherMatch(
             cipher: .fixture(
                 type: .login(.fixture())
-            ),
-            defaultMatchType: .domain,
-            matchUri: "example.com",
-            matchingDomains: ["example.com"],
-            matchingFuzzyDomains: []
+            )
         )
         XCTAssertEqual(result, .none)
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when cipher is a login, has URIs but is deleted.
-    func test_doesCipherMatch_loginDeleted() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when cipher is a login, has URIs but is deleted.
+    func test_doesCipherMatch_loginDeleted() async {
+        subject.uriToMatch = "example.com"
         let result = subject.doesCipherMatch(
             cipher: .fixture(
                 type: .login(.fixture(uris: [.fixture()])),
                 deletedDate: .now
-            ),
-            defaultMatchType: .domain,
-            matchUri: "example.com",
-            matchingDomains: ["example.com"],
-            matchingFuzzyDomains: []
+            )
         )
         XCTAssertEqual(result, .none)
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains.
-    func test_doesCipherMatch_domainExact() {
+    func test_doesCipherMatch_domainExact() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
         let loginUrisToSucceed = [
             "http://google.com",
             "https://accounts.google.com",
@@ -99,20 +101,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://google.com",
-                matchingDomains: ["google.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .exact)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.domain` and the match URI base domain
     /// is not the same as none of the logins URI's base domains.
-    func test_doesCipherMatch_domainNone() {
+    func test_doesCipherMatch_domainNone() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
         let loginUrisToFail = [
             "https://google.net",
             "http://yahoo.com",
@@ -123,20 +122,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://google.com",
-                matchingDomains: ["google.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains in iosapp:// scheme.
-    func test_doesCipherMatch_domainExactAppScheme() {
+    func test_doesCipherMatch_domainExactAppScheme() async {
+        subject.uriToMatch = "iosapp://example.com"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToSucceed = [
             "https://example.com",
             "iosapp://example.com",
@@ -146,20 +142,18 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "iosapp://example.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .exact, "On \(uri)")
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.fuzzy` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.fuzzy` when when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base fuzzy domains in iosapp:// scheme.
-    func test_doesCipherMatch_domainFuzzyAppScheme() {
+    func test_doesCipherMatch_domainFuzzyAppScheme() async {
+        subject.uriToMatch = "iosapp://example.com"
+        subject.matchingDomains = []
+        subject.matchingFuzzyDomains = ["example.com"]
         let loginUrisToSucceed = [
             "https://example.com",
             "iosapp://example.com",
@@ -169,19 +163,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "iosapp://example.com",
-                matchingDomains: [],
-                matchingFuzzyDomains: ["example.com"]
+                )
             )
             XCTAssertEqual(result, .fuzzy)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.host` and the match URI host is the same as the logins URI's host.
-    func test_doesCipherMatch_hostExact() {
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.host`
+    /// and the match URI host is the same as the logins URI's host.
+    func test_doesCipherMatch_hostExact() async {
+        subject.uriToMatch = "https://sub.domain.com:4000"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToSucceed = [
             "http://sub.domain.com:4000",
             "https://sub.domain.com:4000/page.html",
@@ -191,20 +183,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://sub.domain.com:4000",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .exact)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.host` and the match URI host is not the same
-    /// as the logins URI's host.
-    func test_doesCipherMatch_hostNone() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.host`
+    /// and the match URI host is not the same as the logins URI's host.
+    func test_doesCipherMatch_hostNone() async {
+        subject.uriToMatch = "https://sub.domain.com:4000"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToFail = [
             "https://domain.com",
             "https://sub.domain.com",
@@ -217,19 +206,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://sub.domain.com:4000",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.startsWith` and the match URI starts with one of the login's URIs.
-    func test_doesCipherMatch_startsWithExact() {
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.startsWith`
+    /// and the match URI starts with one of the login's URIs.
+    func test_doesCipherMatch_startsWithExact() async {
+        subject.uriToMatch = "https://vault.bitwarden.com"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToSucceed = [
             "https://vault.bitwarden.com",
             "https://vault.bit",
@@ -242,20 +229,17 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                         .fixture(uri: "noMatchExample.net", match: .startsWith),
                         .fixture(uri: uri, match: .startsWith),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://vault.bitwarden.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .exact)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.startsWith` and the match URI
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.startsWith` and the match URI
     /// doesn't start with none of the login's URIs.
-    func test_doesCipherMatch_startsWithNone() {
+    func test_doesCipherMatch_startsWithNone() async {
+        subject.uriToMatch = "https://vault.bitwarden.com"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToFail = [
             "https://vault.bitwarden.net",
             "https://vault.somethingelse.com",
@@ -269,38 +253,33 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                         .fixture(uri: "noMatchExample.net", match: .startsWith),
                         .fixture(uri: uri, match: .startsWith),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://vault.bitwarden.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.exact` and the match URI equals one of the login's URIs.
-    func test_doesCipherMatch_exact() {
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.exact`
+    /// and the match URI equals one of the login's URIs.
+    func test_doesCipherMatch_exact() async {
+        subject.uriToMatch = "https://vault.bitwarden.com"
+        subject.matchingDomains = ["example.com"]
         let result = subject.doesCipherMatch(
             cipher: .fixture(
                 type: .login(.fixture(uris: [
                     .fixture(uri: "noMatchExample.net", match: .exact),
                     .fixture(uri: "https://vault.bitwarden.com", match: .exact),
                 ]))
-            ),
-            defaultMatchType: .domain,
-            matchUri: "https://vault.bitwarden.com",
-            matchingDomains: ["example.com"],
-            matchingFuzzyDomains: []
+            )
         )
         XCTAssertEqual(result, .exact)
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.startsWith` and the match URI
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.startsWith` and the match URI
     /// is not equal to none of the login's URIs.
-    func test_doesCipherMatch_exactNone() {
+    func test_doesCipherMatch_exactNone() async {
+        subject.uriToMatch = "https://vault.bitwarden.com"
+        subject.matchingDomains = ["example.com"]
         let loginUrisToFail = [
             "https://vault.bitwarden.net",
             "https://vault.somethingelse.com",
@@ -314,20 +293,15 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                         .fixture(uri: "noMatchExample.net", match: .exact),
                         .fixture(uri: uri, match: .exact),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://vault.bitwarden.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.exact` when when match type is `.regularExpression` and the match URI matches
-    /// the regular expression of one of the login's URIs.
-    func test_doesCipherMatch_regularExpressionExact() {
+    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.regularExpression`
+    /// and the match URI matches the regular expression of one of the login's URIs.
+    func test_doesCipherMatch_regularExpressionExact() async {
         let matchingUrisToSucceed = [
             "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Bitwarden",
             "https://pl.wikipedia.org/w/index.php?title=Specjalna:Zaloguj&returnto=Bitwarden",
@@ -335,49 +309,45 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         ]
 
         for uri in matchingUrisToSucceed {
+            await subject.prepare(uri: uri)
+            subject.matchingDomains = ["example.com"]
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: uri,
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .exact)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.regularExpression` and the match URI doesn't
-    /// match the regular expression of none of the login's URIs.
-    func test_doesCipherMatch_regularExpressionNone() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.regularExpression`
+    /// and the match URI doesn't match the regular expression of none of the login's URIs.
+    func test_doesCipherMatch_regularExpressionNone() async {
         let matchingUrisToFail = [
             "https://malicious-site.com",
             "https://en.wikipedia.org/wiki/Bitwarden",
         ]
 
         for uri in matchingUrisToFail {
+            await subject.prepare(uri: uri)
+            subject.matchingDomains = ["example.com"]
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
                     type: .login(.fixture(uris: [
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: uri,
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `doesCipherMatch(cipher:defaultMatchType:matchUri:matchingDomains:matchingFuzzyDomains:)`
-    /// returns `.none` when when match type is `.never`.
-    func test_doesCipherMatch_never() {
+    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.never`.
+    func test_doesCipherMatch_never() async {
+        await subject.prepare(uri: "https://vault.bitwarden.com")
+        subject.matchingDomains = ["example.com"]
         let matchUrisToTest = [
             "https://vault.bitwarden.com",
             "https://vault.bitwarden",
@@ -390,34 +360,37 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                     type: .login(.fixture(uris: [
                         .fixture(uri: uri, match: .never),
                     ]))
-                ),
-                defaultMatchType: .domain,
-                matchUri: "https://vault.bitwarden.com",
-                matchingDomains: ["example.com"],
-                matchingFuzzyDomains: []
+                )
             )
             XCTAssertEqual(result, .none)
         }
     }
 
-    /// `getMatchingDomains(matchUri:)` returns empty when the URI is empty.
-    func test_getMatchingDomains_emptyUri() async {
-        let result = await subject.getMatchingDomains(matchUri: "")
-        XCTAssertTrue(result.matching.isEmpty)
-        XCTAssertTrue(result.fuzzyMatching.isEmpty)
+    /// `prepare(uri:)` sets the default match type in its state.
+    func test_prepare_setsDefaultMatchType() async {
+        stateService.defaultUriMatchTypeByUserId["1"] = .startsWith
+        await subject.prepare(uri: "https://example.com")
+        XCTAssertEqual(subject.defaultMatchType, .startsWith)
     }
 
-    /// `getMatchingDomains(matchUri:)` returns the passed URI domain when there are no
+    /// `prepare(uri:)` set matching/fuzzy domains as empty when the URI is empty.
+    func test_prepare_emptyUri() async {
+        await subject.prepare(uri: "")
+        XCTAssertTrue(subject.matchingDomains.isEmpty)
+        XCTAssertTrue(subject.matchingFuzzyDomains.isEmpty)
+    }
+
+    /// `prepare(uri:)` sets the passed URI domain as matching domains when there are no
     /// equivalent domains.
-    func test_getMatchingDomains_matchDomain() async {
-        let result = await subject.getMatchingDomains(matchUri: "https://example.com")
-        XCTAssertEqual(result.matching.count, 1)
-        XCTAssertEqual(result.matching.first, "example.com")
-        XCTAssertTrue(result.fuzzyMatching.isEmpty)
+    func test_prepare_matchDomain() async {
+        await subject.prepare(uri: "https://example.com")
+        XCTAssertEqual(subject.matchingDomains.count, 1)
+        XCTAssertEqual(subject.matchingDomains.first, "example.com")
+        XCTAssertTrue(subject.matchingFuzzyDomains.isEmpty)
     }
 
-    /// `getMatchingDomains(matchUri:)` returns the domains matching the equivalent domains.
-    func test_getMatchingDomains_matchDomainEquivalentDomains() async {
+    /// `prepare(uri:)` sets the domains matching the equivalent domains.
+    func test_prepare_matchDomainEquivalentDomains() async {
         settingsService.fetchEquivalentDomainsResult = .success([
             [
                 "google.com",
@@ -425,16 +398,16 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             ],
         ])
 
-        let result = await subject.getMatchingDomains(matchUri: "https://google.com")
-        XCTAssertEqual(result.matching.map(\.self), [
+        await subject.prepare(uri: "https://google.com")
+        XCTAssertEqual(subject.matchingDomains.map(\.self), [
             "youtube.com",
             "google.com",
         ])
     }
 
-    /// `getMatchingDomains(matchUri:)` returns the domains matching the equivalent domains
+    /// `prepare(uri:)` sets the domains matching the equivalent domains
     /// when URI to match has iosapp:// scheme.
-    func test_getMatchingDomains_matchDomainEquivalentDomainsiOSAppScheme() async {
+    func test_prepare_matchDomainEquivalentDomainsiOSAppScheme() async {
         settingsService.fetchEquivalentDomainsResult = .success([
             [
                 "google.com",
@@ -442,11 +415,11 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
             ],
         ])
 
-        let result = await subject.getMatchingDomains(matchUri: "iosapp://example.com")
-        XCTAssertEqual(result.matching.map(\.self), [
+        await subject.prepare(uri: "iosapp://example.com")
+        XCTAssertEqual(subject.matchingDomains.map(\.self), [
             "iosapp://example.com",
         ])
-        XCTAssertEqual(result.fuzzyMatching.map(\.self), [
+        XCTAssertEqual(subject.matchingFuzzyDomains.map(\.self), [
             "example.com",
         ])
     }

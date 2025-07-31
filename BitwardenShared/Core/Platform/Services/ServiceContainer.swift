@@ -715,7 +715,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 errorReporter: errorReporter
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
-                cipherMatchingHelper: cipherMatchingHelper,
+                cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                    settingsService: settingsService,
+                    stateService: stateService
+                ),
                 ciphersClientWrapperService: DefaultCiphersClientWrapperService(
                     clientService: clientService,
                     errorReporter: errorReporter

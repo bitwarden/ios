@@ -10,6 +10,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     // MARK: Properties
 
     var cipherMatchingHelper: MockCipherMatchingHelper!
+    var cipherMatchingHelperFactory: MockCipherMatchingHelperFactory!
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -27,6 +28,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         super.setUp()
 
         cipherMatchingHelper = MockCipherMatchingHelper()
+        cipherMatchingHelperFactory = MockCipherMatchingHelperFactory()
+        cipherMatchingHelperFactory.makeReturnValue = cipherMatchingHelper
+
         ciphersClientWrapperService = MockCiphersClientWrapperService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -42,7 +46,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         vaultListPreparedDataBuilderFactory.makeReturnValue = vaultListPreparedDataBuilder
 
         subject = DefaultVaultListDataPreparator(
-            cipherMatchingHelper: cipherMatchingHelper,
+            cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             ciphersClientWrapperService: ciphersClientWrapperService,
             clientService: clientService,
             configService: configService,
@@ -57,6 +61,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         super.tearDown()
 
         cipherMatchingHelper = nil
+        cipherMatchingHelperFactory = nil
         ciphersClientWrapperService = nil
         clientService = nil
         configService = nil
@@ -460,10 +465,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareAutofillPasswordsData_returnsPreparedDataNoFilteringOutCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture()
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
-        cipherMatchingHelper.getMatchingDomainsReturnValue = (
-            ["example.com"],
-            ["fuzzyexample.com"]
-        )
 
         let result = try await subject.prepareAutofillPasswordsData(
             from: [
@@ -481,12 +482,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "addItemWithMatchResultCipher",
         ])
         XCTAssertNotNil(result)
-        let receivedArguments = try XCTUnwrap(cipherMatchingHelper.doesCipherMatchReceivedArguments)
-        XCTAssertEqual(receivedArguments.cipher.id, "1")
-        XCTAssertEqual(receivedArguments.defaultMatchType, .domain)
-        XCTAssertEqual(receivedArguments.matchUri, "https://example.com")
-        XCTAssertEqual(receivedArguments.matchingDomains, ["example.com"])
-        XCTAssertEqual(receivedArguments.matchingFuzzyDomains, ["fuzzyexample.com"])
+        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedCipher?.id, "1")
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass
@@ -503,10 +499,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             .fixture(organizationId: "1"),
         ]
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
-        cipherMatchingHelper.getMatchingDomainsReturnValue = (
-            ["example.com"],
-            ["fuzzyexample.com"]
-        )
 
         let result = try await subject.prepareAutofillPasswordsData(
             from: [
@@ -524,7 +516,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
     }
 
     // MARK: Private
