@@ -408,4 +408,4 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             withData: withData
         )
     }
-}
+} // swiftlint:disable:this file_length

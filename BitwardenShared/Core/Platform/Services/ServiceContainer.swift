@@ -701,11 +701,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
-        let cipherMatchingHelper = DefaultCipherMatchingHelper(
-            settingsService: settingsService,
-            stateService: stateService
-        )
-
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,

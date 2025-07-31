@@ -15,7 +15,7 @@ struct DefaultCipherMatchingHelperFactory: CipherMatchingHelperFactory {
 
     /// The service used by the application to manage account state.
     let stateService: StateService
-    
+
     /// The cipher matching helper to use in tests to be able to mock it.
     let testCipherMatchingHelper: CipherMatchingHelper?
 
