@@ -1352,7 +1352,13 @@ extension DefaultVaultRepository: VaultRepository {
                 )
             )
         case .totp:
-            try await totpCiphersAutofillPublisher()
+            try await vaultListPublisher(
+                filter: VaultListFilter(
+                    addTOTPGroup: false,
+                    addTrashGroup: false,
+                    group: .totp
+                )
+            )
         default:
             try await Publishers.CombineLatest(
                 cipherService.ciphersPublisher(),
@@ -1361,7 +1367,7 @@ extension DefaultVaultRepository: VaultRepository {
             .asyncTryMap { ciphers, availableFido2Credentials in
                 let decryptedCiphers = try await self.clientService.vault().ciphers()
                     .decryptListWithFailures(ciphers: ciphers).successes
-                let matchingCiphers = await CipherMatchingHelper(
+                let matchingCiphers = await DefaultCipherMatchingHelper(
                     settingsService: self.settingsService,
                     stateService: self.stateService
                 )
@@ -1677,34 +1683,6 @@ extension DefaultVaultRepository: VaultRepository {
             items: fido2ListItems.compactMap { $0 },
             name: Localizations.passkeysForX(searchText ?? rpID)
         )
-    }
-
-    /// Gets a publisher with Totp cipher items in a single section.
-    /// - Returns: The publisher with the vault list section with the totp items.
-    private func totpCiphersAutofillPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
-        try await cipherService.ciphersPublisher()
-            .asyncTryMap { ciphers in
-                let filteredCiphers = ciphers.filter { cipher in
-                    cipher.deletedDate == nil && cipher.login?.totp != nil
-                }
-                return try await self.clientService.vault().ciphers().decryptList(ciphers: filteredCiphers)
-            }
-            .asyncTryMap { cipherViews in
-                let totpVaultListItems = try await self.totpListItems(from: cipherViews, filter: nil)
-                guard !totpVaultListItems.isEmpty else {
-                    return VaultListData()
-                }
-                return VaultListData(sections: [
-                    VaultListSection(
-                        id: "",
-                        items: totpVaultListItems,
-                        name: ""
-                    ),
-                ])
-            }
-            .eraseToAnyPublisher()
-            .values
     }
 }
 

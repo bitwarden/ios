@@ -1,7 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
 import Combine
-import OSLog
 
 // MARK: - MainVaultListDirectorStrategy
 

@@ -24,6 +24,14 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     let vaultListDataPreparator: VaultListDataPreparator
 
     func make(filter: VaultListFilter) -> VaultListDirectorStrategy {
+        if filter.mode == .passwords {
+            return PasswordsAutofillVaultListDirectorStrategy(
+                builderFactory: vaultListBuilderFactory,
+                cipherService: cipherService,
+                vaultListDataPreparator: vaultListDataPreparator
+            )
+        }
+
         if filter.group != nil {
             return MainVaultListGroupDirectorStrategy(
                 builderFactory: vaultListBuilderFactory,

@@ -20,7 +20,7 @@ class MockSettingsRepository: SettingsRepository {
     var fetchSyncForceSync: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
-    var getDefaultUriMatchTypeResult: Result<BitwardenShared.UriMatchType, Error> = .success(.domain)
+    var getDefaultUriMatchTypeResult: BitwardenShared.UriMatchType = .domain
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
     var getSiriAndShortcutsAccessResult: Result<Bool, Error> = .success(false)
     var lastSyncTimeError: Error?
@@ -70,8 +70,8 @@ class MockSettingsRepository: SettingsRepository {
         return connectToWatch
     }
 
-    func getDefaultUriMatchType() async throws -> BitwardenShared.UriMatchType {
-        try getDefaultUriMatchTypeResult.get()
+    func getDefaultUriMatchType() async -> BitwardenShared.UriMatchType {
+        getDefaultUriMatchTypeResult
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

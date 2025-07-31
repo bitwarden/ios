@@ -43,4 +43,11 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
         let stragegy = subject.make(filter: VaultListFilter(group: .login))
         XCTAssertTrue(stragegy is MainVaultListGroupDirectorStrategy)
     }
+
+    /// `make(filter:)` returns `PasswordsAutofillVaultListDirectorStrategy` when  filtering by passwords
+    /// autofill mode.
+    func test_make_returnsPasswordsAutofillVaultListDirectorStrategy() {
+        let stragegy = subject.make(filter: VaultListFilter(mode: .passwords))
+        XCTAssertTrue(stragegy is PasswordsAutofillVaultListDirectorStrategy)
+    }
 }

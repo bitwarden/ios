@@ -50,6 +50,11 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     ) -> VaultListPreparedDataBuilder
     /// Adds an item for a specific group to the prepared data.
     func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
+    /// Adds an item with a match result strength to the prepared data.
+    func addItem( // sourcery: useSelectorName
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView
+    ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Builds the prepared data.
@@ -188,6 +193,26 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             return self
         }
         preparedData.groupItems.append(groupItem)
+        return self
+    }
+
+    func addItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView
+    ) async -> VaultListPreparedDataBuilder {
+        guard matchResult != .none, let vaultListItem = VaultListItem(cipherListView: cipher) else {
+            return self
+        }
+
+        switch matchResult {
+        case .exact:
+            preparedData.exactMatchItems.append(vaultListItem)
+        case .fuzzy:
+            preparedData.fuzzyMatchItems.append(vaultListItem)
+        case .none:
+            break
+        }
+
         return self
     }
 
