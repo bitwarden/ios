@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Mật khẩu chính là mật khẩu bạn dùng để mở khóa kho lưu trữ.";
 "MasterPasswordHint" = "Gợi ý mật khẩu chính";
 "NewMasterPasswordHint" = "Gợi ý mật khẩu chính mới";
-"MasterPasswordHintDescription" = "Một gợi ý mật khẩu có thể giúp bạn nhớ lại mật khẩu chính của bạn nếu bạn chợt quên.";
 "MasterPasswordLengthValMessageX" = "Mật khẩu chính phải có tối thiểu %1$@ kí tự.";
 "MinNumbers" = "Số chữ số tối thiểu";
 "MinSpecial" = "Số kí tự đặc biệt tối thiểu";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Đánh giá ứng dụng";
 "RateTheAppDescription" = "Xin vui lòng cân nhắc giúp chúng tôi bằng cách để lại một đánh giá tích cực!";
 "RegeneratePassword" = "Tạo lại mật khẩu";
-"RetypeMasterPassword" = "Nhập lại mật khẩu chính";
 "SearchVault" = "Tìm kiếm trong kho";
 "Security" = "Bảo mật";
 "Select" = "Chọn";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Mật khẩu không đúng";
 "MasterPasswordPolicyValidationMessage" = "Mật khẩu không đáp ứng yêu cầu của tổ chức. Vui lòng kiểm tra chính sách mật khẩu và thử lại.";
 "Loading" = "Đang tải";
-"AcceptPolicies" = "Bằng cách kích hoạt công tắc này, bạn đồng ý với các điều khoản sau:";
 "AcceptPoliciesError" = "Bạn chưa đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật.";
-"TermsOfService" = "Điều khoản Dịch vụ";
 "PrivacyPolicy" = "Chính sách Bảo mật";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden cần bạn thiết lập - Bật \"Hiển thị trên các ứng dụng khác\" từ phần \"Dịch vụ Tự động điền\" trong cài đặt Bitwarden";
 "PasskeyManagement" = "Quản lý mã khoá";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Thay đổi ngôn ngữ yêu cầu khởi động lại ứng dụng";
 "DefaultSystem" = "Giống như hệ thống";
 "Important" = "Quan trọng";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Mật khẩu chính của bạn không thể phục hồi nếu bạn quên nó! Tối thiểu %1$@ ký tự.";
 "WeakMasterPassword" = "Mật khẩu chính Yếu";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Mật khẩu này khá yếu. Hãy sử dụng mật khẩu mạnh để bảo vệ tài khoản của bạn. Bạn có chắc chắn muốn sử dụng mật khẩu yếu này không?";
 "Weak" = "Yếu";

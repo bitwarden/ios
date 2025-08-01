@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "मास्टर पासवर्ड हिंट पासवर्ड भूल जाने के हालत में उसको याद करने में मदद करता है।";
 "MasterPasswordLengthValMessageX" = "मास्टर पासवर्ड कम-से-कम %1$@ अक्षर लंबा होना चाहिए।";
 "MinNumbers" = "कम-से-कम इतने नंबर";
 "MinSpecial" = "कम-से-कम इतने खास";
@@ -171,7 +170,6 @@
 "RateTheApp" = "ऐप को रेटिंग दें";
 "RateTheAppDescription" = "एक अच्छा रिव्यू लिखकर हमारी मदद करें!";
 "RegeneratePassword" = "पासवर्ड वापस बनाएं";
-"RetypeMasterPassword" = "मास्टर पासवर्ड वापस लिखें";
 "SearchVault" = "तिजोरी सर्च करें";
 "Security" = "सेक्योरिटी";
 "Select" = "चुनें";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "अवैध पासवर्ड";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "लोड हो रहा है";
-"AcceptPolicies" = "By activating this switch you agree to the following:";
 "AcceptPoliciesError" = "सेवा की शर्ते और प्राइवसी पॉलिसी माने नहीं गए हैं।";
-"TermsOfService" = "सेवा की शर्ते";
 "PrivacyPolicy" = "प्राइवसी पॉलिसी";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "भाषा बदलाव के लिए ऐप बंद करके खोलना पड़ेगा";
 "DefaultSystem" = "डिफॉल्ट (सिस्टम)";
 "Important" = "ज़रूरी";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "मुख्य पासवर्ड भूलने के बाद रिकवर नहीं कर सकते। %1$@ अक्षर कम-से-कम।";
 "WeakMasterPassword" = "कमज़ोर मुख्य पासवर्ड";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "पासवर्ड कमज़ोर है। अपना खाता महफूज़ रखने के लिए एक ताकतवर पासवर्ड इस्तेमाल करें। कमज़ोर पासवर्ड पक्का इस्तेमाल करें?";
 "Weak" = "कमज़ोर";

@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hovedpassordet er det passordet du bruker for å få tilgang til hvelvet ditt.";
 "MasterPasswordHint" = "Få et hint om hovedpassordet";
 "NewMasterPasswordHint" = "Nytt hint til hovedpassordet";
-"MasterPasswordHintDescription" = "Et hint om hovedpassordet kan hjelpe deg å huske passordet om du skulle glemme det.";
 "MasterPasswordLengthValMessageX" = "Hovedpassordet må være minst %1$@ tegn.";
 "MinNumbers" = "Minst antall siffer";
 "MinSpecial" = "Minste antall spesialtegn";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Vurder denne appen";
 "RateTheAppDescription" = "Tenk gjerne på om du vil skrive en anmeldelse om oss!";
 "RegeneratePassword" = "Generer nytt passord";
-"RetypeMasterPassword" = "Skriv inn hovedpassordet på nytt";
 "SearchVault" = "Søk i hvelvet";
 "Security" = "Sikkerhet";
 "Select" = "Velg";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ugyldig passord";
 "MasterPasswordPolicyValidationMessage" = "Passordet oppfyller ikke organisasjonens krav. Kontroller organisasjonens vilkår og prøv på nytt.";
 "Loading" = "Laster";
-"AcceptPolicies" = "Ved å aktivere denne bryteren samtykker du til følgende:";
 "AcceptPoliciesError" = "Vilkårene for tjeneste og personvernerklæring er ikke akseptert.";
-"TermsOfService" = "Tjenestevilkår";
 "PrivacyPolicy" = "Personvernsretningslinjer";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Språkendring krever omstart av appen";
 "DefaultSystem" = "Standard (System)";
 "Important" = "Viktig";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Hovedpassordet ditt kan ikke gjenopprettes hvis du glemmer det! Minst %1$@ tegn.";
 "WeakMasterPassword" = "Svakt hovedpassord";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Svakt passord er identifisert. Bruk et sterkt passord for å beskytte kontoen din. Er du sikker på at du vil bruke et svakt passord?";
 "Weak" = "Svakt";

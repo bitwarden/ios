@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Ana parol, seyfinizə müraciət etmək üçün istifadə etdiyiniz paroldur.";
 "MasterPasswordHint" = "Ana parol ipucusu";
 "NewMasterPasswordHint" = "Yeni ana parol üçün ipucu";
-"MasterPasswordHintDescription" = "Ana parol məsləhəti, unutduğunuz parolu xatırlamağınıza kömək edir.";
 "MasterPasswordLengthValMessageX" = "Ana parol ən azı %1$@ simvol uzunluğunda olmalıdır.";
 "MinNumbers" = "Minimum rəqəm";
 "MinSpecial" = "Minimum simvol";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Tətbiqi qiymətləndirin";
 "RateTheAppDescription" = "Gözəl bir rəy ilə bizə dəstək ola bilərsiniz!";
 "RegeneratePassword" = "Parolu yenidən yarat";
-"RetypeMasterPassword" = "Ana parolu yenidən yaz";
 "SearchVault" = "Seyfdə axtar";
 "Security" = "Güvənlik";
 "Select" = "Seçin";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Yararsız parol";
 "MasterPasswordPolicyValidationMessage" = "Parol, şirkət tələblərini qarşılamır. Lütfən siyasət məlumatlarını yoxlayıb yenidən sınayın.";
 "Loading" = "Yüklənir";
-"AcceptPolicies" = "Bu açarı aktivləşdirərək aşağıdakılarla razılaşırsınız:";
 "AcceptPoliciesError" = "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib.";
-"TermsOfService" = "Xidmət Şərtləri";
 "PrivacyPolicy" = "Gizlilik Siyasəti";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden diqqətinizi tələb edir - Bitwarden Ayarlarında \"Avto-doldurma xidməti\"ndə \"Üzərindən göstər\"i işə salın";
 "PasskeyManagement" = "Keçid açarını idarəetmə";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Dil dəyişikliyi, tətbiqin yenidən başladılmasını tələb edir";
 "DefaultSystem" = "İlkin (Sistem)";
 "Important" = "Vacib";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ana parolunuzu unutsanız bərpa edə bilməzsiniz! Ən az %1$@ simvol.";
 "WeakMasterPassword" = "Zəif ana parol";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Zəif parol aşkarlandı. Hesabınızı qorumaq üçün güclü bir parol istifadə edin. Zəif bir parol istifadə etmək istədiyinizə əminsiniz?";
 "Weak" = "Zəif";

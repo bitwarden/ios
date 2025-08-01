@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Palatandaan ng master password";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Makakatulong ang palatandaan ng master password na maalala mo ang password mo kung nakalimutan mo ito.";
 "MasterPasswordLengthValMessageX" = "Hindi dapat bumaba sa %1$@ karakter ang master password.";
 "MinNumbers" = "Pinakamababang dami ng mga numero";
 "MinSpecial" = "Pinakamababang dami ng mga espesyal na karakter";
@@ -171,7 +170,6 @@
 "RateTheApp" = "I-rate ang app";
 "RateTheAppDescription" = "Baka maaari kang tumulong sa amin sa pamamagitan ng isang magandang review!";
 "RegeneratePassword" = "Gumawa ng isa pang password";
-"RetypeMasterPassword" = "I-type ulit ang master password";
 "SearchVault" = "Maghanap sa vault";
 "Security" = "Seguridad";
 "Select" = "Piliin";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "'Di-wastong password";
 "MasterPasswordPolicyValidationMessage" = "Hindi nakapasa sa mga requirement ng organisasyon ang password. Sumangguni sa impormasyon tungkol sa mga patakaran at subukan ulit.";
 "Loading" = "Naglo-load";
-"AcceptPolicies" = "Sumasang-ayon ka sa sumusunod sa pamamagitan ng pagbukas sa switch na ito:";
 "AcceptPoliciesError" = "Hindi pa natatanggap ang Mga Tuntunin ng Serbisyo at Patakaran sa Privacy.";
-"TermsOfService" = "Mga Tuntunin ng Serbisyo";
 "PrivacyPolicy" = "Patakaran sa Privacy";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Pamamahala sa passkey";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Kailangang i-restart ang app kapag binago ang wika";
 "DefaultSystem" = "Default (Sistema)";
 "Important" = "Mahalaga";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Hindi na mare-recover ang master password kapag nakalimutan mo ito! Hindi ito dapat bumaba sa %1$@ karakter.";
 "WeakMasterPassword" = "Mahinang Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Mahina ang password. Gumamit ng malakas na password para maprotektahan ang account mo. Sigurado ka bang gusto mong gumamit ng mahinang password?";
 "Weak" = "Mahina";

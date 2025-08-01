@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Indice du mot de passe principal";
 "NewMasterPasswordHint" = "Nouvel indice de mot de passe principal";
-"MasterPasswordHintDescription" = "Un indice de mot de passe principal peut vous aider à vous souvenir de votre mot de passe si vous l'oubliez.";
 "MasterPasswordLengthValMessageX" = "Le mot de passe principal doit comporter au moins %1$@ caractères.";
 "MinNumbers" = "Chiffres minimum";
 "MinSpecial" = "Caractères spéciaux minimum";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Noter l'application";
 "RateTheAppDescription" = "Merci de nous aider en rédigeant un commentaire positif !";
 "RegeneratePassword" = "Regénérer un mot de passe";
-"RetypeMasterPassword" = "Ressaisir le mot de passe principal";
 "SearchVault" = "Rechercher dans le coffre";
 "Security" = "Sécurité";
 "Select" = "Sélectionner";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Mot de passe invalide";
 "MasterPasswordPolicyValidationMessage" = "Le mot de passe ne répond pas aux exigences de l'organisation. Veuillez vérifier les restrictions et réessayer.";
 "Loading" = "Chargement";
-"AcceptPolicies" = "En cochant cette case vous acceptez ce qui suit :";
 "AcceptPoliciesError" = "Les conditions d'utilisation et la politique de confidentialité n'ont pas été acceptées.";
-"TermsOfService" = "Conditions d'utilisation";
 "PrivacyPolicy" = "Politique de confidentialité";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Gestion des clés d'accès";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Le changement de la langue nécessite le redémarrage de l'application.";
 "DefaultSystem" = "Par défaut (système)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Votre mot de passe principal ne peut pas être récupéré si vous l'oubliez ! %1$@ caractères minimum.";
 "WeakMasterPassword" = "Mot de passe principal faible";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Mot de passe faible identifié. Utilisez un mot de passe fort pour protéger votre compte. Êtes-vous sûr de vouloir utiliser un mot de passe faible?";
 "Weak" = "Faible";

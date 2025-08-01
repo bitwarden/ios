@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Pista de la contrasenya mestra";
 "NewMasterPasswordHint" = "Obteniu la pista de la contrasenya mestra";
-"MasterPasswordHintDescription" = "Una pista de contrasenya mestra pot ajudar-vos a recordar-la si la oblideu.";
 "MasterPasswordLengthValMessageX" = "La contrasenya mestra ha de contenir almenys %1$@ caràcters.";
 "MinNumbers" = "Mínim de caràcters numèrics";
 "MinSpecial" = "Mínim de caràcters especials";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Valoreu la aplicació";
 "RateTheAppDescription" = "Considereu ajudar-nos amb una bona valoració!";
 "RegeneratePassword" = "Regenera contrasenya";
-"RetypeMasterPassword" = "Torneu a escriure la contrasenya mestra";
 "SearchVault" = "Cerca en la caixa forta";
 "Security" = "Seguretat";
 "Select" = "Selecciona";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Contrasenya no vàlida";
 "MasterPasswordPolicyValidationMessage" = "La contrasenya no compleix els requisits de l'organització. Comproveu la informació de la política i torneu-ho a provar.";
 "Loading" = "S'està carregant";
-"AcceptPolicies" = "Si activeu aquesta casella, indiqueu que esteu d’acord amb el següent:";
 "AcceptPoliciesError" = "No s’han reconegut les condicions del servei i la declaració de privadesa.";
-"TermsOfService" = "Condicions del servei";
 "PrivacyPolicy" = "Declaració de privadesa";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden necessita atenció: activeu l'opció \"Dibuixa-sobre\" a \"Serveis d'emplenament automàtic\" a Configuració de Bitwarden";
 "PasskeyManagement" = "Gestió de claus de pas";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "El canvi d'idioma requereix un reinici de l'aplicació";
 "DefaultSystem" = "Per defecte (Sistema)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "La vostra contrasenya mestra no es pot recuperar si l'oblideu! %1$@ caràcters com a mínim.";
 "WeakMasterPassword" = "Contrasenya mestra poc segura";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "S'ha identificat una contrasenya feble. Utilitzeu una contrasenya segura per protegir el vostre compte. Esteu segur que voleu utilitzar una contrasenya feble?";
 "Weak" = "Poc segura";

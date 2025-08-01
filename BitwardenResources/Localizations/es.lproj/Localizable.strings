@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Pista de la contraseña maestra";
 "NewMasterPasswordHint" = "Nueva pista de la contraseña maestra";
-"MasterPasswordHintDescription" = "Una pista de tu contraseña maestra puede ayudarte a recordarla en caso de que la olvides.";
 "MasterPasswordLengthValMessageX" = "La contraseña maestra debe tener al menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de caracteres numéricos";
 "MinSpecial" = "Mínimo de caracteres especiales";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Valora la aplicación";
 "RateTheAppDescription" = "¡Por favor, considera ayudarnos con una buena valoración!";
 "RegeneratePassword" = "Regenerar contraseña";
-"RetypeMasterPassword" = "Reescribir contraseña maestra";
 "SearchVault" = "Buscar en caja fuerte";
 "Security" = "Seguridad";
 "Select" = "Seleccionar";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Contraseña no válida";
 "MasterPasswordPolicyValidationMessage" = "La contraseña no cumple con los requisitos de la organización. Por favor, compruebe la información de la política e inténtelo de nuevo.";
 "Loading" = "Cargando";
-"AcceptPolicies" = "Al activar esta casilla, acepta lo siguiente:";
 "AcceptPoliciesError" = "Todavía no has aceptado los términos del servicio y la política de privacidad.";
-"TermsOfService" = "Términos y condiciones del servicio";
 "PrivacyPolicy" = "Política de privacidad";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Gestión de claves de acceso";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "El cambio de idioma requiere reiniciar la aplicación";
 "DefaultSystem" = "Por defecto (Sistema)";
 "Important" = "Importante";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Tu contraseña maestra no se puede recuperar si la olvidas! %1$@ caracteres como mínimo.";
 "WeakMasterPassword" = "Contraseña maestra débil";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Contraseña débil identificada. Utilice una contraseña fuerte para proteger su cuenta. ¿Está seguro de que desea utilizar una contraseña débil?";
 "Weak" = "Débil";

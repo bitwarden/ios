@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "主密碼提示";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "主密碼提示可以在您忘記主密碼時幫助您回憶主密碼。";
 "MasterPasswordLengthValMessageX" = "主密碼需要至少 %1$@ 個字元。";
 "MinNumbers" = "最少數字位數";
 "MinSpecial" = "最少符號位數";
@@ -171,7 +170,6 @@
 "RateTheApp" = "為 Bitwarden 評分";
 "RateTheAppDescription" = "請給予我們好評！";
 "RegeneratePassword" = "重新產生密碼";
-"RetypeMasterPassword" = "再次輸入主密碼";
 "SearchVault" = "搜尋密碼庫";
 "Security" = "安全";
 "Select" = "選擇";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "密碼的無效";
 "MasterPasswordPolicyValidationMessage" = "輸入的密碼不符合組織要求，請確認原則資訊後再試一次。";
 "Loading" = "正在載入";
-"AcceptPolicies" = "開啟此開關代表您同意下列項目：";
 "AcceptPoliciesError" = "尚未接受服務條款與隱私權政策。";
-"TermsOfService" = "服務條款";
 "PrivacyPolicy" = "隱私權政策";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden 需要您的注意 - 請到 Bitwarden 設定的「自動填入服務」中啟用「Draw-Over」";
 "PasskeyManagement" = "金鑰管理";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "變更語言需要重啓應用程式";
 "DefaultSystem" = "預設（系統）";
 "Important" = "重要";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "若忘記此密碼，任何儲存在 Bitwarden 內的資料將會丟失！請輸入最少 %1$@ 個字。";
 "WeakMasterPassword" = "主密碼強度太弱";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "偵測到您的密碼強度不夠。我們建議您使用強密碼保護您的帳號。您確定要使用弱密碼嗎？";
 "Weak" = "脆弱";

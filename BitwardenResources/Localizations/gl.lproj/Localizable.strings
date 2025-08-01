@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Obter pista do contrasinal mestre";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Unha pista do contrasinal mestre pode axudarte a lembrar o teu contrasinal se o esqueces.";
 "MasterPasswordLengthValMessageX" = "O contrasinal mestre debe ter polo menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de cifras";
 "MinSpecial" = "Mínimo de caracteres especiais";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Avalía a app";
 "RateTheAppDescription" = "Por favor, considera axudarnos cunha boa recensión!";
 "RegeneratePassword" = "Volver xerar contrasinal";
-"RetypeMasterPassword" = "Reescriba o contrasinal mestre";
 "SearchVault" = "Buscar na caixa forte";
 "Security" = "Seguridade";
 "Select" = "Seleccionar";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Contrasinal non válido";
 "MasterPasswordPolicyValidationMessage" = "O contrasinal non cumpre os requisitos da organización. Por favor revisa as directivas e volve intentalo.";
 "Loading" = "Cargando";
-"AcceptPolicies" = "Ó activar esta opción aceptas o seguinte:";
 "AcceptPoliciesError" = "Os Termos de Servizo e a Política de Privacidade non foron aceptados.";
-"TermsOfService" = "Termos de Servizo";
 "PrivacyPolicy" = "Política de Privacidade";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden necesita axuda - Activa \"Superpoñer\" en \"Servizos de Autoenchido\" nos axustes de Bitwarden";
 "PasskeyManagement" = "Xestión de Claves de Acceso";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Un cambio de lingua precisa que reinicies a aplicación";
 "DefaultSystem" = "Predeterminado (Sistema)";
 "Important" = "Importante";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "O teu contrasinal mestre non pode ser recuperado se o esqueces! Un mínimo de %1$@ caracteres.";
 "WeakMasterPassword" = "Contrasinal mestre feble";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Contrasinal feble e atopado nunha filtración de datos. Emprega un contrasinal forte e único para a túa conta. Seguro que queres utilizar este contrasinal?";
 "Weak" = "Feble";

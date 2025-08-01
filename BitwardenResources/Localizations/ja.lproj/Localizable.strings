@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "マスターパスワードとは、保管庫にアクセスするためのパスワードです。";
 "MasterPasswordHint" = "マスターパスワードのヒント";
 "NewMasterPasswordHint" = "新しいマスターパスワードのヒント";
-"MasterPasswordHintDescription" = "マスターパスワードのヒントは、パスワードを忘れた場合に役立ちます。";
 "MasterPasswordLengthValMessageX" = "マスターパスワードは、少なくとも%1$@文字以上で設定してください。";
 "MinNumbers" = "数字の最小個数";
 "MinSpecial" = "最低限必要な記号の個数";
@@ -171,7 +170,6 @@
 "RateTheApp" = "アプリを評価";
 "RateTheAppDescription" = "良いレビューで私たちを助けてください！";
 "RegeneratePassword" = "パスワードを再生成";
-"RetypeMasterPassword" = "マスターパスワードを再入力";
 "SearchVault" = "保管庫を検索";
 "Security" = "セキュリティ";
 "Select" = "選択";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "無効なパスワード";
 "MasterPasswordPolicyValidationMessage" = "パスワードが組織の要件を満たしていません。ポリシー情報を確認して、もう一度やり直してください。";
 "Loading" = "読み込み中";
-"AcceptPolicies" = "このスイッチを有効化することで以下に同意したものとします:";
 "AcceptPoliciesError" = "利用規約とプライバシーポリシーが確認されていません。";
-"TermsOfService" = "利用規約";
 "PrivacyPolicy" = "プライバシーポリシー";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden に注意が必要です - Bitwarden の設定で「自動入力サービス」の「重ねて表示」を有効化してください";
 "PasskeyManagement" = "パスキー管理";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "言語の変更にはアプリの再起動が必要です";
 "DefaultSystem" = "デフォルト (システム)";
 "Important" = "重要";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "マスターパスワードを忘れた場合は復元できません。最小文字数は %1$@ です。";
 "WeakMasterPassword" = "脆弱なマスターパスワード";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "入力されたパスワードは脆弱です。アカウントを守るためより強力なパスワードを使用してください。本当にこの脆弱なパスワードを使用しますか？";
 "Weak" = "脆弱";

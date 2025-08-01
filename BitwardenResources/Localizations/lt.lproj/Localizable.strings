@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Pagrindinio slaptažodžio užuomina";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Pagrindinio slaptažodžio užuomina gali padėti prisiminti slaptažodį, jei jį pamiršite.";
 "MasterPasswordLengthValMessageX" = "Pagrindinis slaptažodis turi būti bent %1$@ simbolių ilgio.";
 "MinNumbers" = "Mažiausiai skaičių";
 "MinSpecial" = "Mažiausiai simbolių";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Įvertinti šią programą";
 "RateTheAppDescription" = "Apsvarstykite galimybę mums padėti palikdami gerą atsiliepimą!";
 "RegeneratePassword" = "Generuoti slaptažodį iš naujo";
-"RetypeMasterPassword" = "Pakartokite pagrindinį slaptažodį";
 "SearchVault" = "Ieškoti saugykloje";
 "Security" = "Apsauga";
 "Select" = "Pasirinkti";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neteisingas slaptažodis";
 "MasterPasswordPolicyValidationMessage" = "Slaptažodis neatitinka organizacijos reikalavimų. Patikrinkite politikos informaciją ir bandykite dar kartą.";
 "Loading" = "Įkeliama";
-"AcceptPolicies" = "Aktyvuodami šį jungiklį sutinkate su šiais dalykais:";
 "AcceptPoliciesError" = "Paslaugų teikimo sąlygos ir privatumo politika nebuvo pripažinti.";
-"TermsOfService" = "Paslaugų teikimo sąlygos";
 "PrivacyPolicy" = "Privatumo politika";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Keičiant kalbą reikia iš naujo paleisti programą";
 "DefaultSystem" = "Numatyta (System)";
 "Important" = "Svarbu";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Pagrindinis slaptažodis negali būti atkurtas, jei jį pamiršite! Mažiausiai %1$@ simboliai.";
 "WeakMasterPassword" = "Silpnas pagrindinis slaptažodis";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Nustatytas silpnas slaptažodis. Norėdami apsaugoti paskyrą, naudokite stiprų slaptažodį. Ar tikrai norite naudoti silpną slaptažodį?";
 "Weak" = "Silpnas";

@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Das Master-Passwort ist das Passwort, mit dem du auf deinen Tresor zugreifst.";
 "MasterPasswordHint" = "Master-Passwort-Hinweis";
 "NewMasterPasswordHint" = "Neuer Hinweis zum Master-Passwort";
-"MasterPasswordHintDescription" = "Ein Hinweis auf dein Master-Passwort kann dir helfen, dich an das Passwort zu erinnern, solltest du es vergessen.";
 "MasterPasswordLengthValMessageX" = "Das Master-Passwort muss mindestens %1$@ Zeichen lang sein.";
 "MinNumbers" = "Mindestanzahl Ziffern";
 "MinSpecial" = "Mindestanzahl Sonderzeichen";
@@ -171,7 +170,6 @@
 "RateTheApp" = "App bewerten";
 "RateTheAppDescription" = "Wir würden uns freuen, wenn du uns mit einer positiven Bewertung helfen könntest!";
 "RegeneratePassword" = "Passwort neu generieren";
-"RetypeMasterPassword" = "Master-Passwort wiederholen";
 "SearchVault" = "Tresor durchsuchen";
 "Security" = "Sicherheit";
 "Select" = "Auswählen";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ungültiges Passwort";
 "MasterPasswordPolicyValidationMessage" = "Passwort entspricht nicht den Anforderungen der Organisation. Bitte überprüfe die Richtlinien-Informationen und versuche es erneut.";
 "Loading" = "Wird geladen";
-"AcceptPolicies" = "Durch Anwählen dieses Kästchens erklärst du dich mit folgendem einverstanden:";
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
-"TermsOfService" = "Nutzungsbedingungen";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden braucht Aufmerksamkeit - Aktiviere \"Überschreiben\" im \"Auto-Ausfüllen-Dienst\" in den Bitwarden-Einstellungen";
 "PasskeyManagement" = "Passkey-Verwaltung";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Sprachänderung erfordert einen App-Neustart";
 "DefaultSystem" = "Standard (System)";
 "Important" = "Wichtig";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Dein Master-Passwort kann nicht wiederhergestellt werden, wenn du es vergisst! Mindestens %1$@ Zeichen.";
 "WeakMasterPassword" = "Schwaches Master-Passwort";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Schwaches Passwort erkannt. Verwende ein starkes Passwort, um dein Konto zu schützen. Bist du sicher, dass du ein schwaches Passwort verwenden möchtest?";
 "Weak" = "Schwach";

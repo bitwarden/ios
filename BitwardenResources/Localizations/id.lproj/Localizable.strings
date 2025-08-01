@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Petunjuk kata sandi utama";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Petunjuk kata sandi utama dapat membantu Anda mengingat kata sandi Anda jika Anda melupakannya.";
 "MasterPasswordLengthValMessageX" = "Kata sandi utama sedikitnya harus %1$@ karakter.";
 "MinNumbers" = "Angka Minimum";
 "MinSpecial" = "Karakter Khusus Minimum";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Nilai Aplikasi";
 "RateTheAppDescription" = "Mohon pertimbangkan membantu kami dengan ulasan yang baik!";
 "RegeneratePassword" = "Buat Ulang Sandi";
-"RetypeMasterPassword" = "Ketik Ulang Sandi Utama";
 "SearchVault" = "Cari Brankas";
 "Security" = "Keamanan";
 "Select" = "Pilih";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "kata sandi salah";
 "MasterPasswordPolicyValidationMessage" = "Kata sandi tidak memenuhi persyaratan organisasi. Harap periksa informasi kebijakan dan coba lagi.";
 "Loading" = "Memuat";
-"AcceptPolicies" = "Dengan mengaktifkan sakelar ini, anda menyetujui yang berikut:";
 "AcceptPoliciesError" = "Persyaratan Layanan dan Kebijakan Privasi belum diakui.";
-"TermsOfService" = "Persyaratan Layanan";
 "PrivacyPolicy" = "Kebijakan pribadi";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Sandi utama Anda tidak akan bisa dipulihkan jika Anda lupa! Setidaknya %1$@ karakter.";
 "WeakMasterPassword" = "Sandi Utama Lemah";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Sandi lemah ditemukan. Gunakan sandi yang kuat untuk melindungi akun Anda. Apakah Anda yakin ingin menggunakan sandi yang lemah?";
 "Weak" = "Lemah";

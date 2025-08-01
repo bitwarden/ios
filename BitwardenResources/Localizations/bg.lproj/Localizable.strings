@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Главната парола е паролата, която използвате за достъп до трезора си.";
 "MasterPasswordHint" = "Подсказка за главната парола";
 "NewMasterPasswordHint" = "Подсказка за новата главна парола";
-"MasterPasswordHintDescription" = "Подсказката помага да си спомните паролата, ако сте я забравили.";
 "MasterPasswordLengthValMessageX" = "Главната парола трябва да е дълга поне %1$@ знака.";
 "MinNumbers" = "Минимален брой цифри";
 "MinSpecial" = "Минимален брой специални знаци";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Оценяване на приложението";
 "RateTheAppDescription" = "Молим да ни помогнете, като оставите положителен отзив!";
 "RegeneratePassword" = "Друга парола";
-"RetypeMasterPassword" = "Въведете пак главната парола";
 "SearchVault" = "Търсене в трезора";
 "Security" = "Сигурност";
 "Select" = "Избор";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Грешна парола";
 "MasterPasswordPolicyValidationMessage" = "Паролата не покрива изискванията на организацията. Проверете политиките и пробвайте отново.";
 "Loading" = "Зареждане";
-"AcceptPolicies" = "Чрез тази отметка вие се съгласявате със следното:";
 "AcceptPoliciesError" = "Условията за използване и политиката за поверителност не бяха приети.";
-"TermsOfService" = "Общи условия";
 "PrivacyPolicy" = "Политика за поверителност";
 "AccessibilityDrawOverPermissionAlert" = "Битуорден има нужда от вниманието Ви. Отворете „Изобразяване отгоре“ в „Услуга за автоматично дописване“ в настройките му.";
 "PasskeyManagement" = "Управление на секретни ключове";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Промяната на езика изисква рестартиране на приложението";
 "DefaultSystem" = "По подразбиране (от системата)";
 "Important" = "Важно";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Главната парола не може да бъде възстановена, ако я забравите! Дължината трябва да е поне %1$@ знака.";
 "WeakMasterPassword" = "Слаба главна парола";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Разпозната е слаба парола. Използвайте силна парола, за да защитете данните си. Наистина ли искате да използвате слаба парола?";
 "Weak" = "Слаба";

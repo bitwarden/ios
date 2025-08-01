@@ -147,7 +147,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ನೀವು ಮರೆತರೆ ಅದನ್ನು ನೆನಪಿಟ್ಟುಕೊಳ್ಳಲು ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್ ಸುಳಿವು ನಿಮಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ.";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "ಕನಿಷ್ಠ ಸಂಖ್ಯೆಗಳು";
 "MinSpecial" = "ಕನಿಷ್ಠ ವಿಶೇಷ";
@@ -172,7 +171,6 @@
 "RateTheApp" = "ಈ ಆಪ್‍ಗೆ ರೇಟ್ ನೀಡಿ";
 "RateTheAppDescription" = "ಉತ್ತಮ ವಿಮರ್ಶೆಯೊಂದಿಗೆ ನಮಗೆ ಸಹಾಯ ಮಾಡಲು ದಯವಿಟ್ಟು ಪರಿಗಣಿಸಿ!";
 "RegeneratePassword" = "ಪಾಸ್ವರ್ಡ್ ಅನ್ನು ಪುನರುತ್ಪಾದಿಸಿ";
-"RetypeMasterPassword" = "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಅನ್ನು ಮರು-ಟೈಪ್ ಮಾಡಿ";
 "SearchVault" = "ವಾಲ್ಟ್ ಹುಡುಕಿ";
 "Security" = "ಭದ್ರತೆ";
 "Select" = "ಆಯ್ಕೆಮಾಡಿ";
@@ -534,9 +532,7 @@
 "MasterPasswordPolicyValidationTitle" = "ಅಮಾನ್ಯ ಪಾಸ್‌ವರ್ಡ್";
 "MasterPasswordPolicyValidationMessage" = "ಪಾಸ್ವರ್ಡ್ ಸಂಸ್ಥೆಯ ಅವಶ್ಯಕತೆಗಳನ್ನು ಪೂರೈಸುವುದಿಲ್ಲ. ದಯವಿಟ್ಟು ನೀತಿ ಮಾಹಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
 "Loading" = "ಲೋಡ್‌ಆಗುತ್ತಿದೆ";
-"AcceptPolicies" = "ಈ ಸ್ವಿಚ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುವ ಮೂಲಕ ನೀವು ಈ ಕೆಳಗಿನವುಗಳನ್ನು ಒಪ್ಪುತ್ತೀರಿ:";
 "AcceptPoliciesError" = "ಸೇವಾ ನಿಯಮಗಳು ಮತ್ತು ಗೌಪ್ಯತೆ ನೀತಿಯನ್ನು ಅಂಗೀಕರಿಸಲಾಗಿಲ್ಲ.";
-"TermsOfService" = "ಸೇವಾ ನಿಯಮಗಳು";
 "PrivacyPolicy" = "ಗೌಪ್ಯತಾ ನೀತಿ";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -764,7 +760,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "WeakMasterPassword" = "Weak Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "Weak";

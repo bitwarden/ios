@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Indiciu pentru parola principală";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Un indiciu pentru parola principală vă poate ajuta să v-o reamintiți dacă o uitați.";
 "MasterPasswordLengthValMessageX" = "Parola principală trebuie să aibă cel puțin %1$@ caractere.";
 "MinNumbers" = "Minimum de cifre";
 "MinSpecial" = "Minimum special";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Evaluați aplicația";
 "RateTheAppDescription" = "Vă rugăm să luați în considerare să ne ajutați cu o recenzie bună!";
 "RegeneratePassword" = "Regenerare parolă";
-"RetypeMasterPassword" = "Reintroducere parolă principală";
 "SearchVault" = "Căutare în seif";
 "Security" = "Securitate";
 "Select" = "Selectare";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Parolă invalidă";
 "MasterPasswordPolicyValidationMessage" = "Parola nu îndeplinește cerințele organizației. Verificați informațiile despre politică și încercați din nou.";
 "Loading" = "Se încarcă";
-"AcceptPolicies" = "Dacă activați acest comutator sunteți de acord cu următoarele:";
 "AcceptPoliciesError" = "Termeni de utilizare și Politica de confidențialitate nu au fost recunoscute.";
-"TermsOfService" = "Termeni de utilizare";
 "PrivacyPolicy" = "Politică de confidențialitate";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Gestionare chei de acces";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Schimbarea limbii necesită repornirea aplicației";
 "DefaultSystem" = "Implicit (sistem)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Parola principală nu poate fi recuperată dacă o uitați! Minim %1$@ caractere.";
 "WeakMasterPassword" = "Parolă principală slabă";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Parola slabă identificată. Utilizați o parolă puternică pentru a vă proteja contul. Sigur doriți să utilizați o parolă slabă?";
 "Weak" = "Slabă";

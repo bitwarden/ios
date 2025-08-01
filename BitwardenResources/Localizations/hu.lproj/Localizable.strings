@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A mesterjelszó az a jelszó, amelyet a széf eléréséhez használunk.";
 "MasterPasswordHint" = "Mesterjelszó emlékeztető";
 "NewMasterPasswordHint" = "Új mesterjelszó kérés";
-"MasterPasswordHintDescription" = "A mesterjelszó emlékeztető segíthet emlékezni a jelszavadra ha elfejetetted volna.";
 "MasterPasswordLengthValMessageX" = "Mesterjelszónak legalább %1$@ karakter hosszúnak kell lennie.";
 "MinNumbers" = "Legalább ennyi szám";
 "MinSpecial" = "Legalább ennyi speciális karakter";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Az alkalmazás értékelése";
 "RateTheAppDescription" = "Egy jó értékeléssel mindig segíted a munkánkat!";
 "RegeneratePassword" = "Jelszó újragenerálása";
-"RetypeMasterPassword" = "Mesterjelszó ismételt beírása";
 "SearchVault" = "Keresés a széfben";
 "Security" = "Biztonság";
 "Select" = "Kijelölés";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
-"AcceptPolicies" = "A kapcsoló bekapcsolásával egyetértünk a következőkkel:";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
-"TermsOfService" = "Szolgáltatási feltételek";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Belépőkulcs kezelés";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "A nyelvváltáshoz újra kell indítani az alkalmazást.";
 "DefaultSystem" = "Alapértelmezett (rendszer)";
 "Important" = "Fontos";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "A fő jelszót nem lehet visszaállítani, ha elfelejtjük! Legalább %1$@ karakter.";
 "WeakMasterPassword" = "Gyenge mesterjelszó";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Gyenge jelszó lett azonosítva. A fiók védelme érdekében használjunk erős jelszót. Biztos, hogy gyenge jelszót akarunk használni?";
 "Weak" = "Gyenge";

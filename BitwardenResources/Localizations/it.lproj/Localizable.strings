@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "La parola d'accesso principale è la parola d'accesso che usi per accedere alla tua cassaforte.";
 "MasterPasswordHint" = "Suggerimento per la password principale";
 "NewMasterPasswordHint" = "Nuovo suggerimento parola d'accesso principale";
-"MasterPasswordHintDescription" = "Il suggerimento per la password principale può aiutarti a ricordarla nel caso la dimenticassi.";
 "MasterPasswordLengthValMessageX" = "La password principale deve essere lunga almeno %1$@ caratteri.";
 "MinNumbers" = "Minimo numeri";
 "MinSpecial" = "Minimo caratteri speciali";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Valuta l'app";
 "RateTheAppDescription" = "Aiutaci lasciando una buona recensione!";
 "RegeneratePassword" = "Rigenera password";
-"RetypeMasterPassword" = "Inserisci password principale di nuovo";
 "SearchVault" = "Cerca nella cassaforte";
 "Security" = "Sicurezza";
 "Select" = "Seleziona";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Password non valida";
 "MasterPasswordPolicyValidationMessage" = "La password non soddisfa i requisiti dell'organizzazione. Controlla i criteri password dell'organizzazione e riprova.";
 "Loading" = "Caricamento";
-"AcceptPolicies" = "Selezionando questa casella accetti quanto segue:";
 "AcceptPoliciesError" = "I Termini di Servizio e l'Informativa sulla Privacy non sono stati accettati.";
-"TermsOfService" = "Termini di Servizio";
 "PrivacyPolicy" = "Informativa sulla Privacy";
 "AccessibilityDrawOverPermissionAlert" = "Autorizzazione in sospeso per Bitwarden: abilita 'Mostra sopra le altre app' dalle Impostazioni";
 "PasskeyManagement" = "Gestione delle passkey";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Cambiare lingua richiede il riavvio dell'app";
 "DefaultSystem" = "Predefinito (Sistema)";
 "Important" = "Importante";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "La tua password principale non può essere recuperata se la dimentichi! %1$@ caratteri minimi.";
 "WeakMasterPassword" = "Password principale debole";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Password debole identificata. Usa una password forte per proteggere il tuo account. Sei sicuro di voler usare una password debole?";
 "Weak" = "Debole";

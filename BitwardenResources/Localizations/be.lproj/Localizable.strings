@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Падказка да асноўнага пароля";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Падказка да асноўнага пароля можа дапамагчы вам успомніць яго, калі вы яго забылі.";
 "MasterPasswordLengthValMessageX" = "Асноўны пароль павінен змяшчаць прынамсі %1$@ сімвалаў.";
 "MinNumbers" = "Мінімум лічбаў";
 "MinSpecial" = "Мінімум спецыяльных сімвалаў";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Ацаніць праграму";
 "RateTheAppDescription" = "Падумайце пра тое, каб дапамагчы нам добрым водгукам!";
 "RegeneratePassword" = "Паўторна генерыраваць пароль";
-"RetypeMasterPassword" = "Увядзіце асноўны пароль паўторна";
 "SearchVault" = "Пошук у сховішчы";
 "Security" = "Бяспека";
 "Select" = "Выбраць";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Памылковы пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не адпавядае патрабаванням арганізацыі. Калі ласка, праверце інфармацыю пра палітыку і паспрабуйце яшчэ раз.";
 "Loading" = "Загрузка";
-"AcceptPolicies" = "Актывуючы гэты пераключальнік, вы пагаджаецеся з наступным:";
 "AcceptPoliciesError" = "Умовы выкарыстання і Палітыка прыватнасці не былі пацверджаны.";
-"TermsOfService" = "Умовы выкарыстання";
 "PrivacyPolicy" = "Палітыка прыватнасці";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Для змены мовы неабходна перазапусціць праграму";
 "DefaultSystem" = "Прадвызначана (сістэмная)";
 "Important" = "Важна";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ваш асноўны пароль нельга будзе аднавіць, калі вы забудзеце яго! Мінімальная колькасць сімвалаў: %1$@.";
 "WeakMasterPassword" = "Ненадзейны асноўны пароль";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Вызначаны ненадзейны пароль. Выкарыстоўвайце надзейны пароль для абароны вашага ўліковага запісу. Вы сапраўды хочаце выкарыстоўваць ненадзейны пароль?";
 "Weak" = "Ненадзейны";

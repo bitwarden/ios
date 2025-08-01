@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Awgrym o'ch prif gyfrinair";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Gall awgrym o'ch prif gyfrinair eich helpu i'w gofio os ydych chi'n ei anghofio.";
 "MasterPasswordLengthValMessageX" = "Rhaid i'ch prif gyfrinair gynnwys o leiaf %1$@ nod.";
 "MinNumbers" = "Isafswm rhifau";
 "MinSpecial" = "Isafswm nodau arbennig";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Rate the app";
 "RateTheAppDescription" = "Ystyriwch ein helpu ni gydag adolygiad da!";
 "RegeneratePassword" = "Ailgynhyrchu cyfrinair";
-"RetypeMasterPassword" = "Aildeipio'r prif gyfrinair";
 "SearchVault" = "Chwilio'r gell";
 "Security" = "Diogelwch";
 "Select" = "Dewis";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Cyfrinair annilys";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "Llwytho";
-"AcceptPolicies" = "By activating this switch you agree to the following:";
 "AcceptPoliciesError" = "Terms of Service and Privacy Policy have not been acknowledged.";
-"TermsOfService" = "Telerau gwasanaeth";
 "PrivacyPolicy" = "Polisi preifatrwydd";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Bydd angen ailgychwyn yr ap";
 "DefaultSystem" = "Rhagosodiad (system)";
 "Important" = "Pwysig";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "WeakMasterPassword" = "Prif gyfrinair gwan";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "Gwan";

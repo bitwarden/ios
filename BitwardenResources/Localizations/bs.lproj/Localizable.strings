@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Nagoveštaj glavne lozinke može Vam pomoći da zapamtite lozinku ako je zaboravite.";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "Minimalno brojeva";
 "MinSpecial" = "Minimalno posebnih";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Ocijenite aplikaciju";
 "RateTheAppDescription" = "Molimo Vas da razmotrite da li nam možete pomoći sa dobrom recenzijom!";
 "RegeneratePassword" = "Regenerišite lozinku";
-"RetypeMasterPassword" = "Ponovo unesite glavnu lozinku";
 "SearchVault" = "Pretražite trezor";
 "Security" = "Bezbjednost";
 "Select" = "Izaberite";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neispravna lozinka";
 "MasterPasswordPolicyValidationMessage" = "Lozinka ne zadovoljava organizacijska pravila. Provjeri informacije o pravilima organizacije i pokušaj ponovno.";
 "Loading" = "Učitavanje";
-"AcceptPolicies" = "Aktiviranjem ovog prekidača, slažete se sa sljedećim:";
 "AcceptPoliciesError" = "Uvjeti korištenja i Pravila privatnosti nisu prihvaćeni.";
-"TermsOfService" = "Uslovi korištenja";
 "PrivacyPolicy" = "Pravila o privatnosti";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Važno";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Tvoja glavna lozinka ne može biti oporavljena ukoliko je zaboraviš! %1$@ znakova najmanje.";
 "WeakMasterPassword" = "Slaba glavna lozinka";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Slaba lozinka prepoznata. Koristite jaku lozinku za zaštitu Vašeg računa. Da li ste sigurni da želite koristiti slabu lozinku?";
 "Weak" = "Slabo";

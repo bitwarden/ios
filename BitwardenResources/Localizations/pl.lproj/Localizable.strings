@@ -105,7 +105,7 @@
 "ChangeEmailConfirmation" = "Adres e-mail możesz zmienić w sejfie internetowym bitwarden.com. Czy chcesz przejść do strony internetowej?";
 "ChangeMasterPassword" = "Zmień hasło główne";
 "Close" = "Zamknij";
-"Continue" = "Przejdź";
+"Continue" = "Kontynuuj";
 "CreateAccount" = "Utwórz konto";
 "CreatingAccount" = "Tworzenie konta...";
 "EditItem" = "Edytuj element";
@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hasło główne to hasło, które zapewnia dostęp do sejfu.";
 "MasterPasswordHint" = "Podpowiedź do hasła głównego";
 "NewMasterPasswordHint" = "Nowa podpowiedź do hasła głównego";
-"MasterPasswordHintDescription" = "Podpowiedź do hasła głównego może pomóc Ci przypomnieć hasło, jeśli je zapomnisz.";
 "MasterPasswordLengthValMessageX" = "Hasło główne musi składać się z co najmniej %1$@ znaków.";
 "MinNumbers" = "Minimalna liczba cyfr";
 "MinSpecial" = "Minimalna liczba znaków specjalnych";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Oceń aplikację";
 "RateTheAppDescription" = "Wesprzyj nas pozytywną opinią!";
 "RegeneratePassword" = "Wygeneruj ponownie hasło";
-"RetypeMasterPassword" = "Wpisz ponownie hasło główne";
 "SearchVault" = "Szukaj w sejfie";
 "Security" = "Zabezpieczenia";
 "Select" = "Wybierz";
@@ -467,7 +465,7 @@
 "AutofillBlockedUris" = "Autouzupełnianie zablokowanych URI";
 "AskToAddLogin" = "Poproś o dodanie danych logowania";
 "AskToAddLoginDescription" = "Proponuj zapisywanie danych logowania, jeśli nie ma ich w sejfie.";
-"OnRestart" = "Po restarcie aplikacji";
+"OnRestart" = "Po uruchomieniu aplikacji";
 "AutofillServiceNotEnabled" = "Autouzupełnianie ułatwia bezpieczne logowanie do innych stron internetowych i aplikacji. Skonfiguruj usługę autouzupełniania dla aplikacji Bitwarden na ekranie „Ustawienia”.";
 "ThemeAppliedOnRestart" = "Zmiana motywu zostanie zastosowana po uruchomieniu ponownym.";
 "Capitalize" = "Wielkie litery";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Hasło jest nieprawidłowe";
 "MasterPasswordPolicyValidationMessage" = "Hasło nie spełnia wymogów organizacji. Sprawdź wymaganą zasadę i spróbuj ponownie.";
 "Loading" = "Ładowanie";
-"AcceptPolicies" = "Zaznaczając tę opcję, akceptujesz:";
 "AcceptPoliciesError" = "Regulamin i polityka prywatności nie zostały zaakceptowane.";
-"TermsOfService" = "Regulamin";
 "PrivacyPolicy" = "Polityka prywatności";
 "AccessibilityDrawOverPermissionAlert" = "Aplikacja Bitwarden wymaga uwagi. Włącz „Wyświetlanie nad innymi aplikacjami” w ustawieniach aplikacji Bitwarden";
 "PasskeyManagement" = "Zarządzaj kluczami dostępu";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Zmiana języka wymaga ponownego uruchomienia aplikacji";
 "DefaultSystem" = "Domyślny (systemowy)";
 "Important" = "Ważne";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Zapomniane hasło główne nie może zostać odzyskane! Hasło musi składać się z co najmniej %1$@ znaków.";
 "WeakMasterPassword" = "Hasło główne jest słabe";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Hasło jest słabe. Użyj silnego hasła, aby chronić konto. Czy na pewno chcesz użyć słabego hasła?";
 "Weak" = "Słabe";
@@ -1018,7 +1013,7 @@
 "SaveAndProtectYourData" = "Zapisz i chroń swoje dane";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Sejf chroni nie tylko hasła. Przechowuj bezpiecznie dane logowania, identyfikatory, karty i notatki.";
 "SendSensitiveInformationSafely" = "Wysyłaj poufne informacje w bezpieczny sposób";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Udostępniaj pliki i teksty każdemu, na dowolnej platformie. Informacje będę szyfrowane end-to-end, zapewniając poufność.";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Udostępniaj pliki i teksty każdemu na dowolnej platformie. Informacje będę szyfrowane end-to-end, zapewniając poufność.";
 "NewLogin" = "Nowe dane logowania";
 "NewCard" = "Nowa karta";
 "NewIdentity" = "Nowa tożsamość";
@@ -1037,7 +1032,7 @@
 "ImportSavedLogins" = "Importuj zapisane dane logowania";
 "ImportSavedLoginsDescriptionLong" = "Użyj komputera, aby zaimportować dane logowania z obecnego menedżera haseł.";
 "ImportLogins" = "Importuj dane logowania";
-"GiveYourVaultAHeadStart" = "Daj sejfowi dobry start";
+"GiveYourVaultAHeadStart" = "Zapisz w sejfie swoje dane";
 "ImportLoginsDescriptionLong" = "Postępuj zgodnie z instrukcjami, aby wyeksportować zapisane hasła z przeglądarki lub z innego menedżera haseł. Następnie zaimportuj je do Bitwarden.";
 "ImportLoginsLater" = "Importuj dane logowania później";
 "ImportLoginsLaterQuestion" = "Zaimportować dane logowania później?";

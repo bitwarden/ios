@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Главна лозинка је лозинка коју користите за приступ вашем трезору.";
 "MasterPasswordHint" = "Помоћ за главну лозинку";
 "NewMasterPasswordHint" = "Савет за нову Главну Лозинку";
-"MasterPasswordHintDescription" = "Савет Главне Лозинке може да Вам помогне да се потсетите ако је заборавите.";
 "MasterPasswordLengthValMessageX" = "Главна лозинка мора имати барем %1$@ карактера.";
 "MinNumbers" = "Минимално Бројева";
 "MinSpecial" = "Минимално специјалних";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Оцени апликацију";
 "RateTheAppDescription" = "Молимо вас да размотрите да нам помогнете уз добру оцену!";
 "RegeneratePassword" = "Поново генериши лозинку";
-"RetypeMasterPassword" = "Поновити Главну Лозинку";
 "SearchVault" = "Претражи сеф";
 "Security" = "Сигурност";
 "Select" = "Изабери";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неисправна лозинка";
 "MasterPasswordPolicyValidationMessage" = "Лозинка не испуњава организационе захтеве. Проверите информације о политици и покушајте поново.";
 "Loading" = "Учитавање";
-"AcceptPolicies" = "Активирањем овог прекидача прихватате следеће:";
 "AcceptPoliciesError" = "Услови услуге и Политика приватности нису признати.";
-"TermsOfService" = "Услови коришћења услуге";
 "PrivacyPolicy" = "Политика приватности";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden треба пажњу - Омогућите „Преко“ у „Сервиси Ауто-пуњења“ из подешавања Bitwarden-а";
 "PasskeyManagement" = "Управљање приступног кључа";
@@ -764,7 +760,6 @@
 "LanguageChangeRequiresAppRestart" = "Промена језика захтева поновно покретање апликације";
 "DefaultSystem" = "Подразумевано (системско)";
 "Important" = "Важно";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ваша главна лозинка се не може повратити ако је заборавите! Минимално %1$@ слова.";
 "WeakMasterPassword" = "Слаба главна лозинка";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Идентификована је слаба лозинка. Користите јаку лозинку да бисте заштитили свој налог. Да ли сте сигурни да желите да користите слабу лозинку?";
 "Weak" = "Слабо";
@@ -1214,11 +1209,11 @@
 "LastEdited" = "Задња промена: %1$@";
 "PasswordLastUpdated" = "Задње ажурирање лозинке: %1$@";
 "DecryptionError" = "Грешка при декрипцији";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden није могао да дешифрира овај сеф. Копирајте и делите овај извештај о грешци са успехом купца да бисте избегли додатни губитак података.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden није могао да дешифрира 1 стљвку сефа. Копирајте и делите овај извештај о грешци са успехом купца да бисте избегли додатни губитак података.";
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
-"ErrorCannotDecrypt" = "[error: cannot decrypt]";
+"CopyErrorReport" = "Копирај извештај о грешци";
+"ErrorCannotDecrypt" = "[грешка: неуспешна декрипција]";
 "AccountName" = "Име налога";
 "AccountsSyncedFromBitwardenApp" = "Налози су синхронизовани из апликације Bitwarden";
 "AddANewCodeToSecure" = "Додајте нови кôд да бисте заштитили своје налоге.";
@@ -1229,7 +1224,7 @@
 "Backup" = "Резервна копија";
 "BitwardenAuthenticator" = "Bitwarden Authenticator";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Направљена је резервна копија података Bitwarden Authenticator-а и могу се вратити помоћу редовних резервних копија уређаја.";
-"CopyToBitwardenVault" = "Copy to Bitwarden vault";
+"CopyToBitwardenVault" = "Копирај у сефу Bitwarden-а";
 "CreateVerificationCode" = "Креирати верификациони кôд";
 "Data" = "Подаци";
 "DefaultSaveOption" = "Подразумевана опција чувања";
@@ -1248,7 +1243,7 @@
 "Key" = "Кључ";
 "KeyReadError" = "Није могуће прочитати кључ.";
 "LaunchTutorial" = "Покрените водич";
-"LearnMoreLink" = "[Learn more](%1$@)";
+"LearnMoreLink" = "[Сазнај више](%1$@)";
 "LocalCodes" = "Локални кодови";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Треба ли помоћ? Посетите наш центар за помоћ за упутства.";
 "NinetySeconds" = "90 секунди";
