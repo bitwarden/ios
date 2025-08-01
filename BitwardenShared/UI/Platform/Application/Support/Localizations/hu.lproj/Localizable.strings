@@ -372,8 +372,6 @@
 "TryAgain" = "Próbáluk újra";
 "YubiKeyInstructionIos" = "A folytatáshoz tartsuk lenyomva a YubiKey NEO-t a készülék hátoldalán.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "A kisegítő szolgáltatás segítségére lehet azon appok esetében, amelyek nem támogatják a szabványos automata-kitöltő szolgáltatást.";
-"DatePasswordUpdated" = "A jelszó frissítésre került.";
-"DateUpdated" = "Frissítve";
 "AutofillActivated" = "Az automatikus kitöltés bekapcsolásra került.";
 "MustLogInMainAppAutofill" = "Az automatikus kitöltő szolgáltatás használata előtt be kell jelentkezni a fő Bitwarden alkalmazásba.";
 "AutofillSetup" = "Az alkalmazásokba és webhelyekre a belépési adatok most már könnyedén elérhető a billentyűzetről.";
@@ -577,11 +575,11 @@
 "MaximumAccessCountReached" = "A maximális hozzáférések száma elérésre került.";
 "CurrentAccessCount" = "Aktuális elérési szám";
 "NewPassword" = "Új jelszó";
-"PasswordInfo" = "Require this password to view the Send.";
+"PasswordInfo" = "Jelszó szükséges a Send elem megtekintéséhez.";
 "RemovePassword" = "Jelszó eltávolítása";
 "AreYouSureRemoveSendPassword" = "Biztosan eltávolításra kerüljön ez a jelszó?";
 "RemovingSendPassword" = "Jelszó eltávolítása..";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "A jelszó eltávolításra került.";
 "NoSends" = "A fiókban nincsenek Send elemek.";
 "CopyLink" = "Hivatkozás másolása";
 "ShareLink" = "Hivatkozás megosztása";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "A Bitwarden lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen.";
 "RateAppDescriptionLong" = "Segítsünk másoknak megtudni, hogy a Bitwarden megfelelő-e számukra. Látogassunk el az alkalmazásboltba és értékeljünk most.";
 "DefaultDarkThemeDescriptionLong" = "Válasszuk a sötét témát az eszköz sötét módban történő használata esetén.";
-"CreatedXY" = "Létrehozta: %1$@, %2$@";
+"CreatedX" = "Létrehozva: %1$@";
 "TooManyAttempts" = "Túl sok próbálkozás történt";
 "AccountLoggedOutBiometricExceeded" = "A fiók kijelentkezett.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "A szervezeti jogosultságok frissítésre kerültek, ezért be kell állítani egy mesterjelszót.";
@@ -1211,3 +1209,12 @@
 "YouMustAttachAFileToSaveThisSend" = "A Send elem mentéséhez csatolni kell egy fájlt.";
 "SendUpdated" = "A Send elem frissítésre került.";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához.";
+"Created" = "Létrehozva: %1$@";
+"LastEdited" = "Utolsó szerkesztés: %1$@";
+"PasswordLastUpdated" = "Jelszó utolsó frissítés: %1$@";
+"DecryptionError" = "Visszafejtési hiba";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nem tudta visszafejteni ezt a széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "A Bitwarden nem tudott visszafejteni 1 széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "A Bitwarden nem tudta visszafejteni %1$@ suéf elemet. Másoljuk és osszil meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
+"CopyErrorReport" = "Hibajelentés másolása";
+"ErrorCannotDecrypt" = "[hiba: nem fejlthető vissza]";

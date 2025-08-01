@@ -100,7 +100,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .addyIO
-        subject.usernameState.addyIOSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -224,7 +223,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .simpleLogin
-        subject.usernameState.simpleLoginSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -539,6 +537,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         var subject = GeneratorState().usernameState
 
         subject.usernameGeneratorType = .catchAllEmail
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.domain = "example.com"
         XCTAssertTrue(subject.canGenerateUsername)
 
         subject.usernameGeneratorType = .plusAddressedEmail

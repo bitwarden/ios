@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest
@@ -16,7 +17,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var authClient: MockAuthClient!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
     var errorReporter: MockErrorReporter!
@@ -32,7 +32,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         authClient = MockAuthClient()
-        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
@@ -46,7 +45,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(auth: authClient),
-                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -62,7 +60,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = nil
         authClient = nil
         client = nil
-        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -593,54 +590,12 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
         XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
     }
-
-    /// `setRegion(_:_:)` doesn't notify the delegate to switch to the legacy create account flow
-    /// if the selected region supports email verification.
-    @MainActor
-    func test_setRegion_emailVerificationEnabled() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
-
-    /// `setRegion(_:_:)` notifies the delegate to switch to the legacy create account flow if the
-    /// selected region doesn't support email verification.
-    @MainActor
-    func test_setRegion_emailVerificationDisabled() async {
-        await subject.perform(.appeared)
-
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertTrue(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
-
-    /// `setRegion(_:_:)` doesn't notify the delete if the selected region doesn't support email
-    /// verification but the view is no longer visible.
-    @MainActor
-    func test_setRegion_emailVerificationDisabled_viewNotVisible() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-        await subject.perform(.appeared)
-        subject.receive(.disappeared)
-
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
 }
 
 class MockStartRegistrationDelegate: StartRegistrationDelegate {
     var didChangeRegionCalled: Bool = false
-    var switchToLegacyCreateAccountFlowCalled = false
 
     func didChangeRegion() async {
         didChangeRegionCalled = true
-    }
-
-    func switchToLegacyCreateAccountFlow() {
-        switchToLegacyCreateAccountFlowCalled = true
     }
 } // swiftlint:disable:this file_length

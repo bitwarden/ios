@@ -279,7 +279,7 @@ actor DefaultClientService: ClientService {
             return clientBuilder.buildClient()
         }
     }
-    
+
     /// Configures a new SDK client.
     /// - Parameters:
     ///   - client: The SDK client to configure.

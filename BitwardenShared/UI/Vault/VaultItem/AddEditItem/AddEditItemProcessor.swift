@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 import UIKit
@@ -127,7 +128,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
-            await loadRestrictItemDeletionFlag()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
@@ -678,14 +678,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
-    }
-
-    /// Load the restrict item deletion flag from the config service to state.
-    ///
-    func loadRestrictItemDeletionFlag() async {
-        state.restrictCipherItemDeletionFlagEnabled = await services.configService.getFeatureFlag(
-            .restrictCipherItemDeletion
-        )
     }
 
     /// Shows the password autofill information alert if it hasn't been shown before and the user

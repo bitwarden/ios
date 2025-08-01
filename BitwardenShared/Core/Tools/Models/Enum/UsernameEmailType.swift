@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// The value to use when generating a plus-addressed or catch-all email.
 ///
 enum UsernameEmailType: Int, CaseIterable, Codable, Equatable, Menuable {

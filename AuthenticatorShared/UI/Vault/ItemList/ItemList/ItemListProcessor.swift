@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Combine
 import Foundation
 
@@ -600,9 +601,9 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     ///     `false` if they have chosen to store it locally.
     ///
     private func confirmDefaultSaveAlert(key: String, sendToBitwarden: Bool) {
-        let title = sendToBitwarden ?
-            Localizations.setSaveToBitwardenAsYourDefaultSaveOption :
-            Localizations.setSaveLocallyAsYourDefaultSaveOption
+        let title = sendToBitwarden
+            ? Localizations.setSaveToBitwardenAsYourDefaultSaveOption
+            : Localizations.setSaveLocallyAsYourDefaultSaveOption
         let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveHere
 
         coordinator.showAlert(.confirmDefaultSaveOption(

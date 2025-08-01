@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenResources
 import OSLog
 import SwiftUI
 import UIKit
@@ -163,8 +164,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             }
         case let .completeWithRehydration(rehydratableTarget):
             completeAuth(rehydratableTarget: rehydratableTarget)
-        case .createAccount:
-            showCreateAccount()
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
         case .startRegistrationFromExpiredLink:
@@ -357,21 +356,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 processor: CheckEmailProcessor(
                     coordinator: asAnyCoordinator(),
                     state: CheckEmailState(email: email)
-                )
-            )
-        )
-        stackNavigator?.present(view)
-    }
-
-    /// Shows the create account screen.
-    ///
-    private func showCreateAccount() {
-        let view = CreateAccountView(
-            store: Store(
-                processor: CreateAccountProcessor(
-                    coordinator: asAnyCoordinator(),
-                    services: services,
-                    state: CreateAccountState()
                 )
             )
         )

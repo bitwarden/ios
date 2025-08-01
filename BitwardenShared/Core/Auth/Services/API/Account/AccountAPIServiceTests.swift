@@ -5,7 +5,6 @@ import XCTest
 
 // MARK: - AccountAPIServiceTests
 
-// swiftlint:disable file_length
 class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -66,66 +65,6 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         await assertAsyncThrows {
             try await subject.convertToKeyConnector()
         }
-    }
-
-    /// `createNewAccount(email:masterPasswordHash)` throws an error if the request fails.
-    func test_create_account_httpFailure() async {
-        client.result = .httpFailure()
-
-        await assertAsyncThrows {
-            _ = try await subject.createNewAccount(
-                body: CreateAccountRequestModel(
-                    email: "example@email.com",
-                    kdfConfig: KdfConfig(),
-                    key: "key",
-                    keys: KeysRequestModel(encryptedPrivateKey: "private"),
-                    masterPasswordHash: "1a2b3c",
-                    masterPasswordHint: "hint"
-                )
-            )
-        }
-    }
-
-    /// `createNewAccount(email:masterPasswordHash)` throws a decoding error if the response is not the expected type.
-    func test_create_account_failure() async throws {
-        let resultData = APITestData(data: Data("this should fail".utf8))
-        client.result = .httpSuccess(testData: resultData)
-
-        await assertAsyncThrows {
-            _ = try await subject.createNewAccount(
-                body: CreateAccountRequestModel(
-                    email: "example@email.com",
-                    kdfConfig: KdfConfig(),
-                    key: "key",
-                    keys: KeysRequestModel(encryptedPrivateKey: "private"),
-                    masterPasswordHash: "1a2b3c",
-                    masterPasswordHint: "hint"
-                )
-            )
-        }
-    }
-
-    /// `createNewAccount(email:masterPasswordHash)` returns the correct value from the API with a successful request.
-    func test_create_account_success() async throws {
-        let resultData = APITestData.createAccountSuccess
-        client.result = .httpSuccess(testData: resultData)
-
-        let successfulResponse = try await subject.createNewAccount(
-            body: CreateAccountRequestModel(
-                email: "example@email.com",
-                kdfConfig: KdfConfig(),
-                key: "key",
-                keys: KeysRequestModel(encryptedPrivateKey: "private"),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint"
-            )
-        )
-
-        let request = try XCTUnwrap(client.requests.first)
-        XCTAssertEqual(request.method, .post)
-        XCTAssertEqual(request.url.relativePath, "/identity/accounts/register")
-        XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
-        XCTAssertNotNil(request.body)
     }
 
     /// `deleteAccount(body:)` hits the correct API endpoint using the correct HTTPMethod.
@@ -235,7 +174,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `registerFinish(email:masterPasswordHash)` returns the correct value from the API with a successful request.
     func test_registerFinish_success() async throws {
-        let resultData = APITestData.createAccountSuccess
+        let resultData = APITestData.registerFinishSuccess
         client.result = .httpSuccess(testData: resultData)
 
         let successfulResponse = try await subject.registerFinish(

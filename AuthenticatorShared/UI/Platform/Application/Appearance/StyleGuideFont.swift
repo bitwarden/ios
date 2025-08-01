@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A `StyleGuideFont` contains the font to use for a specific style.
@@ -6,7 +7,7 @@ struct StyleGuideFont {
     // MARK: Properties
 
     /// The font to use for the style.
-    let font: Font
+    let font: SwiftUI.Font
 
     /// The line height for this style, in px.
     let lineHeight: CGFloat
@@ -64,12 +65,12 @@ extension StyleGuideFont {
 
 // MARK: Font + Style Guide
 
-private extension Font {
+private extension SwiftUI.Font {
     /// Returns a style guide font for the specified style.
     ///
     /// - Parameter style: The style for which to return a font for.
     /// - Returns: A font for the specified style.
-    static func styleGuide(_ style: StyleGuideFont) -> Font {
+    static func styleGuide(_ style: StyleGuideFont) -> SwiftUI.Font {
         style.font
     }
 }
@@ -121,7 +122,7 @@ extension Text {
     ///
     func styleGuide(
         _ style: StyleGuideFont,
-        weight: Font.Weight = .regular,
+        weight: SwiftUI.Font.Weight = .regular,
         isItalic: Bool = false,
         includeLineSpacing: Bool = true,
         monoSpacedDigit: Bool = false
@@ -327,7 +328,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Standard vs Bold Italic")
 
-        VStack {
+        VStack(alignment: .leading) {
             Button("Sample Button", action: {})
                 .buttonStyle(.primary())
                 .styleGuide(.callout)
@@ -336,9 +337,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
             Group {
                 Text(Localizations.important + ": ")
                     .bold() +
-                    Text(Localizations
-                        .yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(16)
-                    )
+                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
             }
             .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))

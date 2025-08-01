@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -504,9 +505,6 @@ private extension ViewItemProcessor {
                 }
                 let showWebIcons = await services.stateService.getShowWebIcons()
 
-                let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
-                    .restrictCipherItemDeletion
-                )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
@@ -516,8 +514,7 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasPremium: hasPremium,
-                    iconBaseURL: services.environmentService.iconsURL,
-                    restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled
+                    iconBaseURL: services.environmentService.iconsURL
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {

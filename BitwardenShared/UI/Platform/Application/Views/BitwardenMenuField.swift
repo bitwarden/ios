@@ -124,8 +124,8 @@ struct BitwardenMenuField<
                                 includeLineSpacing: false
                             )
                             .foregroundColor(isEnabled
-                                 ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                 : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                                ? SharedAsset.Colors.textSecondary.swiftUIColor
+                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
                             )
                             .onSizeChanged { size in
                                 titleWidth = size.width

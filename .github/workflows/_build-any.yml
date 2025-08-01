@@ -263,11 +263,11 @@ jobs:
             --apiIssuer "${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}"
 
       - name: Upload dSYM files to Crashlytics
-        if: ${{ env._BUILD_MODE == 'Device' && startsWith(env._BW_ENV, 'bwpm') }}
+        if: ${{ env._BUILD_MODE == 'Device' }}
         continue-on-error: true
         run: |
           find $_EXPORT_PATH/dSYMs -name "*.dSYM" \
-            -exec "build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -exec "./build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
             -gsp $_CRASHLYTICS_PATH \
             -p ios -- {} +
 

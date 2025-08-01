@@ -125,7 +125,7 @@
 "Fingerprint" = "Vân tay";
 "GeneratePassword" = "Tạo mật khẩu";
 "GetPasswordHint" = "Nhận gợi ý mật khẩu chính";
-"ImportItems" = "Nhập mục";
+"ImportItems" = "Nhập vào kho";
 "ImportItemsConfirmation" = "Bạn có thể nhập hàng loạt các mục từ kho lưu trữ trực tuyến bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?";
 "ImportItemsDescription" = "Dễ dàng nhập toàn bộ mật khẩu của bạn từ các ứng dụng quản lý mật khẩu khác.";
 "LastSync" = "Đồng bộ lúc:";
@@ -298,7 +298,7 @@
 "Company" = "Công ty";
 "Country" = "Quốc gia";
 "December" = "Tháng 12";
-"Dr" = "Tiến sĩ";
+"Dr" = "Tiến sĩ/Bác sĩ";
 "ExpirationMonth" = "Tháng hết hạn";
 "ExpirationYear" = "Năm hết hạn";
 "February" = "Tháng 2";
@@ -314,7 +314,7 @@
 "MiddleName" = "Tên đệm";
 "Mr" = "Ông";
 "Mrs" = "Bà";
-"Ms" = "Chị";
+"Ms" = "Cô";
 "Mx" = "Mx";
 "November" = "Tháng 11";
 "October" = "Tháng 10";
@@ -322,7 +322,7 @@
 "Phone" = "Số điện thoại";
 "September" = "Tháng 9";
 "SSN" = "Số bảo hiểm xã hội";
-"StateProvince" = "Tỉnh/Thành Phố";
+"StateProvince" = "Tỉnh / Thành Phố";
 "Title" = "Tiêu đề";
 "ZipPostalCode" = "Mã bưu chính";
 "Address" = "Địa chỉ";
@@ -350,7 +350,7 @@
 "BitwardenAutofillGoToSettings" = "Chúng tôi không thể mở cài đặt tự động điền cho bạn. Bạn có thể đi đến cài đặt tự động điền theo cách thủ công bằng cách vào Cài đặt > Hệ thống > Ngôn ngữ và nhập liệu > Nâng cao > Dịch vụ tự động điền.";
 "CustomFieldName" = "Tên trường tùy chỉnh";
 "FieldTypeBoolean" = "Đúng/Sai";
-"FieldTypeHidden" = "Ẩn";
+"FieldTypeHidden" = "Bí ẩn";
 "FieldTypeLinked" = "Đã liên kết";
 "FieldTypeText" = "Văn bản";
 "NewCustomField" = "Trường tùy chỉnh mới";
@@ -372,8 +372,6 @@
 "TryAgain" = "Thử lại";
 "YubiKeyInstructionIos" = "Để tiếp tục, hãy đặt YubiKey NEO của bạn dựa vào mặt lưng của thiết bị.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Bạn có thể cần dùng dịch vụ trợ năng vì một số ứng dụng không hỗ trợ dịch vụ tự động điền của Android.";
-"DatePasswordUpdated" = "Đã cập nhật mật khẩu";
-"DateUpdated" = "Cập nhật vào";
 "AutofillActivated" = "Đã bật Tự động điền!";
 "MustLogInMainAppAutofill" = "Bạn phải đăng nhập vào ứng dụng Bitwarden trước khi có thể sử dụng Tự động điền.";
 "AutofillSetup" = "Bây giờ, bạn có thể dễ dàng truy cập các thông tin đăng nhập của mình ngay từ bàn phím khi đăng nhập vào các ứng dụng và trang web.";
@@ -452,7 +450,7 @@
 "ClearClipboard" = "Xóa bảng nhớ tạm";
 "ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.";
 "DefaultUriMatchDetection" = "Cách nhận diện đường dẫn (URI)";
-"DefaultUriMatchDetectionDescription" = "Chọn cách thức mặc định hệ thống so khớp đường dẫn (URI) để xử lý đăng nhập khi thực hiện các thao tác như tự động điền.";
+"DefaultUriMatchDetectionDescription" = "Chọn cách hệ thống so khớp đường dẫn để xử lý đăng nhập khi thực hiện các thao tác như tự động điền.";
 "Theme" = "Giao diện";
 "ThemeDescription" = "Thay đổi màu sắc chủ đề của ứng dụng.";
 "ThemeDefault" = "Giống như hệ thống";
@@ -467,8 +465,8 @@
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
 "AutofillBlockedUris" = "Tự động điền các đường dẫn bị chặn";
-"AskToAddLogin" = "Yêu cầu thêm thông tin đăng nhập";
-"AskToAddLoginDescription" = "Yêu cầu thêm mục nếu không tìm thấy nó trong kho của bạn.";
+"AskToAddLogin" = "Gợi ý thêm mục đăng nhập";
+"AskToAddLoginDescription" = "Gợi ý thêm mục nếu không tìm thấy mục nào trong kho trùng khớp.";
 "OnRestart" = "Khi khởi động lại ứng dụng";
 "AutofillServiceNotEnabled" = "Tính năng tự động điền giúp bạn dễ dàng truy cập an toàn vào kho lưu trữ Bitwarden từ các trang web và ứng dụng khác. Có vẻ như bạn chưa thiết lập dịch vụ tự động điền cho Bitwarden. Hãy thiết lập tính năng tự động điền cho Bitwarden từ màn hình \"Cài đặt\".";
 "ThemeAppliedOnRestart" = "Chủ đề sẽ được áp dụng khi khởi động lại ứng dụng.";
@@ -519,12 +517,12 @@
 "AccountBiometricInvalidatedExtension" = "Chức năng tự động điền và mở khóa bằng sinh trắc học cho tài khoản này đã bị vô hiệu hóa cho đến khi xác minh mật khẩu chính.";
 "EnableSyncOnRefresh" = "Đồng bộ khi làm mới";
 "EnableSyncOnRefreshDescription" = "Đồng bộ kho bằng cách vuốt xuống.";
-"LogInSso" = "Đăng nhập một lần cho doanh nghiệp";
+"LogInSso" = "Đăng nhập một lần (SSO) cho doanh nghiệp";
 "LogInSsoSummary" = "Đăng nhập nhanh chóng thông qua cổng đăng nhập một lần của tổ chức của bạn. Vui lòng nhập mã định danh của tổ chức để bắt đầu.";
 "OrgIdentifier" = "Mã định danh tổ chức";
-"LoginSsoError" = "Hiện tại không thể đăng nhập bằng Đăng nhập một lần";
+"LoginSsoError" = "Hiện tại không thể đăng nhập bằng SSO";
 "SetMasterPassword" = "Đặt mật khẩu chính";
-"SetMasterPasswordSummary" = "Để hoàn tất quá trình đăng nhập bằng Đăng nhập một lần, vui lòng thiết lập mật khẩu chính để truy cập và bảo vệ kho lưu trữ của bạn.";
+"SetMasterPasswordSummary" = "Để hoàn tất quá trình đăng nhập bằng SSO, vui lòng thiết lập mật khẩu chính để truy cập và bảo vệ kho lưu trữ của bạn.";
 "MasterPasswordPolicyInEffect" = "Các chính sách của tổ chức yêu cầu mật khẩu chính của bạn phải đáp ứng các yêu cầu sau:";
 "PolicyInEffectMinComplexity" = "Độ mạnh tối thiểu %1$@";
 "PolicyInEffectMinLength" = "Độ dài tối thiểu %1$@";
@@ -566,7 +564,7 @@
 "FileTypeIsNotSelected" = "Loại tập tin chưa được chọn, nhấn để chọn.";
 "TextTypeIsSelected" = "Loại văn bản được chọn.";
 "TextTypeIsNotSelected" = "Loại văn bản chưa được chọn, nhấn để chọn.";
-"DeletionDate" = "Ngày xóa";
+"DeletionDate" = "Xóa sau";
 "DeletionTime" = "Thời gian xóa";
 "DeletionDateInfo" = "Send sẽ được xóa vĩnh viễn vào ngày và giờ được chỉ định.";
 "PendingDelete" = "Đang chờ xóa";
@@ -759,7 +757,7 @@
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Bạn có chắc muốn từ chối tất cả các yêu cầu đăng nhập đang chờ?";
 "RequestsDeclined" = "Yêu cầu đã từ chối";
 "NoPendingRequests" = "Không có yêu cầu đang chờ phê duyệt";
-"EnableCamerPermissionToUseTheScanner" = "Cấp quyền máy ảnh để sử dụng trình quét";
+"EnableCamerPermissionToUseTheScanner" = "Cấp quyền truy cập máy ảnh để quét";
 "Language" = "Ngôn ngữ";
 "LanguageChangeXDescription" = "Ngôn ngữ đã được đổi thành %1$@. Khởi động lại ứng dụng để áp dụng";
 "LanguageChangeRequiresAppRestart" = "Thay đổi ngôn ngữ yêu cầu khởi động lại ứng dụng";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden cho phép bạn chia sẻ các mục trong kho lưu trữ với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com.";
 "RateAppDescriptionLong" = "Giúp người khác tìm hiểu xem Bitwarden có phù hợp với họ không. Truy cập cửa hàng ứng dụng và đánh giá ngay bây giờ.";
 "DefaultDarkThemeDescriptionLong" = "Chọn chủ đề tối để sử dụng khi thiết bị của bạn đang sử dụng chế độ tối";
-"CreatedXY" = "Tạo lúc %1$@, %2$@";
+"CreatedX" = "Tạo lúc %1$@";
 "TooManyAttempts" = "Thử quá nhiều lần";
 "AccountLoggedOutBiometricExceeded" = "Đã đăng xuất tài khoản.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Quyền truy cập của tổ chức bạn đã được cập nhật, yêu cầu bạn phải thiết lập mật khẩu chính.";
@@ -1039,11 +1037,11 @@
 "ImportSavedLogins" = "Nhập các thông tin đăng nhập đã lưu";
 "ImportSavedLoginsDescriptionLong" = "Sử dụng máy tính để nhập thông tin đăng nhập từ trình quản lý mật khẩu hiện có.";
 "ImportLogins" = "Nhập thông tin đăng nhập";
-"GiveYourVaultAHeadStart" = "Khởi động nhanh kho lưu trữ của bạn";
+"GiveYourVaultAHeadStart" = "Nhanh chóng tạo kho lưu trữ của bạn";
 "ImportLoginsDescriptionLong" = "Trên máy tính của bạn, hãy làm theo các bước sau để xuất các mật khẩu đã lưu từ trình duyệt hoặc trình quản lý mật khẩu khác. Sau đó, nhập chúng vào Bitwarden một cách an toàn.";
 "ImportLoginsLater" = "Nhập thông tin đăng nhập sau";
 "ImportLoginsLaterQuestion" = "Nhập thông tin đăng nhập sau?";
-"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bạn có thể hoàn tất bước này sau trong mục Cài đặt kho.";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bạn có thể hoàn tất bước này sau trong mục Kho lưu trữ của phần Cài đặt.";
 "DoYouHaveAComputerAvailable" = "Bạn có máy tính?";
 "DoYouHaveAComputerAvailableDescriptionLong" = "Các hướng dẫn sau đây sẽ chỉ bạn cách nhập thông tin đăng nhập từ máy tính để bàn hoặc laptop của bạn.";
 "StepXOfY" = "Bước %1$@ trong %2$@";
@@ -1054,10 +1052,10 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Bạn sẽ xóa tệp này sau khi quá trình nhập dữ liệu hoàn tất.";
 "NeedHelpCheckOutImportHelp" = "Cần trợ giúp? Hãy xem **[hướng dẫn nhập dữ liệu](%1$@)**";
 "LogInToBitwarden" = "Đăng nhập Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "Trên máy tính của bạn, mở một tab trình duyệt mới và **truy cập vào %1$@**.";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "Trên máy tính của bạn, mở một tab trình duyệt mới và **truy cập %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Đăng nhập Bitwarden bản web.**";
 "ImportLoginsToBitwarden" = "Nhập thông tin đăng nhập vào Bitwarden";
-"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Trong giao diện điều hướng của Bitwarden, **tìm tùy chọn Công cụ ** và **chọn Nhập dữ liệu.**";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Trong giao diện điều hướng của Bitwarden, tìm tùy chọn **Công cụ** và chọn **Nhập dữ liệu.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Điền vào biểu mẫu và **nhập tệp mật khẩu đã lưu của bạn.**";
 "SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Chọn Nhập dữ liệu** trong bản web, sau đó nhấn **Xong** bên dưới để hoàn tất quá trình đồng bộ hóa.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "Để đảm bảo an toàn cho bạn, hãy chắc chắn rằng bạn đã **xóa tệp mật khẩu đã lưu của mình.**";
@@ -1211,3 +1209,12 @@
 "YouMustAttachAFileToSaveThisSend" = "Bạn phải đính kèm một tệp để lưu Send này";
 "SendUpdated" = "Đã cập nhật Send";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Chúng tôi không nhận diện được thiết bị này. Nhập mã được gửi đến email để xác minh danh tính của bạn.";
+"Created" = "Tạo lúc: %1$@";
+"LastEdited" = "Sửa đổi gần nhất: %1$@";
+"PasswordLastUpdated" = "Mật khẩu được cập nhật lần cuối: %1$@";
+"DecryptionError" = "Lỗi giải mã";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden không thể giải mã mục này trong kho. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden không thể giải mã 1 mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden không thể giải mã %1$@ mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
+"CopyErrorReport" = "Sao chép báo lỗi";
+"ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";

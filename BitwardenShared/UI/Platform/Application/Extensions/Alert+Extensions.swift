@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - Alert
 
@@ -200,7 +201,8 @@ extension Alert {
         completion: @MainActor @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: isSoftDelete ? Localizations.doYouReallyWantToSoftDeleteCipher
+            title: isSoftDelete
+                ? Localizations.doYouReallyWantToSoftDeleteCipher
                 : Localizations.doYouReallyWantToPermanentlyDeleteCipher,
             message: nil,
             alertActions: [

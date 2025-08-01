@@ -111,7 +111,7 @@
 "EditItem" = "Uredi element";
 "EnableAutomaticSyncing" = "Omogoči samodejno sinhronizacijo";
 "EnterEmailForHint" = "Vnesite e-naslov svojega računa in poslali vam bomo namig za glavno geslo.";
-"ReactivateAppExtension" = "Reactivate app extension";
+"ReactivateAppExtension" = "Ponovno omogoči razširitev aplikacije";
 "ExtensionAlmostDone" = "Skoraj končano!";
 "ExtensionEnable" = "Omogoči razširitev aplikacije";
 "ExtensionInSafari" = "V brskalnikih Safari in Chrome poiščite Bitwarden z uporabo ikone za skupno rabo (namig: pomaknite se na desno v zadnji vrstici menija za skupno rabo).";
@@ -188,7 +188,7 @@
 "TwoStepLogin" = "Prijava v dveh korakih";
 "UnlockWith" = "Odkleni z %1$@";
 "UnlockWithPIN" = "Odkleni s PIN kodo";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
+"UnlockWithUnknownBiometrics" = "Prijava z biometriko";
 "Validating" = "Preverjanje veljavnosti";
 "VerificationCode" = "Verifikacijska koda";
 "ViewItem" = "Prikaži element";
@@ -372,8 +372,6 @@
 "TryAgain" = "Poskusite znova";
 "YubiKeyInstructionIos" = "Za nadaljevanje držite YubiKey NEO ob hrbtni strani naprave.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
-"DatePasswordUpdated" = "Geslo je bilo posodobljeno";
-"DateUpdated" = "Posodobljeno";
 "AutofillActivated" = "Samodejno izpolnjevanje aktivirano!";
 "MustLogInMainAppAutofill" = "You must log into the main Bitwarden app before you can use AutoFill.";
 "AutofillSetup" = "Your logins are now easily accessible right from your keyboard while logging into apps and websites.";
@@ -431,7 +429,7 @@
 "YourAccountsFingerprint" = "Identifikacijsko geslo vašega računa";
 "LearnOrgConfirmation" = "Bitwaren vam omogoča souporabo vašega trezorja z drugimi s pomočjo računa organizacije. Želite obiskati spletno mesto bitwarden.dom za več informacij?";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
-"Export" = "Export";
+"Export" = "Izvozi";
 "ExportVault" = "Izvoz trezorja";
 "LockNow" = "Zakleni zdaj";
 "PIN" = "PIN";
@@ -581,7 +579,7 @@
 "RemovePassword" = "Odstrani geslo";
 "AreYouSureRemoveSendPassword" = "Ste prepričani, da želite odstraniti geslo?";
 "RemovingSendPassword" = "Odstranjevanje gesla";
-"SendPasswordRemoved" = "Password removed";
+"SendPasswordRemoved" = "Geslo odstranjeno";
 "NoSends" = "Vaš račun ne vsebuje pošiljk.";
 "CopyLink" = "Kopiraj povezavo";
 "ShareLink" = "Deli povezavo";
@@ -873,7 +871,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website.";
 "RateAppDescriptionLong" = "Help others find out if Bitwarden is right for them. Visit the app store and leave a rating now.";
 "DefaultDarkThemeDescriptionLong" = "Choose the dark theme to use when your device’s dark mode is in use";
-"CreatedXY" = "Created %1$@, %2$@";
+"CreatedX" = "Created %1$@";
 "TooManyAttempts" = "Too many attempts";
 "AccountLoggedOutBiometricExceeded" = "Account logged out.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
@@ -921,9 +919,9 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
-"FilePassword" = "File password";
-"ConfirmFilePassword" = "Confirm file password";
-"FilePasswordDescription" = "This password will be used to export and import this file";
+"FilePassword" = "Geslo datoteke";
+"ConfirmFilePassword" = "Potrdi geslo datoteke";
+"FilePasswordDescription" = "Pri izvozu in uvozu te datoteke bo potrebno vpisati geslo";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
 "WeSentAnEmailTo" = "We sent an email to %1$@";
@@ -939,10 +937,10 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
-"NewItem" = "New item";
+"NewItem" = "Nov element";
 "ExploreTheGenerator" = "Explore the generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
-"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
+"ExportVaultFilePwProtectInfo" = "Ta izvoz bo zaščiten z geslom; to geslo bo potrebno tudi pri uvozu.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
 "IntroCarouselPage2Title" = "Quick and easy login";
@@ -1070,7 +1068,7 @@
 "LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
-"GotIt" = "Got it";
+"GotIt" = "Razumem";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
@@ -1194,7 +1192,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
-"DeleteSend" = "Delete Send";
+"DeleteSend" = "Izbriši pošiljko";
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
@@ -1211,3 +1209,12 @@
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don't recognize this device. Enter the code sent to your email to verify your identity.";
+"Created" = "Created: %1$@";
+"LastEdited" = "Last edited: %1$@";
+"PasswordLastUpdated" = "Password last updated: %1$@";
+"DecryptionError" = "Decryption error";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
+"ErrorCannotDecrypt" = "[error: cannot decrypt]";

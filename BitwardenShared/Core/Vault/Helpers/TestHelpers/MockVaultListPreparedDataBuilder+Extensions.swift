@@ -8,23 +8,27 @@ extension MockVaultListPreparedDataBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
         let helper = MockCallOrderHelper()
 
-        addFavoriteItemCipherClosure = { _ -> VaultListPreparedDataBuilder in
+        addCipherDecryptionFailureClosure = { _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addCipherDecryptionFailure")
+            return self
+        }
+        addFavoriteItemClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addFavoriteItem")
             return self
         }
-        addFolderItemCipherFilterFoldersClosure = { _, _, _ -> VaultListPreparedDataBuilder in
+        addFolderItemClosure = { _, _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addFolderItem")
             return self
         }
-        addItemForGroupWithClosure = { _, _ -> VaultListPreparedDataBuilder in
+        addItemClosure = { _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addItemForGroup")
             return self
         }
-        addNoFolderItemCipherClosure = { _ -> VaultListPreparedDataBuilder in
+        addNoFolderItemClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addNoFolderItem")
             return self
         }
-        incrementCipherTypeCountCipherClosure = { _ -> VaultListPreparedDataBuilder in
+        incrementCipherTypeCountClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("incrementCipherTypeCount")
             return self
         }
@@ -32,23 +36,23 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("incrementCipherDeletedCount")
             return self
         }
-        incrementCollectionCountCipherClosure = { _ -> VaultListPreparedDataBuilder in
+        incrementCollectionCountClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("incrementCollectionCount")
             return self
         }
-        incrementTOTPCountCipherClosure = { _ async -> VaultListPreparedDataBuilder in
+        incrementTOTPCountClosure = { _ async -> VaultListPreparedDataBuilder in
             helper.recordCall("incrementTOTPCount")
             return self
         }
-        prepareCollectionsCollectionsFilterTypeClosure = { _, _ -> VaultListPreparedDataBuilder in
+        prepareCollectionsClosure = { _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("prepareCollections")
             return self
         }
-        prepareFoldersFoldersFilterTypeClosure = { _, _ -> VaultListPreparedDataBuilder in
+        prepareFoldersClosure = { _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("prepareFolders")
             return self
         }
-        prepareRestrictItemsPolicyOrganizationsRestrictedOrganizationIdsClosure = { _ -> VaultListPreparedDataBuilder in
+        prepareRestrictItemsPolicyOrganizationsClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("prepareRestrictItemsPolicyOrganizations")
             return self
         }
@@ -57,16 +61,17 @@ extension MockVaultListPreparedDataBuilder {
     }
 
     func setUpFluentReturn() {
-        addFavoriteItemCipherReturnValue = self
-        addFolderItemCipherFilterFoldersReturnValue = self
-        addItemForGroupWithReturnValue = self
-        addNoFolderItemCipherReturnValue = self
-        incrementCipherTypeCountCipherReturnValue = self
+        addCipherDecryptionFailureReturnValue = self
+        addFavoriteItemReturnValue = self
+        addFolderItemReturnValue = self
+        addItemReturnValue = self
+        addNoFolderItemReturnValue = self
+        incrementCipherTypeCountReturnValue = self
         incrementCipherDeletedCountReturnValue = self
-        incrementCollectionCountCipherReturnValue = self
-        incrementTOTPCountCipherReturnValue = self
-        prepareCollectionsCollectionsFilterTypeReturnValue = self
-        prepareFoldersFoldersFilterTypeReturnValue = self
-        prepareRestrictItemsPolicyOrganizationsRestrictedOrganizationIdsReturnValue = self
+        incrementCollectionCountReturnValue = self
+        incrementTOTPCountReturnValue = self
+        prepareCollectionsReturnValue = self
+        prepareFoldersReturnValue = self
+        prepareRestrictItemsPolicyOrganizationsReturnValue = self
     }
 }

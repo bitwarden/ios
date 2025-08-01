@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -104,10 +105,18 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.vaultItemTapped(item))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherId: "1") { _ in })
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
 
-        try await alert.tapAction(title: Localizations.copy)
-        XCTAssertEqual(pasteboardService.copiedString, "1")
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
@@ -205,7 +214,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -265,7 +274,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)

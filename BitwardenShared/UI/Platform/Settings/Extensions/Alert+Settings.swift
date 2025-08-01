@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - Alert + Settings
 
 extension Alert {
@@ -47,9 +49,9 @@ extension Alert {
     ///
     static func confirmDeleteLog(isBulkDeletion: Bool, action: @MainActor @escaping () async -> Void) -> Alert {
         Alert(
-            title: isBulkDeletion ?
-                Localizations.doYouReallyWantToDeleteAllRecordedLogs :
-                Localizations.doYouReallyWantToDeleteThisLog,
+            title: isBulkDeletion
+                ? Localizations.doYouReallyWantToDeleteAllRecordedLogs
+                : Localizations.doYouReallyWantToDeleteThisLog,
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },

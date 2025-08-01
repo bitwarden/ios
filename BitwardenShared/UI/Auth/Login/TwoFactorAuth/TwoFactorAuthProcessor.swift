@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenResources
 import CryptoKit
 import Foundation
 

@@ -24,7 +24,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: ad0761937f454e2785c50a9b8dc9be12f26af830
+    revision: 30923db8cfe7e6dcad987fd7b13a437f040830af
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -164,7 +164,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
-      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
+      - path: BitwardenResources/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -203,12 +203,6 @@ targets:
       - path: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
-      - path: Scripts/upload_dsym_to_crashlytics.sh
-        name: "Upload dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
   BitwardenTests:
     type: bundle.unit-test
     platform: iOS
@@ -371,8 +365,6 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: BitwardenWatchShared
       - path: BitwardenShared/Sourcery/sourcery.yml
         buildPhase: none
@@ -393,7 +385,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Sourcery
         script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
@@ -454,13 +445,6 @@ targets:
       - target: BitwardenWatchWidgetExtension
       - package: Firebase
         product: FirebaseCrashlytics
-    postBuildScripts:
-      - path: Scripts/upload_watch_dsym_to_crashlytics.sh
-        name: "Upload watch dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
 
   BitwardenWatchWidgetExtension:
     type: app-extension

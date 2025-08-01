@@ -26,7 +26,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
-        sdkRepositoryFactory.makeCipherRepositoryUserIdReturnValue = MockSdkCipherRepository()
+        sdkRepositoryFactory.makeCipherRepositoryReturnValue = MockSdkCipherRepository()
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -227,7 +227,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let auth = try await subject.auth()
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertIdentical(auth, client.authClient)
-        XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoryUserIdCalled)
+        XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoryCalled)
         XCTAssertNotNil(client.platformClient.stateMock.registerCipherRepositoryReceivedStore)
     }
 

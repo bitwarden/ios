@@ -159,4 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potrzebujesz pomocy? Odwiedź nasze Centrum Pomocy po porady.";
 "UnexpectedDataFormat" = "Nieoczekiwany format danych";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Podany format danych nie pasuje do oczekiwanych. Sprawdź swój plik i upewnij się, że użyto poprawnych typów danych.";
-"LearnMoreLink" = "[Learn more](%1$@)";
+"LearnMoreLink" = "[Dowiedz się więcej](%1$@)";

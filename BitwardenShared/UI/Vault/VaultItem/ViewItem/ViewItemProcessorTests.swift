@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -174,7 +175,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
 
@@ -408,25 +408,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` loads feature flag value for .restrictCipherItemDeletion.
-    @MainActor
-    func test_perform_appeared_restrictItemDeletion() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        configService.featureFlagsBool = [
-            .restrictCipherItemDeletion: true,
-        ]
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `perform` with `.checkPasswordPressed` records any errors.

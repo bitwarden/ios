@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 import XCTest
@@ -152,8 +153,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 restore: true
             )
         )
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.restrictCipherItemDeletionFlagEnabled = true
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeDeleted)
     }
 
@@ -166,7 +166,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             permissions: nil
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.restrictCipherItemDeletionFlagEnabled = true
         XCTAssertFalse(state.canBeRestored)
 
         cipher = CipherView.loginFixture(
@@ -190,8 +189,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 restore: true
             )
         )
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.restrictCipherItemDeletionFlagEnabled = true
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeRestored)
     }
 
@@ -206,8 +204,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 restore: false
             )
         )
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.restrictCipherItemDeletionFlagEnabled = true
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
     }
 
@@ -244,22 +241,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         state.ownershipOptions = []
 
         XCTAssertFalse(state.hasOrganizations)
-    }
-
-    /// `restrictCipherItemDeletionFlagEnable` default value is false
-    func test_restrictCipherItemDeletionFlagValue() throws {
-        let cipher = CipherView.loginFixture(
-            login: .fixture(),
-            permissions: CipherPermissions(
-                delete: false,
-                restore: true
-            )
-        )
-
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertFalse(state.restrictCipherItemDeletionFlagEnabled)
-        state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertTrue(state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `getter:icon` returns the icon for a card cipher with a known brand.
@@ -400,4 +381,4 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         state.isLearnNewLoginActionCardEligible = false
         XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
     }
-} // swiftlint:disable:this file_length
+}

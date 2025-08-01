@@ -372,8 +372,6 @@
 "TryAgain" = "Pokušaj ponovno";
 "YubiKeyInstructionIos" = "Za nastavak, približi YubiKey NEO stražnjoj strani uređaja.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Usluga pristupačnosti može biti korisna kada aplikacije ne podržavaju standardnu uslugu automatskog popunjavanja.";
-"DatePasswordUpdated" = "Lozinka ažurirana";
-"DateUpdated" = "Ažurirano";
 "AutofillActivated" = "Automatsko popunjavanje uključeno!";
 "MustLogInMainAppAutofill" = "Prije korištenja automatskog popunjavanja, moraš se prijaviti u glavnu Bitwarden aplikaciju. ";
 "AutofillSetup" = "Tvojim prijavama sada je lako pristupiti izravno s tipkovnice prilikom prijava u aplikacijama i na web stranicama.";
@@ -874,7 +872,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden omogućuje dijeljenje trezora s drugima pomoću organizacijskog računa. Za više informacija posjeti bitwarden.com.";
 "RateAppDescriptionLong" = "Želiš preporučiti Bitwarden drugima? Posjeti app store i ostavi recenziju.";
 "DefaultDarkThemeDescriptionLong" = "Odaberi tamnu temu kada se tvoj uređaj nalazi u tamnom načinu rada";
-"CreatedXY" = "Stvoreno %1$@, %2$@";
+"CreatedX" = "Stvoreno %1$@";
 "TooManyAttempts" = "Previše pokušaja";
 "AccountLoggedOutBiometricExceeded" = "Račun odjavljen.";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Moraš postaviti glavnu lozinku jer su dopuštenja tvoje organizacije ažurirana.";
@@ -1212,3 +1210,12 @@
 "YouMustAttachAFileToSaveThisSend" = "Moraš staviti datoteku u privitak za spremanje ovog Senda";
 "SendUpdated" = "Send ažuriran";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom.";
+"Created" = "Stvoreno: %1$@";
+"LastEdited" = "Zadnje uređeno: %1$@";
+"PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
+"DecryptionError" = "Pogreška pri dešifriranju";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"CopyErrorReport" = "Copy error report";
+"ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";

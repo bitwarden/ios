@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -137,50 +138,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
-    }
-
-    /// `perform(.appeared)` with feature flag for .emailVerification set to true
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_true() async throws {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-        subject.state.emailVerificationFeatureFlag = false
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        defer { task.cancel() }
-        await task.value
-
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag for .emailVerification set to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        subject.state.emailVerificationFeatureFlag = true
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag defaulting to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = nil
-        subject.state.emailVerificationFeatureFlag = true
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
@@ -445,18 +402,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isRememberMeOn)
     }
 
-    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `false`.
+    /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen.
     @MainActor
-    func test_receive_createAccountPressed_ff_false() {
-        subject.state.emailVerificationFeatureFlag = false
-        subject.receive(.createAccountPressed)
-        XCTAssertEqual(coordinator.routes.last, .createAccount)
-    }
-
-    /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen if feature flag is `true`.
-    @MainActor
-    func test_receive_createAccountPressed_ff_true() {
-        subject.state.emailVerificationFeatureFlag = true
+    func test_receive_createAccountPressed() {
         subject.receive(.createAccountPressed)
         XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }
@@ -886,20 +834,5 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
-    }
-
-    /// `switchToLegacyCreateAccountFlow()` dismisses the currently presented view and navigates to
-    /// create account.
-    @MainActor
-    func test_switchToLegacyCreateAccountFlow() throws {
-        subject.switchToLegacyCreateAccountFlow()
-
-        let dismissRoute = try XCTUnwrap(coordinator.routes.last)
-        guard case let .dismissWithAction(action) = dismissRoute else {
-            return XCTFail("Expected route `.dismissWithAction` not found.")
-        }
-        action?.action()
-
-        XCTAssertEqual(coordinator.routes, [.dismissWithAction(action), .createAccount])
     }
 } // swiftlint:disable:this file_length

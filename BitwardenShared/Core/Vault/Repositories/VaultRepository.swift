@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -233,7 +234,7 @@ public protocol VaultRepository: AnyObject {
         group: VaultListGroup?,
         rpID: String?,
         uri: String?
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 
     /// Determine if a full sync is necessary.
     ///
@@ -264,7 +265,7 @@ public protocol VaultRepository: AnyObject {
         group: VaultListGroup?,
         rpID: String?,
         searchText: String
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 
     /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
     ///
@@ -289,7 +290,7 @@ public protocol VaultRepository: AnyObject {
     ///
     func vaultListPublisher(
         filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 }
 
 extension VaultRepository {
@@ -1339,7 +1340,7 @@ extension DefaultVaultRepository: VaultRepository {
         group: VaultListGroup? = nil,
         rpID: String?,
         uri: String?
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         return switch mode {
         case .all:
             try await vaultListPublisher(
@@ -1390,7 +1391,7 @@ extension DefaultVaultRepository: VaultRepository {
         group: VaultListGroup? = nil,
         rpID: String?,
         searchText: String
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await Publishers.CombineLatest(
             searchPublisher(
                 searchText: searchText,
@@ -1442,7 +1443,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func vaultListPublisher(
         filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await vaultListDirectorStrategyFactory
             .make(filter: filter)
             .build(filter: filter)
@@ -1466,19 +1467,19 @@ extension DefaultVaultRepository: VaultRepository {
         mode: AutofillListMode,
         rpID: String?,
         searchText: String?
-    ) async throws -> [VaultListSection] {
+    ) async throws -> VaultListData {
         switch mode {
         case .all:
             guard !ciphers.isEmpty else {
-                return []
+                return VaultListData()
             }
-            return [
+            return VaultListData(sections: [
                 VaultListSection(
                     id: "SearchResults",
                     items: ciphers.compactMap { .init(cipherListView: $0) },
                     name: ""
                 ),
-            ]
+            ])
         case .combinedMultipleSections, .passwords:
             var sections = [VaultListSection]()
             if #available(iOSApplicationExtension 17.0, *),
@@ -1491,7 +1492,7 @@ extension DefaultVaultRepository: VaultRepository {
                ) {
                 sections.append(fido2Section)
             } else if ciphers.isEmpty {
-                return []
+                return VaultListData()
             }
 
             let sectionName = getAutofillPasswordsSectionName(
@@ -1507,27 +1508,27 @@ extension DefaultVaultRepository: VaultRepository {
                     name: sectionName
                 )
             )
-            return sections
+            return VaultListData(sections: sections)
         case .combinedSingleSection:
             guard !ciphers.isEmpty else {
-                return []
+                return VaultListData()
             }
 
             let section = try await createAutofillListCombinedSingleSection(from: ciphers)
-            return [section]
+            return VaultListData(sections: [section])
         case .totp:
             let totpVaultListItems = try await totpListItems(from: ciphers, filter: .allVaults)
             guard !totpVaultListItems.isEmpty else {
-                return []
+                return VaultListData()
             }
 
-            return [
+            return VaultListData(sections: [
                 VaultListSection(
                     id: "",
                     items: totpVaultListItems,
                     name: ""
                 ),
-            ]
+            ])
         }
     }
 
@@ -1681,7 +1682,7 @@ extension DefaultVaultRepository: VaultRepository {
     /// Gets a publisher with Totp cipher items in a single section.
     /// - Returns: The publisher with the vault list section with the totp items.
     private func totpCiphersAutofillPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
                 let filteredCiphers = ciphers.filter { cipher in
@@ -1692,15 +1693,15 @@ extension DefaultVaultRepository: VaultRepository {
             .asyncTryMap { cipherViews in
                 let totpVaultListItems = try await self.totpListItems(from: cipherViews, filter: nil)
                 guard !totpVaultListItems.isEmpty else {
-                    return []
+                    return VaultListData()
                 }
-                return [
+                return VaultListData(sections: [
                     VaultListSection(
                         id: "",
                         items: totpVaultListItems,
                         name: ""
                     ),
-                ]
+                ])
             }
             .eraseToAnyPublisher()
             .values

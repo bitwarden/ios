@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -44,9 +45,6 @@ struct ViewItemState: Equatable, Sendable {
     /// The password history of the item.
     var passwordHistory: [PasswordHistoryView]?
 
-    /// A flag indicating if cipher permissions should be used.
-    var restrictCipherItemDeletionFlagEnabled = false
-
     /// A toast message to show in the view.
     var toast: Toast?
 }
@@ -64,18 +62,15 @@ extension ViewItemState {
     init?(
         cipherView: CipherView,
         hasPremium: Bool,
-        iconBaseURL: URL?,
-        restrictCipherItemDeletionFlagEnabled: Bool
+        iconBaseURL: URL?
     ) {
         guard var cipherItemState = CipherItemState(
             existing: cipherView,
             hasPremium: hasPremium,
             iconBaseURL: iconBaseURL
         ) else { return nil }
-        cipherItemState.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled
         self.init(loadingState: .data(cipherItemState))
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory
-        self.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled
     }
 }
