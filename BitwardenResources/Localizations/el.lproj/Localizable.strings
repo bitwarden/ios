@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Ο κύριος κωδικός πρόσβασης είναι ο κωδικός πρόσβασης που χρησιμοποιείτε για να αποκτήσετε πρόσβαση στο θησαυροφυλάκιο σας.";
 "MasterPasswordHint" = "Υπόδειξη κύριου κωδικού πρόσβασης";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Η υπόδειξη κύριου κωδικού μπορεί να σας βοηθήσει να θυμηθείτε τον κωδικό σας αν τον ξεχάσετε.";
 "MasterPasswordLengthValMessageX" = "Ο κύριος κωδικός πρέπει να έχει μήκος τουλάχιστον %1$@ χαρακτήρες.";
 "MinNumbers" = "Ελάχιστα αριθμητικά ψηφία";
 "MinSpecial" = "Ελάχιστοι ειδικοί χαρακτήρες";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Αξιολογήστε την εφαρμογή";
 "RateTheAppDescription" = "Παρακαλούμε σκεφτείτε να μας βοηθήσετε με μια καλή κριτική!";
 "RegeneratePassword" = "Επαναδημιουργία κωδικού";
-"RetypeMasterPassword" = "Εισάγετε ξανά τον κύριο κωδικό";
 "SearchVault" = "Αναζήτηση κρύπτης";
 "Security" = "Ασφάλεια";
 "Select" = "Επιλογή";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Μη έγκυρος κωδικός πρόσβασης";
 "MasterPasswordPolicyValidationMessage" = "Ο κωδικός πρόσβασης δεν πληροί τις απαιτήσεις του οργανισμού. Ελέγξτε τις πληροφορίες πολιτικής και δοκιμάστε ξανά.";
 "Loading" = "Φόρτωση";
-"AcceptPolicies" = "Ενεργοποιώντας αυτόν τον διακόπτη συμφωνείτε με τα εξής:";
 "AcceptPoliciesError" = "Οι Όροι Παροχής Υπηρεσιών και η Πολιτική Απορρήτου δεν έχουν αναγνωριστεί.";
-"TermsOfService" = "Όροι Χρήσης";
 "PrivacyPolicy" = "Πολιτική Απορρήτου";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Διαχείριση κλειδιού πρόσβασης";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Η αλλαγή γλώσσας απαιτεί επανεκκίνηση της εφαρμογής";
 "DefaultSystem" = "Προεπιλογή (σύστημα)";
 "Important" = "Σημαντικό";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ο κύριος κωδικός δεν μπορεί να ανακτηθεί αν τον ξεχάσετε! Απαιτούνται τουλάχιστον %1$@ χαρακτήρες.";
 "WeakMasterPassword" = "Αδύναμος Κύριος Κωδικός";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Αδύναμος κωδικός. Χρησιμοποιήστε έναν ισχυρό κωδικό για την προστασία του λογαριασμού σας. Είστε βέβαιοι ότι θέλετε να χρησιμοποιήσετε έναν αδύναμο κωδικό πρόσβασης;";
 "Weak" = "Αδύναμος";

@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "הסיסמה הראשית שלך היא הסיסמה בה אתה משתמש כדי לגשת לכספת שלך.";
 "MasterPasswordHint" = "רמז לסיסמה הראשית";
 "NewMasterPasswordHint" = "רמז לסיסמה ראשית חדש";
-"MasterPasswordHintDescription" = "רמז לסיסמה הראשית יכול לעזור במקרה ושכחת את הסיסמה.";
 "MasterPasswordLengthValMessageX" = "אורך הסיסמה הראשית חייב להיות לפחות %1$@ תווים.";
 "MinNumbers" = "מינימום מספרים";
 "MinSpecial" = "מינימום מיוחדים";
@@ -171,7 +170,6 @@
 "RateTheApp" = "דרג את האפליקציה";
 "RateTheAppDescription" = "אם נהנית מהתוכנה, בבקשה דרג את התוכנה וכתוב דירוג עם חוות דעת טובה!";
 "RegeneratePassword" = "צור סיסמה מחדש";
-"RetypeMasterPassword" = "הקלד שוב סיסמה ראשית";
 "SearchVault" = "חיפוש בכספת";
 "Security" = "אבטחה";
 "Select" = "בחר";
@@ -534,9 +532,7 @@
 "MasterPasswordPolicyValidationTitle" = "סיסמה לא חוקית";
 "MasterPasswordPolicyValidationMessage" = "הסיסמה אינה עומדת בדרישות הארגון. אנא בדוק את פרטי מדיניות הסיסמאות ונסה שנית.";
 "Loading" = "טוען";
-"AcceptPolicies" = "על ידי הפעלת מתג זה אתה מסכים לתנאים הבאים:";
 "AcceptPoliciesError" = "לא הסכמת לתנאי השירות ומדיניות הפרטיות.";
-"TermsOfService" = "תנאי שימוש";
 "PrivacyPolicy" = "מדיניות הפרטיות";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden צריך תשומת לב - הפעל את \"הצג־מעל\" ב\"שירותי מילוי אוטומטי\" מהגדרות Bitwarden";
 "PasskeyManagement" = "ניהול Passkey";
@@ -765,7 +761,6 @@
 "LanguageChangeRequiresAppRestart" = "שינוי שפה דורש הפעלה מחדש של היישום";
 "DefaultSystem" = "ברירת מחדל (מערכת)";
 "Important" = "חשוב";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "הסיסמה הראשית שלך לא ניתנת לשחזור אם אתה שוכח אותה! מינימום %1$@ תווים.";
 "WeakMasterPassword" = "סיסמה ראשית חלשה";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "סיסמה חלשה זוהתה. השתמש בסיסמה חזקה כדי להגן על חשבונך. האם אתה בטוח שאתה רוצה להשתמש בסיסמה חלשה?";
 "Weak" = "חלשה";

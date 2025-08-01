@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Pääsalasana on se salasana, jolla pääset holviisi.";
 "MasterPasswordHint" = "Pääsalasanan vihje";
 "NewMasterPasswordHint" = "Uusi pääsalasanan vihje";
-"MasterPasswordHintDescription" = "Pääsalasanan vihje voi auttaa sinua muistamaan unohtamasi salasanan.";
 "MasterPasswordLengthValMessageX" = "Pääsalasanan tulee sisältää vähintään %1$@ merkkiä.";
 "MinNumbers" = "Numeroita vähintään";
 "MinSpecial" = "Erikoismerkkejä vähintään";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Arvioi sovellus";
 "RateTheAppDescription" = "Harkitse tukemistamme hyvällä arvostelulla!";
 "RegeneratePassword" = "Luo uusi salasana";
-"RetypeMasterPassword" = "Syötä pääsalasana uudelleen";
 "SearchVault" = "Etsi holvista";
 "Security" = "Suojaus";
 "Select" = "Valitse";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Virheellinen salasana";
 "MasterPasswordPolicyValidationMessage" = "Salasana ei vastaa organisaation vaatimuksia. Tarkasta organisaatiosi ohjeistus ja yritä uudelleen.";
 "Loading" = "Ladataan";
-"AcceptPolicies" = "Valitsemalla tämän hyväksyt seuraavat:";
 "AcceptPoliciesError" = "Palveluehtoja ja tietosuojakäytäntöä ei ole vahvistettu.";
-"TermsOfService" = "Palveluehdot";
 "PrivacyPolicy" = "Tietosuojakäytäntö";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Pääsyavainhallinta";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Kielen vaihto vaatii sovelluksen uudelleenkäynnistyksen.";
 "DefaultSystem" = "Oletus (järjestelmä)";
 "Important" = "Tärkeää";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Pääsalasanaasi ei ole mahdollista palauttaa, jos unohdat sen! Vähintään %1$@ merkkiä.";
 "WeakMasterPassword" = "Heikko pääsalasana";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Havaittiin heikko salasana. Suojaa tilisi vahvalla salasanalla. Haluatko varmasti käyttää heikkoa salasanaa?";
 "Weak" = "Heikko";

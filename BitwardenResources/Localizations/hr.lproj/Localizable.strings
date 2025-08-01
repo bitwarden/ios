@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Glavnu lozinku koristiš za pristup svom trezoru.";
 "MasterPasswordHint" = "Podsjetnik glavne lozinke";
 "NewMasterPasswordHint" = "Novi podsjetnik glavne lozinke";
-"MasterPasswordHintDescription" = "Podsjetnik glavne lozinke ti može pomoći da se prisjetiš svoje lozinke ako ju zaboraviš.";
 "MasterPasswordLengthValMessageX" = "Glavna lozinka mora imati najmanje %1$@ znakova.";
 "MinNumbers" = "Najmanje brojeva";
 "MinSpecial" = "Najmanje posebnih";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Ocijeni aplikaciju";
 "RateTheAppDescription" = "Razmotri da nam pomogneš dobrom recenzijom!";
 "RegeneratePassword" = "Ponovno generiraj lozinku";
-"RetypeMasterPassword" = "Ponovno upiši glavnu lozinku";
 "SearchVault" = "Pretraživanje trezora";
 "Security" = "Sigurnost";
 "Select" = "Odaberi";
@@ -534,9 +532,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neispravna lozinka";
 "MasterPasswordPolicyValidationMessage" = "Lozinka ne zadovoljava organizacijska pravila. Provjeri informacije o pravilima organizacije i pojušaj ponovno.";
 "Loading" = "Učitavanje";
-"AcceptPolicies" = "Aktiviranjem prekidača, slažeš se sa sljedećim:";
 "AcceptPoliciesError" = "Uvjeti korištenja i Pravila privatnosti nisu prihvaćeni.";
-"TermsOfService" = "Uvjeti korištenja";
 "PrivacyPolicy" = "Pravila privatnosti";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden zahtijeva radnju - Bitwarden Postavke -> „Auto-ispuna” uključi „Koristi preklapanje”";
 "PasskeyManagement" = "Upravljanje pristupnim ključevima";
@@ -764,7 +760,6 @@
 "LanguageChangeRequiresAppRestart" = "Promjena jezika zahtijeva ponovno pokretanje aplikacije";
 "DefaultSystem" = "Zadano (sustav)";
 "Important" = "Važno";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Glavnu lozinku nije moguće vratiti ako ju zaboraviš! Najmanje %1$@ znakova.";
 "WeakMasterPassword" = "Slaba glavna lozinka";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Prepoznata je slaba lozinka. Za zaštitu računa, preporučuje se da koristiš jake lozinke. Želiš li svejedno koristiti slabu lozinku?";
 "Weak" = "Slaba";
@@ -1214,10 +1209,10 @@
 "LastEdited" = "Zadnje uređeno: %1$@";
 "PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
 "DecryptionError" = "Pogreška pri dešifriranju";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati ovu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati jednu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nije mogao dešifrirati ovoliko stavki trezora: %1$@. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
+"CopyErrorReport" = "Kopiraj izvješće o pogrešci";
 "ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";
 "AccountName" = "Naziv računa";
 "AccountsSyncedFromBitwardenApp" = "Računi sinkronizirani iz Bitwarden aplikacije";

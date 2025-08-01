@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavné heslo je heslo, ktoré používate na prístup do svojho trezora.";
 "MasterPasswordHint" = "Nápoveď k hlavnému heslu";
 "NewMasterPasswordHint" = "Nová nápoveď pre hlavné heslo";
-"MasterPasswordHintDescription" = "Nápoveď k hlavnému heslu vám môže pomôcť spomenúť si na heslo, ak ho zabudnete.";
 "MasterPasswordLengthValMessageX" = "Hlavné heslo musí obsahovať aspoň %1$@ znakov.";
 "MinNumbers" = "Minimum číslic";
 "MinSpecial" = "Minimum špeciálnych";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Ohodnotiť aplikáciu";
 "RateTheAppDescription" = "Prosíme, zvážte napísanie pozitívnej recenzie!";
 "RegeneratePassword" = "Vygenerovať nové heslo";
-"RetypeMasterPassword" = "Znovu zadajte hlavné heslo";
 "SearchVault" = "Prehľadávať trezor";
 "Security" = "Zabezpečenie";
 "Select" = "Vybrať";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Nesprávne heslo";
 "MasterPasswordPolicyValidationMessage" = "Vaše nové hlavné heslo nespĺňa pravidlá spoločnosti. Prosím pozrite si informácie o pravidlách a skúste to znova.";
 "Loading" = "Načíta sa";
-"AcceptPolicies" = "Zapnutím tohto spínača súhlasíte s nasledovným:";
 "AcceptPoliciesError" = "Neboli akceptované Podmienky používania a zásady Ochrany osobných údajov.";
-"TermsOfService" = "Podmienky používania";
 "PrivacyPolicy" = "Zásady ochrany osobných údajov";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden vyžaduje vašu pozornosť - z nastavení aplikácie Bitwarden povoľte \"Zobrazenie cez iné aplikácie\" v \"Služba automatického vypĺňania\"";
 "PasskeyManagement" = "Správa prístupových kľúčov";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Zmena jazyka si vyžaduje reštart aplikácie";
 "DefaultSystem" = "Predvolený (Systémový)";
 "Important" = "Dôležité";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Vaše hlavné heslo sa nedá obnoviť, ak ho zabudnete! Minimálne %1$@ znakov.";
 "WeakMasterPassword" = "Slabé hlavné heslo";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Nájdené slabé heslo. Používajte silné heslo na ochranu svojho účtu. Naozaj chcete použiť slabé heslo?";
 "Weak" = "Slabé";

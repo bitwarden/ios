@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "உங்கள் கடவுச்சொல்லை மறந்துவிட்டால் அதை நினைவுபடுத்த பிரதான கடவுச்சொல் குறிப்பு உதவும்.";
 "MasterPasswordLengthValMessageX" = "பிரதான கடவுச்சொல் குறைந்தது %1$@ வரியுருக்கள் இருக்க வேண்டும்.";
 "MinNumbers" = "குறைந்தபட்ச எண்கள்";
 "MinSpecial" = "குறைந்தபட்ச சிறப்பு";
@@ -171,7 +170,6 @@
 "RateTheApp" = "செயலியை மதிப்பிடுக";
 "RateTheAppDescription" = "ஒரு நல்ல விமர்சனம் மூலம் எங்களுக்கு உதவ தயவுசெய்து கருதுங்கள்!";
 "RegeneratePassword" = "கடவுச்சொல்லை மீண்டுமுருவாக்கு";
-"RetypeMasterPassword" = "பிரதான கடவுச்சொல்லை மீண்டும் தட்டு";
 "SearchVault" = "பெட்டகத்தைத் தேடுக";
 "Security" = "பாதுகாப்பு";
 "Select" = "தேர்ந்தெடு";
@@ -534,9 +532,7 @@
 "MasterPasswordPolicyValidationTitle" = "செல்லாத கடவுச்சொல்";
 "MasterPasswordPolicyValidationMessage" = "கடவுச்சொல் நிறுவன தேவைகளை சந்திக்கவில்லை. கொள்கை தகவலை சரிபார்த்து மீண்டும் முயலவும்.";
 "Loading" = "ஏற்றுகிறது";
-"AcceptPolicies" = "இந்த நிலைமாற்றியை செயல்படுத்துவதன் மூலம் பின்வருவதை ஒப்புக்கொள்கிறீர்கள்:";
 "AcceptPoliciesError" = "சேவை விதிமுறைகளும் தனியுரிமைக் கொள்கையும்  ஒப்புக்கொள்ளப்படவில்லை.";
-"TermsOfService" = "சேவை விதிமுறைகள்";
 "PrivacyPolicy" = "தனியுரிமை கொள்கை";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "கடவுவிசை நிர்வகிப்பு";
@@ -764,7 +760,6 @@
 "LanguageChangeRequiresAppRestart" = "மொழிமாற்றத்திற்கு செயலி மறுதுவக்கப்பட வேண்டும்";
 "DefaultSystem" = "இயல்புநிலை (முறைமை)";
 "Important" = "முக்கியம்";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "மறந்துபோனால் பிரதான கடவுச்சொல்லை மீட்டெடுக்க முடியாது! குறைந்தபட்சம் %1$@ வரியுருக்கள்.";
 "WeakMasterPassword" = "வலுவற்ற பிரதான கடவுச்சொல்";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "வலுவற்ற";
