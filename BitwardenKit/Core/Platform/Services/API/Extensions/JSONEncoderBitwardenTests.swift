@@ -12,17 +12,17 @@ class JSONEncoderBitwardenTests: BitwardenTestCase {
         subject.outputFormatting = .sortedKeys // added for test consistency so output is ordered.
 
         struct JSONBody: Codable {
-            let credentialID: String
+            let credentialId: String
             let date: Date
             let otherKey: String
-            let rpID: String
+            let rpId: String
         }
 
         let body = JSONBody(
-            credentialID: "credential",
+            credentialId: "credential",
             date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
             otherKey: "other",
-            rpID: "rp"
+            rpId: "rp"
         )
         let encodedData = try subject.encode(body)
         let encodedString = String(data: encodedData, encoding: .utf8)
