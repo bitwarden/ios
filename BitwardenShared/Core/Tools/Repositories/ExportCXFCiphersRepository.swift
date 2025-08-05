@@ -100,12 +100,18 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     ) async throws {
         let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
 
-        let options = try await manager.requestExport(for: nil)
+        let options = try await manager.requestExport(forExtensionBundleIdentifier: nil)
+        guard let exportOptions = options as? ASCredentialExportManager.ExportOptions else {
+            throw BitwardenError.generalError(
+                type: "Wrong export options",
+                message: "The credential manager returned wrong export options type."
+            )
+        }
 
         try await manager.exportCredentials(
             ASExportedCredentialData(
                 accounts: [data],
-                formatVersion: options.formatVersion,
+                formatVersion: exportOptions.formatVersion,
                 exporterRelyingPartyIdentifier: Bundle.main.appIdentifier,
                 exporterDisplayName: "Bitwarden",
                 timestamp: Date.now

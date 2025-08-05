@@ -25,6 +25,15 @@ struct DefaultCredentialManagerFactory: CredentialManagerFactory {
     }
 }
 
+// MARK: - CredentialExportManagerExportOptions
+
+protocol CredentialExportManagerExportOptions {}
+
+// MARK: - ASCredentialExportManager.ExportOptions
+
+@available(iOS 26.0, *)
+extension ASCredentialExportManager.ExportOptions: CredentialExportManagerExportOptions {}
+
 // MARK: - CredentialExportManager
 
 protocol CredentialExportManager: AnyObject {
@@ -32,7 +41,7 @@ protocol CredentialExportManager: AnyObject {
     func exportCredentials(_ credentialData: ASExportedCredentialData) async throws
 
     @available(iOS 26.0, *)
-    func requestExport(for extensionBundleIdentifier: String?) async throws -> ASCredentialExportManager.ExportOptions
+    func requestExport(forExtensionBundleIdentifier: String?) async throws -> CredentialExportManagerExportOptions
 }
 
 // MARK: - CredentialImportManager
@@ -50,7 +59,11 @@ protocol CredentialImportManager: AnyObject {
 #if SUPPORTS_CXP
 
 @available(iOS 26.0, *)
-extension ASCredentialExportManager: CredentialExportManager {}
+extension ASCredentialExportManager: CredentialExportManager {
+    func requestExport(forExtensionBundleIdentifier: String?) async throws -> any CredentialExportManagerExportOptions {
+        try await requestExport(for: forExtensionBundleIdentifier)
+    }
+}
 
 @available(iOS 26.0, *)
 extension ASCredentialImportManager: CredentialImportManager {}
@@ -64,14 +77,14 @@ class ASCredentialImportManager: CredentialImportManager {
 }
 
 class ASCredentialExportManager: CredentialExportManager {
-    struct ExportOptions {}
+    struct ExportOptions: CredentialExportManagerExportOptions {}
 
     init(presentationAnchor: ASPresentationAnchor) {}
 
     func exportCredentials(_ credentialData: ASExportedCredentialData) async throws {}
 
     @available(iOS 26.0, *)
-    func requestExport(for extensionBundleIdentifier: String?) async throws -> ASCredentialExportManager.ExportOptions {
+    func requestExport(forExtensionBundleIdentifier: String?) async throws -> CredentialExportManagerExportOptions {
         ASCredentialExportManager.ExportOptions()
     }
 }

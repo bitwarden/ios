@@ -66,7 +66,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
 
     /// Checks whether the CXF import feature is enabled.
     private func checkEnabled() async {
-        guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
+        guard #available(iOS 26.0, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
             state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
             return
         }

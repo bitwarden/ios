@@ -182,7 +182,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     #endif
 }
 
-// MARK: - SceneDelegate 18.2
+// MARK: - SceneDelegate 26.0
 
 #if SUPPORTS_CXP
 
