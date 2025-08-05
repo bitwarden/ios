@@ -8,8 +8,8 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
 
     /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format.
     func test_cxfDecoder_decodesISO8601DateWithFractionalSeconds() throws {
-        guard #available(iOS 18.3, *) else {
-            throw XCTSkip("This test only works from iOS 18.3")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test only works from iOS 26.0")
         }
 
         let subject = JSONDecoder.cxfDecoder
@@ -36,10 +36,10 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         )
     }
 
-    /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format on iOS versions lower than iOS 18.3.
+    /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format on iOS versions lower than iOS 26.0.
     func test_cxfDecoder_decodesISO8601DateWithFractionalSecondsOlderiOS18dot3() throws {
-        if #available(iOS 18.3, *) {
-            throw XCTSkip("This test only works until iOS 18.3")
+        if #available(iOS 26.0, *) {
+            throw XCTSkip("This test only works until iOS 26.0")
         }
 
         let subject = JSONDecoder.cxfDecoder
