@@ -645,27 +645,15 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(policies.isEmpty)
     }
 
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when the
-    /// organization user is exempt from policies.
+    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the restricted cipher types when the user is admin.
     func test_getOrganizationIdsForRestricItemTypesPolicy_organizationExempt() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns policy when the policy applies to the user when the
-    /// organization user is `admin`.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationNotExemptWhenPolicyIsRemoveUnlockWithPin() async {
         let result: Policy = .fixture(type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
         policyDataStore.fetchPoliciesResult = .success([result])
 
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
+        let twoFactorPolicies: [String] = await subject.getOrganizationIdsForRestricItemTypesPolicy()
+        XCTAssertEqual(twoFactorPolicies, [result.organizationId])
     }
 
     /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when the
@@ -748,14 +736,14 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(restrictedTypes.isEmpty)
     }
 
-    /// `getRestrictedItemCipherTypes()` returns empty array when the organization user is exempt from policies.
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types when the user is admin.
     func test_getRestrictedItemCipherTypes_organizationExempt() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
         policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
 
         let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertTrue(restrictedTypes.isEmpty)
+        XCTAssertEqual(restrictedTypes, [.card])
     }
 
     /// `getRestrictedItemCipherTypes()` returns empty array when the organization doesn't use policies.
