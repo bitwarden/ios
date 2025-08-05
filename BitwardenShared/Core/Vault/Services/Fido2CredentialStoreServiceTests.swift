@@ -333,7 +333,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     }
 }
 
-class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var fido2CredentialStore: MockFido2CredentialStore!

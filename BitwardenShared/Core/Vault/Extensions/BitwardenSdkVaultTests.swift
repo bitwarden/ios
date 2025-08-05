@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - BitwardenSdk.CipherType
 
-class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher type.
@@ -44,7 +44,7 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
 
 // MARK: - CipherDetailsResponseModel
 
-class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init(cipher:)` Inits a cipher details response model from an SDK cipher without id throws.
@@ -266,7 +266,7 @@ class CipherViewTests: BitwardenTestCase {
 
 // MARK: - Collection
 
-class BitwardenSdkVaultBitwardenCollectionTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultBitwardenCollectionTests: BitwardenTestCase {
     /// `init(collectionDetailsResponseModel:)` sets `manage` with the value in the model
     /// if the server sent a value
     func test_init_manageNotNull() {
