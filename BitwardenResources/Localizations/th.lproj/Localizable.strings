@@ -148,7 +148,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "รับคำใบ้เกี่ยวกับรหัสผ่านหลักของคุณ";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "คำแนะนำเกี่ยวกับรหัสผ่านหลักสามารถช่วยให้คุณจดจำรหัสผ่านได้หากลืม";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "จำนวนตัวเลขต่ำสุด";
 "MinSpecial" = "จำนวนตัวพิเศษขั้นต่ำ";
@@ -173,7 +172,6 @@
 "RateTheApp" = "ให้คะแนนแอพนี้";
 "RateTheAppDescription" = "โปรดพิจารณาช่วยเหลือเราด้วยความคิดเห็นที่ดี!";
 "RegeneratePassword" = "สร้างรหัสผ่านใหม่";
-"RetypeMasterPassword" = "ยืนยันรหัสผ่านหลัก";
 "SearchVault" = "ค้นหาในตู้เซฟ";
 "Security" = "ความปลอดภัย";
 "Select" = "เลือก";
@@ -537,9 +535,7 @@
 "MasterPasswordPolicyValidationTitle" = "Invalid password";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "กำลังโหลด";
-"AcceptPolicies" = "By activating this switch you agree to the following:";
 "AcceptPoliciesError" = "Terms of Service and Privacy Policy have not been acknowledged.";
-"TermsOfService" = "เงื่อนไขการใช้บริการ";
 "PrivacyPolicy" = "นโยบายความเป็นส่วนตัว";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -767,7 +763,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "WeakMasterPassword" = "Weak Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "Weak";

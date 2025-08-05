@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Мастер-пароль - это пароль, используемый для доступа к вашему хранилищу.";
 "MasterPasswordHint" = "Подсказка к мастер-паролю";
 "NewMasterPasswordHint" = "Новая подсказка к мастер-паролю";
-"MasterPasswordHintDescription" = "Подсказка к мастер-паролю может помочь вам его вспомнить.";
 "MasterPasswordLengthValMessageX" = "Мастер-пароль должен содержать не менее %1$@ символов.";
 "MinNumbers" = "Минимум цифр";
 "MinSpecial" = "Минимум символов";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Оценить приложение";
 "RateTheAppDescription" = "Пожалуйста, подумайте о том, чтобы помочь нам хорошим отзывом!";
 "RegeneratePassword" = "Создать новый пароль";
-"RetypeMasterPassword" = "Введите мастер-пароль повторно";
 "SearchVault" = "Поиск в хранилище";
 "Security" = "Безопасность";
 "Select" = "Выбрать";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неверный пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не соответствует требованиям организации. Пожалуйста, проверьте информацию о политике и попробуйте еще раз.";
 "Loading" = "Загрузка";
-"AcceptPolicies" = "Активируя этот переключатель, вы соглашаетесь со следующим:";
 "AcceptPoliciesError" = "Условия предоставления услуг и Политика конфиденциальности не были подтверждены.";
-"TermsOfService" = "Условия предоставления услуг";
 "PrivacyPolicy" = "Политика конфиденциальности";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden требует внимания - включите 'Поверх других приложений' в 'Службах автозаполнения' в настройках Bitwarden";
 "PasskeyManagement" = "Управление passkeys";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Для смены языка требуется перезапуск приложения";
 "DefaultSystem" = "По умолчанию (системный)";
 "Important" = "Важно";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ваш мастер-пароль невозможно восстановить, если вы его забудете! Минимум символов - %1$@.";
 "WeakMasterPassword" = "Слабый мастер-пароль";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Обнаружен слабый пароль. Для защиты аккаунта следует установить надежный пароль. Вы уверены, что хотите использовать слабый пароль?";
 "Weak" = "Слабый";

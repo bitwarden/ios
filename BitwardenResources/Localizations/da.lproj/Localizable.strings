@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Hovedadgangskodetip";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Et hovedeadgangskodentip kan hjælpe dig med at huske din adgangskode, hvis du glemmer den.";
 "MasterPasswordLengthValMessageX" = "Hovedadgangskoden skal udgøre mindst %1$@ tegn.";
 "MinNumbers" = "Mindste antal cifre";
 "MinSpecial" = "Mindste antal specialtegn";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Bedøm appen";
 "RateTheAppDescription" = "Overvej venligst at hjælpe os med en god anmeldelse!";
 "RegeneratePassword" = "Regenerér adgangskode";
-"RetypeMasterPassword" = "Angiv hovedadgangskode igen";
 "SearchVault" = "Søg i boks";
 "Security" = "Sikkerhed";
 "Select" = "Vælg";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ugyldig adgangskode";
 "MasterPasswordPolicyValidationMessage" = "Adgangskoden opfylder ikke organisationskravene. Tjek politikinformationen og forsøg igen.";
 "Loading" = "Indlæser";
-"AcceptPolicies" = "Ved at slå denne kontakt til, accepterer du følgende:";
 "AcceptPoliciesError" = "Servicevilkår og fortrolighedspolitik er ikke blevet bekræftet.";
-"TermsOfService" = "Servicevilkår";
 "PrivacyPolicy" = "Fortrolighedspolitik";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden behøver tilladelse - Aktivér \"Tegn over\" i \"Autoudfyldnigstjeneste\" i Bitwarden-indstillingerne";
 "PasskeyManagement" = "Adgangsnøglehåndtering";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Skift af sprog kræver app-genstart";
 "DefaultSystem" = "Standard (system)";
 "Important" = "Vigtigt";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Hovedadgangskoden kan ikke gendannes, såfremt den glemmes! %1$@-tegns minimum.";
 "WeakMasterPassword" = "Svag hovedadgangskode";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Svag adgangskode identificeret. Brug en stærk adgangskode til at beskytte din konto. Sikker på, at du vil bruge en svag adgangskode?";
 "Weak" = "Svag";
