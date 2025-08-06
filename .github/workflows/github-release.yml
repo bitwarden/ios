@@ -13,7 +13,7 @@ on:
         type: string
 
 env:
-    ARTIFACTS_PATH: artifacts
+    _ARTIFACTS_PATH: artifacts
 jobs:
   create-release:
     name: Create GitHub Release
@@ -73,21 +73,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
           _DOWNLOAD_FILTER: "release_${{ steps.get_release_branch.outputs.app_name_suffix}}"
-        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $_ARTIFACT_RUN_ID $_DOWNLOAD_FILTER
+        run: ./Scripts/download-artifacts.sh $_ARTIFACTS_PATH $_ARTIFACT_RUN_ID $_DOWNLOAD_FILTER
 
       - name: Parse version info from run logs and set release tag name
         id: get_release_info
         env:
           _APP_NAME_SUFFIX: ${{ steps.get_release_branch.outputs.app_name_suffix }}
         run: |
-          if [ -f "$ARTIFACTS_PATH/version-info.zip" ]; then
+          if [ -f "$_ARTIFACTS_PATH/version-info.zip" ]; then
             echo "🔖 version-info.zip was found, extracting info"
-            unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
+            unzip -o "$_ARTIFACTS_PATH/version-info.zip" -d "tmp"
             filepath="tmp/version-info/version_info.json"
             version_name=$(jq -r '.version_name' "$filepath")
             version_number=$(jq -r '.version_number' "$filepath")
             rm -rf tmp
-            rm "$ARTIFACTS_PATH/version-info.zip"
+            rm "$_ARTIFACTS_PATH/version-info.zip"
           else
             echo "::warning::version-info.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
             version_name="0.0.0"
@@ -124,7 +124,7 @@ jobs:
               ;;
           esac
           echo "Removing internal files that don't match the pattern: $prod_filename_pattern"
-          find $ARTIFACTS_PATH -type f ! -name "$prod_filename_pattern" -print -delete
+          find $_ARTIFACTS_PATH -type f ! -name "$prod_filename_pattern" -print -delete
           echo ""
           echo "Done"
 
@@ -192,7 +192,7 @@ jobs:
             --notes-start-tag "$_LAST_RELEASE_TAG" \
             --latest=$is_latest_release \
             --draft \
-            $ARTIFACTS_PATH/*)
+            $_ARTIFACTS_PATH/*)
 
           # Extract release tag from URL
           release_id_from_url=$(echo "$release_url" | sed 's/.*\/tag\///')
