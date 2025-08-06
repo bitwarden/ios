@@ -29,6 +29,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Log inputs to job summary
+        uses: ./.github/actions/log-inputs
+        with:
+          inputs: ${{ toJson(inputs) }}
+
       - name: Get branch from workflow run
         id: get_release_branch
         env:
