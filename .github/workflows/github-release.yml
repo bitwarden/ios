@@ -100,6 +100,28 @@ jobs:
           echo "🔖 Last release tag: $last_release_tag"
           echo "last_release_tag=$last_release_tag" >> $GITHUB_OUTPUT
 
+      - name: Remove internal builds
+        env:
+          _APP_NAME_SUFFIX: ${{ steps.get_release_branch.outputs.app_name_suffix }}
+        run: |
+          case "$_APP_NAME_SUFFIX" in
+            "bwpm")
+              prod_filename_pattern="com.8bit.bitwarden-*.ipa*"
+              ;;
+            "bwa")
+              prod_filename_pattern="com.8bit.bitwarden.authenticator-*.ipa*"
+              ;;
+            *)
+              echo "::warning::Unknown app name suffix: $_APP_NAME_SUFFIX"
+              echo "Skipping removal of internal builds"
+              exit 0
+              ;;
+          esac
+          echo "Removing internal files that don't match the pattern: $prod_filename_pattern"
+          find $ARTIFACTS_PATH -type f ! -name "$prod_filename_pattern" -print -delete
+          echo ""
+          echo "Done"
+
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
