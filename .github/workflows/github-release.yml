@@ -71,8 +71,9 @@ jobs:
       - name: Download artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
-        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
+          _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _DOWNLOAD_FILTER: "release_${{ steps.get_release_branch.outputs.app_name_suffix}}"
+        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $_ARTIFACT_RUN_ID $_DOWNLOAD_FILTER
 
       - name: Parse version info from run logs and set release tag name
         id: get_release_info
