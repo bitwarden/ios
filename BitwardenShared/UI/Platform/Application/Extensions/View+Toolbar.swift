@@ -255,8 +255,11 @@ extension View {
     /// though the navigation bar was displayed inline, there was still extra padding in the
     /// navigation bar where the centered title would be displayed below the tab bar.
     ///
+    /// As well, because iOS 26 (with Liquid Glass) changes how toolbar items are displayed, we
+    /// should revert to native behavior, and only have the title centered.
     private var shouldHideLargeNavigationToolbarItem: Bool {
         guard #available(iOS 18, *) else { return false }
+        guard #unavailable(iOS 26) else { return true }
         return UIDevice.current.userInterfaceIdiom == .pad
     }
 }
