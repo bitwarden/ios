@@ -187,7 +187,7 @@ jobs:
           ${product_release_notes}
 
           ${current_body}
-          **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
+          **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$_ARTIFACT_RUN_ID"
 
           new_release_url=$(gh release edit "$_RELEASE_ID" --notes "$updated_body")
 
