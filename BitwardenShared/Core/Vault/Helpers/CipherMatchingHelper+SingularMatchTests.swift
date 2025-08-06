@@ -86,7 +86,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         XCTAssertEqual(result, .none)
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains.
     func test_doesCipherMatch_domainExact() async {
         subject.uriToMatch = "https://google.com"
@@ -107,7 +107,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.domain` and the match URI base domain
     /// is not the same as none of the logins URI's base domains.
     func test_doesCipherMatch_domainNone() async {
         subject.uriToMatch = "https://google.com"
@@ -128,7 +128,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains in iosapp:// scheme.
     func test_doesCipherMatch_domainExactAppScheme() async {
         subject.uriToMatch = "iosapp://example.com"
@@ -148,7 +148,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.fuzzy` when when match type is `.domain` and the match URI base domain
+    /// `doesCipherMatch(cipher:)` returns `.fuzzy` when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base fuzzy domains in iosapp:// scheme.
     func test_doesCipherMatch_domainFuzzyAppScheme() async {
         subject.uriToMatch = "iosapp://example.com"
@@ -169,7 +169,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.host`
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.host`
     /// and the match URI host is the same as the logins URI's host.
     func test_doesCipherMatch_hostExact() async {
         subject.uriToMatch = "https://sub.domain.com:4000"
@@ -189,7 +189,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.host`
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.host`
     /// and the match URI host is not the same as the logins URI's host.
     func test_doesCipherMatch_hostNone() async {
         subject.uriToMatch = "https://sub.domain.com:4000"
@@ -212,7 +212,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.startsWith`
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.startsWith`
     /// and the match URI starts with one of the login's URIs.
     func test_doesCipherMatch_startsWithExact() async {
         subject.uriToMatch = "https://vault.bitwarden.com"
@@ -235,7 +235,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.startsWith` and the match URI
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.startsWith` and the match URI
     /// doesn't start with none of the login's URIs.
     func test_doesCipherMatch_startsWithNone() async {
         subject.uriToMatch = "https://vault.bitwarden.com"
@@ -259,7 +259,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.exact`
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.exact`
     /// and the match URI equals one of the login's URIs.
     func test_doesCipherMatch_exact() async {
         subject.uriToMatch = "https://vault.bitwarden.com"
@@ -275,7 +275,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         XCTAssertEqual(result, .exact)
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.startsWith` and the match URI
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.startsWith` and the match URI
     /// is not equal to none of the login's URIs.
     func test_doesCipherMatch_exactNone() async {
         subject.uriToMatch = "https://vault.bitwarden.com"
@@ -299,7 +299,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.exact` when when match type is `.regularExpression`
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.regularExpression`
     /// and the match URI matches the regular expression of one of the login's URIs.
     func test_doesCipherMatch_regularExpressionExact() async {
         let matchingUrisToSucceed = [
@@ -322,7 +322,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.regularExpression`
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.regularExpression`
     /// and the match URI doesn't match the regular expression of none of the login's URIs.
     func test_doesCipherMatch_regularExpressionNone() async {
         let matchingUrisToFail = [
@@ -344,7 +344,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         }
     }
 
-    /// `doesCipherMatch(cipher:)` returns `.none` when when match type is `.never`.
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.never`.
     func test_doesCipherMatch_never() async {
         await subject.prepare(uri: "https://vault.bitwarden.com")
         subject.matchingDomains = ["example.com"]
