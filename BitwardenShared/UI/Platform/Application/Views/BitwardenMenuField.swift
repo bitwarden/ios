@@ -62,6 +62,9 @@ struct BitwardenMenuField<
     /// The footer text displayed below the menu field.
     let footer: String?
 
+    /// The warning text displayed below the footer text.
+    let footerWarning: String?
+
     /// The title of the menu field.
     let title: String?
 
@@ -84,7 +87,16 @@ struct BitwardenMenuField<
                     .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
                     .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .multilineTextAlignment(.leading)
-                    .padding(.vertical, 12)
+                    .padding(.top, 12)
+                    .padding(.bottom, footerWarning == nil ? 12 : 4)
+            }
+
+            if let footerWarning {
+                (Text(Localizations.warning + ": ").bold() + Text(footerWarning))
+                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 12)
             }
         }
         .padding(.horizontal, 16)
@@ -194,6 +206,36 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
+        self.footerWarning = nil
+        self.options = options
+        _selection = selection
+        self.title = title
+        trailingContent = nil
+        titleAccessoryContent = nil
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - footerWarning: The warning text displayed below the footer text.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///
+    init(
+        title: String,
+        footer: String,
+        footerWarning: String?,
+        accessibilityIdentifier: String? = nil,
+        options: [T],
+        selection: Binding<T>
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
+        self.footer = footer
+        self.footerWarning = footerWarning
         self.options = options
         _selection = selection
         self.title = title
@@ -224,6 +266,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
+        self.footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -252,6 +295,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
+        self.footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -280,6 +324,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
+        self.footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -309,6 +354,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
         self.footer = footer
+        self.footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -336,6 +382,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     VStack {
         BitwardenMenuField(
             title: "Animals",
+            footer: nil,
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
         )
@@ -343,6 +390,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
 
         BitwardenMenuField(
             title: "Animals",
+            footer: nil,
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
         )
