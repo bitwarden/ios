@@ -67,9 +67,10 @@ struct AutoFillView: View {
 
             BitwardenMenuField(
                 title: Localizations.defaultUriMatchDetection,
-                footer: Localizations.defaultUriMatchDetectionDescription,
+                footer: Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions,
+                footerWarning: store.state.warningMessage,
                 accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
-                options: UriMatchType.allCases,
+                options: store.state.uriMatchTypeOptions,
                 selection: store.binding(
                     get: \.defaultUriMatchType,
                     send: AutoFillAction.defaultUriMatchTypeChanged

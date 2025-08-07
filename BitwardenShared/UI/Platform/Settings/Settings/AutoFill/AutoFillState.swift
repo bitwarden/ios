@@ -1,5 +1,7 @@
 // MARK: - AutoFillState
 
+import BitwardenResources
+
 /// An object that defines the current state of the `AutoFillView`.
 ///
 struct AutoFillState {
@@ -20,5 +22,29 @@ struct AutoFillState {
     var shouldShowAutofillActionCard: Bool {
         guard let badgeState, badgeState.autofillSetupProgress != .complete else { return false }
         return true
+    }
+
+    /// The warning message based on the default URI match type.
+    var warningMessage: String? {
+        switch defaultUriMatchType {
+        case .regularExpression:
+            Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+        case .startsWith:
+            Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+        default:
+            nil
+        }
+    }
+
+    /// The options for URI match types ordered based on menu display.
+    var uriMatchTypeOptions: [UriMatchType] {
+        return [
+            UriMatchType.domain,
+            UriMatchType.host,
+            UriMatchType.exact,
+            UriMatchType.never,
+            UriMatchType.startsWith,
+            UriMatchType.regularExpression,
+        ]
     }
 }
