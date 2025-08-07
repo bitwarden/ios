@@ -51,6 +51,19 @@ struct LoginItemState: Equatable {
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
 
+    /// The options for URI match types ordered based on menu display.
+    var uriMatchTypeOptions: [DefaultableType<UriMatchType>] {
+        return [
+            DefaultableType<UriMatchType>.default,
+            DefaultableType<UriMatchType>.custom(UriMatchType.domain),
+            DefaultableType<UriMatchType>.custom(UriMatchType.host),
+            DefaultableType<UriMatchType>.custom(UriMatchType.exact),
+            DefaultableType<UriMatchType>.custom(UriMatchType.never),
+            DefaultableType<UriMatchType>.custom(UriMatchType.startsWith),
+            DefaultableType<UriMatchType>.custom(UriMatchType.regularExpression),
+        ]
+    }
+
     /// The username for this item.
     var username: String = ""
 
