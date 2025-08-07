@@ -46,7 +46,7 @@ else
     echo
 
     if [[ "$FILTER_TYPE" == "release_bwpm" ]]; then
-        filter_pattern="com.bitwarden-.*.ipa"
+        filter_pattern="com.8bit.bitwarden-.*.ipa"
     elif [[ "$FILTER_TYPE" == "release_bwa" ]]; then
         filter_pattern="com.bitwarden.authenticator-.*.ipa"
     else
