@@ -247,6 +247,20 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertEqual(preparedData.collectionsCount["1"], 1)
     }
 
+    /// `incrementCollectionCount(cipher:)` increments the collection count for the cipher's collections
+    /// when the cipher belongs to many collections present in the prepared data.
+    func test_incrementCollectionCount_incrementsWhenCipherInManyCollection() {
+        let collections = [Collection.fixture(id: "1"), Collection.fixture(id: "2")]
+        let cipher = CipherListView.fixture(collectionIds: ["1", "2"])
+        let preparedData = subject
+            .prepareCollections(collections: collections, filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertEqual(preparedData.collectionsCount["1"], 1)
+        XCTAssertEqual(preparedData.collectionsCount["2"], 1)
+    }
+
     /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher
     /// does not belong to any collection.
     func test_incrementCollectionCount_doesNotIncrementWhenCipherHasNoCollection() {
