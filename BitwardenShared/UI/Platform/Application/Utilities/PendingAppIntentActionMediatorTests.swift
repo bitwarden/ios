@@ -153,7 +153,6 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
 }
 
 class MockPendingAppIntentActionMediatorDelegate: PendingAppIntentActionMediatorDelegate {
-    // swiftlint:disable:previous type_name
     var onPendingAppIntentActionSuccessAction: PendingAppIntentAction?
     var onPendingAppIntentActionSuccessData: Any?
 

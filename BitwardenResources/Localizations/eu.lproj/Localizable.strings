@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Pasahitz nagusia ahazten baduzu, pista batek pasahitza gogoratzen lagunduko dizu.";
 "MasterPasswordLengthValMessageX" = "Pasahitz nagusiak %1$@ karaktere izan behar ditu gutxienez.";
 "MinNumbers" = "Gutxieneko zenbaki kopurua";
 "MinSpecial" = "Gutxieneko karaktere bereziak";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Baloratu aplikazioa";
 "RateTheAppDescription" = "Mesedez, aipu on batekin lagundu!";
 "RegeneratePassword" = "Berrezarri pasahitza";
-"RetypeMasterPassword" = "Idatzi berriro pasahitz nagusia";
 "SearchVault" = "Kutxa Gotorrean bilatu";
 "Security" = "Segurtasuna";
 "Select" = "Hautatu";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Pasahitzak ez du balio";
 "MasterPasswordPolicyValidationMessage" = "Pasahitzak ez ditu erakundearen baldintzak betetzen. Mesedez, berrikusi politika eta saiatu berriro.";
 "Loading" = "Kargatzen";
-"AcceptPolicies" = "Gaitzean, honakoa onartzen duzu:";
 "AcceptPoliciesError" = "Zerbitzuaren baldintzak eta pribatutasun politika ez dira onartu.";
-"TermsOfService" = "Zerbitzuaren baldintzak";
 "PrivacyPolicy" = "Pribatutasun politika";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Hizkuntza aldatzeak aplikazioa berabiaraztea behar du";
 "DefaultSystem" = "Lehenetsia (Sistema)";
 "Important" = "Garrantzitsua";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Zure pasahitz nagusia ezin da berreskuratu ahazten baduzu! %1$@ karaktere gutxienez.";
 "WeakMasterPassword" = "Pasahitz nagusia ahula";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Pasahitz ahula atzeman da. Erabili pasahitz sendo bat zure kontua babesteko. Ziur zaude pasahitz ahul bat erabili nahi duzula?";
 "Weak" = "Ahula";

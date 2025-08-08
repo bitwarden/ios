@@ -86,7 +86,7 @@ platform :ios do |options|
         build_scheme = ENV["_BUILD_SCHEME"]
         ext = ARTIFACT_EXTENSION[build_mode]
         app_config = lane_context[:APP_CONFIG]
-        UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+        UI.message "artifact_filename: #{bundle_id}-#{version_name}-#{version_number}-#{xcode_version}.#{ext}"
         UI.message "export_filepath: #{export_path}/#{build_scheme}.#{ext}"
     end
 

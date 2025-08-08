@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "主密码是用于访问您的密码库的密码。";
 "MasterPasswordHint" = "主密码提示";
 "NewMasterPasswordHint" = "新主密码提示";
-"MasterPasswordHintDescription" = "主密码提示可以在您忘记密码时帮您回忆起来。";
 "MasterPasswordLengthValMessageX" = "主密码长度必须至少为 %1$@ 个字符。";
 "MinNumbers" = "数字最少个数";
 "MinSpecial" = "符号最少个数";
@@ -171,7 +170,6 @@
 "RateTheApp" = "为本 App 打分";
 "RateTheAppDescription" = "我们期待您的好评！";
 "RegeneratePassword" = "重新生成密码";
-"RetypeMasterPassword" = "再次输入主密码";
 "SearchVault" = "搜索密码库";
 "Security" = "安全";
 "Select" = "选择";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "无效的密码";
 "MasterPasswordPolicyValidationMessage" = "密码不符合组织要求。请检查策略信息然后重试。";
 "Loading" = "加载中";
-"AcceptPolicies" = "激活此开关表示您同意：";
 "AcceptPoliciesError" = "尚未同意服务条款和隐私政策。";
-"TermsOfService" = "服务条款";
 "PrivacyPolicy" = "隐私政策";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden 需要注意 - 请在 Bitwarden 设置的「自动填充服务」中启用「Draw-Over」";
 "PasskeyManagement" = "通行密钥管理";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "更改语言需要重新启动 App";
 "DefaultSystem" = "默认（系统）";
 "Important" = "重要：";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "主密码忘记后，将无法恢复！至少 %1$@ 个字符。";
 "WeakMasterPassword" = "脆弱的主密码";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "识别到弱密码。请使用一个强密码以保护您的账户。确定要使用弱密码吗？";
 "Weak" = "弱";
@@ -1213,10 +1208,10 @@
 "LastEdited" = "最后编辑于：%1$@";
 "PasswordLastUpdated" = "密码最后更新于：%1$@";
 "DecryptionError" = "解密错误";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 无法解密此密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden 无法解密 1 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden 无法解密 %1$@ 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
+"CopyErrorReport" = "复制错误报告";
 "ErrorCannotDecrypt" = "[错误：无法解密]";
 "AccountName" = "账户名称";
 "AccountsSyncedFromBitwardenApp" = "从 Bitwarden App 同步帐户";
@@ -1264,7 +1259,7 @@
 "SaveToBitwarden" = "保存到 Bitwarden";
 "ScanComplete" = "扫描完成";
 "ScanTheQRCodeInYourSettings" = "扫描任何帐户的两步验证设置中的二维码。";
-"SecureYourAssetsWithBitwardenAuthenticator" = "使用 Bitwarden 身份验证器保护您的帐户";
+"SecureYourAssetsWithBitwardenAuthenticator" = "使用 Bitwarden Authenticator 保护您的账户";
 "SetSaveLocallyAsYourDefaultSaveOption" = "设置 “本地保存” 为默认保存选项？";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "设置 “保存到 Bitwarden” 为您的默认保存选项？";
 "SignInUsingUniqueCodes" = "使用唯一的代码登录";

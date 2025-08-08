@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "Namig vam lahko pomaga, da se spomnite glavnega gesla, če bi ga pozabili.";
 "MasterPasswordLengthValMessageX" = "Glavno geslo mora vsebovati vsaj %1$@ znakov.";
 "MinNumbers" = "Minimalno števk";
 "MinSpecial" = "Minimalno posebnih";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Oceni aplikacijo";
 "RateTheAppDescription" = "Prosimo, pomagajte nam z dobro kritiko!";
 "RegeneratePassword" = "Ponovno generiraj geslo";
-"RetypeMasterPassword" = "Ponovno vnesite glavno geslo";
 "SearchVault" = "Išči v trezorju";
 "Security" = "Varnost";
 "Select" = "Izberi";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Napačno geslo";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "Nalaganje";
-"AcceptPolicies" = "Potrjujem, da se strinjam z naslednjim:";
 "AcceptPoliciesError" = "Terms of Service and Privacy Policy have not been acknowledged.";
-"TermsOfService" = "Pogoji uporabe";
 "PrivacyPolicy" = "Politika zasebnosti";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Za spremembo jezika je potrebno ponovno zagnati aplikacijo.";
 "DefaultSystem" = "Privzet (sistemski)";
 "Important" = "Pomembno";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Če pozabite glavno geslo, ga ne bo mogoče obnoviti! Vsaj %1$@ znakov.";
 "WeakMasterPassword" = "Šibko glavno geslo";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Vaše geslo je šibko. Za zaščito svojega računa potrebujete močno geslo. Ste prepričani, da želite uporabiti šibko geslo?";
 "Weak" = "Šibko";

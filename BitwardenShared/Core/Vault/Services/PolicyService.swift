@@ -114,7 +114,9 @@ actor DefaultPolicyService: PolicyService {
     /// - Returns: Whether the organization is exempt from the policy.
     ///
     private func isOrganization(_ organization: Organization, exemptFrom policyType: PolicyType) -> Bool {
-        if policyType == .passwordGenerator || policyType == .removeUnlockWithPin {
+        if policyType == .passwordGenerator
+            || policyType == .removeUnlockWithPin
+            || policyType == .restrictItemTypes {
             return false
         }
 

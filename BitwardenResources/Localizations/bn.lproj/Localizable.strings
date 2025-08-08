@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordHintDescription" = "যদি আপনি আপনার পাসওয়ার্ড ভুলে যান তাহলে একটি প্রধান পাসওয়ার্ডের ইঙ্গিতটি আপনাকে মনে করাতে সাহায্য করতে পারে।";
 "MasterPasswordLengthValMessageX" = "মাস্টার পাসওয়ার্ড কমপক্ষে %1$@ অক্ষরের হতে হবে।";
 "MinNumbers" = "সর্বনিম্ন সংখ্যা";
 "MinSpecial" = "ন্যূনতম বিশেষ";
@@ -171,7 +170,6 @@
 "RateTheApp" = "অ্যাপ্লিকেশনটকে রেট দিন";
 "RateTheAppDescription" = "দয়া করে একটি ভাল পর্যালোচনার মাধ্যমে সাহায্য করতে আমাদের বিবেচনা করুন!";
 "RegeneratePassword" = "পাসওয়ার্ড পুনঃতৈরি করুন";
-"RetypeMasterPassword" = "পুনরায় প্রধান পাসওয়ার্ডটি লিখুন";
 "SearchVault" = "ভল্ট খুঁজুন";
 "Security" = "নিরাপত্তা";
 "Select" = "নির্বাচন করুন";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Invalid password";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "লোড হচ্ছে";
-"AcceptPolicies" = "By activating this switch you agree to the following:";
 "AcceptPoliciesError" = "পরিষেবার শর্তাদি এবং গোপনীয়তা নীতি স্বীকার করা হয়নি।";
-"TermsOfService" = "সেবা পাবার শর্ত";
 "PrivacyPolicy" = "গোপনীয়তা নীতি";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "WeakMasterPassword" = "Weak Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "Weak";

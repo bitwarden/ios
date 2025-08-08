@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "کلمه عبور اصلی، کلمه عبوری است که برای دسترسی به گاوصندوق خود استفاده می‌کنید.";
 "MasterPasswordHint" = "یادآور کلمه عبور اصلی";
 "NewMasterPasswordHint" = "یادآور کلمه عبور اصلی جدید";
-"MasterPasswordHintDescription" = "یادآور کلمه عبور اصلی کمک می‌کند در صورت فراموشی آن را به یاد بیارید.";
 "MasterPasswordLengthValMessageX" = "طول کلمه عبور اصلی باید حداقل %1$@ کاراکتر باشد.";
 "MinNumbers" = "حداقل اعداد";
 "MinSpecial" = "حداقل حرف خاص";
@@ -171,7 +170,6 @@
 "RateTheApp" = "به برنامه امتیاز دهید";
 "RateTheAppDescription" = "لطفاً با یک بررسی خوب به ما کمک کنید!";
 "RegeneratePassword" = "تولید مجدد کلمه عبور";
-"RetypeMasterPassword" = "نوشتن دوباره کلمه عبور اصلی";
 "SearchVault" = "جستجوی گاوصندوق";
 "Security" = "امنیت";
 "Select" = "انتخاب";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "کلمه عبور نامعتبر";
 "MasterPasswordPolicyValidationMessage" = "کلمه عبور از شرایط سازمان پیروی نمی‌کند. لطفاً اطلاعات سیاست را بررسی کرده و دوباره امتحان کنید.";
 "Loading" = "در حال بارگذاری";
-"AcceptPolicies" = "با فعال کردن این سوئیچ با موارد زیر موافقت می‌کنید:";
 "AcceptPoliciesError" = "شرایط خدمات و سیاست حفظ حریم خصوصی تأیید نشده است.";
-"TermsOfService" = "شرایط استفاده از خدمات";
 "PrivacyPolicy" = "سیاست حفظ حریم خصوصی";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden نیاز به توجه دارد - گزینه \"نمایش روی سایر برنامه‌ها\" را در بخش \"خدمات پر کردن خودکار\" از تنظیمات Bitwarden فعال کنید";
 "PasskeyManagement" = "مدیریت کلمه عبور";
@@ -765,7 +761,6 @@
 "LanguageChangeRequiresAppRestart" = "تغییر زبان نیاز به راه‌اندازی مجدد برنامه دارد";
 "DefaultSystem" = "پیش‌فرض (سیستم)";
 "Important" = "مهم";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "کلمه عبور اصلی شما در صورت فراموشی قابل بازیابی نیست! حداقل %1$@ کاراکتر.";
 "WeakMasterPassword" = "کلمه عبور اصلی ضعیف";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "کلمه عبور ضعیف شناسایی شد. از یک کلمه عبور قوی برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از یک کلمه عبور ضعیف استفاده کنید؟";
 "Weak" = "ضعیف";

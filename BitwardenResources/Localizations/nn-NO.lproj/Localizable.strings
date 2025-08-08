@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "Nytt hovudpassordhint";
-"MasterPasswordHintDescription" = "Eit hovudpassordvink kan hjelpa deg med å hugsa passordet ditt om du gløymer det.";
 "MasterPasswordLengthValMessageX" = "Hovudpassordet ditt må vera minst %1$@ teikn langt.";
 "MinNumbers" = "Min. tal på nummer";
 "MinSpecial" = "Min. tal på spesialteikn";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Døm om denne appen";
 "RateTheAppDescription" = "Please consider helping us out with a good review!";
 "RegeneratePassword" = "Lag om passord";
-"RetypeMasterPassword" = "Skriv inn hovudpassordet på nytt";
 "SearchVault" = "Leita i kvelvet";
 "Security" = "Tryggleik";
 "Select" = "Vel";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Invalid password";
 "MasterPasswordPolicyValidationMessage" = "Passordet møter ikkje samskipnadskrava. Ver venleg og les retningslinene og freista om att.";
 "Loading" = "Lastar";
-"AcceptPolicies" = "By activating this switch you agree to the following:";
 "AcceptPoliciesError" = "Terms of Service and Privacy Policy have not been acknowledged.";
-"TermsOfService" = "Terms of Service";
 "PrivacyPolicy" = "Privacy Policy";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
 "PasskeyManagement" = "Passkey management";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "WeakMasterPassword" = "Weak Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
 "Weak" = "Weak";

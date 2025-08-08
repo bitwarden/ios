@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Головний пароль призначений для доступу до вашого сховища.";
 "MasterPasswordHint" = "Підказка для головного пароля";
 "NewMasterPasswordHint" = "Нова підказка для головного пароля";
-"MasterPasswordHintDescription" = "Якщо ви забудете головний пароль, підказка може допомогти вам згадати його.";
 "MasterPasswordLengthValMessageX" = "Довжина головного пароля має бути принаймні %1$@ символів.";
 "MinNumbers" = "Мінімум цифр";
 "MinSpecial" = "Мінімум спеціальних символів";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Оцініть програму";
 "RateTheAppDescription" = "Розкажіть іншим про свої враження, залишивши хороший відгук!";
 "RegeneratePassword" = "Генерувати новий";
-"RetypeMasterPassword" = "Введіть головний пароль ще раз";
 "SearchVault" = "Шукати у сховищі";
 "Security" = "Безпека";
 "Select" = "Обрати";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неправильний пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не відповідає вимогам організації. Перевірте інформацію про політику і спробуйте знову.";
 "Loading" = "Завантаження";
-"AcceptPolicies" = "Активувавши цей перемикач, ви погоджуєтеся з:";
 "AcceptPoliciesError" = "Умови користування та політика приватності не погоджені.";
-"TermsOfService" = "Умови користування";
 "PrivacyPolicy" = "Політика приватності";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden потребує вашої уваги. Увімкніть \"Накладання\" в \"Службах автозаповнення\" в налаштуваннях Bitwarden";
 "PasskeyManagement" = "Керування ключами доступу";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Для зміни мови потрібно перезапустити програму";
 "DefaultSystem" = "Типова (Система)";
 "Important" = "Важливо";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Головний пароль неможливо відновити, якщо ви його втратите! Мінімум %1$@ символів.";
 "WeakMasterPassword" = "Слабкий головний пароль";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Виявлено слабкий пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати слабкий пароль?";
 "Weak" = "Слабкий";
