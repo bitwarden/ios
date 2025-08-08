@@ -1211,8 +1211,8 @@
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
 "BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
-"ErrorCannotDecrypt" = "[error: cannot decrypt]";
+"CopyErrorReport" = "Fehlerbericht kopieren";
+"ErrorCannotDecrypt" = "[Fehler: kann nicht entschlüsseln]";
 "AccountName" = "Kontoname";
 "AccountsSyncedFromBitwardenApp" = "Konten über Bitwarden App synchronisiert";
 "AddANewCodeToSecure" = "Füge einen neuen Code hinzu, um deine Konten abzusichern.";
