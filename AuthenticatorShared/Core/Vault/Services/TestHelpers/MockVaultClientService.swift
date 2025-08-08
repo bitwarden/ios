@@ -153,6 +153,10 @@ class MockClientCollections: CollectionsClientProtocol {
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
         collections.map(CollectionView.init)
     }
+    
+    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
+        fatalError("Not implemented yet")
+    }
 }
 
 // MARK: - MockClientFolders

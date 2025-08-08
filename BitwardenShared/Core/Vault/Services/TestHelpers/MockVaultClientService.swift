@@ -189,6 +189,10 @@ class MockClientCollections: CollectionsClientProtocol {
         }
         return collections.map(CollectionView.init)
     }
+    
+    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
+        fatalError("Not implemented yet")
+    }
 }
 
 // MARK: - MockClientFolders
