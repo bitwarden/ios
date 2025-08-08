@@ -131,6 +131,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
+            await loadDefaultUriMatchType()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -487,6 +488,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         if appExtensionDelegate == nil {
             state.isLearnNewLoginActionCardEligible = await services.stateService
                 .getLearnNewLoginActionCardStatus() == .incomplete
+        }
+    }
+
+    /// Load the saved value in autofill settings for the default URI match type.
+    ///
+    private func loadDefaultUriMatchType() async {
+        do {
+            state.loginState.defaultUriMatchTypeSettingsValue = try await services.stateService.getDefaultUriMatchType()
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 

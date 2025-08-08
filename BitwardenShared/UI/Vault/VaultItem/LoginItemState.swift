@@ -10,6 +10,9 @@ struct LoginItemState: Equatable {
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool = true
 
+    /// The saved value in autofill settings for the default URI match type.
+    var defaultUriMatchTypeSettingsValue: UriMatchType? = nil
+
     /// Whether the user has permissions to edit the cipher
     var editView: Bool = true
 
@@ -62,6 +65,17 @@ struct LoginItemState: Equatable {
             DefaultableType<UriMatchType>.custom(UriMatchType.startsWith),
             DefaultableType<UriMatchType>.custom(UriMatchType.regularExpression),
         ]
+    }
+
+    /// The option label for the default uri match type.
+    var defaultUriMatchTypeOptionLabel: String {
+        /// TODO REMOVE THE (advanced) text from the regex and start with entries
+        var defaultUriMatchTypeLocalizedName = DefaultableType<UriMatchType>.default.localizedName
+        if let defaultUriMatchTypeSettingsValue {
+            defaultUriMatchTypeLocalizedName = 
+                "\(defaultUriMatchTypeLocalizedName) (\(defaultUriMatchTypeSettingsValue.localizedName))"
+        }
+        return defaultUriMatchTypeLocalizedName
     }
 
     /// The username for this item.

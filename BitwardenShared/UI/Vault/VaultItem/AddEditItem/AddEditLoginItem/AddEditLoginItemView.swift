@@ -178,7 +178,7 @@ struct AddEditLoginItemView: View {
                                 )) {
                                     ForEach(store.state.uriMatchTypeOptions, id: \.hashValue) { option in
                                         if option == DefaultableType<UriMatchType>.default {
-                                            Text(option.localizedName + "( DefaultOptionTest )").tag(option)
+                                            Text(store.state.defaultUriMatchTypeOptionLabel).tag(option)
                                         } else {
                                             Text(option.localizedName).tag(option)
                                         }
