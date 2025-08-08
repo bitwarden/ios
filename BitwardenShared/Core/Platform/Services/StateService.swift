@@ -168,7 +168,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType
 
     /// Gets the disable auto-copy TOTP value for an account.
     ///
@@ -931,8 +931,8 @@ extension StateService {
     ///
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await getDefaultUriMatchType(userId: nil)
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await getDefaultUriMatchType(userId: nil)
     }
 
     /// Gets the disable auto-copy TOTP value for the active account.
@@ -1566,9 +1566,14 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return appSettingsStore.connectToWatch(userId: userId)
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        do {
+            let userId = try userId ?? getActiveAccountUserId()
+            return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+        } catch {
+            errorReporter.log(error: error)
+            return .domain
+        }
     }
 
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
