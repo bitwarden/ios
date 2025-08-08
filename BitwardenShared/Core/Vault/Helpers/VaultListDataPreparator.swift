@@ -129,7 +129,11 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            if case .folder = filter.group {
+            if filter.group != .trash, decryptedCipher.deletedDate != nil {
+                return
+            }
+
+            if case .folder = group {
                 preparedDataBuilder = preparedDataBuilder.addFolderItem(
                     cipher: decryptedCipher,
                     filter: filter,
@@ -137,7 +141,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 )
             }
 
-            if case .collection = filter.group {
+            if case .collection = group {
                 preparedDataBuilder = preparedDataBuilder.incrementCollectionCount(cipher: decryptedCipher)
             }
 

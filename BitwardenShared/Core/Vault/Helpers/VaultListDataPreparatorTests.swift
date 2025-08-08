@@ -329,6 +329,25 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data filtering out cipher
+    /// when deleted date is set and vault filter is not trash.
+    @MainActor
+    func test_prepareGroupData_cipherDeleteDateSet_vaultNotTrash() async throws {
+        let result = try await subject.prepareGroupData(
+            from: [.fixture(deletedDate: .now)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
+        )
+
+        // should not call incrementCollectionCount and addItemForGroup
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
     /// adding folder items when filtering by folder.
     func test_prepareGroupData_folder() async throws {
