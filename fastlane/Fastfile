@@ -440,7 +440,7 @@ platform :ios do |options|
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
 
-    if options[:packageName] == "com.bitwarden.authenticator"
+    if options[:app_identifier] == "com.bitwarden.authenticator"
       locales = auth_locales
     else
       locales = pw_manager_locales
@@ -470,7 +470,8 @@ platform :ios do |options|
       submit_for_review: options[:submit_release],
       skip_binary_upload: true,
       skip_screenshots: true,
-      automatic_release: options[:submit_release],
+      automatic_release: true,
+      phased_release: options[:phased_release],
       api_key_path: options[:api_key_path],
       run_precheck_before_submit: false,
       metadata_path: options[:metadata_path],

@@ -164,6 +164,32 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         }
     }
 
+    /// `addFoldersSection(:)` adds the "No Folder" section even when there are no
+    /// other folders.
+    func test_addFoldersSection_noFolderWithEmptyFolders() async throws {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [],
+                noFolderItems: [
+                    .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
+                    .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
+                    .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
+                ]
+            )
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[NoFolder]: No Folder
+              - Cipher: Cipher1
+              - Cipher: Cipher2
+              - Cipher: Cipher3
+            """
+        }
+    }
+
     /// `addFoldersSection(nestedFolderId:)` adds the folders section to the list of sections
     /// with the count of ciphers per folder and a "No Folder" item because there are collections.
     func test_addFoldersSection_withNoFolderItem() async throws {
