@@ -235,7 +235,7 @@ public class AppProcessor {
 
     /// Handles importing credentials using Credential Exchange Protocol.
     /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
-    @available(iOSApplicationExtension 18.2, *)
+    @available(iOSApplicationExtension 26.0, *)
     public func handleImportCredentials(credentialImportToken: UUID) async {
         let route = AppRoute.tab(.vault(.importCXF(
             .importCredentials(credentialImportToken: credentialImportToken)
