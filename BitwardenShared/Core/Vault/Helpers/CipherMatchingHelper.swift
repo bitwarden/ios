@@ -1,31 +1,73 @@
 import BitwardenSdk
 import Foundation
 
-/// A helper object to handle filtering a list of ciphers that match a URI.
+// MARK: CipherMatchResult
+
+/// An enum describing the strength that a cipher matches a URI.
 ///
-class CipherMatchingHelper {
-    // MARK: Types
+enum CipherMatchResult {
+    /// The cipher is an exact match for the URI.
+    case exact
 
-    /// An enum describing the strength that a cipher matches a URI.
+    /// The cipher is a close match for the URI.
+    case fuzzy
+
+    /// The cipher doesn't match the URI.
+    case none
+}
+
+// MARK: CipherMatchingHelper
+
+/// A helper to handle filtering ciphers that match a URI.
+///
+protocol CipherMatchingHelper { // sourcery: AutoMockable
+    /// Returns the list of ciphers that match the URI.
     ///
-    enum MatchResult {
-        /// The cipher is an exact match for the URI.
-        case exact
+    /// - Parameters:
+    ///   - uri: The URI used to filter the list of ciphers.
+    ///   - ciphers: The list of ciphers to filter.
+    /// - Returns: The list of ciphers that match the URI.
+    ///
+    @available(*, deprecated) // TODO: PM-24290 remove
+    func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView]
 
-        /// The cipher is a close match for the URI.
-        case fuzzy
+    /// Returns the result of checking if a cipher matches the prepared URI.
+    ///
+    /// - Parameters:
+    ///   - cipher: The cipher to check if it matches the URI.
+    func doesCipherMatch(
+        cipher: CipherListView
+    ) -> CipherMatchResult
 
-        /// The cipher doesn't match the URI.
-        case none
-    }
+    /// Prepares the cipher matching helper given the URI.
+    /// - Parameter uri: URI to initialize the cipher matching helper with.
+    func prepare(uri: String) async
+}
 
+// MARK: DefaultCipherMatchingHelper
+
+/// Default implemenetation of `CipherMatchingHelper`.
+///
+class DefaultCipherMatchingHelper: CipherMatchingHelper {
     // MARK: Properties
+
+    /// The default URI match type to use when a login URI doesn't have one specified.
+    var defaultMatchType: UriMatchType = .domain
+
+    /// Domains exactly matching the URI.
+    var matchingDomains: Set<String> = []
+
+    /// Domains fuzzy matching the URI.
+    var matchingFuzzyDomains: Set<String> = []
 
     /// The service used by the application to manage user settings.
     let settingsService: SettingsService
 
     /// The service used by the application to manage account state.
     let stateService: StateService
+
+    /// URI to check if matches.
+    var uriToMatch: String?
 
     // MARK: Initialization
 
@@ -42,40 +84,20 @@ class CipherMatchingHelper {
 
     // MARK: Methods
 
-    /// Returns the list of ciphers that match the URI.
-    ///
-    /// - Parameters:
-    ///   - uri: The URI used to filter the list of ciphers.
-    ///   - ciphers: The list of ciphers to filter.
-    /// - Returns: The list of ciphers that match the URI.
-    ///
     func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView] {
-        guard let uri else { return [] }
+        uriToMatch = uri
+        guard let uriToMatch, !uriToMatch.isEmpty else {
+            return []
+        }
 
-        let matchURL = URL(string: uri)
-        let matchIsApp = matchURL?.isApp ?? false
-        let matchDomain = matchIsApp ? matchURL?.domain : matchURL?.sanitized.domain
-        let matchAppWebURL = matchURL?.appWebURL
+        (matchingDomains, matchingFuzzyDomains) = await getMatchingDomains(matchUri: uriToMatch)
 
-        let (matching: matchingDomains, fuzzyMatching: matchingFuzzyDomains) = await getMatchingDomains(
-            appWebURL: matchAppWebURL,
-            isApp: matchIsApp,
-            matchDomain: matchDomain,
-            matchUri: uri
-        )
-        let defaultMatchType = await (try? stateService.getDefaultUriMatchType()) ?? .domain
+        defaultMatchType = await stateService.getDefaultUriMatchType()
 
         let matchingCiphers = ciphers.reduce(
             into: (exact: [CipherListView], fuzzy: [CipherListView])([], [])
         ) { result, cipher in
-            let match = checkForCipherMatch(
-                cipher: cipher,
-                defaultMatchType: defaultMatchType,
-                isApp: matchIsApp,
-                matchUri: uri,
-                matchingDomains: matchingDomains,
-                matchingFuzzyDomains: matchingFuzzyDomains
-            )
+            let match = doesCipherMatch(cipher: cipher)
             switch match {
             case .exact:
                 result.exact.append(cipher)
@@ -88,6 +110,64 @@ class CipherMatchingHelper {
         }
 
         return matchingCiphers.exact + matchingCiphers.fuzzy
+    }
+
+    func doesCipherMatch(cipher: CipherListView) -> CipherMatchResult {
+        guard let uriToMatch,
+              let login = cipher.type.loginListView,
+              let loginUris = login.uris,
+              cipher.deletedDate == nil else {
+            return .none
+        }
+
+        var matchResult = CipherMatchResult.none
+        for loginUri in loginUris {
+            guard let uri = loginUri.uri, !uri.isEmpty else { continue }
+            let uriMatchType = loginUri.match ?? BitwardenSdk.UriMatchType(type: defaultMatchType)
+
+            switch uriMatchType {
+            case .domain:
+                matchResult = checkForCipherDomainMatch(
+                    isApp: URL(string: uriToMatch)?.isApp ?? false,
+                    loginUri: uri,
+                    matchingDomains: matchingDomains,
+                    matchingFuzzyDomains: matchingFuzzyDomains
+                )
+            case .host:
+                let uriHost = URL(string: uri)?.hostWithPort
+                let matchUriHost = URL(string: uriToMatch)?.hostWithPort
+                if let uriHost, let matchUriHost, uriHost == matchUriHost {
+                    matchResult = .exact
+                }
+            case .startsWith:
+                if uriToMatch.starts(with: uri) {
+                    matchResult = .exact
+                }
+            case .exact:
+                if uri == uriToMatch {
+                    matchResult = .exact
+                }
+            case .regularExpression:
+                let range = uriToMatch.range(of: uri, options: [.caseInsensitive, .regularExpression])
+                if range != nil {
+                    matchResult = .exact
+                }
+            case .never:
+                matchResult = .none
+            }
+
+            if matchResult != .none {
+                break
+            }
+        }
+
+        return matchResult
+    }
+
+    func prepare(uri: String) async {
+        uriToMatch = uri
+        defaultMatchType = await stateService.getDefaultUriMatchType()
+        (matchingDomains, matchingFuzzyDomains) = await getMatchingDomains(matchUri: uri)
     }
 
     // MARK: Private
@@ -106,8 +186,12 @@ class CipherMatchingHelper {
         loginUri: String,
         matchingDomains: Set<String>,
         matchingFuzzyDomains: Set<String>
-    ) -> MatchResult {
-        let loginUriDomain = URL(string: loginUri)?.sanitized.domain?.lowercased()
+    ) -> CipherMatchResult {
+        let loginURL = URL(string: loginUri)
+        let loginURLSanitized = isApp
+            ? loginURL
+            : loginURL?.sanitized
+        let loginUriDomain = loginURLSanitized?.domain?.lowercased()
 
         if matchingDomains.contains(loginUri) {
             return .exact
@@ -126,100 +210,31 @@ class CipherMatchingHelper {
         return .none
     }
 
-    /// Returns the result of checking if a cipher matches a URI.
-    ///
-    /// - Parameters:
-    ///   - cipher: The cipher to check if it matches the URI.
-    ///   - defaultMatchType: The default match type to use if the cipher doesn't specify one.
-    ///   - isApp: Whether the URL is an app URL.
-    ///   - matchUri: The URI used to check if the cipher matches.
-    ///   - matchingDomains: A list of domains that match the `matchUri`'s domain to match against.
-    ///   - matchingFuzzyDomains: A list of domains that closely match the `matchUri`'s domain to match against.
-    /// - Returns: The result of the match for the cipher and URI.
-    ///
-    private func checkForCipherMatch( // swiftlint:disable:this function_parameter_count
-        cipher: CipherListView,
-        defaultMatchType: UriMatchType,
-        isApp: Bool,
-        matchUri: String,
-        matchingDomains: Set<String>,
-        matchingFuzzyDomains: Set<String>
-    ) -> MatchResult {
-        guard let login = cipher.type.loginListView,
-              let loginUris = login.uris,
-              cipher.deletedDate == nil else {
-            return .none
-        }
-
-        var matchResult = MatchResult.none
-        for loginUri in loginUris {
-            guard let uri = loginUri.uri, !uri.isEmpty else { continue }
-            let uriMatchType = loginUri.match ?? BitwardenSdk.UriMatchType(type: defaultMatchType)
-
-            switch uriMatchType {
-            case .domain:
-                matchResult = checkForCipherDomainMatch(
-                    isApp: isApp,
-                    loginUri: uri,
-                    matchingDomains: matchingDomains,
-                    matchingFuzzyDomains: matchingFuzzyDomains
-                )
-            case .host:
-                let uriHost = URL(string: uri)?.hostWithPort
-                let matchUriHost = URL(string: matchUri)?.hostWithPort
-                if let uriHost, let matchUriHost, uriHost == matchUriHost {
-                    matchResult = .exact
-                }
-            case .startsWith:
-                if matchUri.starts(with: uri) {
-                    matchResult = .exact
-                }
-            case .exact:
-                if uri == matchUri {
-                    matchResult = .exact
-                }
-            case .regularExpression:
-                let range = matchUri.range(of: uri, options: [.caseInsensitive, .regularExpression])
-                if range != nil {
-                    matchResult = .exact
-                }
-            case .never:
-                matchResult = .none
-            }
-
-            if matchResult != .none {
-                break
-            }
-        }
-
-        return matchResult
-    }
-
     /// Returns a list of domains that match the specified domain. If the domain is contained
     /// within the equivalent domains list, this will return all equivalent domains. Otherwise, it
     /// will just return the domain.
     ///
     /// - Parameters:
-    ///   - appWebURL: The app's web URL minus the custom URL scheme.
-    ///   - isApp: Whether the URL is an app URL.
-    ///   - matchDomain: The domain used to check for equivalent domains.
     ///   - matchUri:The URI to match against.
     /// - Returns: A list of domains to match against.
     ///
-    private func getMatchingDomains(
-        appWebURL: URL?,
-        isApp: Bool,
-        matchDomain: String?,
-        matchUri: String
-    ) async -> (matching: Set<String>, fuzzyMatching: Set<String>) {
-        guard let matchDomain else { return ([], []) }
+    private func getMatchingDomains(matchUri: String) async -> (matching: Set<String>, fuzzyMatching: Set<String>) {
+        let matchURL = URL(string: matchUri)
+        let isApp = matchURL?.isApp ?? false
+        let matchDomain = isApp ? matchURL?.domain : matchURL?.sanitized.domain
+
+        guard let matchDomain else {
+            return ([], [])
+        }
+
+        let appWebURL = matchURL?.appWebURL
 
         let equivalentDomains = await (try? settingsService.fetchEquivalentDomains()) ?? [[]]
 
         var matchingDomains = [String]()
         var matchingFuzzyDomains = [String]()
-        for domain in equivalentDomains {
-            let domainSet = Set(domain)
+        for domains in equivalentDomains {
+            let domainSet = Set(domains)
             if isApp {
                 if domainSet.contains(matchDomain) {
                     matchingDomains.append(contentsOf: domainSet)

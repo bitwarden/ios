@@ -617,12 +617,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getDefaultUriMatchType() async throws {
         await subject.addAccount(.fixture())
 
-        let initialValue = try await subject.getDefaultUriMatchType()
+        let initialValue = await subject.getDefaultUriMatchType()
         XCTAssertEqual(initialValue, .domain)
 
         appSettingsStore.defaultUriMatchTypeByUserId["1"] = .exact
-        let value = try await subject.getDefaultUriMatchType()
+        let value = await subject.getDefaultUriMatchType()
         XCTAssertEqual(value, .exact)
+    }
+
+    /// `getDefaultUriMatchType()` returns `.domain` when there's no active account
+    /// and logs the error.
+    func test_getDefaultUriMatchType_noAccount() async throws {
+        let uriMatchType = await subject.getDefaultUriMatchType()
+        XCTAssertEqual(uriMatchType, .domain)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
     /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.

@@ -153,11 +153,11 @@ class SettingsRepositoryTests: BitwardenTestCase {
     func test_getDefaultUriMatchType() async throws {
         stateService.activeAccount = .fixture()
 
-        let initialValue = try await subject.getDefaultUriMatchType()
+        let initialValue = await subject.getDefaultUriMatchType()
         XCTAssertEqual(initialValue, .domain)
 
         stateService.defaultUriMatchTypeByUserId["1"] = .never
-        let value = try await subject.getDefaultUriMatchType()
+        let value = await subject.getDefaultUriMatchType()
         XCTAssertEqual(value, .never)
     }
 
