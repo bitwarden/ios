@@ -176,7 +176,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers
         ) { decryptedCipher in
-            guard decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+            guard decryptedCipher.deletedDate == nil,
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
                 return
             }
 

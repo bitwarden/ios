@@ -406,6 +406,15 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         }
     }
 
+    /// `ciphersMatching(uri:ciphers)` returns empty when the uri is `nil` or empty.
+    func test_ciphersMatching_empty() async {
+        let matchingCiphersURINil = await subject.ciphersMatching(uri: nil, ciphers: ciphers)
+        XCTAssertTrue(matchingCiphersURINil.isEmpty)
+
+        let matchingCiphersURIEmpty = await subject.ciphersMatching(uri: "", ciphers: ciphers)
+        XCTAssertTrue(matchingCiphersURIEmpty.isEmpty)
+    }
+
     // MARK: Private
 
     /// Returns a list of `CipherListView`s created with the specified name, URI and match type.

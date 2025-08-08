@@ -86,7 +86,7 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
 
     func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView] {
         uriToMatch = uri
-        guard let uriToMatch else {
+        guard let uriToMatch, !uriToMatch.isEmpty else {
             return []
         }
 

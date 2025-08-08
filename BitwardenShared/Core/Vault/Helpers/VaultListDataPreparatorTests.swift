@@ -503,9 +503,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         let result = try await subject.prepareAutofillPasswordsData(
             from: [
                 .fixture(
-                    login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
-                    ),
                     type: .card
                 ),
             ],
@@ -514,6 +511,32 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+    }
+
+    /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it's deleted.
+    @MainActor
+    func test_prepareAutofillPasswordsData_deletedCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            deletedDate: .now
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)]
+                    )
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com")
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
