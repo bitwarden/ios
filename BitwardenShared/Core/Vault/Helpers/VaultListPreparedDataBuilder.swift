@@ -212,13 +212,16 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
-        if !cipher.collectionIds.isEmpty,
-           let tempCollectionForCipher = preparedData.collections.first(where: { collection in
-               guard let colId = collection.id else { return false }
-               return cipher.collectionIds.contains(colId)
-           }),
-           let tempCollectionId = tempCollectionForCipher.id {
-            preparedData.collectionsCount[tempCollectionId, default: 0] += 1
+        if !cipher.collectionIds.isEmpty {
+            let tempCollectionsForCipher = preparedData.collections.filter { collection in
+                guard let colId = collection.id else { return false }
+                return cipher.collectionIds.contains(colId)
+            }
+            tempCollectionsForCipher.forEach { tempCollection in
+                if let collectionId = tempCollection.id {
+                    preparedData.collectionsCount[collectionId, default: 0] += 1
+                }
+            }
         }
 
         return self
