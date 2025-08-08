@@ -212,7 +212,6 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
-        guard cipher.deletedDate == nil else { return self }
         if !cipher.collectionIds.isEmpty {
             let tempCollectionsForCipher = preparedData.collections.filter { collection in
                 guard let colId = collection.id else { return false }
