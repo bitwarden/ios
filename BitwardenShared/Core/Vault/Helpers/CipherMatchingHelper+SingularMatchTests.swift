@@ -399,10 +399,13 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         ])
 
         await subject.prepare(uri: "https://google.com")
-        XCTAssertEqual(subject.matchingDomains.map(\.self), [
-            "youtube.com",
-            "google.com",
-        ])
+        // Given it's using a Set internally, the elements are unordered
+        // so we can't compare arrays as the order may change depending on the run.
+        // Instead we just check number of items and that the array contains
+        // the elements we expect.
+        XCTAssertEqual(subject.matchingDomains.count, 2)
+        XCTAssertTrue(subject.matchingDomains.contains("google.com"))
+        XCTAssertTrue(subject.matchingDomains.contains("youtube.com"))
     }
 
     /// `prepare(uri:)` sets the domains matching the equivalent domains
