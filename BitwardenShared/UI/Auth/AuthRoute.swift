@@ -36,7 +36,7 @@ public enum AuthRoute: Equatable {
         fromEmail: Bool
     )
 
-    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
     /// Dismisses the auth flow.
