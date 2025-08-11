@@ -140,6 +140,7 @@ extension View {
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
             .frame(minHeight: 44)
+            .fixedSize()
     }
 
     /// Returns a `Button` that displays a text label for use in a toolbar.
@@ -156,6 +157,7 @@ extension View {
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
             .frame(minHeight: 44)
+            .fixedSize()
     }
 
     // MARK: Menus
