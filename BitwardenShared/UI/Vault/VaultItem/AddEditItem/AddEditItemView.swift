@@ -109,8 +109,10 @@ struct AddEditItemView: View {
                 }
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    saveToolbarButton {
-                        await store.perform(.savePressed)
+                    if #unavailable(iOS 26) {
+                        saveToolbarButton {
+                            await store.perform(.savePressed)
+                        }
                     }
 
                     VaultItemManagementMenuView(
@@ -124,6 +126,12 @@ struct AddEditItemView: View {
                             mapEffect: { _ in .deletePressed }
                         )
                     )
+
+                    if #available(iOS 26, *) { // Save goes on the right in iOS 26, on the left < 26
+                        saveToolbarButton {
+                            await store.perform(.savePressed)
+                        }
+                    }
                 }
             }
     }

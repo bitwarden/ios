@@ -74,10 +74,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                saveToolbarButton {
-                    await store.perform(.savePressed)
+                if #unavailable(iOS 26) {
+                    saveToolbarButton {
+                        await store.perform(.savePressed)
+                    }
+                    .disabled(store.state.isSendDisabled)
                 }
-                .disabled(store.state.isSendDisabled)
 
                 if store.state.mode == .edit {
                     optionsToolbarMenu {
@@ -95,6 +97,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             }
                         }
                     }
+                }
+
+                if #available(iOS 26, *) { // Save goes on the right in iOS 26, on the left < 26
+                    saveToolbarButton {
+                        await store.perform(.savePressed)
+                    }
+                    .disabled(store.state.isSendDisabled)
                 }
             }
         }
