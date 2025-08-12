@@ -29,7 +29,7 @@
 "Start ${applicationName} password builder" = "Bắt đầu trình tạo mật khẩu cho ${applicationName}";
 "Open up the ${applicationName} generator" = "Mở trình tạo ${applicationName}";
 "Load the password creator in ${applicationName}" = "Tải trình tạo mật khẩu trong ${applicationName}";
-"Take me to ${applicationName}'s generator" = "Đưa tôi đến trình tạo của ${applicationName}";
+"Take me to ${applicationName}'s generator" = "Đi đến trình tạo của ${applicationName}";
 "Begin generating passwords with ${applicationName}" = "Bắt đầu tạo mật khẩu với ${applicationName}";
 "Generate passphrase using ${applicationName}" = "Dùng ${applicationName} tạo cụm mật khẩu";
 "Create a ${applicationName} passphrase" = "Tạo cụm mật khẩu cho ${applicationName}";
