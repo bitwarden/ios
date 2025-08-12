@@ -399,7 +399,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         ])
 
         await subject.prepare(uri: "https://google.com")
-        XCTAssertEqual(subject.matchingDomains.map(\.self), [
+        XCTAssertEqual(subject.matchingDomains.sorted(), [
             "google.com",
             "youtube.com",
         ])
@@ -416,10 +416,10 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         ])
 
         await subject.prepare(uri: "iosapp://example.com")
-        XCTAssertEqual(subject.matchingDomains.map(\.self), [
+        XCTAssertEqual(Array(subject.matchingDomains), [
             "iosapp://example.com",
         ])
-        XCTAssertEqual(subject.matchingFuzzyDomains.map(\.self), [
+        XCTAssertEqual(Array(subject.matchingFuzzyDomains), [
             "example.com",
         ])
     }
