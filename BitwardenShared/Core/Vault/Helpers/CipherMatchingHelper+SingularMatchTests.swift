@@ -400,8 +400,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
 
         await subject.prepare(uri: "https://google.com")
         XCTAssertEqual(subject.matchingDomains.map(\.self), [
-            "youtube.com",
             "google.com",
+            "youtube.com",
         ])
     }
 
