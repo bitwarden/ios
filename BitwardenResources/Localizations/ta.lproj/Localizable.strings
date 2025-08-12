@@ -186,7 +186,7 @@
 "TwoStepLogin" = "இரு-படி உள்நுழைவு";
 "UnlockWith" = "%1$@ மூலம் பூட்டவிழ்";
 "UnlockWithPIN" = "கடவெண் குறி மூலம் பூட்டவிழ்";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
+"UnlockWithUnknownBiometrics" = "உயிரியளவுகள் மூலம் பூட்டவிழ்";
 "Validating" = "சரிபார்க்கிறது";
 "VerificationCode" = "சரிபார்ப்புக் குறியீடு";
 "ViewItem" = "உருப்படியைப் பார்";
@@ -1013,7 +1013,7 @@
 "Dismiss" = "Dismiss";
 "SaveAndProtectYourData" = "Save and protect your data";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
-"SendSensitiveInformationSafely" = "பாதுகாப்பாக மறைமுகத் தகவலை அனுப்புக";
+"SendSensitiveInformationSafely" = "மறைமுகத் தகவலை அனுப்புக, பாதுகாப்பாக";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "கோப்புகள் மற்றும் தரவை யாருடனும், எத்தளத்திலும் பாதுகாப்பாகப் பகிர்க. வெளிப்படுதலைக் கட்டுப்படுத்தி உமது தகவல் இருமுனை மறையாக்கம் செய்யப்பட்டிருக்கும்.";
 "NewLogin" = "New login";
 "NewCard" = "New card";

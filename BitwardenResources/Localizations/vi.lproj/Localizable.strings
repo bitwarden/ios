@@ -400,8 +400,8 @@
 "NoPasswordsToList" = "Không có mật khẩu nào.";
 "NoItemsToList" = "Không có mục nào.";
 "SearchCollection" = "Tìm kiếm bộ sưu tập";
-"SearchFileSends" = "Tìm tập tin trong Send";
-"SearchTextSends" = "Tìm văn bản trong Send";
+"SearchFileSends" = "Tìm Send tập tin";
+"SearchTextSends" = "Tìm Send văn bản";
 "SearchGroup" = "Tìm kiếm %1$@";
 "Type" = "Loại";
 "MoveDown" = "Chuyển xuống";
@@ -1012,7 +1012,7 @@
 "Dismiss" = "Bỏ qua";
 "SaveAndProtectYourData" = "Lưu và bảo vệ dữ liệu của bạn";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Kho lưu trữ không chỉ bảo vệ mật khẩu của bạn. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, ID, thẻ và ghi chú tại đây.";
-"SendSensitiveInformationSafely" = "Gửi thông tin nhạy cảm an toàn";
+"SendSensitiveInformationSafely" = "Gửi thông tin nhạy cảm một cách an toàn";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.";
 "NewLogin" = "Đăng nhập mới";
 "NewCard" = "Thêm thẻ";
@@ -1066,7 +1066,7 @@
 "GotIt" = "Đã hiểu";
 "GenerateCrash" = "Sự cố khi tạo";
 "GenerateErrorReport" = "Báo cáo lỗi khi tạo";
-"AllowAuthenticatorSyncing" = "Cho phép đồng bộ hóa trình xác thực";
+"AllowAuthenticatorSyncing" = "Đồng bộ với Bitwarden Authenticator";
 "AuthenticatorSync" = "Đồng bộ hóa trình xác thực";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Không tìm thấy tài khoản. Thử đăng nhập lại nếu bạn tiếp tục thấy lỗi này.";
 "ImportError" = "Lỗi khi nhập";
@@ -1112,8 +1112,8 @@
 "ThisIsTakingLongerThanExpected" = "Quá trình này mất nhiều thời gian hơn dự kiến";
 "ItemsToExport" = "Những mục sẽ xuất";
 "TextToShare" = "Nội dung chia sẻ";
-"SendDetails" = "Chi tiết Gửi";
-"SendNameRequired" = "Tên mục Gửi (bắt buộc)";
+"SendDetails" = "Chi tiết Send";
+"SendNameRequired" = "Tên Send (bắt buộc)";
 "CheckPasswordForDataBreaches" = "Kiểm tra xem mật khẩu có bị lộ";
 "PrivateNote" = "Ghi chú riêng tư";
 "XItems" = "%1$@ mục";
@@ -1145,7 +1145,7 @@
 "FlightRecorder" = "Bản ghi nhật ký";
 "EnableFlightRecorder" = "Bật bản ghi nhật ký";
 "ExperiencingAnIssue" = "Bạn đang gặp vấn đề?";
-"EnableTemporaryLoggingDescriptionLong" = "Bật tính năng ghi nhật ký tạm thời để thu thập và kiểm tra nhật cục bộ. Khi tính năng này được bật, trạng thái ứng dụng và các yêu cầu mạng có thể được ghi lại—không bao giờ gồm thông tin nhạy cảm trong kho lưu trữ.";
+"EnableTemporaryLoggingDescriptionLong" = "Bật tính năng ghi nhật ký tạm thời để thu thập và kiểm tra cục bộ. Khi tính năng này được bật, trạng thái ứng dụng và các yêu cầu mạng có thể được ghi lại—không bao giờ bao gồm thông tin nhạy cảm trong kho lưu trữ.";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "Để bắt đầu, hãy thiết lập thời gian ghi nhật ký. Ghi nhật ký sẽ tự động tắt sau khoảng thời gian này, cho phép bạn ghi lại hoạt động trong quá trình tái hiện các vấn đề.";
 "LoggingDuration" = "Thời gian ghi nhật ký";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Nhật ký sẽ được tự động xóa sau 30 ngày. Bitwarden chỉ có thể truy cập dữ liệu nhật ký của bạn khi bạn chia sẻ nó.";
@@ -1185,9 +1185,9 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Bạn thực sự muốn xóa tất cả các bản ghi đã ghi lại?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tài khoản này sẽ sớm bị xóa. Đăng nhập %1$@ để tiếp tục sử dụng Bitwarden.";
 "AppSettings" = "Cài đặt ứng dụng";
-"ViewFileSend" = "Xem tập tin Gửi";
-"ViewTextSend" = "Xem văn bản Gửi";
-"DeleteSend" = "Xóa mục Gửi";
+"ViewFileSend" = "Xem Send tập tin";
+"ViewTextSend" = "Xem Send văn bản";
+"DeleteSend" = "Xóa Send";
 "FlightRecorderOn" = "Bản ghi nhật ký bật";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Bản ghi nhật ký sẽ kích hoạt cho tới %1$@ vào %2$@. Đến Cài đặt để hủy kích hoạt ngay.";
 "GoToSettings" = "Đi đến cài đặt";
@@ -1196,8 +1196,8 @@
 "ThereIsNoActiveAccount" = "Không có tài khoản hoạt động.";
 "NewFileSend" = "Send tập tin mới";
 "NewTextSend" = "Send văn bản mới";
-"EditFileSend" = "Chỉnh sửa tệp Send";
-"EditTextSend" = "Chỉnh sửa văn bản Send";
+"EditFileSend" = "Chỉnh sửa Send tập tin";
+"EditTextSend" = "Chỉnh sửa Send văn bản";
 "LogDeleted" = "Đã xóa nhật ký";
 "AllLogsDeleted" = "Đã xóa tất cả nhật ký";
 "LoggingEndsOnDateAtTime" = "Ghi nhật ký kết thúc vào %1$@ lúc %2$@";
@@ -1214,12 +1214,12 @@
 "CopyErrorReport" = "Sao chép báo lỗi";
 "ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";
 "AccountName" = "Tên tài khoản";
-"AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
+"AccountsSyncedFromBitwardenApp" = "Các tài khoản được đồng bộ hóa từ ứng dụng Bitwarden";
 "AddANewCodeToSecure" = "Thêm mã mới để bảo mật tài khoản của bạn.";
 "AddCode" = "Thêm mã";
 "Advanced" = "Nâng cao";
 "Algorithm" = "Thuật toán";
-"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
+"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Cho phép đồng bộ hóa ứng dụng Authenticator trong cài đặt để xem tất cả mã xác minh của bạn tại đây.";
 "Backup" = "Sao lưu";
 "BitwardenAuthenticator" = "Bitwarden Authenticator";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Dữ liệu của Bitwarden Authenticator đã được sao lưu và có thể được khôi phục bằng bản sao lưu thiết bị định kỳ của bạn.";
@@ -1228,10 +1228,10 @@
 "Data" = "Dữ liệu";
 "DefaultSaveOption" = "Tùy chọn lưu mặc định";
 "DownloadTheBitwardenApp" = "Tải xuống ứng dụng Bitwarden";
-"EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
+"EnsureItsValidJsonAndTryAgain" = "Đảm bảo rằng đó là JSON hợp lệ và thử lại.";
 "ExportItemsConfirmationTitle" = "Xác nhận xuất mục";
 "ExportItemsWarning" = "Tập tin xuất này chứa dữ liệu mã xác minh của bạn dưới một định dạng không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin này thông qua phương thức không an toàn (như email). Xóa nó ngay lập tức khi bạn đã dùng xong.";
-"FileCouldNotBeProcessed" = "File could not be processed";
+"FileCouldNotBeProcessed" = "Tệp không thể được xử lý";
 "GetVerificationCodesForAllYourAccounts" = "Nhận mã xác minh cho tất cả các tài khoản của bạn sử dụng xác minh 2 bước.";
 "Help" = "Trợ giúp";
 "Import" = "Nhập dữ liệu";
@@ -1242,26 +1242,26 @@
 "Key" = "Khóa";
 "KeyReadError" = "Không thể đọc khoá.";
 "LaunchTutorial" = "Bắt đầu hướng dẫn";
-"LearnMoreLink" = "[Learn more](%1$@)";
-"LocalCodes" = "Local codes";
-"NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
+"LearnMoreLink" = "[Tìm hiểu thêm](%1$@)";
+"LocalCodes" = "Mã cục bộ";
+"NeedHelpVisitOurHelpCenterForGuidance" = "Cần hỗ trợ? Hãy truy cập Trung tâm Hỗ trợ của chúng tôi để được hướng dẫn.";
 "NinetySeconds" = "90 giây";
-"NoAskMe" = "No, ask me";
+"NoAskMe" = "Không, hãy hỏi tôi";
 "NoCodes" = "Bạn không có mã nào để hiển thị";
 "None" = "Không có";
 "NumberOfDigits" = "Số lượng chữ số";
 "OtpType" = "Loại OTP";
 "RefreshPeriod" = "Chu kỳ làm mới";
-"RequiredInformationIsMissing" = "Required information is missing at %1$@. Please review the field and try again.";
+"RequiredInformationIsMissing" = "Thông tin bắt buộc còn thiếu tại %1$@. Vui lòng kiểm tra lại trường thông tin và thử lại.";
 "RequiredInformationMissing" = "Thông tin bắt buộc còn thiếu";
 "SaveHere" = "Lưu tại đây";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Lưu khóa xác thực này tại đây hoặc thêm nó vào tài khoản đăng nhập trong ứng dụng Bitwarden của bạn.";
 "SaveToBitwarden" = "Lưu vào Bitwarden";
-"ScanComplete" = "Scan complete";
+"ScanComplete" = "Quét hoàn tất";
 "ScanTheQRCodeInYourSettings" = "Quét mã QR trong các cài đặt xác minh hai bước của bạn cho bất kỳ tài khoản nào.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Bảo mật tài khoản của bạn với Bitwarden Authenticator";
-"SetSaveLocallyAsYourDefaultSaveOption" = "Set \"Save locally\" as your default save option?";
-"SetSaveToBitwardenAsYourDefaultSaveOption" = "Set \"Save to Bitwarden\" as your default save option?";
+"SetSaveLocallyAsYourDefaultSaveOption" = "Bạn có muốn đặt \"Lưu cục bộ\" làm tùy chọn lưu mặc định không?";
+"SetSaveToBitwardenAsYourDefaultSaveOption" = "Bạn có muốn đặt \"Lưu vào Bitwarden\" làm tùy chọn lưu mặc định không?";
 "SignInUsingUniqueCodes" = "Đăng nhập bằng mã duy nhất";
 "SixtySeconds" = "60 giây";
 "Skip" = "Bỏ qua";
@@ -1269,12 +1269,12 @@
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Lưu trữ tất cả thông tin đăng nhập của bạn và đồng bộ mã xác minh trực tiếp với ứng dụng Authenticator.";
 "SyncWithBitwardenApp" = "Đồng bộ hóa với ứng dụng Bitwarden";
 "SyncWithTheBitwardenApp" = "Đồng bộ hóa với ứng dụng Bitwarden";
-"TakeMeToTheAppSettings" = "Đưa tôi đến cài đặt ứng dụng";
-"TheDataFormatProvidedDoesntMatchWhatsExpected" = "The data format provided doesn’t match what’s expected. Please check your file and ensure the correct data types are used.";
+"TakeMeToTheAppSettings" = "Đi đến cài đặt ứng dụng";
+"TheDataFormatProvidedDoesntMatchWhatsExpected" = "Định dạng dữ liệu bạn cung cấp không đúng như mong đợi. Vui lòng kiểm tra lại tệp và đảm bảo rằng các kiểu dữ liệu đã được sử dụng đúng.";
 "UnableToSyncCodesFromTheBitwardenApp" = "Không thể đồng bộ mã từ ứng dụng Bitwarden. Hãy đảm bảo cả hai ứng dụng đều được cập nhật phiên bản mới nhất. Bạn vẫn có thể truy cập các mã hiện có trong ứng dụng Bitwarden.";
-"UnexpectedDataFormat" = "Unexpected Data Format";
+"UnexpectedDataFormat" = "Định dạng dữ liệu không đúng";
 "UseYourDeviceCameraToScanCodes" = "Sử dụng camera của thiết bị để quét mã";
 "VerificationCodeAdded" = "Đã thêm mã xác minh";
 "WhenUsingTwoStepVerification" = "Khi sử dụng xác minh 2 bước, bạn sẽ nhập tên người dùng và mật khẩu của mình cũng như mã được tạo trong ứng dụng này.";
-"YesSetDefault" = "Yes, set default";
-"YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"YesSetDefault" = "Đúng, đặt mặc định";
+"YouCanUpdateYourDefaultAnytimeInSettings" = "Bạn có thể cập nhật cài đặt mặc định bất cứ lúc nào trong phần cài đặt.";
