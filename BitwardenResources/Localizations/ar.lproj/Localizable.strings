@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزانك.";
 "MasterPasswordHint" = "تلميح كلمة المرور الرئيسي";
 "NewMasterPasswordHint" = "تلميح كلمة المرور الرئيسية";
-"MasterPasswordHintDescription" = "يمكن أن تساعدك فكرة كلمة المرور الرئيسية على تذكر كلمة المرور الخاصة بك إذا نسيت.";
 "MasterPasswordLengthValMessageX" = "كلمة المرور الرئيسية يجب أن تكون على الأقل %1$@ حرفاً.";
 "MinNumbers" = "الحد الأدنى للأرقام";
 "MinSpecial" = "الحد الأدنى من الأحرف الخاصة";
@@ -171,7 +170,6 @@
 "RateTheApp" = "قيّم التطبيق";
 "RateTheAppDescription" = "شكرا على مساعدتنا من خلال كتابة تعليق إيجابي!";
 "RegeneratePassword" = "إعادة توليد كلمة المرور";
-"RetypeMasterPassword" = "إعادة إدخال كلمة المرور الرئيسية";
 "SearchVault" = "البحث في الخزانة";
 "Security" = "الأمان";
 "Select" = "تحديد";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "كلمة المرور غير صالحة";
 "MasterPasswordPolicyValidationMessage" = "كلمة المرور لا تفي بمتطلبات المؤسسة. الرجاء التحقق من معلومات السياسة وحاول مرة أخرى.";
 "Loading" = "جار التحميل";
-"AcceptPolicies" = "بتفعيل هذا التبديل فإنك توافق على ما يلي:";
 "AcceptPoliciesError" = "لم يتم الاعتراف بشروط الخدمة وسياسة الخصوصية.";
-"TermsOfService" = "اتفاقية خدمة المستخدم";
 "PrivacyPolicy" = "سياسة الخصوصيّة";
 "AccessibilityDrawOverPermissionAlert" = "يحتاج بت واردن إلى الاهتمام - قم بتمكين \"السحب\" في \"خدمات الملء التلقائي\" من إعدادات بت واردن";
 "PasskeyManagement" = "إدارة مفتاح المرور";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "تغيير اللّغة يتطلب إعادة تشغيل التطبيق";
 "DefaultSystem" = "الافتراضي (النظام)";
 "Important" = "مهم";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "لا يمكن استعادة كلمة المرور الرئيسية الخاصة بك إذا نسيت ذلك! %1$@ أحرف الحد الأدنى.";
 "WeakMasterPassword" = "كلمة المرور الرئيسية الضعيفة";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "تم تحديد كلمة المرور ضعيفة. استخدم كلمة مرور قوية لحماية حسابك. هل أنت متأكد من أنك تريد استخدام كلمة مرور ضعيفة؟";
 "Weak" = "ضعيفة";

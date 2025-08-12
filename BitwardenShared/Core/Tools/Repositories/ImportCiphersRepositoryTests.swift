@@ -53,18 +53,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     /// updates progress report and returns the credentials result with each type count.
     @MainActor
     func test_importCiphers_success() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Importing ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Importing ciphers requires iOS 26.0")
         }
 
         let credentialImportManager = MockCredentialImportManager()
 
         credentialImportManager.importCredentialsResult = try .success(getASExportedCredentialDataAsJson(
-            data: ASExportedCredentialData(
-                accounts: [
-                    .fixture(items: [.fixture()]),
-                ]
-            )
+            accounts: [
+                .fixture(items: [.fixture()]),
+            ]
         ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -113,16 +111,14 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     /// when there are no accounts after importing credentials.
     @MainActor
     func test_importCiphers_noDataFound() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Importing ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Importing ciphers requires iOS 26.0")
         }
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
             try .success(getASExportedCredentialDataAsJson(
-                data: ASExportedCredentialData(
-                    accounts: []
-                )
+                accounts: []
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -140,18 +136,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     /// the SDK to import the ciphers.
     @MainActor
     func test_importCiphers_sdkThrows() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Importing ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Importing ciphers requires iOS 26.0")
         }
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
             try .success(getASExportedCredentialDataAsJson(
-                data: ASExportedCredentialData(
-                    accounts: [
-                        .fixture(items: [.fixture()]),
-                    ]
-                )
+                accounts: [
+                    .fixture(items: [.fixture()]),
+                ]
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -171,18 +165,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     /// to import the ciphers.
     @MainActor
     func test_importCiphers_throwsWhenImportingCiphersAPI() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Importing ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Importing ciphers requires iOS 26.0")
         }
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
             try .success(getASExportedCredentialDataAsJson(
-                data: ASExportedCredentialData(
-                    accounts: [
-                        .fixture(items: [.fixture()]),
-                    ]
-                )
+                accounts: [
+                    .fixture(items: [.fixture()]),
+                ]
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -209,18 +201,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     /// importing the ciphers.
     @MainActor
     func test_importCiphers_throwsWhenSyncing() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Importing ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Importing ciphers requires iOS 26.0")
         }
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
             try .success(getASExportedCredentialDataAsJson(
-                data: ASExportedCredentialData(
-                    accounts: [
-                        .fixture(items: [.fixture()]),
-                    ]
-                )
+                accounts: [
+                    .fixture(items: [.fixture()]),
+                ]
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -245,8 +235,15 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
     // MARK: Private
 
-    @available(iOS 18.2, *)
-    private func getASExportedCredentialDataAsJson(data: ASExportedCredentialData) throws -> String {
+    @available(iOS 26.0, *)
+    private func getASExportedCredentialDataAsJson(accounts: [ASImportableAccount]) throws -> String {
+        let data = ASExportedCredentialData(
+            accounts: accounts,
+            formatVersion: .v1,
+            exporterRelyingPartyIdentifier: "com.bitwarden.test",
+            exporterDisplayName: "Bitwarden Test",
+            timestamp: .now
+        )
         let credentialData = try JSONEncoder.cxfEncoder.encode(data)
         guard let credentialDataJsonString = String(data: credentialData, encoding: .utf8) else {
             throw BitwardenError.dataError("Failed to encode ASExportedCredentialData")

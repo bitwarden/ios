@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A senha mestra é a senha que você usa para acessar o seu cofre.";
 "MasterPasswordHint" = "Dica da senha mestra";
 "NewMasterPasswordHint" = "Dica da nova senha mestra";
-"MasterPasswordHintDescription" = "Uma dica de senha mestra pode ajudá-lo(a) a lembrá-la caso você a esqueça.";
 "MasterPasswordLengthValMessageX" = "A senha mestra deve ter pelo menos %1$@ caracteres.";
 "MinNumbers" = "Números mínimos";
 "MinSpecial" = "Especiais Minímos";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Avalie o aplicativo";
 "RateTheAppDescription" = "Por favor considere ajudar-nos com uma boa avaliação!";
 "RegeneratePassword" = "Gerar nova senha";
-"RetypeMasterPassword" = "Digite novamente a Senha Mestra";
 "SearchVault" = "Pesquisar cofre";
 "Security" = "Segurança";
 "Select" = "Selecionar";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha Inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Por favor, verifique as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"AcceptPolicies" = "Ao ativar esta opção, você concorda com o seguinte:";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
-"TermsOfService" = "Termos de Serviço";
 "PrivacyPolicy" = "Política de Privacidade";
 "AccessibilityDrawOverPermissionAlert" = "O Bitwarden precisa de atenção - ative a \"Sobreposição\" em \"Serviços de Autopreenchimento\" nas Configurações do Bitwarden";
 "PasskeyManagement" = "Gerenciamento de chaves de acesso";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Mudança de idioma requer a reinicialização do aplicativo";
 "DefaultSystem" = "Padrão (Sistema)";
 "Important" = "Importante";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Sua senha mestra não pode ser recuperada se você esquecê-la! Mínimo de %1$@ caracteres.";
 "WeakMasterPassword" = "Senha mestra fraca";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Senha fraca identificada. Use uma senha forte para proteger a sua conta. Você tem certeza que deseja usar uma senha fraca?";
 "Weak" = "Fraca";

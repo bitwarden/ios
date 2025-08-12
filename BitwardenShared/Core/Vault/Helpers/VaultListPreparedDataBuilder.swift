@@ -13,8 +13,6 @@ protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
 
 /// The default implementation of `VaultListPreparedDataBuilderFactory`.
 struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
-    // swiftlint:disable:previous type_name
-
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
@@ -50,6 +48,11 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     ) -> VaultListPreparedDataBuilder
     /// Adds an item for a specific group to the prepared data.
     func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
+    /// Adds an item with a match result strength to the prepared data.
+    func addItem( // sourcery: useSelectorName
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView
+    ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Builds the prepared data.
@@ -191,6 +194,26 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return self
     }
 
+    func addItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView
+    ) async -> VaultListPreparedDataBuilder {
+        guard matchResult != .none, let vaultListItem = VaultListItem(cipherListView: cipher) else {
+            return self
+        }
+
+        switch matchResult {
+        case .exact:
+            preparedData.exactMatchItems.append(vaultListItem)
+        case .fuzzy:
+            preparedData.fuzzyMatchItems.append(vaultListItem)
+        case .none:
+            break
+        }
+
+        return self
+    }
+
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.folderId == nil,
            let noFolderItem = VaultListItem(cipherListView: cipher) {
@@ -214,13 +237,16 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
-        if !cipher.collectionIds.isEmpty,
-           let tempCollectionForCipher = preparedData.collections.first(where: { collection in
-               guard let colId = collection.id else { return false }
-               return cipher.collectionIds.contains(colId)
-           }),
-           let tempCollectionId = tempCollectionForCipher.id {
-            preparedData.collectionsCount[tempCollectionId, default: 0] += 1
+        if !cipher.collectionIds.isEmpty {
+            let tempCollectionsForCipher = preparedData.collections.filter { collection in
+                guard let colId = collection.id else { return false }
+                return cipher.collectionIds.contains(colId)
+            }
+            tempCollectionsForCipher.forEach { tempCollection in
+                if let collectionId = tempCollection.id {
+                    preparedData.collectionsCount[collectionId, default: 0] += 1
+                }
+            }
         }
 
         return self

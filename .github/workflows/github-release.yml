@@ -13,7 +13,7 @@ on:
         type: string
 
 env:
-    ARTIFACTS_PATH: artifacts
+    _ARTIFACTS_PATH: artifacts
 jobs:
   create-release:
     name: Create GitHub Release
@@ -28,6 +28,11 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+
+      - name: Log inputs to job summary
+        uses: ./.github/actions/log-inputs
+        with:
+          inputs: ${{ toJson(inputs) }}
 
       - name: Get branch from workflow run
         id: get_release_branch
@@ -45,43 +50,50 @@ jobs:
             exit 1
           fi
 
+          echo "🔖 Release branch: $release_branch"
+          echo "🔖 Workflow name: $workflow_name"
           echo "release_branch=$release_branch" >> $GITHUB_OUTPUT
           echo "workflow_name=$workflow_name" >> $GITHUB_OUTPUT
 
           case "$workflow_name" in
             *"Password Manager"* | "Build" | "CI - main")
-              echo "app_name=Password Manager" >> $GITHUB_OUTPUT
-              echo "app_name_suffix=bwpm" >> $GITHUB_OUTPUT
+              app_name="Password Manager"
+              app_name_suffix="bwpm"
               ;;
             *"Authenticator"*)
-              echo "app_name=Authenticator" >> $GITHUB_OUTPUT
-              echo "app_name_suffix=bwa" >> $GITHUB_OUTPUT
+              app_name="Authenticator"
+              app_name_suffix="bwa"
               ;;
             *)
               echo "::error::Unknown workflow name: $workflow_name"
               exit 1
               ;;
           esac
+          echo "🔖 App name: $app_name"
+          echo "🔖 App name suffix: $app_name_suffix"
+          echo "app_name=$app_name" >> $GITHUB_OUTPUT
+          echo "app_name_suffix=$app_name_suffix" >> $GITHUB_OUTPUT
 
       - name: Download artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
-        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
+          _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _DOWNLOAD_FILTER: "release_${{ steps.get_release_branch.outputs.app_name_suffix}}"
+        run: ./Scripts/download-artifacts.sh $_ARTIFACTS_PATH $_ARTIFACT_RUN_ID $_DOWNLOAD_FILTER
 
       - name: Parse version info from run logs and set release tag name
         id: get_release_info
         env:
           _APP_NAME_SUFFIX: ${{ steps.get_release_branch.outputs.app_name_suffix }}
         run: |
-          if [ -f "$ARTIFACTS_PATH/version-info.zip" ]; then
+          if [ -f "$_ARTIFACTS_PATH/version-info.zip" ]; then
             echo "🔖 version-info.zip was found, extracting info"
-            unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
+            unzip -o "$_ARTIFACTS_PATH/version-info.zip" -d "tmp"
             filepath="tmp/version-info/version_info.json"
             version_name=$(jq -r '.version_name' "$filepath")
             version_number=$(jq -r '.version_number' "$filepath")
             rm -rf tmp
-            rm "$ARTIFACTS_PATH/version-info.zip"
+            rm "$_ARTIFACTS_PATH/version-info.zip"
           else
             echo "::warning::version-info.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
             version_name="0.0.0"
@@ -151,14 +163,20 @@ jobs:
           _TAG_NAME: ${{ steps.get_release_info.outputs.tag_name }}
           _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
         run: |
+          is_latest_release=false
+          if [[ "$_APP_NAME" == "Password Manager" ]]; then
+            is_latest_release=true
+          fi
+
           echo "⌛️ Creating release for $_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER) on $_RELEASE_BRANCH"
           release_url=$(gh release create "$_TAG_NAME" \
             --title "$_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER)" \
             --target $_RELEASE_BRANCH \
             --generate-notes \
             --notes-start-tag "$_LAST_RELEASE_TAG" \
+            --latest=$is_latest_release \
             --draft \
-            $ARTIFACTS_PATH/*)
+            $_ARTIFACTS_PATH/*)
 
           # Extract release tag from URL
           release_id_from_url=$(echo "$release_url" | sed 's/.*\/tag\///')
@@ -168,7 +186,6 @@ jobs:
 
           echo "✅ Release created: $release_url"
           echo "🔖 Release ID from URL: $release_id_from_url"
-          echo "🔖 Release URL: $release_url"
 
       - name: Update Release Description
         id: update_release_description
@@ -187,7 +204,7 @@ jobs:
           ${product_release_notes}
 
           ${current_body}
-          **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
+          **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$_ARTIFACT_RUN_ID"
 
           new_release_url=$(gh release edit "$_RELEASE_ID" --notes "$updated_body")
 

@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Huvudlösenordet är det lösenord som du använder för att komma åt ditt valv.";
 "MasterPasswordHint" = "Ledtråd till huvudlösenord";
 "NewMasterPasswordHint" = "Hämta huvudlösenordsledtråd";
-"MasterPasswordHintDescription" = "En huvudlösenordsledtråd kan hjälpa dig att komma ihåg ditt huvudlösenord om du glömmer bort det.";
 "MasterPasswordLengthValMessageX" = "Huvudlösenordet måste vara minst %1$@ tecken långt.";
 "MinNumbers" = "Minsta antal siffror";
 "MinSpecial" = "Minsta antal speciella tecken";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Betygsätt appen";
 "RateTheAppDescription" = "Överväg gärna att hjälpa oss genom att ge oss en bra recension!";
 "RegeneratePassword" = "Återskapa lösenord";
-"RetypeMasterPassword" = "Ange huvudlösenordet igen";
 "SearchVault" = "Sök i valvet";
 "Security" = "Säkerhet";
 "Select" = "Välj";
@@ -534,9 +532,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "MasterPasswordPolicyValidationTitle" = "Ogiltigt lösenord";
 "MasterPasswordPolicyValidationMessage" = "Lösenordet uppfyller inte organisationens krav. Kontrollera policyn och försök igen.";
 "Loading" = "Laddar";
-"AcceptPolicies" = "Genom att aktivera denna knapp godkänner du följande:";
 "AcceptPoliciesError" = "Användarvillkoren och Integritetspolicyn har inte accepterats.";
-"TermsOfService" = "Användarvillkor";
 "PrivacyPolicy" = "Integritetspolicy";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden behöver uppmärksamhet - Slå på \"Draw-Over\" i \"Autofylltjänster\" från Bitwarden Inställningar";
 "PasskeyManagement" = "Nyckelhantering";
@@ -764,7 +760,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LanguageChangeRequiresAppRestart" = "Ändring av språk kräver att appen startas om";
 "DefaultSystem" = "Standard (System)";
 "Important" = "Viktigt";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Ditt huvudlösenord kan inte återställas om du glömmer det! Minst %1$@ tecken.";
 "WeakMasterPassword" = "Svagt huvudlösenord";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Ett svagt lösenord upptäcktes. Skydda ditt konto med ett starkt lösenord. Är du säker på att du vill använda ett svagt lösenord?";
 "Weak" = "Svagt";

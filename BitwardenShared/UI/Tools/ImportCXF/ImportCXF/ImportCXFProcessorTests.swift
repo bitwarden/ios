@@ -76,7 +76,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// policy applies to user.
     @MainActor
     func test_perform_appearedPersonalOwnership() async throws {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             throw XCTSkip("CXP Import feature is not available on this device")
         }
 
@@ -98,7 +98,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// policy doesn't apply to user.
     @MainActor
     func test_perform_appearedFeatureFlagEnabled() async throws {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             throw XCTSkip("CXP Import feature is not available on this device")
         }
 
@@ -330,7 +330,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// Checks whether the alert is shown when not in the correct iOS version for CXF Import to work.
     @MainActor
     private func checkAlertShownWhenNotInCorrectIOSVersion() -> Bool {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             XCTAssertEqual(
                 coordinator.alertShown,
                 [

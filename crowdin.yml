@@ -1,0 +1,16 @@
+project_id_env: _CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_API_TOKEN
+preserve_hierarchy: true
+files:
+  - source: "/Bitwarden/Application/Support/AppShortcutsLocalizations/en.lproj/AppShortcuts.strings"
+    dest: "/ios/%original_file_name%"
+    translation: "/Bitwarden/Application/Support/AppShortcutsLocalizations/%osx_code%/%original_file_name%"
+    update_option: update_as_unapproved
+  - source: "/BitwardenResources/Localizations/en.lproj/Localizable.strings"
+    dest: "/ios-resources/%original_file_name%"
+    translation: "/BitwardenResources/Localizations/%osx_code%/%original_file_name%"
+    update_option: update_as_unapproved
+  - source: "/BitwardenWatchApp/Localization/en.lproj/Localizable.strings"
+    dest: "/ios-watch/%original_file_name%"
+    translation: "/BitwardenWatchApp/Localization/%osx_code%/%original_file_name%"
+    update_option: update_as_unapproved

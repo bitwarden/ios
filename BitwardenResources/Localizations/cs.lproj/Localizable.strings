@@ -146,7 +146,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavní heslo je heslo, které používáte pro přístup k trezoru.";
 "MasterPasswordHint" = "Nápověda k hlavnímu heslu";
 "NewMasterPasswordHint" = "Nápověda k novému hlavnímu heslu";
-"MasterPasswordHintDescription" = "Nápověda k hlavnímu heslu Vám pomůže vzpomenout si heslo, pokud ho zapomenete.";
 "MasterPasswordLengthValMessageX" = "Hlavní heslo musí obsahovat alespoň %1$@ znaků.";
 "MinNumbers" = "Minimální počet číslic";
 "MinSpecial" = "Minimální počet speciálních znaků";
@@ -171,7 +170,6 @@
 "RateTheApp" = "Ohodnotit aplikaci";
 "RateTheAppDescription" = "Pomozte nám napsáním dobré recenze!";
 "RegeneratePassword" = "Vygenerovat jiné heslo";
-"RetypeMasterPassword" = "Znovu zadejte hlavní heslo";
 "SearchVault" = "Prohledat trezor";
 "Security" = "Zabezpečení";
 "Select" = "Vybrat";
@@ -533,9 +531,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neplatné heslo";
 "MasterPasswordPolicyValidationMessage" = "Heslo nesplňuje požadavky organizace. Zkontrolujte požadavky a zkuste to znovu.";
 "Loading" = "Načítání";
-"AcceptPolicies" = "Aktivací tohoto přepínače souhlasíte s těmito dokumenty:";
 "AcceptPoliciesError" = "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny.";
-"TermsOfService" = "Podmínky použití";
 "PrivacyPolicy" = "Zásady ochrany osobních údajů";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden vyžaduje pozornost - Povolte volbu \"Zobrazit přes ostatní aplikace\" ve \"Službách automatického vyplňování“ v nastavení aplikace Bitwarden";
 "PasskeyManagement" = "Správa přístupových klíčů";
@@ -763,7 +759,6 @@
 "LanguageChangeRequiresAppRestart" = "Změna jazyka vyžaduje restart aplikace.";
 "DefaultSystem" = "Výchozí (Systémový)";
 "Important" = "Důležité";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Pokud zapomenete Vaše hlavní heslo, nebude možné jej obnovit! Heslo musí mít alespoň %1$@ znaků.";
 "WeakMasterPassword" = "Slabé hlavní heslo";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Slabé heslo bylo nalezeno mezi odhalenými hesly. K zabezpečení Vašeho účtu používejte silné a jedinečné heslo. Opravdu chcete používat toto heslo?";
 "Weak" = "Slabé";
@@ -1257,7 +1252,7 @@
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Doba obnovení";
-"RequiredInformationIsMissing" = "Požadované informace chybí: %1$@. Zkontrolujte pole a zkuste to znovu.";
+"RequiredInformationIsMissing" = "Chybí požadované informace: %1$@. Zkontrolujte pole a zkuste to znovu.";
 "RequiredInformationMissing" = "Chybí požadované informace";
 "SaveHere" = "Uložit zde";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Uložte tento ověřovací klíč zde nebo ho přidejte do Vaší aplikace Bitwarden.";
