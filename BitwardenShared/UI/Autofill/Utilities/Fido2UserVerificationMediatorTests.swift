@@ -98,7 +98,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with each preference,
-    /// account has not been unlocked in current transaction but throws becuase needs user interaction.
+    /// account has not been unlocked in current transaction but throws because needs user interaction.
     func test_checkUser_anyPreferenceThrowsNeedsUserInteraction() async throws {
         try await checkUser_throws_when_needsUserInteraction(.discouraged)
         try await checkUser_throws_when_needsUserInteraction(.preferred)

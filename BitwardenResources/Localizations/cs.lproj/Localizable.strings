@@ -554,7 +554,7 @@
 "Sends" = "Sends";
 "Text" = "Text";
 "TypeText" = "Text";
-"HideTextByDefault" = "Při přístupu k Send, ve výchozím nastavení skrýt text";
+"HideTextByDefault" = "Při přístupu k Send skrýt text";
 "TypeFile" = "Soubor";
 "FileTypeIsSelected" = "Je vybrán typ souboru.";
 "FileTypeIsNotSelected" = "Není vybrán typ souboru, klepněte pro výběr.";
@@ -1257,7 +1257,7 @@
 "SaveHere" = "Uložit zde";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Uložte tento ověřovací klíč zde nebo ho přidejte do Vaší aplikace Bitwarden.";
 "SaveToBitwarden" = "Uložit do Bitwardenu";
-"ScanComplete" = "Prohledávání dokončeno";
+"ScanComplete" = "Skenování dokončeno";
 "ScanTheQRCodeInYourSettings" = "Naskenujte QR kód v nastavení dvoufázového ověření pro jakýkoli účet.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Zabezpečte své účty pomocí Autentikátoru Bitwarden";
 "SetSaveLocallyAsYourDefaultSaveOption" = "Nastavit \"Uložit místně\" jako výchozí volba ukládání?";
@@ -1274,7 +1274,7 @@
 "UnableToSyncCodesFromTheBitwardenApp" = "Nelze synchronizovat kódy z aplikace Bitwarden. Zkontrolujte, zda jsou obě aplikace aktuální. Ke stávajícím kódům máte stále přístup v aplikaci Bitwarden.";
 "UnexpectedDataFormat" = "Neočekávaný formát dat";
 "UseYourDeviceCameraToScanCodes" = "Použijte kameru zařízení ke skenování kódů";
-"VerificationCodeAdded" = "Ověřovací kódy byly přidány";
+"VerificationCodeAdded" = "Ověřovací kód byl přidán";
 "WhenUsingTwoStepVerification" = "Používáte-li dvoufázové ověření, zadejte své uživatelské jméno a heslo a kód vygenerovaný v této aplikaci.";
 "YesSetDefault" = "Ano, nastavit jako výchozí";
-"YouCanUpdateYourDefaultAnytimeInSettings" = "Výchozí nastavení můžete kdykoli aktualizovat v nastavení.";
+"YouCanUpdateYourDefaultAnytimeInSettings" = "Výchozí nastavení můžete kdykoli změnit v Nastavení.";
