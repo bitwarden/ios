@@ -14,6 +14,7 @@ extension View {
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
     func cancelToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
+        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .cancel, action: action)
                 .hidden(hidden)
@@ -23,6 +24,11 @@ extension View {
                 .hidden(hidden)
                 .accessibilityIdentifier("CancelButton")
         }
+        #else
+        toolbarButton(Localizations.cancel, action: action)
+            .hidden(hidden)
+            .accessibilityIdentifier("CancelButton")
+        #endif
     }
 
     /// Returns a toolbar button configured for closing a view.
@@ -31,6 +37,7 @@ extension View {
     /// - Returns: A `Button` configured for closing a view.
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
+        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .close, action: action)
                 .accessibilityIdentifier("CloseButton")
@@ -38,6 +45,10 @@ extension View {
             return toolbarButton(Localizations.close, action: action)
                 .accessibilityIdentifier("CloseButton")
         }
+        #else
+        toolbarButton(Localizations.close, action: action)
+            .accessibilityIdentifier("CloseButton")
+        #endif
     }
 
     /// Returns a toolbar button configured for editing an item.
@@ -94,6 +105,7 @@ extension View {
     /// - Returns: A `Button` configured for saving an item.
     ///
     func saveToolbarButton(action: @escaping () async -> Void) -> some View {
+        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .confirm) {
                 Task {
@@ -104,6 +116,10 @@ extension View {
             return toolbarButton(Localizations.save, action: action)
                 .accessibilityIdentifier("SaveButton")
         }
+        #else
+        toolbarButton(Localizations.save, action: action)
+            .accessibilityIdentifier("SaveButton")
+        #endif
     }
 
     /// Returns a `Button` that displays an image for use in a toolbar.
