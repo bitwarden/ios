@@ -603,7 +603,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
     }
 
-    /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
+    /// `receive` with `.copyPressed` doesn't copy if the data isn't loaded.
     @MainActor
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
