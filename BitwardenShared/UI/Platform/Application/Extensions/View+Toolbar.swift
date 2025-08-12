@@ -19,16 +19,12 @@ extension View {
             return Button(role: .cancel, action: action)
                 .hidden(hidden)
                 .accessibilityIdentifier("CancelButton")
-        } else {
-            return toolbarButton(Localizations.cancel, action: action)
-                .hidden(hidden)
-                .accessibilityIdentifier("CancelButton")
+                .accessibilityLabel(Localizations.cancel)
         }
-        #else
-        toolbarButton(Localizations.cancel, action: action)
+        #endif
+        return toolbarButton(Localizations.cancel, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
-        #endif
     }
 
     /// Returns a toolbar button configured for closing a view.
@@ -41,14 +37,11 @@ extension View {
         if #available(iOS 26, *) {
             return Button(role: .close, action: action)
                 .accessibilityIdentifier("CloseButton")
-        } else {
-            return toolbarButton(Localizations.close, action: action)
-                .accessibilityIdentifier("CloseButton")
+                .accessibilityLabel(Localizations.close)
         }
-        #else
-        toolbarButton(Localizations.close, action: action)
-            .accessibilityIdentifier("CloseButton")
         #endif
+        return toolbarButton(Localizations.close, action: action)
+            .accessibilityIdentifier("CloseButton")
     }
 
     /// Returns a toolbar button configured for editing an item.
@@ -112,14 +105,12 @@ extension View {
                     await action()
                 }
             }
-        } else {
-            return toolbarButton(Localizations.save, action: action)
-                .accessibilityIdentifier("SaveButton")
-        }
-        #else
-        toolbarButton(Localizations.save, action: action)
             .accessibilityIdentifier("SaveButton")
+            .accessibilityLabel(Localizations.save)
+        }
         #endif
+        return toolbarButton(Localizations.save, action: action)
+            .accessibilityIdentifier("SaveButton")
     }
 
     /// Returns a `Button` that displays an image for use in a toolbar.
