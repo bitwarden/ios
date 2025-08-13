@@ -64,7 +64,7 @@ extension ViewItemState {
         hasPremium: Bool,
         iconBaseURL: URL?
     ) {
-        guard var cipherItemState = CipherItemState(
+        guard let cipherItemState = CipherItemState(
             existing: cipherView,
             hasPremium: hasPremium,
             iconBaseURL: iconBaseURL
