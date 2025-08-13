@@ -11,6 +11,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     typealias Services = HasConfigService
         & HasErrorReporter
+        & HasEventService
         & HasExportCXFCiphersRepository
         & HasPolicyService
         & HasStateService
@@ -126,6 +127,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
                 presentationAnchor: { await delegate.presentationAnchorForASCredentialExportManager() }
             )
             coordinator.navigate(to: .dismiss)
+            await services.eventService.collect(eventType: .userClientExportedVault)
         } catch ASAuthorizationError.failed {
             coordinator
                 .showAlert(
