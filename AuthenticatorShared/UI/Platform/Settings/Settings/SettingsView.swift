@@ -20,7 +20,7 @@ struct SettingsView: View {
     var body: some View {
         settingsItems
             .scrollView()
-            .navigationBar(title: Localizations.settings, titleDisplayMode: .large)
+            .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
             .toast(store.binding(
                 get: \.toast,
                 send: SettingsAction.toastShown
