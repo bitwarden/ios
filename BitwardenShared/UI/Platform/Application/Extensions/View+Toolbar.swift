@@ -272,6 +272,33 @@ extension View {
             }
         }
     }
+
+    /// A `ToolbarItemGroup` consisting of two items, alfa and bravo, that change position depending on
+    /// the version of iOS being used.
+    ///
+    /// On iOS versions before 26, the order is alfa - bravo.
+    ///
+    /// On iOS versions from 26 on, the order is bravo - alfa.
+    ///
+    /// - Parameters:
+    ///   - placement: The toolbar item placement for the `ToolbarItemGroup`
+    ///   - alfa: The item that goes on the left before iOS 26
+    ///   - bravo: The item that goes on the left from iOS 26 onward
+    func versionDependentOrderingToolbarItemGroup(
+        placement: ToolbarItemPlacement = .topBarTrailing,
+        @ViewBuilder alfa: () -> some View,
+        @ViewBuilder bravo: () -> some View
+    ) -> some ToolbarContent {
+        ToolbarItemGroup(placement: placement) {
+            if #unavailable(iOS 26) {
+                bravo()
+            }
+            alfa()
+            if #available(iOS 26, *) {
+                bravo()
+            }
+        }
+    }
 }
 
 // MARK: Private

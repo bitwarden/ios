@@ -73,39 +73,34 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
 
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if #unavailable(iOS 26) {
-                    saveToolbarButton {
-                        await store.perform(.savePressed)
-                    }
-                    .disabled(store.state.isSendDisabled)
-                }
-
-                if store.state.mode == .edit {
-                    optionsToolbarMenu {
-                        if !store.state.isSendDisabled {
-                            if store.state.originalSendView?.hasPassword ?? false {
-                                AsyncButton(Localizations.removePassword) {
-                                    await store.perform(.removePassword)
+            // Save goes on the right in iOS 26, on the left < 26
+            versionDependentOrderingToolbarItemGroup(
+                alfa: {
+                    if store.state.mode == .edit {
+                        optionsToolbarMenu {
+                            if !store.state.isSendDisabled {
+                                if store.state.originalSendView?.hasPassword ?? false {
+                                    AsyncButton(Localizations.removePassword) {
+                                        await store.perform(.removePassword)
+                                    }
                                 }
-                            }
-                            AsyncButton(Localizations.copyLink) {
-                                await store.perform(.copyLinkPressed)
-                            }
-                            AsyncButton(Localizations.shareLink) {
-                                await store.perform(.shareLinkPressed)
+                                AsyncButton(Localizations.copyLink) {
+                                    await store.perform(.copyLinkPressed)
+                                }
+                                AsyncButton(Localizations.shareLink) {
+                                    await store.perform(.shareLinkPressed)
+                                }
                             }
                         }
                     }
-                }
-
-                if #available(iOS 26, *) { // Save goes on the right in iOS 26, on the left < 26
+                },
+                bravo: {
                     saveToolbarButton {
                         await store.perform(.savePressed)
                     }
                     .disabled(store.state.isSendDisabled)
                 }
-            }
+            )
         }
         .toast(store.binding(
             get: \.toast,
