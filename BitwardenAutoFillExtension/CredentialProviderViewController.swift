@@ -68,10 +68,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             return
         }
 
-        initializeApp(
-            with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity, userInteraction: false))
-        )
-        provideCredential(for: recordIdentifier)
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity, userInteraction: false))
+            )
+            provideCredential(for: recordIdentifier)
+        }
     }
 
     @available(iOSApplicationExtension 17.0, *)
@@ -82,12 +84,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 provideCredentialWithoutUserInteraction(for: passwordIdentity)
             }
         case let passkeyRequest as ASPasskeyCredentialRequest:
-            initializeApp(
-                with: DefaultCredentialProviderContext(
-                    .autofillFido2Credential(passkeyRequest, userInteraction: false)
+            Task {
+                await initializeAppWithoutUserInteraction(
+                    with: DefaultCredentialProviderContext(
+                        .autofillFido2Credential(passkeyRequest, userInteraction: false)
+                    )
                 )
-            )
-            provideFido2Credential(for: passkeyRequest)
+                provideFido2Credential(for: passkeyRequest)
+            }
         default:
             if #available(iOSApplicationExtension 18.0, *),
                let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
@@ -161,6 +165,15 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
             }
         }
+    }
+    
+    /// Sets up and initializes the app without user interaction.
+    /// - Parameter context: The context that describes how the extension is being used.
+    private func initializeAppWithoutUserInteraction(
+        with context: CredentialProviderContext
+    ) async {
+        initializeApp(with: context)
+        await appProcessor?.prepareEnvironmentConfig()
     }
 
     /// Attempts to provide the credential with the specified ID to the extension context to handle
@@ -264,10 +277,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             return
         }
 
-        initializeApp(
-            with: DefaultCredentialProviderContext(.autofillOTPCredential(otpIdentity, userInteraction: false))
-        )
-        provideOTPCredential(for: recordIdentifier)
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(.autofillOTPCredential(otpIdentity, userInteraction: false))
+            )
+            provideOTPCredential(for: recordIdentifier)
+        }
     }
 }
 
