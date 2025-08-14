@@ -385,15 +385,15 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+      # - name: Sourcery
+      #   script: |
+      #     if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+      #       PATH="/opt/homebrew/bin:$PATH"
+      #     fi
+      #     mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
+      #   basedOnDependencyAnalysis: false
+      #   outputFiles:
+      #     - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS

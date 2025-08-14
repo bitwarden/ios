@@ -214,15 +214,15 @@ targets:
                  $SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/GoogleAuth.proto
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+      # - name: Sourcery
+      #   script: |
+      #     if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+      #       PATH="/opt/homebrew/bin:$PATH"
+      #     fi
+      #     mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
+      #   basedOnDependencyAnalysis: false
+      #   outputFiles:
+      #     - $(SRCROOT)/AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
