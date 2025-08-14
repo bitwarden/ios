@@ -15,12 +15,21 @@ struct SettingsView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<SettingsState, SettingsAction, SettingsEffect>
 
+    /// How the screen title is displayed, which depends on iOS version.
+    private var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
+        if #available(iOS 26, *) {
+            return .inline
+        } else {
+            return .large
+        }
+    }
+
     // MARK: View
 
     var body: some View {
         settingsItems
             .scrollView()
-            .navigationBar(title: Localizations.settings, titleDisplayMode: .large)
+            .navigationBar(title: Localizations.settings, titleDisplayMode: titleDisplayMode)
             .toast(store.binding(
                 get: \.toast,
                 send: SettingsAction.toastShown
