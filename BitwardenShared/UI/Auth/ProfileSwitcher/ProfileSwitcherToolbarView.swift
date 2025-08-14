@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ProfileSwitcherToolbarView
@@ -19,11 +20,14 @@ struct ProfileSwitcherToolbarView: View {
         } label: {
             profileSwitcherIcon(
                 color: store.state.showPlaceholderToolbarIcon
-                    ? nil : store.state.activeAccountProfile?.color,
+                    ? nil
+                    : store.state.activeAccountProfile?.color,
                 initials: store.state.showPlaceholderToolbarIcon
-                    ? nil : store.state.activeAccountProfile?.userInitials,
+                    ? nil
+                    : store.state.activeAccountProfile?.userInitials,
                 textColor: store.state.showPlaceholderToolbarIcon
-                    ? nil : store.state.activeAccountProfile?.profileIconTextColor
+                    ? nil
+                    : store.state.activeAccountProfile?.profileIconTextColor
             )
         }
         .accessibilityIdentifier("CurrentActiveAccount")
@@ -59,8 +63,8 @@ extension View {
                         .accessibilityHidden(initials != nil)
                 }
             }
-            .foregroundColor(textColor ?? Asset.Colors.textInteraction.swiftUIColor)
-            .background(color ?? Asset.Colors.backgroundTertiary.swiftUIColor)
+            .foregroundColor(textColor ?? SharedAsset.Colors.textInteraction.swiftUIColor)
+            .background(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
             .clipShape(Circle())
     }
 }

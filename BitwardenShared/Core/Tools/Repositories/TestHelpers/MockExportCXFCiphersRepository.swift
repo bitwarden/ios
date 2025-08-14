@@ -21,8 +21,11 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     #if SUPPORTS_CXP
 
-    @available(iOS 18.2, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
+    @available(iOS 26.0, *)
+    func exportCredentials(
+        data: ASImportableAccount,
+        presentationAnchor: () async -> ASPresentationAnchor
+    ) async throws {
         exportCredentialsData = data
         if let exportCredentialsError {
             throw exportCredentialsError
@@ -37,7 +40,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     #if SUPPORTS_CXP
 
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount {
         guard let result = try getExportVaultDataForCXFResult.get() as? ASImportableAccount else {
             throw MockExportCXFCiphersRepositoryError.unableToCastToASImportableAccount
@@ -51,7 +54,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
 protocol ImportableAccountProxy {}
 
 #if SUPPORTS_CXP
-@available(iOS 18.2, *)
+@available(iOS 26.0, *)
 extension ASImportableAccount: ImportableAccountProxy {}
 #endif
 

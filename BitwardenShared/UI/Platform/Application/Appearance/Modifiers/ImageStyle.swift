@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 
@@ -39,7 +40,7 @@ extension ImageStyle {
 
     /// An `ImageStyle` for applying common properties to an image in a floating action button.
     static let floatingActionButton = ImageStyle(
-        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+        color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
         scaleWithFont: false,
         width: 32,
         height: 32
@@ -58,7 +59,7 @@ extension ImageStyle {
     /// - Color: `Asset.Colors.iconSecondary`
     ///
     static let toolbarIcon = ImageStyle(
-        color: Asset.Colors.iconSecondary.swiftUIColor,
+        color: SharedAsset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
         width: 24,
         height: 24
@@ -74,7 +75,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon16(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
@@ -90,7 +91,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon24(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
@@ -106,7 +107,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func rowIcon(
-        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = true
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
@@ -123,7 +124,7 @@ extension ImageStyle {
     ///   - size: The size of the icon.
     ///
     static func viewIcon(
-        color: Color = Asset.Colors.illustrationOutline.swiftUIColor,
+        color: Color = SharedAsset.Colors.illustrationOutline.swiftUIColor,
         scaleWithFont: Bool = true,
         size: CGFloat = 36
     ) -> ImageStyle {

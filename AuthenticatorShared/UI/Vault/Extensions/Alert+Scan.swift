@@ -1,3 +1,4 @@
+import BitwardenResources
 import UIKit
 
 // MARK: Alert+Scan

@@ -107,6 +107,11 @@ class MockClientCiphers: CiphersClientProtocol {
 
     var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
     var decryptListError: Error?
+    var decryptListErrorWhenCiphers: (([Cipher]) -> Error?)?
+    var decryptListReceivedCiphersInvocations: [[Cipher]] = []
+    var decryptListWithFailuresReceivedCiphersInvocations: [[Cipher]] = [] // swiftlint:disable:this identifier_name
+    var decryptListWithFailuresResult: DecryptCipherListResult?
+    var decryptListWithFailuresResultClosure: (([Cipher]) -> DecryptCipherListResult)?
     var encryptCipherResult: Result<EncryptionContext, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
@@ -130,7 +135,22 @@ class MockClientCiphers: CiphersClientProtocol {
         if let decryptListError {
             throw decryptListError
         }
-        return ciphers.map(CipherListView.init)
+        if let decryptListErrorWhenCiphers, let error = decryptListErrorWhenCiphers(ciphers) {
+            throw error
+        }
+        decryptListReceivedCiphersInvocations.append(ciphers)
+        return ciphers.map { CipherListView(cipher: $0) }
+    }
+
+    func decryptListWithFailures(ciphers: [Cipher]) -> DecryptCipherListResult {
+        decryptListWithFailuresReceivedCiphersInvocations.append(ciphers)
+        if let decryptListWithFailuresResultClosure {
+            return decryptListWithFailuresResultClosure(ciphers)
+        }
+        return decryptListWithFailuresResult ?? DecryptCipherListResult(
+            successes: ciphers.map { CipherListView(cipher: $0) },
+            failures: []
+        )
     }
 
     func encrypt(cipherView: CipherView) throws -> EncryptionContext {
@@ -157,12 +177,17 @@ class MockClientCiphers: CiphersClientProtocol {
 // MARK: - MockClientCollections
 
 class MockClientCollections: CollectionsClientProtocol {
+    var decryptListError: Error?
+
     func decrypt(collection _: Collection) throws -> CollectionView {
         fatalError("Not implemented yet")
     }
 
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
-        collections.map(CollectionView.init)
+        if let decryptListError {
+            throw decryptListError
+        }
+        return collections.map(CollectionView.init)
     }
 }
 

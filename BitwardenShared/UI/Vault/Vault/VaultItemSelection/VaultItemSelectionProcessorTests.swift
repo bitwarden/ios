@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -392,7 +393,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_vaultListItemTapped_notLogin() async throws {
         let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
-            type: .card
+            type: .card(.init(brand: nil))
         )))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))

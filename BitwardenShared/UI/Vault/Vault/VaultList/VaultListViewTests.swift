@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
@@ -84,6 +85,15 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
         try fab.find(button: Localizations.folder).tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
+    }
+
+    /// The floating action button will be hidden if .
+    @MainActor
+    func test_addItemFloatingActionButton_hidden_policy_enable() throws {
+        processor.state.loadingState = .data([])
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        XCTAssertThrowsError(try fab.find(button: Localizations.typeCard))
     }
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.

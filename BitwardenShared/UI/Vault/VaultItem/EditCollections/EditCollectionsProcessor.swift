@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - EditCollectionsProcessorDelegate
 
 /// A delegate of `EditCollectionsProcessor` that is notified when the user successfully moves

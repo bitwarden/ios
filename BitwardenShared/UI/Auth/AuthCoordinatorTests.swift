@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import TestHelpers
 import XCTest
@@ -157,17 +158,6 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
     }
 
-    /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
-    @MainActor
-    func test_navigate_createAccount() throws {
-        subject.navigate(to: .createAccount)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is CreateAccountView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
     /// `navigate(to:)` with `.completeRegistration` pushes the create account view onto the stack navigator.
     @MainActor
     func test_navigate_completeRegistration() throws {
@@ -238,7 +228,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.dismiss` dismisses all presented view.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .createAccount)
+        subject.navigate(to: .preLoginSettings)
         subject.navigate(to: .dismiss)
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)

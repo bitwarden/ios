@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - ViewSendItemProcessor
 
 /// The processor used to manage state and handle actions for the view send item screen.
@@ -41,7 +43,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     override func perform(_ effect: ViewSendItemEffect) async {
         switch effect {
         case .deleteSend:
-            coordinator.showAlert(.confirmation(title: Localizations.areYouSureDeleteSend) {
+            coordinator.showAlert(.confirmationDestructive(title: Localizations.areYouSureDeleteSend) {
                 await self.deleteSend()
             })
         case .loadData:

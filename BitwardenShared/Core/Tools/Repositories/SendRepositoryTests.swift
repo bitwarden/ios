@@ -134,13 +134,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
-    func test_doesActiveAccountHavePremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
-        var hasPremium = try await subject.doesActiveAccountHavePremium()
+    func test_doesActiveAccountHavePremium() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+        var hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
 
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = false
+        hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }
 
@@ -171,9 +171,23 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(forceSync: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
+    }
+
+    /// `fetchSync(forceSync:)` while not periodic, manual refresh is allowed does perform a sync
+    /// without periodic behavior.
+    func test_fetchSync_manualRefreshAllowed_successNotPeriodic() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
+        syncService.fetchSyncResult = .success(())
+
+        try await subject.fetchSync(forceSync: true, isPeriodic: false)
+
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
     /// `fetchSync(forceSync:)` while manual refresh is not allowed does not perform a sync.
@@ -182,7 +196,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = [:]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(forceSync: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertFalse(syncService.didFetchSync)
     }
@@ -193,9 +207,10 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync(forceSync: true)
+            try await subject.fetchSync(forceSync: true, isPeriodic: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
     /// `removePassword(from:)` successfully encrypts the send view and uses the send service to

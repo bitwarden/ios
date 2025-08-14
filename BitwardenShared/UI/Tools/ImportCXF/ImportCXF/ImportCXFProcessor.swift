@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - ImportCXFProcessor
@@ -65,7 +66,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
 
     /// Checks whether the CXF import feature is enabled.
     private func checkEnabled() async {
-        guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
+        guard #available(iOS 26.0, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
             state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
             return
         }
@@ -79,7 +80,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
     private func startImport() async {
         #if SUPPORTS_CXP
 
-        guard #available(iOS 18.2, *), let credentialImportToken = state.credentialImportToken else {
+        guard #available(iOS 26.0, *), let credentialImportToken = state.credentialImportToken else {
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.importError,

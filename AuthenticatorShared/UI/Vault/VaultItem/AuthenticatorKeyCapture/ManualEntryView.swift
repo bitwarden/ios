@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ManualEntryView
@@ -107,12 +108,12 @@ struct ManualEntryView: View {
     /// - Returns: the configured `Button`.
     ///
     private func addButton(sendToBitwarden: Bool) -> some View {
-        let accessibilityIdentifier = sendToBitwarden ?
-            "ManualEntryAddCodeToBitwardenButton" :
-            "ManualEntryAddCodeButton"
-        let title = sendToBitwarden ?
-            Localizations.saveToBitwarden :
-            Localizations.saveHere
+        let accessibilityIdentifier = sendToBitwarden
+            ? "ManualEntryAddCodeToBitwardenButton"
+            : "ManualEntryAddCodeButton"
+        let title = sendToBitwarden
+            ? Localizations.saveToBitwarden
+            : Localizations.saveHere
 
         return Button(title) {
             store.send(

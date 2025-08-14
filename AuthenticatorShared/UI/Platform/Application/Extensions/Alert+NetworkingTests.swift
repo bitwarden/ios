@@ -2,6 +2,7 @@
 
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Foundation
 import Networking
 import TestHelpers

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - DebugMenuView
@@ -99,12 +100,8 @@ struct DebugMenuView: View {
                 state: .init(
                     featureFlags: [
                         .init(
-                            feature: .emailVerification,
+                            feature: FeatureFlag(rawValue: "feature-flag"),
                             isEnabled: true
-                        ),
-                        .init(
-                            feature: .enableAuthenticatorSync,
-                            isEnabled: false
                         ),
                     ]
                 )

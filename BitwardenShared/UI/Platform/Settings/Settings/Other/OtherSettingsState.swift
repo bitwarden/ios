@@ -30,7 +30,4 @@ struct OtherSettingsState {
 
     /// Whether the connect to watch toggle should be shown.
     var shouldShowConnectToWatchToggle: Bool = false
-
-    /// Whether the Siri & Shortcuts access toggle should be shown.
-    var shouldShowSiriAndShortcutsAccess: Bool = false
 }

@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -61,12 +62,15 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 services.pasteboardService.copy(url.absoluteString)
                 state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
             case let .deletePressed(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
+                let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
                     await self?.deleteSend(sendView)
                 }
                 coordinator.showAlert(alert)
             case let .removePassword(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
+                let alert = Alert.confirmationDestructive(
+                    title: Localizations.areYouSureRemoveSendPassword,
+                    destructiveTitle: Localizations.remove
+                ) { [weak self] in
                     await self?.removePassword(sendView)
                 }
                 coordinator.showAlert(alert)
@@ -122,13 +126,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func addNewSend(sendType: SendType) async {
         if sendType.requiresPremium {
-            let hasPremium: Bool
-            do {
-                hasPremium = try await services.sendRepository.doesActiveAccountHavePremium()
-            } catch {
-                hasPremium = false
-                services.errorReporter.log(error: error)
-            }
+            let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
 
             guard hasPremium else {
                 coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
@@ -142,7 +140,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func refresh() async {
         do {
-            try await services.sendRepository.fetchSync(forceSync: false)
+            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: false)
         } catch {
             await coordinator.showErrorAlert(error: error) {
                 await self.refresh()
@@ -218,7 +216,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                         // If a sync is needed and there are no sends in the user's vault, it could
                         // mean the initial sync hasn't completed so sync first.
                         do {
-                            try await services.sendRepository.fetchSync(forceSync: false)
+                            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: true)
                             state.loadingState = .data(sections)
                         } catch {
                             services.errorReporter.log(error: error)

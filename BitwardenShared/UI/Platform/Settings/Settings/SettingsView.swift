@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsView
@@ -15,14 +16,16 @@ struct SettingsView: View {
     var body: some View {
         settingsItems
             .scrollView()
-            .navigationBar(
-                title: Localizations.settings,
-                titleDisplayMode: store.state.presentationMode == .preLogin ? .inline : .large
-            )
+            .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
             .toolbar {
                 closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
                     store.send(.dismiss)
                 }
+
+                largeNavigationTitleToolbarItem(
+                    Localizations.settings,
+                    hidden: store.state.presentationMode != .tab
+                )
             }
     }
 
@@ -31,7 +34,7 @@ struct SettingsView: View {
     /// The chevron shown in the settings list item.
     private var chevron: some View {
         Image(asset: Asset.Images.chevronRight16)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
     }
 
     /// The settings items.

@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -66,26 +67,10 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
-    /// there's an error determining if the user has premium.
-    @MainActor
-    func test_perform_addItemPressed_fileType_error() async throws {
-        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
-        subject.state.type = .file
-        await subject.perform(.addItemPressed(.file))
-
-        XCTAssertEqual(
-            coordinator.alertShown,
-            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
-        )
-        XCTAssertTrue(coordinator.routes.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
     /// the user doesn't have premium.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium() async throws {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.type = .file
         await subject.perform(.addItemPressed(.file))
 
@@ -121,6 +106,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(sendRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(sendRepository.fetchSyncForceSync, false)
     }
 
@@ -243,7 +229,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -260,7 +246,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
@@ -285,7 +271,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -305,7 +291,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 

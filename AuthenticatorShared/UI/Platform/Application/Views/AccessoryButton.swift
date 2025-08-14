@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A view that displays a button for use as an accessory to a field.

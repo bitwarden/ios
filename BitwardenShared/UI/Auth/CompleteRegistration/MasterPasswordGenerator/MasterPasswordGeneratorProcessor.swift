@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - MasterPasswordGeneratorProcessor
 
 /// The processor used to manage state and handle actions for the generate master password screen.

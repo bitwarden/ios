@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenFloatingTextLabel
@@ -127,8 +128,8 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
                 )
                 .foregroundStyle(
                     isEnabled && !isTextFieldDisabled
-                        ? Asset.Colors.textSecondary.swiftUIColor :
-                        Asset.Colors.textDisabled.swiftUIColor
+                        ? SharedAsset.Colors.textSecondary.swiftUIColor
+                        : SharedAsset.Colors.textDisabled.swiftUIColor
                 )
         }
     }
@@ -151,7 +152,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
             TextField("", text: .constant("Value"))
         } trailingContent: {
             Asset.Images.cog24.swiftUIImage
-                .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
         }
     }
     .padding()

@@ -4,7 +4,7 @@ import Networking
 
 /// A networking request to enroll the user in password reset for an organization.
 ///
-struct OrganizationUserResetPasswordEnrollmentRequest: Request { // swiftlint:disable:this type_name
+struct OrganizationUserResetPasswordEnrollmentRequest: Request {
     typealias Response = EmptyResponse
 
     // MARK: Properties

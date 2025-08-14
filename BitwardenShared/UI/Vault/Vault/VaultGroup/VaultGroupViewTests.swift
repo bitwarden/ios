@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest
@@ -47,6 +48,29 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(nil))
+    }
+
+    /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.
+    @MainActor
+    func test_addItemEmptyStateButton_hidden_restrictItemPolicy_enabled() throws {
+        processor.state.loadingState = .data([])
+        processor.state.group = .card
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.newCard))
+    }
+
+    /// Add item floating action button is hidden when in card group and restrict item policy is enabled.
+    @MainActor
+    func test_addItemFloatingActionButton_hidden_restrictItemPolicy_enabled() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.group = .card
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
+
+        XCTAssertThrowsError(
+            try subject.inspect().find(
+                floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            )
+        )
     }
 
     /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.

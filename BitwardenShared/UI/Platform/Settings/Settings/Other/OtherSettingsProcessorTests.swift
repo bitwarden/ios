@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -62,7 +63,6 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadInitialValues` fetches the allow sync on refresh value.
     @MainActor
     func test_perform_loadInitialValues_success() async {
-        configService.featureFlagsBool[.appIntents] = true
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
         settingsRepository.connectToWatch = true
@@ -76,7 +76,6 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
         XCTAssertTrue(subject.state.isSiriAndShortcutsAccessToggleOn)
         XCTAssertTrue(subject.state.shouldShowConnectToWatchToggle)
-        XCTAssertTrue(subject.state.shouldShowSiriAndShortcutsAccess)
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.

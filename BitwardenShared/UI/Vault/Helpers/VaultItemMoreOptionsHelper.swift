@@ -1,3 +1,5 @@
+import BitwardenResources
+import BitwardenSdk
 import Foundation
 
 // MARK: - VaultItemMoreOptionsHelper
@@ -40,6 +42,9 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
     /// The services used by this helper.
     private var services: Services
 
@@ -49,13 +54,16 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services used by this helper.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
     }
 
@@ -75,18 +83,17 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
 
             let canEdit = cipherView.deletedDate == nil
-            let hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
-            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
             coordinator.showAlert(.moreOptions(
                 canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
-                hasMasterPassword: hasMasterPassword,
                 id: item.id,
                 showEdit: canEdit
             ) { action in
                 await self.handleMoreOptionsAction(
                     action,
+                    cipherView: cipherView,
                     handleDisplayToast: handleDisplayToast,
                     handleOpenURL: handleOpenURL
                 )
@@ -128,6 +135,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ///
     private func handleMoreOptionsAction(
         _ action: MoreOptionsAction,
+        cipherView: CipherView,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleOpenURL: (URL) -> Void
     ) async {
@@ -146,53 +154,26 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 }
             }
             if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert(completion: copyBlock)
+                await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                    copyBlock()
+                }
             } else {
                 copyBlock()
             }
-        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    await self.generateAndCopyTotpCode(totpKey: totpKey, handleDisplayToast: handleDisplayToast)
-                }
-            } else {
-                await generateAndCopyTotpCode(totpKey: totpKey, handleDisplayToast: handleDisplayToast)
+        case let .copyTotp(totpKey):
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                await self.generateAndCopyTotpCode(totpKey: totpKey, handleDisplayToast: handleDisplayToast)
             }
-        case let .edit(cipherView, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
-                }
-            } else {
-                coordinator.navigate(to: .editItem(cipherView), context: self)
+        case let .edit(cipherView):
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                self.coordinator.navigate(to: .editItem(cipherView), context: self)
             }
         case let .launch(url):
             handleOpenURL(url.sanitized)
         case let .view(id):
-            coordinator.navigate(to: .viewItem(id: id))
-        }
-    }
-
-    /// Presents the master password reprompt alert and calls the completion handler when the user's
-    /// master password has been confirmed.
-    ///
-    /// - Parameter completion: A completion handler that is called when the user's master password
-    ///     has been confirmed.
-    ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
-        let alert = Alert.masterPasswordPrompt { password in
-            do {
-                let isValid = try await self.services.authRepository.validatePassword(password)
-                guard isValid else {
-                    self.coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
-                    return
-                }
-                await completion()
-            } catch {
-                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                self.services.errorReporter.log(error: error)
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
             }
         }
-        coordinator.showAlert(alert)
     }
 }

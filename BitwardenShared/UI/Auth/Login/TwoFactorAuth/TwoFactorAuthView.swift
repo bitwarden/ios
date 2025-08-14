@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TwoFactorAuthView
@@ -37,6 +38,9 @@ struct TwoFactorAuthView: View {
                 send: TwoFactorAuthAction.toastShown
             ))
             .navigationBar(title: store.state.titleText, titleDisplayMode: .inline)
+            .task {
+                await store.perform(.appeared)
+            }
             .task(id: store.state.authMethod) {
                 guard store.state.authMethod == .yubiKey else { return }
                 await store.perform(.listenForNFC)
@@ -127,7 +131,7 @@ struct TwoFactorAuthView: View {
         VStack(spacing: 16) {
             Text(store.state.detailsText)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             if let detailImageAsset = store.state.detailImageAsset {

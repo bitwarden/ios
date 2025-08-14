@@ -1,6 +1,7 @@
 // swiftlint:disable file_length
 
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -42,7 +43,7 @@ private struct SearchableVaultListView: View {
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(
             store.binding(
                 get: \.toast,
@@ -152,7 +153,7 @@ private struct SearchableVaultListView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -192,7 +193,9 @@ private struct SearchableVaultListView: View {
             errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
-            addVaultItemFloatingActionMenu { type in
+            addVaultItemFloatingActionMenu(
+                availableItemTypes: store.state.itemTypesUserCanCreate,
+            ) { type in
                 store.send(.addItemPressed(type))
             } addFolder: {
                 store.send(.addFolder)
@@ -228,7 +231,7 @@ private struct SearchableVaultListView: View {
     private func errorViewWithRetry(errorMessage: String) -> some View {
         VStack(spacing: 24) {
             Text(errorMessage)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 12)
@@ -350,10 +353,11 @@ struct VaultListView: View {
             }
             profileSwitcher
         }
-        .navigationTitle(store.state.navigationTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            largeNavigationTitleToolbarItem(store.state.navigationTitle)
+
+            ToolbarItem(placement: .topBarTrailing) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: { state in

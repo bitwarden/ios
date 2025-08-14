@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // swiftlint:disable file_length
@@ -448,7 +449,7 @@ struct StyleGuideFont_Previews: PreviewProvider {
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Standard vs Bold Italic")
 
-        VStack {
+        VStack(alignment: .leading) {
             Button("Sample Button", action: {})
                 .buttonStyle(.primary())
                 .styleGuide(.callout)
@@ -457,12 +458,10 @@ struct StyleGuideFont_Previews: PreviewProvider {
             Group {
                 Text(Localizations.important + ": ")
                     .bold() +
-                    Text(Localizations
-                        .yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(16)
-                    )
+                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
             }
             .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Views")

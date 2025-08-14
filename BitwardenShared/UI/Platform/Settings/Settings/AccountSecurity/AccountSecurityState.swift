@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - UnlockMethod
@@ -143,9 +144,6 @@ struct AccountSecurityState: Equatable {
 
     /// The length of time before a session timeout occurs.
     var sessionTimeoutValue: SessionTimeoutValue = .immediately
-
-    /// Whether the sync with the authenticator app section should be included.
-    var shouldShowAuthenticatorSyncSection = false
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?

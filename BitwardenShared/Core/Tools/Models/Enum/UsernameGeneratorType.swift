@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// The type of username to generate.
 ///
 enum UsernameGeneratorType: Int, CaseIterable, Codable, Equatable, Menuable {

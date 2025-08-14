@@ -33,9 +33,6 @@ struct LoginItemState: Equatable {
     /// A flag indicating if the totp feature is available.
     let isTOTPAvailable: Bool
 
-    /// Whether the user can see the TOTP code.
-    var isTOTPCodeVisible: Bool = false
-
     /// The password for this item.
     var password: String = ""
 

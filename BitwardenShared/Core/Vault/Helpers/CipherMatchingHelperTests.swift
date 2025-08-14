@@ -36,7 +36,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
 
     var settingsService: MockSettingsService!
     var stateService: MockStateService!
-    var subject: CipherMatchingHelper!
+    var subject: DefaultCipherMatchingHelper!
 
     // MARK: Setup & Teardown
 
@@ -46,7 +46,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         settingsService = MockSettingsService()
         stateService = MockStateService()
 
-        subject = CipherMatchingHelper(
+        subject = DefaultCipherMatchingHelper(
             settingsService: settingsService,
             stateService: stateService
         )
@@ -404,6 +404,15 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             Bitwarden (Starts With)
             """
         }
+    }
+
+    /// `ciphersMatching(uri:ciphers)` returns empty when the uri is `nil` or empty.
+    func test_ciphersMatching_empty() async {
+        let matchingCiphersURINil = await subject.ciphersMatching(uri: nil, ciphers: ciphers)
+        XCTAssertTrue(matchingCiphersURINil.isEmpty)
+
+        let matchingCiphersURIEmpty = await subject.ciphersMatching(uri: "", ciphers: ciphers)
+        XCTAssertTrue(matchingCiphersURIEmpty.isEmpty)
     }
 
     // MARK: Private

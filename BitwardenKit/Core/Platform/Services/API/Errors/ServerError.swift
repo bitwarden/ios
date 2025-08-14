@@ -4,7 +4,7 @@ import Foundation
 
 /// An enumeration of server errors.
 ///
-public enum ServerError: Error, Equatable, CustomNSError {
+public enum ServerError: NonLoggableError, Equatable, CustomNSError {
     /// A generic error.
     ///
     /// - Parameter errorResponse: The error response returned from the API request.

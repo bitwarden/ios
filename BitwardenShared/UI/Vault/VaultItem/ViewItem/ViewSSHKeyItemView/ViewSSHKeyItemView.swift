@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -29,7 +30,7 @@ struct ViewSSHKeyItemView: View {
         BitwardenField(title: Localizations.privateKey) {
             PasswordText(password: privateKey, isPasswordVisible: store.state.isPrivateKeyVisible)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("PrivateKeyEntry")
         } accessoryContent: {
             if store.state.canViewPrivateKey {
@@ -122,7 +123,7 @@ struct ViewSSHKeyItemView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .ignoresSafeArea()
     }
 }

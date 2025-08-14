@@ -15,9 +15,6 @@ extension GeneratorState {
 
         // MARK: Properties
 
-        /// A flag indicating if the addy IO selfhost is enabled.
-        var addyIOSelfHostServerUrlEnabled = false
-
         /// An optional website host used to generate usernames (either plus addressed or catch all).
         var emailWebsite: String?
 
@@ -69,9 +66,6 @@ extension GeneratorState {
 
         /// The base URL for the SimpleLogin api.
         var simpleLoginSelfHostServerUrl: String = ""
-
-        /// A flag indicating if the SimpleLogin selfhost is enabled.
-        var simpleLoginSelfHostServerUrlEnabled = false
 
         // MARK: Plus Addressed Email Properties
 
@@ -148,8 +142,9 @@ extension GeneratorState.UsernameState {
     /// generated.
     var canGenerateUsername: Bool {
         switch usernameGeneratorType {
-        case .catchAllEmail,
-             .plusAddressedEmail,
+        case .catchAllEmail:
+            !domain.isEmpty
+        case .plusAddressedEmail,
              .randomWord:
             true
         case .forwardedEmail:

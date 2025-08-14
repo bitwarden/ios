@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -8,7 +9,7 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_name line_length
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
@@ -105,7 +106,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -124,7 +125,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -147,7 +148,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -156,7 +157,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -166,7 +167,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {
@@ -190,7 +191,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -209,7 +210,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -230,7 +231,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -239,7 +240,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -249,7 +250,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             items: items,
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {

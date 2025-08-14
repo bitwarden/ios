@@ -56,4 +56,7 @@ enum ExternalLinksConstants {
 
     /// A markdown link to Bitwarden's markting email preferences.
     static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
+
+    /// A link to Bitwarden's help page for showing website icons.
+    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
 }

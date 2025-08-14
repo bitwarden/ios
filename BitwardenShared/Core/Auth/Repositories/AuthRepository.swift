@@ -236,14 +236,6 @@ protocol AuthRepository: AnyObject {
     ///
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
 
-    /// Unlocks the Vault with the user's previously stored Authenticator Vault Key.
-    ///
-    /// User must have a previously stored Authenticator Vault Key or this method will throw.
-    ///
-    /// - Parameter userId: The account whose vault is being unlocked.
-    ///
-    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws
-
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
@@ -708,20 +700,6 @@ extension DefaultAuthRepository: AuthRepository {
             return nil
         }
 
-        guard await configService.getFeatureFlag(.refactorSsoDetailsEndpoint) else {
-            let response = try await organizationAPIService.getSingleSignOnDetails(email: email)
-
-            // If there is already an organization identifier associated with the user's email,
-            // attempt to start the single sign on process with that identifier.
-            guard response.ssoAvailable,
-                  response.verifiedDate != nil,
-                  let organizationIdentifier = response.organizationIdentifier,
-                  !organizationIdentifier.isEmpty else {
-                return nil
-            }
-            return organizationIdentifier
-        }
-
         let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
         return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }
@@ -737,7 +715,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        try await stateService.pinProtectedUserKey(userId: userId) != nil
+        try await vaultTimeoutService.isPinUnlockAvailable(userId: userId)
     }
 
     func isUserManagedByOrganization() async throws -> Bool {
@@ -798,20 +776,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
-        let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
-        let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
-        guard hasMasterPassword else {
-            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
-            let isPinEnabled = try await isPinUnlockAvailable()
-            if isPinEnabled || isBiometricsEnabled {
-                return timeoutAction
-            } else {
-                // If the user doesn't have a master password and hasn't enabled a pin or
-                // biometrics, their timeout action needs to be logout.
-                return .logout
-            }
-        }
-        return timeoutAction
+        try await vaultTimeoutService.sessionTimeoutAction(userId: userId)
     }
 
     func requestOtp() async throws {
@@ -958,11 +923,6 @@ extension DefaultAuthRepository: AuthRepository {
                 method: method
             )
         )
-    }
-
-    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
-        let authenticatorKey = try await keychainService.getAuthenticatorVaultKey(userId: userId)
-        try await unlockVault(method: .decryptedKey(decryptedUserKey: authenticatorKey), hadUserInteraction: false)
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -1129,6 +1089,8 @@ extension DefaultAuthRepository: AuthRepository {
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
+                signingKey: nil,
+                securityState: nil,
                 method: method
             )
         )

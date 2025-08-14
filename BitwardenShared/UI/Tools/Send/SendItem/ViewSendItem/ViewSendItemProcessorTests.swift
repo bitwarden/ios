@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -58,12 +59,12 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteSend)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .confirmation(title: Localizations.areYouSureDeleteSend) {})
+        XCTAssertEqual(alert, .confirmationDestructive(title: Localizations.areYouSureDeleteSend) {})
 
         try await alert.tapCancel()
         XCTAssertNil(sendRepository.deleteSendSendView)
 
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
         XCTAssertEqual(coordinator.routes.last, .deleted)
@@ -80,7 +81,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteSend)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         sendRepository.deleteSendResult = .success(())
         let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)

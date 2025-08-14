@@ -15,9 +15,6 @@ struct LandingState: Equatable {
         !email.isEmpty
     }
 
-    /// Whether the pre-login settings feature flag is enabled.
-    var isPreLoginSettingsEnabled = false
-
     /// A flag indicating if the "Remember Me" toggle is on.
     var isRememberMeOn: Bool
 
@@ -29,9 +26,6 @@ struct LandingState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// Flag to use email verification or not
-    var emailVerificationFeatureFlag: Bool = true
 
     // MARK: Initialization
 

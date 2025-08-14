@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -56,7 +57,6 @@ class SettingsViewTests: BitwardenTestCase {
     @MainActor
     func test_defaultSaveOptionChanged_updateValue() throws {
         processor.state.shouldShowDefaultSaveOption = true
-        processor.state.shouldShowSyncButton = true
         processor.state.defaultSaveOption = .none
         let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOption)
         try menuField.select(newValue: DefaultSaveOption.saveToBitwarden)
@@ -102,7 +102,6 @@ class SettingsViewTests: BitwardenTestCase {
     /// Tapping the sync with Bitwarden app button dispatches the `.syncWithBitwardenAppTapped` action.
     @MainActor
     func test_syncWithBitwardenButton_tap() throws {
-        processor.state.shouldShowSyncButton = true
         let button = try subject.inspect().find(button: Localizations.syncWithBitwardenApp)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .syncWithBitwardenAppTapped)
@@ -142,21 +141,10 @@ class SettingsViewTests: BitwardenTestCase {
         )
     }
 
-    /// Tests the view renders correctly with the `shouldShowSyncButton` set to `true`.
+    /// Tests the view renders correctly with `shouldShowDefaultSaveOption` set to `true`.
     @MainActor
-    func test_viewRenderWithSyncRow() {
-        processor.state.shouldShowSyncButton = true
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
-
-    /// Tests the view renders correctly with `shouldShowDefaultSaveOption` and `shouldShowSyncButton` set to `true`.
-    @MainActor
-    func test_viewRenderWithSyncRowAndDefaultSaveOption() {
+    func test_viewRenderWithDefaultSaveOption() {
         processor.state.shouldShowDefaultSaveOption = true
-        processor.state.shouldShowSyncButton = true
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

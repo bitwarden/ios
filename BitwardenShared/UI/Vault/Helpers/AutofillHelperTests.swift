@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -380,7 +381,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login if the
     /// organization uses TOTP.
     func test_handleCipherForAutofill_totpCopyOrganizationUseTotp() async {
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
             organizationUseTotp: true
@@ -419,7 +420,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
         ))
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }

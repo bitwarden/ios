@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Combine
 import Foundation
 
@@ -103,6 +104,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             guard case let .totp(model) = item.itemType else { return }
             await moveItemToBitwarden(item: model.itemView)
         case .refresh:
+            await determineItemListCardState()
             await streamItemList()
         case let .search(text):
             state.searchResults = await searchItems(for: text)
@@ -339,8 +341,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Determine if the ItemListCard should be shown and which state to show.
     ///
     private func determineItemListCardState() async {
-        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
-              await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
+        guard await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application else {
             state.itemListCardState = .none
             return
@@ -600,9 +601,9 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     ///     `false` if they have chosen to store it locally.
     ///
     private func confirmDefaultSaveAlert(key: String, sendToBitwarden: Bool) {
-        let title = sendToBitwarden ?
-            Localizations.setSaveToBitwardenAsYourDefaultSaveOption :
-            Localizations.setSaveLocallyAsYourDefaultSaveOption
+        let title = sendToBitwarden
+            ? Localizations.setSaveToBitwardenAsYourDefaultSaveOption
+            : Localizations.setSaveLocallyAsYourDefaultSaveOption
         let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveHere
 
         coordinator.showAlert(.confirmDefaultSaveOption(

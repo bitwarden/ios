@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -53,7 +54,7 @@ private struct MainSendListView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
     }
 
     // MARK: Private views
@@ -102,6 +103,16 @@ private struct MainSendListView: View {
                             }
                         } label: {
                             newSendLabel
+                        }
+                        .apply { view in
+                            if #available(iOS 17, *) {
+                                // Handled by the `buttonStyle(_:)` applied to the `Group`.
+                                view
+                            } else {
+                                // Prior to iOS 17, applying a custom button style to a Menu
+                                // component has no effect, so a custom menu style is needed instead.
+                                view.menuStyle(.primary(shouldFillWidth: false))
+                            }
                         }
                     }
                 }
@@ -188,7 +199,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -226,18 +237,20 @@ struct SendListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refresh)
             }
-            .navigationBar(
-                title: store.state.navigationTitle,
-                titleDisplayMode: store.state.type == nil ? .large : .inline
-            )
+            .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                largeNavigationTitleToolbarItem(
+                    store.state.navigationTitle,
+                    hidden: store.state.type != nil
+                )
+
+                ToolbarItem(placement: .topBarTrailing) {
                     if !store.state.isInfoButtonHidden {
                         Button {
                             store.send(.infoButtonPressed)
                         } label: {
-                            Image(asset: Asset.Images.informationCircle24, label: Text(Localizations.aboutSend))
-                                .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                            Image(asset: Asset.Images.questionCircle24, label: Text(Localizations.aboutSend))
+                                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                         }
                         .frame(minHeight: 44)
                     }

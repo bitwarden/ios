@@ -1,10 +1,24 @@
 import Networking
 
+// MARK: - AccountTokenProvider
+
+/// A more specific `TokenProvider` protocol to use and ease testing.
+protocol AccountTokenProvider: TokenProvider {
+    /// Sets the delegate to use in this token provider.
+    /// - Parameter delegate: The delegate to use.
+    func setDelegate(delegate: AccountTokenProviderDelegate) async
+}
+
+// MARK: - DefaultAccountTokenProvider
+
 /// A `TokenProvider` that gets the access token for the current account and can refresh it when
 /// necessary.
 ///
-actor AccountTokenProvider: TokenProvider {
+actor DefaultAccountTokenProvider: AccountTokenProvider {
     // MARK: Properties
+
+    /// The delegate to use for specific operations on the token provider.
+    private weak var accountTokenProviderDelegate: AccountTokenProviderDelegate?
 
     /// The `HTTPService` used to make the API call to refresh the access token.
     let httpService: HTTPService
@@ -54,19 +68,37 @@ actor AccountTokenProvider: TokenProvider {
         let refreshTask = Task {
             defer { self.refreshTask = nil }
 
-            let refreshToken = try await tokenService.getRefreshToken()
-            let response = try await httpService.send(
-                IdentityTokenRefreshRequest(refreshToken: refreshToken)
-            )
-            try await tokenService.setTokens(
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
-            )
+            do {
+                let refreshToken = try await tokenService.getRefreshToken()
+                let response = try await httpService.send(
+                    IdentityTokenRefreshRequest(refreshToken: refreshToken)
+                )
+                try await tokenService.setTokens(
+                    accessToken: response.accessToken,
+                    refreshToken: response.refreshToken
+                )
 
-            return response.accessToken
+                return response.accessToken
+            } catch {
+                if let accountTokenProviderDelegate {
+                    try await accountTokenProviderDelegate.onRefreshTokenError(error: error)
+                }
+                throw error
+            }
         }
         self.refreshTask = refreshTask
 
         _ = try await refreshTask.value
     }
+
+    func setDelegate(delegate: AccountTokenProviderDelegate) async {
+        accountTokenProviderDelegate = delegate
+    }
+}
+
+/// Delegate to be used by the `AccountTokenProvider`.
+protocol AccountTokenProviderDelegate: AnyObject {
+    /// Callbac to be used when an error is thrown when refreshing the access token.
+    /// - Parameter error: `Error` thrown.
+    func onRefreshTokenError(error: Error) async throws
 }

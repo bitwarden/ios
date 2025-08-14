@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordText
@@ -37,11 +38,11 @@ struct PasswordText: View {
     private func colorCodedText(for value: String) -> AttributedString {
         value.reduce(into: AttributedString()) { partialResult, character in
             let foregroundColor: Color = if character.isNumber {
-                Asset.Colors.textCodeBlue.swiftUIColor
+                SharedAsset.Colors.textCodeBlue.swiftUIColor
             } else if character.isSymbol || character.isPunctuation {
-                Asset.Colors.textCodePink.swiftUIColor
+                SharedAsset.Colors.textCodePink.swiftUIColor
             } else {
-                Asset.Colors.textPrimary.swiftUIColor
+                SharedAsset.Colors.textPrimary.swiftUIColor
             }
 
             // Add a zero-width space (U+200B) after each character to ensure text will wrap on any

@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import Networking
 import TestHelpers
@@ -799,14 +800,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showMasterPasswordReprompt)
     }
 
-    /// `perform(_:)` with `.appeared` checks restrictCipherItemDeletionFlag and sets value to state.
-    @MainActor
-    func test_perform_appeared_loadRestrictItemDeletionFlag() async {
-        configService.featureFlagsBool[.restrictCipherItemDeletion] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
-    }
-
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
     @MainActor
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
@@ -1017,6 +1010,28 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
         vaultRepository.fetchCipherOwnershipOptions = [owner]
         vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "2", name: "Engineering"),
+        ])
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collectionIds, ["2"])
+        XCTAssertEqual(subject.state.owner, owner)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher and
+    /// filters out any preset collections that the user only has read-only access to.
+    @MainActor
+    func test_perform_fetchCipherOptions_filtersReadOnlyCollections() async {
+        let owner = CipherOwner.organization(id: "123", name: "Test Org 1")
+        subject.state = CipherItemState(
+            collectionIds: ["1", "2"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+        vaultRepository.fetchCipherOwnershipOptions = [owner]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "1", name: "Design", readOnly: true),
             .fixture(id: "2", name: "Engineering"),
         ])
 

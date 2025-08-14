@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AppExtensionView
@@ -81,9 +82,9 @@ struct AppExtensionView: View {
     /// The activate button.
     private var activateButton: some View {
         Button(
-            store.state.extensionEnabled ?
-                Localizations.reactivateAppExtension :
-                Localizations.extensionEnable
+            store.state.extensionEnabled
+                ? Localizations.reactivateAppExtension
+                : Localizations.extensionEnable
         ) {
             store.send(.activateButtonTapped)
         }
@@ -112,7 +113,7 @@ struct AppExtensionView: View {
     private var instructionsBody: some View {
         Text(message)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -121,7 +122,7 @@ struct AppExtensionView: View {
     private var instructionsTitle: some View {
         Text(title)
             .styleGuide(.title)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }

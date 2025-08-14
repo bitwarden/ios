@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -54,24 +55,12 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadPremiumStatus` loads the premium status and displays an alert if necessary.
     @MainActor
     func test_perform_loadPremiumStatus() async throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertFalse(subject.state.hasPremium)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.premiumRequired))
-    }
-
-    /// `perform(_:)` with `.loadPremiumStatus` records any errors.
-    @MainActor
-    func test_perform_loadPremiumStatus_error() async throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.loadPremiumStatus)
-
-        XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.save` saves the attachment and updates the view.

@@ -1,17 +1,16 @@
 name: CI / Password Manager
-run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - Password Manager {0} ({1})', inputs.build-variant, inputs.build-mode) || 'CI - Password Manager' }}
 
 on:
+  push:
+    branches:
+      - main
+      - release/**/*
+    paths-ignore:
+      - Authenticator/**
+      - AuthenticatorShared/**
   workflow_dispatch:
     inputs:
-      build-variant:
-        description: "Build Variant"
-        required: true
-        default: "Beta"
-        type: choice
-        options:
-          - Beta
-          - Production
       build-mode:
         description: "Build Mode"
         required: true
@@ -20,6 +19,15 @@ on:
         options:
           - Device
           - Simulator
+          - CI
+      build-variant:
+        description: "Build Variant"
+        required: true
+        default: "Beta"
+        type: choice
+        options:
+          - Beta
+          - Production
       version-name:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -42,13 +50,14 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   version:
     name: Calculate Version Name and Number
     uses: bitwarden/ios/.github/workflows/_version.yml@main
     with:
-      base_version_number: 2100
+      base_version_number: 2300
       version_name: ${{ inputs.version-name }}
       version_number: ${{ inputs.version-number }}
       patch_version: ${{ inputs.patch_version && '999' || '' }}
@@ -57,36 +66,41 @@ jobs:
   build-manual:
     name: Build Manual - ${{ inputs.build-variant }} (${{ inputs.build-mode }})
     needs: version
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       build-mode: ${{ inputs.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
+      xcode-version: ${{ inputs.xcode-version }}
       compiler-flags: ${{ inputs.compiler-flags }}
-      distribute: ${{ inputs.distribute }}
+      distribute: ${{ github.event_name == 'workflow_dispatch' && inputs.distribute }} # event_name check is a workaround for github failing the workflow run when triggered by push
     secrets: inherit
 
   build-public:
     name: Build CI
     needs: version
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
         include:
           - bw-env: bwpm_prod
             build-mode: Device
+            distribute: true
           - bw-env: bwpm_prod
             build-mode: Simulator
+            distribute: false
           - bw-env: bwpm_beta
             build-mode: Device
             compiler-flags: DEBUG_MENU
+            distribute: true
     with:
       bw-env: ${{ matrix.bw-env }}
       build-mode: ${{ matrix.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }}
       compiler-flags: ${{ matrix.compiler-flags }}
+      distribute: ${{ matrix.distribute }}
     secrets: inherit

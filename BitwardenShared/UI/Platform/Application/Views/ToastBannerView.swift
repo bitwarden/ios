@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ToastBannerView
@@ -38,14 +39,14 @@ struct ToastBannerView<ButtonContent: View>: View {
                         Text(subtitle)
                             .styleGuide(.callout)
                     }
-                    .foregroundStyle(Asset.Colors.textReversed.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textReversed.swiftUIColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     Button {
                         isVisible = false
                     } label: {
                         Image(asset: Asset.Images.close16, label: Text(Localizations.close))
-                            .imageStyle(.accessoryIcon16(color: Asset.Colors.iconReversed.swiftUIColor))
+                            .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconReversed.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }
                     .padding(-16) // ...but remove it to not affect layout.
@@ -56,7 +57,7 @@ struct ToastBannerView<ButtonContent: View>: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 16)
-            .background(Asset.Colors.backgroundAlert.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundAlert.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 4)

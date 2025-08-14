@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -50,7 +51,7 @@ struct ViewItemView: View {
                 details(for: viewState)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(
@@ -138,7 +139,6 @@ struct ViewItemView_Previews: PreviewProvider {
             hasPremium: true
         )!
         state.type = CipherType.card
-        state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
@@ -165,7 +165,6 @@ struct ViewItemView_Previews: PreviewProvider {
                 value: "Value"
             ),
         ]
-        state.isMasterPasswordRePromptOn = false
         state.name = "Example"
         state.notes = "secure note"
         state.loginState.fido2Credentials = [

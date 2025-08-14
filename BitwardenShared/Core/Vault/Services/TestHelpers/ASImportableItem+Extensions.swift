@@ -1,16 +1,17 @@
 #if SUPPORTS_CXP
 import AuthenticationServices
 
-@available(iOS 18.2, *)
+@available(iOS 26.0, *)
 extension ASImportableItem {
     /// Provides a fixture for `ASImportableItem`.
     static func fixture(
         id: Data = Data(capacity: 16),
         created: Date = .now,
         lastModified: Date = .now,
-        type: ASImportableItem.ItemType = .login,
         title: String = "",
         subtitle: String? = nil,
+        favorite: Bool = false,
+        scope: ASImportableCredentialScope? = nil,
         credentials: [ASImportableCredential] = [],
         tags: [String] = []
     ) -> ASImportableItem {
@@ -18,9 +19,10 @@ extension ASImportableItem {
             id: id,
             created: created,
             lastModified: lastModified,
-            type: type,
             title: title,
             subtitle: subtitle,
+            favorite: favorite,
+            scope: scope,
             credentials: credentials,
             tags: tags
         )

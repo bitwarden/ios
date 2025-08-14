@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest
@@ -200,7 +201,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         client.results = [
             .httpFailure(URLError(.timedOut) as Error),
-            .httpSuccess(testData: .createAccountRequest),
+            .httpSuccess(testData: .registerFinishRequest),
         ]
 
         await subject.perform(.completeRegistration)
@@ -231,7 +232,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_checkPasswordAndCompleteRegistration_exposedWeak_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 1)
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -267,7 +268,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_checkPasswordAndCompleteRegistration_exposedStrong_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 3)
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -308,7 +309,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             retypePasswordText: "unexposed123"
         )
 
-        client.results = [.httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -342,7 +343,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             retypePasswordText: "unexposed123"
         )
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -378,7 +379,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountAccountAlreadyExists.data
+            body: APITestData.registerFinishAccountAlreadyExists.data
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -399,7 +400,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_emptyPassword() async {
         subject.state = .fixture(passwordText: "", retypePasswordText: "")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -418,7 +419,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountHintTooLong.data
+            body: APITestData.registerFinishHintTooLong.data
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -441,7 +442,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountInvalidEmailFormat.data
+            body: APITestData.registerFinishInvalidEmailFormat.data
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -462,7 +463,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_completeRegistration_loginError() async throws {
         authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
 
         await subject.perform(.completeRegistration)
@@ -493,7 +494,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_completeRegistration_unlockError() async throws {
         authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
 
         await subject.perform(.completeRegistration)
@@ -527,7 +528,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state = .fixture()
 
         let urlError = URLError(.notConnectedToInternet)
-        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -560,7 +561,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_passwordsDontMatch() async {
         subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -574,7 +575,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_passwordsTooShort() async {
         subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -591,7 +592,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state = .fixture()
 
         let urlError = URLError(.timedOut)
-        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 

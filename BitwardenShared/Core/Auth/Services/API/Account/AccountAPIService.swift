@@ -26,13 +26,6 @@ protocol AccountAPIService {
     ///
     func convertToKeyConnector() async throws
 
-    /// Creates an API call for when the user submits an account creation form.
-    ///
-    /// - Parameter body: The body to be included in the request.
-    /// - Returns: Data returned from the `CreateAccountRequest`.
-    ///
-    func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel
-
     /// Creates an API call for deleting the user's account.
     ///
     /// - Parameter body: The body to be included in the request.
@@ -144,11 +137,6 @@ extension APIService: AccountAPIService {
 
     func convertToKeyConnector() async throws {
         _ = try await apiService.send(ConvertToKeyConnectorRequest())
-    }
-
-    func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
-        let request = CreateAccountRequest(body: body)
-        return try await identityService.send(request)
     }
 
     func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse {

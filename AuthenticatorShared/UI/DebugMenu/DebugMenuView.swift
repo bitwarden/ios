@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - DebugMenuView
@@ -75,10 +76,6 @@ struct DebugMenuView: View {
             processor: StateProcessor(
                 state: .init(
                     featureFlags: [
-                        .init(
-                            feature: .enablePasswordManagerSync,
-                            isEnabled: true
-                        ),
                     ]
                 )
             )

@@ -144,6 +144,9 @@ actor DefaultClientService: ClientService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The factory to create SDK repositories.
+    private let sdkRepositoryFactory: SdkRepositoryFactory
+
     /// Basic client behavior settings.
     private let settings: ClientSettings?
 
@@ -161,6 +164,7 @@ actor DefaultClientService: ClientService {
     ///   - clientBuilder: A helper object that builds a Bitwarden SDK `Client`.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - sdkRepositoryFactory: The factory to create SDK repositories.
     ///   - settings: The settings to apply to the client. Defaults to `nil`.
     ///   - stateService: The service used by the application to manage account state.
     ///
@@ -168,12 +172,14 @@ actor DefaultClientService: ClientService {
         clientBuilder: ClientBuilder,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        sdkRepositoryFactory: SdkRepositoryFactory,
         settings: ClientSettings? = nil,
         stateService: StateService
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
         self.errorReporter = errorReporter
+        self.sdkRepositoryFactory = sdkRepositoryFactory
         self.settings = settings
         self.stateService = stateService
 
@@ -254,9 +260,7 @@ actor DefaultClientService: ClientService {
                 // If not, create one, map it to the user, then return it.
                 let newClient = await createAndMapClient(for: userId)
 
-                // Get the current config and load the flags.
-                let config = await configService.getConfig()
-                await loadFlags(config, for: newClient)
+                await configureNewClient(newClient, for: userId)
 
                 return newClient
             }
@@ -274,6 +278,20 @@ actor DefaultClientService: ClientService {
             )
             return clientBuilder.buildClient()
         }
+    }
+
+    /// Configures a new SDK client.
+    /// - Parameters:
+    ///   - client: The SDK client to configure.
+    ///   - userId: The user ID the SDK client instance belongs to.
+    func configureNewClient(_ client: BitwardenSdkClient, for userId: String) async {
+        client.platform().state().registerCipherRepository(
+            store: sdkRepositoryFactory.makeCipherRepository(userId: userId)
+        )
+
+        // Get the current config and load the flags.
+        let config = await configService.getConfig()
+        await loadFlags(config, for: client)
     }
 
     /// Creates a new client and maps it to an ID.
@@ -315,7 +333,6 @@ actor DefaultClientService: ClientService {
 ///
 protocol ClientBuilder {
     /// Creates a `BitwardenSdkClient`.
-    ///
     /// - Returns: A new `BitwardenSdkClient`.
     ///
     func buildClient() -> BitwardenSdkClient
@@ -341,8 +358,10 @@ class DefaultClientBuilder: ClientBuilder {
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - settings: The settings applied to the client.
-    ///
-    init(errorReporter: ErrorReporter, settings: ClientSettings? = nil) {
+    init(
+        errorReporter: ErrorReporter,
+        settings: ClientSettings? = nil
+    ) {
         self.errorReporter = errorReporter
         self.settings = settings
     }

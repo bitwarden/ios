@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 import UIKit
@@ -127,7 +128,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
-            await loadRestrictItemDeletionFlag()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
@@ -280,9 +280,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             // We need read-only collections so that we can include them in the state
             // to correctly calculate if the item can be deleted
             state.allUserCollections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
-            // Filter out any collection IDs that aren't included in the fetched collections.
+            // Filter out any collection IDs that aren't included in the fetched collections and aren't read-only.
             state.collectionIds = state.collectionIds.filter { collectionId in
-                state.allUserCollections.contains(where: { $0.id == collectionId })
+                state.allUserCollections.contains(where: { $0.id == collectionId && !$0.readOnly })
             }
 
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
@@ -678,14 +678,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
-    }
-
-    /// Load the restrict item deletion flag from the config service to state.
-    ///
-    func loadRestrictItemDeletionFlag() async {
-        state.restrictCipherItemDeletionFlagEnabled = await services.configService.getFeatureFlag(
-            .restrictCipherItemDeletion
-        )
     }
 
     /// Shows the password autofill information alert if it hasn't been shown before and the user

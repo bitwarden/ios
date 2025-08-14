@@ -24,17 +24,17 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 6324c3ab661606ef0ce7dd90ade730615ee9e2c8
+    revision: 30923db8cfe7e6dcad987fd7b13a437f040830af
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.12.0
+    exactVersion: 11.14.0
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.3
+    exactVersion: 1.18.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.1
@@ -164,7 +164,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
-      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
+      - path: BitwardenResources/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -173,6 +173,7 @@ targets:
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -202,12 +203,6 @@ targets:
       - path: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
-      - path: Scripts/upload_dsym_to_crashlytics.sh
-        name: "Upload dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
   BitwardenTests:
     type: bundle.unit-test
     platform: iOS
@@ -362,22 +357,23 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
           - "**/__Snapshots__/*"
+          - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
       - path: BitwardenShared
         includes:
           - "**/__Snapshots__/*"
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-        optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: BitwardenWatchShared
+      - path: BitwardenShared/Sourcery/sourcery.yml
+        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
@@ -389,8 +385,15 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -409,6 +412,10 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
@@ -438,13 +445,6 @@ targets:
       - target: BitwardenWatchWidgetExtension
       - package: Firebase
         product: FirebaseCrashlytics
-    postBuildScripts:
-      - path: Scripts/upload_watch_dsym_to_crashlytics.sh
-        name: "Upload watch dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
 
   BitwardenWatchWidgetExtension:
     type: app-extension

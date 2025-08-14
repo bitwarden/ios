@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import OSLog
 
 // MARK: - SettingsProcessor
@@ -141,11 +142,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
         state.sessionTimeoutValue = loadTimeoutValue(biometricsEnabled: state.biometricUnlockStatus.isEnabled)
-        state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
-        if state.shouldShowSyncButton {
-            state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
-            state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
-        }
+        state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+        state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
     }
 
     /// Load the Session Timeout Value.

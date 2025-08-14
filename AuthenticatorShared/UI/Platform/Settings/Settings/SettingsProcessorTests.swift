@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import AuthenticatorShared
@@ -55,59 +56,28 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// Performing `.loadData` sets the 'defaultSaveOption' to the current value in 'AppSettingsStore'.
     @MainActor
     func test_perform_loadData_defaultSaveOption() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         appSettingsStore.defaultSaveOption = .saveToBitwarden
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.defaultSaveOption, .saveToBitwarden)
     }
 
-    /// Performing `.loadData` sets the sync related flags correctly when the feature flag is
-    /// disabled and the sync is off.
-    @MainActor
-    func test_perform_loadData_syncFlagDisabled_syncOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        authItemRepository.pmSyncEnabled = false
-        await subject.perform(.loadData)
-
-        XCTAssertFalse(subject.state.shouldShowDefaultSaveOption)
-        XCTAssertFalse(subject.state.shouldShowSyncButton)
-    }
-
-    /// Performing `.loadData` sets the sync related flags correctly when the feature flag is
-    /// enabled and the sync is off.
+    /// Performing `.loadData` sets the sync related flags correctly when the sync is off.
     @MainActor
     func test_perform_loadData_syncFlagEnabled_syncOff() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = false
         await subject.perform(.loadData)
 
         XCTAssertFalse(subject.state.shouldShowDefaultSaveOption)
-        XCTAssertTrue(subject.state.shouldShowSyncButton)
     }
 
-    /// Performing `.loadData` sets the sync related flags correctly when the feature flag is
-    /// disabled and the sync is on.
-    @MainActor
-    func test_perform_loadData_syncFlagDisabled_syncOn() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        authItemRepository.pmSyncEnabled = true
-        await subject.perform(.loadData)
-
-        XCTAssertFalse(subject.state.shouldShowDefaultSaveOption)
-        XCTAssertFalse(subject.state.shouldShowSyncButton)
-    }
-
-    /// Performing `.loadData` sets the sync related flags correctly when the feature flag is
-    /// enabled and the sync is on.
+    /// Performing `.loadData` sets the sync related flags correctly when the sync is on.
     @MainActor
     func test_perform_loadData_syncFlagEnabled_syncOn() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = true
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.shouldShowDefaultSaveOption)
-        XCTAssertTrue(subject.state.shouldShowSyncButton)
     }
 
     /// Performing `.loadData` sets the session timeout to `.never` if biometrics are disabled.
@@ -242,7 +212,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
-    /// navigate the user to the PM app's settings.
+    /// navigate the user to the BWPM app's settings.
     @MainActor
     func test_receive_syncWithBitwardenAppTapped_installed() {
         application.canOpenUrlResponse = true
@@ -252,7 +222,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings App Store URL to
-    /// the state to navigate the user to the App Store when the PM app is not installed..
+    /// the state to navigate the user to the App Store when the BWPM app is not installed..
     @MainActor
     func test_receive_syncWithBitwardenAppTapped_notInstalled() {
         application.canOpenUrlResponse = false

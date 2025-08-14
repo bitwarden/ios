@@ -1,9 +1,10 @@
 import BitwardenSdk
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
-class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `toFido2CredentialIdentity()` returns the converted `ASPasskeyCredentialIdentity`.

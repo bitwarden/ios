@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import TestHelpers
 import XCTest
@@ -9,6 +10,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var application: MockApplication!
     var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
     var errorReporter: MockErrorReporter!
@@ -22,6 +24,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        application = MockApplication()
         authRepository = MockAuthRepository()
         biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator()
@@ -32,6 +35,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                application: application,
                 authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
@@ -45,6 +49,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.tearDown()
 
         appExtensionDelegate = nil
+        application = nil
         authRepository = nil
         biometricsRepository = nil
         coordinator = nil
@@ -90,6 +95,23 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             subject.state.profileSwitcherState,
             ProfileSwitcherState.empty()
         )
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't attempt to unlock the vault with biometrics if the
+    /// app is in the background.
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_background() async throws {
+        application.applicationState = .background
+        stateService.activeAccount = .fixture()
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(coordinator.events.isEmpty)
     }
 
     /// `perform(.appeared)` with no master password but with a biometrics status enabled,
@@ -785,6 +807,29 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
+    /// `receive(_:)` with `.logOut` shows a logout confirmation alert and allows the user to logout.
+    @MainActor
+    func test_receive_logOut() async throws {
+        subject.receive(.logOut)
+
+        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
+        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
+        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
+
+        try await logoutConfirmationAlert.tapCancel()
+        XCTAssertTrue(coordinator.events.isEmpty)
+
+        try await logoutConfirmationAlert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(.logout(userId: nil, userInitiated: true))
+        )
+    }
+
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
     @MainActor
     func test_receive_masterPasswordChanged() {
@@ -792,79 +837,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.receive(.masterPasswordChanged("password"))
         XCTAssertEqual(subject.state.masterPassword, "password")
-    }
-
-    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
-    /// to logout.
-    @MainActor
-    func test_receive_morePressed_logout() async throws {
-        subject.receive(.morePressed)
-
-        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(optionsAlert.title, Localizations.options)
-        XCTAssertNil(optionsAlert.message)
-        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
-        XCTAssertEqual(optionsAlert.alertActions.count, 2)
-        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
-        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
-
-        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
-        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
-
-        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        XCTAssertEqual(
-            coordinator.events.last,
-            .action(
-                .logout(userId: nil, userInitiated: true)
-            )
-        )
-    }
-
-    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
-    /// to logout.
-    @MainActor
-    func test_receive_morePressed_logout_nextAccount() async throws {
-        stateService.accounts = [
-            .fixture(),
-            .fixtureAccountLogin(),
-        ]
-        stateService.activeAccount = .fixture()
-        subject.receive(.morePressed)
-
-        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(optionsAlert.title, Localizations.options)
-        XCTAssertNil(optionsAlert.message)
-        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
-        XCTAssertEqual(optionsAlert.alertActions.count, 2)
-        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
-        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
-
-        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
-        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
-
-        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        XCTAssertEqual(
-            coordinator.events.last,
-            .action(
-                .logout(userId: nil, userInitiated: true)
-            )
-        )
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.

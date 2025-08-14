@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - OtherSettingsView
@@ -30,9 +31,7 @@ struct OtherSettingsView: View {
                     connectToWatch
                 }
 
-                if store.state.shouldShowSiriAndShortcutsAccess {
-                    siriAndShortcutsAccess
-                }
+                siriAndShortcutsAccess
             }
         }
         .scrollView()
@@ -63,7 +62,7 @@ struct OtherSettingsView: View {
         ) {
             Text(Localizations.enableSyncOnRefreshDescription)
                 .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
         .contentBlock()
     }
@@ -80,7 +79,7 @@ struct OtherSettingsView: View {
         ) {
             Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
                 .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
         .contentBlock()
     }
@@ -123,7 +122,7 @@ struct OtherSettingsView: View {
         ) {
             Text(Localizations.enableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents)
                 .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
         .contentBlock()
     }
@@ -150,7 +149,7 @@ struct OtherSettingsView: View {
             }
             .padding(.leading, 16)
             .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .multilineTextAlignment(.leading)
         }
     }

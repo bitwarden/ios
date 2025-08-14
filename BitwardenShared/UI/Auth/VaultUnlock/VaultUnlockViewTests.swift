@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -72,7 +73,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_optionsButton_logOut_tap() throws {
         let button = try subject.inspect().find(button: Localizations.logOut)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .logOut)
     }
 
     /// Updating the secure field dispatches the `.masterPasswordChanged()` action.

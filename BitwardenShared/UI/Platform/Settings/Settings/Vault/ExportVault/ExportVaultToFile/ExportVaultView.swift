@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExportVaultView
@@ -118,7 +119,7 @@ struct ExportVaultView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Localizations.sendVerificationCodeToEmail)
                     .styleGuide(.subheadline, weight: .semibold)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                 AsyncButton(Localizations.sendCode) {
                     await store.perform(.sendCodeTapped)

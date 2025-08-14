@@ -1,5 +1,6 @@
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
 // MARK: - SendDeletionDateTypeTests
@@ -45,11 +46,11 @@ class SendDeletionDateTypeTests: BitwardenTestCase {
 
         XCTAssertEqual(
             SendDeletionDateType.custom(Date(year: 2024, month: 1, day: 19)).localizedName,
-            "Jan 19, 2024 at 12:00 AM"
+            "Jan 19, 2024, 12:00\u{202F}AM"
         )
         XCTAssertEqual(
             SendDeletionDateType.custom(Date(year: 2024, month: 6, day: 10)).localizedName,
-            "Jun 10, 2024 at 12:00 AM"
+            "Jun 10, 2024, 12:00\u{202F}AM"
         )
     }
 }

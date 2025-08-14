@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginWithDeviceView
@@ -49,13 +50,13 @@ struct LoginWithDeviceView: View {
         HStack(spacing: 8) {
             Text(Localizations.needAnotherOption)
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Button(Localizations.viewAllLoginOptions) {
                 store.send(.dismiss)
             }
             .styleGuide(.subheadlineSemibold)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             .accessibilityIdentifier("ViewAllLoginOptionsButton")
         }
     }
@@ -64,7 +65,7 @@ struct LoginWithDeviceView: View {
     private var explanationText: some View {
         Text(store.state.explanationText)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
     }
 
     /// The fingerprint phrase title and display.
@@ -73,12 +74,12 @@ struct LoginWithDeviceView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localizations.fingerprintPhrase)
                     .styleGuide(.body, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("FingerprintValueLabel")
 
                 Text(store.state.fingerprintPhrase ?? "")
                     .styleGuide(.bodyMonospaced)
-                    .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
                     .multilineTextAlignment(.leading)
                     .accessibilityIdentifier("FingerprintPhraseValue")
             }
@@ -102,7 +103,7 @@ struct LoginWithDeviceView: View {
     private var titleText: some View {
         Text(store.state.titleText)
             .styleGuide(.title2, weight: .semibold)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
     }
 }
 

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -34,7 +35,6 @@ class LandingViewTests: BitwardenTestCase {
     /// Tapping the app settings button dispatches the `.showPreLoginSettings` action.
     @MainActor
     func test_appSettings_tap() throws {
-        processor.state.isPreLoginSettingsEnabled = true
         let button = try subject.inspect().find(button: Localizations.appSettings)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .showPreLoginSettings)
@@ -108,7 +108,6 @@ class LandingViewTests: BitwardenTestCase {
     /// Check the snapshot for the empty state.
     @MainActor
     func test_snapshot_empty() {
-        processor.state.isPreLoginSettingsEnabled = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 

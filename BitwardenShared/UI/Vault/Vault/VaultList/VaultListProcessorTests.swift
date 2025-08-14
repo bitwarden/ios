@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -16,10 +17,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
@@ -42,10 +43,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
@@ -58,7 +59,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
-            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -72,6 +72,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject = VaultListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
@@ -83,10 +84,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
-        configService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
@@ -183,11 +184,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    /// In this case sync is flagged as periodic.
     @MainActor
     func test_perform_appeared() async {
         await subject.perform(.appeared)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.appeared` doesn't show an alert or log an error if the request was cancelled.
@@ -297,6 +300,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
     }
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
@@ -482,7 +497,22 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+    }
+
+    /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
+    /// vault is empty; in this case sync is not flagged as periodic.
+    @MainActor
+    func test_perform_refreshVault_emptyVault() async {
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(subject.state.loadingState, .data([]))
     }
 
     /// `perform(_:)` with `.refreshed` records an error and change the loading state
@@ -723,7 +753,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// whenever it changes.
     @MainActor
     func test_perform_streamAccountSetupProgress() {
-        configService.featureFlagsBool[.importLoginsFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -742,24 +771,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// setup progress fails.
     @MainActor
     func test_perform_streamAccountSetupProgress_error() async {
-        configService.featureFlagsBool[.importLoginsFlow] = true
-
         await subject.perform(.streamAccountSetupProgress)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.streamAccountSetupProgress` doesn't load the account setup progress
-    /// if the import logins feature flag is disabled.
-    @MainActor
-    func test_perform_streamAccountSetupProgress_importLoginsFlowDisabled() async {
-        configService.featureFlagsBool[.importLoginsFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.settingsBadgeSubject.send(.fixture())
-
-        await subject.perform(.streamAccountSetupProgress)
-
-        XCTAssertNil(subject.state.importLoginsSetupProgress)
     }
 
     /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
@@ -850,6 +864,51 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
     }
 
+    /// `perform(_:)` with `.streamVaultList` displays an alert if the vault has any cipher
+    /// decryption failures.
+    @MainActor
+    func test_perform_streamVaultList_cipherDecryptionFailure() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.vaultListSubject.send(
+            VaultListData(cipherDecryptionFailureIds: ["1", "2"], sections: [])
+        )
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .cipherDecryptionFailure(cipherIds: ["1", "2"], isFromCipherTap: false) { _ in }
+        )
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2))
+
+            1
+            2
+            """
+        )
+        XCTAssertTrue(subject.hasShownCipherDecryptionFailureAlert)
+
+        // As more data is published, the alert isn't shown again.
+        coordinator.alertShown.removeAll()
+        vaultRepository.vaultListSubject.send(
+            VaultListData(
+                cipherDecryptionFailureIds: ["1", "2"],
+                sections: [VaultListSection(id: "", items: [.fixture()], name: "")]
+            )
+        )
+        try await waitForAsync { self.subject.state.loadingState.data?.isEmpty == false }
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.streamVaultList` dismisses the coach marks if the vault contains any
     /// login items.
     @MainActor
@@ -866,7 +925,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             items: [.fixtureGroup(id: "1", group: .login, count: 1)],
             name: "Section"
         )
-        vaultRepository.vaultListSubject.send([section])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
 
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
         XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
@@ -889,7 +948,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             items: [.fixtureGroup(id: "1", group: .card, count: 1)],
             name: "Section"
         )
-        vaultRepository.vaultListSubject.send([section])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
 
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
         XCTAssertNil(stateService.learnGeneratorActionCardStatus)
@@ -900,13 +959,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_streamVaultList_doesntNeedSync() throws {
         let vaultListItem = VaultListItem.fixture()
-        vaultRepository.vaultListSubject.send([
-            VaultListSection(
-                id: "1",
-                items: [vaultListItem],
-                name: "Name"
-            ),
-        ])
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [
+                VaultListSection(
+                    id: "1",
+                    items: [vaultListItem],
+                    name: "Name"
+                ),
+            ]
+        ))
 
         let task = Task {
             await subject.perform(.streamVaultList)
@@ -933,7 +994,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
 
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
-        vaultRepository.vaultListSubject.send([section])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
 
         XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
@@ -951,7 +1012,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         defer { task.cancel() }
 
-        vaultRepository.vaultListSubject.send([])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: []))
         try await waitForAsync { self.subject.state.loadingState == .data([]) }
 
         XCTAssertEqual(stateService.accountSetupImportLogins["1"], .incomplete)
@@ -981,7 +1042,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             await subject.perform(.streamVaultList)
         }
 
-        vaultRepository.vaultListSubject.send([])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: []))
         waitFor(subject.state.loadingState == .loading([]))
         task.cancel()
 
@@ -999,13 +1060,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             await subject.perform(.streamVaultList)
         }
 
-        vaultRepository.vaultListSubject.send([
-            VaultListSection(
-                id: "1",
-                items: [vaultListItem],
-                name: "Name"
-            ),
-        ])
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [
+                VaultListSection(
+                    id: "1",
+                    items: [vaultListItem],
+                    name: "Name"
+                ),
+            ]
+        ))
         waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
@@ -1025,6 +1088,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         defer { task.cancel() }
         try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
@@ -1032,12 +1096,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_tryAgain_success() async throws {
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
         subject.state.loadingState = .error(errorMessage: "error")
-        vaultRepository.fetchSyncResult = .success([section])
+        vaultRepository.fetchSyncResult = .success(())
+
+        await subject.perform(.tryAgainTapped)
         let task = Task {
-            await subject.perform(.tryAgainTapped)
+            await subject.perform(.streamVaultList)
         }
         defer { task.cancel() }
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
+
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
@@ -1319,11 +1388,38 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        let item = VaultListItem.fixture()
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture()
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        subject.receive(.itemPressed(item: item))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
         subject.receive(.itemPressed(item: item))
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.
@@ -1336,10 +1432,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
+        subject.receive(.itemPressed(item: totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.

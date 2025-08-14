@@ -9,12 +9,13 @@ import Foundation
 class MockSendRepository: SendRepository {
     // MARK: Properties
 
-    var doesActivateAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActivateAccountHavePremiumResult: Bool = true
 
     var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncIsPeriodic: Bool?
     var fetchSyncHandler: (() -> Void)?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
@@ -76,17 +77,18 @@ class MockSendRepository: SendRepository {
         return try updateSendResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try doesActivateAccountHavePremiumResult.get()
+    func doesActiveAccountHavePremium() async -> Bool {
+        doesActivateAccountHavePremiumResult
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
         try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
         fetchSyncHandler?()
         try fetchSyncResult.get()
     }

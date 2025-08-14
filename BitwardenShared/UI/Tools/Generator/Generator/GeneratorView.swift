@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A view containing the generator used to generate new usernames and passwords.
@@ -36,7 +37,7 @@ struct GeneratorView: View {
                     })
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
-                    .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                 }
 
                 Divider()
@@ -76,9 +77,8 @@ struct GeneratorView: View {
                 }
             }
             .coordinateSpace(name: "generatorView")
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
-            .navigationTitle(Localizations.generator)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+            .navigationBar(title: Localizations.generator, titleDisplayMode: .inline)
             .task { await store.perform(.appeared) }
             .onChange(of: focusedFieldKeyPath) { newValue in
                 store.send(.textFieldFocusChanged(keyPath: newValue))
@@ -95,6 +95,11 @@ struct GeneratorView: View {
                         }
                     }
                 }
+
+                largeNavigationTitleToolbarItem(
+                    Localizations.generator,
+                    hidden: store.state.presentationMode != .tab
+                )
 
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if store.state.presentationMode.isSelectButtonVisible {
@@ -227,7 +232,7 @@ struct GeneratorView: View {
         BitwardenField(title: Localizations.website) {
             Text(website)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
         }
     }
 

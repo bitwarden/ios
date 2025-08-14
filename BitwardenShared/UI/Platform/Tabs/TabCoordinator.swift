@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 import UIKit
 
@@ -128,7 +129,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         rootNavigator.show(child: tabNavigator)
 
         let vaultNavigator = module.makeNavigationController()
-        vaultNavigator.navigationBar.prefersLargeTitles = true
+        vaultNavigator.navigationBar.prefersLargeTitles = false
         vaultNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         vaultCoordinator = module.makeVaultCoordinator(
             delegate: vaultDelegate,
@@ -136,7 +137,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         )
 
         let sendNavigator = module.makeNavigationController()
-        sendNavigator.navigationBar.prefersLargeTitles = true
+        sendNavigator.navigationBar.prefersLargeTitles = false
         sendNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         sendCoordinator = module.makeSendCoordinator(
             stackNavigator: sendNavigator
@@ -144,7 +145,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         sendCoordinator?.start()
 
         let generatorNavigator = module.makeNavigationController()
-        generatorNavigator.navigationBar.prefersLargeTitles = true
+        generatorNavigator.navigationBar.prefersLargeTitles = false
         generatorNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         // Remove the hairline divider under the navigation bar to make it appear that the segmented
         // control is part of the navigation bar.
@@ -156,7 +157,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         generatorCoordinator?.start()
 
         let settingsNavigator = module.makeNavigationController()
-        settingsNavigator.navigationBar.prefersLargeTitles = true
+        settingsNavigator.navigationBar.prefersLargeTitles = false
         settingsNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ProfileSwitcherItem
@@ -9,7 +10,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     var canBeLocked: Bool
 
     /// The color associated with the profile
-    var color: Color = Asset.Colors.backgroundTertiary.swiftUIColor
+    var color: Color = SharedAsset.Colors.backgroundTertiary.swiftUIColor
 
     /// The account's email.
     var email: String

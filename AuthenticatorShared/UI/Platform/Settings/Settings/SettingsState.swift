@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 /// An object that defines the current state of a `SettingsView`.
@@ -25,12 +26,7 @@ struct SettingsState: Equatable {
     var sessionTimeoutValue: SessionTimeoutValue = .never
 
     /// A flag to indicate if we should show the default save option menu.
-    /// Defaults to false, which indicates we should not show the menu.
     var shouldShowDefaultSaveOption = false
-
-    /// A flag to indicate if we should show the "Sync with the Bitwarden app" button
-    /// Defaults to false, which indicates we should not show the button.
-    var shouldShowSyncButton = false
 
     /// A toast message to show in the view.
     var toast: Toast?

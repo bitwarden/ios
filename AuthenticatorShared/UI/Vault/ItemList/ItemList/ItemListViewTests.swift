@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -67,7 +68,7 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider
         )
 
-        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the ItemListView showing the download card with results.
@@ -83,7 +84,7 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider
         )
 
-        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the ItemListView showing the sync card with an empty result.
@@ -99,7 +100,7 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider
         )
 
-        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the ItemListView showing the sync card with results.
@@ -115,7 +116,7 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider
         )
 
-        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     /// Test the close taps trigger the associated effect.

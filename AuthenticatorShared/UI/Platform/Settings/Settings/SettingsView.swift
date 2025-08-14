@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsView
@@ -115,12 +116,13 @@ struct SettingsView: View {
                         store.send(.exportItemsTapped)
                     }
 
-                    SettingsListItem(Localizations.backup, hasDivider: store.state.shouldShowSyncButton) {
+                    SettingsListItem(Localizations.backup) {
                         store.send(.backupTapped)
                     }
 
-                    if store.state.shouldShowSyncButton {
-                        syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
+                    syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
+
+                    if store.state.shouldShowDefaultSaveOption {
                         defaultSaveOption
                     }
                 }
@@ -167,18 +169,16 @@ struct SettingsView: View {
 
     /// The application's default save option picker view
     @ViewBuilder private var defaultSaveOption: some View {
-        if store.state.shouldShowDefaultSaveOption {
-            SettingsMenuField(
-                title: Localizations.defaultSaveOption,
-                options: DefaultSaveOption.allCases,
-                hasDivider: false,
-                selection: store.binding(
-                    get: \.defaultSaveOption,
-                    send: SettingsAction.defaultSaveChanged
-                )
+        SettingsMenuField(
+            title: Localizations.defaultSaveOption,
+            options: DefaultSaveOption.allCases,
+            hasDivider: false,
+            selection: store.binding(
+                get: \.defaultSaveOption,
+                send: SettingsAction.defaultSaveChanged
             )
-            .accessibilityIdentifier("DefaultSaveOptionChooser")
-        }
+        )
+        .accessibilityIdentifier("DefaultSaveOptionChooser")
     }
 
     /// The application's color theme picker view
@@ -261,7 +261,7 @@ struct SettingsView: View {
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                         Text(LocalizedStringKey(
-                            Localizations.thisFeatureIsNotYetAvailableForSelfHostedUsers(
+                            Localizations.learnMoreLink(
                                 ExternalLinksConstants.totpSyncHelp
                             )
                         ))
@@ -313,25 +313,12 @@ struct SettingsView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: SettingsState(
-                            shouldShowSyncButton: true
+                            shouldShowDefaultSaveOption: true
                         )
                     )
                 )
             )
-        }.previewDisplayName("With Sync Row")
-
-        NavigationView {
-            SettingsView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: SettingsState(
-                            shouldShowDefaultSaveOption: true,
-                            shouldShowSyncButton: true
-                        )
-                    )
-                )
-            )
-        }.previewDisplayName("With Sync & Default Options")
+        }.previewDisplayName("With Default Save Option")
     }
 }
 #endif

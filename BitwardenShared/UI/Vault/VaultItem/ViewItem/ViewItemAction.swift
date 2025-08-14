@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 // MARK: - ViewItemAction
@@ -44,29 +45,6 @@ enum ViewItemAction: Equatable, Sendable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
-
-    /// A flag indicating if this action requires the user to reenter their master password to
-    /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
-    /// `ViewItemState`.
-    var requiresMasterPasswordReprompt: Bool {
-        switch self {
-        case .cardItemAction,
-             .customFieldVisibilityPressed,
-             .downloadAttachment,
-             .editPressed,
-             .morePressed,
-             .passwordVisibilityPressed,
-             .sshKeyItemAction:
-            true
-        case let .copyPressed(_, field):
-            field.requiresMasterPasswordReprompt
-        case .disappeared,
-             .dismissPressed,
-             .passwordHistoryPressed,
-             .toastShown:
-            false
-        }
-    }
 }
 
 // MARK: CopyableField
@@ -146,35 +124,6 @@ enum CopyableField {
         // TODO: PM-11977 add SSH private key copied event
         default:
             nil
-        }
-    }
-
-    /// Whether copying the field requires the user to be reprompted for their master password, if
-    /// master password reprompt is enabled.
-    var requiresMasterPasswordReprompt: Bool {
-        switch self {
-        case .cardNumber,
-             .customHiddenField,
-             .password,
-             .securityCode,
-             .sshPrivateKey,
-             .totp:
-            true
-        case .company,
-             .customTextField,
-             .email,
-             .fullAddress,
-             .identityName,
-             .licenseNumber,
-             .notes,
-             .passportNumber,
-             .phone,
-             .socialSecurityNumber,
-             .sshKeyFingerprint,
-             .sshPublicKey,
-             .uri,
-             .username:
-            false
         }
     }
 

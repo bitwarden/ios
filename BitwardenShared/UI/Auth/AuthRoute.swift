@@ -36,16 +36,13 @@ public enum AuthRoute: Equatable {
         fromEmail: Bool
     )
 
-    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
     /// Dismisses the auth flow.
     /// - Parameters:
     ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
     case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
-
-    /// A route to the create account screen.
-    case createAccount
 
     /// A route that dismisses a presented sheet.
     case dismiss

@@ -35,7 +35,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
-    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActiveAccountHavePremiumResult: Bool = true
     var encryptedPinByUserId = [String: String]()
     var environmentURLs = [String: EnvironmentURLData]()
     var environmentURLsError: Error?
@@ -67,6 +67,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
+    var pinProtectedUserKeyError: Error?
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -87,6 +88,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var setLastActiveTimeError: Error?
+    var setVaultTimeoutError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
@@ -97,6 +100,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
     var userHasMasterPassword = [String: Bool]()
+    var userHasMasterPasswordError: Error?
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
@@ -132,9 +136,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
+    func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try doesActiveAccountHavePremiumResult.get()
+        return doesActiveAccountHavePremiumResult
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
@@ -232,8 +236,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return connectToWatchByUserId[userId] ?? false
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try unwrapUserId(userId)
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        guard let userId = try? unwrapUserId(userId) else {
+            return .domain
+        }
         return defaultUriMatchTypeByUserId[userId] ?? .domain
     }
 
@@ -381,6 +387,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
         return userHasMasterPassword[userId] ?? true
     }
@@ -417,6 +424,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
+        if let pinProtectedUserKeyError { throw pinProtectedUserKeyError }
         let userId = try unwrapUserId(userId)
         return pinProtectedUserKeyValue[userId] ?? nil
     }
@@ -563,8 +571,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        if let setLastActiveTimeError { throw setLastActiveTimeError }
         let userId = try unwrapUserId(userId)
-        lastActiveTime[userId] = timeProvider.presentTime
+        lastActiveTime[userId] = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -711,6 +720,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        if let setVaultTimeoutError { throw setVaultTimeoutError }
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
     }

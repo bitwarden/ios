@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A custom slider view that allows for custom styling and accessibility.
@@ -25,10 +26,10 @@ struct BitwardenSlider: View {
     // MARK: Default Colors
 
     /// The color of the slider track.
-    var trackColor: Color = Asset.Colors.sliderTrack.swiftUIColor
+    var trackColor: Color = SharedAsset.Colors.sliderTrack.swiftUIColor
 
     /// The color of the filled portion of the slider track.
-    var filledTrackColor: Color = Asset.Colors.sliderFilled.swiftUIColor
+    var filledTrackColor: Color = SharedAsset.Colors.sliderFilled.swiftUIColor
 
     var body: some View {
         GeometryReader { geometry in
@@ -47,11 +48,11 @@ struct BitwardenSlider: View {
                     )
 
                 Circle()
-                    .fill(Asset.Colors.sliderFilled.swiftUIColor)
+                    .fill(SharedAsset.Colors.sliderFilled.swiftUIColor)
                     .frame(width: 18, height: 18)
                     .overlay(
                         Circle()
-                            .stroke(Asset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
                     )
                     .onSizeChanged { size in
                         thumbSize = size
@@ -107,8 +108,8 @@ struct BitwardenSlider: View {
         in range: ClosedRange<Double>,
         step: Double,
         onEditingChanged: @escaping (Bool) -> Void,
-        trackColor: Color = Asset.Colors.sliderTrack.swiftUIColor,
-        filledTrackColor: Color = Asset.Colors.sliderFilled.swiftUIColor
+        trackColor: Color = SharedAsset.Colors.sliderTrack.swiftUIColor,
+        filledTrackColor: Color = SharedAsset.Colors.sliderFilled.swiftUIColor
     ) {
         _value = value
         self.range = range

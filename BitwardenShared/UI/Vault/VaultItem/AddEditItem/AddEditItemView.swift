@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -93,7 +94,7 @@ struct AddEditItemView: View {
         .animation(.default, value: store.state.collectionsForOwner)
         .backport.dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -107,23 +108,27 @@ struct AddEditItemView: View {
                     store.send(.dismissPressed)
                 }
 
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    saveToolbarButton {
-                        await store.perform(.savePressed)
-                    }
-
-                    VaultItemManagementMenuView(
-                        isCloneEnabled: false,
-                        isCollectionsEnabled: store.state.canAssignToCollection,
-                        isDeleteEnabled: store.state.canBeDeleted,
-                        isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
-                        store: store.child(
-                            state: { _ in },
-                            mapAction: { .morePressed($0) },
-                            mapEffect: { _ in .deletePressed }
+                // Save goes on the right in iOS 26, on the left < 26
+                versionDependentOrderingToolbarItemGroup(
+                    alfa: {
+                        VaultItemManagementMenuView(
+                            isCloneEnabled: false,
+                            isCollectionsEnabled: store.state.canAssignToCollection,
+                            isDeleteEnabled: store.state.canBeDeleted,
+                            isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
+                            store: store.child(
+                                state: { _ in },
+                                mapAction: { .morePressed($0) },
+                                mapEffect: { _ in .deletePressed }
+                            )
                         )
-                    )
-                }
+                    },
+                    bravo: {
+                        saveToolbarButton {
+                            await store.perform(.savePressed)
+                        }
+                    }
+                )
             }
     }
 
@@ -169,7 +174,7 @@ struct AddEditItemView: View {
                 )
                 .accessibilityIdentifier("FolderPicker")
 
-                if store.state.configuration.isAdding, let owner = store.state.owner {
+                if store.state.configuration.isAdding, store.state.hasOrganizations, let owner = store.state.owner {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
                             title: Localizations.owner,

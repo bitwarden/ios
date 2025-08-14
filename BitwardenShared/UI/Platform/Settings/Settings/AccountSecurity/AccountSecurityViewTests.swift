@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest
@@ -41,22 +42,10 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
-    /// The view hides the authenticator sync section when appropriate.
-    @MainActor
-    func test_authenticatorSync_hidden() throws {
-        processor.state.shouldShowAuthenticatorSyncSection = false
-        XCTAssertNil(
-            try? subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing
-            )
-        )
-    }
-
     /// Tapping the sync with authenticator switch should send `.toggleSyncWithAuthenticator(enabled)` with the
     /// new value of enabled.
     @MainActor
     func test_authenticatorSync_tap() throws {
-        processor.state.shouldShowAuthenticatorSyncSection = true
         processor.state.isAuthenticatorSyncEnabled = false
         let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing)
         XCTAssertFalse(try toggle.isOn())
@@ -311,19 +300,6 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
         )
-    }
-
-    /// The view renders correctly when the `shouldShowAuthenticatorSyncSection` is `true`.
-    @MainActor
-    func test_snapshot_shouldShowAuthenticatorSyncSection() {
-        let subject = AccountSecurityView(
-            store: Store(
-                processor: StateProcessor(
-                    state: AccountSecurityState(shouldShowAuthenticatorSyncSection: true)
-                )
-            )
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders correctly when the timeout policy is enabled.

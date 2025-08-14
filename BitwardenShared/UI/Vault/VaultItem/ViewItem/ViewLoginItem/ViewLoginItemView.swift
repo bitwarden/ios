@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -57,7 +58,7 @@ struct ViewLoginItemView: View {
         BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
             PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
@@ -97,7 +98,7 @@ struct ViewLoginItemView: View {
         ) {
             Text(Localizations.premiumSubscriptionRequired)
                 .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier("ItemValue")
         }
         .accessibilityElement(children: .contain)
@@ -131,10 +132,7 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdXY(
-                fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-            )
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay)
         )
         .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
@@ -150,16 +148,11 @@ struct ViewLoginItemView: View {
             title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName",
             content: {
-                if store.state.isTOTPCodeVisible {
-                    Text(model.displayCode)
-                        .styleGuide(.bodyMonospaced)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                } else {
-                    PasswordText(password: model.displayCode, isPasswordVisible: false)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                }
+                Text(model.displayCode)
+                    .styleGuide(.bodyMonospaced)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("LoginTotpEntry")
             },
             accessoryContent: {
                 TOTPCountdownTimerView(

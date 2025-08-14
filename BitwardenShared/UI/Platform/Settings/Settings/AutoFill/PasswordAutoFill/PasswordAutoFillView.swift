@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordAutoFillView
@@ -73,7 +74,7 @@ struct PasswordAutoFillView: View {
                 )
             )
             .styleGuide(.subheadline)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
 
             VStack(spacing: 12) {
                 Button(Localizations.continue) {
@@ -139,7 +140,7 @@ struct PasswordAutoFillView: View {
     private var instructions: some View {
         Text(Localizations.autofillTurnOn)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
@@ -165,7 +166,7 @@ struct PasswordAutoFillView: View {
 
         return Text(instructionsList)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -185,7 +186,7 @@ struct PasswordAutoFillView: View {
     private var title: some View {
         Text(Localizations.extensionInstantAccess)
             .styleGuide(.title)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }

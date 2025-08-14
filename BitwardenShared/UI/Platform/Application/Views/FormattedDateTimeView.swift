@@ -52,7 +52,7 @@ struct FormattedDateTimeView: View {
 
 #Preview {
     VStack(spacing: 16) {
-        FormattedDateTimeView(label: Localizations.dateUpdated, date: Date())
+        FormattedDateTimeView(label: "Date updated", date: Date())
 
         FormattedDateTimeView(date: Date())
     }

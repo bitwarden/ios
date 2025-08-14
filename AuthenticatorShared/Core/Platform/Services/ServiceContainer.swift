@@ -143,7 +143,7 @@ public class ServiceContainer: Services {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///
     public convenience init( // swiftlint:disable:this function_body_length
-        application: Application? = nil,
+        application: Application,
         errorReporter: ErrorReporter
     ) {
         let appSettingsStore = DefaultAppSettingsStore(
@@ -245,13 +245,20 @@ public class ServiceContainer: Services {
             storeType: .persisted
         )
 
+        let sharedTimeoutService = DefaultSharedTimeoutService(
+            sharedKeychainRepository: sharedKeychainRepository,
+            timeProvider: timeProvider
+        )
+
         let sharedItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: sharedDataStore,
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
+            application: application,
             authenticatorItemService: authenticatorItemService,
             configService: configService,
             cryptographyService: cryptographyService,

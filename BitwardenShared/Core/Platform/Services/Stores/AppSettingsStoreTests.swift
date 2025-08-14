@@ -427,14 +427,13 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = FeatureFlag.allCases
+        let featureFlags: [FeatureFlag] = [.testFeatureFlag]
 
         for flag in featureFlags {
             subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
         }
 
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.testFeatureFlag.rawValue)))
     }
 
     /// `featureFlag(name:)` returns `nil` if not found.

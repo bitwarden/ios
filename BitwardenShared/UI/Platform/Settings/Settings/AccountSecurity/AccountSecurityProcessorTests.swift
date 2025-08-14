@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -249,7 +250,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_isAuthenticatorSyncEnabled() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
 
         stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = false
         await subject.perform(.loadData)
@@ -258,21 +258,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isAuthenticatorSyncEnabled)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state. The processor should update
-    /// `shouldShowAuthenticatorSyncSection` based on the value of the `enableAuthenticatorSync`
-    /// feature flag.
-    @MainActor
-    func test_perform_loadData_shouldShowAuthenticatorSync() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        await subject.perform(.loadData)
-        XCTAssertTrue(subject.state.shouldShowAuthenticatorSyncSection)
-
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.perform(.loadData)
-        XCTAssertFalse(subject.state.shouldShowAuthenticatorSyncSection)
     }
 
     /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if biometrics are enabled.
@@ -399,7 +384,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleSyncWithAuthenticator` disables authenticator sync and updates the state.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_disable() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         subject.state.isAuthenticatorSyncEnabled = true
 
@@ -414,7 +398,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// updates the state, and attempts a sync.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_enable() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         subject.state.isAuthenticatorSyncEnabled = false
 

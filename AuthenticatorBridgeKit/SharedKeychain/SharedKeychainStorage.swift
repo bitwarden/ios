@@ -8,7 +8,7 @@ public enum SharedKeychainItem: Equatable, Hashable {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
-    /// A date at which a PM account automatically logs out.
+    /// A date at which a BWPM account automatically logs out.
     case accountAutoLogout(userId: String)
 
     /// The storage key for this keychain item.
@@ -107,16 +107,18 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
         )
 
         guard let resultDictionary = foundItem as? [String: Any],
-              let data = resultDictionary[kSecValueData as String] as? T else {
+              let data = resultDictionary[kSecValueData as String] as? Data else {
             throw SharedKeychainServiceError.keyNotFound(item)
         }
 
-        return data
+        let object = try JSONDecoder.defaultDecoder.decode(T.self, from: data)
+        return object
     }
 
     public func setValue<T: Codable>(_ value: T, for item: SharedKeychainItem) async throws {
+        let valueData = try JSONEncoder.defaultEncoder.encode(value)
         let query = [
-            kSecValueData: value,
+            kSecValueData: valueData,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
             kSecAttrAccessGroup: sharedAppGroupIdentifier,
             kSecAttrAccount: item.unformattedKey,

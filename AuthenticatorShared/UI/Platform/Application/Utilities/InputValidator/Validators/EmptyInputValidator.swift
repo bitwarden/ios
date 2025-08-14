@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// Validates that the input for a field is not empty.
 ///
 struct EmptyInputValidator: InputValidator {

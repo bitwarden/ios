@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 /// A helper class to handle when a cipher is selected for autofill.
@@ -78,7 +79,7 @@ class AutofillHelper {
     private func copyTotpIfNeeded(cipherView: CipherView) async {
         do {
             let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
-            let accountHasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
+            let accountHasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
             if !disableAutoTotpCopy, let totp = cipherView.login?.totp,
                cipherView.organizationUseTotp || accountHasPremium {

@@ -1,5 +1,6 @@
 // MARK: - AboutProcessor
 
+import BitwardenResources
 import Foundation
 
 /// The processor used to manage state and handle actions for the `AboutView`.
@@ -51,8 +52,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
 
     override func perform(_ effect: AboutEffect) async {
         switch effect {
-        case .loadData:
-            await loadData()
         case .streamFlightRecorderLog:
             await streamFlightRecorderLog()
         case let .toggleFlightRecorder(isOn):
@@ -106,11 +105,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
     private func handleVersionTapped() {
         services.pasteboardService.copy(services.appInfoService.appInfoString)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
-    }
-
-    /// Load any initial data for the view.
-    private func loadData() async {
-        state.isFlightRecorderFeatureFlagEnabled = await services.configService.getFeatureFlag(.flightRecorder)
     }
 
     /// Streams the flight recorder's active log metadata.

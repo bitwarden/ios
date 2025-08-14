@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PrimaryButtonStyle
@@ -21,19 +22,19 @@ struct PrimaryButtonStyle: ButtonStyle {
     /// The background color of this button.
     var backgroundColor: Color {
         guard isEnabled else {
-            return Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+            return SharedAsset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
         return isDestructive
-            ? Asset.Colors.error.swiftUIColor
-            : Asset.Colors.buttonFilledBackground.swiftUIColor
+            ? SharedAsset.Colors.error.swiftUIColor
+            : SharedAsset.Colors.buttonFilledBackground.swiftUIColor
     }
 
     /// The color of the foreground elements in this button, including text and template
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledForeground.swiftUIColor
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {

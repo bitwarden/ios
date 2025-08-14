@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -74,13 +75,13 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
     @MainActor
     func test_perform_fetchSettingValues() async {
-        settingsRepository.getDefaultUriMatchTypeResult = .success(.exact)
+        settingsRepository.getDefaultUriMatchTypeResult = .exact
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .exact)
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
 
-        settingsRepository.getDefaultUriMatchTypeResult = .success(.regularExpression)
+        settingsRepository.getDefaultUriMatchTypeResult = .regularExpression
         settingsRepository.getDisableAutoTotpCopyResult = .success(true)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
