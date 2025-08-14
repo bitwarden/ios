@@ -149,9 +149,9 @@ class MockClientCollections: CollectionsClientProtocol {
     var decryptResult: (Collection) throws -> CollectionView = { collection in
         CollectionView(collection: collection)
     }
-    
-    var getCollectionTreeInput = [BitwardenSdk.CollectionView]()
-    var getCollectionTreeReturn: BitwardenSdk.CollectionViewTree?
+
+    var getCollectionTreeReceivedCollection = [BitwardenSdk.CollectionView]()
+    var getCollectionTreeReturnValue: BitwardenSdk.CollectionViewTree?
 
     func decrypt(collection: Collection) throws -> CollectionView {
         try decryptResult(collection)
@@ -160,10 +160,10 @@ class MockClientCollections: CollectionsClientProtocol {
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
         collections.map(CollectionView.init)
     }
-    
+
     func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
-        getCollectionTreeInput = collections
-        return getCollectionTreeReturn ?? BitwardenSdk.CollectionViewTree(noPointer: .init())
+        getCollectionTreeReceivedCollection = collections
+        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noPointer: .init())
     }
 }
 
