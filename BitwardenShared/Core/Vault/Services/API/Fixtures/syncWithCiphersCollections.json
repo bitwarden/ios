@@ -274,7 +274,9 @@
       "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "name": "Engineering",
       "externalId": null,
-      "object": "collectionDetails"
+      "object": "collectionDetails",
+      "defaultUserCollectionEmail": null,
+      "type": 0
     },
     {
       "readOnly": false,
@@ -284,7 +286,9 @@
       "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "name": "Engineering/Apple",
       "externalId": null,
-      "object": "collectionDetails"
+      "object": "collectionDetails",
+      "defaultUserCollectionEmail" : null,
+      "type": 0
     },
     {
       "readOnly": false,
@@ -294,7 +298,9 @@
       "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "name": "Design",
       "externalId": null,
-      "object": "collectionDetails"
+      "object": "collectionDetails",
+      "defaultUserCollectionEmail" : null,
+      "type": 0
     }
   ],
   "folders": [

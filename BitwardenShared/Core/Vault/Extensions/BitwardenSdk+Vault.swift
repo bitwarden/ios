@@ -646,14 +646,27 @@ extension CollectionDetailsResponseModel {
     init(collection: Collection) throws {
         guard let id = collection.id else { throw DataMappingError.missingId }
         self.init(
+            defaultUserCollectionEmail: collection.defaultUserCollectionEmail,
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
             manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
-            readOnly: collection.readOnly
+            readOnly: collection.readOnly,
+            type: BitwardenShared.CollectionType(type: collection.type)
         )
+    }
+}
+
+extension CollectionType {
+    init(type: BitwardenSdk.CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
@@ -668,6 +681,15 @@ extension BitwardenSdk.Collection {
     }
 
     init(collectionDetailsResponseModel model: CollectionDetailsResponseModel) {
+        let type: BitwardenSdk.CollectionType = {
+            switch model.type {
+            case .defaultUserCollection:
+                .defaultUserCollection
+            case .none, .sharedCollection:
+                .sharedCollection
+            }
+        }()
+
         self.init(
             id: model.id,
             organizationId: model.organizationId,
@@ -675,8 +697,21 @@ extension BitwardenSdk.Collection {
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
             readOnly: model.readOnly,
-            manage: model.manage ?? !model.readOnly
+            manage: model.manage ?? !model.readOnly,
+            defaultUserCollectionEmail: model.defaultUserCollectionEmail,
+            type: type
         )
+    }
+}
+
+extension BitwardenSdk.CollectionType {
+    init(type: CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
