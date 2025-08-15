@@ -21,6 +21,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var clientService: MockClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var eventService: MockEventService!
@@ -56,6 +57,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         eventService = MockEventService()
@@ -81,6 +83,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
@@ -107,6 +110,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         clientService = nil
         configService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
         eventService = nil
@@ -1439,5 +1443,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(authRepository.logoutCalled)
         XCTAssertTrue(coordinator.isLoadingOverlayShowing)
         XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `prepareEnvironmentConfig()` loads the URLs for the active account and the configuration.
+    @MainActor
+    func test_prepareEnvironmentConfig() async throws {
+        await subject.prepareEnvironmentConfig()
+        XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
+        XCTAssertTrue(configService.configMocker.called)
     }
 }

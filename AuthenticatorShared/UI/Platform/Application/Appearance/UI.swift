@@ -58,7 +58,10 @@ public enum UI {
     ///
     public static func applyDefaultAppearances() {
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
+        if #unavailable(iOS 26) {
+            // With Liquid Glass, we no longer make the navigation bar distinct with its own color
+            navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
+        }
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 

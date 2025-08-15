@@ -828,7 +828,7 @@
 "LoginApproved" = "Logowanie zostało potwierdzone";
 "LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?";
 "LogInWithDevice" = "Zaloguj się za pomocą urządzenia";
-"LoggingInOn" = "Logowanie na";
+"LoggingInOn" = "Serwer";
 "Vault" = "Sejf";
 "Appearance" = "Wygląd";
 "AccountSecurity" = "Bezpieczeństwo konta";
