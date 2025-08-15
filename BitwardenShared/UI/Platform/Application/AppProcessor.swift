@@ -183,8 +183,7 @@ public class AppProcessor {
         )
 
         await services.migrationService.performMigrations()
-        await services.environmentService.loadURLsForActiveAccount()
-        _ = await services.configService.getConfig()
+        await prepareEnvironmentConfig()
         await completeAutofillAccountSetupIfEnabled()
 
         if let initialRoute {
@@ -241,6 +240,13 @@ public class AppProcessor {
             .importCredentials(credentialImportToken: credentialImportToken)
         )))
         await checkIfLockedAndPerformNavigation(route: route)
+    }
+
+    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// and getting the current server config.
+    public func prepareEnvironmentConfig() async {
+        await services.environmentService.loadURLsForActiveAccount()
+        _ = await services.configService.getConfig()
     }
 
     // MARK: Autofill Methods
