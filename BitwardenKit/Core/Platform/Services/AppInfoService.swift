@@ -86,6 +86,7 @@ public class DefaultAppInfoService: AppInfoService {
 // MARK: - DefaultAppInfoService + AppInfoService
 
 public extension DefaultAppInfoService {
+    /// A single string containing relevant app information for debugging and logging purposes.
     var appInfoString: String {
         [
             copyrightString,
@@ -98,6 +99,7 @@ public extension DefaultAppInfoService {
         .joined(separator: "\n")
     }
 
+    /// The application information without including copyright information.
     var appInfoWithoutCopyrightString: String {
         [
             versionString,
@@ -108,10 +110,12 @@ public extension DefaultAppInfoService {
         .joined(separator: "\n")
     }
 
+    /// The copyright information for the app.
     var copyrightString: String {
         "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: timeProvider.presentTime))"
     }
 
+    /// A string providing the app version.
     var versionString: String {
         "\(Localizations.version): \(bundle.appVersion) (\(bundle.buildNumber))"
     }
