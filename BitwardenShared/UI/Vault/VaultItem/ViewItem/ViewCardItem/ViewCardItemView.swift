@@ -43,7 +43,7 @@ struct ViewCardItemView: View {
         let isVisible: Bool = store.state.isNumberVisible
         if !number.isEmpty {
             BitwardenField(title: Localizations.number) {
-                PasswordText(password: number, isPasswordVisible: isVisible)
+                PasswordText(password: store.state.formattedCardNumber, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("CardNumberEntry")

@@ -137,4 +137,28 @@ extension String {
     func withoutAutomaticEmailLinks() -> String {
         replacingOccurrences(of: "@", with: "\u{2060}@")
     }
+
+    /// Formats a credit card number by inserting spaces every 4 digits.
+    /// Only formats if the string contains only digits, otherwise returns the original string.
+    ///
+    /// - Returns: A formatted credit card number with spaces every 4 digits, or the original string if not a valid card number.
+    ///
+    func formattedCreditCardNumber() -> String {
+        // Only format if the string contains only digits and spaces
+        let digitsOnly = replacingOccurrences(of: " ", with: "")
+        guard digitsOnly.allSatisfy({ $0.isNumber }) else {
+            return self
+        }
+        
+        // Insert spaces every 4 digits
+        var result = ""
+        for (index, character) in digitsOnly.enumerated() {
+            if index > 0 && index % 4 == 0 {
+                result += " "
+            }
+            result += String(character)
+        }
+        
+        return result
+    }
 }
