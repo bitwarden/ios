@@ -1,10 +1,11 @@
+import CryptoKit
 import Foundation
 import SwiftUI
 
 // MARK: - URLDecodingError
 
 /// Errors that can be encountered when attempting to decode a string from it's url encoded format.
-enum URLDecodingError: Error, Equatable {
+public enum URLDecodingError: Error, Equatable {
     /// The provided string is an invalid length.
     ///
     /// Base64 encoded strings are padded at the end with `=` characters to ensure that the length of the resulting
@@ -19,7 +20,7 @@ enum URLDecodingError: Error, Equatable {
 
 // MARK: - String
 
-extension String {
+public extension String {
     // MARK: Type Properties
 
     /// En-dashes are used to represent number ranges. https://en.wikipedia.org/wiki/Dash#En_dash
@@ -49,6 +50,12 @@ extension String {
         }
 
         return Color(hex: color)
+    }
+
+    /// Returns a SHA256-hashed version of this string as a hexadecimal string.
+    var hexSHA256Hash: String {
+        let hashedData = SHA256.hash(data: Data(utf8))
+        return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 
     /// A Boolean value indicating whether the string represents the "bitwarden" scheme for custom

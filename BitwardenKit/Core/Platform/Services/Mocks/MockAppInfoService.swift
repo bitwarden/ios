@@ -1,4 +1,4 @@
-@testable import BitwardenShared
+import BitwardenKit
 
 class MockAppInfoService: AppInfoService {
     var appInfoString = """

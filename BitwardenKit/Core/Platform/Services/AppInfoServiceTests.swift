@@ -2,8 +2,6 @@ import BitwardenKit
 import BitwardenKitMocks
 import XCTest
 
-@testable import BitwardenShared
-
 class AppInfoServiceTests: BitwardenTestCase {
     // MARK: Properties
 

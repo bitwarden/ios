@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import UIKit
 
@@ -6,7 +5,7 @@ import UIKit
 
 /// Protocol for additional info used by the `AppInfoService`.
 ///
-protocol AppAdditionalInfo {
+public protocol AppAdditionalInfo {
     /// CI Build information.
     var ciBuildInfo: KeyValuePairs<String, String> { get }
 }
@@ -15,10 +14,12 @@ protocol AppAdditionalInfo {
 
 /// Default implementation of `AppAdditionalInfo`.
 ///
-struct DefaultAppAdditionalInfo: AppAdditionalInfo {
-    var ciBuildInfo: KeyValuePairs<String, String> {
+public struct DefaultAppAdditionalInfo: AppAdditionalInfo {
+    public var ciBuildInfo: KeyValuePairs<String, String> {
         CIBuildInfo.info
     }
+
+    public init() {}
 }
 
 // MARK: - AppInfoService
@@ -26,7 +27,7 @@ struct DefaultAppAdditionalInfo: AppAdditionalInfo {
 /// A protocol for a service that can provide formatted information about the app and the device
 /// it's running on.
 ///
-protocol AppInfoService {
+public protocol AppInfoService {
     /// A formatted string containing detailed information about the app and device.
     var appInfoString: String { get }
 
@@ -44,7 +45,7 @@ protocol AppInfoService {
 
 /// The default implementation of `AppInfoService`.
 ///
-class DefaultAppInfoService: AppInfoService {
+public class DefaultAppInfoService: AppInfoService {
     // MARK: Properties
 
     /// Additional build details to include in the app info string.
@@ -69,7 +70,7 @@ class DefaultAppInfoService: AppInfoService {
     ///   - systemDevice: An object used to retrieve information about this device.
     ///   - timeProvider: The service used to get the present time.
     ///
-    init(
+    public init(
         appAdditionalInfo: AppAdditionalInfo = DefaultAppAdditionalInfo(),
         bundle: BundleProtocol = Bundle.main,
         systemDevice: SystemDevice = UIDevice.current,
@@ -84,7 +85,7 @@ class DefaultAppInfoService: AppInfoService {
 
 // MARK: - DefaultAppInfoService + AppInfoService
 
-extension DefaultAppInfoService {
+public extension DefaultAppInfoService {
     var appInfoString: String {
         [
             copyrightString,
