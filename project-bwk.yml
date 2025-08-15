@@ -181,6 +181,7 @@ targets:
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
+      - package: SnapshotTesting
     randomExecutionOrder: true
   BitwardenResources:
     type: framework
