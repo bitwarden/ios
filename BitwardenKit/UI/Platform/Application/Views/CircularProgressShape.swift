@@ -9,13 +9,22 @@ import SwiftUI
 ///                direction. If set to `true`, the progress fills clockwise; if `false`, it fills
 ///                counter-clockwise.
 ///
-struct CircularProgressShape: Shape {
+public struct CircularProgressShape: Shape {
     /// The current progress of the task, represented as a fraction of a full circle.
     /// This value should be between 0.0 (no progress) and 1.0 (full progress).
     var progress: CGFloat
 
     /// A flag indicating whether the progress should be drawn in a clockwise direction.
     var clockwise: Bool
+
+    /// Public version of synthesized initializer.
+    /// - Parameters:
+    ///   - progress: Current progress of the task, between 0.0 and 1.0.
+    ///   - clockwise: Whether the progress should be drawn in a clockwise direction.
+    public init(progress: CGFloat, clockwise: Bool) {
+        self.progress = progress
+        self.clockwise = clockwise
+    }
 
     /// Creates a path for the shape in the provided rectangle.
     ///
@@ -25,7 +34,7 @@ struct CircularProgressShape: Shape {
     /// - Parameter rect: The rectangle in which to draw the shape.
     /// - Returns: A `Path` object representing the circular progress shape.
     ///
-    func path(in rect: CGRect) -> Path {
+    public func path(in rect: CGRect) -> Path {
         var path = Path()
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radius = min(rect.width, rect.height) / 2
