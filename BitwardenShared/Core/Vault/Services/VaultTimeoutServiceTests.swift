@@ -299,6 +299,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         let timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
         XCTAssertEqual(timeoutAction, .logout)
+        XCTAssertEqual(stateService.timeoutAction["1"], .logout)
     }
 
     /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password

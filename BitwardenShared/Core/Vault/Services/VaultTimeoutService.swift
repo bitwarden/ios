@@ -211,6 +211,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             } else {
                 // If the user doesn't have a master password and hasn't enabled a pin or
                 // biometrics, their timeout action needs to be logout.
+                try await stateService.setTimeoutAction(action: .logout, userId: userId)
                 return .logout
             }
         }
