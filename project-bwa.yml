@@ -23,7 +23,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 30923db8cfe7e6dcad987fd7b13a437f040830af
+    revision: 3fc9a4f7cf8f2498abb933bd329729107177cd44
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk

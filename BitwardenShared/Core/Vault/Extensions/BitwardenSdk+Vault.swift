@@ -646,14 +646,27 @@ extension CollectionDetailsResponseModel {
     init(collection: Collection) throws {
         guard let id = collection.id else { throw DataMappingError.missingId }
         self.init(
+            defaultUserCollectionEmail: collection.defaultUserCollectionEmail,
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
             manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
-            readOnly: collection.readOnly
+            readOnly: collection.readOnly,
+            type: BitwardenShared.CollectionType(type: collection.type)
         )
+    }
+}
+
+extension CollectionType {
+    init(type: BitwardenSdk.CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
@@ -675,8 +688,21 @@ extension BitwardenSdk.Collection {
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
             readOnly: model.readOnly,
-            manage: model.manage ?? !model.readOnly
+            manage: model.manage ?? !model.readOnly,
+            defaultUserCollectionEmail: model.defaultUserCollectionEmail,
+            type: BitwardenSdk.CollectionType(type: model.type)
         )
+    }
+}
+
+extension BitwardenSdk.CollectionType {
+    init(type: CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 

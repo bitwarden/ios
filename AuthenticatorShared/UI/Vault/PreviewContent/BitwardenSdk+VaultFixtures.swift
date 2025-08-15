@@ -271,7 +271,9 @@ extension Collection {
         externalId: String = "",
         hidePasswords: Bool = false,
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        defaultUserCollectionEmail: String? = nil,
+        type: BitwardenSdk.CollectionType = .sharedCollection
     ) -> Collection {
         Collection(
             id: id,
@@ -280,7 +282,9 @@ extension Collection {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            defaultUserCollectionEmail: defaultUserCollectionEmail,
+            type: type
         )
     }
 }
@@ -313,7 +317,8 @@ extension CollectionView {
         name: String = "",
         organizationId: String = "",
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        type: BitwardenSdk.CollectionType = .sharedCollection
     ) -> CollectionView {
         CollectionView(
             id: id,
@@ -322,7 +327,8 @@ extension CollectionView {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            type: type
         )
     }
 }
