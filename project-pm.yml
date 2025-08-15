@@ -14,6 +14,9 @@ options:
   usesTabs: false
   indentWidth: 4
   tabWidth: 4
+  fileTypes:
+    "icon":
+      file: true 
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
