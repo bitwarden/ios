@@ -331,10 +331,10 @@
 "AutofillWithBitwarden" = "Tự động điền bằng Bitwarden";
 "VaultIsLocked" = "Kho đã khóa";
 "GoToMyVault" = "Đến kho của tôi";
-"Collections" = "Các Bộ Sưu Tập";
+"Collections" = "Các bộ sưu tập";
 "NoItemsCollection" = "Không có mục nào trong bộ sưu tập này";
 "NoItemsFolder" = "Không có mục nào trong thư mục này";
-"NoItemsTrash" = "Không có gì trong thùng rác";
+"NoItemsTrash" = "Không có gì trong thùng rác.";
 "AutofillAccessibilityService" = "Tự động điền bằng trợ năng";
 "AutofillServiceDescription" = "Dịch vụ tự động điền của Bitwarden sử dụng Khung Tự động điền của Android để hỗ trợ điền thông tin đăng nhập, thẻ tín dụng và thông tin danh tính vào các ứng dụng khác trên thiết bị của bạn.";
 "BitwardenAutofillServiceDescription" = "Sử dụng dịch vụ tự động điền của Bitwarden để điền thông tin đăng nhập vào các ứng dụng khác.";
@@ -423,8 +423,8 @@
 "Clear" = "Xóa";
 "Generator" = "Trình tạo";
 "NoFoldersToList" = "Không có thư mục nào.";
-"FingerprintPhrase" = "Cụm vân tay";
-"YourAccountsFingerprint" = "Cụm vân tay của tài khoản của bạn";
+"FingerprintPhrase" = "Cụm từ xác thực";
+"YourAccountsFingerprint" = "Cụm từ xác thực của tài khoản của bạn";
 "LearnOrgConfirmation" = "Bitwarden cho phép bạn chia sẻ các mục trong kho của mình với những người khác bằng cách sử dụng tài khoản tổ chức. Bạn có muốn truy cập trang web bitwarden.com để tìm hiểu thêm không?";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Chúng tôi không thể xử lý yêu cầu của bạn. Vui lòng thử lại hoặc liên hệ hỗ trợ.";
 "Export" = "Xuất";
@@ -505,7 +505,7 @@
 "ItemSoftDeleted" = "Đã cho mục vào thùng rác.";
 "Restore" = "Khôi phục";
 "Restoring" = "Đang khôi phục...";
-"ItemRestored" = "Mục đã được khôi phục.";
+"ItemRestored" = "Mục đã được khôi phục";
 "Trash" = "Thùng rác";
 "SearchTrash" = "Tìm kiếm trong thùng rác";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Bạn có chắc chắn muốn xóa vĩnh viễn không? Thao tác này không thể hoàn tác.";
@@ -556,8 +556,8 @@
 "TypeText" = "Văn bản";
 "HideTextByDefault" = "Khi truy cập vào Send, văn bản sẽ được ẩn theo mặc định";
 "TypeFile" = "Tập tin";
-"FileTypeIsSelected" = "Loại tập tin được chọn.";
-"FileTypeIsNotSelected" = "Loại tập tin chưa được chọn, nhấn để chọn.";
+"FileTypeIsSelected" = "Đã chọn loại tệp.";
+"FileTypeIsNotSelected" = "Chưa chọn loại tệp, chạm để chọn.";
 "TextTypeIsSelected" = "Loại văn bản được chọn.";
 "TextTypeIsNotSelected" = "Loại văn bản chưa được chọn, nhấn để chọn.";
 "DeletionDate" = "Xóa sau";
@@ -695,7 +695,7 @@
 "LogInAccepted" = "Đăng nhập được xác nhận";
 "LogInDenied" = "Đăng nhập bị từ chối";
 "ApproveLoginRequests" = "Phê duyệt yêu cầu đăng nhập";
-"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Sử dụng thiết bị này để phê duyệt các yêu cầu đăng nhập được thực hiện từ các thiết bị khác.";
+"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Sử dụng thiết bị này để phê duyệt các yêu cầu đăng nhập được thực hiện từ các thiết bị khác";
 "AllowNotifications" = "Cho phép thông báo";
 "ReceivePushNotificationsForNewLoginRequests" = "Nhận thông báo đẩy cho các yêu cầu đăng nhập mới";
 "NoThanks" = "Không, cảm ơn";
