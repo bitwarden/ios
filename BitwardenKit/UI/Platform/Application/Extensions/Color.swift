@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Color {
+public extension Color {
     // MARK: Initialization
 
     /// Conveniently initializes a `Color` using a hex value.

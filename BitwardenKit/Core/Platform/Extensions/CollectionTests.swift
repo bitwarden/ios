@@ -1,6 +1,5 @@
+import BitwardenKit
 import XCTest
-
-@testable import AuthenticatorShared
 
 class CollectionTests: BitwardenTestCase {
     /// `nilIfEmpty` returns the array if it's not empty or `nil` if it's empty.
