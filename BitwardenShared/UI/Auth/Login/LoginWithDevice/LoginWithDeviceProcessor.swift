@@ -21,9 +21,6 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
     // MARK: Properties
 
-    /// The approved login request (stored in case the login flow is interrupted by a captcha request).
-    private var approvedRequest: LoginRequest?
-
     /// The response from creating an auth request for logging in with another device.
     private var authRequestResponse: AuthRequestResponse?
 
@@ -107,9 +104,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     private func attemptLogin(with request: LoginRequest?) async {
         do {
             coordinator.showLoadingOverlay(title: Localizations.loggingIn)
-            // Used the cached request if it's nil (for example, if the captcha flow just completed).
-            guard let request = request ?? approvedRequest else { return }
-            approvedRequest = request
+            guard let request else { return }
 
             // Attempt to login.
             let (privateKey, key) = try await services.authService.loginWithDevice(
@@ -129,7 +124,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
         } catch {
-            await handleError(error) { await self.attemptLogin(with: request) }
+            await handleError(error, request) { await self.attemptLogin(with: request) }
         }
     }
 
@@ -172,17 +167,21 @@ final class LoginWithDeviceProcessor: StateProcessor<
     }
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
+    private func handleError(
+        _ error: Error,
+        _ request: LoginRequest? = nil,
+        _ tryAgain: (() async -> Void)? = nil
+    ) async {
         coordinator.hideLoadingOverlay()
 
         // Handle a two-factor error.
         if let identityTokenError = error as? IdentityTokenRequestError {
             switch identityTokenError {
             case let .twoFactorRequired(authMethodsData, _, _):
-                let unlockMethod: TwoFactorUnlockMethod? = if let key = approvedRequest?.key, let authRequestResponse {
+                let unlockMethod: TwoFactorUnlockMethod? = if let key = request?.key, let authRequestResponse {
                     TwoFactorUnlockMethod.loginWithDevice(
                         key: key,
-                        masterPasswordHash: approvedRequest?.masterPasswordHash,
+                        masterPasswordHash: request?.masterPasswordHash,
                         privateKey: authRequestResponse.privateKey
                     )
                 } else {
