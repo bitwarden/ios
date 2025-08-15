@@ -21,9 +21,6 @@ struct IdentityTokenRequestModel {
     /// The type of authentication method used.
     let authenticationMethod: AuthenticationMethod
 
-    /// The response token returned from the captcha provider.
-    var captchaToken: String?
-
     /// The device's details.
     let deviceInfo: DeviceInfo
 
@@ -73,10 +70,6 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
                 URLQueryItem(name: "username", value: username),
                 URLQueryItem(name: "password", value: password),
             ])
-        }
-
-        if let captchaToken {
-            queryItems.append(URLQueryItem(name: "captchaResponse", value: captchaToken))
         }
 
         if let loginRequestId {

@@ -174,10 +174,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     }
 
     /// Performs an API request to create the user's account.
-    ///
-    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
-    ///
-    private func createAccount(captchaToken: String?) async throws {
+    private func createAccount() async throws {
         let kdfConfig = KdfConfig()
 
         let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
@@ -195,7 +192,6 @@ class CompleteRegistrationProcessor: StateProcessor<
 
         _ = try await services.accountAPIService.registerFinish(
             body: RegisterFinishRequestModel(
-                captchaResponse: captchaToken,
                 email: state.userEmail,
                 emailVerificationToken: state.emailVerificationToken,
                 kdfConfig: kdfConfig,
@@ -213,10 +209,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     }
 
     /// Creates the user's account with their provided credentials.
-    ///
-    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
-    ///
-    private func completeRegistration(captchaToken: String? = nil) async {
+    private func completeRegistration() async {
         defer { coordinator.hideLoadingOverlay() }
 
         do {
@@ -232,12 +225,11 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            try await createAccount(captchaToken: captchaToken)
+            try await createAccount()
 
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                captchaToken: captchaToken,
                 isNewAccount: true
             )
 
@@ -259,7 +251,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             }
 
             await coordinator.showErrorAlert(error: error) {
-                await self.completeRegistration(captchaToken: captchaToken)
+                await self.completeRegistration()
             }
         }
     }

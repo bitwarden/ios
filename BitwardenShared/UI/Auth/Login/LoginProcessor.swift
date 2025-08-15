@@ -3,25 +3,6 @@ import BitwardenResources
 import BitwardenSdk
 import Foundation
 
-// MARK: - CaptchaFlowDelegate
-
-/// An object that is signaled when specific circumstances in the captcha flow have been encountered.
-///
-@MainActor
-protocol CaptchaFlowDelegate: AnyObject {
-    /// Called when the captcha flow has been completed successfully.
-    ///
-    /// - Parameter token: The token that was returned by hCaptcha.
-    ///
-    func captchaCompleted(token: String)
-
-    /// Called when the captcha flow encounters an error.
-    ///
-    /// - Parameter error: The error that was encountered.
-    ///
-    func captchaErrored(error: Error)
-}
-
 // MARK: - LoginProcessor
 
 /// The processor used to manage state and handle actions for the login screen.
@@ -32,7 +13,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     typealias Services = HasAppIdService
         & HasAuthRepository
         & HasAuthService
-        & HasCaptchaService
         & HasConfigService
         & HasDeviceAPIService
         & HasErrorReporter
@@ -104,31 +84,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     // MARK: Private Methods
 
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) async {
-        do {
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: services.captchaService.callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            await handleErrorResponse(error)
-        }
-    }
-
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
-    /// - Parameter captchaToken: An optional captcha token value to add to the token request.
     ///
-    private func loginWithMasterPassword(captchaToken: String? = nil) async {
+    private func loginWithMasterPassword() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -141,7 +100,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                captchaToken: captchaToken,
                 isNewAccount: state.isNewAccount
             )
 
@@ -154,9 +112,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {
             switch error {
-            case let .captchaRequired(hCaptchaSiteCode):
-                await launchCaptchaFlow(with: hCaptchaSiteCode)
-            case let .twoFactorRequired(authMethodsData, _, _, _):
+            case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
                     to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
@@ -221,27 +177,5 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 isOfficialBitwardenServer: isOfficialBitwardenServer
             )
         )
-    }
-}
-
-// MARK: CaptchaFlowDelegate
-
-extension LoginProcessor: CaptchaFlowDelegate {
-    func captchaCompleted(token: String) {
-        Task {
-            await loginWithMasterPassword(captchaToken: token)
-        }
-    }
-
-    func captchaErrored(error: Error) {
-        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
-
-        // Show the alert after a delay to ensure it doesn't try to display over the
-        // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            Task {
-                await self.handleErrorResponse(error)
-            }
-        }
     }
 }

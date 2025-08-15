@@ -145,7 +145,6 @@ protocol AuthService {
     /// - Parameters:
     ///   - loginRequest: The approved login request.
     ///   - email: The user's email.
-    ///   - captchaToken: An optional captcha token value to add to the token request.
     ///   - isAuthenticated: If the user came from sso and is already authenticated
     /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
@@ -153,7 +152,6 @@ protocol AuthService {
         _ loginRequest: LoginRequest,
         email: String,
         isAuthenticated: Bool,
-        captchaToken: String?
     ) async throws -> (String, String)
 
     /// Login with the master password.
@@ -161,13 +159,11 @@ protocol AuthService {
     /// - Parameters:
     ///   - password: The master password.
     ///   - username: The username.
-    ///   - captchaToken: An optional captcha token value to add to the token request.
     ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
     func loginWithMasterPassword(
         _ password: String,
         username: String,
-        captchaToken: String?,
         isNewAccount: Bool
     ) async throws
 
@@ -188,7 +184,6 @@ protocol AuthService {
     ///   - code: The two-factor authentication code.
     ///   - method: The two-factor authentication method.
     ///   - remember: Whether to remember the two-factor code.
-    ///   - captchaToken:  An optional captcha token value to add to the token request.
     ///
     /// - Returns: The vault unlock method to use after login.
     ///
@@ -197,7 +192,6 @@ protocol AuthService {
         code: String,
         method: TwoFactorAuthMethod,
         remember: Bool,
-        captchaToken: String?
     ) async throws -> LoginUnlockMethod
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
@@ -550,8 +544,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool = false,
-        captchaToken: String?
+        isAuthenticated: Bool = false
     ) async throws -> (String, String) {
         guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
         guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
@@ -564,7 +557,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     password: loginWithDeviceData.accessCode
                 ),
                 email: email,
-                captchaToken: captchaToken,
                 loginRequestId: loginRequest.id
             )
         }
@@ -576,7 +568,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithMasterPassword(
         _ masterPassword: String,
         username: String,
-        captchaToken: String?,
         isNewAccount: Bool
     ) async throws {
         // Clean any stored value in case the user changes account
@@ -596,7 +587,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let token = try await getIdentityTokenResponse(
             authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
-            captchaToken: captchaToken,
             masterPassword: masterPassword
         )
 
@@ -710,7 +700,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         code: String,
         method: TwoFactorAuthMethod,
         remember: Bool,
-        captchaToken: String? = nil
     ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
         // Add the two factor information to the request.
@@ -722,9 +711,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Add code to new device verification
             twoFactorRequest.newDeviceOtp = code
         }
-
-        // Add the captcha result, if applicable.
-        if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
@@ -853,13 +839,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Parameters:
     ///   - authenticationMethod: The authentication method to use.
     ///   - email: The user's email address.
-    ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
     private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
-        captchaToken: String? = nil,
         loginRequestId: String? = nil,
         masterPassword: String? = nil,
         request: IdentityTokenRequestModel? = nil
@@ -877,7 +861,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Form the token request.
             request = IdentityTokenRequestModel(
                 authenticationMethod: authenticationMethod,
-                captchaToken: captchaToken,
                 deviceInfo: DeviceInfo(
                     identifier: appID,
                     name: systemDevice.modelIdentifier
@@ -910,11 +893,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
-            if case let .twoFactorRequired(_, captchaBypassToken, masterPasswordPolicyResponseModel, ssoToken) = error {
+            if case let .twoFactorRequired(_, masterPasswordPolicyResponseModel, ssoToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
                 // the token information can be added once the user inputs the code.
                 twoFactorRequest = request
-                twoFactorRequest?.captchaToken = captchaBypassToken
 
                 var passwordHash: String?
                 if case let .password(_, password) = request?.authenticationMethod { passwordHash = password

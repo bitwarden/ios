@@ -2,16 +2,6 @@ import BitwardenKit
 import Foundation
 import Networking
 
-// MARK: - RegisterFinishRequestError
-
-/// Errors that can occur when sending a `RegisterFinishRequest`.
-enum RegisterFinishRequestError: Error, Equatable {
-    /// Captcha is required when creating an account.
-    ///
-    /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
-    case captchaRequired(hCaptchaSiteCode: String)
-}
-
 // MARK: - RegisterFinishRequest
 
 /// The API request sent when submitting an account creation form.
@@ -43,10 +33,6 @@ struct RegisterFinishRequest: Request {
         switch response.statusCode {
         case 400 ..< 500:
             guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-            if let siteCode = errorResponse.validationErrors?["HCaptcha_SiteKey"]?.first {
-                throw RegisterFinishRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
-            }
 
             throw ServerError.error(errorResponse: errorResponse)
         default:

@@ -63,7 +63,7 @@ class VerifyEmailTokenRequestTests: BitwardenTestCase {
         }
     }
 
-    /// `validate(_:)` with a `400` status code but no captcha error does not throw a validation error.
+    /// `validate(_:)` with a `400` status code does not throw a validation error.
     func test_validate_with400() {
         let response = HTTPResponse.failure(
             statusCode: 400,

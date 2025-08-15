@@ -12,7 +12,6 @@ extension APITestData {
         resource: "IdentityTokenWithMasterPasswordPolicy"
     )
     static let identityTokenSuccessTwoFactorToken = loadFromJsonBundle(resource: "IdentityTokenSuccessTwoFactorToken")
-    static let identityTokenCaptchaError = loadFromJsonBundle(resource: "IdentityTokenCaptchaFailure")
     static let identityTokenKeyConnector = loadFromJsonBundle(resource: "IdentityTokenKeyConnector")
     static let identityTokenKeyConnectorMasterPassword = loadFromJsonBundle(
         resource: "IdentityTokenKeyConnectorMasterPassword"

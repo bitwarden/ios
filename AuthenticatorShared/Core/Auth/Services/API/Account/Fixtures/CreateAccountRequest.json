@@ -3,7 +3,6 @@
     "email": "example@email.com",
     "masterPasswordHash": "masterPasswordHash",
     "masterPasswordHint": "masterPasswordHint",
-    "captchaResponse": "captchaResponse",
     "key": "key",
     "keys": {
         "publicKey": "publicKey",
