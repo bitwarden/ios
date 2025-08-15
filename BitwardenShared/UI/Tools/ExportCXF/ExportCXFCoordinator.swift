@@ -10,6 +10,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasEventService
         & HasExportCXFCiphersRepository
         & HasPolicyService
         & HasStateService
@@ -80,7 +81,8 @@ extension ExportCXFCoordinator: HasErrorAlertServices {
 // MARK: - ExportCXFProcessorDelegate
 
 extension ExportCXFCoordinator: ExportCXFProcessorDelegate {
-    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor {
+    @MainActor
+    func presentationAnchorForASCredentialExportManager() async -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }

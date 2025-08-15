@@ -73,7 +73,10 @@ public enum UI {
         ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = SharedAsset.Colors.backgroundSecondary.color
+        if #unavailable(iOS 26) {
+            // With Liquid Glass, we no longer make the navigation bar distinct with its own color
+            navigationBarAppearance.backgroundColor = SharedAsset.Colors.backgroundSecondary.color
+        }
         navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
         navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
         navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]

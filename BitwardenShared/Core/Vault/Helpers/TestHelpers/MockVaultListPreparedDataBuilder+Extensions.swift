@@ -5,7 +5,7 @@ import Foundation
 @testable import BitwardenShared
 
 extension MockVaultListPreparedDataBuilder {
-    func setUpCallOrderHelper() -> MockCallOrderHelper {
+    func setUpCallOrderHelper() -> MockCallOrderHelper { // swiftlint:disable:this function_body_length
         let helper = MockCallOrderHelper()
 
         addCipherDecryptionFailureClosure = { _ -> VaultListPreparedDataBuilder in
@@ -22,6 +22,10 @@ extension MockVaultListPreparedDataBuilder {
         }
         addItemClosure = { _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addItemForGroup")
+            return self
+        }
+        addItemWithMatchResultCipherClosure = { _, _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addItemWithMatchResultCipher")
             return self
         }
         addNoFolderItemClosure = { _ -> VaultListPreparedDataBuilder in

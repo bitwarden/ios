@@ -77,7 +77,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
             #if SUPPORTS_CXP
 
-            if #available(iOS 18.2, *),
+            if #available(iOS 26.0, *),
                let userActivity = connectionOptions.userActivities.first {
                 await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
             }
@@ -101,7 +101,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         #if SUPPORTS_CXP
 
-        if #available(iOS 18.2, *) {
+        if #available(iOS 26.0, *) {
             Task {
                 await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
             }
@@ -182,11 +182,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     #endif
 }
 
-// MARK: - SceneDelegate 18.2
+// MARK: - SceneDelegate 26.0
 
 #if SUPPORTS_CXP
 
-@available(iOS 18.2, *)
+@available(iOS 26.0, *)
 extension SceneDelegate {
     /// Checks  whether there is an `ASCredentialExchangeActivity` in the `userActivity` and handles it.
     /// - Parameters:

@@ -12,6 +12,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     typealias Services = HasAuthRepository
         & HasConfigService
         & HasErrorReporter
+        & HasEventService
         & HasExportVaultService
         & HasPolicyService
         & HasStateService
@@ -132,6 +133,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
         let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
         coordinator.navigate(to: .shareURL(fileURL))
+
+        await services.eventService.collect(eventType: .userClientExportedVault)
     }
 
     /// Load any initial data for the view.

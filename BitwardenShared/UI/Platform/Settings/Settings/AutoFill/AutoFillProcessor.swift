@@ -90,7 +90,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     private func fetchSettingValues() async {
         do {
-            state.defaultUriMatchType = try await services.settingsRepository.getDefaultUriMatchType()
+            state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

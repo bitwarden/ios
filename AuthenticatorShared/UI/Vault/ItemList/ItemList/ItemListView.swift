@@ -352,6 +352,15 @@ struct ItemListView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    /// How the screen title is displayed, which depends on iOS version.
+    private var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
+        if #available(iOS 26, *) {
+            return .inline
+        } else {
+            return .large
+        }
+    }
+
     var body: some View {
         ZStack {
             SearchableItemListView(
@@ -371,7 +380,7 @@ struct ItemListView: View {
             }
         }
         .navigationTitle(Localizations.verificationCodes)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(titleDisplayMode)
         .toolbar {
             addToolbarItem(hidden: !store.state.showAddToolbarItem) {
                 Task {

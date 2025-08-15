@@ -9,9 +9,9 @@ import OSLog
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListSectionsBuilder { // sourcery: AutoMockable
-    /// Adds a section with trash (deleted) items.
+    /// Adds a section with passwords items for Autofill vault list.
     /// - Returns: The builder for fluent code.
-    func addTrashSection() -> VaultListSectionsBuilder
+    func addAutofillPasswordsSection() -> VaultListSectionsBuilder
 
     /// Adds the list of IDs for ciphers which failed to decrypt.
     /// - Returns: The builder for fluent code.
@@ -38,6 +38,10 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// Adds a section with TOTP items.
     /// - Returns: The builder for fluent code.
     func addTOTPSection() -> VaultListSectionsBuilder
+
+    /// Adds a section with trash (deleted) items.
+    /// - Returns: The builder for fluent code.
+    func addTrashSection() -> VaultListSectionsBuilder
 
     /// Adds a section with items types.
     /// - Returns: The builder for fluent code.
@@ -97,16 +101,24 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     // MARK: Methods
 
-    func addTrashSection() -> VaultListSectionsBuilder {
-        let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
-        vaultListData.sections.append(
-            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
-        )
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
-    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
-        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
+    func addAutofillPasswordsSection() -> VaultListSectionsBuilder {
+        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
+            return self
+        }
+
+        let matchingItems = preparedData.exactMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+            + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+
+        vaultListData.sections.append(VaultListSection(
+            id: "AutofillPasswords",
+            items: matchingItems,
+            name: ""
+        ))
         return self
     }
 
@@ -166,10 +178,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
         // swiftlint:disable:previous function_body_length
-        guard !preparedData.folders.isEmpty else {
-            return self
-        }
-
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -260,6 +268,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         return self
     }
 
+    func addTrashSection() -> VaultListSectionsBuilder {
+        let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
+        vaultListData.sections.append(
+            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
+        )
+        return self
+    }
+
     func addTypesSection() -> VaultListSectionsBuilder {
         var types = [
             VaultListItem(
@@ -320,9 +336,11 @@ struct VaultListPreparedData {
         .secureNote: 0,
         .sshKey: 0,
     ]
+    var exactMatchItems: [VaultListItem] = []
     var favorites: [VaultListItem] = []
     var folders: [Folder] = []
     var foldersCount: [Uuid: Int] = [:]
+    var fuzzyMatchItems: [VaultListItem] = []
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
     /// Organization Ids with `.restrictItemTypes` policy enabled.
