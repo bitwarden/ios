@@ -8,3 +8,9 @@ enum CollectionType: Int, Codable {
     /// OrganizationDataOwnership (formerly PersonalOwnership) policy enabled.
     case defaultUserCollection = 1
 }
+
+// MARK: - DefaultValueProvider
+
+extension CollectionType: DefaultValueProvider {
+    static var defaultValue: CollectionType { .sharedCollection }
+}

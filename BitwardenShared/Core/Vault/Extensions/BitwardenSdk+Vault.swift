@@ -681,15 +681,6 @@ extension BitwardenSdk.Collection {
     }
 
     init(collectionDetailsResponseModel model: CollectionDetailsResponseModel) {
-        let type: BitwardenSdk.CollectionType = {
-            switch model.type {
-            case .defaultUserCollection:
-                .defaultUserCollection
-            case .none, .sharedCollection:
-                .sharedCollection
-            }
-        }()
-
         self.init(
             id: model.id,
             organizationId: model.organizationId,
@@ -699,7 +690,7 @@ extension BitwardenSdk.Collection {
             readOnly: model.readOnly,
             manage: model.manage ?? !model.readOnly,
             defaultUserCollectionEmail: model.defaultUserCollectionEmail,
-            type: type
+            type: BitwardenSdk.CollectionType(type: model.type)
         )
     }
 }

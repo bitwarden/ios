@@ -28,7 +28,7 @@ struct CollectionDetailsResponseModel: Codable, Equatable {
 
     /// Whether the collection is read only.
     let readOnly: Bool
-    
+
     /// The collection's type.
-    let type: CollectionType?
+    @DefaultValue var type: CollectionType
 }
