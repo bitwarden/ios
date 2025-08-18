@@ -1208,11 +1208,11 @@
 "LastEdited" = "Zuletzt bearbeitet: %1$@";
 "PasswordLastUpdated" = "Passwort zuletzt aktualisiert: %1$@";
 "DecryptionError" = "Entschlüsselungsfehler";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden konnte diesen Tresor nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden konnte einen Tresor-Eintrag nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden konnte %1$@ Tresor-Einträge nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
 "CopyErrorReport" = "Fehlerbericht kopieren";
-"ErrorCannotDecrypt" = "[Fehler: kann nicht entschlüsseln]";
+"ErrorCannotDecrypt" = "[Fehler: Kann nicht entschlüsseln]";
 "AccountName" = "Kontoname";
 "AccountsSyncedFromBitwardenApp" = "Konten über Bitwarden App synchronisiert";
 "AddANewCodeToSecure" = "Füge einen neuen Code hinzu, um deine Konten abzusichern.";

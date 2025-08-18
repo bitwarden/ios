@@ -83,7 +83,7 @@
 "VerifyMasterPassword" = "Apstiprināt galveno paroli";
 "VerifyPIN" = "Apstiprināt PIN";
 "Version" = "Laidiens";
-"View" = "Skatīt";
+"View" = "Apskatīt";
 "VisitOurWebsite" = "Apmeklēt mūsu tīmekļvietni";
 "Website" = "Tīmekļvietne";
 "Yes" = "Jā";
@@ -225,7 +225,7 @@
 "EnterVerificationCodeEmail" = "Jāievada 6 ciparu apliecinājuma kods, kas tika nosūtīts uz %1$@.";
 "LoginUnavailable" = "Pieteikšanās nav pieejama";
 "NoTwoStepAvailable" = "Šim kontam ir iestatīta divpakāpju pieteikšanās, bet šajā ierīcē netiek nodrošināts neviens no uzstādītajiem divpakāpju pārbaudes nodrošinātājiem. Lūgums izmantot atbalstītu ierīci un/vai pievienot papildu nodrošinātājus, kas tiek labāk atbalstīti dažādās ierīcēs (piemēram, autentificētāja lietotni).";
-"RecoveryCodeTitle" = "Atgūšanas kods";
+"RecoveryCodeTitle" = "Atkopes kods";
 "RememberMe" = "Atcerēties mani";
 "SendVerificationCodeAgain" = "Sūtīt apstiprinājuma koda e-pastu vēlreiz";
 "TwoStepLoginOptions" = "Divpakāpju pieteikšanās iespējas";
@@ -746,7 +746,7 @@
 "PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Lūgums pārliecināties, ka glabātava ir atslēgta un atpazīšanas vārdkopa ir tāda pati arī citā ierīcē.";
 "ResendNotification" = "Atkārtoti nosūtīt paziņojumu";
 "NeedAnotherOption" = "Nepieciešama cita iespēja?";
-"ViewAllLoginOptions" = "Skatīt visas pieteikšanās iespējas";
+"ViewAllLoginOptions" = "Apskatīt visas pieteikšanās iespējas";
 "ThisRequestIsNoLongerValid" = "Šis pieprasījums vairs nav derīgs";
 "PendingLogInRequests" = "Neapstiprinātie pieteikšanās pieprasījumi";
 "DeclineAllRequests" = "Noraidīt visus pieprasījumus";
@@ -1027,7 +1027,7 @@
 "ViewLogin" = "Apskatīt pieteikšanās vienumu";
 "ViewCard" = "Apskatīt karti";
 "ViewIdentity" = "Apskatīt identitāti";
-"ViewNote" = "Apskatīt pezīmi";
+"ViewNote" = "Apskatīt piezīmi";
 "ViewSSHKey" = "Apskatīt SSH atslēgu";
 "ImportSavedLogins" = "Ievietot saglabātos pieteikšanās vienumus";
 "ImportSavedLoginsDescriptionLong" = "Jāizmanto dators, lai ievietotu pieteikšanās vienumus no esoša paroļu pārvaldnieka.";
@@ -1219,7 +1219,7 @@
 "AddCode" = "Pievienot kodu";
 "Advanced" = "Papildu";
 "Algorithm" = "Algoritms";
-"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
+"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Iestatījumos jāatļauj autentificētāja lietotnes sinhronizēšana, lai šeit apskatītu visus savus apliecinājuma kodus.";
 "Backup" = "Backup";
 "BitwardenAuthenticator" = "Bitwarden autentificētājs";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator data is backed up and can be restored with your regularly scheduled device backups.";
@@ -1252,7 +1252,7 @@
 "NumberOfDigits" = "Ciparu skaits";
 "OtpType" = "OTP Type";
 "RefreshPeriod" = "Atsvaidzināšanas laika posms";
-"RequiredInformationIsMissing" = "Required information is missing at %1$@. Please review the field and try again.";
+"RequiredInformationIsMissing" = "Trūkst nepieciešamas informācijas %1$@. Lūgums pārskatīt lauku un mēģināt vēlreiz.";
 "RequiredInformationMissing" = "Required Information Missing";
 "SaveHere" = "Save here";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
