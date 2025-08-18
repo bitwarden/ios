@@ -15,6 +15,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var biometricsRepository: MockBiometricsRepository!
     var cancellables: Set<AnyCancellable>!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var sharedTimeoutService: MockSharedTimeoutService!
     var stateService: MockStateService!
@@ -29,6 +30,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         biometricsRepository = MockBiometricsRepository()
         cancellables = []
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         sharedTimeoutService = MockSharedTimeoutService()
         stateService = MockStateService()
@@ -40,6 +42,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         subject = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
@@ -53,6 +56,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         biometricsRepository = nil
         cancellables = nil
         clientService = nil
+        configService = nil
         errorReporter = nil
         subject = nil
         stateService = nil
@@ -180,6 +184,38 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     /// `isPinUnlockAvailable` throws errors.
     func test_isPinUnlockAvailable_error() async throws {
         stateService.pinProtectedUserKeyError = BitwardenTestError.example
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.isPinUnlockAvailable(userId: "1")
+        }
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user when there's
+    /// no pin set and the pin protected key envelope feature flag is enabled.
+    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_noValue() async throws {
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.activeAccount = .fixture()
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertFalse(value)
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user when a pin is
+    /// set and the pin protected key envelope feature flag is enabled.
+    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_value() async throws {
+        let active = Account.fixture()
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.activeAccount = active
+        stateService.pinProtectedUserKeyEnvelopeValue = [
+            active.profile.userId: "123",
+        ]
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
+    }
+
+    /// `isPinUnlockAvailable` throws any errors that occur when the pin protected key envelope
+    /// feature flag is enabled.
+    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_error() async throws {
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.pinProtectedUserKeyEnvelopeError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.isPinUnlockAvailable(userId: "1")
         }

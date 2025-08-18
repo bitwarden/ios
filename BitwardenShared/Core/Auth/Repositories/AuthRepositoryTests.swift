@@ -1672,6 +1672,41 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ].pinProtectedUserKey, "12")
     }
 
+    /// `setPins(_:requirePasswordAfterRestart:)` throws an error if one occurs.
+    func test_setPins_error() async throws {
+        clientService.mockCrypto.enrollPinResult = .failure(BitwardenTestError.example)
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setPins("123", requirePasswordAfterRestart: true)
+        }
+    }
+
+    /// `setPins(_:requirePasswordAfterRestart:)` sets the user's pins when the pin protected key
+    /// envelope feature flag is on.
+    func test_setPins_pinProtectedKeyEnvelope() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        clientService.mockCrypto.enrollPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin"
+            )
+        )
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+
+        try await subject.setPins("123", requirePasswordAfterRestart: true)
+
+        let userId = account.profile.userId
+        XCTAssertEqual(stateService.accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId[userId], "userKeyEncryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue[userId], "pinProtectedUserKeyEnvelope")
+        XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
+    }
+
     /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
     /// and master password hash exists.
     func test_shouldPerformMasterPasswordReprompt_true() async throws {
@@ -2151,6 +2186,47 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and migrates the
+    // legacy pin keys.
+    func test_unlockVaultWithPassword_pinProtectedKeyEnvelope_migratesPinProtectedKey() async throws {
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin"
+            )
+        )
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: nil,
+                securityState: nil,
+                method: .password(password: "password", userKey: "USER_KEY")
+            )
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing pin is migrated to pin protected key envelope.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
+    }
+
     /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
     func test_unlockVaultWithPIN() async throws {
         let account = Account.fixture()
@@ -2182,6 +2258,77 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN when pin protected key envelope is on.
+    func test_unlockVaultWithPIN_pinProtectedKeyEnvelope() async throws {
+        let account = Account.fixture()
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: nil,
+                securityState: nil,
+                method: .pinEnvelope(pin: "123", pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope")
+            )
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN when pin protected key
+    /// envelope is on and migrates the legacy pin keys.
+    func test_unlockVaultWithPIN_pinProtectedKeyEnvelope_migratesPinProtectedKey() async throws {
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin"
+            )
+        )
+        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: nil,
+                securityState: nil,
+                method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey")
+            )
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing pin is migrated to pin protected key envelope.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue["1"], "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "userKeyEncryptedPin")
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.
