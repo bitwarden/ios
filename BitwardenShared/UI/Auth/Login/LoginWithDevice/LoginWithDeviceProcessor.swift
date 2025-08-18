@@ -101,10 +101,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
     }
 
     /// Attempt to login.
-    private func attemptLogin(with request: LoginRequest?) async {
+    private func attemptLogin(with request: LoginRequest) async {
         do {
             coordinator.showLoadingOverlay(title: Localizations.loggingIn)
-            guard let request else { return }
 
             // Attempt to login.
             let (privateKey, key) = try await services.authService.loginWithDevice(

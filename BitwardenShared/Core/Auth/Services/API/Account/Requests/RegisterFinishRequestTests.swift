@@ -53,36 +53,6 @@ class RegisterFinishRequestTests: BitwardenTestCase {
         XCTAssertNotNil(subject.body)
     }
 
-    /// `validate(_:)` with a `400` status code and an account already exists error in the response body
-    /// throws an `.accountAlreadyExists` error.
-    func test_validate_with400AccountAlreadyExists() throws {
-        let response = HTTPResponse.failure(
-            statusCode: 400,
-            body: APITestData.registerFinishAccountAlreadyExists.data
-        )
-
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        XCTAssertThrowsError(try subject.validate(response)) { error in
-            XCTAssertEqual(error as? ServerError, .error(errorResponse: errorResponse))
-        }
-    }
-
-    /// `validate(_:)` with a `400` status code and an invalid email format error in the response body
-    /// throws an `.invalidEmailFormat` error.
-    func test_validate_with400InvalidEmailFormat() {
-        let response = HTTPResponse.failure(
-            statusCode: 400,
-            body: APITestData.registerFinishInvalidEmailFormat.data
-        )
-
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        XCTAssertThrowsError(try subject.validate(response)) { error in
-            XCTAssertEqual(error as? ServerError, .error(errorResponse: errorResponse))
-        }
-    }
-
     /// `validate(_:)` with a `400` status code does not throw a validation error.
     func test_validate_with400Error() {
         let response = HTTPResponse.failure(

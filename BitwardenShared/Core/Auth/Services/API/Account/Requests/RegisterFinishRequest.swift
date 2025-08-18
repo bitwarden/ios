@@ -26,17 +26,4 @@ struct RegisterFinishRequest: Request {
     init(body: RegisterFinishRequestModel) {
         self.body = body
     }
-
-    // MARK: Methods
-
-    func validate(_ response: HTTPResponse) throws {
-        switch response.statusCode {
-        case 400 ..< 500:
-            guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-            throw ServerError.error(errorResponse: errorResponse)
-        default:
-            return
-        }
-    }
 }
