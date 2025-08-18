@@ -7,7 +7,7 @@ import SwiftUI
 /// interacts with the button. This is especially helpful when the button's action instructs a `Store` to perform
 /// an `Effect`.
 ///
-struct AsyncButton<Label>: View where Label: View {
+public struct AsyncButton<Label>: View where Label: View {
     // MARK: Properties
 
     /// The async action to perform when the user interacts with the button.
@@ -21,7 +21,7 @@ struct AsyncButton<Label>: View where Label: View {
     /// An optional semantic role that describes the button.
     private let role: ButtonRole?
 
-    var body: some View {
+    public var body: some View {
         Button(
             role: role,
             action: {
@@ -43,7 +43,7 @@ struct AsyncButton<Label>: View where Label: View {
     ///   - action: The async action to perform when the user interacts with this button.
     ///   - label: A view that describes the purpose of the button’s action.
     ///
-    init(
+    public init(
         role: ButtonRole? = nil,
         action: @escaping () async -> Void,
         @ViewBuilder label: @escaping () -> Label
@@ -54,7 +54,7 @@ struct AsyncButton<Label>: View where Label: View {
     }
 }
 
-extension AsyncButton where Label == Text {
+public extension AsyncButton where Label == Text {
     /// Creates a new `AsyncButton`.
     ///
     /// - Parameters:

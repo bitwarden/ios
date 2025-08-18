@@ -1,7 +1,6 @@
+import BitwardenKit
 import ViewInspector
 import XCTest
-
-@testable import AuthenticatorShared
 
 // MARK: - AsyncButtonTests
 
