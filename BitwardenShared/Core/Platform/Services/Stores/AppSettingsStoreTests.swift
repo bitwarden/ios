@@ -805,6 +805,15 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
     }
 
+    /// `pinProtectedUserKeyEnvelope(userId:)` can be used to get the pin protected user key envelope for a user.
+    func test_pinProtectedUserKeyEnvelope() {
+        let userId = Account.fixture().profile.userId
+        subject.setPinProtectedUserKeyEnvelope(key: "123", userId: userId)
+        let pin = subject.pinProtectedUserKeyEnvelope(userId: userId)
+        XCTAssertEqual(pin, "123")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKeyEnvelope_1"), "123")
+    }
+
     /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
     func test_preAuthEnvironmentURLs_isInitiallyNil() {
         XCTAssertNil(subject.preAuthEnvironmentURLs)
