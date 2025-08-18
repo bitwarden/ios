@@ -52,12 +52,6 @@ struct IdentityTokenRequest: Request {
         requestModel
     }
 
-    /// HTTP headers to be sent in the request.
-    var headers: [String: String] {
-        // Auth-Email header is deprecated and no longer needed
-        return [:]
-    }
-
     /// The HTTP method for this request.
     let method = HTTPMethod.post
 
