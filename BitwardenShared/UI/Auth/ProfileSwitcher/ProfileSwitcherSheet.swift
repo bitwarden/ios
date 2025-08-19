@@ -1,6 +1,15 @@
 import BitwardenResources
 import SwiftUI
 
+//extension View {
+//    nonisolated
+//    func sheet<Content>(
+//        isPresented: Binding<Bool>,
+//        onDismiss: (() -> Void)? = nil,
+//        @ViewBuilder content: @escaping () -> Content
+//    ) -> some View where Content : View
+//}
+
 public struct ProfileSwitcherSheet: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
@@ -18,10 +27,11 @@ public struct ProfileSwitcherSheet: View {
                     addAccountRow
                 }
             }
-            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-            .transition(.move(edge: .top))
-            .hidden(!store.state.isVisible)
-            .fixedSize(horizontal: false, vertical: true)
+            .background(.red)
+//            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+//            .transition(.move(edge: .top))
+//            .hidden(!store.state.isVisible)
+//            .fixedSize(horizontal: false, vertical: true)
 //        }
 //        .background {
 //            backgroundView

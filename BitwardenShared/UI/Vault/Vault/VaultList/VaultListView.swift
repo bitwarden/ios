@@ -80,7 +80,7 @@ private struct SearchableVaultListView: View {
         }
         .animation(.default, value: isSearching)
         .sheet(isPresented: store.binding(get: \.profileSwitcherState.isVisible)) {
-            if #available(iOS 16.0, *) {
+            if #available(iOS 26.0, *) {
                 ProfileSwitcherSheet(
                     store: store.child(
                         state: { mainState in
@@ -97,7 +97,7 @@ private struct SearchableVaultListView: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
             } else {
-                Text("Hello")
+                EmptyView()
             }
         }
     }
@@ -432,19 +432,23 @@ struct VaultListView: View {
 
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {
-        ProfileSwitcherView(
-            store: store.child(
-                state: { vaultListState in
-                    vaultListState.profileSwitcherState
-                },
-                mapAction: { action in
-                    .profileSwitcher(action)
-                },
-                mapEffect: { effect in
-                    .profileSwitcher(effect)
-                }
+        if #unavailable(iOS 26) {
+            ProfileSwitcherView(
+                store: store.child(
+                    state: { vaultListState in
+                        vaultListState.profileSwitcherState
+                    },
+                    mapAction: { action in
+                            .profileSwitcher(action)
+                    },
+                    mapEffect: { effect in
+                            .profileSwitcher(effect)
+                    }
+                )
             )
-        )
+        } else {
+            EmptyView()
+        }
     }
 }
 
