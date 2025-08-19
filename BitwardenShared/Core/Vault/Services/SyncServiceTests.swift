@@ -455,6 +455,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
     }
 
+    /// `fetchSync()` check if absent optional properties are initialized correctly.
     func test_fetcSync_collections_optionalPropertiesAbsent() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphersCollections)
         stateService.activeAccount = .fixture()
@@ -479,6 +480,7 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `fetchSync()` check if optional properties are initialized correctly.
     func test_fetcSync_collections_optionalPropertiesPresent() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphersCollections)
         stateService.activeAccount = .fixture()
