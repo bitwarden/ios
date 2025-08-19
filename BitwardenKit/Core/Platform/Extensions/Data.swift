@@ -24,6 +24,7 @@ public extension Data {
     ///
     /// - Returns: The base 64 encoded string.
     ///
+    @_optimize(none)
     func generatedHashBase64Encoded(
         using hashFunction: any HashFunction.Type
     ) -> String {
