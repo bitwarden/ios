@@ -1208,11 +1208,11 @@
 "LastEdited" = "Ultima modifica: %1$@";
 "PasswordLastUpdated" = "Ultimo aggiornamento della password: %1$@";
 "DecryptionError" = "Errore di decrittazione";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
-"CopyErrorReport" = "Copy error report";
-"ErrorCannotDecrypt" = "[error: cannot decrypt]";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare questo elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
+"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare un elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
+"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden non può decrittare %1$@ elementi. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
+"CopyErrorReport" = "Copia il testo della segnalazione";
+"ErrorCannotDecrypt" = "[errore: impossibile decrittare]";
 "AccountName" = "Nome account";
 "AccountsSyncedFromBitwardenApp" = "Account sincronizzati dall'app Bitwarden";
 "AddANewCodeToSecure" = "Aggiungi un nuovo codice per proteggere i tuoi account.";

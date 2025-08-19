@@ -1,5 +1,5 @@
 name: CI / Authenticator
-run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - Authenticator ({0}) {1}', inputs.build-mode, inputs.xcode-version) || 'CI - Authenticator' }}
 
 on:
   push:
@@ -70,6 +70,7 @@ jobs:
       build-mode: ${{ inputs.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
+      xcode-version: ${{ inputs.xcode-version }}
       compiler-flags: ${{ inputs.compiler-flags }}
       distribute: ${{ github.event_name == 'workflow_dispatch' && inputs.distribute }} # event_name check is a workaround for github failing the workflow run when triggered by push
     secrets: inherit

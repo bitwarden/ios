@@ -15,6 +15,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<ExportCXFRoute, Void>!
     var delegate: MockExportCXFProcessorDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var exportCXFCiphersRepository: MockExportCXFCiphersRepository!
     var policyService: MockPolicyService!
     var stackNavigator: MockStackNavigator!
@@ -31,6 +32,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = MockCoordinator<ExportCXFRoute, Void>()
         delegate = MockExportCXFProcessorDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         exportCXFCiphersRepository = MockExportCXFCiphersRepository()
         policyService = MockPolicyService()
         stackNavigator = MockStackNavigator()
@@ -42,6 +44,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             services: ServiceContainer.withMocks(
                 configService: configService,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 exportCXFCiphersRepository: exportCXFCiphersRepository,
                 policyService: policyService,
                 stateService: stateService,
@@ -58,6 +61,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         delegate = nil
         errorReporter = nil
+        eventService = nil
         exportCXFCiphersRepository = nil
         policyService = nil
         stackNavigator = nil
@@ -226,6 +230,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.loadingOverlaysShown[0].title, Localizations.loading)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
     }
 
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status does nothing when there's no delegate.

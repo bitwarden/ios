@@ -492,12 +492,12 @@
 "ExportVaultWarning" = "Plik zawiera dane sejfu w niezaszyfrowanym formacie. Nie należy go przechowywać ani przesyłać poprzez niezabezpieczone kanały (takie jak poczta e-mail). Usuń go natychmiast po użyciu.";
 "ExportVaultConfirmationTitle" = "Potwierdź eksportowanie sejfu";
 "Warning" = "Ostrzeżenie";
-"ExportVaultFailure" = "Wystąpił problem z wyeksportowaniem sejfu. Jeśli problem nadal występuje, musisz wyeksportować dane z sejfu internetowego.";
+"ExportVaultFailure" = "Wystąpił problem z wyeksportowaniem sejfu. Jeśli problem się powtarza, wyeksportuj dane z sejfu internetowego.";
 "ExportVaultSuccess" = "Sejf został wyeksportowany";
 "Clone" = "Klonuj";
 "PasswordGeneratorPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia generatora";
 "Open" = "Otwórz";
-"UnableToSaveAttachment" = "Wystąpił problem z zapisaniem załącznika. Jeśli problem nadal występuje, musisz zapisać plik w sejfie internetowym.";
+"UnableToSaveAttachment" = "Wystąpił problem z zapisaniem załącznika. Jeśli problem się powtarza, zapisz plik w sejfie internetowym.";
 "SaveAttachmentSuccess" = "Załącznik został zapisany";
 "AutofillTileAccessibilityRequired" = "Aby korzystać z kafelka autouzupełniania, włącz usługę ułatwienia dostępu w ustawieniach Bitwarden.";
 "AutofillTileUriNotFound" = "Pole hasła nie zostało wykryte";
@@ -828,7 +828,7 @@
 "LoginApproved" = "Logowanie zostało potwierdzone";
 "LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?";
 "LogInWithDevice" = "Zaloguj się za pomocą urządzenia";
-"LoggingInOn" = "Logowanie na";
+"LoggingInOn" = "Serwer";
 "Vault" = "Sejf";
 "Appearance" = "Wygląd";
 "AccountSecurity" = "Bezpieczeństwo konta";
