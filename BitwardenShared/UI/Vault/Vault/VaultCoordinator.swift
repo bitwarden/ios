@@ -439,7 +439,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         let coordinator = module.makeProfileCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: Void(), context: nil)
-
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+        }
         stackNavigator?.present(navigationController)
     }
 
