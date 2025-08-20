@@ -192,7 +192,6 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         let request = try XCTUnwrap(client.requests.first)
         XCTAssertEqual(request.method, .post)
         XCTAssertEqual(request.url.relativePath, "/identity/accounts/register/finish")
-        XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
         XCTAssertNotNil(request.body)
     }
 
