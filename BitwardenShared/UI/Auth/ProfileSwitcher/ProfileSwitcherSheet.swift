@@ -21,11 +21,13 @@ public struct ProfileSwitcherSheet: View {
 //            axes: .vertical,
 //            offset: $scrollOffset
 //        ) {
-            VStack(spacing: 0.0) {
-                accounts
-                if store.state.showsAddAccount {
-                    addAccountRow
-                }
+            VStack(spacing: 5.0) {
+                Text("Hello")
+                Text("World")
+//                accounts
+//                if store.state.showsAddAccount {
+//                    addAccountRow
+//                }
             }
             .background(.red)
 //            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)

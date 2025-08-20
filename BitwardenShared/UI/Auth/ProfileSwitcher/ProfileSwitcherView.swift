@@ -12,70 +12,34 @@ struct ProfileSwitcherView: View {
     @SwiftUI.State var scrollOffset = CGPoint.zero
 
     var body: some View {
-        if #available(iOS 26, *) {
-//            OffsetObservingScrollView(
-//                axes: .vertical,
-//                offset: $scrollOffset
-//            ) {
-                VStack(spacing: 5.0) {
-                    accounts
-                    if store.state.showsAddAccount {
-                        addAccountRow
-                    }
+        OffsetObservingScrollView(
+            axes: .vertical,
+            offset: $scrollOffset
+        ) {
+            VStack(spacing: 0.0) {
+                accounts
+                if store.state.showsAddAccount {
+                    addAccountRow
                 }
-//                .contentMargins(10)
-//                .background(.red)
-//                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                .transition(.move(edge: .bottom))
+            }
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+            .transition(.move(edge: .top))
+            .hidden(!store.state.isVisible)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .background {
+            backgroundView
                 .hidden(!store.state.isVisible)
-//                .fixedSize(horizontal: false, vertical: true)
-//                .frame(alignment: .bottom)
-//                .framali
-//            }
-            .background {
-                backgroundView
-                    .hidden(!store.state.isVisible)
-                    .accessibilityHidden(true)
-            }
-            .onTapGesture {
-                store.send(.backgroundPressed)
-            }
-            .allowsHitTesting(store.state.isVisible)
-            .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
-            .accessibilityHidden(!store.state.isVisible)
-            .accessibilityAction(named: Localizations.close) {
-                store.send(.backgroundPressed)
-            }
-        } else {
-            OffsetObservingScrollView(
-                axes: .vertical,
-                offset: $scrollOffset
-            ) {
-                VStack(spacing: 0.0) {
-                    accounts
-                    if store.state.showsAddAccount {
-                        addAccountRow
-                    }
-                }
-                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                .transition(.move(edge: .top))
-                .hidden(!store.state.isVisible)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .background {
-                backgroundView
-                    .hidden(!store.state.isVisible)
-                    .accessibilityHidden(true)
-            }
-            .onTapGesture {
-                store.send(.backgroundPressed)
-            }
-            .allowsHitTesting(store.state.isVisible)
-            .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
-            .accessibilityHidden(!store.state.isVisible)
-            .accessibilityAction(named: Localizations.close) {
-                store.send(.backgroundPressed)
-            }
+                .accessibilityHidden(true)
+        }
+        .onTapGesture {
+            store.send(.backgroundPressed)
+        }
+        .allowsHitTesting(store.state.isVisible)
+        .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
+        .accessibilityHidden(!store.state.isVisible)
+        .accessibilityAction(named: Localizations.close) {
+            store.send(.backgroundPressed)
         }
     }
 

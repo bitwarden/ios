@@ -197,19 +197,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         case .addFolder:
             showAddFolder()
         case let .addItem(group, newCipherOptions, organizationId, type):
-            Task {
-                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-                showVaultItem(
-                    route: .addItem(
-                        group: group,
-                        hasPremium: hasPremium,
-                        newCipherOptions: newCipherOptions,
-                        organizationId: organizationId,
-                        type: type
-                    ),
-                    delegate: context as? CipherItemOperationDelegate
-                )
-            }
+            foobar()
+//            Task {
+//                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+//                showVaultItem(
+//                    route: .addItem(
+//                        group: group,
+//                        hasPremium: hasPremium,
+//                        newCipherOptions: newCipherOptions,
+//                        organizationId: organizationId,
+//                        type: type
+//                    ),
+//                    delegate: context as? CipherItemOperationDelegate
+//                )
+//            }
         case .autofillList:
             showAutofillList()
         case let .autofillListForGroup(group):
@@ -435,7 +436,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
 
     func foobar() {
         let navigationController = module.makeNavigationController()
-//        let coordinator = module.mak
+        let coordinator = module.makeProfileCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: Void(), context: nil)
+
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the vault item selection screen.
