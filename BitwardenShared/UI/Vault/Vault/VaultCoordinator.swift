@@ -433,6 +433,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.present(navigationController)
     }
 
+    func foobar() {
+        let navigationController = module.makeNavigationController()
+//        let coordinator = module.mak
+    }
+
     /// Shows the vault item selection screen.
     ///
     /// - Parameter totpKeyModel: The parsed TOTP data to search for matching ciphers.

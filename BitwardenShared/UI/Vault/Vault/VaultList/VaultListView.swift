@@ -79,27 +79,27 @@ private struct SearchableVaultListView: View {
             store.send(.searchStateChanged(isSearching: newValue))
         }
         .animation(.default, value: isSearching)
-        .sheet(isPresented: store.binding(get: \.profileSwitcherState.isVisible)) {
-            if #available(iOS 26.0, *) {
-                ProfileSwitcherSheet(
-                    store: store.child(
-                        state: { mainState in
-                            mainState.profileSwitcherState
-                        },
-                        mapAction: { action in
-                            .profileSwitcher(action)
-                        },
-                        mapEffect: { profileEffect in
-                            .profileSwitcher(profileEffect)
-                        }
-                    )
-                )
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-            } else {
-                EmptyView()
-            }
-        }
+//        .sheet(isPresented: store.binding(get: \.profileSwitcherState.isVisible)) {
+//            if #available(iOS 26.0, *) {
+//                ProfileSwitcherSheet(
+//                    store: store.child(
+//                        state: { mainState in
+//                            mainState.profileSwitcherState
+//                        },
+//                        mapAction: { action in
+//                            .profileSwitcher(action)
+//                        },
+//                        mapEffect: { profileEffect in
+//                            .profileSwitcher(profileEffect)
+//                        }
+//                    )
+//                )
+//                .presentationDetents([.medium])
+//                .presentationDragIndicator(.visible)
+//            } else {
+//                EmptyView()
+//            }
+//        }
     }
 
     // MARK: Private Properties
@@ -349,7 +349,7 @@ struct VaultListView: View {
     var windowScene: UIWindowScene?
 
     var body: some View {
-        ZStack {
+        ZStack (alignment: .bottom) {
             SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
@@ -432,7 +432,7 @@ struct VaultListView: View {
 
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {
-        if #unavailable(iOS 26) {
+//        if #unavailable(iOS 26) {
             ProfileSwitcherView(
                 store: store.child(
                     state: { vaultListState in
@@ -446,9 +446,9 @@ struct VaultListView: View {
                     }
                 )
             )
-        } else {
-            EmptyView()
-        }
+//        } else {
+//            EmptyView()
+//        }
     }
 }
 
