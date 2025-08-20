@@ -876,20 +876,11 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
-        if await configService.getFeatureFlag(.pinProtectedKeyEnvelope) {
-            let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
-            try await stateService.setPinKeys(
-                enrollPinResponse: enrollPinResponse,
-                requirePasswordAfterRestart: requirePasswordAfterRestart
-            )
-        } else {
-            let pinKey = try await clientService.crypto().derivePinKey(pin: pin)
-            try await stateService.setPinKeys(
-                encryptedPin: pinKey.encryptedPin,
-                pinProtectedUserKey: pinKey.pinProtectedUserKey,
-                requirePasswordAfterRestart: requirePasswordAfterRestart
-            )
-        }
+        let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
+        try await stateService.setPinKeys(
+            enrollPinResponse: enrollPinResponse,
+            requirePasswordAfterRestart: requirePasswordAfterRestart
+        )
     }
 
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
@@ -986,8 +977,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        if await configService.getFeatureFlag(.pinProtectedKeyEnvelope),
-           let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
+        if let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
             try await unlockVault(
                 method: .pinEnvelope(
                     pin: pin,
@@ -995,6 +985,9 @@ extension DefaultAuthRepository: AuthRepository {
                 )
             )
         } else {
+            // This is needed to support unlocking with a legacy pin protected user key. Once the
+            // vault is unlocked, the user's pin protected user key is migrated to a pin protected
+            // user key envelope.
             guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
                 throw StateServiceError.noPinProtectedUserKey
             }
@@ -1221,21 +1214,13 @@ extension DefaultAuthRepository: AuthRepository {
             // If the user has a pin, but requires master password after restart, set the pin
             // protected user key in memory for future unlocks prior to app restart.
             guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
-            if await configService.getFeatureFlag(.pinProtectedKeyEnvelope) {
-                let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                    encryptedPin: encryptedPin
-                )
-                try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
-            } else {
-                let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
-                    encryptedPin: encryptedPin
-                )
-                try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
-            }
+            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
+                encryptedPin: encryptedPin
+            )
+            try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
         case .pin:
             // If the user has legacy pin, migrate to a pin protected user key envelope.
-            guard await configService.getFeatureFlag(.pinProtectedKeyEnvelope),
-                  let encryptedPin = try await stateService.getEncryptedPin() else { break }
+            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
             let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
                 encryptedPin: encryptedPin
             )

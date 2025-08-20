@@ -658,16 +658,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(account)
 
         try await subject.setPinKeys(
-            encryptedPin: "123",
-            pinProtectedUserKey: "321",
+            enrollPinResponse: EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin"
+            ),
             requirePasswordAfterRestart: true
         )
 
         let encryptedPin = try await subject.getEncryptedPin()
         let pinProtectedUserKey = await subject.accountVolatileData["1"]?.pinProtectedUserKey
 
-        XCTAssertEqual(encryptedPin, "123")
-        XCTAssertEqual(pinProtectedUserKey, "321")
+        XCTAssertEqual(encryptedPin, "userKeyEncryptedPin")
+        XCTAssertEqual(pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
     }
 
     /// `getEnvironmentURLs()` returns the environment URLs for the active account.
@@ -2061,22 +2063,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(appSettingsStore.pendingAppIntentActions)
     }
 
-    /// `setPinKeys(encryptedPin:pinProtectedUserKey:requirePasswordAfterRestart:)` sets pin keys for an account.
-    func test_setPinKeys() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setPinKeys(
-            encryptedPin: "encryptedPin",
-            pinProtectedUserKey: "pinProtectedUserKey",
-            requirePasswordAfterRestart: false
-        )
-        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["1"], "pinProtectedUserKey")
-        XCTAssertEqual(appSettingsStore.encryptedPinByUserId["1"], "encryptedPin")
-    }
-
     /// `setPinKeys(enrollPinResponse:requirePasswordAfterRestart)` sets the pin keys from the
     /// enroll pin response.
-    func test_setPinKeys_pinProtectedUserKeyEnvelope() async throws {
+    func test_setPinKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         appSettingsStore.pinProtectedUserKey["1"] = "old-pinProtectedUserKey"
 
@@ -2095,7 +2084,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `setPinKeys(enrollPinResponse:requirePasswordAfterRestart)` sets the pin keys from the
     /// enroll pin response when a master password is required after app restart.
-    func test_setPinKeys_pinProtectedUserKeyEnvelope_requiresPasswordAfterRestart() async throws {
+    func test_setPinKeys_requiresPasswordAfterRestart() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         appSettingsStore.pinProtectedUserKey["1"] = "old-pinProtectedUserKey"
 

@@ -646,21 +646,6 @@ protocol StateService: AnyObject {
 
     /// Set's the pin keys.
     ///
-    /// - Note: This is being replaced by ``setPinKeys(enrollPinResponse:requirePasswordAfterRestart:)``.
-    ///
-    /// - Parameters:
-    ///   - encryptedPin: The user's encrypted pin.
-    ///   - pinProtectedUserKey: The user's pin protected user key.
-    ///   - requirePasswordAfterRestart: Whether to require password after app restart.
-    ///
-    func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
-    ) async throws
-
-    /// Set's the pin keys.
-    ///
     /// - Parameters:
     ///   - enrollPinResponse: The user's pin keys from enrolling a pin.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
@@ -2015,19 +2000,6 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
 
         appSettingsStore.pendingAppIntentActions = actions
         pendingAppIntentActionsSubject.send(actions)
-    }
-
-    func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
-    ) async throws {
-        if requirePasswordAfterRestart {
-            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
-        } else {
-            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
-        }
-        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
     }
 
     func setPinKeys(
