@@ -163,62 +163,40 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertFalse(shouldTimeout)
     }
 
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
-    func test_isPinUnlockAvailable_noValue() async throws {
-        stateService.activeAccount = .fixture()
-        let value = try await subject.isPinUnlockAvailable(userId: "1")
-        XCTAssertFalse(value)
-    }
-
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
-    func test_isPinUnlockAvailable_value() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        stateService.pinProtectedUserKeyValue = [
-            active.profile.userId: "123",
-        ]
-        let value = try await subject.isPinUnlockAvailable(userId: "1")
-        XCTAssertTrue(value)
-    }
-
     /// `isPinUnlockAvailable` throws errors.
     func test_isPinUnlockAvailable_error() async throws {
-        stateService.pinProtectedUserKeyError = BitwardenTestError.example
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.isPinUnlockAvailable(userId: "1")
-        }
-    }
-
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user when there's
-    /// no pin set and the pin protected key envelope feature flag is enabled.
-    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_noValue() async throws {
-        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
-        stateService.activeAccount = .fixture()
-        let value = try await subject.isPinUnlockAvailable(userId: "1")
-        XCTAssertFalse(value)
-    }
-
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user when a pin is
-    /// set and the pin protected key envelope feature flag is enabled.
-    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_value() async throws {
-        let active = Account.fixture()
-        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
-        stateService.activeAccount = active
-        stateService.pinProtectedUserKeyEnvelopeValue = [
-            active.profile.userId: "123",
-        ]
-        let value = try await subject.isPinUnlockAvailable(userId: "1")
-        XCTAssertTrue(value)
-    }
-
-    /// `isPinUnlockAvailable` throws any errors that occur when the pin protected key envelope
-    /// feature flag is enabled.
-    func test_isPinUnlockAvailable_pinProtectedKeyEnvelope_error() async throws {
-        configService.featureFlagsBool[.pinProtectedKeyEnvelope] = true
         stateService.pinProtectedUserKeyEnvelopeError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.isPinUnlockAvailable(userId: "1")
         }
+    }
+
+    /// `isPinUnlockAvailable` returns `false` if the active user does not have a pin protected user
+    /// key or pin protected user key envelope.
+    func test_isPinUnlockAvailable_false() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pinProtectedUserKeyValue = ["1": "123"]
+
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
+    }
+
+    /// `isPinUnlockAvailable` returns `true` if the active user has a pin protected user key.
+    func test_isPinUnlockAvailable_true_pinProtectedUserKey() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pinProtectedUserKeyValue = ["1": "123"]
+
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
+    }
+
+    /// `isPinUnlockAvailable` returns `true` if the active user has a pin protected user key envelope.
+    func test_isPinUnlockAvailable_true_pinProtectedUserKeyEnvelope() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pinProtectedUserKeyEnvelopeValue = ["1": "123"]
+
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
     }
 
     /// `lockVault(userId:)` logs an error if one occurs.

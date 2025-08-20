@@ -181,12 +181,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        if await configService.getFeatureFlag(.pinProtectedKeyEnvelope),
-           try await stateService.pinProtectedUserKeyEnvelope(userId: userId) != nil {
-            true
-        } else {
-            try await stateService.pinProtectedUserKey(userId: userId) != nil
-        }
+        let hasPinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope(userId: userId) != nil
+        let hasPinProtectedUserKey = try await stateService.pinProtectedUserKey(userId: userId) != nil
+        return hasPinProtectedUserKeyEnvelope || hasPinProtectedUserKey
     }
 
     func lockVault(userId: String?) async {

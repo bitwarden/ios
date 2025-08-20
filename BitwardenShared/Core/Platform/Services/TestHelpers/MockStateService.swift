@@ -635,23 +635,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         pendingAppIntentActions = actions
     }
 
-    func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
-    ) async throws {
-        let userId = try unwrapUserId(nil)
-        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        encryptedPinByUserId[userId] = encryptedPin
-
-        if requirePasswordAfterRestart {
-            accountVolatileData[
-                userId,
-                default: AccountVolatileData()
-            ].pinProtectedUserKey = pinProtectedUserKey
-        }
-    }
-
     func setPinKeys(enrollPinResponse: EnrollPinResponse, requirePasswordAfterRestart: Bool) async throws {
         let userId = try unwrapUserId(nil)
         pinProtectedUserKeyEnvelopeValue[userId] = enrollPinResponse.pinProtectedUserKeyEnvelope
