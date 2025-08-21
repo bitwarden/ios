@@ -28,6 +28,13 @@ public struct ProfileSwitcherSheet: View {
             }
         }
         .navigationBar(title: "Localized Accounts", titleDisplayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                closeToolbarButton {
+//                    store.send(.dismissPressed)
+                }
+            }
+        }
         .task {
             await store.perform(.refreshAccountProfiles)
         }
