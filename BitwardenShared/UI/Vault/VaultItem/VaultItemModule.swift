@@ -15,8 +15,9 @@ protocol VaultItemModule {
     ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     func makeProfileCoordinator(
+        delegate: ProfileSwitcherCoordinatorDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<Void, Void>
+    ) -> AnyCoordinator<AuthRoute, AuthAction>
 }
 
 extension DefaultAppModule: VaultItemModule {
@@ -31,7 +32,14 @@ extension DefaultAppModule: VaultItemModule {
         ).asAnyCoordinator()
     }
 
-    func makeProfileCoordinator(stackNavigator: any StackNavigator) -> AnyCoordinator<Void, Void> {
-        ProfileCoordinator(stackNavigator: stackNavigator).asAnyCoordinator()
+    func makeProfileCoordinator(
+        delegate: ProfileSwitcherCoordinatorDelegate,
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<AuthRoute, AuthAction> {
+        ProfileCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator
+        ).asAnyCoordinator()
     }
 }

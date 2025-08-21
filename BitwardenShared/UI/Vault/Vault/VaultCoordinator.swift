@@ -7,7 +7,7 @@ import SwiftUI
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
 ///
 @MainActor
-public protocol VaultCoordinatorDelegate: AnyObject {
+public protocol VaultCoordinatorDelegate: AnyObject, ProfileSwitcherCoordinatorDelegate {
     /// Called when the user locks their vault.
     ///
     /// - Parameters:
@@ -435,10 +435,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     }
 
     func foobar() {
+        guard let delegate = delegate else { return }
         let navigationController = module.makeNavigationController()
-        let coordinator = module.makeProfileCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeProfileCoordinator(
+            delegate: delegate,
+            stackNavigator: navigationController
+        )
         coordinator.start()
-        coordinator.navigate(to: Void(), context: nil)
+        coordinator.navigate(to: .landing, context: nil)
         if let sheet = navigationController.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false

@@ -21,16 +21,19 @@ public struct ProfileSwitcherSheet: View {
 //            axes: .vertical,
 //            offset: $scrollOffset
 //        ) {
-            VStack(spacing: 5.0) {
-                Text("Hello")
-                Text("World")
-//                accounts
-//                if store.state.showsAddAccount {
-//                    addAccountRow
-//                }
+        VStack(spacing: 0.0) {
+            accounts
+            if store.state.showsAddAccount {
+                addAccountRow
             }
-            .background(.red)
-//            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+        }
+        .navigationBar(title: "Localized Accounts", titleDisplayMode: .inline)
+        .task {
+            await store.perform(.refreshAccountProfiles)
+        }
+//            .background(.red)
+//        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
 //            .transition(.move(edge: .top))
 //            .hidden(!store.state.isVisible)
 //            .fixedSize(horizontal: false, vertical: true)

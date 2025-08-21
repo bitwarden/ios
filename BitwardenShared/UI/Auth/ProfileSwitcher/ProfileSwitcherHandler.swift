@@ -114,6 +114,8 @@ extension ProfileSwitcherHandler {
             profileSwitcherState.isVisible = isVisible
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
+        case .refreshAccountProfiles:
+            await refreshProfileState()
         }
     }
 

@@ -32,4 +32,6 @@ enum ProfileSwitcherEffect: Equatable {
 
     /// A row appeared.
     case rowAppeared(ProfileSwitcherRowState.RowType)
+
+    case refreshAccountProfiles
 }
