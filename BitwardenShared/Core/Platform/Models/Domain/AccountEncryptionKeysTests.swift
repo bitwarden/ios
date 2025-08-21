@@ -8,11 +8,13 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
     /// `init(identityTokenResponseModel:)` initializes an `AccountEncryptionKeys` from an identity
     /// token response.
     func test_init_identityTokenResponseModel() {
-        let subject = AccountEncryptionKeys(identityTokenResponseModel: .fixture())
+        let accountKeys = PrivateKeysResponseModel.fixture()
+        let subject = AccountEncryptionKeys(identityTokenResponseModel: .fixture(accountKeys: accountKeys))
 
         XCTAssertEqual(
             subject,
             AccountEncryptionKeys(
+                accountKeys: accountKeys,
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "KEY"
             )

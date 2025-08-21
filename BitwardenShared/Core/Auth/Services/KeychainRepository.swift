@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 
 // MARK: - KeychainItem
@@ -7,6 +8,9 @@ import Foundation
 enum KeychainItem: Equatable {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
+
+    /// The keychain item for a user's account security state.
+    case accountSecurityState(userId: String)
 
     /// The keychain item for a user's vault key for Authenticator syncing.
     case authenticatorVaultKey(userId: String)
@@ -26,17 +30,22 @@ enum KeychainItem: Equatable {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for a user's signing key.
+    case userSigningKey(userId: String)
+
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
     var accessControlFlags: SecAccessControlCreateFlags? {
         switch self {
         case .accessToken,
+             .accountSecurityState,
              .authenticatorVaultKey,
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken:
+             .refreshToken,
+             .userSigningKey:
             nil
         case .biometrics:
             .biometryCurrentSet
@@ -46,10 +55,12 @@ enum KeychainItem: Equatable {
     /// The protection level for this keychain item.
     var protection: CFTypeRef {
         switch self {
-        case .biometrics,
+        case .accountSecurityState,
+             .biometrics,
              .deviceKey,
              .neverLock,
-             .pendingAdminLoginRequest:
+             .pendingAdminLoginRequest,
+             .userSigningKey:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
@@ -64,6 +75,8 @@ enum KeychainItem: Equatable {
         switch self {
         case let .accessToken(userId):
             "accessToken_\(userId)"
+        case let .accountSecurityState(userId):
+            "accountSecurityState_\(userId)"
         case let .authenticatorVaultKey(userId):
             "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
@@ -76,6 +89,8 @@ enum KeychainItem: Equatable {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .userSigningKey(userId):
+            "userSigningKey_\(userId)"
         }
     }
 }
@@ -124,6 +139,13 @@ protocol KeychainRepository: AnyObject {
     ///
     func getAccessToken(userId: String) async throws -> String
 
+    /// Gets the stored account security state for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the keychain item.
+    /// - Returns: The user's account security state.
+    ///
+    func getAccountSecurityState(userId: String) async throws -> SignedSecurityState?
+
     /// Gets the authenticator vault key for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the authenticator vault key.
@@ -159,6 +181,13 @@ protocol KeychainRepository: AnyObject {
     ///
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
 
+    /// Gets the stored signing key for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the keychain item.
+    /// - Returns: The user's signing key.
+    ///
+    func getUserSigningKey(userId: String) async throws -> WrappedSigningKey?
+
     /// Stores the access token for a user in the keychain.
     ///
     /// - Parameters:
@@ -166,6 +195,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the token later on.
     ///
     func setAccessToken(_ value: String, userId: String) async throws
+
+    /// Sets the account security state for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The account security state to store.
+    ///   - userId: The user ID associated with the keychain item.
+    ///
+    func setAccountSecurityState(_ value: SignedSecurityState, userId: String) async throws
 
     /// Sets the authenticator vault key for a user ID.
     ///
@@ -206,6 +243,14 @@ protocol KeychainRepository: AnyObject {
     ///    - value: A `String` representing the user auth key.
     ///
     func setUserAuthKey(for item: KeychainItem, value: String) async throws
+
+    /// Sets the signing key for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The user's signing key to store.
+    ///   - userId: The user ID associated with the keychain item.
+    ///
+    func setUserSigningKey(_ value: WrappedSigningKey, userId: String) async throws
 }
 
 extension KeychainRepository {
@@ -378,6 +423,7 @@ extension DefaultKeychainRepository {
     func deleteItems(for userId: String) async throws {
         let keychainItems: [KeychainItem] = [
             .accessToken(userId: userId),
+            .accountSecurityState(userId: userId),
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
@@ -385,6 +431,7 @@ extension DefaultKeychainRepository {
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
             // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
+            .userSigningKey(userId: userId),
         ]
         for keychainItem in keychainItems {
             try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
@@ -407,6 +454,10 @@ extension DefaultKeychainRepository {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId))
         )
+    }
+
+    func getAccountSecurityState(userId: String) async throws -> BitwardenSdk.SignedSecurityState? {
+        try await getValue(for: .accountSecurityState(userId: userId))
     }
 
     func getAccessToken(userId: String) async throws -> String {
@@ -433,8 +484,16 @@ extension DefaultKeychainRepository {
         try await getValue(for: item)
     }
 
+    func getUserSigningKey(userId: String) async throws -> WrappedSigningKey? {
+        try await getValue(for: .userSigningKey(userId: userId))
+    }
+
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
+    }
+
+    func setAccountSecurityState(_ value: BitwardenSdk.SignedSecurityState, userId: String) async throws {
+        try await setValue(value, for: .accountSecurityState(userId: userId))
     }
 
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
@@ -455,5 +514,9 @@ extension DefaultKeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         try await setValue(value, for: item)
+    }
+
+    func setUserSigningKey(_ value: WrappedSigningKey, userId: String) async throws {
+        try await setValue(value, for: .userSigningKey(userId: userId))
     }
 }

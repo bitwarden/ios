@@ -604,6 +604,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: registrationKeys.privateKey,
                 encryptedUserKey: nil
             )
@@ -802,6 +803,7 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
+        let accountPrivateKeys: PrivateKeysResponseModel?
         let email = account.profile.email
         let kdf = account.kdf
         let requestUserKey: String
@@ -816,8 +818,12 @@ extension DefaultAuthRepository: AuthRepository {
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
+            accountPrivateKeys = accountKeys.accountKeys
             encryptedPrivateKey = accountKeys.encryptedPrivateKey
         } else {
+            let accountKeys = try? await stateService.getAccountEncryptionKeys()
+            accountPrivateKeys = accountKeys?.accountKeys
+
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
                 password: password,
@@ -848,6 +854,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            accountKeys: accountPrivateKeys,
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: requestUserKey
         ))
@@ -1084,15 +1091,9 @@ extension DefaultAuthRepository: AuthRepository {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
 
         try await clientService.crypto().initializeUserCrypto(
-            req: InitUserCryptoRequest(
-                userId: account.profile.userId,
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                signingKey: nil,
-                securityState: nil,
-                method: method
-            )
+            account: account,
+            encryptionKeys: encryptionKeys,
+            method: method
         )
 
         switch method {
@@ -1146,6 +1147,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let newEncryptionKeys = AccountEncryptionKeys(
+            accountKeys: encryptionKeys.accountKeys,
             encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
             encryptedUserKey: updatePasswordResponse.newKey
         )

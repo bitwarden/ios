@@ -3,6 +3,9 @@
 struct AccountEncryptionKeys: Equatable {
     // MARK: Properties
 
+    /// The user's v2 account keys.
+    let accountKeys: PrivateKeysResponseModel?
+
     /// The encrypted private key for the account.
     let encryptedPrivateKey: String
 
@@ -16,8 +19,14 @@ extension AccountEncryptionKeys {
     /// - Parameter identityTokenResponseModel: The response model from the identity token request.
     ///
     init?(identityTokenResponseModel: IdentityTokenResponseModel) {
-        guard let privateKey = identityTokenResponseModel.privateKey else { return nil }
+        let privateKey = identityTokenResponseModel.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey
+                            ?? identityTokenResponseModel.privateKey
+        guard let privateKey else {
+            return nil
+        }
+
         self.init(
+            accountKeys: identityTokenResponseModel.accountKeys,
             encryptedPrivateKey: privateKey,
             encryptedUserKey: identityTokenResponseModel.key
         )
