@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Networking
 
 // MARK: - UpdateKdfRequestModel
@@ -21,4 +22,24 @@ struct UpdateKdfRequestModel: JSONRequestBody, Equatable {
 
     /// The user's data for unlock.
     let unlockData: MasterPasswordUnlockDataRequestModel
+}
+
+extension UpdateKdfRequestModel {
+    /// Initialize `UpdateKdfRequestModel` from `UpdateKdfResponse`.
+    ///
+    /// - Parameter response: The `UpdateKdfResponse` used to initialize a `UpdateKdfRequestModel`.
+    ///
+    init(response: UpdateKdfResponse) {
+        self.init(
+            authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                authenticationData: response.masterPasswordAuthenticationData
+            ),
+            key: response.masterPasswordUnlockData.masterKeyWrappedUserKey,
+            masterPasswordHash: response.oldMasterPasswordAuthenticationData.masterPasswordAuthenticationHash,
+            newMasterPasswordHash: response.masterPasswordAuthenticationData.masterPasswordAuthenticationHash,
+            unlockData: MasterPasswordUnlockDataRequestModel(
+                unlockData: response.masterPasswordUnlockData
+            )
+        )
+    }
 }
