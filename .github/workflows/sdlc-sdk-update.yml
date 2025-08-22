@@ -88,7 +88,7 @@ jobs:
           _SDK_PACKAGE: ${{ inputs.sdk-package }}
           _SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
-          ./scripts/update-sdk-version.sh "$_SDK_PACKAGE" "$_SDK_VERSION"
+          ./Scripts/update-sdk-version.sh "$_SDK_PACKAGE" "$_SDK_VERSION"
 
       - name: Create branch and commit
         env:
@@ -117,7 +117,7 @@ jobs:
           NEW_SDK_GIT_REF=$(echo "$_SDK_VERSION" | cut -d'-' -f3-)
           PR_BODY="Updates the SDK version from \`$_OLD_SDK_VERSION\` to \`$_SDK_PACKAGE $_SDK_VERSION\`
 
-          ## What's Changed
+          ## What's Changed"
 
           # Use echo -e to interpret escape sequences and pipe to gh pr create
           PR_URL=$(echo -e "$PR_BODY" | gh pr create \

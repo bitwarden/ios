@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to update SDK version in project-bwa.yml, project-bwk.yml and project-pm.ym
+# Script to update SDK version in project-bwa.yml, project-bwk.yml and project-pm.yml
 # Usage: ./Scripts/update-sdk-version.sh <sdk-package> <sdk-version>
 # ./Scripts/update-sdk-version.sh BitwardenSdk 2a6609428275c758fcda5383bfb6b3166ec29eda
 
@@ -23,11 +23,7 @@ FILES=(
 for file in "${FILES[@]}"; do
     if [[ -f "$file" ]]; then
         echo "🔧 Updating revision in $file..."
-        sed -i.bak -E "/^packages:/,/^[^[:space:]]/ {
-          /$SDK_PACKAGE:/,/^[[:space:]]{2}[[:alnum:]]/ {
-            s/^([[:space:]]{4}revision: ).*/\1$SDK_VERSION/
-          }
-        }" "$file"
+        yq -i ".packages[\"$SDK_PACKAGE\"].revision = \"$SDK_VERSION\"" "$file"
         echo "✅ Updated revision line:"
         grep "revision:" "$file"
     else
