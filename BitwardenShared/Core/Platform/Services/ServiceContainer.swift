@@ -562,6 +562,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultTimeoutService = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

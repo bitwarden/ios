@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import struct BitwardenSdk.EnrollPinResponse
 import Combine
 import Foundation
 
@@ -69,6 +70,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
     var pinProtectedUserKeyError: Error?
     var pinProtectedUserKeyValue = [String: String]()
+    var pinProtectedUserKeyEnvelopeError: Error?
+    var pinProtectedUserKeyEnvelopeValue = [String: String]()
+    var pinUnlockRequiresPasswordAfterRestartValue = false // swiftlint:disable:this identifier_name
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
@@ -429,6 +433,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return pinProtectedUserKeyValue[userId] ?? nil
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String? {
+        if let pinProtectedUserKeyEnvelopeError { throw pinProtectedUserKeyEnvelopeError }
+        let userId = try unwrapUserId(userId)
+        return pinProtectedUserKeyEnvelopeValue[userId] ?? nil
+    }
+
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
+        pinUnlockRequiresPasswordAfterRestartValue
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
@@ -621,20 +635,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         pendingAppIntentActions = actions
     }
 
-    func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
-    ) async throws {
+    func setPinKeys(enrollPinResponse: EnrollPinResponse, requirePasswordAfterRestart: Bool) async throws {
         let userId = try unwrapUserId(nil)
-        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        encryptedPinByUserId[userId] = encryptedPin
+        pinProtectedUserKeyEnvelopeValue[userId] = enrollPinResponse.pinProtectedUserKeyEnvelope
+        encryptedPinByUserId[userId] = enrollPinResponse.userKeyEncryptedPin
 
         if requirePasswordAfterRestart {
             accountVolatileData[
                 userId,
                 default: AccountVolatileData()
-            ].pinProtectedUserKey = pinProtectedUserKey
+            ].pinProtectedUserKey = enrollPinResponse.pinProtectedUserKeyEnvelope
         }
     }
 
