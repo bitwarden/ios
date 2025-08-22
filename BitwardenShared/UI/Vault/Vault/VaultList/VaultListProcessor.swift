@@ -19,6 +19,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasChangeKdfService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -207,6 +208,24 @@ extension VaultListProcessor {
         await loadItemTypesUserCanCreate()
     }
 
+    /// Checks if the user needs to update their KDF settings.
+    private func checkIfForceKdfUpdateRequired() async {
+        guard await services.changeKdfService.needsKdfUpdateToMinimums() else { return }
+
+        coordinator.showAlert(.updateEncryptionSettings { password in
+            self.coordinator.showLoadingOverlay(title: Localizations.updating)
+            defer { self.coordinator.hideLoadingOverlay() }
+
+            do {
+                try await self.services.changeKdfService.updateKdfToMinimums(password: password)
+                self.coordinator.showToast(Localizations.encryptionSettingsUpdated)
+            } catch {
+                self.services.errorReporter.log(error: error)
+                await self.coordinator.showErrorAlert(error: error)
+            }
+        })
+    }
+
     /// Check if there are any pending login requests for the user to deal with.
     private func checkPendingLoginRequests() async {
         do {
@@ -342,6 +361,8 @@ extension VaultListProcessor {
                 // will be published by the database, so it needs to be manually updated.
                 state.loadingState = .data([])
             }
+
+            await checkIfForceKdfUpdateRequired()
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {

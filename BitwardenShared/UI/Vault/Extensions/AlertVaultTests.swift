@@ -323,4 +323,27 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.okGotIt)
         XCTAssertEqual(subject.alertActions.first?.style, .default)
     }
+
+    /// `updateEncryptionSettings(_:)` constructs an `Alert` notifying the user to update their
+    /// encryption settings.
+    @MainActor
+    func test_updateEncryptionSettings() async throws {
+        var enteredPassword: String?
+        let subject = Alert.updateEncryptionSettings { enteredPassword = $0 }
+
+        XCTAssertEqual(subject.title, Localizations.updateYourEncryptionSettings)
+        XCTAssertEqual(subject.message, Localizations.theNewRecommendedEncryptionSettingsDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.submit)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+
+        try await subject.tapCancel()
+        XCTAssertNil(enteredPassword)
+
+        try subject.setText("password123!", forTextFieldWithId: "password")
+        try await subject.tapAction(title: Localizations.submit)
+        XCTAssertEqual(enteredPassword, "password123!")
+    }
 }
