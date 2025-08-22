@@ -1278,3 +1278,7 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";
