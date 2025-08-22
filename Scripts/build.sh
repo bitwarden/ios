@@ -61,7 +61,7 @@ case "$MODE" in
     xcrun xcodebuild \
       -workspace Bitwarden.xcworkspace \
       -scheme "${BUILD_SCHEME}" \
-      -configuration Debug \
+      -configuration Debug SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) DISABLE_ASSERTION_FAILURE_ON_ERROR"\
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
       | xcbeautify --renderer github-actions
