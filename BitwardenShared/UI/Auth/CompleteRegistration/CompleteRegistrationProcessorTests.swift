@@ -207,7 +207,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await subject.perform(.completeRegistration)
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
@@ -538,7 +537,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
@@ -602,7 +600,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertTrue(authService.loginWithMasterPasswordIsNewAccount)
 

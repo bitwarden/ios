@@ -14,6 +14,9 @@ options:
   usesTabs: false
   indentWidth: 4
   tabWidth: 4
+  fileTypes:
+    "icon":
+      file: true 
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
@@ -24,7 +27,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 30923db8cfe7e6dcad987fd7b13a437f040830af
+    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk

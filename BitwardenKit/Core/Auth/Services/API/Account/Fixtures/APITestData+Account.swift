@@ -54,12 +54,6 @@ public extension APITestData {
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 
-    /// Test data with a CAPTCHA validation error.
-    static let registerFinishCaptchaFailure = loadFromJsonBundle(
-        resource: "RegisterFinishCaptchaFailure",
-        bundle: BitwardenKitMocksBundleFinder.bundle
-    )
-
     /// Test data with a validation error of
     /// "The field MasterPasswordHint must be a string with a maximum length of 50."
     static let registerFinishHintTooLong = loadFromJsonBundle(
