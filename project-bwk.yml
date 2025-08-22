@@ -14,7 +14,7 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2024.6.0 # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 include:
   - path: Configs/local-sdk.yml
@@ -23,7 +23,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
+    revision: 2a6609428275c758fcda5383bfb6b3166ec29eda
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -256,4 +256,3 @@ targets:
     dependencies:
       - target: Networking
       - package: SnapshotTesting
-

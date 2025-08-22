@@ -15,7 +15,7 @@ options:
   tabWidth: 4
   fileTypes:
     "icon":
-      file: true 
+      file: true
 settings:
   MARKETING_VERSION: 2024.6.1
   CURRENT_PROJECT_VERSION: 1
@@ -26,7 +26,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
+    revision: 2a6609428275c758fcda5383bfb6b3166ec29eda
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -160,7 +160,6 @@ targets:
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   AuthenticatorShared:
     type: framework
     platform: iOS

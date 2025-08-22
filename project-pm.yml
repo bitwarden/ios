@@ -16,9 +16,9 @@ options:
   tabWidth: 4
   fileTypes:
     "icon":
-      file: true 
+      file: true
 settings:
-  MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2024.6.0 # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 include:
   - path: Configs/local-sdk.yml
@@ -27,7 +27,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
+    revision: 2a6609428275c758fcda5383bfb6b3166ec29eda
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -167,7 +167,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
-      - path: BitwardenResources/Localizations  # Needed for AppIntent.
+      - path: BitwardenResources/Localizations # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -226,7 +226,6 @@ targets:
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   BitwardenActionExtension:
     type: app-extension
     platform: iOS
@@ -263,7 +262,6 @@ targets:
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   BitwardenAutoFillExtension:
     type: app-extension
     platform: iOS
@@ -300,7 +298,6 @@ targets:
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   BitwardenShareExtension:
     type: app-extension
     platform: iOS
@@ -337,7 +334,6 @@ targets:
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   BitwardenShared:
     type: framework
     platform: iOS
@@ -347,7 +343,7 @@ targets:
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
-        DEVELOPMENT_ASSET_PATHS: 
+        DEVELOPMENT_ASSET_PATHS:
           - BitwardenShared/UI/Auth/PreviewContent
           - BitwardenShared/UI/Platform/PreviewContent
           - BitwardenShared/UI/Tools/PreviewContent
@@ -429,7 +425,6 @@ targets:
         product: InlineSnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
-
   BitwardenWatchApp:
     type: application
     platform: watchOS
@@ -448,7 +443,6 @@ targets:
       - target: BitwardenWatchWidgetExtension
       - package: Firebase
         product: FirebaseCrashlytics
-
   BitwardenWatchWidgetExtension:
     type: app-extension
     platform: watchOS
