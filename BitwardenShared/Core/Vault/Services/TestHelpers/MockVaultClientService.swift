@@ -179,8 +179,15 @@ class MockClientCiphers: CiphersClientProtocol {
 class MockClientCollections: CollectionsClientProtocol {
     var decryptListError: Error?
 
-    func decrypt(collection _: Collection) throws -> CollectionView {
-        fatalError("Not implemented yet")
+    var decryptResult: (Collection) throws -> CollectionView = { collection in
+        CollectionView(collection: collection)
+    }
+
+    var getCollectionTreeReceivedCollection = [BitwardenSdk.CollectionView]()
+    var getCollectionTreeReturnValue: BitwardenSdk.CollectionViewTree?
+
+    func decrypt(collection: Collection) throws -> CollectionView {
+        try decryptResult(collection)
     }
 
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
@@ -188,6 +195,11 @@ class MockClientCollections: CollectionsClientProtocol {
             throw decryptListError
         }
         return collections.map(CollectionView.init)
+    }
+
+    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
+        getCollectionTreeReceivedCollection = collections
+        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noPointer: .init())
     }
 }
 

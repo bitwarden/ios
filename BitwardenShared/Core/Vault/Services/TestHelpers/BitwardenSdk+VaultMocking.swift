@@ -185,7 +185,8 @@ extension CollectionView {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             readOnly: collection.readOnly,
-            manage: collection.manage
+            manage: collection.manage,
+            type: collection.type
         )
     }
 }

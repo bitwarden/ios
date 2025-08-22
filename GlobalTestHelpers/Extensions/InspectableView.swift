@@ -22,7 +22,7 @@ struct AsyncButtonType: BaseViewType {
     static var typePrefix: String = "AsyncButton"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.AsyncButton",
+        "BitwardenKit.AsyncButton",
     ]
 }
 

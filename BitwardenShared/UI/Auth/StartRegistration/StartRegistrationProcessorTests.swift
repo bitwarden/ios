@@ -14,7 +14,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
-    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var authClient: MockAuthClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -29,7 +28,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
-        captchaService = MockCaptchaService()
         client = MockHTTPClient()
         authClient = MockAuthClient()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
@@ -43,7 +41,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                captchaService: captchaService,
                 clientService: MockClientService(auth: authClient),
                 environmentService: environmentService,
                 errorReporter: errorReporter,
@@ -57,7 +54,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     override func tearDown() {
         super.tearDown()
         authRepository = nil
-        captchaService = nil
         authClient = nil
         client = nil
         coordinator = nil

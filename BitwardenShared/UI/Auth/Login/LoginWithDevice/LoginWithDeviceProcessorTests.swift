@@ -104,24 +104,6 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.titleText, Localizations.logInInitiated)
     }
 
-    /// `captchaErrored(error:)` records an error.
-    @MainActor
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.errorAlertsShown.isEmpty)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    @MainActor
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
-
     /// `checkForResponse()`stops the request timer if the request has been denied.
     @MainActor
     func test_checkForResponse_denied() throws {
@@ -183,7 +165,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
         )
 
         let task = Task {
