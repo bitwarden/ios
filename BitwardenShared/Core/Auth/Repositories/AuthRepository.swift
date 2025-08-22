@@ -420,6 +420,9 @@ class DefaultAuthRepository {
     /// The service to use system Biometrics for vault unlock.
     let biometricsRepository: BiometricsRepository
 
+    /// The service used to change the user's KDF settings.
+    private let changeKdfService: ChangeKdfService
+
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
@@ -468,6 +471,7 @@ class DefaultAuthRepository {
     ///   - appContextHelper: The helper to know about the app context.
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
+    ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -488,6 +492,7 @@ class DefaultAuthRepository {
         appContextHelper: AppContextHelper,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
+        changeKdfService: ChangeKdfService,
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -506,6 +511,7 @@ class DefaultAuthRepository {
         self.appContextHelper = appContextHelper
         self.authService = authService
         self.biometricsRepository = biometricsRepository
+        self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
@@ -1113,6 +1119,7 @@ extension DefaultAuthRepository: AuthRepository {
                 purpose: .localAuthorization
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
+            try await changeKdfService.updateKdfToMinimumsIfNeeded(password: password)
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
