@@ -64,6 +64,11 @@ extension CardItemState: ViewCardItemState {
         return brand.localizedName
     }
 
+    /// The formatted card number with spaces every 4 digits.
+    var formattedCardNumber: String {
+        cardNumber.formattedCreditCardNumber()
+    }
+
     /// The card's formatted expiration string.
     var expirationString: String {
         var strings = [String]()
