@@ -140,6 +140,7 @@ struct SettingsView: View {
             .padding(.bottom, 32)
 
             SectionView(Localizations.appearance) {
+                language
                 theme
             }
             .padding(.bottom, 32)
