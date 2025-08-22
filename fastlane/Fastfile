@@ -259,7 +259,9 @@ platform :ios do |options|
       end
 
       if compiler_flags.include?("SUPPORTS_CXP")
-        sh("./Scripts/alpha_update_cxp_infoplist.sh")
+        Dir.chdir("..") do
+          sh("./Scripts/alpha_update_cxp_infoplist.sh")
+        end
       end
 
       UI.success("Successfully created config files for #{bundle_id}")
