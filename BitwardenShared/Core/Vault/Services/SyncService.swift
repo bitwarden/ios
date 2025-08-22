@@ -137,6 +137,9 @@ class DefaultSyncService: SyncService {
     /// The service for managing the folders for the user.
     private let folderService: FolderService
 
+    /// The repository used to manages keychain items.
+    private let keychainRepository: KeychainRepository
+
     /// The service used by the application to manage Key Connector.
     private let keyConnectorService: KeyConnectorService
 
@@ -177,6 +180,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
+    ///   - keychainRepository: The repository used to manages keychain items..
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyService: The service for managing the polices for the user.
@@ -193,6 +197,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         folderService: FolderService,
+        keychainRepository: KeychainRepository,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
         policyService: PolicyService,
@@ -208,6 +213,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.folderService = folderService
+        self.keychainRepository = keychainRepository
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
         self.policyService = policyService
@@ -313,8 +319,7 @@ extension DefaultSyncService {
         }
 
         if let profile = response.profile {
-            await stateService.updateProfile(from: profile, userId: userId)
-            try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+            try await onProfileSynced(profile, userId: userId)
         }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
@@ -483,6 +488,30 @@ extension DefaultSyncService {
            account.profile.userDecryptionOptions?.trustedDeviceOption != nil,
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
+        }
+    }
+
+    /// Updates the necessary state when an account profile is synced.
+    /// - Parameters:
+    ///   - profile: Profile synced.
+    ///   - userId: The user ID used for the sync.
+    private func onProfileSynced(_ profile: ProfileResponseModel, userId: String) async throws {
+        await stateService.updateProfile(from: profile, userId: userId)
+        try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+
+        if let accountKeys = profile.accountKeys, let signatureKeyPair = accountKeys.signatureKeyPair {
+            // User is V2 user
+            try await keychainRepository.setUserSigningKey(
+                signatureKeyPair.wrappedSigningKey,
+                userId: profile.id
+            )
+
+            if let securityState = accountKeys.securityState?.securityState {
+                try await keychainRepository.setAccountSecurityState(
+                    securityState,
+                    userId: profile.id
+                )
+            }
         }
     }
 } // swiftlint:disable:this file_length

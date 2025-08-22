@@ -8,6 +8,9 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
 
     // MARK: Account Properties
 
+    /// The user's account keys.
+    let accountKeys: PrivateKeysResponseModel? // TODO: PM-24659 Make it non-optional when server released for a while.
+
     /// Whether the app needs to force a password reset.
     @DefaultFalse var forcePasswordReset: Bool
 

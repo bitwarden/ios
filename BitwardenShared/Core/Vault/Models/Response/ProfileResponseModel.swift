@@ -5,6 +5,9 @@ import Foundation
 struct ProfileResponseModel: Codable, Equatable {
     // MARK: Properties
 
+    /// The user's account keys.
+    let accountKeys: PrivateKeysResponseModel? // TODO: PM-24659 Make it non-optional when server released for a while.
+
     /// The user's avatar color.
     let avatarColor: String?
 
@@ -45,6 +48,7 @@ struct ProfileResponseModel: Codable, Equatable {
     @DefaultFalse var premiumFromOrganization: Bool
 
     /// The user's private key.
+    @available(*, deprecated, message: "Use accountKeys instead when possible") // TODO: PM-24659 remove
     let privateKey: String?
 
     /// The user's security stamp.

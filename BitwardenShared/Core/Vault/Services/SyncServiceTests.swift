@@ -16,6 +16,7 @@ class SyncServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var folderService: MockFolderService!
+    var keychainRepository: MockKeychainRepository!
     var keyConnectorService: MockKeyConnectorService!
     var organizationService: MockOrganizationService!
     var policyService: MockPolicyService!
@@ -37,6 +38,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         collectionService = MockCollectionService()
         folderService = MockFolderService()
+        keychainRepository = MockKeychainRepository()
         keyConnectorService = MockKeyConnectorService()
         organizationService = MockOrganizationService()
         policyService = MockPolicyService()
@@ -61,6 +63,7 @@ class SyncServiceTests: BitwardenTestCase {
             clientService: clientService,
             collectionService: collectionService,
             folderService: folderService,
+            keychainRepository: keychainRepository,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
             policyService: policyService,
@@ -82,6 +85,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = nil
         collectionService = nil
         folderService = nil
+        keychainRepository = nil
         keyConnectorService = nil
         organizationService = nil
         policyService = nil
