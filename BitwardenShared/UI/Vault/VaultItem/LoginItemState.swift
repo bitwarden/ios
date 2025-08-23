@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -56,7 +57,7 @@ struct LoginItemState: Equatable {
 
     /// The options for URI match types ordered based on menu display.
     var uriMatchTypeOptions: [DefaultableType<UriMatchType>] {
-        return [
+        [
             DefaultableType<UriMatchType>.default,
             DefaultableType<UriMatchType>.custom(UriMatchType.domain),
             DefaultableType<UriMatchType>.custom(UriMatchType.host),
@@ -69,13 +70,18 @@ struct LoginItemState: Equatable {
 
     /// The option label for the default uri match type.
     var defaultUriMatchTypeOptionLabel: String {
-        /// TODO REMOVE THE (advanced) text from the regex and start with entries
-        var defaultUriMatchTypeLocalizedName = DefaultableType<UriMatchType>.default.localizedName
-        if let defaultUriMatchTypeSettingsValue {
-            defaultUriMatchTypeLocalizedName = 
-                "\(defaultUriMatchTypeLocalizedName) (\(defaultUriMatchTypeSettingsValue.localizedName))"
+        guard let defaultUriMatchTypeSettingsValue else {
+            return DefaultableType<UriMatchType>.default.localizedName
         }
-        return defaultUriMatchTypeLocalizedName
+
+        let defaultName = DefaultableType<UriMatchType>.default.localizedName
+        let suffix = switch defaultUriMatchTypeSettingsValue {
+        case .regularExpression: Localizations.regEx
+        case .startsWith: Localizations.startsWith
+        default: defaultUriMatchTypeSettingsValue.localizedName
+        }
+
+        return "\(defaultName) (\(suffix))"
     }
 
     /// The username for this item.

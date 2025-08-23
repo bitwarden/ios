@@ -206,7 +206,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
-        self.footerWarning = nil
+        footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -266,7 +266,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
-        self.footerWarning = nil
+        footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -295,7 +295,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
-        self.footerWarning = nil
+        footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -324,7 +324,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
-        self.footerWarning = nil
+        footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
@@ -354,7 +354,7 @@ struct BitwardenMenuField<
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
         self.footer = footer
-        self.footerWarning = nil
+        footerWarning = nil
         self.options = options
         _selection = selection
         self.title = title
