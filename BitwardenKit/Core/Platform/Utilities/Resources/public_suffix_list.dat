@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2025-08-14_17-28-12_UTC
-// COMMIT: 2dbbb64390b7087a66e3d126032ab1a2951f35dc
+// VERSION: 2025-08-23_14-28-07_UTC
+// COMMIT: 2b05f1fef3b52831d70b40a05da2614a031557ea
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -239,7 +239,7 @@ or.at
 
 // au : https://www.iana.org/domains/root/db/au.html
 // https://www.auda.org.au/
-// Confirmed by registry <general@auda.org.au> 2024-11-17
+// Confirmed by registry <general@auda.org.au> 2025-07-16
 au
 // 2LDs
 asn.au
@@ -282,7 +282,7 @@ vic.gov.au
 wa.gov.au
 // 4LDs
 // education.tas.edu.au - Removed at the request of the Department of Education Tasmania
-schools.nsw.edu.au
+// schools.nsw.edu.au - Removed at the request of the New South Wales Department of Education.
 
 // aw : https://www.iana.org/domains/root/db/aw.html
 aw
@@ -6794,7 +6794,7 @@ org.zw
 
 // newGTLDs
 
-// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-07-16T15:22:08Z
+// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-08-19T15:20:18Z
 // This list is auto-generated, don't edit it manually.
 // aaa : American Automobile Association, Inc.
 // https://www.iana.org/domains/root/db/aaa.html
@@ -9404,7 +9404,7 @@ nowruz
 // https://www.iana.org/domains/root/db/nowtv.html
 nowtv
 
-// nra : NRA Holdings Company, INC.
+// nra : National Rifle Association of America
 // https://www.iana.org/domains/root/db/nra.html
 nra
 
@@ -11274,7 +11274,7 @@ cc.ua
 inf.ua
 ltd.ua
 
-// 611 blockchain domain name system : https://611project.net/
+// 611 blockchain domain name system : https://sixone.one/
 611.to
 
 // A2 Hosting
@@ -13580,10 +13580,6 @@ gitlab.io
 gitapp.si
 gitpage.si
 
-// Glitch, Inc : https://glitch.com
-// Submitted by Mads Hartmann <mads@glitch.com>
-glitch.me
-
 // Global NOG Alliance : https://nogalliance.org/
 // Submitted by Sander Steffann <sander@nogalliance.org>
 nog.community
@@ -14433,6 +14429,11 @@ routingthecloud.com
 sn.mynetname.net
 routingthecloud.net
 routingthecloud.org
+
+// Million Software, Inc : https://million.dev/
+// Submitted by Rayhan Noufal Arayilakath <security@million.dev>
+same-app.com
+same-preview.com
 
 // minion.systems : http://minion.systems
 // Submitted by Robert Böttinger <r@minion.systems>
@@ -15858,6 +15859,8 @@ wmflabs.org
 // William Harrison : https://wharrison.com.au
 // Submitted by William Harrison <security@wharrison.com.au>
 wdh.app
+hrsn.au
+vps.hrsn.au
 hrsn.dev
 
 // Windsurf : https://windsurf.com
@@ -15924,6 +15927,7 @@ xs4all.space
 yandexcloud.net
 storage.yandexcloud.net
 website.yandexcloud.net
+sourcecraft.site
 
 // YesCourse Pty Ltd : https://yescourse.com
 // Submitted by Atul Bhouraskar <atul@yescourse.com>
