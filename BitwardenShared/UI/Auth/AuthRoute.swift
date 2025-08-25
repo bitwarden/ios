@@ -8,9 +8,6 @@ public enum AuthRoute: Equatable {
     /// A route to the autofill setup screen.
     case autofillSetup
 
-    /// A route to the captcha screen.
-    case captcha(url: URL, callbackUrlScheme: String)
-
     /// A route to show the check email screen.
     case checkEmail(email: String)
 
@@ -36,7 +33,7 @@ public enum AuthRoute: Equatable {
         fromEmail: Bool
     )
 
-    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
     /// Dismisses the auth flow.

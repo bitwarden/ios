@@ -86,7 +86,7 @@ platform :ios do |options|
         build_scheme = ENV["_BUILD_SCHEME"]
         ext = ARTIFACT_EXTENSION[build_mode]
         app_config = lane_context[:APP_CONFIG]
-        UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+        UI.message "artifact_filename: #{bundle_id}-#{version_name}-#{version_number}-#{xcode_version}.#{ext}"
         UI.message "export_filepath: #{export_path}/#{build_scheme}.#{ext}"
     end
 
@@ -259,7 +259,9 @@ platform :ios do |options|
       end
 
       if compiler_flags.include?("SUPPORTS_CXP")
-        sh("./Scripts/alpha_update_cxp_infoplist.sh")
+        Dir.chdir("..") do
+          sh("./Scripts/alpha_update_cxp_infoplist.sh")
+        end
       end
 
       UI.success("Successfully created config files for #{bundle_id}")
@@ -440,7 +442,7 @@ platform :ios do |options|
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
 
-    if options[:packageName] == "com.bitwarden.authenticator"
+    if options[:app_identifier] == "com.bitwarden.authenticator"
       locales = auth_locales
     else
       locales = pw_manager_locales
@@ -470,7 +472,8 @@ platform :ios do |options|
       submit_for_review: options[:submit_release],
       skip_binary_upload: true,
       skip_screenshots: true,
-      automatic_release: options[:submit_release],
+      automatic_release: true,
+      phased_release: options[:phased_release],
       api_key_path: options[:api_key_path],
       run_precheck_before_submit: false,
       metadata_path: options[:metadata_path],

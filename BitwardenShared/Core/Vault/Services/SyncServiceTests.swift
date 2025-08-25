@@ -443,9 +443,66 @@ class SyncServiceTests: BitwardenTestCase {
                     name: "Design",
                     organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
                 ),
+                CollectionDetailsResponseModel.fixture(
+                    id: "bf4df591-e8e4-4dc1-837c-40ced4405bf5",
+                    name: "Design",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                    defaultUserCollectionEmail: nil,
+                    type: CollectionType.sharedCollection
+                ),
             ]
         )
         XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
+    }
+
+    /// `fetchSync()` check if absent optional properties are initialized correctly.
+    func test_fetcSync_collections_optionalPropertiesAbsent() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        let parsedCollection = try XCTUnwrap(
+            collectionService.replaceCollectionsCollections?.first(
+                where: { $0.id == "a468e453-7141-49cf-bb15-58448c2b27b9" }
+            )
+        )
+
+        XCTAssertEqual(
+            parsedCollection,
+            CollectionDetailsResponseModel.fixture(
+                id: "a468e453-7141-49cf-bb15-58448c2b27b9",
+                name: "Design",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                defaultUserCollectionEmail: nil,
+                type: CollectionType.sharedCollection
+            )
+        )
+    }
+
+    /// `fetchSync()` check if optional properties are initialized correctly.
+    func test_fetcSync_collections_optionalPropertiesPresent() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        let parsedCollection = try XCTUnwrap(
+            collectionService.replaceCollectionsCollections?.first(
+                where: { $0.id == "bf4df591-e8e4-4dc1-837c-40ced4405bf5" }
+            )
+        )
+
+        XCTAssertEqual(
+            parsedCollection,
+            CollectionDetailsResponseModel.fixture(
+                id: "bf4df591-e8e4-4dc1-837c-40ced4405bf5",
+                name: "Design",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                defaultUserCollectionEmail: nil,
+                type: CollectionType.sharedCollection
+            )
+        )
     }
 
     /// `fetchSync()` updates the user's profile.

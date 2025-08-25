@@ -183,8 +183,7 @@ public class AppProcessor {
         )
 
         await services.migrationService.performMigrations()
-        await services.environmentService.loadURLsForActiveAccount()
-        _ = await services.configService.getConfig()
+        await prepareEnvironmentConfig()
         await completeAutofillAccountSetupIfEnabled()
 
         if let initialRoute {
@@ -235,12 +234,19 @@ public class AppProcessor {
 
     /// Handles importing credentials using Credential Exchange Protocol.
     /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
-    @available(iOSApplicationExtension 18.2, *)
+    @available(iOSApplicationExtension 26.0, *)
     public func handleImportCredentials(credentialImportToken: UUID) async {
         let route = AppRoute.tab(.vault(.importCXF(
             .importCredentials(credentialImportToken: credentialImportToken)
         )))
         await checkIfLockedAndPerformNavigation(route: route)
+    }
+
+    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// and getting the current server config.
+    public func prepareEnvironmentConfig() async {
+        await services.environmentService.loadURLsForActiveAccount()
+        _ = await services.configService.getConfig()
     }
 
     // MARK: Autofill Methods

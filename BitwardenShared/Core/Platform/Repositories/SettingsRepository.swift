@@ -44,7 +44,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Gets the default URI match type setting for the current user.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType
+    func getDefaultUriMatchType() async -> UriMatchType
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
@@ -206,8 +206,8 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getConnectToWatch()
     }
 
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await stateService.getDefaultUriMatchType()
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await stateService.getDefaultUriMatchType()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

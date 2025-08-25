@@ -9,6 +9,8 @@ import XCTest
 class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherMatchingHelper: MockCipherMatchingHelper!
+    var cipherMatchingHelperFactory: MockCipherMatchingHelperFactory!
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -25,6 +27,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     override func setUp() {
         super.setUp()
 
+        cipherMatchingHelper = MockCipherMatchingHelper()
+        cipherMatchingHelperFactory = MockCipherMatchingHelperFactory()
+        cipherMatchingHelperFactory.makeReturnValue = cipherMatchingHelper
+
         ciphersClientWrapperService = MockCiphersClientWrapperService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -40,6 +46,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         vaultListPreparedDataBuilderFactory.makeReturnValue = vaultListPreparedDataBuilder
 
         subject = DefaultVaultListDataPreparator(
+            cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             ciphersClientWrapperService: ciphersClientWrapperService,
             clientService: clientService,
             configService: configService,
@@ -53,6 +60,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     override func tearDown() {
         super.tearDown()
 
+        cipherMatchingHelper = nil
+        cipherMatchingHelperFactory = nil
         ciphersClientWrapperService = nil
         clientService = nil
         configService = nil
@@ -329,6 +338,25 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
+    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data filtering out cipher
+    /// when deleted date is set and vault filter is not trash.
+    @MainActor
+    func test_prepareGroupData_cipherDeleteDateSet_vaultNotTrash() async throws {
+        let result = try await subject.prepareGroupData(
+            from: [.fixture(deletedDate: .now)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
+        )
+
+        // should not call incrementCollectionCount and addItemForGroup
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
     /// adding folder items when filtering by folder.
     func test_prepareGroupData_folder() async throws {
@@ -431,6 +459,106 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillPasswordsData(from::filter:)` returns `nil` when no ciphers passed.
+    func test_prepareAutofillPasswordsData_noCiphers() async throws {
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [],
+            filter: VaultListFilter()
+        )
+        XCTAssertNil(result)
+    }
+
+    /// `prepareAutofillPasswordsData(from::filter:)` returns `nil` when filter passed doesn't
+    /// have the URI to filter.
+    func test_prepareAutofillPasswordsData_noLoginUris() async throws {
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [.fixture()],
+            filter: VaultListFilter()
+        )
+        XCTAssertNil(result)
+    }
+
+    /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data without filtering out cipher.
+    func test_prepareAutofillPasswordsData_returnsPreparedDataNoFilteringOutCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture()
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)]
+                    ),
+                    type: .login
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com")
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "addItemWithMatchResultCipher",
+        ])
+        XCTAssertNotNil(result)
+        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedCipher?.id, "1")
+    }
+
+    /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass
+    /// restrict item type policy..
+    @MainActor
+    func test_prepareAutofillPasswordsData_doesNotPassRestrictItemPolicy() async throws {
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            organizationId: "1",
+            type: .card(.fixture())
+        )
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(organizationId: "1"),
+        ]
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [
+                .fixture(
+                    type: .card
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com")
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+    }
+
+    /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it's deleted.
+    @MainActor
+    func test_prepareAutofillPasswordsData_deletedCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            deletedDate: .now
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillPasswordsData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)]
+                    )
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com")
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+        ])
+        XCTAssertNotNil(result)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
     }
 
     // MARK: Private

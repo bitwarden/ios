@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -14,7 +15,15 @@ extension View {
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
     func cancelToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        toolbarButton(Localizations.cancel, action: action)
+        #if compiler(>=6.2)
+        if #available(iOS 26, *) {
+            return Button(role: .cancel, action: action)
+                .hidden(hidden)
+                .accessibilityIdentifier("CancelButton")
+                .accessibilityLabel(Localizations.cancel)
+        }
+        #endif
+        return toolbarButton(Localizations.cancel, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
     }
@@ -25,7 +34,14 @@ extension View {
     /// - Returns: A `Button` configured for closing a view.
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
-        toolbarButton(Localizations.close, action: action)
+        #if compiler(>=6.2)
+        if #available(iOS 26, *) {
+            return Button(role: .close, action: action)
+                .accessibilityIdentifier("CloseButton")
+                .accessibilityLabel(Localizations.close)
+        }
+        #endif
+        return toolbarButton(Localizations.close, action: action)
             .accessibilityIdentifier("CloseButton")
     }
 
@@ -83,7 +99,18 @@ extension View {
     /// - Returns: A `Button` configured for saving an item.
     ///
     func saveToolbarButton(action: @escaping () async -> Void) -> some View {
-        toolbarButton(Localizations.save, action: action)
+        #if compiler(>=6.2)
+        if #available(iOS 26, *) {
+            return Button(role: .confirm) {
+                Task {
+                    await action()
+                }
+            }
+            .accessibilityIdentifier("SaveButton")
+            .accessibilityLabel(Localizations.save)
+        }
+        #endif
+        return toolbarButton(Localizations.save, action: action)
             .accessibilityIdentifier("SaveButton")
     }
 
@@ -121,6 +148,7 @@ extension View {
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
             .frame(minHeight: 44)
+            .fixedSize()
     }
 
     /// Returns a `Button` that displays a text label for use in a toolbar.
@@ -137,6 +165,7 @@ extension View {
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
             .frame(minHeight: 44)
+            .fixedSize()
     }
 
     // MARK: Menus
@@ -244,6 +273,33 @@ extension View {
             }
         }
     }
+
+    /// A `ToolbarItemGroup` consisting of two items, alfa and bravo, that change position depending on
+    /// the version of iOS being used.
+    ///
+    /// On iOS versions before 26, the order is alfa - bravo.
+    ///
+    /// On iOS versions from 26 on, the order is bravo - alfa.
+    ///
+    /// - Parameters:
+    ///   - placement: The toolbar item placement for the `ToolbarItemGroup`
+    ///   - alfa: The item that goes on the left before iOS 26
+    ///   - bravo: The item that goes on the left from iOS 26 onward
+    func versionDependentOrderingToolbarItemGroup(
+        placement: ToolbarItemPlacement = .topBarTrailing,
+        @ViewBuilder alfa: () -> some View,
+        @ViewBuilder bravo: () -> some View
+    ) -> some ToolbarContent {
+        ToolbarItemGroup(placement: placement) {
+            if #unavailable(iOS 26) {
+                bravo()
+            }
+            alfa()
+            if #available(iOS 26, *) {
+                bravo()
+            }
+        }
+    }
 }
 
 // MARK: Private
@@ -255,8 +311,11 @@ extension View {
     /// though the navigation bar was displayed inline, there was still extra padding in the
     /// navigation bar where the centered title would be displayed below the tab bar.
     ///
+    /// As well, because iOS 26 (with Liquid Glass) changes how toolbar items are displayed, we
+    /// should revert to native behavior, and only have the title centered.
     private var shouldHideLargeNavigationToolbarItem: Bool {
         guard #available(iOS 18, *) else { return false }
+        guard #unavailable(iOS 26) else { return true }
         return UIDevice.current.userInterfaceIdiom == .pad
     }
 }

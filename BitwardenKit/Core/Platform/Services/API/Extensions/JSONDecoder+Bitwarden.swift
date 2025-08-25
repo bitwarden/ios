@@ -59,8 +59,7 @@ public extension JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .custom { keys in
             let key = keys.last!.stringValue
-            let camelCaseKey = keyToCamelCase(key: key)
-            return AnyKey(stringValue: customTransformCodingKeyForCXF(key: camelCaseKey))
+            return AnyKey(stringValue: keyToCamelCase(key: key))
         }
         decoder.dateDecodingStrategy = .secondsSince1970
         return decoder
@@ -81,24 +80,5 @@ public extension JSONDecoder {
 
         // Handle PascalCase or camelCase.
         return key.prefix(1).lowercased() + key.dropFirst()
-    }
-
-    // MARK: Private Static Functions
-
-    /// Transforms the keys from Credential Exchange format handled by the Bitwarden SDK
-    /// into the keys that Apple expects.
-    private static func customTransformCodingKeyForCXF(key: String) -> String {
-        guard #available(iOS 18.3, *) else {
-            return switch key {
-            case "credentialId":
-                "credentialID"
-            case "rpId":
-                "rpID"
-            default:
-                key
-            }
-        }
-
-        return key
     }
 }

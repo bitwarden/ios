@@ -4,6 +4,10 @@ extension MockVaultListSectionsBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
         let helper = MockCallOrderHelper()
 
+        addAutofillPasswordsSectionClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addAutofillPasswordsSection")
+            return self
+        }
         addCipherDecryptionFailureIdsClosure = { () -> VaultListSectionsBuilder in
             helper.recordCall("addCipherDecryptionFailureIds")
             return self

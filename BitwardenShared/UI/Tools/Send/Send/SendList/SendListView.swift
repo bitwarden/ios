@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
@@ -103,6 +104,16 @@ private struct MainSendListView: View {
                             }
                         } label: {
                             newSendLabel
+                        }
+                        .apply { view in
+                            if #available(iOS 17, *) {
+                                // Handled by the `buttonStyle(_:)` applied to the `Group`.
+                                view
+                            } else {
+                                // Prior to iOS 17, applying a custom button style to a Menu
+                                // component has no effect, so a custom menu style is needed instead.
+                                view.menuStyle(.primary(shouldFillWidth: false))
+                            }
                         }
                     }
                 }

@@ -1,5 +1,4 @@
 {
     "name": "name",
-    "email": "example@email.com",
-    "captchaResponse": "captchaResponse"
+    "email": "example@email.com"
 }

@@ -51,7 +51,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthService
         & HasAutofillCredentialService
         & HasBiometricsRepository
-        & HasCaptchaService
         & HasClientService
         & HasConfigService
         & HasDeviceAPIService
@@ -136,12 +135,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         switch route {
         case .autofillSetup:
             showAutoFillSetup()
-        case let .captcha(url, callbackUrlScheme):
-            showCaptcha(
-                url: url,
-                callbackUrlScheme: callbackUrlScheme,
-                delegate: context as? CaptchaFlowDelegate
-            )
         case let .checkEmail(email):
             showCheckEmail(email)
         case .complete,
@@ -312,39 +305,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         coordinator.start()
         coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
-    }
-
-    /// Shows the captcha screen.
-    ///
-    /// - Parameters:
-    ///   - url: The URL for the captcha screen.
-    ///   - callbackUrlScheme: The callback url scheme for this application.
-    ///   - delegate: A `CaptchaFlowDelegate` object that is notified when the captcha flow succeeds or fails.
-    ///
-    private func showCaptcha(
-        url: URL,
-        callbackUrlScheme: String,
-        delegate: CaptchaFlowDelegate?
-    ) {
-        let session = ASWebAuthenticationSession(
-            url: url,
-            callbackURLScheme: callbackUrlScheme
-        ) { url, error in
-            if let url,
-               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               let queryItem = components.queryItems?.first(where: { $0.name == "token" }),
-               let token = queryItem.value {
-                delegate?.captchaCompleted(token: token)
-            } else if let error {
-                delegate?.captchaErrored(error: error)
-            }
-        }
-
-        // prefersEphemeralWebBrowserSession should be false to allow access to the hCaptcha accessibility
-        // cookie set in the default browser: https://www.hcaptcha.com/accessibility
-        session.prefersEphemeralWebBrowserSession = false
-        session.presentationContextProvider = self
-        session.start()
     }
 
     /// Shows the check email screen.

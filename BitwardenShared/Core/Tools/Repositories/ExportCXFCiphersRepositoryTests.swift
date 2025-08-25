@@ -77,8 +77,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `exportCredentials(data:presentationAnchor:)` exports the credential data.
     @MainActor
     func test_exportCredentials() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Exporting ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Exporting ciphers requires iOS 26.0")
         }
         let exportManager = MockCredentialExportManager()
         credentialManagerFactory.exportManager = exportManager
@@ -90,8 +90,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `exportCredentials(data:presentationAnchor:)` throws when exporting.
     @MainActor
     func test_exportCredentials_throws() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("Exporting ciphers requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Exporting ciphers requires iOS 26.0")
         }
         let exportManager = MockCredentialExportManager()
         exportManager.exportCredentialsError = BitwardenTestError.example
@@ -131,8 +131,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `getExportVaultDataForCXF()` gets the vault data prepared for export on CXF.
     @MainActor
     func test_getExportVaultDataForCXF() async throws { // swiftlint:disable:this function_body_length
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
         cipherService.fetchAllCiphersResult = .success([
             .fixture(id: "1"),
@@ -192,8 +192,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `getExportVaultDataForCXF()` throws when getting all ciphers to export.
     @MainActor
     func test_getExportVaultDataForCXF_throwsGettingCiphers() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
 
@@ -205,8 +205,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `getExportVaultDataForCXF()` throws when getting account.
     @MainActor
     func test_getExportVaultDataForCXF_throwsAccount() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
         cipherService.fetchAllCiphersResult = .success([
             .fixture(id: "1"),
@@ -221,8 +221,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     /// `getExportVaultDataForCXF()` throws when exporting using the SDK.
     @MainActor
     func test_getExportVaultDataForCXF_throwsExporting() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
         cipherService.fetchAllCiphersResult = .success([
             .fixture(id: "1"),

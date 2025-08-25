@@ -95,7 +95,7 @@
 "AutofillAccessibilityDescription" = "Utilize o serviço de acessibilidade Bitwarden para preencher automaticamente as suas credenciais entre as aplicações e a web.";
 "AutofillService" = "Serviço de preenchimento automático";
 "SetBitwardenAsPasskeyManagerDescription" = "Defina o Bitwarden como o seu fornecedor de chaves de acesso nas definições do dispositivo.";
-"AvoidAmbiguousCharacters" = "Evitar carateres ambíguos";
+"AvoidAmbiguousCharacters" = "Evitar caracteres ambíguos";
 "BitwardenAppExtension" = "Extensão da app Bitwarden";
 "BitwardenAppExtensionAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é a partir da extensão da aplicação Bitwarden. Saiba mais sobre a utilização da extensão da app Bitwarden ao navegar até ao ecrã \"Definições\".";
 "BitwardenAppExtensionDescription" = "Utilize o Bitwarden no Safari e noutras aplicações para preencher automaticamente as suas credenciais.";
@@ -146,9 +146,9 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A palavra-passe mestra é a palavra-passe que utiliza para aceder ao seu cofre.";
 "MasterPasswordHint" = "Dica da palavra-passe mestra";
 "NewMasterPasswordHint" = "Nova dica da palavra-passe mestra";
-"MasterPasswordLengthValMessageX" = "A palavra-passe mestra deve ter pelo menos %1$@ carateres.";
+"MasterPasswordLengthValMessageX" = "A palavra-passe mestra deve ter pelo menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de números";
-"MinSpecial" = "Mínimo de carateres especiais";
+"MinSpecial" = "Mínimo de caracteres especiais";
 "MoreSettings" = "Mais definições";
 "MustLogInMainApp" = "Tem de iniciar sessão na app Bitwarden principal antes de poder utilizar a extensão.";
 "Never" = "Nunca";
@@ -210,7 +210,7 @@
 "Status" = "Estado";
 "BitwardenAutofillServiceAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é a partir do Serviço de preenchimento automático do Bitwarden. Saiba mais sobre como utilizar o Serviço de preenchimento automático do Bitwarden ao navegar até ao ecrã \"Definições\".";
 "Autofill" = "Preencher automaticamente";
-"AutofillOrView" = "Pretende preencher automaticamente ou visualizar este item?";
+"AutofillOrView" = "Pretende preencher automaticamente ou ver este item?";
 "BitwardenAutofillServiceMatchConfirm" = "Tem a certeza de que pretende preencher automaticamente este item? Não é uma correspondência completa para \"%1$@\".";
 "MatchingItems" = "Itens correspondentes";
 "PossibleMatchingItems" = "Possíveis itens correspondentes";
@@ -524,10 +524,10 @@
 "MasterPasswordPolicyInEffect" = "Uma ou mais políticas da organização exigem que a sua palavra-passe mestra cumpra os seguintes requisitos:";
 "PolicyInEffectMinComplexity" = "Pontuação mínima de complexidade de %1$@";
 "PolicyInEffectMinLength" = "Comprimento mínimo de %1$@";
-"PolicyInEffectUppercase" = "Contém um ou mais carateres em maiúsculas";
-"PolicyInEffectLowercase" = "Contém um ou mais carateres em minúsculas";
+"PolicyInEffectUppercase" = "Contém um ou mais caracteres em maiúsculas";
+"PolicyInEffectLowercase" = "Contém um ou mais caracteres em minúsculas";
 "PolicyInEffectNumbers" = "Contém um ou mais números";
-"PolicyInEffectSpecial" = "Contém um ou mais dos seguintes carateres especiais: %1$@";
+"PolicyInEffectSpecial" = "Contém um ou mais dos seguintes caracteres especiais: %1$@";
 "MasterPasswordPolicyValidationTitle" = "Palavra-passe inválida";
 "MasterPasswordPolicyValidationMessage" = "A palavra-passe não corresponde aos requisitos da organização. Verifique as informações da política e tente novamente.";
 "Loading" = "A carregar";
@@ -571,7 +571,7 @@
 "MaximumAccessCountReached" = "Número máximo de acessos atingido";
 "CurrentAccessCount" = "Número de acessos atual";
 "NewPassword" = "Nova palavra-passe";
-"PasswordInfo" = "Esta palavra-passe é necessária para visualizar o Send.";
+"PasswordInfo" = "Esta palavra-passe é necessária para ver o Send.";
 "RemovePassword" = "Remover palavra-passe";
 "AreYouSureRemoveSendPassword" = "Tem a certeza de que pretende remover a palavra-passe?";
 "RemovingSendPassword" = "A remover palavra-passe";
@@ -658,7 +658,7 @@
 "UppercaseAtoZ" = "Maiúsculas (A-Z)";
 "LowercaseAtoZ" = "Minúsculas (a-z)";
 "NumbersZeroToNine" = "Números (0-9)";
-"SpecialCharacters" = "Carateres especiais (!@#$%^&*)";
+"SpecialCharacters" = "Caracteres especiais (!@#$%^&*)";
 "TapToGoBack" = "Toque para voltar atrás";
 "PasswordIsVisibleTapToHide" = "A palavra-passe está visível, toque para a ocultar.";
 "PasswordIsNotVisibleTapToShow" = "A palavra-passe não está visível, toque para a mostrar.";
@@ -979,7 +979,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "O Bitwarden não pode repor uma palavra-passe mestra perdida ou esquecida.";
 "LearnAboutWaysToPreventAccountLockout" = "Saiba mais sobre formas de evitar o bloqueio da conta";
 "WhatMakesAPasswordStrong" = "O que torna uma palavra-passe forte?";
-"XCharacters" = "%1$@ carateres";
+"XCharacters" = "%1$@ caracteres";
 "RemoveMasterPasswordMessage" = "A %1$@ está a utilizar o SSO com um servidor de chaves auto-hospedado. Já não é necessária uma palavra-passe mestra para iniciar sessão para os membros desta organização.";
 "RestartRegistration" = "Reiniciar registo";
 "ExpiredLink" = "Link expirado";
