@@ -14,21 +14,22 @@ struct AccountEncryptionKeys: Equatable {
 }
 
 extension AccountEncryptionKeys {
-    /// Initializes an `AccountEncryptionKeys` from the response of the identity token request.
+    /// Initializes an `AccountEncryptionKeys` from the response of an API request that returns a response with
+    /// account encryption keys.
     ///
-    /// - Parameter identityTokenResponseModel: The response model from the identity token request.
+    /// - Parameter responseModel: The API response model that has account encryption keys.
     ///
-    init?(identityTokenResponseModel: IdentityTokenResponseModel) {
-        let privateKey = identityTokenResponseModel.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey
-                            ?? identityTokenResponseModel.privateKey
+    init?(responseModel: AccountKeysResponseModelProtocol) {
+        let privateKey = responseModel.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey
+                            ?? responseModel.privateKey
         guard let privateKey else {
             return nil
         }
 
         self.init(
-            accountKeys: identityTokenResponseModel.accountKeys,
+            accountKeys: responseModel.accountKeys,
             encryptedPrivateKey: privateKey,
-            encryptedUserKey: identityTokenResponseModel.key
+            encryptedUserKey: responseModel.key
         )
     }
 }

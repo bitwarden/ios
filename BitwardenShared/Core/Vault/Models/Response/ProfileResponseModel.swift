@@ -2,11 +2,11 @@ import Foundation
 
 /// API response model for a user profile.
 ///
-struct ProfileResponseModel: Codable, Equatable {
+struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtocol {
     // MARK: Properties
 
     /// The user's account keys.
-    let accountKeys: PrivateKeysResponseModel? // TODO: PM-24659 Make it non-optional when server released for a while.
+    let accountKeys: PrivateKeysResponseModel?
 
     /// The user's avatar color.
     let avatarColor: String?

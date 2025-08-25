@@ -499,19 +499,8 @@ extension DefaultSyncService {
         await stateService.updateProfile(from: profile, userId: userId)
         try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
 
-        if let accountKeys = profile.accountKeys, let signatureKeyPair = accountKeys.signatureKeyPair {
-            // User is V2 user
-            try await keychainRepository.setUserSigningKey(
-                signatureKeyPair.wrappedSigningKey,
-                userId: profile.id
-            )
-
-            if let securityState = accountKeys.securityState?.securityState {
-                try await keychainRepository.setAccountSecurityState(
-                    securityState,
-                    userId: profile.id
-                )
-            }
+        if let accountEncryptionKeys = AccountEncryptionKeys(responseModel: profile) {
+            try await stateService.setAccountEncryptionKeys(accountEncryptionKeys, userId: userId)
         }
     }
 } // swiftlint:disable:this file_length
