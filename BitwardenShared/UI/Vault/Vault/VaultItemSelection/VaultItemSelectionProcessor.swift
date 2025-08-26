@@ -319,4 +319,8 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         // No-Op for the VaultItemSelectionProcessor.
     }
+
+    func showProfileSwitcher() {
+
+    }
 }

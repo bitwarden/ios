@@ -85,4 +85,8 @@ public enum VaultRoute: Equatable, Hashable {
     ///     already been completed.
     ///
     case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
+
+    /// A route to the TODO
+    ///
+    case viewAccountSwitcher
 }

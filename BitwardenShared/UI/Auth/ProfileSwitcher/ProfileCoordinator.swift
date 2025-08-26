@@ -53,6 +53,9 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
     /// - Parameter route: The route to navigate to in the settings tab.
     ///
     func switchToSettingsTab(route: SettingsRoute)
+
+    /// The `State` for a toast view.
+    var toast: Toast? { get set }
 }
 
 class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
@@ -80,16 +83,19 @@ class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// The delegate for this coordinator, used to notify when profile switching actions occur.
     private weak var delegate: ProfileSwitcherCoordinatorDelegate?
 
+    private var handler: ProfileSwitcherHandler
+
     /// The services used by this coordinator.
     private let services: Services
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
 //        let state = services.authRepository.getProfilesState(allowLockAndLogout: true, isVisible: true, shouldAlwaysHideAddAccount: false, showPlaceholderToolbarIcon: true)
 //        let state = ProfileSwitcherState(accounts: [], activeAccountId: nil, allowLockAndLogout: true, isVisible: true)
-        let state = ProfileSwitcherState.empty()
+//        let state = ProfileSwitcherState.empty()
         let processor = ProfileProcessor(coordinator: asAnyCoordinator(),
+                                         handler: handler,
                                          services: services,
-                                         state: state)
+                                         state: handler.profileSwitcherState)
         let store = Store(processor: processor)
         let view = ProfileSwitcherSheet(store: store)
         stackNavigator?.replace(view)
@@ -117,11 +123,13 @@ class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Creates a new `ProfileSwitcherCoordinator`.
     /// TODO
     init(
-        delegate: ProfileSwitcherCoordinatorDelegate,
+//        delegate: ProfileSwitcherCoordinatorDelegate,
+        handler: ProfileSwitcherHandler,
         services: Services,
         stackNavigator: StackNavigator
     ) {
-        self.delegate = delegate
+//        self.delegate = delegate
+        self.handler = handler
         self.services = services
         self.stackNavigator = stackNavigator
     }

@@ -619,4 +619,8 @@ extension VaultListProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewAccountSwitcher, context: self)
+    }
 }

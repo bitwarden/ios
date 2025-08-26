@@ -484,6 +484,10 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
+
+    func showProfileSwitcher() {
+
+    }
 }
 
 // MARK: - Fido2UserInterfaceHelperDelegate

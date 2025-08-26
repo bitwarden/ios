@@ -9,7 +9,7 @@ import SwiftUI
 
 /// A protocol for an `AuthRepository` which manages access to the data needed by the UI layer.
 ///
-protocol AuthRepository: AnyObject {
+public protocol AuthRepository: AnyObject {
     // MARK: Methods
 
     /// Enables or disables biometric unlock for the active user.

@@ -7,7 +7,7 @@ import SwiftUI
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
 ///
 @MainActor
-public protocol VaultCoordinatorDelegate: AnyObject, ProfileSwitcherCoordinatorDelegate {
+public protocol VaultCoordinatorDelegate: AnyObject {
     /// Called when the user locks their vault.
     ///
     /// - Parameters:
@@ -258,6 +258,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
+        case .viewAccountSwitcher:
+            foobar(context: context)
         }
     }
 
@@ -434,11 +436,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.present(navigationController)
     }
 
-    func foobar() {
-        guard let delegate = delegate else { return }
+    func foobar(context: AnyObject? = nil) {
+//        guard let delegate = context as? ProfileSwitcherCoordinatorDelegate else { return }
+        guard let handler = context as? ProfileSwitcherHandler else { return }
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeProfileCoordinator(
-            delegate: delegate,
+            handler: handler,
+//            delegate: delegate,
             stackNavigator: navigationController
         )
         coordinator.start()

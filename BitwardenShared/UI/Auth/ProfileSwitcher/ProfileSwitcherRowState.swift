@@ -1,9 +1,9 @@
 // MARK: - ProfileSwitcherRowState
 
 /// State defining a Profile Switcher Row
-struct ProfileSwitcherRowState: Equatable {
+public struct ProfileSwitcherRowState: Equatable {
     /// The possible row types
-    enum RowType: Equatable {
+    public enum RowType: Equatable {
         /// Add Account
         ///
         case addAccount

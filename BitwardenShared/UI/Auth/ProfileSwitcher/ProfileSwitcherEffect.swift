@@ -1,7 +1,7 @@
 // MARK: - ProfileSwitcherAccessibilityEffect
 
 /// An enum for accessibility driven Profile Switcher Effects.
-enum ProfileSwitcherAccessibilityEffect: Equatable {
+public enum ProfileSwitcherAccessibilityEffect: Equatable {
     /// The account should be locked.
     case lock(ProfileSwitcherItem)
 
@@ -13,7 +13,7 @@ enum ProfileSwitcherAccessibilityEffect: Equatable {
 
 /// Effects that can be processed by a processor wrapping the ProfileSwitcherState.
 ///
-enum ProfileSwitcherEffect: Equatable {
+public enum ProfileSwitcherEffect: Equatable {
     /// An account row accessibility action was triggered.
     case accessibility(ProfileSwitcherAccessibilityEffect)
 

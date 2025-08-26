@@ -119,7 +119,7 @@ protocol HasAuthAPIService {
 
 /// Protocol for an object that provides an `AuthRepository`.
 ///
-protocol HasAuthRepository {
+public protocol HasAuthRepository {
     /// The repository used by the application to manage auth data for the UI layer.
     var authRepository: AuthRepository { get }
 }
@@ -196,7 +196,7 @@ protocol HasErrorReportBuilder {
 
 /// Protocol for an object that provides an `ErrorReporter`.
 ///
-protocol HasErrorReporter {
+public protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
 }

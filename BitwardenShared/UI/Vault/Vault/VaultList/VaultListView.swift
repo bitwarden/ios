@@ -372,7 +372,7 @@ struct VaultListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
             }
-            profileSwitcher
+//            profileSwitcher
         }
         .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {

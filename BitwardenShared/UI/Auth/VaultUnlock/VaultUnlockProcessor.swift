@@ -339,4 +339,9 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
+
+    func showProfileSwitcher() {
+
+    }
+
 }

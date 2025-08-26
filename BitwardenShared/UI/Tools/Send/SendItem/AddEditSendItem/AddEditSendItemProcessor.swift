@@ -400,4 +400,8 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
+
+    func showProfileSwitcher() {
+
+    }
 } // swiftlint:disable:this file_length

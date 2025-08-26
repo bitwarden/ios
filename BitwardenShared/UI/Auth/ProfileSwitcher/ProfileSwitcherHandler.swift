@@ -7,7 +7,7 @@ import Foundation
 ///     Most likely, this will be a processor.
 ///
 @MainActor
-protocol ProfileSwitcherHandler: AnyObject {
+public protocol ProfileSwitcherHandler: AnyObject {
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
 
@@ -63,6 +63,8 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// - Parameter alert: The alert to show.
     ///
     func showAlert(_ alert: Alert)
+
+    func showProfileSwitcher()
 }
 
 extension ProfileSwitcherHandler {
@@ -111,6 +113,7 @@ extension ProfileSwitcherHandler {
                 await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
                 await refreshProfileState()
             }
+            showProfileSwitcher()
             profileSwitcherState.isVisible = isVisible
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
