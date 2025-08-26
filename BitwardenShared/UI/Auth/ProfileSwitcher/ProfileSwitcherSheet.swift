@@ -1,15 +1,6 @@
 import BitwardenResources
 import SwiftUI
 
-//extension View {
-//    nonisolated
-//    func sheet<Content>(
-//        isPresented: Binding<Bool>,
-//        onDismiss: (() -> Void)? = nil,
-//        @ViewBuilder content: @escaping () -> Content
-//    ) -> some View where Content : View
-//}
-
 public struct ProfileSwitcherSheet: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
@@ -17,15 +8,16 @@ public struct ProfileSwitcherSheet: View {
     @SwiftUI.State var scrollOffset = CGPoint.zero
 
     public var body: some View {
-//        OffsetObservingScrollView(
-//            axes: .vertical,
-//            offset: $scrollOffset
-//        ) {
-        VStack(spacing: 0.0) {
-            accounts
-            if store.state.showsAddAccount {
-                addAccountRow
+        ZStack {
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea()
+
+            VStack(spacing: 0.0) {
+                accounts
+                if store.state.showsAddAccount {
+                    addAccountRow
+                }
             }
+            .padding(.horizontal, 12)
         }
         .navigationBar(title: "Localized Accounts", titleDisplayMode: .inline)
         .toolbar {
@@ -40,7 +32,7 @@ public struct ProfileSwitcherSheet: View {
         }
 //            .background(.red)
 //        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+//        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
 //            .transition(.move(edge: .top))
 //            .hidden(!store.state.isVisible)
 //            .fixedSize(horizontal: false, vertical: true)
@@ -180,51 +172,136 @@ public struct ProfileSwitcherSheet: View {
 // MARK: Previews
 
 #if DEBUG
-struct ProfileSwitcherSheet_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .singleAccount
+@available(iOS 16.0, *)
+#Preview("Single Account") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .singleAccount
+                        )
                     )
                 )
-            )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
-        .previewDisplayName("Single Account")
-
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .dualAccounts
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Dual Account")
-
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .subMaximumAccounts
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Many Accounts")
-
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .maximumAccounts
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Max Accounts")
-    }
 }
+
+@available(iOS 16.0, *)
+#Preview("Dual Account") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .dualAccounts
+                        )
+                    )
+                )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
+}
+
+@available(iOS 16.0, *)
+#Preview("Many Accounts") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .subMaximumAccounts
+                        )
+                    )
+                )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
+}
+
+@available(iOS 16.0, *)
+#Preview("Max Accounts") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .maximumAccounts
+                        )
+                    )
+                )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
+}
+
+
+//@available(iOS 16.0, *)
+//struct ProfileSwitcherSheet_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+////            ProfileSwitcherView(
+////                store: Store(
+////                    processor: StateProcessor(
+////                        state: .singleAccount
+////                    )
+////                )
+////            )
+//        }
+//        .sheet(isPresented: .constant(true)) {
+//            ProfileSwitcherView(
+//                store: Store(
+//                    processor: StateProcessor(
+//                        state: .singleAccount
+//                    )
+//                )
+//            )
+//        }
+//        .presentationDetents([.medium])
+//        .presentationDragIndicator(.visible)
+//        .previewDisplayName("Single Account")
+//
+//        NavigationView {
+//            ProfileSwitcherView(
+//                store: Store(
+//                    processor: StateProcessor(
+//                        state: .dualAccounts
+//                    )
+//                )
+//            )
+//        }
+//        .previewDisplayName("Dual Account")
+//
+//        NavigationView {
+//            ProfileSwitcherView(
+//                store: Store(
+//                    processor: StateProcessor(
+//                        state: .subMaximumAccounts
+//                    )
+//                )
+//            )
+//        }
+//        .previewDisplayName("Many Accounts")
+//
+//        NavigationView {
+//            ProfileSwitcherView(
+//                store: Store(
+//                    processor: StateProcessor(
+//                        state: .maximumAccounts
+//                    )
+//                )
+//            )
+//        }
+//        .previewDisplayName("Max Accounts")
+//    }
+//}
 #endif
