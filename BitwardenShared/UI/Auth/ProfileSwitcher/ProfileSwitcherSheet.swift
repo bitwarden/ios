@@ -11,13 +11,21 @@ public struct ProfileSwitcherSheet: View {
         ZStack {
             SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea()
 
-            VStack(spacing: 0.0) {
+            SectionView("Localized Select Account") {
                 accounts
                 if store.state.showsAddAccount {
                     addAccountRow
                 }
             }
             .padding(.horizontal, 12)
+
+//            VStack(spacing: 0.0) {
+//                accounts
+//                if store.state.showsAddAccount {
+//                    addAccountRow
+//                }
+//            }
+//            .padding(.horizontal, 12)
         }
         .navigationBar(title: "Localized Accounts", titleDisplayMode: .inline)
         .toolbar {
@@ -93,6 +101,7 @@ public struct ProfileSwitcherSheet: View {
             }
             selectedProfileSwitcherRow
         }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     /// A row to display the active account profile
@@ -103,7 +112,7 @@ public struct ProfileSwitcherSheet: View {
         if let profile = store.state.activeAccountProfile {
             profileSwitcherRow(
                 accountProfile: profile,
-                showDivider: store.state.showsAddAccount
+                showDivider: false
             )
         }
     }
