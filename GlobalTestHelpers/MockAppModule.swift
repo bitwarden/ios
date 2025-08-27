@@ -25,7 +25,7 @@ class MockAppModule:
     SettingsModule,
     TabModule,
     VaultModule,
-    VaultItemModule {
+    VaultItemModule {    
     var addEditFolderCoordinator = MockCoordinator<AddEditFolderRoute, Void>()
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
