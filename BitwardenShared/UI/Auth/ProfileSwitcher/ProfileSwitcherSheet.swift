@@ -30,24 +30,6 @@ public struct ProfileSwitcherSheet: View {
         .task {
             await store.perform(.refreshAccountProfiles)
         }
-//            .background(.red)
-//        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-//        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-//            .transition(.move(edge: .top))
-//            .hidden(!store.state.isVisible)
-//            .fixedSize(horizontal: false, vertical: true)
-//        }
-//        .background {
-//            backgroundView
-//                .hidden(!store.state.isVisible)
-//                .accessibilityHidden(true)
-//        }
-//        .onTapGesture {
-//            store.send(.backgroundPressed)
-//        }
-//        .allowsHitTesting(store.state.isVisible)
-//        .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
-//        .accessibilityHidden(!store.state.isVisible)
 //        .accessibilityAction(named: Localizations.close) {
 //            store.send(.backgroundPressed)
 //        }
@@ -64,24 +46,6 @@ public struct ProfileSwitcherSheet: View {
         }
         .buttonStyle(.bitwardenBorderless)
         .frame(maxWidth: .infinity, alignment: .center)
-
-//        Button(Localizations.addAccount) {
-//
-//        }
-//        .multilineTextAlignment(.center)
-//        ProfileSwitcherRow(store: store.child(
-//            state: { _ in
-//                .init(
-//                    shouldTakeAccessibilityFocus: false,
-//                    showDivider: false,
-//                    rowType: .addAccount
-//                )
-//            },
-//            mapAction: nil,
-//            mapEffect: { _ in
-//                .addAccountPressed
-//            }
-//        ))
         .accessibilityIdentifier("AddAccountButton")
     }
 
@@ -256,65 +220,4 @@ public struct ProfileSwitcherSheet: View {
             .presentationDragIndicator(.visible)
         }
 }
-
-
-//@available(iOS 16.0, *)
-//struct ProfileSwitcherSheet_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationView {
-////            ProfileSwitcherView(
-////                store: Store(
-////                    processor: StateProcessor(
-////                        state: .singleAccount
-////                    )
-////                )
-////            )
-//        }
-//        .sheet(isPresented: .constant(true)) {
-//            ProfileSwitcherView(
-//                store: Store(
-//                    processor: StateProcessor(
-//                        state: .singleAccount
-//                    )
-//                )
-//            )
-//        }
-//        .presentationDetents([.medium])
-//        .presentationDragIndicator(.visible)
-//        .previewDisplayName("Single Account")
-//
-//        NavigationView {
-//            ProfileSwitcherView(
-//                store: Store(
-//                    processor: StateProcessor(
-//                        state: .dualAccounts
-//                    )
-//                )
-//            )
-//        }
-//        .previewDisplayName("Dual Account")
-//
-//        NavigationView {
-//            ProfileSwitcherView(
-//                store: Store(
-//                    processor: StateProcessor(
-//                        state: .subMaximumAccounts
-//                    )
-//                )
-//            )
-//        }
-//        .previewDisplayName("Many Accounts")
-//
-//        NavigationView {
-//            ProfileSwitcherView(
-//                store: Store(
-//                    processor: StateProcessor(
-//                        state: .maximumAccounts
-//                    )
-//                )
-//            )
-//        }
-//        .previewDisplayName("Max Accounts")
-//    }
-//}
 #endif
