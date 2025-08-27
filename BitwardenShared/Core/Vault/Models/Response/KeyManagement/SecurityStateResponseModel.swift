@@ -4,5 +4,5 @@ import BitwardenSdk
 ///
 struct SecurityStateResponseModel: Codable, Equatable {
     /// The security state.
-    let securityState: SignedSecurityState?;
+    let securityState: SignedSecurityState?
 }

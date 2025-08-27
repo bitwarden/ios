@@ -2,11 +2,11 @@
 ///
 struct PublicKeyEncryptionKeyPairResponseModel: Codable, Equatable {
     /// The wrapped private key.
-    let wrappedPrivateKey: WrappedPrivateKey;
+    let wrappedPrivateKey: WrappedPrivateKey
 
     /// The public key.
-    let publicKey: UnsignedPublicKey;
+    let publicKey: UnsignedPublicKey
 
     /// The signed public key.
-    let signedPublicKey: SignedPublicKey?;
+    let signedPublicKey: SignedPublicKey?
 }

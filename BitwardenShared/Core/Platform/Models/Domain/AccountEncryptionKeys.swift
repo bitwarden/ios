@@ -21,7 +21,7 @@ extension AccountEncryptionKeys {
     ///
     init?(responseModel: AccountKeysResponseModelProtocol) {
         let privateKey = responseModel.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey
-                            ?? responseModel.privateKey
+            ?? responseModel.privateKey
         guard let privateKey else {
             return nil
         }

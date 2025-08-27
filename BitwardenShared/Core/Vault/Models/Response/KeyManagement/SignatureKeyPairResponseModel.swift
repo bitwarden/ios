@@ -2,8 +2,8 @@
 ///
 struct SignatureKeyPairResponseModel: Codable, Equatable {
     /// The wrapped signing key.
-    let wrappedSigningKey: WrappedSigningKey;
+    let wrappedSigningKey: WrappedSigningKey
 
     /// The verifying key.
-    let verifyingKey: VerifyingKey;
+    let verifyingKey: VerifyingKey
 }
