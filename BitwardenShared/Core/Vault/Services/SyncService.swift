@@ -137,9 +137,6 @@ class DefaultSyncService: SyncService {
     /// The service for managing the folders for the user.
     private let folderService: FolderService
 
-    /// The repository used to manages keychain items.
-    private let keychainRepository: KeychainRepository
-
     /// The service used by the application to manage Key Connector.
     private let keyConnectorService: KeyConnectorService
 
@@ -180,7 +177,6 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
-    ///   - keychainRepository: The repository used to manages keychain items..
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyService: The service for managing the polices for the user.
@@ -197,7 +193,6 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         folderService: FolderService,
-        keychainRepository: KeychainRepository,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
         policyService: PolicyService,
@@ -213,7 +208,6 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.folderService = folderService
-        self.keychainRepository = keychainRepository
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
         self.policyService = policyService

@@ -579,7 +579,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionService: collectionService,
             folderService: folderService,
-            keychainRepository: keychainRepository,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
             policyService: policyService,
