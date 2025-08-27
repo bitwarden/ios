@@ -184,7 +184,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let background = view.first
         try background?.callOnTapGesture()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .backgroundPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .backgroundTapped)
     }
 
     /// Tests the add account visibility below the maximum account limit

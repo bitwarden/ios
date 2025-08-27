@@ -58,7 +58,7 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
     var toast: Toast? { get set }
 }
 
-class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
+class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     func handleEvent(_ event: AuthAction, context: AnyObject?) async {
         switch event {
         case let .logout(userId, userInitiated):

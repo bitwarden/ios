@@ -38,7 +38,7 @@ extension DefaultAppModule: VaultItemModule {
         handler: ProfileSwitcherHandler,
         stackNavigator: any StackNavigator
     ) -> AnyCoordinator<AuthRoute, AuthAction> {
-        ProfileCoordinator(
+        ProfileSwitcherCoordinator(
 //            delegate: delegate,
             handler: handler,
             services: services,

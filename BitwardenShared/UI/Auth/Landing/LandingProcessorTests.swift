@@ -807,7 +807,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
 
         let task = Task {
-            subject.receive(.profileSwitcher(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundTapped))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()

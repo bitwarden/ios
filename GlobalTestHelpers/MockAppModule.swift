@@ -25,7 +25,7 @@ class MockAppModule:
     SettingsModule,
     TabModule,
     VaultModule,
-    VaultItemModule {    
+    VaultItemModule {
     var addEditFolderCoordinator = MockCoordinator<AddEditFolderRoute, Void>()
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
@@ -45,6 +45,7 @@ class MockAppModule:
     // swiftlint:disable:next weak_navigator identifier_name
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
+    var profileSwitcherCoordinator = MockCoordinator<AuthRoute, AuthAction>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -149,6 +150,13 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<PasswordHistoryRoute, Void> {
         passwordHistoryCoordinator.asAnyCoordinator()
+    }
+
+    func makeProfileCoordinator(
+        handler: any ProfileSwitcherHandler,
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<AuthRoute, AuthAction> {
+        profileSwitcherCoordinator.asAnyCoordinator()
     }
 
     func makeSendCoordinator(

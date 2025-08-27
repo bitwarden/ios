@@ -3,6 +3,10 @@
 class MockProfileSwitcherHandlerProcessor:
     MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>,
     ProfileSwitcherHandler {
+    func showProfileSwitcher() {
+
+    }
+    
     var alertsShown = [BitwardenShared.Alert]()
     var allowLockAndLogout = true
     var handleAuthEvents = [AuthEvent]()
