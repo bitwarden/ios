@@ -23,7 +23,7 @@ public struct ProfileSwitcherSheet: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
-//                    store.send(.dismissPressed)
+                    store.send(.dismissTapped)
                 }
             }
         }

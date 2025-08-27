@@ -33,13 +33,13 @@ struct ProfileSwitcherView: View {
                 .accessibilityHidden(true)
         }
         .onTapGesture {
-            store.send(.backgroundPressed)
+            store.send(.backgroundTapped)
         }
         .allowsHitTesting(store.state.isVisible)
         .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
         .accessibilityHidden(!store.state.isVisible)
         .accessibilityAction(named: Localizations.close) {
-            store.send(.backgroundPressed)
+            store.send(.backgroundTapped)
         }
     }
 

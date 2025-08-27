@@ -87,7 +87,8 @@ extension ProfileSwitcherHandler {
             case let .remove(account):
                 confirmRemoveAccount(account)
             }
-        case .backgroundPressed:
+        case .backgroundTapped,
+                .dismissTapped:
             profileSwitcherState.isVisible = false
         }
     }
