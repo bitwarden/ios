@@ -1,7 +1,7 @@
 // MARK: - ProfileSwitcherProcessor
 
 /// The processor used to manage state and handle actions for the profile switcher sheet.
-/// In practice, it just acts as a passthrough for the `ProfileSwitcherHandler` so as to
+/// In practice, it just acts largely as a passthrough for the `ProfileSwitcherHandler` so as to
 /// preserve flows in apps running on iOS pre-26.
 final class ProfileSwitcherProcessor: StateProcessor<
     ProfileSwitcherState,
