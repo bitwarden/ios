@@ -1,3 +1,8 @@
+// MARK: - ProfileSwitcherProcessor
+
+/// The processor used to manage state and handle actions for the profile switcher sheet.
+/// In practice, it just acts as a passthrough for the `ProfileSwitcherHandler` so as to
+/// preserve flows in apps running on iOS pre-26.
 final class ProfileProcessor: StateProcessor<
     ProfileSwitcherState,
     ProfileSwitcherAction,
@@ -34,6 +39,9 @@ final class ProfileProcessor: StateProcessor<
 
     override func receive(_ action: ProfileSwitcherAction) {
         handler.handleProfileSwitcherAction(action)
+        if case .dismissTapped = action {
+            coordinator.navigate(to: .dismiss)
+        }
     }
 
     override func perform(_ effect: ProfileSwitcherEffect) async {

@@ -89,6 +89,10 @@ class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
     private let services: Services
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
+        if route == .dismiss {
+            stackNavigator?.dismiss()
+            return
+        }
 //        let state = services.authRepository.getProfilesState(allowLockAndLogout: true, isVisible: true, shouldAlwaysHideAddAccount: false, showPlaceholderToolbarIcon: true)
 //        let state = ProfileSwitcherState(accounts: [], activeAccountId: nil, allowLockAndLogout: true, isVisible: true)
 //        let state = ProfileSwitcherState.empty()

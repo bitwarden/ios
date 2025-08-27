@@ -88,7 +88,7 @@ extension ProfileSwitcherHandler {
                 confirmRemoveAccount(account)
             }
         case .backgroundTapped,
-                .dismissTapped:
+             .dismissTapped:
             profileSwitcherState.isVisible = false
         }
     }
