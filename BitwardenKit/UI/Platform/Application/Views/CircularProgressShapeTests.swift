@@ -1,10 +1,8 @@
+import BitwardenKit
 import BitwardenResources
 import SnapshotTesting
 import SwiftUI
-import TestHelpers
 import XCTest
-
-@testable import BitwardenShared
 
 final class CircularProgressShapeTests: BitwardenTestCase {
     // MARK: Tests

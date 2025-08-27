@@ -24,6 +24,7 @@ public extension Data {
     ///
     /// - Returns: The base 64 encoded string.
     ///
+    @_optimize(none) // TODO: PM-25026 Remove when optimization for this is fixed on release config.
     func generatedHashBase64Encoded(
         using hashFunction: any HashFunction.Type
     ) -> String {

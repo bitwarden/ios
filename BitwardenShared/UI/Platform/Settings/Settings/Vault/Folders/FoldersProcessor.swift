@@ -74,7 +74,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     }
 }
 
-// MARK: - CaptchaFlowDelegate
+// MARK: - AddEditFolderDelegate
 
 extension FoldersProcessor: AddEditFolderDelegate {
     /// Show the toast that the folder was successfully added.

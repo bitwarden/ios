@@ -57,7 +57,7 @@ jobs:
           echo "</details>" >> $GITHUB_STEP_SUMMARY
 
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Read Xcode version from file if not provided
         run: |
@@ -71,7 +71,7 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1.229.0
+        uses: ruby/setup-ruby@829114fc20da43a41d27359103ec7a63020954d4 # v1.255.0
         with:
           bundler-cache: true
 
@@ -183,7 +183,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -237,7 +237,7 @@ jobs:
           echo "export_filepath=$EXPORT_FILEPATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ steps.get_file_paths.outputs.artifact_filename }}
           path: ${{ env._EXPORT_PATH }}
