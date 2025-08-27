@@ -11,23 +11,15 @@ public struct ProfileSwitcherSheet: View {
         ZStack {
             SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea()
 
-            SectionView("Localized Select Account") {
+            SectionView(Localizations.selectAccount) {
                 accounts
                 if store.state.showsAddAccount {
                     addAccountRow
                 }
             }
             .padding(.horizontal, 12)
-
-//            VStack(spacing: 0.0) {
-//                accounts
-//                if store.state.showsAddAccount {
-//                    addAccountRow
-//                }
-//            }
-//            .padding(.horizontal, 12)
         }
-        .navigationBar(title: "Localized Accounts", titleDisplayMode: .inline)
+        .navigationBar(title:Localizations.accountsPluralNoun, titleDisplayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
@@ -65,19 +57,31 @@ public struct ProfileSwitcherSheet: View {
 
     /// A row to add an account
     @ViewBuilder private var addAccountRow: some View {
-        ProfileSwitcherRow(store: store.child(
-            state: { _ in
-                .init(
-                    shouldTakeAccessibilityFocus: false,
-                    showDivider: false,
-                    rowType: .addAccount
-                )
-            },
-            mapAction: nil,
-            mapEffect: { _ in
-                .addAccountPressed
-            }
-        ))
+        AsyncButton {
+            await store.perform(.addAccountPressed)
+        } label: {
+            Label(Localizations.addAccount, image: Asset.Images.plus16.swiftUIImage)
+        }
+        .buttonStyle(.bitwardenBorderless)
+        .frame(maxWidth: .infinity, alignment: .center)
+
+//        Button(Localizations.addAccount) {
+//
+//        }
+//        .multilineTextAlignment(.center)
+//        ProfileSwitcherRow(store: store.child(
+//            state: { _ in
+//                .init(
+//                    shouldTakeAccessibilityFocus: false,
+//                    showDivider: false,
+//                    rowType: .addAccount
+//                )
+//            },
+//            mapAction: nil,
+//            mapEffect: { _ in
+//                .addAccountPressed
+//            }
+//        ))
         .accessibilityIdentifier("AddAccountButton")
     }
 
