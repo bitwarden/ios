@@ -96,7 +96,7 @@ class ProfileCoordinator: NSObject, Coordinator, HasStackNavigator {
 //        let state = services.authRepository.getProfilesState(allowLockAndLogout: true, isVisible: true, shouldAlwaysHideAddAccount: false, showPlaceholderToolbarIcon: true)
 //        let state = ProfileSwitcherState(accounts: [], activeAccountId: nil, allowLockAndLogout: true, isVisible: true)
 //        let state = ProfileSwitcherState.empty()
-        let processor = ProfileProcessor(coordinator: asAnyCoordinator(),
+        let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
                                          handler: handler,
                                          services: services,
                                          state: handler.profileSwitcherState)
