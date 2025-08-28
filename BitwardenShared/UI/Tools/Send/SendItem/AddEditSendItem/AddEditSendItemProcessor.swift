@@ -388,6 +388,11 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        // TODO
+//        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -402,6 +407,6 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
     }
 
     func showProfileSwitcher() {
-
+        // TODO
     }
 } // swiftlint:disable:this file_length

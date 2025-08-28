@@ -645,6 +645,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
         subject.state.profileSwitcherState.isVisible = false
+        // TODO: dismissProfileSwitcher() check
 
         authRepository.profileSwitcherState = ProfileSwitcherState.maximumAccounts
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))

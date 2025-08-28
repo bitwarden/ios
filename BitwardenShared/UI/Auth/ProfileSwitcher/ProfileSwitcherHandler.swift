@@ -32,6 +32,10 @@ public protocol ProfileSwitcherHandler: AnyObject {
     /// The `State` for a toast view.
     var toast: Toast? { get set }
 
+    /// Dismisses the profile switcher; this is used on iOS >=26 for making sure the sheet
+    /// is dismissed appropriately; on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    func dismissProfileSwitcher()
+
     /// Handles auth events that require asynchronous management.
     ///
     /// - Parameter authEvent: The auth event to handle.
@@ -91,7 +95,11 @@ extension ProfileSwitcherHandler {
             }
         case .backgroundTapped,
              .dismissTapped:
-            profileSwitcherState.isVisible = false
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = false
+            }
         }
     }
 
@@ -109,7 +117,11 @@ extension ProfileSwitcherHandler {
         case let .accountPressed(account):
             await select(account)
         case .addAccountPressed:
-            profileSwitcherState.isVisible = false
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = false
+            }
             showAddAccount()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
@@ -171,7 +183,11 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
-        profileSwitcherState.isVisible = false
+        if #available(iOS 26, *) {
+            dismissProfileSwitcher()
+        } else {
+            profileSwitcherState.isVisible = false
+        }
         showAlert(
             .accountOptions(
                 account,
@@ -277,7 +293,13 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The profile switcher item for the account to activate.
     ///
     func select(_ account: ProfileSwitcherItem) async {
-        defer { profileSwitcherState.isVisible = false }
+        defer {
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = false
+            }
+        }
         guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else { return }
         await handleAuthEvent(
             .action(

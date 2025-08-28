@@ -612,6 +612,10 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         await coordinator.handleEvent(authAction)
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func showAddAccount() {
         coordinator.navigate(to: .addAccount)
     }

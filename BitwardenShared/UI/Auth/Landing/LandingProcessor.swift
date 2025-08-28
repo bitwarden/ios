@@ -179,6 +179,10 @@ extension LandingProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
     }
