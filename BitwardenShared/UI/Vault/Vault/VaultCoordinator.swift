@@ -61,7 +61,9 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+final class VaultCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
+    // swiftlint:disable:this type_body_length
+
     // MARK: Types
 
     typealias Module = AddEditFolderModule
@@ -112,7 +114,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private let _masterPasswordRepromptHelper: MasterPasswordRepromptHelper?
 
     /// The module used by this coordinator to create child coordinators.
-    private let module: Module
+    private(set) var module: Module
 
     /// The services used by this coordinator.
     private let services: Services
@@ -198,7 +200,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         case .addFolder:
             showAddFolder()
         case let .addItem(group, newCipherOptions, organizationId, type):
-//            foobar()
             Task {
                 let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
@@ -260,7 +261,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         case .viewProfileSwitcher:
-            showProfileSwitcher(context: context)
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
         }
     }
 
@@ -434,25 +439,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         coordinator.start()
         coordinator.navigate(to: route, context: delegate)
 
-        stackNavigator?.present(navigationController)
-    }
-
-    func showProfileSwitcher(context: AnyObject? = nil) {
-        guard let handler = context as? ProfileSwitcherHandler else { return }
-        let navigationController = module.makeNavigationController()
-        let coordinator = module.makeProfileSwitcherCoordinator(
-            handler: handler,
-            stackNavigator: navigationController
-        )
-        coordinator.start()
-        coordinator.navigate(to: .open, context: nil)
-        if let sheet = navigationController.sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            sheet.prefersGrabberVisible = true
-        }
         stackNavigator?.present(navigationController)
     }
 
