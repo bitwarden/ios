@@ -32,12 +32,14 @@ protocol AuthCoordinatorDelegate: AnyObject {
 final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_length
     Coordinator,
     HasStackNavigator,
-    HasRouter {
+    HasRouter,
+    ProfileSwitcherDisplayable {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = NavigatorBuilderModule
         & PasswordAutoFillModule
+        & ProfileSwitcherModule
         & SettingsModule
 
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
@@ -138,7 +140,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .checkEmail(email):
             showCheckEmail(email)
         case .complete,
-             .completeWithNeverUnlockKey:
+                .completeWithNeverUnlockKey:
             completeAuth()
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
@@ -232,16 +234,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case .updateMasterPassword:
             showUpdateMasterPassword()
-        case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
-            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
-            showWebAuthn(
-                rpId: rpId,
-                challenge: challenge,
-                credentialIds: allowCredentialIds,
-                userVerificationPreference: userVerificationPreference
-            )
-        case let .webAuthnSelfHosted(url):
-            showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         case let .vaultUnlock(
             account,
             animated,
@@ -256,6 +248,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case let .vaultUnlockSetup(accountSetupFlow):
             showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
+        case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
+            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
+            showWebAuthn(
+                rpId: rpId,
+                challenge: challenge,
+                credentialIds: allowCredentialIds,
+                userVerificationPreference: userVerificationPreference
+            )
+        case let .webAuthnSelfHosted(url):
+            showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         }
     }
 

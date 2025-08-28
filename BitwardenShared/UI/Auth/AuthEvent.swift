@@ -60,6 +60,4 @@ public enum AuthEvent: Equatable {
 
     /// When an account has timed out.
     case didTimeout(userId: String)
-
-    case didFoobar
 }

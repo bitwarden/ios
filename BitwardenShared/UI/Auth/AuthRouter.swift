@@ -94,8 +94,6 @@ final class AuthRouter: NSObject, Router {
             return await preparedStartRoute()
         case let .didTimeout(userId):
             return await timeoutRedirect(userId: userId)
-        case .didFoobar:
-            return await preparedStartRoute()
         }
     }
 

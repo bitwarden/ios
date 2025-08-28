@@ -192,7 +192,7 @@ extension LandingProcessor: ProfileSwitcherHandler {
     }
 
     func showProfileSwitcher() {
-        
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }
 
