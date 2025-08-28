@@ -135,9 +135,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_defaultUriMatchTypeChanged() {
         subject.receive(.defaultUriMatchTypeChanged(.host))
-
-        XCTAssertEqual(subject.state.defaultUriMatchType, .host)
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .host)
+        XCTAssertEqual(subject.state.defaultUriMatchType, .host)
         XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .host)
     }
 
@@ -190,5 +189,72 @@ class AutoFillProcessorTests: BitwardenTestCase {
         waitFor(!errorReporter.errors.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noActiveAccount)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Confirming it updates the `defaultUriMatchType`
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseOption(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
+        XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .regularExpression)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Canceling it keeps the `defaultUriMatchType` value
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_cancel() async throws {
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        await Task.yield()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseOption(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+    }
+
+    /// `receive(_:)` with `.regularExpression` shows an alert for navigating to the web vault
+    /// When `Learn more` is tapped on the alert navigates the user to the web app
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_learnMore() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        await Task.yield()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
+        let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+        try await alertLearnMore.tapAction(title: Localizations.learnMore)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+        XCTAssertNil(subject.state.url)
     }
 }
