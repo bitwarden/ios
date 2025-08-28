@@ -1279,7 +1279,10 @@
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
-"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts With\” is an advanced option with increased risk of exposing credentials.";
-"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular Expression\” is an advanced option with increased risk of exposing credentials.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\” is an advanced option with increased risk of exposing credentials.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
 "StartsWithAdvanced" = "Starts with (advanced)";
 "RegularExpressionAdvanced" = "Regular expression (advanced)";
+"AreYouSureYouWantToUseOption" = "Are you sure you want to use “%1$@”?";
+"KeepYourCredentialsSecure" = "Keep your credentials secure";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingOption" = "Learn more about how to keep credentials secure when using “%1$@”.";
