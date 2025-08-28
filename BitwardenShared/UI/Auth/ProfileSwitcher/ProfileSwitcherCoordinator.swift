@@ -12,6 +12,7 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Properties
 
+    /// An object that handles `ProfileSwitcherView` actions and effects.
     private var handler: ProfileSwitcherHandler
 
     /// The services used by this coordinator.
@@ -25,7 +26,11 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Initialization
 
     /// Creates a new `ProfileSwitcherCoordinator`.
-    /// TODO
+    ///
+    /// - Parameters:
+    ///   - handler: An object that handles `ProfileSwitcherView` actions and effects.
+    ///   - services: The services used by this coordinator.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     init(
         handler: ProfileSwitcherHandler,
         services: Services,
