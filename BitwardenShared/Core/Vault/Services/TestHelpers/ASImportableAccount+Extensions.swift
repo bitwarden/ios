@@ -29,7 +29,7 @@ extension ASImportableAccount {
 
     /// Dumps the content of the `ASImportableAccount` into lines which can be used with
     /// inline snapshot assertion.
-    func dump() -> String { // swiftlint:disable:this function_body_length
+    func dump() -> String { // swiftlint:disable:this function_body_length cyclomatic_complexity
         var dumpResult = ""
         dumpResult.append("Email: \(email)\n")
         dumpResult.append("UserName: \(userName)\n")
@@ -37,8 +37,12 @@ extension ASImportableAccount {
 
         let itemsResult = items.reduce(into: "") { result, item in
             result.appendWithIndentation("Title: \(item.title)\n")
-            result.appendWithIndentation("Creation: \(String(describing: item.created))\n")
-            result.appendWithIndentation("Modified: \(String(describing: item.lastModified))\n")
+            if let created = item.created {
+                result.appendWithIndentation("Creation: \(String(describing: created))\n")
+            }
+            if let modified = item.lastModified {
+                result.appendWithIndentation("Modified: \(String(describing: modified))\n")
+            }
             result.appendWithIndentation("--- Credentials ---\n")
 
             let credentialsResult = item.credentials.reduce(into: "") { credResult, credential in
@@ -73,30 +77,34 @@ extension ASImportableAccount {
                 case let .note(note):
                     credResult.appendWithIndentation("Note: \(note.content)\n", level: 2)
                 case let .creditCard(card):
-                    credResult.appendWithIndentation("FullName: \(String(describing: card.fullName))\n", level: 2)
-                    credResult.appendWithIndentation("Number: \(String(describing: card.number))\n", level: 2)
-                    if let cardType = card.cardType {
+                    if let fullName = card.fullName?.value {
+                        credResult.appendWithIndentation("FullName: \(fullName)\n", level: 2)
+                    }
+                    if let number = card.number?.value {
+                        credResult.appendWithIndentation("Number: \(number)\n", level: 2)
+                    }
+                    if let cardType = card.cardType?.value {
                         credResult.appendWithIndentation("CardType: \(cardType)\n", level: 2)
                     }
-                    if let expiryDate = card.expiryDate {
+                    if let expiryDate = card.expiryDate?.value {
                         credResult.appendWithIndentation("ExpiryDate: \(expiryDate)\n", level: 2)
                     }
-                    if let validFrom = card.validFrom {
+                    if let validFrom = card.validFrom?.value {
                         credResult.appendWithIndentation("ValidFrom: \(validFrom)\n", level: 2)
                     }
-                    if let verificationNumber = card.verificationNumber {
+                    if let verificationNumber = card.verificationNumber?.value {
                         credResult.appendWithIndentation("VerificationNumber: \(verificationNumber)\n", level: 2)
                     }
                 @unknown default:
                     result.append("unknown default\n")
                 }
                 if credential != item.credentials.last {
-                    credResult.appendWithIndentation("\n\n", level: 2)
+                    credResult.appendWithIndentation("\n", level: 2)
                 }
             }
             result.append(credentialsResult)
             if item != items.last {
-                result.append("\n\n")
+                result.append("\n")
             }
         }
         dumpResult.append(itemsResult)

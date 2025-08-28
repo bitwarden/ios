@@ -50,6 +50,22 @@ class MockCredentialExportManager: CredentialExportManager {
     }
 
     @available(iOS 26.0, *)
+    func exportCredentials(importableAccount: ASImportableAccount) async throws {
+        exportCredentialsCalled = true
+
+        let data = try JSONEncoder.cxfEncoder.encode(importableAccount)
+        guard let dataJsonString = String(data: data, encoding: .utf8) else {
+            // this should never happen.
+            throw BitwardenError.dataError("Failed encoding credential data")
+        }
+        exportCredentialsJSONData = dataJsonString
+
+        if let exportCredentialsError {
+            throw exportCredentialsError
+        }
+    }
+
+    @available(iOS 26.0, *)
     func requestExport(forExtensionBundleIdentifier: String?) async throws -> CredentialExportManagerExportOptions {
         try requestExportResult.get()
     }
