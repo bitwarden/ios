@@ -1,6 +1,7 @@
 // MARK: - AutoFillState
 
 import BitwardenResources
+import Foundation
 
 /// An object that defines the current state of the `AutoFillView`.
 ///
@@ -15,6 +16,9 @@ struct AutoFillState {
 
     /// Whether or not the copy TOTP automatically toggle is on.
     var isCopyTOTPToggleOn: Bool = false
+
+    /// The url to open in the device's web browser.
+    var url: URL?
 
     // MARK: Computed Properties
 
@@ -38,7 +42,7 @@ struct AutoFillState {
 
     /// The options for URI match types ordered based on menu display.
     var uriMatchTypeOptions: [UriMatchType] {
-        return [
+        [
             UriMatchType.domain,
             UriMatchType.host,
             UriMatchType.exact,

@@ -11,6 +11,9 @@ struct AutoFillView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<AutoFillState, AutoFillAction, AutoFillEffect>
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     // MARK: View
 
     var body: some View {
@@ -24,6 +27,11 @@ struct AutoFillView: View {
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
         .task {
             await store.perform(.fetchSettingValues)
         }

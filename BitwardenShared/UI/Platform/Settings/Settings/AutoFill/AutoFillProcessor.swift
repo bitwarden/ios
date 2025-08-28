@@ -56,8 +56,9 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         switch action {
         case .appExtensionTapped:
             coordinator.navigate(to: .appExtension)
+        case .clearUrl:
+            state.url = nil
         case let .defaultUriMatchTypeChanged(newValue):
-            state.defaultUriMatchType = newValue
             Task {
                 await updateDefaultUriMatchType(newValue)
             }
@@ -115,11 +116,19 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     /// - Parameter defaultUriMatchType: The default URI match type.
     ///
     private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
-        do {
-            try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
+        switch defaultUriMatchType {
+        case .regularExpression:
+            showRegularExpressionWarning()
+        case .startsWith:
+            showStartsWithWarning()
+        default:
+            do {
+                state.defaultUriMatchType = defaultUriMatchType
+                try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
+            } catch {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                services.errorReporter.log(error: error)
+            }
         }
     }
 
@@ -134,5 +143,40 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Shows an alert asking the user to confirm that they want use regular expression uri match type.
+    private func showRegularExpressionWarning() {
+        coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
+            do {
+                self.state.defaultUriMatchType = UriMatchType.regularExpression
+                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.regularExpression)
+                self.showLearnMoreAlert(Localizations.regEx)
+            } catch {
+                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
+    /// Shows an alert asking the user to confirm that they want use starts with uri match type.
+    private func showStartsWithWarning() {
+        coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
+            do {
+                self.state.defaultUriMatchType = UriMatchType.startsWith
+                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.startsWith)
+                self.showLearnMoreAlert(Localizations.startsWith)
+            } catch {
+                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
+    /// Shows an alert asking the user if he wants to know more about Uri Matching
+    private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
+        coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
+            self.state.url = ExternalLinksConstants.uriMatchDetections
+        })
     }
 }
