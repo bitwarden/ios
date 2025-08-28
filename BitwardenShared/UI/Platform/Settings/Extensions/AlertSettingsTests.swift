@@ -3,6 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable:next type_body_length
 class AlertSettingsTests: BitwardenTestCase {
     /// `appStoreAlert(action:)` constructs an `Alert` with the title,
     /// message, cancel, and continue buttons to confirm navigating to the app store.
@@ -102,6 +103,39 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.exportVaultWarning)
     }
 
+    /// `confirmRegularExpressionMatchDetectionAlert(action:)` constructs an `Alert`
+    /// with the correct title, message, and Cancel and Yes buttons.
+    func test_confirmRegularExpressionMatchDetectionAlert() {
+        let subject = Alert.confirmRegularExpressionMatchDetectionAlert {}
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseOption(Localizations.regEx))
+        XCTAssertEqual(subject.message, Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+    }
+
+    /// `confirmStartsWithMatchDetectionAlert(action:)` constructs an `Alert`
+    /// with the correct title, message, and Cancel and Yes buttons.
+    func test_confirmStartsWithMatchDetectionAlert() {
+        let subject = Alert.confirmStartsWithMatchDetectionAlert {}
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseOption(Localizations.startsWith))
+        XCTAssertEqual(
+            subject.message,
+            Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+        )
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+    }
+
     /// `displayFingerprintPhraseAlert(encrypted:action:)` constructs an `Alert`
     /// with the correct title, message, and Cancel and Learn More buttons.
     func test_displayFingerprintPhraseAlert() {
@@ -157,6 +191,26 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions.first?.style, .cancel)
         XCTAssertEqual(subject.alertActions.last?.title, Localizations.continue)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+    }
+
+    /// `learnMoreAdvancedMatchingDetection(matchingType: action:)` constructs an `Alert`
+    /// with the correct title, message, and Cancel and Yes buttons.
+    func test_learnMoreAdvancedMatchingDetection() {
+        let subject = Alert.learnMoreAdvancedMatchingDetection(UriMatchType.regularExpression.localizedName) {}
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.keepYourCredentialsSecure)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingOption(
+                UriMatchType.regularExpression.localizedName
+            )
+        )
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.learnMore)
         XCTAssertEqual(subject.alertActions.last?.style, .default)
     }
 
