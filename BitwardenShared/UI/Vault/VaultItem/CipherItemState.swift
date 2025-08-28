@@ -125,6 +125,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// What cipher type this item is.
     var type: CipherType
 
+    /// The url to open in the device's web browser.
+    var url: URL?
+
     /// When this item was last updated.
     var updatedDate: Date
 
