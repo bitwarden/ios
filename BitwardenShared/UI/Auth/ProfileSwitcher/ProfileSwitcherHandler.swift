@@ -114,8 +114,11 @@ extension ProfileSwitcherHandler {
                 await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
                 await refreshProfileState()
             }
-            showProfileSwitcher()
-            profileSwitcherState.isVisible = isVisible
+            if #available(iOS 26, *) {
+                showProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = isVisible
+            }
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
         case .refreshAccountProfiles:

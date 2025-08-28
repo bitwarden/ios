@@ -349,7 +349,7 @@ struct VaultListView: View {
     var windowScene: UIWindowScene?
 
     var body: some View {
-        ZStack (alignment: .bottom) {
+        ZStack(alignment: .bottom) {
             SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
@@ -372,7 +372,9 @@ struct VaultListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
             }
-//            profileSwitcher
+            if #unavailable(iOS 26) {
+                profileSwitcher
+            }
         }
         .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
