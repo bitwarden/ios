@@ -6,6 +6,9 @@ enum AutoFillAction: Equatable {
     /// The app extension button was tapped.
     case appExtensionTapped
 
+    /// Clears the URL.
+    case clearUrl
+
     /// The default URI match type was changed.
     case defaultUriMatchTypeChanged(UriMatchType)
 
