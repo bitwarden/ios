@@ -6,6 +6,10 @@ import Foundation
 /// In practice, it acts largely as a passthrough for the `ProfileSwitcherHandler` so as to
 /// preserve flows in apps running on iOS pre-26.
 class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        
+    }
+    
     // MARK: Types
 
     typealias Service = HasAuthRepository
@@ -43,8 +47,6 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func handleEvent(_ event: AuthAction, context: AnyObject?) async {}
-
     func navigate(to route: ProfileSwitcherRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
@@ -59,8 +61,6 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
             stackNavigator?.replace(view)
         }
     }
-
-    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {}
 
     func start() {}
 }

@@ -69,6 +69,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
+        & ProfileSwitcherModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -258,8 +259,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
-        case .viewAccountSwitcher:
-            foobar(context: context)
+        case .viewProfileSwitcher:
+            showProfileSwitcher(context: context)
         }
     }
 
@@ -436,13 +437,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.present(navigationController)
     }
 
-    func foobar(context: AnyObject? = nil) {
-//        guard let delegate = context as? ProfileSwitcherCoordinatorDelegate else { return }
+    func showProfileSwitcher(context: AnyObject? = nil) {
         guard let handler = context as? ProfileSwitcherHandler else { return }
         let navigationController = module.makeNavigationController()
-        let coordinator = module.makeProfileCoordinator(
+        let coordinator = module.makeProfileSwitcherCoordinator(
             handler: handler,
-//            delegate: delegate,
             stackNavigator: navigationController
         )
         coordinator.start()

@@ -64,6 +64,8 @@ public protocol ProfileSwitcherHandler: AnyObject {
     ///
     func showAlert(_ alert: Alert)
 
+    /// Shows the profile switcher; this is used on iOS >=26 for displaying the sheet;
+    /// on iOS <26, `profileSwitcherState.isVisible` is used instead.
     func showProfileSwitcher()
 }
 

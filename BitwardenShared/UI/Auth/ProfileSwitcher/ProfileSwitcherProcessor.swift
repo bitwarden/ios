@@ -16,7 +16,7 @@ final class ProfileSwitcherProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<ProfileSwitcherRoute, AuthAction>
+    private let coordinator: AnyCoordinator<ProfileSwitcherRoute, Void>
 
     /// The services used by this processor.
     private let services: Services
@@ -26,7 +26,7 @@ final class ProfileSwitcherProcessor: StateProcessor<
     // MARK: Initialization
 
     init(
-        coordinator: AnyCoordinator<ProfileSwitcherRoute, AuthAction>,
+        coordinator: AnyCoordinator<ProfileSwitcherRoute, Void>,
         handler: ProfileSwitcherHandler,
         services: Services,
         state: ProfileSwitcherState

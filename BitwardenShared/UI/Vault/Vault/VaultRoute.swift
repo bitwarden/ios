@@ -86,7 +86,7 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
 
-    /// A route to the TODO
+    /// A route to display the profile switcher.
     ///
-    case viewAccountSwitcher
+    case viewProfileSwitcher
 }
