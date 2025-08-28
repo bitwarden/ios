@@ -129,7 +129,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
         let collectionTree = try await clientService.vault().collections()
             .decryptList(collections: preparedData.collections)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .sorted(using: CollectionView.defaultSortDescriptor)
             .asNestedNodes()
 
         let nestedCollections = if let nestedCollectionId {

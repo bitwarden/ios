@@ -866,14 +866,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
     func test_fetchCollections() async throws {
         collectionService.fetchAllCollectionsResult = .success([
-            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
         ])
         let collections = try await subject.fetchCollections(includeReadOnly: false)
 
         XCTAssertEqual(
-            collections,
+            collections.map(\.name),
             [
-                .fixture(id: "1", name: "Collection 1"),
+                "Collection 2",
+                "Collection 1",
+                "Collection 3",
             ]
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
