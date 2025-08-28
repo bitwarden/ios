@@ -58,6 +58,12 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
 //    var toast: Toast? { get set }
 }
 
+
+// MARK: - ProfileSwitcherCoordinator
+
+/// A coordinator that manages navigation in the profile switcher.
+/// In practice, it acts largely as a passthrough for the `ProfileSwitcherHandler` so as to
+/// preserve flows in apps running on iOS pre-26.
 class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
@@ -96,19 +102,19 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     func handleEvent(_ event: AuthAction, context: AnyObject?) async {}
 
-    func navigate(to route: AuthRoute, context: AnyObject?) {
-        if route == .dismiss {
+    func navigate(to route: ProfileSwitcherRoute, context: AnyObject?) {
+        switch route {
+        case .dismiss:
             stackNavigator?.dismiss()
-            return
+        case .open:
+            let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
+                                                     handler: handler,
+                                                     services: services,
+                                                     state: handler.profileSwitcherState)
+            let store = Store(processor: processor)
+            let view = ProfileSwitcherSheet(store: store)
+            stackNavigator?.replace(view)
         }
-
-        let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
-                                                 handler: handler,
-                                                 services: services,
-                                                 state: handler.profileSwitcherState)
-        let store = Store(processor: processor)
-        let view = ProfileSwitcherSheet(store: store)
-        stackNavigator?.replace(view)
     }
 
     func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {}

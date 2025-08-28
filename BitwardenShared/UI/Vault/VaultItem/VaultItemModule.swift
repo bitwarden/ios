@@ -18,7 +18,7 @@ protocol VaultItemModule {
 //        delegate: ProfileSwitcherCoordinatorDelegate,
         handler: ProfileSwitcherHandler,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<AuthRoute, AuthAction>
+    ) -> AnyCoordinator<ProfileSwitcherRoute, AuthAction>
 }
 
 extension DefaultAppModule: VaultItemModule {
@@ -37,7 +37,7 @@ extension DefaultAppModule: VaultItemModule {
 //        delegate: ProfileSwitcherCoordinatorDelegate,
         handler: ProfileSwitcherHandler,
         stackNavigator: any StackNavigator
-    ) -> AnyCoordinator<AuthRoute, AuthAction> {
+    ) -> AnyCoordinator<ProfileSwitcherRoute, AuthAction> {
         ProfileSwitcherCoordinator(
 //            delegate: delegate,
             handler: handler,

@@ -446,7 +446,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             stackNavigator: navigationController
         )
         coordinator.start()
-        coordinator.navigate(to: .landing, context: nil)
+        coordinator.navigate(to: .open, context: nil)
         if let sheet = navigationController.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
