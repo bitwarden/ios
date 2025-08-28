@@ -12,7 +12,7 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
     ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
     ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    func lockVault(userId: String?, isManuallyLocking: Bool)
+//    func lockVault(userId: String?, isManuallyLocking: Bool)
 
     /// Called when the user has been logged out.
     ///
@@ -20,23 +20,23 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
     ///   - userId: The id of the account to log out.
     ///   - userInitiated: Did a user action initiate this logout?
     ///
-    func logout(userId: String?, userInitiated: Bool)
+//    func logout(userId: String?, userInitiated: Bool)
 
     /// Called when the user taps add account.
     ///
-    func didTapAddAccount()
+//    func didTapAddAccount()
 
     /// Called when the user taps selects alternate account.
     ///
     ///  - Parameter userId: The userId of the selected account.
     ///
-    func didTapAccount(userId: String)
+//    func didTapAccount(userId: String)
 
     /// Present the login request view.
     ///
     /// - Parameter loginRequest: The login request.
     ///
-    func presentLoginRequest(_ loginRequest: LoginRequest)
+//    func presentLoginRequest(_ loginRequest: LoginRequest)
 
     /// When the user requests an account switch.
     ///
@@ -46,34 +46,19 @@ public protocol ProfileSwitcherCoordinatorDelegate: AnyObject {
     ///   - authCompletionRoute: An optional route that should be navigated to after switching
     ///     accounts and vault unlock
     ///
-    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?)
+//    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?)
 
     /// Called when the user needs to switch to the settings tab and navigate to a `SettingsRoute`.
     ///
     /// - Parameter route: The route to navigate to in the settings tab.
     ///
-    func switchToSettingsTab(route: SettingsRoute)
+//    func switchToSettingsTab(route: SettingsRoute)
 
     /// The `State` for a toast view.
-    var toast: Toast? { get set }
+//    var toast: Toast? { get set }
 }
 
 class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
-    func handleEvent(_ event: AuthAction, context: AnyObject?) async {
-        switch event {
-        case let .logout(userId, userInitiated):
-            delegate?.logout(userId: userId, userInitiated: userInitiated)
-        case let .lockVault(userId, isManuallyLocking):
-            delegate?.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
-        case let .switchAccount(isAutomatic, userId, authCompletionRoute):
-            delegate?.switchAccount(
-                userId: userId,
-                isAutomatic: isAutomatic,
-                authCompletionRoute: authCompletionRoute
-            )
-        }
-    }
-    
     // MARK: Types
 
     typealias Service = HasAuthRepository
@@ -88,35 +73,6 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// The services used by this coordinator.
     private let services: Services
 
-    func navigate(to route: AuthRoute, context: AnyObject?) {
-        if route == .dismiss {
-            stackNavigator?.dismiss()
-            return
-        }
-//        let state = services.authRepository.getProfilesState(allowLockAndLogout: true, isVisible: true, shouldAlwaysHideAddAccount: false, showPlaceholderToolbarIcon: true)
-//        let state = ProfileSwitcherState(accounts: [], activeAccountId: nil, allowLockAndLogout: true, isVisible: true)
-//        let state = ProfileSwitcherState.empty()
-        let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
-                                         handler: handler,
-                                         services: services,
-                                         state: handler.profileSwitcherState)
-        let store = Store(processor: processor)
-        let view = ProfileSwitcherSheet(store: store)
-        stackNavigator?.replace(view)
-    }
-    
-    typealias Event = AuthAction
-
-    typealias Route = AuthRoute
-
-    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
-
-    }
-    
-    func start() {
-
-    }
-    
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
@@ -127,14 +83,35 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Creates a new `ProfileSwitcherCoordinator`.
     /// TODO
     init(
-//        delegate: ProfileSwitcherCoordinatorDelegate,
         handler: ProfileSwitcherHandler,
         services: Services,
         stackNavigator: StackNavigator
     ) {
-//        self.delegate = delegate
         self.handler = handler
         self.services = services
         self.stackNavigator = stackNavigator
     }
+
+    // MARK: Methods
+
+    func handleEvent(_ event: AuthAction, context: AnyObject?) async {}
+
+    func navigate(to route: AuthRoute, context: AnyObject?) {
+        if route == .dismiss {
+            stackNavigator?.dismiss()
+            return
+        }
+
+        let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
+                                                 handler: handler,
+                                                 services: services,
+                                                 state: handler.profileSwitcherState)
+        let store = Store(processor: processor)
+        let view = ProfileSwitcherSheet(store: store)
+        stackNavigator?.replace(view)
+    }
+
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {}
+
+    func start() {}
 }
