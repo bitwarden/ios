@@ -196,6 +196,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        await Task.yield()
         waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
