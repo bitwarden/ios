@@ -64,7 +64,7 @@ case "$MODE" in
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) DISABLE_ASSERTION_FAILURE_ON_ERROR"
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) DISABLE_ASSERTION_FAILURE_ON_ERROR" \
       | xcbeautify --renderer github-actions
     ;;
   "Device")
