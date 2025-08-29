@@ -5,6 +5,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
+    var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -69,6 +70,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        accountKeys[userId]
+    }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]
@@ -177,6 +182,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
+        accountKeys[userId] = keys
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {

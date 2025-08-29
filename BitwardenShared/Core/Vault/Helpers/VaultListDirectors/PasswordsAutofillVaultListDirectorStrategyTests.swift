@@ -6,8 +6,6 @@ import XCTest
 // MARK: - PasswordsAutofillVaultListDirectorStrategyTests
 
 class PasswordsAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
-    // swiftlint:disable:previous type_name
-
     // MARK: Properties
 
     var cipherService: MockCipherService!

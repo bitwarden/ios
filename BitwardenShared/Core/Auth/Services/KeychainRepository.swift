@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 
 // MARK: - KeychainItem

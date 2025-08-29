@@ -35,6 +35,7 @@ extension AuthMethodsData {
 
 extension IdentityTokenResponseModel {
     static func fixture(
+        accountKeys: PrivateKeysResponseModel? = nil,
         forcePasswordReset: Bool = false,
         kdf: KdfType = .pbkdf2sha256,
         kdfIterations: Int = 600_000,
@@ -58,6 +59,7 @@ extension IdentityTokenResponseModel {
         refreshToken: String = "REFRESH_TOKEN"
     ) -> IdentityTokenResponseModel {
         IdentityTokenResponseModel(
+            accountKeys: accountKeys,
             forcePasswordReset: forcePasswordReset,
             kdf: kdf,
             kdfIterations: kdfIterations,

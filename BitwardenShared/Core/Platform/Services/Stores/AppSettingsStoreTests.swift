@@ -39,6 +39,57 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountKeys_isInitiallyNil() {
+        XCTAssertNil(subject.accountKeys(userId: "-1"))
+    }
+
+    /// `accountKeys(userId:)` can be used to get the user's account encryption keys.
+    func test_accountKeys_withValue() {
+        let fixture1 = PrivateKeysResponseModel.fixtureFilled()
+        let fixture2 = PrivateKeysResponseModel.fixture(
+            publicKeyEncryptionKeyPair: .fixture(
+                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
+                publicKey: [1, 2, 3],
+                signedPublicKey: "SIGNED_PUBLIC_KEY_2"
+            ),
+            signatureKeyPair: SignatureKeyPairResponseModel(
+                wrappedSigningKey: "WRAPPED_SIGNING_KEY_2",
+                verifyingKey: "VERIFYING_KEY_2"
+            ),
+            securityState: SecurityStateResponseModel(securityState: "SECURITY_STATE_2")
+        )
+
+        subject.setAccountKeys(fixture1, userId: "1")
+        subject.setAccountKeys(fixture2, userId: "2")
+
+        XCTAssertEqual(subject.accountKeys(userId: "1"), fixture1)
+        XCTAssertEqual(subject.accountKeys(userId: "2"), fixture2)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                PrivateKeysResponseModel.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountKeys_1")?
+                        .data(using: .utf8)
+                )
+            ),
+            fixture1
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                PrivateKeysResponseModel.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountKeys_2")?
+                        .data(using: .utf8)
+                )
+            ),
+            fixture2
+        )
+    }
+
     /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupAutofill_isInitiallyNil() {
         XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))

@@ -313,8 +313,7 @@ extension DefaultSyncService {
         }
 
         if let profile = response.profile {
-            await stateService.updateProfile(from: profile, userId: userId)
-            try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+            try await onProfileSynced(profile, userId: userId)
         }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
@@ -483,6 +482,19 @@ extension DefaultSyncService {
            account.profile.userDecryptionOptions?.trustedDeviceOption != nil,
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
+        }
+    }
+
+    /// Updates the necessary state when an account profile is synced.
+    /// - Parameters:
+    ///   - profile: Profile synced.
+    ///   - userId: The user ID used for the sync.
+    private func onProfileSynced(_ profile: ProfileResponseModel, userId: String) async throws {
+        await stateService.updateProfile(from: profile, userId: userId)
+        try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+
+        if let accountEncryptionKeys = AccountEncryptionKeys(responseModel: profile) {
+            try await stateService.setAccountEncryptionKeys(accountEncryptionKeys, userId: userId)
         }
     }
 } // swiftlint:disable:this file_length
