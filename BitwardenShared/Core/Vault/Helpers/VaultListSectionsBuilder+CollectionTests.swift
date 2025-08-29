@@ -43,6 +43,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: "1", organizationId: "1", name: "collection1"),
                     .fixture(id: "2", organizationId: "1", name: "acollection2"),
                     .fixture(id: "3", organizationId: "1", name: "collection3"),
+                    .fixture(id: "4", organizationId: "1", name: "zcollection9", type: .defaultUserCollection),
                 ],
                 collectionsCount: [
                     "1": 20,
@@ -56,6 +57,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Collections]: Collections
+              - Group[4]: zcollection9 (0)
               - Group[2]: acollection2 (5)
               - Group[1]: collection1 (20)
               - Group[3]: collection3 (0)
