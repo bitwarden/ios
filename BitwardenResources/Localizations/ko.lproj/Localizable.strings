@@ -1066,7 +1066,7 @@
 "GotIt" = "이해했습니다";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
-"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
+"AllowAuthenticatorSyncing" = "Bitwarden Authenticator와 동기화 허용";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
 "ImportError" = "가져오기 오류";
@@ -1172,8 +1172,8 @@
 "OpenGenerator" = "Open generator";
 "OpenPasswordGenerator" = "Open password generator";
 "GeneratePassphrase" = "암호 생성";
-"AllowUniversalClipboard" = "Allow Universal Clipboard";
-"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"AllowUniversalClipboard" = "유니버설 클립보드 허용";
+"UseUniversalClipboardToCopyDescriptionLong" = "유니버설 클립보드를 사용하면 여기에서 복사한 내용을 동일한 Apple ID로 로그인된 다른 기기에서도 붙여넣을 수 있습니다.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@은 자체 호스팅된 키 서버로 SSO를 사용하고 있습니다. 이 조직의 구성원들은 로그인할 때 마스터 비밀번호가 필요하지 않습니다.";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
@@ -1191,8 +1191,8 @@
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
-"SiriAndShortcutsAccess" = "Siri & Shortcuts access";
-"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
+"SiriAndShortcutsAccess" = "Siri 및 단축어 접근";
+"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "이 설정을 활성화하면 App Intents를 사용하여 앱이 Siri 및 단축어에 응답할 수 있습니다.";
 "ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "New file Send";
 "NewTextSend" = "New text Send";
