@@ -33,6 +33,11 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
         .navigationTitle(store.state.navigationTitle)
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }

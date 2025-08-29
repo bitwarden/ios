@@ -25,10 +25,10 @@ enum UriMatchType: Int, CaseIterable, Codable, Equatable, Hashable, Menuable {
         switch self {
         case .domain: Localizations.baseDomain
         case .host: Localizations.host
-        case .startsWith: Localizations.startsWith
         case .exact: Localizations.exact
-        case .regularExpression: Localizations.regEx
         case .never: Localizations.never
+        case .startsWith: Localizations.startsWithAdvanced
+        case .regularExpression: Localizations.regularExpressionAdvanced
         }
     }
 }

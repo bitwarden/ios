@@ -131,6 +131,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
+            await loadDefaultUriMatchType()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -165,6 +166,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
+        case .clearUrl:
+            state.url = nil
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case let .customField(action):
@@ -241,7 +244,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.uris[index].uri = newValue
         case let .uriTypeChanged(newValue, index):
             guard index < state.loginState.uris.count else { return }
-            state.loginState.uris[index].matchType = newValue
+            switch newValue.customValue {
+            case .regularExpression:
+                showRegularExpressionWarning(index: index)
+            case .startsWith:
+                showStartsWithWarning(index: index)
+            default:
+                state.loginState.uris[index].matchType = newValue
+            }
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
         }
@@ -487,6 +497,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         if appExtensionDelegate == nil {
             state.isLearnNewLoginActionCardEligible = await services.stateService
                 .getLearnNewLoginActionCardStatus() == .incomplete
+        }
+    }
+
+    /// Load the saved value in autofill settings for the default URI match type.
+    ///
+    private func loadDefaultUriMatchType() async {
+        do {
+            state.loginState.defaultUriMatchTypeSettingsValue = try await services.stateService.getDefaultUriMatchType()
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -752,6 +772,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
+    }
+
+    /// Shows an alert asking the user to confirm that they want use regular expression uri match type.
+    private func showRegularExpressionWarning(index: Int) {
+        coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
+            do {
+                self.state.loginState.uris[index].matchType = .custom(.regularExpression)
+                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.regularExpression)
+                self.showLearnMoreAlert(Localizations.regEx)
+            } catch {
+                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
+    /// Shows an alert asking the user to confirm that they want use starts with uri match type.
+    private func showStartsWithWarning(index: Int) {
+        coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
+            do {
+                self.state.loginState.uris[index].matchType = .custom(.startsWith)
+                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.startsWith)
+                self.showLearnMoreAlert(Localizations.startsWith)
+            } catch {
+                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
+    /// Shows an alert asking the user if he wants to know more about Uri Matching
+    private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
+        coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
+            self.state.url = ExternalLinksConstants.uriMatchDetections
+        })
     }
 }
 
