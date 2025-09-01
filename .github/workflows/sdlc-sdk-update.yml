@@ -88,11 +88,17 @@ jobs:
             echo "updating_existing_branch=false" >> $GITHUB_OUTPUT
           fi
 
+      # Using main to retrieve the changelog on consecutive updates of the same PR.
+      - name: Get current SDK version from main branch
         id: get-current-sdk
         run: |
-          SDK_VERSION=$(awk '/BitwardenSdk:/,/^ [A-Za-z]/ { if ($1 == "revision:") print $2 }' project-bwa.yml)
+          SDK_VERSION=$(git show origin/main:project-pm.yml | yq '.packages.BitwardenSdk.revision')
+          if [ -z "$SDK_VERSION" ]; then
+            echo "::error::Failed to get current SDK version from main branch."
+            exit 1
+          fi
           GIT_REF=$(echo "$SDK_VERSION" | cut -d'-' -f3-) # handles both commit hashes and branch names
-          echo "Current SDK version: $SDK_VERSION"
+          echo "Current SDK version (from main): $SDK_VERSION"
           echo "Current SDK git ref: $GIT_REF"
           echo "version=$SDK_VERSION" >> $GITHUB_OUTPUT
           echo "git_ref=$GIT_REF" >> $GITHUB_OUTPUT
