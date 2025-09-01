@@ -50,7 +50,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         let fixture2 = PrivateKeysResponseModel.fixture(
             publicKeyEncryptionKeyPair: .fixture(
                 wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
-                publicKey: [1, 2, 3],
+                publicKey: "PUBLIC_KEY_2",
                 signedPublicKey: "SIGNED_PUBLIC_KEY_2"
             ),
             signatureKeyPair: SignatureKeyPairResponseModel(

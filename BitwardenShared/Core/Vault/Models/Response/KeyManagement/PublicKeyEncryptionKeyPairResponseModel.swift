@@ -5,7 +5,7 @@ struct PublicKeyEncryptionKeyPairResponseModel: Codable, Equatable {
     let wrappedPrivateKey: WrappedPrivateKey
 
     /// The public key.
-    let publicKey: UnsignedPublicKey
+    let publicKey: String
 
     /// The signed public key.
     let signedPublicKey: SignedPublicKey?

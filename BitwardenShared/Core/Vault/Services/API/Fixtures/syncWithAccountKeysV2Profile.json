@@ -14,7 +14,7 @@
     "accountKeys": {
       "publicKeyEncryptionKeyPair": {
         "wrappedPrivateKey": "WRAPPED_PRIVATE_KEY",
-        "publicKey": [1, 2, 3, 4, 5],
+        "publicKey": "PUBLIC_KEY",
         "signedPublicKey": "SIGNED_PUBLIC_KEY"
       },
       "signatureKeyPair": {
