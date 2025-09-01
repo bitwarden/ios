@@ -51,6 +51,9 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
+    /// The service handling export.
+    private let exportVaultService: ExportVaultService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -64,6 +67,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     ///   - credentialManagerFactory: A factory to create credential managers.
     ///   - cxfCredentialsResultBuilder: Builder to be used to create helper objects for the Credential Exchange flow.
     ///   - errorReporter: The service for handling errors.
+    ///   - exportVaultService: The service handling export.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -72,6 +76,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         credentialManagerFactory: CredentialManagerFactory,
         cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         errorReporter: ErrorReporter,
+        exportVaultService: ExportVaultService,
         stateService: StateService
     ) {
         self.cipherService = cipherService
@@ -79,6 +84,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         self.credentialManagerFactory = credentialManagerFactory
         self.cxfCredentialsResultBuilder = cxfCredentialsResultBuilder
         self.errorReporter = errorReporter
+        self.exportVaultService = exportVaultService
         self.stateService = stateService
     }
 
@@ -99,31 +105,13 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         presentationAnchor: () async -> ASPresentationAnchor
     ) async throws {
         let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
-
-        let options = try await manager.requestExport(forExtensionBundleIdentifier: nil)
-        guard let exportOptions = options as? ASCredentialExportManager.ExportOptions else {
-            throw BitwardenError.generalError(
-                type: "Wrong export options",
-                message: "The credential manager returned wrong export options type."
-            )
-        }
-
-        try await manager.exportCredentials(
-            ASExportedCredentialData(
-                accounts: [data],
-                formatVersion: exportOptions.formatVersion,
-                exporterRelyingPartyIdentifier: Bundle.main.appIdentifier,
-                exporterDisplayName: "Bitwarden",
-                timestamp: Date.now
-            )
-        )
+        try await manager.exportCredentials(importableAccount: data)
     }
 
     #endif
 
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
-        try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil && $0.organizationId == nil }
+        try await exportVaultService.fetchAllCiphersToExport()
     }
 
     #if SUPPORTS_CXP

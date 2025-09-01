@@ -8,9 +8,6 @@ public enum AuthRoute: Equatable {
     /// A route to the autofill setup screen.
     case autofillSetup
 
-    /// A route to the captcha screen.
-    case captcha(url: URL, callbackUrlScheme: String)
-
     /// A route to show the check email screen.
     case checkEmail(email: String)
 
