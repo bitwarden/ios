@@ -194,7 +194,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
     /// Confirming it updates the `defaultUriMatchType`
     @MainActor
-    func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
+    func test_receive_regularExpressionUriMatchTypeSelected_confirm() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
         await Task.yield()
         waitFor(!coordinator.alertShown.isEmpty)
@@ -238,7 +238,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.regularExpression` shows an alert for navigating to the web vault
     /// When `Learn more` is tapped on the alert navigates the user to the web app
     @MainActor
-    func test_receive_advancedUriMatchTypeSelected_learnMore() async throws {
+    func test_receive_regularExpressionUriMatchTypeSelected_learnMore() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
         await Task.yield()
         waitFor(!coordinator.alertShown.isEmpty)
@@ -246,6 +246,66 @@ class AutoFillProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.yes)
 
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
+        let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+        try await alertLearnMore.tapAction(title: Localizations.learnMore)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
+    }
+    
+    /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
+    /// Confirming it updates the `defaultUriMatchType`
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_confirm() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        await Task.yield()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseOption(Localizations.startsWith),
+            message: Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .startsWith)
+        XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .startsWith)
+    }
+    
+    /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
+    /// Canceling it keeps the `defaultUriMatchType` value
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_cancel() async throws {
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        await Task.yield()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseOption(Localizations.startsWith),
+            message: Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+    }
+    
+    /// `receive(_:)` with `.startsWith` shows an alert for navigating to the web vault
+    /// When `Learn more` is tapped on the alert navigates the user to the web app
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_learnMore() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        await Task.yield()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .startsWith)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
