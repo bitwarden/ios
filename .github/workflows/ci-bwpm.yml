@@ -67,7 +67,7 @@ jobs:
     name: Build Manual - ${{ inputs.build-variant }} (${{ inputs.build-mode }})
     needs: version
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@PM-25361/ci-install-simulator-runtimes
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       build-mode: ${{ inputs.build-mode }}
