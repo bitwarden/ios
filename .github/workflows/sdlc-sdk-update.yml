@@ -11,7 +11,6 @@ on:
           - Test # used for testing sdk-internal repo PRs
           - Update # opens a PR in this repo updating the SDK
         default: Test
-      #
       sdk-package:
         description: "SDK Package ID"
         required: true
@@ -22,6 +21,10 @@ on:
         default: "2a6609428275c758fcda5383bfb6b3166ec29eda"
       pr-id:
         description: "Pull Request ID"
+
+env:
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
 
 jobs:
   update:
@@ -98,8 +101,8 @@ jobs:
         run: |
           echo "👀 Committing SDK version update..."
 
-          git config user.name "bw-ghapp[bot]"
-          git config user.email "178206702+bw-ghapp[bot]@users.noreply.github.com"
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
 
           git add project-bwa.yml project-bwk.yml project-pm.yml
           git commit -m "SDK Update - $_SDK_PACKAGE $_SDK_VERSION"
