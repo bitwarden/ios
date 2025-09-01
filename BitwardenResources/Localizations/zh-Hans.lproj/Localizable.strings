@@ -996,8 +996,8 @@
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "无法加载预认证 URL 来启动账户创建。";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "在您的设备设置中，**打开自动填充密码和通行密钥**。";
-"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串** 以使 Bitwarden 成为默认的自动填充来源。";
-"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**打开 Bitwarden** 以使用保存的密码登录您的账户。";
+"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串** 使 Bitwarden 成为默认的自动填充源。";
+"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**打开 Bitwarden** 使用已保存的密码登录您的账户。";
 "TurnOnAutoFill" = "打开自动填充";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "使用自动填充功能，只需点击一次即可登录您的账户。";
 "NeedHelpCheckOutAutofillHelp" = "需要帮助吗？查看 **[自动填充帮助](%1$@)**";
