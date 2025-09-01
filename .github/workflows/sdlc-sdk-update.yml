@@ -66,6 +66,7 @@ jobs:
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
 
       - name: Log inputs to job summary
         uses: ./.github/actions/log-inputs
@@ -77,9 +78,16 @@ jobs:
         run: |
           BRANCH_NAME="sdlc/sdk-update"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          git switch -c $BRANCH_NAME
 
-      - name: Get current SDK version
+          if git switch $BRANCH_NAME; then
+            echo "✅ Switched to existing branch: $BRANCH_NAME"
+            echo "updating_existing_branch=true" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Creating new branch: $BRANCH_NAME"
+            git switch -c $BRANCH_NAME
+            echo "updating_existing_branch=false" >> $GITHUB_OUTPUT
+          fi
+
         id: get-current-sdk
         run: |
           SDK_VERSION=$(awk '/BitwardenSdk:/,/^ [A-Za-z]/ { if ($1 == "revision:") print $2 }' project-bwa.yml)
