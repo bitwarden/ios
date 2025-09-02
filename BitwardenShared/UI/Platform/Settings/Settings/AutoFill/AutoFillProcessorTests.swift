@@ -250,7 +250,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }
-    
+
     /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
     /// Confirming it updates the `defaultUriMatchType`
     @MainActor
@@ -272,7 +272,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.defaultUriMatchType, .startsWith)
         XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .startsWith)
     }
-    
+
     /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
     /// Canceling it keeps the `defaultUriMatchType` value
     @MainActor
@@ -294,7 +294,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
     }
-    
+
     /// `receive(_:)` with `.startsWith` shows an alert for navigating to the web vault
     /// When `Learn more` is tapped on the alert navigates the user to the web app
     @MainActor
