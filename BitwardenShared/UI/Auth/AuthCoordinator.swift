@@ -278,8 +278,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameter rehydratableTarget: The rehydratable target, if any to restore after unlocking if needed.
     private func completeAuth(rehydratableTarget: RehydratableTarget? = nil) {
         if stackNavigator?.isPresenting == true {
-            stackNavigator?.dismiss {
-                self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            if let presented = (stackNavigator as? ViewLoggingNavigationController)?.visibleViewController,
+               presented is UIHostingController<ProfileSwitcherSheet> {
+                // Even though the Profile Switcher Sheet has been asked to dismiss, it has not fully become
+                // un-presented, which would cause the stack navigator to also dismiss the current view,
+                // which we don't want to happen. This circumvents that.
+                delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            } else {
+                stackNavigator?.dismiss {
+                    self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+                }
             }
         } else {
             delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
