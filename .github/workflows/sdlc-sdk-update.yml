@@ -24,7 +24,7 @@ on:
           required: true
           default: "3a2a0988fba5da312a113ca4f59e0a5314c5093e"
       pr-id:
-        description: "Pull Request ID"
+        description: "Pull Request ID (Test mode only)"
 
 env:
   _BOT_NAME: "bw-ghapp[bot]"
@@ -137,15 +137,16 @@ jobs:
           echo "👀 sdk-swift ref: $SDK_SWIFT_REF"
 
           COMMIT_MESSAGE=$(gh api "repos/bitwarden/sdk-swift/commits/$SDK_SWIFT_REF" --jq '.commit.message')
-          echo "👀 commit message: $COMMIT_MESSAGE"
+          echo "👀 sdk-swift ref commit message: \"$COMMIT_MESSAGE\""
           SDK_INTERNAL_REF=$(echo "$COMMIT_MESSAGE" | grep -oE '[a-f0-9]{40}')
           if [ -z "$SDK_INTERNAL_REF" ]; then
             echo "::error::Failed to parse sdk-internal ref from commit message."
             exit 1
           fi
 
-          echo "Current sdk-swift ref (from main): $SDK_SWIFT_REF"
-          echo "Current sdk-internal ref (parsed from commit): $SDK_INTERNAL_REF"
+          echo ""
+          echo "📋 Current sdk-swift ref (from main): $SDK_SWIFT_REF"
+          echo "📋 Current sdk-internal ref (parsed from commit): $SDK_INTERNAL_REF"
           echo "sdk-swift-ref=$SDK_SWIFT_REF" >> $GITHUB_OUTPUT
           echo "sdk-internal-ref=$SDK_INTERNAL_REF" >> $GITHUB_OUTPUT
 
