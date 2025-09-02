@@ -170,30 +170,43 @@ jobs:
           git commit -m "SDK Update - $_SDK_VERSION ($_SDK_SWIFT_REF)"
           git push origin $_BRANCH_NAME
 
-      - name: Create Pull Request
+      - name: Create or Update Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
-          _SDK_VERSION: ${{ inputs.sdk-version }}
-          _OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.version }}
-          _OLD_SDK_GIT_REF: ${{ steps.get-current-sdk.outputs.git_ref }}
+          _NEW_SDK_VERSION: ${{ inputs.sdk-version }}
+          _NEW_SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
+          _NEW_SDK_INTERNAL_REF: ${{ inputs.sdk-internal-ref }}
+          _OLD_SDK_SWIFT_REF: ${{ steps.get-current-sdk.outputs.sdk-swift-ref }}
+          _OLD_SDK_INTERNAL_REF: ${{ steps.get-current-sdk.outputs.sdk-internal-ref }}
         run: |
-          NEW_SDK_GIT_REF=$(echo "$_SDK_VERSION" | cut -d'-' -f3-)
-          PR_BODY="Updates the SDK version from \`$_OLD_SDK_VERSION\` to \`$_SDK_PACKAGE $_SDK_VERSION\`
+          CHANGELOG=$(./scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
+          PR_BODY="Updates the SDK from \`$_OLD_SDK_SWIFT_REF\` to \`$_NEW_SDK_SWIFT_REF\`
 
-          ## What's Changed"
+          ## What's Changed
 
-          # Use echo -e to interpret escape sequences and pipe to gh pr create
-          PR_URL=$(echo -e "$PR_BODY" | gh pr create \
-            --title "Update SDK to $_SDK_VERSION" \
-            --body-file - \
-            --base main \
-            --head $_BRANCH_NAME \
-            --label "automated-pr" \
-            --label "t:ci")
+          $CHANGELOG"
 
-          echo "🚀 Created PR: $PR_URL"
-          echo "## 🚀 Created PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
+          EXISTING_PR=$(gh pr list --head $_BRANCH_NAME --base main --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "🔄 Updating existing PR #$EXISTING_PR..."
+            echo -e "$PR_BODY" | gh pr edit $EXISTING_PR \
+              --title "Update SDK to $_NEW_SDK_VERSION ($_NEW_SDK_SWIFT_REF)" \
+              --body-file -
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ✅ Updated PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "📝 Creating new PR..."
+            PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+              --title "Update SDK to $_NEW_SDK_VERSION ($_NEW_SDK_SWIFT_REF)" \
+              --body-file - \
+              --base main \
+              --head $_BRANCH_NAME \
+              --label "automated-pr" \
+              --label "t:ci")
+            echo "## 🚀 Created PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
+          fi
 
 #  test:
 #    name: Test Update
