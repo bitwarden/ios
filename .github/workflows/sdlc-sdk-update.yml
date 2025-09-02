@@ -11,10 +11,6 @@ on:
           - Test # used for testing sdk-internal repo PRs
           - Update # opens a PR in this repo updating the SDK
         default: Test
-      sdk-package:
-        description: "SDK Package ID"
-        required: true
-        default: "BitwardenSdk"
       sdk-version:
         description: "SDK Version"
         required: true
@@ -135,14 +131,12 @@ jobs:
 
       - name: Update SDK Version
         env:
-          _SDK_PACKAGE: ${{ inputs.sdk-package }}
           _SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
           ./Scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_VERSION"
 
       - name: Create branch and commit
         env:
-          _SDK_PACKAGE: ${{ inputs.sdk-package }}
           _SDK_VERSION: ${{ inputs.sdk-version }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
@@ -159,7 +153,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
-          _SDK_PACKAGE: ${{ inputs.sdk-package }}
           _SDK_VERSION: ${{ inputs.sdk-version }}
           _OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.version }}
           _OLD_SDK_GIT_REF: ${{ steps.get-current-sdk.outputs.git_ref }}
@@ -203,7 +196,6 @@ jobs:
 #
 #      - name: Update SDK Version
 #        env:
-#          _SDK_PACKAGE: ${{ inputs.sdk-package }}
 #          _SDK_VERSION: ${{ inputs.sdk-version }}
 #        run: |
 #          ./scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_VERSION"0
