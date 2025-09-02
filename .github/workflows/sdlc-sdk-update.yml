@@ -151,9 +151,9 @@ jobs:
 
       - name: Update SDK Version
         env:
-          _SDK_VERSION: ${{ inputs.sdk-version }}
+          _SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
         run: |
-          ./Scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_VERSION"
+          ./Scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_SWIFT_REF"
 
       - name: Create branch and commit
         env:
