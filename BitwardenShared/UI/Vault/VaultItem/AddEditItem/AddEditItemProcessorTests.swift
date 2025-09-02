@@ -2137,7 +2137,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.uriTypeChanged` with a valid id updates the state correctly.
     @MainActor
-    func test_receive_uriTypeChanged_withValidUriId() {
+    func test_receive_uriTypeChanged_withValidUriId() async {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
@@ -2146,7 +2146,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 0))
-
+        await Task.yield()
         XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.host))
     }
 
@@ -2605,6 +2605,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
         subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
+        await Task.yield()
         waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
@@ -2616,8 +2617,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         ))
         try await alert.tapAction(title: Localizations.yes)
-
-        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
         XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.regularExpression))
     }
 
@@ -2651,8 +2650,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
-
-        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)

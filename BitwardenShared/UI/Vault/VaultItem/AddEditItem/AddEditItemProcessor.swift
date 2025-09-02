@@ -244,13 +244,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.uris[index].uri = newValue
         case let .uriTypeChanged(newValue, index):
             guard index < state.loginState.uris.count else { return }
-            switch newValue.customValue {
-            case .regularExpression:
-                showRegularExpressionWarning(index: index)
-            case .startsWith:
-                showStartsWithWarning(index: index)
-            default:
-                state.loginState.uris[index].matchType = newValue
+            Task {
+                await confirmAndUpdateDefaultUriMatchType(newValue, index)
             }
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
@@ -745,6 +740,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         coordinator.showAlert(alert)
     }
+    
+    /// Displays a warning for user to confirm if wants to update the ciphers's UriMatchType if necessary
+    ///
+    /// - Parameter newUriMatchType: The default URI match type.
+    ///
+    private func confirmAndUpdateDefaultUriMatchType(_ newUriMatchType: DefaultableType<UriMatchType>, _ index: Int) async {
+        switch newUriMatchType.customValue {
+        case .regularExpression:
+            coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
+                await self.updateUriMatchType(newUriMatchType, index, showLearnMore: true)
+            })
+        case .startsWith:
+            coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
+                await self.updateUriMatchType(newUriMatchType, index, showLearnMore: true)
+            })
+        default:
+            await updateUriMatchType(newUriMatchType, index, showLearnMore: false)
+        }
+    }
+    
+    /// Updates the URI match type value for the cipher.
+    ///
+    /// - Parameter updateUriMatchType: The new selected URI match type.
+    /// - Parameter showLearnMore: If should display the learn more dialog.
+    ///
+    private func updateUriMatchType(
+        _ newUriMatchType: DefaultableType<UriMatchType>,
+        _ index: Int,
+        showLearnMore: Bool
+    ) async {
+        self.state.loginState.uris[index].matchType = newUriMatchType
+        if showLearnMore {
+            showLearnMoreAlert(newUriMatchType.localizedName)
+        }
+    }
 
     /// Updates the item currently in `state`.
     ///
@@ -773,35 +803,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
     }
-
-    /// Shows an alert asking the user to confirm that they want use regular expression uri match type.
-    private func showRegularExpressionWarning(index: Int) {
-        coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-            do {
-                self.state.loginState.uris[index].matchType = .custom(.regularExpression)
-                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.regularExpression)
-                self.showLearnMoreAlert(Localizations.regEx)
-            } catch {
-                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                self.services.errorReporter.log(error: error)
-            }
-        })
-    }
-
-    /// Shows an alert asking the user to confirm that they want use starts with uri match type.
-    private func showStartsWithWarning(index: Int) {
-        coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-            do {
-                self.state.loginState.uris[index].matchType = .custom(.startsWith)
-                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.startsWith)
-                self.showLearnMoreAlert(Localizations.startsWith)
-            } catch {
-                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                self.services.errorReporter.log(error: error)
-            }
-        })
-    }
-
+    
     /// Shows an alert asking the user if he wants to know more about Uri Matching
     private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
         coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
