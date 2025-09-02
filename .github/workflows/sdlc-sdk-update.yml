@@ -125,17 +125,29 @@ jobs:
       # Using main to retrieve the changelog on consecutive updates of the same PR.
       - name: Get current SDK version from main branch
         id: get-current-sdk
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          SDK_VERSION=$(git show origin/main:project-common.yml | yq '.packages.BitwardenSdk.revision')
-          if [ -z "$SDK_VERSION" ]; then
+          SDK_SWIFT_REF=$(git show origin/main:project-common.yml | yq '.packages.BitwardenSdk.revision')
+          if [ -z "$SDK_SWIFT_REF" ]; then
             echo "::error::Failed to get current SDK version from main branch."
             exit 1
           fi
-          GIT_REF=$(echo "$SDK_VERSION" | cut -d'-' -f3-) # handles both commit hashes and branch names
-          echo "Current SDK version (from main): $SDK_VERSION"
-          echo "Current SDK git ref: $GIT_REF"
-          echo "version=$SDK_VERSION" >> $GITHUB_OUTPUT
-          echo "git_ref=$GIT_REF" >> $GITHUB_OUTPUT
+
+          echo "👀 sdk-swift ref: $SDK_SWIFT_REF"
+
+          COMMIT_MESSAGE=$(gh api "repos/bitwarden/sdk-swift/commits/$SDK_SWIFT_REF" --jq '.commit.message')
+          echo "👀 commit message: $COMMIT_MESSAGE"
+          SDK_INTERNAL_REF=$(echo "$COMMIT_MESSAGE" | grep -oE '[a-f0-9]{40}')
+          if [ -z "$SDK_INTERNAL_REF" ]; then
+            echo "::error::Failed to parse sdk-internal ref from commit message."
+            exit 1
+          fi
+
+          echo "Current sdk-swift ref (from main): $SDK_SWIFT_REF"
+          echo "Current sdk-internal ref (parsed from commit): $SDK_INTERNAL_REF"
+          echo "sdk-swift-ref=$SDK_SWIFT_REF" >> $GITHUB_OUTPUT
+          echo "sdk-internal-ref=$SDK_INTERNAL_REF" >> $GITHUB_OUTPUT
 
       - name: Update SDK Version
         env:
