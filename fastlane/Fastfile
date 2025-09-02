@@ -237,18 +237,19 @@ platform :ios do |options|
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
-        env_vars: ['_BUNDLE_ID', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
+        env_vars: ['_BUNDLE_ID', '_BUNDLE_DISPLAY', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
       )
 
       export_options_file = "Configs/export_options.plist"
 
       local_xcconfig_file = ENV["_LOCAL_XCCONFIG_PATH"]
       bundle_id = ENV["_BUNDLE_ID"]
+      bundle_display = ENV["_BUNDLE_DISPLAY"]
       shared_app_group_id = ENV["_GROUP_ID"]
       profile_prefix = ENV["_PROVISIONING_PROFILE_PREFIX"]
       app_icon = ENV["_APP_ICON"]
 
-      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
 
       Dir.chdir("..") do
@@ -267,10 +268,10 @@ platform :ios do |options|
       UI.success("Successfully created config files for #{bundle_id}")
     end
 
-    def generate_xcconfig(app, bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+    def generate_xcconfig(app, bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
         case app
             when "password_manager"
-                generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+                generate_xcconfig_content_bwpm(bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
             when "authenticator"
                 generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
         end
@@ -285,13 +286,14 @@ platform :ios do |options|
         end
     end
 
-    def generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+    def generate_xcconfig_content_bwpm(bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       {
         "CODE_SIGN_STYLE" => "Manual",
         "CODE_SIGN_IDENTITY" => "Apple Distribution",
         "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
         "ORGANIZATION_IDENTIFIER" => "com.8bit",
         "BASE_BUNDLE_ID" => bundle_id,
+        "BMPW_BUNDLE_DISPLAY_NAME" => bundle_display,
         "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
         "APPICON_NAME" => app_icon,
         "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
