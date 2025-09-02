@@ -25,6 +25,7 @@ on:
 env:
   _BOT_NAME: "bw-ghapp[bot]"
   _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
+  _SDK_DEPENDENCY_NAME: "BitwardenSdk"
 
 jobs:
   update:
@@ -121,7 +122,7 @@ jobs:
       - name: Get current SDK version from main branch
         id: get-current-sdk
         run: |
-          SDK_VERSION=$(git show origin/main:project-pm.yml | yq '.packages.BitwardenSdk.revision')
+          SDK_VERSION=$(git show origin/main:project-common.yml | yq '.packages.BitwardenSdk.revision')
           if [ -z "$SDK_VERSION" ]; then
             echo "::error::Failed to get current SDK version from main branch."
             exit 1
@@ -137,7 +138,7 @@ jobs:
           _SDK_PACKAGE: ${{ inputs.sdk-package }}
           _SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
-          ./Scripts/update-sdk-version.sh "$_SDK_PACKAGE" "$_SDK_VERSION"
+          ./Scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_VERSION"
 
       - name: Create branch and commit
         env:
@@ -150,8 +151,8 @@ jobs:
           git config user.name "$_BOT_NAME"
           git config user.email "$_BOT_EMAIL"
 
-          git add project-bwa.yml project-bwk.yml project-pm.yml
-          git commit -m "SDK Update - $_SDK_PACKAGE $_SDK_VERSION"
+          git add project-common.yml
+          git commit -m "SDK Update - $_SDK_DEPENDENCY_NAME $_SDK_VERSION"
           git push origin $_BRANCH_NAME
 
       - name: Create Pull Request
@@ -205,7 +206,7 @@ jobs:
 #          _SDK_PACKAGE: ${{ inputs.sdk-package }}
 #          _SDK_VERSION: ${{ inputs.sdk-version }}
 #        run: |
-#          ./scripts/update-sdk-version.sh "$_SDK_PACKAGE" "$_SDK_VERSION"0
+#          ./scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_VERSION"0
 #
 #      - name: Build
 #        env:
