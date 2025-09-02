@@ -182,7 +182,7 @@ jobs:
           _OLD_SDK_SWIFT_REF: ${{ steps.get-current-sdk.outputs.sdk-swift-ref }}
           _OLD_SDK_INTERNAL_REF: ${{ steps.get-current-sdk.outputs.sdk-internal-ref }}
         run: |
-          CHANGELOG=$(./scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
+          CHANGELOG=$(./Scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
           PR_BODY="Updates the SDK from \`$_OLD_SDK_SWIFT_REF\` to \`$_NEW_SDK_SWIFT_REF\`
 
           ## What's Changed
