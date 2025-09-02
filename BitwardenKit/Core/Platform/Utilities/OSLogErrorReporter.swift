@@ -37,10 +37,8 @@ public final class OSLogErrorReporter: ErrorReporter {
 
         guard !error.isNonLoggableError else { return }
 
-        #if !DISABLE_ASSERTION_FAILURE_ON_ERROR
         // Crash in debug builds to make the error more visible during development.
         assertionFailure("Unexpected error: \(error)")
-        #endif
     }
 
     public func setRegion(_ region: String, isPreAuth: Bool) {
