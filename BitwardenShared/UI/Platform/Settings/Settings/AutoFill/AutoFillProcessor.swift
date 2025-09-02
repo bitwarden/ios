@@ -60,7 +60,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             state.url = nil
         case let .defaultUriMatchTypeChanged(newValue):
             Task {
-                await updateDefaultUriMatchType(newValue)
+                await confirmAndUpdateDefaultUriMatchType(newValue)
             }
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill)
@@ -75,6 +75,27 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     }
 
     // MARK: Private
+
+    /// Displays a warning for user to confirm if wants to update the defaultUriMatchType if necessary
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    private func confirmAndUpdateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
+        switch defaultUriMatchType {
+        case .regularExpression:
+            coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
+                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
+            }
+            )
+        case .startsWith:
+            coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
+                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
+            }
+            )
+        default:
+            await updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: false)
+        }
+    }
 
     /// Dismisses the set up autofill action card by marking the user's vault autofill setup progress complete.
     ///
@@ -114,21 +135,18 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     /// Updates the default URI match type value for the user.
     ///
     /// - Parameter defaultUriMatchType: The default URI match type.
+    /// - Parameter showLearnMore: If should display the learn more dialog.
     ///
-    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
-        switch defaultUriMatchType {
-        case .regularExpression:
-            showRegularExpressionWarning()
-        case .startsWith:
-            showStartsWithWarning()
-        default:
-            do {
-                state.defaultUriMatchType = defaultUriMatchType
-                try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
-            } catch {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                services.errorReporter.log(error: error)
+    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType, showLearnMore: Bool) async {
+        do {
+            state.defaultUriMatchType = defaultUriMatchType
+            try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
+            if showLearnMore {
+                showLearnMoreAlert(defaultUriMatchType.localizedName)
             }
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -143,34 +161,6 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
-    }
-
-    /// Shows an alert asking the user to confirm that they want use regular expression uri match type.
-    private func showRegularExpressionWarning() {
-        coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-            do {
-                self.state.defaultUriMatchType = UriMatchType.regularExpression
-                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.regularExpression)
-                self.showLearnMoreAlert(Localizations.regEx)
-            } catch {
-                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                self.services.errorReporter.log(error: error)
-            }
-        })
-    }
-
-    /// Shows an alert asking the user to confirm that they want use starts with uri match type.
-    private func showStartsWithWarning() {
-        coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-            do {
-                self.state.defaultUriMatchType = UriMatchType.startsWith
-                try await self.services.settingsRepository.updateDefaultUriMatchType(UriMatchType.startsWith)
-                self.showLearnMoreAlert(Localizations.startsWith)
-            } catch {
-                self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                self.services.errorReporter.log(error: error)
-            }
-        })
     }
 
     /// Shows an alert asking the user if he wants to know more about Uri Matching
