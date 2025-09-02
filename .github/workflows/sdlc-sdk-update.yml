@@ -14,7 +14,15 @@ on:
       sdk-version:
         description: "SDK Version"
         required: true
-        default: "2a6609428275c758fcda5383bfb6b3166ec29eda"
+        default: "1.0.0-281-a1611ee"
+      sdk-internal-ref:
+          description: "sdk-internal repo git ref"
+          required: true
+          default: "a1611ee273e9ff6b2c03bc2e2e8175f96e300c77"
+      sdk-swift-ref:
+          description: "sdk-swift repo git ref"
+          required: true
+          default: "3a2a0988fba5da312a113ca4f59e0a5314c5093e"
       pr-id:
         description: "Pull Request ID"
 
