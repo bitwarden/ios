@@ -10,7 +10,7 @@ class AlertPlatformTests: BitwardenTestCase {
         let subject = Alert.confirmRegularExpressionMatchDetectionAlert {}
         
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseOption(Localizations.regEx))
+        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.regEx))
         XCTAssertEqual(subject.message, Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
@@ -25,7 +25,7 @@ class AlertPlatformTests: BitwardenTestCase {
         let subject = Alert.confirmStartsWithMatchDetectionAlert {}
         
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseOption(Localizations.startsWith))
+        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.startsWith))
         XCTAssertEqual(
             subject.message,
             Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
@@ -46,7 +46,7 @@ class AlertPlatformTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.keepYourCredentialsSecure)
         XCTAssertEqual(
             subject.message,
-            Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingOption(
+            Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(
                 UriMatchType.regularExpression.localizedName
             )
         )

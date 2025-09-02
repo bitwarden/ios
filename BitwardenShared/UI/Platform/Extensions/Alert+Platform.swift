@@ -15,7 +15,7 @@ extension Alert {
         action: @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: Localizations.areYouSureYouWantToUseOption(Localizations.regEx),
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
             message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -35,7 +35,7 @@ extension Alert {
         action: @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: Localizations.areYouSureYouWantToUseOption(Localizations.startsWith),
+            title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
             message: Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -58,7 +58,7 @@ extension Alert {
     ) -> Alert {
         Alert(
             title: Localizations.keepYourCredentialsSecure,
-            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingOption(matchingType),
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(matchingType),
             alertActions: [
                 AlertAction(title: Localizations.close, style: .cancel),
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in

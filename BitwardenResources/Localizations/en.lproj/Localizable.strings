@@ -1283,6 +1283,6 @@
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
 "StartsWithAdvanced" = "Starts with (advanced)";
 "RegularExpressionAdvanced" = "Regular expression (advanced)";
-"AreYouSureYouWantToUseOption" = "Are you sure you want to use “%1$@”?";
+"AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
 "KeepYourCredentialsSecure" = "Keep your credentials secure";
-"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingOption" = "Learn more about how to keep credentials secure when using “%1$@”.";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";

@@ -2608,7 +2608,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: Localizations.areYouSureYouWantToUseOption(Localizations.regEx),
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
             message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -2630,7 +2630,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: Localizations.areYouSureYouWantToUseOption(Localizations.regEx),
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
             message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
