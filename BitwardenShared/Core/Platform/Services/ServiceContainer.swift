@@ -76,7 +76,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let errorReportBuilder: ErrorReportBuilder
 
     /// The service used by the application to report non-fatal errors.
-    public let errorReporter: ErrorReporter
+    let errorReporter: ErrorReporter
 
     /// The service used to record and send events.
     let eventService: EventService

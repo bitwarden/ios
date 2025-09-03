@@ -188,7 +188,7 @@ protocol HasErrorReportBuilder {
 
 /// Protocol for an object that provides an `ErrorReporter`.
 ///
-public protocol HasErrorReporter {
+protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
 }
