@@ -294,13 +294,23 @@ private extension ProfileSwitcherHandler {
     ///
     func select(_ account: ProfileSwitcherItem) async {
         defer {
-            if #available(iOS 26, *) {
-                dismissProfileSwitcher()
-            } else {
+            if #unavailable(iOS 26) {
                 profileSwitcherState.isVisible = false
             }
         }
-        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else { return }
+        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else {
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            }
+            return
+        }
+        if #available(iOS 26, *) {
+            // This has to happen before the account switch event is handled, otherwise in the share extension,
+            // the stack navigator believes it's not presenting anything, and the dismiss becomes a no-op, leaving
+            // the profile switcher on the screen.
+            // Making sure we do the dismiss *first* solves the problem.
+            dismissProfileSwitcher()
+        }
         await handleAuthEvent(
             .action(
                 .switchAccount(
