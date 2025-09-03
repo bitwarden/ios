@@ -1207,8 +1207,16 @@ extension DefaultAuthRepository: AuthRepository {
         case .authRequest,
              .deviceKey,
              .keyConnector,
-             .pinEnvelope:
-            break
+             .pin:
+            // If the user has a legacy pin, migrate to a pin protected user key envelope.
+            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
+            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
+                encryptedPin: encryptedPin
+            )
+            try await stateService.setPinKeys(
+                enrollPinResponse: enrollPinResponse,
+                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
+            )
         case .decryptedKey,
              .password:
             // If the user has a pin, but requires master password after restart, set the pin
@@ -1218,16 +1226,8 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPin: encryptedPin
             )
             try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
-        case .pin:
-            // If the user has legacy pin, migrate to a pin protected user key envelope.
-            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
-            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                encryptedPin: encryptedPin
-            )
-            try await stateService.setPinKeys(
-                enrollPinResponse: enrollPinResponse,
-                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
-            )
+        case .pinEnvelope:
+            break
         }
     }
 }
