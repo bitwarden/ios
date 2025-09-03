@@ -160,12 +160,13 @@ jobs:
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
+          _SDK_SWIFT_REF_SHORT="${_SDK_SWIFT_REF:0:7}"
 
           git config user.name "$_BOT_NAME"
           git config user.email "$_BOT_EMAIL"
 
           git add project-common.yml
-          git commit -m "SDK Update - $_SDK_VERSION ($_SDK_SWIFT_REF)"
+          git commit -m "SDK Update - $_SDK_SWIFT_REF_SHORT ($_SDK_VERSION)"
           git push origin $_BRANCH_NAME
 
       - name: Create or Update Pull Request
@@ -186,18 +187,19 @@ jobs:
           $CHANGELOG"
 
           EXISTING_PR=$(gh pr list --head $_BRANCH_NAME --base main --state open --json number --jq '.[0].number // empty')
+          _NEW_SDK_SWIFT_REF_SHORT="${_NEW_SDK_SWIFT_REF:0:7}"
 
           if [ -n "$EXISTING_PR" ]; then
             echo "🔄 Updating existing PR #$EXISTING_PR..."
             echo -e "$PR_BODY" | gh pr edit $EXISTING_PR \
-              --title "Update SDK to $_NEW_SDK_VERSION ($_NEW_SDK_SWIFT_REF)" \
+              --title "Update SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
               --body-file -
             PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
             echo "## ✅ Updated PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
           else
             echo "📝 Creating new PR..."
             PR_URL=$(echo -e "$PR_BODY" | gh pr create \
-              --title "Update SDK to $_NEW_SDK_VERSION ($_NEW_SDK_SWIFT_REF)" \
+              --title "Update SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
               --body-file - \
               --base main \
               --head $_BRANCH_NAME \
