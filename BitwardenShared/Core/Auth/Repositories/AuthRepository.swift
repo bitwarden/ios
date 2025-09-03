@@ -1108,7 +1108,8 @@ extension DefaultAuthRepository: AuthRepository {
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
-             .pin:
+             .pin,
+             .pinEnvelope: // TODO: PM-23289 will change in this ticket
             // No-op: nothing extra to do.
             break
         }
@@ -1195,7 +1196,8 @@ extension DefaultAuthRepository: AuthRepository {
         case .authRequest,
              .deviceKey,
              .keyConnector,
-             .pin:
+             .pin,
+             .pinEnvelope: // TODO: PM-23289 will change in this ticket
             break
         case .decryptedKey,
              .password:
