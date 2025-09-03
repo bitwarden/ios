@@ -344,6 +344,7 @@ struct BitwardenMenuField<
     private func footerView() -> some View {
         if let footerContent {
             Group {
+                Divider()
                 if let footerContent = footerContent as? Text {
                     footerContent
                         .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
@@ -353,16 +354,6 @@ struct BitwardenMenuField<
                 } else {
                     footerContent
                 }
-            }
-            // Apply trailing padding to the content, extend the frame the full width of view, and
-            // add the divider in the background to ensure the divider is only shown if there's
-            // content returned by the @ViewBuilder closure. Otherwise, an `if` block in the closure
-            // that evaluates to false will have non-optional content but doesn't display anything
-            // so the divider shouldn't be shown.
-            .padding(.trailing, 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(alignment: .top) {
-                Divider()
             }
         }
     }
@@ -451,3 +442,5 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     .background(Color(.systemGroupedBackground))
 }
 #endif
+
+// swiftlint:disable:this file_length
