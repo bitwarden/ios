@@ -15,10 +15,6 @@ on:
         description: "SDK Version"
         required: true
         default: "1.0.0-281-a1611ee"
-      sdk-internal-ref:
-          description: "sdk-internal repo git ref"
-          required: true
-          default: "a1611ee273e9ff6b2c03bc2e2e8175f96e300c77"
       sdk-swift-ref:
           description: "sdk-swift repo git ref"
           required: true
@@ -178,10 +174,10 @@ jobs:
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
           _NEW_SDK_VERSION: ${{ inputs.sdk-version }}
           _NEW_SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
-          _NEW_SDK_INTERNAL_REF: ${{ inputs.sdk-internal-ref }}
           _OLD_SDK_SWIFT_REF: ${{ steps.get-current-sdk.outputs.sdk-swift-ref }}
           _OLD_SDK_INTERNAL_REF: ${{ steps.get-current-sdk.outputs.sdk-internal-ref }}
         run: |
+          _NEW_SDK_INTERNAL_REF=$(echo "$_NEW_SDK_VERSION" | cut -d'-' -f3-)
           CHANGELOG=$(./Scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
           PR_BODY="Updates the SDK from \`$_OLD_SDK_SWIFT_REF\` to \`$_NEW_SDK_SWIFT_REF\`
 
