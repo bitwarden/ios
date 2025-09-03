@@ -75,15 +75,30 @@ struct AutoFillView: View {
 
             BitwardenMenuField(
                 title: Localizations.defaultUriMatchDetection,
-                footer: Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions,
-                footerWarning: store.state.warningMessage,
                 accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
                 options: store.state.uriMatchTypeOptions,
                 selection: store.binding(
                     get: \.defaultUriMatchType,
                     send: AutoFillAction.defaultUriMatchTypeChanged
                 )
-            )
+            ){
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
+                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .multilineTextAlignment(.leading)
+                        .padding(.vertical, 12)
+                        .padding(.bottom, store.state.warningMessage == nil ? 12 : 4)
+
+                    store.state.warningMessage.map { warningMessage in
+                        Text(LocalizedStringKey(warningMessage))
+                            .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .multilineTextAlignment(.leading)
+                            .padding(.bottom, 12)
+                    }
+                }
+            }
         }
     }
 

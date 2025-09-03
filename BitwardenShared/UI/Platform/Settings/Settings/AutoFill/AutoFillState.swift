@@ -32,9 +32,9 @@ struct AutoFillState {
     var warningMessage: String? {
         switch defaultUriMatchType {
         case .regularExpression:
-            Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+            Localizations.warningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
         case .startsWith:
-            Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+            Localizations.warningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
         default:
             nil
         }

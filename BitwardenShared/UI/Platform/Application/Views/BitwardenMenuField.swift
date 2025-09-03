@@ -37,7 +37,8 @@ struct BitwardenMenuField<
     T,
     AdditionalMenu: View,
     TitleAccessory: View,
-    TrailingContent: View
+    TrailingContent: View,
+    FooterContent: View
 >: View where T: Menuable {
     // MARK: Properties
 
@@ -59,11 +60,8 @@ struct BitwardenMenuField<
     /// The options displayed in the menu.
     let options: [T]
 
-    /// The footer text displayed below the menu field.
-    let footer: String?
-
-    /// The warning text displayed below the footer text.
-    let footerWarning: String?
+    /// The (optional) footer content to display underneath the field.
+    var footerContent: FooterContent?
 
     /// The title of the menu field.
     let title: String?
@@ -80,24 +78,7 @@ struct BitwardenMenuField<
         VStack(alignment: .leading, spacing: 0) {
             menu
 
-            if let footer {
-                Divider()
-
-                Text(footer)
-                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.top, 12)
-                    .padding(.bottom, footerWarning == nil ? 12 : 4)
-            }
-
-            if let footerWarning {
-                (Text(Localizations.warning + ": ").bold() + Text(footerWarning))
-                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.bottom, 12)
-            }
+            footerView()
         }
         .padding(.horizontal, 16)
         .background(
@@ -202,11 +183,10 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
-        footerWarning = nil
+        self.footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -218,29 +198,26 @@ struct BitwardenMenuField<
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
-    ///   - footer: The footer text displayed below the menu field.
-    ///   - footerWarning: The warning text displayed below the footer text.
+    ///   - footerView: The footer view displayed below the menu field.
     ///   - accessibilityIdentifier: The accessibility identifier for the view.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
     init(
         title: String,
-        footer: String,
-        footerWarning: String?,
         accessibilityIdentifier: String? = nil,
         options: [T],
-        selection: Binding<T>
+        selection: Binding<T>,
+        @ViewBuilder footer footerContent: () -> FooterContent
     ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
-        self.footerWarning = footerWarning
         self.options = options
         _selection = selection
         self.title = title
         trailingContent = nil
         titleAccessoryContent = nil
+        self.footerContent = footerContent()
     }
 
     /// Initializes a new `BitwardenMenuField`.
@@ -262,11 +239,10 @@ struct BitwardenMenuField<
         selection: Binding<T>,
         titleAccessoryContent: () -> TitleAccessory,
         trailingContent: () -> TrailingContent
-    ) where AdditionalMenu == EmptyView {
+    ) where AdditionalMenu == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
-        footerWarning = nil
+        self.footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -291,11 +267,10 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
-    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView {
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
-        footerWarning = nil
+        footerContent = footer.map{ footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -320,11 +295,10 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         titleAccessoryContent: () -> TitleAccessory
-    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView {
+    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
-        footerWarning = nil
+        self.footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -350,16 +324,32 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         @ViewBuilder additionalMenu: () -> AdditionalMenu
-    ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
+    ) where TrailingContent == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
-        self.footer = footer
-        footerWarning = nil
+        footerContent = footer.map{ footerText in Text(footerText)}
         self.options = options
         _selection = selection
         self.title = title
         titleAccessoryContent = nil
         trailingContent = nil
+    }
+    
+    /// The view to display at the footer below the main content.
+    @ViewBuilder
+    private func footerView() -> some View {
+        if let footerContent {
+            Divider()
+            if let footerContent = footerContent as? Text {
+                footerContent
+                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .padding(.vertical, 12)
+            } else {
+                footerContent
+            }
+        }
     }
 }
 
