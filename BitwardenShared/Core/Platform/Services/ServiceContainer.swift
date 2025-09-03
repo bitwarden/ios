@@ -43,7 +43,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let appSettingsStore: AppSettingsStore
 
     /// The repository used by the application to manage auth data for the UI layer.
-    public let authRepository: AuthRepository
+    let authRepository: AuthRepository
 
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService

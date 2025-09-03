@@ -118,7 +118,7 @@ protocol HasAuthAPIService {
 
 /// Protocol for an object that provides an `AuthRepository`.
 ///
-public protocol HasAuthRepository {
+protocol HasAuthRepository {
     /// The repository used by the application to manage auth data for the UI layer.
     var authRepository: AuthRepository { get }
 }

@@ -7,7 +7,7 @@ import Foundation
 ///     Most likely, this will be a processor.
 ///
 @MainActor
-public protocol ProfileSwitcherHandler: AnyObject {
+protocol ProfileSwitcherHandler: AnyObject {
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
 
