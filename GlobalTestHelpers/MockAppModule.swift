@@ -20,6 +20,7 @@ class MockAppModule:
     NavigatorBuilderModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
+    ProfileSwitcherModule,
     SendModule,
     SendItemModule,
     SettingsModule,
@@ -45,7 +46,7 @@ class MockAppModule:
     // swiftlint:disable:next weak_navigator identifier_name
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
-    var profileSwitcherCoordinator = MockCoordinator<AuthRoute, AuthAction>()
+    var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -152,10 +153,10 @@ class MockAppModule:
         passwordHistoryCoordinator.asAnyCoordinator()
     }
 
-    func makeProfileCoordinator(
+    func makeProfileSwitcherCoordinator(
         handler: any ProfileSwitcherHandler,
         stackNavigator: any StackNavigator
-    ) -> AnyCoordinator<AuthRoute, AuthAction> {
+    ) -> AnyCoordinator<ProfileSwitcherRoute, Void> {
         profileSwitcherCoordinator.asAnyCoordinator()
     }
 
