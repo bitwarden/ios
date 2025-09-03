@@ -10,15 +10,15 @@ on:
         options:
           - Test # used for testing sdk-internal repo PRs
           - Update # opens a PR in this repo updating the SDK
-        default: Test
+        default: Update
       sdk-version:
         description: "SDK Version"
         required: true
-        default: "1.0.0-281-a1611ee"
+        default: "1.0.0-283-7b5d9db"
       sdk-swift-ref:
           description: "sdk-swift repo git ref"
           required: true
-          default: "3a2a0988fba5da312a113ca4f59e0a5314c5093e"
+          default: "c2817139d7da49037841215d37a2f931525bf0fc"
       pr-id:
         description: "Pull Request ID (Test mode only)"
 
