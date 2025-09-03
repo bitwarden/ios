@@ -7,16 +7,14 @@ options:
   usesTabs: false
   indentWidth: 4
   tabWidth: 4
-
 include:
   - path: Configs/local-sdk.yml
     relativePaths: false
     enable: ${LOCAL_SDK}
-
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
+    revision: bb36b4848c5006b4c14f53c07476d12e6f8708ef # 1.0.0-283-7b5d9db
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
