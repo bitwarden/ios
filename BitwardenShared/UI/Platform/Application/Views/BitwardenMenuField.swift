@@ -186,7 +186,7 @@ struct BitwardenMenuField<
     ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footerContent = footer.map { footerText in Text(footerText) }
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -242,7 +242,7 @@ struct BitwardenMenuField<
     ) where AdditionalMenu == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footerContent = footer.map { footerText in Text(footerText) }
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -270,7 +270,7 @@ struct BitwardenMenuField<
     ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        footerContent = footer.map{ footerText in Text(footerText) }
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -298,7 +298,7 @@ struct BitwardenMenuField<
     ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footerContent = footer.map { footerText in Text(footerText) }
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -327,14 +327,14 @@ struct BitwardenMenuField<
     ) where TrailingContent == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
-        footerContent = footer.map{ footerText in Text(footerText)}
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
         titleAccessoryContent = nil
         trailingContent = nil
     }
-    
+
     /// The view to display at the footer below the main content.
     @ViewBuilder
     private func footerView() -> some View {

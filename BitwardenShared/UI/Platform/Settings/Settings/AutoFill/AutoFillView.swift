@@ -81,7 +81,7 @@ struct AutoFillView: View {
                     get: \.defaultUriMatchType,
                     send: AutoFillAction.defaultUriMatchTypeChanged
                 )
-            ){
+            ) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
                         .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
