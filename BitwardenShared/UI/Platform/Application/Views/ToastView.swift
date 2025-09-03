@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A data model for a toast.
 ///
-public struct Toast: Equatable, Identifiable {
+struct Toast: Equatable, Identifiable {
     // MARK: Types
 
     /// A mode that captures what sort of toast this is.
@@ -20,7 +20,7 @@ public struct Toast: Equatable, Identifiable {
     // MARK: Properties
 
     /// A unique identifier of the toast.
-    public let id = UUID()
+    let id = UUID()
 
     /// The mode of the toast.
     let mode: ToastMode
@@ -46,7 +46,7 @@ public struct Toast: Equatable, Identifiable {
         self.mode = mode
     }
 
-    static public func == (lhs: Toast, rhs: Toast) -> Bool {
+    static func == (lhs: Toast, rhs: Toast) -> Bool {
         // Exclude `id` from `Equatable`, it's only used by the view to handle animations between toasts.
         lhs.title == rhs.title
             && lhs.subtitle == rhs.subtitle
