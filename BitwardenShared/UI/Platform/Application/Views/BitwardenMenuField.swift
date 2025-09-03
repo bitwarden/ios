@@ -183,7 +183,11 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
+    )
+        where AdditionalMenu == EmptyView,
+        TitleAccessory == EmptyView,
+        TrailingContent == EmptyView,
+        FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         footerContent = footer.map { footerText in Text(footerText) }
@@ -339,15 +343,26 @@ struct BitwardenMenuField<
     @ViewBuilder
     private func footerView() -> some View {
         if let footerContent {
-            Divider()
-            if let footerContent = footerContent as? Text {
-                footerContent
-                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.vertical, 12)
-            } else {
-                footerContent
+            Group {
+                if let footerContent = footerContent as? Text {
+                    footerContent
+                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .multilineTextAlignment(.leading)
+                        .padding(.vertical, 12)
+                } else {
+                    footerContent
+                }
+            }
+            // Apply trailing padding to the content, extend the frame the full width of view, and
+            // add the divider in the background to ensure the divider is only shown if there's
+            // content returned by the @ViewBuilder closure. Otherwise, an `if` block in the closure
+            // that evaluates to false will have non-optional content but doesn't display anything
+            // so the divider shouldn't be shown.
+            .padding(.trailing, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(alignment: .top) {
+                Divider()
             }
         }
     }

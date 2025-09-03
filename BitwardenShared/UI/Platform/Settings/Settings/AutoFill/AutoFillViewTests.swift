@@ -114,7 +114,7 @@ class AutoFillViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
-    
+
     /// The view renders correctly with the autofill regular expression selected
     @MainActor
     func test_snapshot_regularExpressionUriMatchType() async {
@@ -124,7 +124,7 @@ class AutoFillViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
-    
+
     /// The view renders correctly with the autofill starts with selected
     @MainActor
     func test_snapshot_startsWithUriMatchType() async {

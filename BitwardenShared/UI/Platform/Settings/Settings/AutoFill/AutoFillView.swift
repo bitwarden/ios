@@ -87,7 +87,7 @@ struct AutoFillView: View {
                         .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
                         .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.leading)
-                        .padding(.vertical, 12)
+                        .padding(.top, 12)
                         .padding(.bottom, store.state.warningMessage == nil ? 12 : 4)
 
                     store.state.warningMessage.map { warningMessage in
