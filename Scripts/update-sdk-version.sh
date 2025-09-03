@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Update SDK revision in project-common.yml
+# Update SDK revision in project-common.yml and Package.resolved
 
 set -euo pipefail
 
@@ -13,9 +13,17 @@ fi
 SDK_PACKAGE="$1"
 SDK_SWIFT_REF="$2"
 SDK_VERSION="$3"
-FILE="project-common.yml"
+PROJECT_FILE="project-common.yml"
+PACKAGE_RESOLVED="Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 
-echo "🔧 Updating revision in $FILE..."
-yq -i ".packages[\"$SDK_PACKAGE\"].revision = \"$SDK_SWIFT_REF\" | .packages[\"$SDK_PACKAGE\"].revision line_comment = \"$SDK_VERSION\"" "$FILE"
-echo "✅ Updated revision line:"
-grep -A 3 "$SDK_PACKAGE:" "$FILE"
+# Update project-common.yml
+echo "🔧 Updating revision in $PROJECT_FILE..."
+yq -i ".packages[\"$SDK_PACKAGE\"].revision = \"$SDK_SWIFT_REF\" | .packages[\"$SDK_PACKAGE\"].revision line_comment = \"$SDK_VERSION\"" "$PROJECT_FILE"
+echo "✅ Updated revision line in $PROJECT_FILE"
+
+# Update Package.resolved
+echo "🔧 Updating revision in $PACKAGE_RESOLVED..."
+CURRENT_HASH=$(jq -r '.pins[] | select(.identity == "sdk-swift") | .state.revision' "$PACKAGE_RESOLVED")
+echo "Current hash in Package.resolved: $CURRENT_HASH"
+sed -i '' "s/$CURRENT_HASH/$SDK_SWIFT_REF/g" "$PACKAGE_RESOLVED"
+echo "✅ Updated revision in $PACKAGE_RESOLVED"
