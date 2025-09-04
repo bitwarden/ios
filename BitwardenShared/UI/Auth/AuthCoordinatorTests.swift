@@ -394,17 +394,6 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
-    /// `navigate(to:)` with `.masterPasswordGuidance` presents the master password guidance view.
-    @MainActor
-    func test_navigate_masterPasswordGuidance() throws {
-        subject.navigate(to: .masterPasswordGuidance)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is MasterPasswordGuidanceView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
     /// `navigate(to:)` with `.masterPasswordGenerator` presents the generate master password view.
     @MainActor
     func test_navigate_masterPasswordGenerator() throws {
@@ -416,6 +405,17 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let topmostViewController = stackNavigator.rootViewController?.topmostViewController()
         let navController = try XCTUnwrap(topmostViewController?.navigationController)
         XCTAssertTrue(navController.viewControllers.last is UIHostingController<MasterPasswordGeneratorView>)
+    }
+
+    /// `navigate(to:)` with `.masterPasswordGuidance` presents the master password guidance view.
+    @MainActor
+    func test_navigate_masterPasswordGuidance() throws {
+        subject.navigate(to: .masterPasswordGuidance)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is MasterPasswordGuidanceView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
@@ -487,6 +487,23 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(action.view is SetMasterPasswordView)
         XCTAssertEqual(action.embedInNavigationController, true)
         XCTAssertEqual(action.isModalInPresentation, true)
+    }
+
+    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
+    /// the show decryption options view.
+    @MainActor
+    func test_navigate_showLoginDecryptionOptions() throws {
+        subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>
+        )
+        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
+
+        let view = viewController.rootView
+        let state = view.store.state
+        XCTAssertEqual(state.orgIdentifier, "Bitwarden")
     }
 
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
@@ -646,21 +663,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(stackNavigator.actions.last?.view is UIHostingController<VaultUnlockSetupView>)
     }
 
-    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
-    /// the show decryption options view.
+    /// `navigate(to:)` with `.viewProfileSwitcher` opens the profile switcher.
     @MainActor
-    func test_navigate_showLoginDecryptionOptions() throws {
-        subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
+    func test_navigate_viewProfileSwitcher() throws {
+        let handler = MockProfileSwitcherHandler()
+        subject.navigate(to: .viewProfileSwitcher, context: handler)
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
-        let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>
-        )
-        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
-
-        let view = viewController.rootView
-        let state = view.store.state
-        XCTAssertEqual(state.orgIdentifier, "Bitwarden")
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
     }
 
     /// `navigate(to:)` with `.webAuthnSelfHosted` opens the WebAuthn connector web page.
