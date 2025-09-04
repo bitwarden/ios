@@ -1497,6 +1497,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
+            accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
@@ -1783,6 +1784,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
@@ -1800,6 +1802,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }

@@ -4,7 +4,7 @@ import Foundation
 ///
 struct CollectionDetailsResponseModel: Codable, Equatable {
     // MARK: Properties
-    
+
     /// The offboarded user's email address to be used as name for the collection.
     let defaultUserCollectionEmail: String?
 
