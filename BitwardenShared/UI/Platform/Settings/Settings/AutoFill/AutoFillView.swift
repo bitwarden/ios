@@ -72,7 +72,7 @@ struct AutoFillView: View {
                 accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
             )
             .contentBlock()
-            
+
             BitwardenMenuField(
                 title: Localizations.defaultUriMatchDetection,
                 accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
