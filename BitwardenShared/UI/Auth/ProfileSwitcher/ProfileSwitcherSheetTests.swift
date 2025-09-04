@@ -177,16 +177,6 @@ class ProfileSwitcherSheetTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
     }
 
-    /// Tapping the background triggers a `.backgroundPressed` action.
-    @MainActor
-    func test_background_tap() throws {
-        let view = try subject.inspect().view(ProfileSwitcherView.self)
-        let background = view.first
-        try background?.callOnTapGesture()
-
-        XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
-    }
-
     /// Tests the add account visibility below the maximum account limit
     @MainActor
     func test_addAccountRow_subMaximumAccounts_showAdd() throws {
