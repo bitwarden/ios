@@ -346,11 +346,7 @@ struct BitwardenMenuField<
             Group {
                 Divider()
                 if let footerContent = footerContent as? Text {
-                    BitwardenMenuFooterTextField(
-                        footerContent,
-                        topPadding: 12,
-                        bottomPadding: 12
-                    )
+                    footerContent.bitwardenMenuFooterText(topPadding: 12, bottomPadding: 12)
                 } else {
                     footerContent
                 }

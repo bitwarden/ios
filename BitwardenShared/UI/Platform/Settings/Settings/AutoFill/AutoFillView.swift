@@ -83,18 +83,18 @@ struct AutoFillView: View {
                 )
             ) {
                 VStack(alignment: .leading, spacing: 0) {
-                    BitwardenMenuFooterTextField(
-                        Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions,
-                        topPadding: 12,
-                        bottomPadding: store.state.warningMessage == nil ? 12 : 4
-                    )
+                    Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
+                        .bitwardenMenuFooterText(
+                            topPadding: 12,
+                            bottomPadding: store.state.warningMessage == nil ? 12 : 4
+                        )
 
                     store.state.warningMessage.map { warningMessage in
-                        BitwardenMenuFooterTextField(
-                            LocalizedStringKey(warningMessage),
-                            topPadding: 0,
-                            bottomPadding: 12
-                        )
+                        Text(LocalizedStringKey(warningMessage))
+                            .bitwardenMenuFooterText(
+                                topPadding: 0,
+                                bottomPadding: 12
+                            )
                     }
                 }
             }
