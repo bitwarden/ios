@@ -85,13 +85,11 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         case .regularExpression:
             coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
                 await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
-            }
-            )
+            })
         case .startsWith:
             coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
                 await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
-            }
-            )
+            })
         default:
             await updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: false)
         }
@@ -133,10 +131,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     }
 
     /// Updates the default URI match type value for the user.
-    ///
-    /// - Parameter defaultUriMatchType: The default URI match type.
-    /// - Parameter showLearnMore: If should display the learn more dialog.
-    ///
+    /// - Parameters:
+    /// - defaultUriMatchType: The default URI match type.
+    /// - showLearnMore: If should display the learn more dialog.
+    /// 
     private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType, showLearnMore: Bool) async {
         do {
             state.defaultUriMatchType = defaultUriMatchType

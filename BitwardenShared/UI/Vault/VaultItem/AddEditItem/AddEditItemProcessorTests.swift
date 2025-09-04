@@ -2605,8 +2605,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
         subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
@@ -2625,8 +2626,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_advancedUriMatchTypeSelected_cancel() async throws {
         subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
@@ -2646,8 +2648,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_advancedUriMatchTypeSelected_learnMore() async throws {
         subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)

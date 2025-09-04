@@ -1,7 +1,7 @@
-// MARK: - AutoFillState
-
 import BitwardenResources
 import Foundation
+
+// MARK: - AutoFillState
 
 /// An object that defines the current state of the `AutoFillView`.
 ///

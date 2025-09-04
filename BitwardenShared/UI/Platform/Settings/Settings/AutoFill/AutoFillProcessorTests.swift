@@ -196,8 +196,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_regularExpressionUriMatchTypeSelected_confirm() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
@@ -219,8 +220,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     func test_receive_advancedUriMatchTypeSelected_cancel() async throws {
         XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
@@ -240,8 +242,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_regularExpressionUriMatchTypeSelected_learnMore() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
 
@@ -256,8 +259,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_startsWithUriMatchTypeSelected_confirm() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.startsWith))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
@@ -279,8 +283,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     func test_receive_startsWithUriMatchTypeSelected_cancel() async throws {
         XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
         subject.receive(.defaultUriMatchTypeChanged(.startsWith))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
@@ -300,8 +305,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_startsWithUriMatchTypeSelected_learnMore() async throws {
         subject.receive(.defaultUriMatchTypeChanged(.startsWith))
-        await Task.yield()
-        waitFor(!coordinator.alertShown.isEmpty)
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
 
