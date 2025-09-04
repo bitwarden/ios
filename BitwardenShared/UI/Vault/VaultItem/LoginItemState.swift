@@ -74,14 +74,13 @@ struct LoginItemState: Equatable {
             return DefaultableType<UriMatchType>.default.localizedName
         }
 
-        let defaultName = DefaultableType<UriMatchType>.default.localizedName
         let suffix = switch defaultUriMatchTypeSettingsValue {
         case .regularExpression: Localizations.regEx
         case .startsWith: Localizations.startsWith
         default: defaultUriMatchTypeSettingsValue.localizedName
         }
 
-        return "\(defaultName) (\(suffix))"
+        return Localizations.defaultX(suffix)
     }
 
     /// The username for this item.

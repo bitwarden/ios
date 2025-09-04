@@ -1288,3 +1288,4 @@
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Starts with\” is an advanced option with increased risk of exposing credentials.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Regular expression\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
+"DefaultX" = "Default (%1$@)";
