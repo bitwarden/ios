@@ -34,6 +34,7 @@ public struct ProfileSwitcherSheet: View {
 //        .accessibilityAction(named: Localizations.close) {
 //            store.send(.backgroundPressed)
 //        }
+        .scrollView()
     }
 
     // MARK: Private Properties
