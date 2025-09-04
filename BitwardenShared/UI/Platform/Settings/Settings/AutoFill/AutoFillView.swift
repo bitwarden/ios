@@ -72,7 +72,7 @@ struct AutoFillView: View {
                 accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
             )
             .contentBlock()
-
+            
             BitwardenMenuField(
                 title: Localizations.defaultUriMatchDetection,
                 accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
@@ -83,19 +83,18 @@ struct AutoFillView: View {
                 )
             ) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
-                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.leading)
-                        .padding(.top, 12)
-                        .padding(.bottom, store.state.warningMessage == nil ? 12 : 4)
+                    BitwardenMenuFooterTextField(
+                        Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions,
+                        topPadding: 12,
+                        bottomPadding: store.state.warningMessage == nil ? 12 : 4
+                    )
 
                     store.state.warningMessage.map { warningMessage in
-                        Text(LocalizedStringKey(warningMessage))
-                            .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                            .multilineTextAlignment(.leading)
-                            .padding(.bottom, 12)
+                        BitwardenMenuFooterTextField(
+                            LocalizedStringKey(warningMessage),
+                            topPadding: 0,
+                            bottomPadding: 12
+                        )
                     }
                 }
             }

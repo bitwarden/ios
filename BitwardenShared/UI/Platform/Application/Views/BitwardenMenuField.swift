@@ -346,11 +346,11 @@ struct BitwardenMenuField<
             Group {
                 Divider()
                 if let footerContent = footerContent as? Text {
-                    footerContent
-                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.leading)
-                        .padding(.vertical, 12)
+                    BitwardenMenuFooterTextField(
+                        footerContent,
+                        topPadding: 12,
+                        bottomPadding: 12
+                    )
                 } else {
                     footerContent
                 }
