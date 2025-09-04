@@ -115,6 +115,26 @@ class AutoFillViewTests: BitwardenTestCase {
         )
     }
 
+    /// The view renders correctly with the autofill regular expression selected
+    @MainActor
+    func test_snapshot_regularExpressionUriMatchType() async {
+        processor.state.defaultUriMatchType = UriMatchType.regularExpression
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly with the autofill starts with selected
+    @MainActor
+    func test_snapshot_startsWithUriMatchType() async {
+        processor.state.defaultUriMatchType = UriMatchType.startsWith
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The view renders correctly.
     @MainActor
     func test_view_render() {

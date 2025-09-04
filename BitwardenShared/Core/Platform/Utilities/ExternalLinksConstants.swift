@@ -59,4 +59,7 @@ enum ExternalLinksConstants {
 
     /// A link to Bitwarden's help page for showing website icons.
     static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
+
+    /// A link to Bitwarden's help page for URI match detection.
+    static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
 }
