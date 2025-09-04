@@ -32,6 +32,10 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// The `State` for a toast view.
     var toast: Toast? { get set }
 
+    /// Dismisses the profile switcher; this is used on iOS >=26 for making sure the sheet
+    /// is dismissed appropriately; on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    func dismissProfileSwitcher()
+
     /// Handles auth events that require asynchronous management.
     ///
     /// - Parameter authEvent: The auth event to handle.
@@ -63,6 +67,10 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// - Parameter alert: The alert to show.
     ///
     func showAlert(_ alert: Alert)
+
+    /// Shows the profile switcher; this is used on iOS >=26 for displaying the sheet;
+    /// on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    func showProfileSwitcher()
 }
 
 extension ProfileSwitcherHandler {
@@ -85,8 +93,13 @@ extension ProfileSwitcherHandler {
             case let .remove(account):
                 confirmRemoveAccount(account)
             }
-        case .backgroundPressed:
-            profileSwitcherState.isVisible = false
+        case .backgroundTapped,
+             .dismissTapped:
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = false
+            }
         }
     }
 
@@ -104,16 +117,26 @@ extension ProfileSwitcherHandler {
         case let .accountPressed(account):
             await select(account)
         case .addAccountPressed:
-            profileSwitcherState.isVisible = false
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = false
+            }
             showAddAccount()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
                 await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
                 await refreshProfileState()
             }
-            profileSwitcherState.isVisible = isVisible
+            if #available(iOS 26, *) {
+                showProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = isVisible
+            }
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
+        case .refreshAccountProfiles:
+            await refreshProfileState()
         }
     }
 
@@ -160,7 +183,11 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
-        profileSwitcherState.isVisible = false
+        if #available(iOS 26, *) {
+            dismissProfileSwitcher()
+        } else {
+            profileSwitcherState.isVisible = false
+        }
         showAlert(
             .accountOptions(
                 account,
@@ -266,8 +293,24 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The profile switcher item for the account to activate.
     ///
     func select(_ account: ProfileSwitcherItem) async {
-        defer { profileSwitcherState.isVisible = false }
-        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else { return }
+        defer {
+            if #unavailable(iOS 26) {
+                profileSwitcherState.isVisible = false
+            }
+        }
+        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else {
+            if #available(iOS 26, *) {
+                dismissProfileSwitcher()
+            }
+            return
+        }
+        if #available(iOS 26, *) {
+            // This has to happen before the account switch event is handled, otherwise in the share extension,
+            // the stack navigator believes it's not presenting anything, and the dismiss becomes a no-op, leaving
+            // the profile switcher on the screen.
+            // Making sure we do the dismiss *first* solves the problem.
+            dismissProfileSwitcher()
+        }
         await handleAuthEvent(
             .action(
                 .switchAccount(

@@ -5,7 +5,7 @@ import SwiftUI
 
 /// An object that defines the current state of profile selection.
 ///
-struct ProfileSwitcherState: Equatable {
+public struct ProfileSwitcherState: Equatable {
     // MARK: Properties
 
     /// All accounts/profiles.

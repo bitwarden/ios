@@ -61,7 +61,9 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+final class VaultCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
+    // swiftlint:disable:this type_body_length
+
     // MARK: Types
 
     typealias Module = AddEditFolderModule
@@ -69,6 +71,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
+        & ProfileSwitcherModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -111,7 +114,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private let _masterPasswordRepromptHelper: MasterPasswordRepromptHelper?
 
     /// The module used by this coordinator to create child coordinators.
-    private let module: Module
+    private(set) var module: Module
 
     /// The services used by this coordinator.
     private let services: Services
@@ -257,6 +260,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
         }
     }
 

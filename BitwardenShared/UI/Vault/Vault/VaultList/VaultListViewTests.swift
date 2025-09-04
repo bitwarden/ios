@@ -184,6 +184,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func test_profileButton_tap_withProfilesViewNotVisible() async throws {
         processor.state.profileSwitcherState.isVisible = false
+        // TODO: dismissProfileSwitcher() check
         let buttonUnselected = try subject.inspect().find(asyncButton: "AA")
         try await buttonUnselected.tap()
         XCTAssertEqual(
@@ -276,6 +277,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func test_snapshot_empty() {
         processor.state.profileSwitcherState.isVisible = false
+        // TODO: dismissProfileSwitcher() check
         processor.state.loadingState = .data([])
 
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])

@@ -328,7 +328,7 @@ struct VaultListView: View {
     var windowScene: UIWindowScene?
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
@@ -351,7 +351,9 @@ struct VaultListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
             }
-            profileSwitcher
+            if #unavailable(iOS 26) {
+                profileSwitcher
+            }
         }
         .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
@@ -411,19 +413,23 @@ struct VaultListView: View {
 
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {
-        ProfileSwitcherView(
-            store: store.child(
-                state: { vaultListState in
-                    vaultListState.profileSwitcherState
-                },
-                mapAction: { action in
-                    .profileSwitcher(action)
-                },
-                mapEffect: { effect in
-                    .profileSwitcher(effect)
-                }
+//        if #unavailable(iOS 26) {
+            ProfileSwitcherView(
+                store: store.child(
+                    state: { vaultListState in
+                        vaultListState.profileSwitcherState
+                    },
+                    mapAction: { action in
+                            .profileSwitcher(action)
+                    },
+                    mapEffect: { effect in
+                            .profileSwitcher(effect)
+                    }
+                )
             )
-        )
+//        } else {
+//            EmptyView()
+//        }
     }
 }
 

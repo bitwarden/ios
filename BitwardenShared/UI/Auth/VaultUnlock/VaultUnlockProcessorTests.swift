@@ -1247,7 +1247,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
 
         let task = Task {
-            subject.receive(.profileSwitcher(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundTapped))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()

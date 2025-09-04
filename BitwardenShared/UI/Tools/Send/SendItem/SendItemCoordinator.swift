@@ -8,11 +8,12 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the send tab.
 ///
-final class SendItemCoordinator: Coordinator, HasStackNavigator {
+final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
     // MARK: Types
 
     typealias Module = FileSelectionModule
         & NavigatorBuilderModule
+        & ProfileSwitcherModule
         & SendItemModule
 
     typealias Services = HasAuthRepository
@@ -93,6 +94,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             showShareSheet(for: [url])
         case let .view(sendView):
             showViewItem(for: sendView)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
         }
     }
 

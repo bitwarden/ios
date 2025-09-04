@@ -117,6 +117,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 return
             }
             state.profileSwitcherState.isVisible = false
+            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -307,6 +308,10 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -318,5 +323,9 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
 
     func showAlert(_ alert: Alert) {
         // No-Op for the VaultItemSelectionProcessor.
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

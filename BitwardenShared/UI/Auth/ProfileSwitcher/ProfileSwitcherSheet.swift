@@ -1,65 +1,52 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
-// MARK: - ProfileSwitcherView
-
-/// A view that allows the user to view, select, and add profiles.
-///
-struct ProfileSwitcherView: View {
+public struct ProfileSwitcherSheet: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
 
     @SwiftUI.State var scrollOffset = CGPoint.zero
 
-    var body: some View {
-        OffsetObservingScrollView(
-            axes: .vertical,
-            offset: $scrollOffset
-        ) {
-            VStack(spacing: 0.0) {
+    public var body: some View {
+        ZStack {
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea()
+
+            SectionView(Localizations.selectAccount) {
                 accounts
                 if store.state.showsAddAccount {
                     addAccountRow
                 }
             }
-            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-            .transition(.move(edge: .top))
-            .hidden(!store.state.isVisible)
-            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 12)
         }
-        .background {
-            backgroundView
-                .hidden(!store.state.isVisible)
-                .accessibilityHidden(true)
+        .navigationBar(title: Localizations.accountsPluralNoun, titleDisplayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                closeToolbarButton {
+                    store.send(.dismissTapped)
+                }
+            }
         }
-        .onTapGesture {
-            store.send(.backgroundTapped)
+        .task {
+            await store.perform(.refreshAccountProfiles)
         }
-        .allowsHitTesting(store.state.isVisible)
-        .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
-        .accessibilityHidden(!store.state.isVisible)
-        .accessibilityAction(named: Localizations.close) {
-            store.send(.backgroundTapped)
-        }
+//        .accessibilityAction(named: Localizations.close) {
+//            store.send(.backgroundPressed)
+//        }
     }
 
     // MARK: Private Properties
 
     /// A row to add an account
     @ViewBuilder private var addAccountRow: some View {
-        ProfileSwitcherRow(store: store.child(
-            state: { _ in
-                .init(
-                    shouldTakeAccessibilityFocus: false,
-                    showDivider: false,
-                    rowType: .addAccount
-                )
-            },
-            mapAction: nil,
-            mapEffect: { _ in
-                .addAccountPressed
-            }
-        ))
+        AsyncButton {
+            await store.perform(.addAccountPressed)
+        } label: {
+            Label(Localizations.addAccount, image: Asset.Images.plus16.swiftUIImage)
+        }
+        .buttonStyle(.bitwardenBorderless)
+        .frame(maxWidth: .infinity, alignment: .center)
         .accessibilityIdentifier("AddAccountButton")
     }
 
@@ -83,6 +70,7 @@ struct ProfileSwitcherView: View {
             }
             selectedProfileSwitcherRow
         }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     /// A row to display the active account profile
@@ -93,7 +81,7 @@ struct ProfileSwitcherView: View {
         if let profile = store.state.activeAccountProfile {
             profileSwitcherRow(
                 accountProfile: profile,
-                showDivider: store.state.showsAddAccount
+                showDivider: false
             )
         }
     }
@@ -162,51 +150,75 @@ struct ProfileSwitcherView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ProfileSwitcherView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .singleAccount
+@available(iOS 16.0, *)
+#Preview("Single Account") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .singleAccount
+                        )
                     )
                 )
-            )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
-        .previewDisplayName("Single Account")
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .dualAccounts
+@available(iOS 16.0, *)
+#Preview("Dual Account") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .dualAccounts
+                        )
                     )
                 )
-            )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
-        .previewDisplayName("Dual Account")
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .subMaximumAccounts
+@available(iOS 16.0, *)
+#Preview("Many Accounts") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .subMaximumAccounts
+                        )
                     )
                 )
-            )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
-        .previewDisplayName("Many Accounts")
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .maximumAccounts
+@available(iOS 16.0, *)
+#Preview("Max Accounts") {
+    Color.black.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ProfileSwitcherSheet(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: .maximumAccounts
+                        )
                     )
                 )
-            )
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
-        .previewDisplayName("Max Accounts")
-    }
 }
 #endif

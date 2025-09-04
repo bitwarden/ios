@@ -186,6 +186,10 @@ public enum AuthRoute: Equatable {
     /// A route to the vault unlock setup screen.
     case vaultUnlockSetup(AccountSetupFlow)
 
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
+
     /// A route to the WebAuthn two factor authentication.
     ///
     /// - Parameters:

@@ -70,4 +70,8 @@ public enum SendItemRoute: Equatable, Hashable {
     /// - Parameter sendView: The `SendView` to view the details of.
     ///
     case view(_ sendView: SendView)
+
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
 }
