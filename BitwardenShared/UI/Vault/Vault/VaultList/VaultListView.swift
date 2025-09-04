@@ -79,27 +79,6 @@ private struct SearchableVaultListView: View {
             store.send(.searchStateChanged(isSearching: newValue))
         }
         .animation(.default, value: isSearching)
-//        .sheet(isPresented: store.binding(get: \.profileSwitcherState.isVisible)) {
-//            if #available(iOS 26.0, *) {
-//                ProfileSwitcherSheet(
-//                    store: store.child(
-//                        state: { mainState in
-//                            mainState.profileSwitcherState
-//                        },
-//                        mapAction: { action in
-//                            .profileSwitcher(action)
-//                        },
-//                        mapEffect: { profileEffect in
-//                            .profileSwitcher(profileEffect)
-//                        }
-//                    )
-//                )
-//                .presentationDetents([.medium])
-//                .presentationDragIndicator(.visible)
-//            } else {
-//                EmptyView()
-//            }
-//        }
     }
 
     // MARK: Private Properties
