@@ -1069,7 +1069,7 @@ extension DefaultVaultRepository: VaultRepository {
         let collections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
         return try await clientService.vault().collections()
             .decryptList(collections: collections)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .sorted(using: CollectionView.defaultSortDescriptor)
     }
 
     func deleteCipher(_ id: String) async throws {
