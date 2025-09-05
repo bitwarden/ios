@@ -1282,3 +1282,14 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
+"StartsWithAdvanced" = "Starts with (advanced)";
+"RegularExpressionAdvanced" = "Regular expression (advanced)";
+"AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
+"KeepYourCredentialsSecure" = "Keep your credentials secure";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Starts with\\” is an advanced option with increased risk of exposing credentials.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
+"DefaultX" = "Default (%1$@)";
