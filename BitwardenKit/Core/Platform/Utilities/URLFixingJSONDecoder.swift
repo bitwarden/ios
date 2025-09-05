@@ -61,6 +61,6 @@ public class URLFixingJSONDecoder: JSONDecoder, @unchecked Sendable {
     /// - Returns: `true` if the `key` is one of the property names, `false` otherwise.
     private func isURLArrayProperty(_ key: String) -> Bool {
         let lowercasedKey = key.lowercased()
-        return urlArrayPropertyNames.contains { lowercasedKey.contains($0) }
+        return urlArrayPropertyNames.contains { lowercasedKey == $0 }
     }
 }

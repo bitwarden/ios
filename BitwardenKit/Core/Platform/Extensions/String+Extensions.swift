@@ -15,7 +15,7 @@ public extension String {
             return url.absoluteString
         }
 
-        if !self.hasPrefix("http") {
+        if !hasPrefix("http") {
             return "https://\(self)"
         }
 
