@@ -5,7 +5,7 @@ import SwiftUI
 
 /// An object that defines account profile information relevant to account switching
 /// Part of `ProfileSwitcherState`.
-public struct ProfileSwitcherItem: Equatable, Hashable {
+struct ProfileSwitcherItem: Equatable, Hashable {
     /// Indicates if the account can be locked.
     var canBeLocked: Bool
 
