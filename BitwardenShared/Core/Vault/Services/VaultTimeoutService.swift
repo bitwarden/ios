@@ -106,6 +106,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -128,6 +131,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// - Parameters:
     ///   - biometricsRepository: The service to use system biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
@@ -136,6 +140,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     init(
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
@@ -143,6 +148,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ) {
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
@@ -175,7 +181,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        try await stateService.pinProtectedUserKey(userId: userId) != nil
+        let hasPinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope(userId: userId) != nil
+        let hasPinProtectedUserKey = try await stateService.pinProtectedUserKey(userId: userId) != nil
+        return hasPinProtectedUserKeyEnvelope || hasPinProtectedUserKey
     }
 
     func lockVault(userId: String?) async {

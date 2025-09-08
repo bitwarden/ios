@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "Pri používaní dvojstupňového overenia zadáte svoje používateľské meno a heslo a kód vygenerovaný v tejto aplikácii.";
 "YesSetDefault" = "Áno, nastaviť ako predvolené";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Predvolené nastavenie môžete kedykoľvek zmeniť v nastaveniach.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Zisťovanie zhody URI ovláda, ako Bitwarden identifikuje návrhy na automatické vypĺňanie.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov, ak sa použije nesprávne.";
+"StartsWithAdvanced" = "Začína na (pokročilé)";
+"RegularExpressionAdvanced" = "Regulárny výraz (pokročilé)";
+"AreYouSureYouWantToUseX" = "Naozaj chcete použiť \"%1$@\"?";
+"KeepYourCredentialsSecure" = "Udržujte svoje prihlasovacie údaje v bezpečí";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Ďalšie informácie o tom, ako zabezpečiť prihlasovacie údaje pri používaní \"%1$@\".";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozornenie:** \"Začína na\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozornenie:** \"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov, ak sa použije nesprávne.";
+"DefaultX" = "Predvolené (%1$@)";

@@ -237,10 +237,19 @@ protocol AppSettingsStore: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The pin protected user key.
     ///
     func pinProtectedUserKey(userId: String) -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -442,11 +451,21 @@ protocol AppSettingsStore: AnyObject {
 
     /// Sets the pin protected user key.
     ///
+    /// - Note: This is being replaced by ``setPinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameters:
     ///  - key: A pin protected user key derived from the user's pin.
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the pin protected user key envelope.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key envelope derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -758,7 +777,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pendingAppIntentActions
-        case pinProtectedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
+        case pinProtectedUserKeyEnvelope(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
@@ -857,6 +877,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKeyEnvelope(userId):
+                key = "pinProtectedUserKeyEnvelope_\(userId)"
             case .preAuthEnvironmentURLs:
                 key = "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
@@ -1106,6 +1128,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
             for: .accountCreationEnvironmentURLs(email: email)
@@ -1210,6 +1236,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

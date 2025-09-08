@@ -5,6 +5,18 @@ import XCTest
 class URLTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `isIPAddress` returns `true` when the URL is an IP Address, `false` otherwise.
+    func test_isIPAddress() {
+        XCTAssertFalse(URL(string: "https://localhost")?.isIPAddress == true)
+        XCTAssertFalse(URL(string: "https://localhost/test")?.isIPAddress == true)
+        XCTAssertTrue(URL(string: "https://1.1.1.1")?.isIPAddress == true)
+        XCTAssertTrue(URL(string: "http://192.168.0.1")?.isIPAddress == true)
+        XCTAssertTrue(URL(string: "http://192.168.0.1:8080")?.isIPAddress == true)
+
+        XCTAssertFalse(URL(string: "https://example.com")?.isIPAddress == true)
+        XCTAssertFalse(URL(string: "https://example.co.uk")?.isIPAddress == true)
+    }
+
     /// `sanitized` prepends a https scheme if the URL is missing a scheme.
     func test_sanitized_missingScheme() {
         XCTAssertEqual(

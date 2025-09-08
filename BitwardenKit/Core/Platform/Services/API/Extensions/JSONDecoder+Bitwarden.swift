@@ -56,7 +56,7 @@ public extension JSONDecoder {
 
     /// A `JSONDecoder` instance that handles decoding JSON from Credential Exchange format to Apple's expected format.
     static let cxfDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
+        let decoder = URLFixingJSONDecoder(urlArrayPropertyNames: ["urls"])
         decoder.keyDecodingStrategy = .custom { keys in
             let key = keys.last!.stringValue
             return AnyKey(stringValue: keyToCamelCase(key: key))

@@ -32,6 +32,50 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         )
     }
 
+    /// `JSONDecoder.cxfDecoder` can decode URLs succesfully when they don't present schemes
+    /// prefixing http or https depending on if it's an IP Address on properties named "urls" and
+    /// if they can be converted directly to URL or not..
+    func test_cxfDecoder_decodesNoSchemeURLsSuccessfully() throws {
+        let subject = JSONDecoder.cxfDecoder
+        let toDecode =
+            """
+            {
+                "id": "1",
+                "scope": {
+                    "urls": [
+                        "192.168.1.100:8080",
+                        "api.example.com/v1/endpoint",
+                        "https://secure.example.com/api/v2"
+                    ]
+                }
+            }   
+            """
+
+        struct JSONContainerBody: Codable, Equatable {
+            let urls: [String]
+        }
+
+        struct JSONBody: Codable, Equatable {
+            let id: String
+            let scope: JSONContainerBody
+        }
+
+        let body = JSONBody(
+            id: "1",
+            scope: JSONContainerBody(urls: [
+                "http://192.168.1.100:8080",
+                "api.example.com/v1/endpoint",
+                "https://secure.example.com/api/v2",
+            ])
+        )
+
+        XCTAssertEqual(
+            try subject
+                .decode(JSONBody.self, from: Data(toDecode.utf8)),
+            body
+        )
+    }
+
     /// `JSONDecoder.defaultDecoder` can decode ISO8601 dates with fractional seconds.
     func test_defaultDecoder_decodesISO8601DateWithFractionalSeconds() {
         let subject = JSONDecoder.defaultDecoder
