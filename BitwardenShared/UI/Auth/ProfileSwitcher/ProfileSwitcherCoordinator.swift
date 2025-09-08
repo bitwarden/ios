@@ -5,14 +5,11 @@ import Foundation
 /// A coordinator that manages navigation in the profile switcher.
 /// In practice, it acts largely as a passthrough for the `ProfileSwitcherHandler` so as to
 /// preserve flows in apps running on iOS pre-26.
-class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
-    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
-        
-    }
-    
+final class ProfileSwitcherCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Service = HasAuthRepository
+        & HasErrorAlertServices.ErrorAlertServices
 
     // MARK: Private Properties
 
@@ -63,4 +60,10 @@ class ProfileSwitcherCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     func start() {}
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ProfileSwitcherCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
