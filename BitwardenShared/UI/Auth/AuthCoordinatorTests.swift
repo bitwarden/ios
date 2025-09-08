@@ -673,6 +673,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
     }
 
+    /// `navigate(to:)` with `.viewProfileSwitcher` does not open the profile switcher if there isn't a handler.
+    @MainActor
+    func test_navigate_viewProfileSwitcher_noHandler() throws {
+        subject.navigate(to: .viewProfileSwitcher, context: nil)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `navigate(to:)` with `.webAuthnSelfHosted` opens the WebAuthn connector web page.
     @MainActor
     func test_navigate_webAuthnSelfHosted() throws {
