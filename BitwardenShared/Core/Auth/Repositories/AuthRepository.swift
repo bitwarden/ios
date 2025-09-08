@@ -803,7 +803,8 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let accountPrivateKeys: PrivateKeysResponseModel?
+        let accountKeys = try await stateService.getAccountEncryptionKeys()
+        let accountPrivateKeys = accountKeys.accountKeys
         let email = account.profile.email
         let kdf = account.kdf
         let requestUserKey: String
@@ -814,16 +815,11 @@ extension DefaultAuthRepository: AuthRepository {
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
             let passwordResult = try await clientService.crypto().updatePassword(newPassword: password)
-            let accountKeys = try await stateService.getAccountEncryptionKeys()
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
-            accountPrivateKeys = accountKeys.accountKeys
             encryptedPrivateKey = accountKeys.encryptedPrivateKey
         } else {
-            let accountKeys = try? await stateService.getAccountEncryptionKeys()
-            accountPrivateKeys = accountKeys?.accountKeys
-
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
                 password: password,

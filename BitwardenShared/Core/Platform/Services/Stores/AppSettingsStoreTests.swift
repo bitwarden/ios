@@ -49,9 +49,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         let fixture1 = PrivateKeysResponseModel.fixtureFilled()
         let fixture2 = PrivateKeysResponseModel.fixture(
             publicKeyEncryptionKeyPair: .fixture(
-                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
                 publicKey: "PUBLIC_KEY_2",
-                signedPublicKey: "SIGNED_PUBLIC_KEY_2"
+                signedPublicKey: "SIGNED_PUBLIC_KEY_2",
+                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2"
             ),
             signatureKeyPair: SignatureKeyPairResponseModel(
                 wrappedSigningKey: "WRAPPED_SIGNING_KEY_2",

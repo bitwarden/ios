@@ -27,22 +27,22 @@ extension PrivateKeysResponseModel {
 
 extension PublicKeyEncryptionKeyPairResponseModel {
     static func fixture(
-        wrappedPrivateKey: WrappedPrivateKey = "",
         publicKey: String = "",
-        signedPublicKey: SignedPublicKey? = nil
+        signedPublicKey: SignedPublicKey? = nil,
+        wrappedPrivateKey: WrappedPrivateKey = ""
     ) -> PublicKeyEncryptionKeyPairResponseModel {
         self.init(
-            wrappedPrivateKey: wrappedPrivateKey,
             publicKey: publicKey,
-            signedPublicKey: signedPublicKey
+            signedPublicKey: signedPublicKey,
+            wrappedPrivateKey: wrappedPrivateKey
         )
     }
 
     static func fixtureFilled() -> PublicKeyEncryptionKeyPairResponseModel {
         self.init(
-            wrappedPrivateKey: "WRAPPED_PRIVATE_KEY",
             publicKey: "PUBLIC_KEY",
-            signedPublicKey: "SIGNED_PUBLIC_KEY"
+            signedPublicKey: "SIGNED_PUBLIC_KEY",
+            wrappedPrivateKey: "WRAPPED_PRIVATE_KEY"
         )
     }
 }

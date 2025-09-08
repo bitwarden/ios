@@ -1224,6 +1224,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword_error() async {
         clientService.mockCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setMasterPassword(
