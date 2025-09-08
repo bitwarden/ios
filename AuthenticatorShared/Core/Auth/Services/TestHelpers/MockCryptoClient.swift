@@ -20,6 +20,22 @@ class MockCryptoClient: CryptoClientProtocol {
     var enrollAdminPasswordPublicKey: String?
     var enrollAdminPasswordResetResult: Result<String, Error> = .success("RESET_PASSWORD_KEY")
 
+    var enrollPinPin: String?
+    var enrollPinResult: Result<EnrollPinResponse, Error> = .success(
+        EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin"
+        )
+    )
+
+    var enrollPinWithEncryptedPinEncryptedPin: String?
+    var enrollPinWithEncryptedPinResult: Result<EnrollPinResponse, Error> = .success(
+        EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin"
+        )
+    )
+
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
     var initializeOrgCryptoRequest: InitOrgCryptoRequest?
@@ -53,6 +69,16 @@ class MockCryptoClient: CryptoClientProtocol {
     func enrollAdminPasswordReset(publicKey: String) throws -> UnsignedSharedKey {
         enrollAdminPasswordPublicKey = publicKey
         return try enrollAdminPasswordResetResult.get()
+    }
+
+    func enrollPin(pin: String) throws -> EnrollPinResponse {
+        enrollPinPin = pin
+        return try enrollPinResult.get()
+    }
+
+    func enrollPinWithEncryptedPin(encryptedPin: EncString) throws -> EnrollPinResponse {
+        enrollPinWithEncryptedPinEncryptedPin = encryptedPin
+        return try enrollPinWithEncryptedPinResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {

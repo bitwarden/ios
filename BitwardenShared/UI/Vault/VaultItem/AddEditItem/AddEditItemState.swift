@@ -109,6 +109,9 @@ protocol AddEditItemState: Sendable {
     /// When this item was last updated.
     var updatedDate: Date { get set }
 
+    /// The url to open in the device's web browser.
+    var url: URL? { get set }
+
     /// Toggles whether the cipher is included in the specified collection.
     ///
     /// - Parameters:

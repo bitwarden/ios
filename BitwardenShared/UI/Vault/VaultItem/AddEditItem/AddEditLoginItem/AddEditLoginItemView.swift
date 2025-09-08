@@ -177,8 +177,12 @@ struct AddEditLoginItemView: View {
                                     get: { _ in uriState.matchType },
                                     send: { .uriTypeChanged($0, index: index) }
                                 )) {
-                                    ForEach(DefaultableType<UriMatchType>.allCases, id: \.hashValue) { option in
-                                        Text(option.localizedName).tag(option)
+                                    ForEach(store.state.uriMatchTypeOptions, id: \.hashValue) { option in
+                                        if option == DefaultableType<UriMatchType>.default {
+                                            Text(store.state.defaultUriMatchTypeOptionLabel).tag(option)
+                                        } else {
+                                            Text(option.localizedName).tag(option)
+                                        }
                                     }
                                 }
                             }

@@ -5,42 +5,19 @@ fileGroups:
 configs:
   Debug: debug
   Release: release
+include:
+  - path: project-common.yml
 options:
-  createIntermediateGroups: true
-  deploymentTarget:
-    iOS: 15.0
-    watchOS: 8.0
-  groupSortPosition: top
-  usesTabs: false
-  indentWidth: 4
-  tabWidth: 4
   fileTypes:
     "icon":
       file: true 
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
-include:
-  - path: Configs/local-sdk.yml
-    relativePaths: false
-    enable: ${LOCAL_SDK}
 packages:
-  BitwardenSdk:
-    url: https://github.com/bitwarden/sdk-swift
-    revision: fe0f17e2c217497fe83e40c8dca324880070dea9
-    branch: unstable
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.14.0
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
-  ViewInspector:
-    url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.1
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
