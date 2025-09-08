@@ -14,7 +14,7 @@ struct LandingView: View {
     @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             mainContent
             profileSwitcher
         }
