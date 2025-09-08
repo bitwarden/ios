@@ -200,7 +200,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
         subject.state.profileSwitcherState.isVisible = false
-        // TODO: dismissProfileSwitcher() check
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
