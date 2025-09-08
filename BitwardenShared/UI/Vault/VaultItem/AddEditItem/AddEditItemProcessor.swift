@@ -745,34 +745,48 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     /// - Parameter newUriMatchType: The default URI match type.
     ///
-    private func confirmAndUpdateDefaultUriMatchType(_ newUriMatchType: DefaultableType<UriMatchType>, _ index: Int) async {
+    private func confirmAndUpdateDefaultUriMatchType(_ newUriMatchType: DefaultableType<UriMatchType>,
+                                                     _ index: Int) async {
         switch newUriMatchType.customValue {
         case .regularExpression:
             coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-                await self.updateUriMatchType(newUriMatchType, index, showLearnMore: true)
+                await self.updateUriMatchType(newUriMatchType, index)
             })
         case .startsWith:
             coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-                await self.updateUriMatchType(newUriMatchType, index, showLearnMore: true)
+                await self.updateUriMatchType(newUriMatchType, index)
             })
         default:
-            await updateUriMatchType(newUriMatchType, index, showLearnMore: false)
+            await updateUriMatchType(newUriMatchType, index)
         }
     }
 
-    /// Updates the URI match type value for the cipher.
+    /// Updates the URI match type value for the uri.
     ///
     /// - Parameter updateUriMatchType: The new selected URI match type.
-    /// - Parameter showLearnMore: If should display the learn more dialog.
+    /// - Parameter index: The index of the uri to update the URI Match tupe
     ///
     private func updateUriMatchType(
         _ newUriMatchType: DefaultableType<UriMatchType>,
-        _ index: Int,
-        showLearnMore: Bool
+        _ index: Int
     ) async {
         state.loginState.uris[index].matchType = newUriMatchType
-        if showLearnMore {
-            showLearnMoreAlert(newUriMatchType.localizedName)
+
+        switch newUriMatchType {
+        case .default:
+            return
+
+        case let .custom(matchType):
+            switch matchType {
+            case .regularExpression:
+                showLearnMoreAlert(Localizations.regEx)
+
+            case .startsWith:
+                showLearnMoreAlert(Localizations.startsWith)
+
+            default:
+                return
+            }
         }
     }
 

@@ -84,14 +84,14 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         switch defaultUriMatchType {
         case .regularExpression:
             coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
+                await self.updateDefaultUriMatchType(defaultUriMatchType)
             })
         case .startsWith:
             coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
+                await self.updateDefaultUriMatchType(defaultUriMatchType)
             })
         default:
-            await updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: false)
+            await updateDefaultUriMatchType(defaultUriMatchType)
         }
     }
 
@@ -131,16 +131,22 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     }
 
     /// Updates the default URI match type value for the user.
-    /// - Parameters:
-    /// - defaultUriMatchType: The default URI match type.
-    /// - showLearnMore: If should display the learn more dialog.
-    /// 
-    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType, showLearnMore: Bool) async {
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
         do {
             state.defaultUriMatchType = defaultUriMatchType
             try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
-            if showLearnMore {
-                showLearnMoreAlert(defaultUriMatchType.localizedName)
+
+            switch defaultUriMatchType {
+            case .regularExpression:
+                showLearnMoreAlert(Localizations.regEx)
+
+            case .startsWith:
+                showLearnMoreAlert(Localizations.startsWith)
+
+            default:
+                return
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
