@@ -1,7 +1,7 @@
 // MARK: - ProfileSwitcherAccessibilityEffect
 
 /// An enum for accessibility driven Profile Switcher Effects.
-public enum ProfileSwitcherAccessibilityEffect: Equatable {
+enum ProfileSwitcherAccessibilityEffect: Equatable {
     /// The account should be locked.
     case lock(ProfileSwitcherItem)
 
@@ -13,7 +13,7 @@ public enum ProfileSwitcherAccessibilityEffect: Equatable {
 
 /// Effects that can be processed by a processor wrapping the ProfileSwitcherState.
 ///
-public enum ProfileSwitcherEffect: Equatable {
+enum ProfileSwitcherEffect: Equatable {
     /// An account row accessibility action was triggered.
     case accessibility(ProfileSwitcherAccessibilityEffect)
 
@@ -26,12 +26,13 @@ public enum ProfileSwitcherEffect: Equatable {
     /// The add account row was pressed.
     case addAccountPressed
 
+    /// The sheet needs to refresh account profiles.
+    case refreshAccountProfiles
+
     /// An effect to toggle the visibility of the profile switcher view and optionally
     /// refresh the profile switcher state.
     case requestedProfileSwitcher(visible: Bool)
 
     /// A row appeared.
     case rowAppeared(ProfileSwitcherRowState.RowType)
-
-    case refreshAccountProfiles
 }
