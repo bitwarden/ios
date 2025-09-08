@@ -419,10 +419,10 @@ struct VaultListView: View {
                     vaultListState.profileSwitcherState
                 },
                 mapAction: { action in
-                        .profileSwitcher(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: { effect in
-                        .profileSwitcher(effect)
+                    .profileSwitcher(effect)
                 }
             )
         )
