@@ -20,8 +20,10 @@ struct LandingView: View {
         }
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                profileSwitcherToolbarItem
+            ToolbarItem(placement: .topBarLeading) {
+                if !store.state.profileSwitcherState.accounts.isEmpty {
+                    profileSwitcherToolbarItem
+                }
             }
         }
         .task {
