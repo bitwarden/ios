@@ -61,9 +61,7 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
-    // swiftlint:disable:this type_body_length
-
+final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = AddEditFolderModule
@@ -114,7 +112,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDis
     private let _masterPasswordRepromptHelper: MasterPasswordRepromptHelper?
 
     /// The module used by this coordinator to create child coordinators.
-    private(set) var module: Module
+    private let module: Module
 
     /// The services used by this coordinator.
     private let services: Services
@@ -515,6 +513,12 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
     }
 }
 
+// MARK: - ProfileSwitcherDisplayable
+
+extension VaultCoordinator: ProfileSwitcherDisplayable {}
+
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length
+extension VaultCoordinator: UserVerificationDelegate {}
+
+// swiftlint:disable:this file_length
