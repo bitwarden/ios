@@ -200,6 +200,24 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(view.store.state.sendView, sendView)
     }
 
+    /// `navigate(to:)` with `.viewProfileSwitcher` opens the profile switcher.
+    @MainActor
+    func test_navigate_viewProfileSwitcher() throws {
+        let handler = MockProfileSwitcherHandler()
+        subject.navigate(to: .viewProfileSwitcher, context: handler)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` does not open the profile switcher if there isn't a handler.
+    @MainActor
+    func test_navigate_viewProfileSwitcher_noHandler() throws {
+        subject.navigate(to: .viewProfileSwitcher, context: nil)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `handle(_:)` calls `handle(_:)` on the delegate.
     @MainActor
     func test_sendItemDelegate_handleAuthAction() async {
