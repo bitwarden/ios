@@ -123,6 +123,8 @@ extension ProfileSwitcherHandler {
                 profileSwitcherState.isVisible = false
             }
             showAddAccount()
+        case .refreshAccountProfiles:
+            await refreshProfileState()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
                 await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
@@ -135,8 +137,6 @@ extension ProfileSwitcherHandler {
             }
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
-        case .refreshAccountProfiles:
-            await refreshProfileState()
         }
     }
 
