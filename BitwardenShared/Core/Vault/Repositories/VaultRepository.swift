@@ -1066,10 +1066,37 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
-        let collections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
-        return try await clientService.vault().collections()
-            .decryptList(collections: collections)
-            .sorted(using: CollectionView.defaultSortDescriptor)
+        let rawCollections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
+        let collections = try await clientService.vault().collections()
+            .decryptList(collections: rawCollections)
+
+        guard collections.count(where: { $0.type == .defaultUserCollection }) <= 1 else {
+            // if there are more than one default user collection, then we need to order
+            // them by organization name they belong to.
+            let organizations = try await organizationService.fetchAllOrganizations()
+            let organizationLookup = Dictionary(uniqueKeysWithValues: organizations.map { ($0.id, $0.name) })
+
+            return collections.sorted { col1, col2 in
+                if col1.type.rawValue > col2.type.rawValue {
+                    return true
+                } else if col1.type.rawValue < col2.type.rawValue {
+                    return false
+                }
+
+                if col1.type == .sharedCollection {
+                    return col1.name.localizedStandardCompare(col2.name) == .orderedAscending
+                }
+
+                if let orgName1 = organizationLookup[col1.organizationId],
+                   let orgName2 = organizationLookup[col2.organizationId] {
+                    return orgName1.localizedStandardCompare(orgName2) == .orderedAscending
+                }
+
+                return false
+            }
+        }
+
+        return collections.sorted(using: CollectionView.defaultSortDescriptor)
     }
 
     func deleteCipher(_ id: String) async throws {

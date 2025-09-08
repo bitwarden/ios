@@ -883,6 +883,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
     }
 
+    /// `fetchCollections(includeReadOnly:)` returns the collections for the user ordered correctly when there are more
+    /// than one default user collection.
+    func test_fetchCollections_multipleDefaultUserCollections() async throws {
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "1", organizationId: "2", name: "Collection 3", type: .sharedCollection),
+            .fixture(id: "2", organizationId: "3", name: "My Items", type: .defaultUserCollection),
+            .fixture(id: "3", organizationId: "2", name: "My Items", type: .defaultUserCollection),
+            .fixture(id: "4", organizationId: "3", name: "Collection 1", type: .sharedCollection),
+        ])
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", name: "First in alphabetical order"),
+            .fixture(id: "2", name: "Second in alphabetical order"),
+            .fixture(id: "3", name: "Third in alphabetical order"),
+        ])
+
+        let collections = try await subject.fetchCollections(includeReadOnly: false)
+
+        XCTAssertEqual(
+            collections.map { "[\($0.id ?? "nil")] \($0.name)" },
+            [
+                "[3] My Items",
+                "[2] My Items",
+                "[4] Collection 1",
+                "[1] Collection 3",
+            ]
+        )
+        try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
+    }
+
     /// `fetchFolder(withId:)` fetches and decrypts the folder with the specified id.
     func test_fetchFolder() async throws {
         folderService.fetchFolderResult = .success(.fixture(id: "1"))
