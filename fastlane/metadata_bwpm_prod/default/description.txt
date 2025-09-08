@@ -11,7 +11,7 @@ Bitwarden offers Teams and Enterprise plans for companies so you can securely sh
 Why Choose Bitwarden:
 
 World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private. 
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private. 
 
 Built-in Password Generator
 Generate strong, unique, and random passwords based on security requirements for every website you frequent. 

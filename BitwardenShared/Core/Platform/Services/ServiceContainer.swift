@@ -513,6 +513,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let exportVaultService = DefultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             folderService: folderService,
             policyService: policyService,
@@ -562,6 +563,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultTimeoutService = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
@@ -809,6 +811,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             credentialManagerFactory: credentialManagerFactory,
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             errorReporter: errorReporter,
+            exportVaultService: exportVaultService,
             stateService: stateService
         )
 

@@ -37,7 +37,8 @@ struct BitwardenMenuField<
     T,
     AdditionalMenu: View,
     TitleAccessory: View,
-    TrailingContent: View
+    TrailingContent: View,
+    FooterContent: View
 >: View where T: Menuable {
     // MARK: Properties
 
@@ -59,8 +60,8 @@ struct BitwardenMenuField<
     /// The options displayed in the menu.
     let options: [T]
 
-    /// The footer text displayed below the menu field.
-    let footer: String?
+    /// The (optional) footer content to display underneath the field.
+    var footerContent: FooterContent?
 
     /// The title of the menu field.
     let title: String?
@@ -77,15 +78,7 @@ struct BitwardenMenuField<
         VStack(alignment: .leading, spacing: 0) {
             menu
 
-            if let footer {
-                Divider()
-
-                Text(footer)
-                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.vertical, 12)
-            }
+            footerView()
         }
         .padding(.horizontal, 16)
         .background(
@@ -190,15 +183,45 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
+    )
+        where AdditionalMenu == EmptyView,
+        TitleAccessory == EmptyView,
+        TrailingContent == EmptyView,
+        FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
         trailingContent = nil
         titleAccessoryContent = nil
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footerView: The footer view displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///
+    init(
+        title: String,
+        accessibilityIdentifier: String? = nil,
+        options: [T],
+        selection: Binding<T>,
+        @ViewBuilder footer footerContent: () -> FooterContent
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
+        self.options = options
+        _selection = selection
+        self.title = title
+        trailingContent = nil
+        titleAccessoryContent = nil
+        self.footerContent = footerContent()
     }
 
     /// Initializes a new `BitwardenMenuField`.
@@ -220,10 +243,10 @@ struct BitwardenMenuField<
         selection: Binding<T>,
         titleAccessoryContent: () -> TitleAccessory,
         trailingContent: () -> TrailingContent
-    ) where AdditionalMenu == EmptyView {
+    ) where AdditionalMenu == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -248,10 +271,10 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
-    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView {
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -276,10 +299,10 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         titleAccessoryContent: () -> TitleAccessory
-    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView {
+    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
-        self.footer = footer
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
@@ -305,15 +328,30 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         @ViewBuilder additionalMenu: () -> AdditionalMenu
-    ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
+    ) where TrailingContent == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
-        self.footer = footer
+        footerContent = footer.map { footerText in Text(footerText) }
         self.options = options
         _selection = selection
         self.title = title
         titleAccessoryContent = nil
         trailingContent = nil
+    }
+
+    /// The view to display at the footer below the main content.
+    @ViewBuilder
+    private func footerView() -> some View {
+        if let footerContent {
+            Group {
+                Divider()
+                if let footerContent = footerContent as? Text {
+                    footerContent.bitwardenMenuFooterText(topPadding: 12, bottomPadding: 12)
+                } else {
+                    footerContent
+                }
+            }
+        }
     }
 }
 
@@ -336,6 +374,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     VStack {
         BitwardenMenuField(
             title: "Animals",
+            footer: nil,
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
         )
@@ -343,6 +382,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
 
         BitwardenMenuField(
             title: "Animals",
+            footer: nil,
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
         )
@@ -398,3 +438,5 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     .background(Color(.systemGroupedBackground))
 }
 #endif
+
+// swiftlint:disable:this file_length

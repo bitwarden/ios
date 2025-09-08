@@ -17,6 +17,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
     var credentialManagerFactory: MockCredentialManagerFactory!
     var cxfCredentialsResultBuilder: MockCXFCredentialsResultBuilder!
     var errorReporter: MockErrorReporter!
+    var exportVaultService: MockExportVaultService!
     var stateService: MockStateService!
     var subject: ExportCXFCiphersRepository!
 
@@ -30,6 +31,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         credentialManagerFactory = MockCredentialManagerFactory()
         cxfCredentialsResultBuilder = MockCXFCredentialsResultBuilder()
         errorReporter = MockErrorReporter()
+        exportVaultService = MockExportVaultService()
         stateService = MockStateService()
 
         subject = DefaultExportCXFCiphersRepository(
@@ -38,6 +40,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             credentialManagerFactory: credentialManagerFactory,
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             errorReporter: errorReporter,
+            exportVaultService: exportVaultService,
             stateService: stateService
         )
     }
@@ -50,6 +53,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         credentialManagerFactory = nil
         cxfCredentialsResultBuilder = nil
         errorReporter = nil
+        exportVaultService = nil
         stateService = nil
         subject = nil
     }
@@ -103,16 +107,11 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `getAllCiphersToExportCXF()` fetches all ciphers filtering the deleted ones out.
+    /// `getAllCiphersToExportCXF()` fetches all ciphers to export from the export service.
     func test_getAllCiphersToExportCXF() async throws {
-        cipherService.fetchAllCiphersResult = .success([
+        exportVaultService.fetchAllCiphersToExportResult = .success([
             .fixture(id: "1"),
-            .fixture(deletedDate: .now, id: "del1"),
-            .fixture(deletedDate: .now, id: "del2"),
             .fixture(id: "2"),
-            .fixture(id: "org1", organizationId: "someorg1"),
-            .fixture(id: "org5", organizationId: "someorg2"),
-            .fixture(deletedDate: .now, id: "del3"),
         ])
         let result = try await subject.getAllCiphersToExportCXF()
         XCTAssertEqual(result.count, 2)
@@ -122,7 +121,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
 
     /// `getAllCiphersToExportCXF()` throws when fetching ciphers throws.
     func test_getAllCiphersToExportCXF_throws() async throws {
-        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
+        exportVaultService.fetchAllCiphersToExportResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.getAllCiphersToExportCXF()
         }
@@ -134,12 +133,9 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }
-        cipherService.fetchAllCiphersResult = .success([
+        exportVaultService.fetchAllCiphersToExportResult = .success([
             .fixture(id: "1"),
-            .fixture(deletedDate: .now, id: "del1"),
-            .fixture(deletedDate: .now, id: "del2"),
             .fixture(id: "2"),
-            .fixture(deletedDate: .now, id: "del3"),
         ])
         stateService.activeAccount = .fixture(
             profile: .fixture(
@@ -151,7 +147,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
 
         clientService.mockExporters.exportCxfResult = .success(
             """
-            {"items":[{"creationAt":1735850484,"credentials":[{"password":{"fieldType":"concealed-string","id":"","value":"pass"},"username":{"id":"","fieldType":"string","value":"user"},"type":"basic-auth","urls":["example.com"]}],"type":"login","title":"Item 1","id":"","modifiedAt":1735850484},{"id":"","creationAt":1735850484,"modifiedAt":1735850484,"type":"login","title":"Item 2","credentials":[{"cardType":"type","type":"credit-card","fullName":"John Doe","number":"4111111111111111"}]}],"email":"","collections":[],"userName":"","id":""}
+            {"items":[{"title":"Item 1","creationAt":1735689600,"credentials":[{"password":{"fieldType":"concealed-string","value":"pass"},"type":"basic-auth","username":{"fieldType":"string","value":"user"}}],"id":"","modifiedAt":1740787200},{"title":"Item 2","creationAt":1740009600,"credentials":[{"number":{"value":"4111111111111111","fieldType":"string"},"fullName":{"value":"John Doe","fieldType":"string"},"type":"credit-card","cardType":{"value":"type","fieldType":"string"}}],"id":"","modifiedAt":1743552000}],"collections":[],"username":"User1","id":"","email":"user1@example.com"}
             """) // swiftlint:disable:previous line_length
 
         let result = try await subject.getExportVaultDataForCXF()
@@ -161,25 +157,21 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(clientService.mockExporters.account?.id, "1")
         assertInlineSnapshot(of: result.dump(), as: .lines) {
             """
-            Email: 
-            UserName: 
+            Email: user1@example.com
+            UserName: User1
             --- Items ---
               Title: Item 1
-              Type: login
-              Creation: 2025-01-02 20:41:24 +0000
-              Modified: 2025-01-02 20:41:24 +0000
+              Creation: 2025-01-01 00:00:00 +0000
+              Modified: 2025-03-01 00:00:00 +0000
               --- Credentials ---
                 Username.FieldType: string
                 Username.Value: user
                 Password.FieldType: concealedString
                 Password.Value: pass
-                --- Urls ---
-                      example.com
 
               Title: Item 2
-              Type: login
-              Creation: 2025-01-02 20:41:24 +0000
-              Modified: 2025-01-02 20:41:24 +0000
+              Creation: 2025-02-20 00:00:00 +0000
+              Modified: 2025-04-02 00:00:00 +0000
               --- Credentials ---
                 FullName: John Doe
                 Number: 4111111111111111
@@ -195,7 +187,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }
-        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
+        exportVaultService.fetchAllCiphersToExportResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.getExportVaultDataForCXF()
@@ -208,7 +200,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }
-        cipherService.fetchAllCiphersResult = .success([
+        exportVaultService.fetchAllCiphersToExportResult = .success([
             .fixture(id: "1"),
         ])
         stateService.activeAccount = nil
@@ -224,7 +216,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }
-        cipherService.fetchAllCiphersResult = .success([
+        exportVaultService.fetchAllCiphersToExportResult = .success([
             .fixture(id: "1"),
         ])
         stateService.activeAccount = .fixture(

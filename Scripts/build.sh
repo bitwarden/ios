@@ -38,6 +38,8 @@ BUILD_DIR="build"
 DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
 ARCHIVE_PATH="${BUILD_DIR}/${BUILD_SCHEME}.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/${BUILD_SCHEME}"
+RESULT_BUNDLE_PATH="export/build.xcresult"
+RESULT_EXPORT_ARCHIVE_BUNDLE_PATH="export/buildExportArchive.xcresult"
 
 echo "🧱 Building in ${bold}$(pwd)${normal}"
 echo "🧱 Project file ${bold}${PROJECT_FILE}${normal}"
@@ -61,10 +63,11 @@ case "$MODE" in
     xcrun xcodebuild \
       -workspace Bitwarden.xcworkspace \
       -scheme "${BUILD_SCHEME}" \
-      -configuration Debug SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) DISABLE_ASSERTION_FAILURE_ON_ERROR"\
+      -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
-      | xcbeautify --renderer github-actions
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+      -quiet
     ;;
   "Device")
     echo "📦 Performing Xcode archive"
@@ -74,14 +77,16 @@ case "$MODE" in
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
-      | xcbeautify --renderer github-actions
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+      -quiet
 
     echo "🚚 Performing Xcode archive export"
     xcrun xcodebuild -exportArchive \
       -archivePath "${ARCHIVE_PATH}" \
       -exportPath "${EXPORT_PATH}" \
       -exportOptionsPlist "Configs/export_options.plist" \
-      | xcbeautify --renderer github-actions
+      -resultBundlePath "${RESULT_EXPORT_ARCHIVE_BUNDLE_PATH}" \
+      -quiet
     ;;
   *)
     echo >&2 "Invalid build mode: ${bold}${MODE}${normal}"
