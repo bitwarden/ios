@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - ProfileSwitcherAccessibilityAction
 
 /// An enum for accessibility driven actions.
-public enum ProfileSwitcherAccessibilityAction: Equatable {
+enum ProfileSwitcherAccessibilityAction: Equatable {
     /// The account should be logged out.
     case logout(ProfileSwitcherItem)
 
@@ -14,7 +14,7 @@ public enum ProfileSwitcherAccessibilityAction: Equatable {
 // MARK: - ProfileSwitcherAction
 
 /// Actions that can be processed by a `ProfileSwitcherProcessor`.
-public enum ProfileSwitcherAction: Equatable {
+enum ProfileSwitcherAction: Equatable {
     /// An account row accessibility action was triggered.
     case accessibility(ProfileSwitcherAccessibilityAction)
 
