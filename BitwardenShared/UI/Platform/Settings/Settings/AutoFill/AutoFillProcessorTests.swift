@@ -4,6 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable:next type_body_length
 class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -250,6 +251,16 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.regEx),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ]
+        ))
+
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }
@@ -313,6 +324,16 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .startsWith)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+        
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.startsWith),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ]
+        ))
+        
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }

@@ -2654,6 +2654,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+        
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.regEx),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ]
+        ))
+        
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }
