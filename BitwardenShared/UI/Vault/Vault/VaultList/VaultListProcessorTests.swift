@@ -1567,7 +1567,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_dismissProfileSwitcher() {
         subject.dismissProfileSwitcher()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss(nil)])
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
