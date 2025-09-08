@@ -1280,3 +1280,14 @@
 "WhenUsingTwoStepVerification" = "При использовании двухэтапной аутентификации необходимо ввести имя пользователя, пароль и код, сгенерированный в этом приложении.";
 "YesSetDefault" = "Да, установить по умолчанию";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Вы можете обновить настройки по умолчанию в любое время.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Обнаружение соответствия URI определяет, как Bitwarden идентифицирует предложения по автозаполнению.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Начинается с\\” - это расширенный вариант с повышенным риском компрометации учетных данных.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Регулярное выражение\\” - это расширенный вариант с повышенным риском компрометации учетных данных при неправильном использовании.";
+"StartsWithAdvanced" = "Начинается с (расширенный)";
+"RegularExpressionAdvanced" = "Регулярное выражение (расширенный)";
+"AreYouSureYouWantToUseX" = "Вы уверены, что хотите использовать “%1$@”?";
+"KeepYourCredentialsSecure" = "Храните свои учетные данные в безопасности";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Узнайте больше о том, как обеспечить безопасность учетных данных при использовании “%1$@”.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Предупреждение:** “Начинается с\\” - это расширенный вариант с повышенным риском компрометации учетных данных.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Предупреждение:** “Регулярное выражение\\” - это расширенный вариант с повышенным риском компрометации учетных данных при неправильном использовании.";
+"DefaultX" = "По умолчанию (%1$@)";
