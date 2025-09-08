@@ -645,7 +645,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
         subject.state.profileSwitcherState.isVisible = false
-        // TODO: dismissProfileSwitcher() check
 
         authRepository.profileSwitcherState = ProfileSwitcherState.maximumAccounts
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
@@ -1559,5 +1558,23 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 searchVaultFilterType: .organization(organization)
             )
         )
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss(nil)])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 }
