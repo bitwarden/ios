@@ -170,7 +170,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
         subject.state.profileSwitcherState.isVisible = false
-        // TODO: dismissProfileSwitcher() check
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
@@ -509,5 +508,23 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 }
