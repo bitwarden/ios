@@ -74,6 +74,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The helper functions for collections.
+    let collectionHelper: CollectionHelper
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
@@ -86,15 +88,18 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     /// Initializes a `DefaultVaultListSectionsBuilder`.
     /// - Parameters:
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - collectionHelper: The helper functions for collections.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - preparedData: `VaultListPreparedData` to be used as input to build the sections where the caller
     ///   decides which to include depending on the builder methods called.
     init(
         clientService: ClientService,
+        collectionHelper: CollectionHelper,
         errorReporter: ErrorReporter,
         withData preparedData: VaultListPreparedData
     ) {
         self.clientService = clientService
+        self.collectionHelper = collectionHelper
         self.errorReporter = errorReporter
         self.preparedData = preparedData
     }
@@ -127,9 +132,10 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             return self
         }
 
-        let collectionTree = try await clientService.vault().collections()
+        let collections = try await clientService.vault().collections()
             .decryptList(collections: preparedData.collections)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let collectionTree = try await collectionHelper.order(collections)
             .asNestedNodes()
 
         let nestedCollections = if let nestedCollectionId {

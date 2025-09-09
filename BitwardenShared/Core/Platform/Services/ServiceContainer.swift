@@ -696,12 +696,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let collectionHelper = DefaultCollectionHelper(organizationService: organizationService)
+
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
             folderService: folderService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
+                collectionHelper: collectionHelper,
                 errorReporter: errorReporter
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
@@ -730,6 +733,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultRepository = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,
