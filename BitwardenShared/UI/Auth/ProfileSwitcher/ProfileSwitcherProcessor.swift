@@ -21,10 +21,18 @@ final class ProfileSwitcherProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// An object that handles `ProfileSwitcherView` actions and effects.
     private let handler: ProfileSwitcherHandler
 
     // MARK: Initialization
 
+    /// Creates a new `ProfileSwitcherProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - handler: An object that handles `ProfileSwitcherView` actions and effects.
+    ///   - services: The services used by this processor.
+    ///   - state: The initial state of this processor.
     init(
         coordinator: AnyCoordinator<ProfileSwitcherRoute, Void>,
         handler: ProfileSwitcherHandler,
