@@ -31,9 +31,6 @@ public struct ProfileSwitcherSheet: View {
         .task {
             await store.perform(.refreshAccountProfiles)
         }
-//        .accessibilityAction(named: Localizations.close) {
-//            store.send(.backgroundPressed)
-//        }
         .scrollView()
     }
 
@@ -49,18 +46,6 @@ public struct ProfileSwitcherSheet: View {
         .buttonStyle(.bitwardenBorderless)
         .frame(maxWidth: .infinity, alignment: .center)
         .accessibilityIdentifier("AddAccountButton")
-    }
-
-    /// A background view with accessibility enabled
-    private var backgroundView: some View {
-        ZStack(alignment: .top) {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-            SharedAsset.Colors.backgroundSecondary.swiftUIColor
-                .frame(height: abs(min(scrollOffset.y, 0)))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .hidden(!store.state.isVisible)
     }
 
     /// A group of account views
