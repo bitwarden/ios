@@ -404,6 +404,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func setUpSubject(withData: VaultListPreparedData) {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
+            collectionHelper: MockCollectionHelper(),
             errorReporter: errorReporter,
             withData: withData
         )

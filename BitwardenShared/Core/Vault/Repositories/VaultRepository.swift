@@ -337,6 +337,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
+    
+    /// The helper functions for collections.
+    private let collectionHelper: CollectionHelper
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
@@ -381,6 +384,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - collectionHelper: The helper functions for collections.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -398,6 +402,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        collectionHelper: CollectionHelper,
         collectionService: CollectionService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -414,6 +419,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.collectionHelper = collectionHelper
         self.collectionService = collectionService
         self.configService = configService
         self.environmentService = environmentService
@@ -1069,34 +1075,7 @@ extension DefaultVaultRepository: VaultRepository {
         let rawCollections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
         let collections = try await clientService.vault().collections()
             .decryptList(collections: rawCollections)
-
-        guard collections.count(where: { $0.type == .defaultUserCollection }) <= 1 else {
-            // if there are more than one default user collection, then we need to order
-            // them by organization name they belong to.
-            let organizations = try await organizationService.fetchAllOrganizations()
-            let organizationLookup = Dictionary(uniqueKeysWithValues: organizations.map { ($0.id, $0.name) })
-
-            return collections.sorted { col1, col2 in
-                if col1.type.rawValue > col2.type.rawValue {
-                    return true
-                } else if col1.type.rawValue < col2.type.rawValue {
-                    return false
-                }
-
-                if col1.type == .sharedCollection {
-                    return col1.name.localizedStandardCompare(col2.name) == .orderedAscending
-                }
-
-                if let orgName1 = organizationLookup[col1.organizationId],
-                   let orgName2 = organizationLookup[col2.organizationId] {
-                    return orgName1.localizedStandardCompare(orgName2) == .orderedAscending
-                }
-
-                return false
-            }
-        }
-
-        return collections.sorted(using: CollectionView.defaultSortDescriptor)
+        return try await collectionHelper.order(collections)
     }
 
     func deleteCipher(_ id: String) async throws {

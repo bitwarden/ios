@@ -15,6 +15,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
     var clientService: MockClientService!
+    var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -43,6 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
         clientService = MockClientService()
+        collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
@@ -65,6 +67,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,
@@ -88,6 +91,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = nil
         clientCiphers = nil
         clientService = nil
+        collectionHelper = nil
         collectionService = nil
         configService = nil
         environmentService = nil
@@ -870,6 +874,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
             .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
         ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+        ]
         let collections = try await subject.fetchCollections(includeReadOnly: false)
 
         XCTAssertEqual(
@@ -878,35 +887,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 "Collection 2",
                 "Collection 1",
                 "Collection 3",
-            ]
-        )
-        try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
-    }
-
-    /// `fetchCollections(includeReadOnly:)` returns the collections for the user ordered correctly when there are more
-    /// than one default user collection.
-    func test_fetchCollections_multipleDefaultUserCollections() async throws {
-        collectionService.fetchAllCollectionsResult = .success([
-            .fixture(id: "1", organizationId: "2", name: "Collection 3", type: .sharedCollection),
-            .fixture(id: "2", organizationId: "3", name: "My Items", type: .defaultUserCollection),
-            .fixture(id: "3", organizationId: "2", name: "My Items", type: .defaultUserCollection),
-            .fixture(id: "4", organizationId: "3", name: "Collection 1", type: .sharedCollection),
-        ])
-        organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(id: "1", name: "First in alphabetical order"),
-            .fixture(id: "2", name: "Second in alphabetical order"),
-            .fixture(id: "3", name: "Third in alphabetical order"),
-        ])
-
-        let collections = try await subject.fetchCollections(includeReadOnly: false)
-
-        XCTAssertEqual(
-            collections.map { "[\($0.id ?? "nil")] \($0.name)" },
-            [
-                "[3] My Items",
-                "[2] My Items",
-                "[4] Collection 1",
-                "[1] Collection 3",
             ]
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))

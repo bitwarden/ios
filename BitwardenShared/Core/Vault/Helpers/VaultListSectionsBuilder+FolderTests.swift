@@ -269,6 +269,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
     func setUpSubject(withData: VaultListPreparedData) {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
+            collectionHelper: MockCollectionHelper(),
             errorReporter: errorReporter,
             withData: withData
         )
