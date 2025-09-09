@@ -15,6 +15,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
     var clientService: MockClientService!
+    var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -43,6 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
         clientService = MockClientService()
+        collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
@@ -65,6 +67,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,
@@ -88,6 +91,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = nil
         clientCiphers = nil
         clientService = nil
+        collectionHelper = nil
         collectionService = nil
         configService = nil
         environmentService = nil
@@ -866,14 +870,23 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
     func test_fetchCollections() async throws {
         collectionService.fetchAllCollectionsResult = .success([
-            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
         ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+        ]
         let collections = try await subject.fetchCollections(includeReadOnly: false)
 
         XCTAssertEqual(
-            collections,
+            collections.map(\.name),
             [
-                .fixture(id: "1", name: "Collection 1"),
+                "Collection 2",
+                "Collection 1",
+                "Collection 3",
             ]
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
