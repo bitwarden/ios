@@ -33,8 +33,7 @@ struct ViewItemView: View {
 
     /// Whether to show the move to organization option in the toolbar menu.
     var isMoveToOrganizationEnabled: Bool {
-        guard let cipher = store.state.loadingState.data?.cipher else { return false }
-        return cipher.organizationId == nil
+        store.state.loadingState.data?.canMoveToOrganization ?? false
     }
 
     /// The `Store` for this view.
