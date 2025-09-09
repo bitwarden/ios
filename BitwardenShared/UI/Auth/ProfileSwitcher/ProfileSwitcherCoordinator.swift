@@ -49,10 +49,12 @@ final class ProfileSwitcherCoordinator: Coordinator, HasStackNavigator {
         case .dismiss:
             stackNavigator?.dismiss()
         case .open:
-            let processor = ProfileSwitcherProcessor(coordinator: asAnyCoordinator(),
-                                                     handler: handler,
-                                                     services: services,
-                                                     state: handler.profileSwitcherState)
+            let processor = ProfileSwitcherProcessor(
+                coordinator: asAnyCoordinator(),
+                handler: handler,
+                services: services,
+                state: handler.profileSwitcherState
+            )
             let store = Store(processor: processor)
             let view = ProfileSwitcherSheet(store: store)
             stackNavigator?.replace(view)
