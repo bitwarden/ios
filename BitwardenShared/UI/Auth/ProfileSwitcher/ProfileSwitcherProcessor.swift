@@ -39,9 +39,6 @@ final class ProfileSwitcherProcessor: StateProcessor<
 
     override func receive(_ action: ProfileSwitcherAction) {
         handler.handleProfileSwitcherAction(action)
-        if case .dismissTapped = action {
-            coordinator.navigate(to: .dismiss)
-        }
     }
 
     override func perform(_ effect: ProfileSwitcherEffect) async {
