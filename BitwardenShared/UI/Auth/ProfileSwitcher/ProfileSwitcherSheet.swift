@@ -6,8 +6,6 @@ public struct ProfileSwitcherSheet: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
 
-    @SwiftUI.State var scrollOffset = CGPoint.zero
-
     public var body: some View {
         ZStack {
             SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea()
