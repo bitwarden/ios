@@ -67,7 +67,8 @@ case "$MODE" in
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
       -resultBundlePath "${RESULT_BUNDLE_PATH}" \
-      -quiet
+      -quiet \
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) DISABLE_ASSERTION_FAILURE_ON_LOG_ERROR"
     ;;
   "Device")
     echo "📦 Performing Xcode archive"
