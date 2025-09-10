@@ -11,7 +11,7 @@ struct LandingView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
+    @ObservedObject var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
         ZStack {
