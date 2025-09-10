@@ -42,10 +42,13 @@ class ProfileSwitcherProcessorTests: BitwardenTestCase {
 
     /// `receive(action:)` passes the action to the handler.
     @MainActor
-    func test_receive() {
+    func test_receive() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26")
+        }
         handler.profileSwitcherState.isVisible = true
         subject.receive(.dismissTapped)
-        XCTAssertFalse(handler.profileSwitcherState.isVisible)
+        XCTAssertTrue(handler.dismissProfileSwitcherCalled)
     }
 
     /// `perform(effect:)` passes the effect to the handler.
