@@ -95,11 +95,7 @@ extension ProfileSwitcherHandler {
             }
         case .backgroundTapped,
              .dismissTapped:
-            if #available(iOS 26, *) {
-                dismissProfileSwitcher()
-            } else {
-                profileSwitcherState.isVisible = false
-            }
+            hideProfileSwitcher()
         }
     }
 
@@ -117,11 +113,7 @@ extension ProfileSwitcherHandler {
         case let .accountPressed(account):
             await select(account)
         case .addAccountPressed:
-            if #available(iOS 26, *) {
-                dismissProfileSwitcher()
-            } else {
-                profileSwitcherState.isVisible = false
-            }
+            hideProfileSwitcher()
             showAddAccount()
         case .refreshAccountProfiles:
             await refreshProfileState()
@@ -183,11 +175,7 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
-        if #available(iOS 26, *) {
-            dismissProfileSwitcher()
-        } else {
-            profileSwitcherState.isVisible = false
-        }
+        hideProfileSwitcher()
         showAlert(
             .accountOptions(
                 account,
@@ -202,6 +190,17 @@ private extension ProfileSwitcherHandler {
                 }
             )
         )
+    }
+
+    /// Hides the profile switcher. On iOS 26, this means dismissing it; on earlier versions, this
+    /// means making the view invisible.
+    ///
+    func hideProfileSwitcher() {
+        if #available(iOS 26, *) {
+            dismissProfileSwitcher()
+        } else {
+            profileSwitcherState.isVisible = false
+        }
     }
 
     /// Lock an account.
