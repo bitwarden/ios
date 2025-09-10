@@ -745,48 +745,56 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     /// - Parameter newUriMatchType: The default URI match type.
     ///
-    private func confirmAndUpdateDefaultUriMatchType(_ newUriMatchType: DefaultableType<UriMatchType>,
-                                                     _ index: Int) async {
+    private func confirmAndUpdateDefaultUriMatchType(
+        _ newUriMatchType: DefaultableType<UriMatchType>,
+        _ index: Int
+    ) async {
         switch newUriMatchType.customValue {
         case .regularExpression:
-            coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-                await self.updateUriMatchType(newUriMatchType, index)
-            })
+            coordinator.showAlert(
+                .confirmRegularExpressionMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.regEx
+                    )
+                }
+            )
         case .startsWith:
-            coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-                await self.updateUriMatchType(newUriMatchType, index)
-            })
+            coordinator.showAlert(
+                .confirmStartsWithMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.startsWith
+                    )
+                }
+            )
         default:
-            await updateUriMatchType(newUriMatchType, index)
+            await updateUriMatchType(
+                newUriMatchType: newUriMatchType,
+                index: index,
+                learnMoreLocalizedMatchType: nil
+            )
         }
     }
 
     /// Updates the URI match type value for the uri.
     ///
-    /// - Parameter updateUriMatchType: The new selected URI match type.
-    /// - Parameter index: The index of the uri to update the URI Match tupe
+    /// - Parameters:
+    ///   - updateUriMatchType: The new selected URI match type.
+    ///   - index: The index of the uri to update the URI Match type.
+    ///   - learnMoreLocalizedMatchType: The localized text to display on the learn more dialog.
     ///
     private func updateUriMatchType(
-        _ newUriMatchType: DefaultableType<UriMatchType>,
-        _ index: Int
+        newUriMatchType: DefaultableType<UriMatchType>,
+        index: Int,
+        learnMoreLocalizedMatchType: String?
     ) async {
         state.loginState.uris[index].matchType = newUriMatchType
 
-        switch newUriMatchType {
-        case .default:
-            return
-
-        case let .custom(matchType):
-            switch matchType {
-            case .regularExpression:
-                showLearnMoreAlert(Localizations.regEx)
-
-            case .startsWith:
-                showLearnMoreAlert(Localizations.startsWith)
-
-            default:
-                return
-            }
+        if let learnMoreText = learnMoreLocalizedMatchType, !learnMoreText.isEmpty {
+            showLearnMoreAlert(learnMoreText)
         }
     }
 
