@@ -129,7 +129,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
-    func test_perform_appeared() {
+    func test_perform_appeared() { // swiftlint:disable:this function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.showWebIcons = true
@@ -139,6 +139,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             CollectionView.fixture(id: "2"),
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
+        let cipherOwnershipOptions: [CipherOwner] = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        vaultRepository.fetchCipherOwnershipOptions = cipherOwnershipOptions
 
         let cipherItem = CipherView.fixture(
             id: "id",
@@ -172,6 +177,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         expectedState.allUserCollections = collections
+        expectedState.ownershipOptions = cipherOwnershipOptions
 
         XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)

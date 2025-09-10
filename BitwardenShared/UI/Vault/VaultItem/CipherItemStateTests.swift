@@ -66,6 +66,38 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(state.loginState.isTOTPAvailable)
     }
 
+    /// `canAssignToCollection` returns false if the user doesn't have access to any organizations.
+    func test_canAssignToCollection_noOrganizations() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        XCTAssertFalse(subject.canAssignToCollection)
+    }
+
+    /// `canAssignToCollection` returns false if the user is in an organization but the cipher is
+    /// still in a personal vault.
+    func test_canAssignToCollection_organizationsAvailable() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertFalse(subject.canAssignToCollection)
+    }
+
+    /// `canAssignToCollection` returns true if the user is in an organization and the cipher is in
+    /// the organization's vault.
+    func test_canAssignToCollection_organizationCipher() throws {
+        let cipher = CipherView.fixture(organizationId: "1")
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertTrue(subject.canAssignToCollection)
+    }
+
     /// `canBeDeleted` is true
     /// if the cipher does not belong to a collection
     func test_canBeDeleted_notCollection() throws {
@@ -206,6 +238,37 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
+    }
+
+    /// `canMoveToOrganization` returns false if the cipher is in an existing organization.
+    func test_canMoveToOrganization_cipherInExistingOrganization() throws {
+        let cipher = CipherView.fixture(organizationId: "1")
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertFalse(subject.canMoveToOrganization)
+    }
+
+    /// `canMoveToOrganization` returns false if the user doesn't have access to any organizations.
+    func test_canMoveToOrganization_noOrganizations() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        XCTAssertFalse(subject.canMoveToOrganization)
+    }
+
+    /// `canMoveToOrganization` returns true if the cipher isn't in an organization and the user has
+    /// access to one or more organizations.
+    func test_canMoveToOrganization_organizationsAvailable() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertTrue(subject.canMoveToOrganization)
     }
 
     /// `hasOrganizations` is true when the cipher has a non-nil organizationId.

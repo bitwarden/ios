@@ -144,6 +144,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool {
+        guard hasOrganizations, cipher.organizationId != nil else { return false }
         guard !collectionIds.isEmpty else { return true }
 
         return allUserCollections.contains { collection in
@@ -178,6 +179,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
         // New permission model from PM-18091
         return cipherPermissions.restore && isSoftDeleted
+    }
+
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool {
+        hasOrganizations && cipher.organizationId == nil
     }
 
     /// The collections that the cipher belongs to.

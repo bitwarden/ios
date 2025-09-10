@@ -50,6 +50,7 @@ struct SingleSignOnView: View {
             ),
             accessibilityIdentifier: "SSOOrgIdField"
         )
+        .textFieldConfiguration(.organizationIdentifier)
     }
 
     /// The instructions text.

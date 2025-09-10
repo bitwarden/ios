@@ -12,6 +12,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!
+    var collectionHelper: MockCollectionHelper!
     var errorReporter: MockErrorReporter!
     var subject: DefaultVaultListSectionsBuilder!
 
@@ -21,6 +22,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         super.setUp()
 
         clientService = MockClientService()
+        collectionHelper = MockCollectionHelper()
         errorReporter = MockErrorReporter()
     }
 
@@ -28,6 +30,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         super.tearDown()
 
         clientService = nil
+        collectionHelper = nil
         errorReporter = nil
         subject = nil
     }
@@ -43,6 +46,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: "1", organizationId: "1", name: "collection1"),
                     .fixture(id: "2", organizationId: "1", name: "acollection2"),
                     .fixture(id: "3", organizationId: "1", name: "collection3"),
+                    .fixture(id: "4", organizationId: "1", name: "zcollection9", type: .defaultUserCollection),
                 ],
                 collectionsCount: [
                     "1": 20,
@@ -50,12 +54,19 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 ]
             )
         )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "4", name: "zcollection9", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", name: "acollection2", organizationId: "1"),
+            .fixture(id: "1", name: "collection1", organizationId: "1"),
+            .fixture(id: "3", name: "collection3", organizationId: "1"),
+        ]
 
         let vaultListData = try await subject.addCollectionsSection().build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Collections]: Collections
+              - Group[4]: zcollection9 (0)
               - Group[2]: acollection2 (5)
               - Group[1]: collection1 (20)
               - Group[3]: collection3 (0)
@@ -79,6 +90,10 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 ]
             )
         )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "2", name: "acollection2", organizationId: "1"),
+            .fixture(id: nil, name: "collection1", organizationId: "1"),
+        ]
 
         let vaultListData = try await subject.addCollectionsSection().build()
 
@@ -109,6 +124,10 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 ]
             )
         )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: nil, name: "acollection2", organizationId: "1"),
+            .fixture(id: nil, name: "collection1", organizationId: "1"),
+        ]
 
         let vaultListData = try await subject.addCollectionsSection().build()
 
@@ -140,6 +159,13 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 ]
             )
         )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "2", name: "col2", organizationId: "1"),
+            .fixture(id: "3", name: "col2/sub1", organizationId: "1"),
+            .fixture(id: "4", name: "col2/sub2", organizationId: "1"),
+            .fixture(id: "5", name: "col2/sub2/sub1", organizationId: "1"),
+            .fixture(id: "1", name: "collection1", organizationId: "1"),
+        ]
 
         let vaultListData = try await subject.addCollectionsSection(nestedCollectionId: "2").build()
 
@@ -158,6 +184,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
     func setUpSubject(withData: VaultListPreparedData) {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
+            collectionHelper: collectionHelper,
             errorReporter: errorReporter,
             withData: withData
         )
