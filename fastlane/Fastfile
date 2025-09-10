@@ -234,6 +234,7 @@ platform :ios do |options|
 
     desc "Create config files with build variant and compiler flags"
     private_lane :create_config_files do |options|
+      build_mode = ensure_build_mode(options[:build_mode])
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
@@ -248,6 +249,11 @@ platform :ios do |options|
       shared_app_group_id = ENV["_GROUP_ID"]
       profile_prefix = ENV["_PROVISIONING_PROFILE_PREFIX"]
       app_icon = ENV["_APP_ICON"]
+
+      # If the build mode is Simulator then add the compiler flag to disable assertion failures on log errors.
+      if build_mode == 'simulator'
+        compiler_flags += " DISABLE_ASSERTION_FAILURE_ON_LOG_ERROR"
+      end
 
       xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
