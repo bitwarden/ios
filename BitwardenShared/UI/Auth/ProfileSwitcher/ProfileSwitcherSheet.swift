@@ -18,7 +18,7 @@ public struct ProfileSwitcherSheet: View {
             }
             .padding(.horizontal, 12)
         }
-        .navigationBar(title: Localizations.accountsPluralNoun, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.accounts, titleDisplayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
