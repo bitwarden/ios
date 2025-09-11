@@ -34,6 +34,7 @@ protocol ProfileSwitcherHandler: AnyObject { // sourcery: AutoMockable
 
     /// Dismisses the profile switcher; this is used on iOS >=26 for making sure the sheet
     /// is dismissed appropriately; on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    @available(iOS 26, *)
     func dismissProfileSwitcher()
 
     /// Handles auth events that require asynchronous management.
@@ -70,6 +71,7 @@ protocol ProfileSwitcherHandler: AnyObject { // sourcery: AutoMockable
 
     /// Shows the profile switcher; this is used on iOS >=26 for displaying the sheet;
     /// on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    @available(iOS 26, *)
     func showProfileSwitcher()
 }
 

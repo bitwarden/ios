@@ -2,13 +2,13 @@ import Foundation
 
 // MARK: - ProfileSwitcherModule
 
-/// An object that builds coordinators for the profile switcher views on iOS >=26.
+/// An object that builds coordinators for the profile switcher sheet.
 @MainActor
 protocol ProfileSwitcherModule {
     /// Initializes a coordinator for navigating between `ProfileSwitcherRoute` objects.
     ///
     /// - Parameters:
-    ///   - handler: An object that handles `ProfileSwitcherView` actions and effects.
+    ///   - handler: An object that handles `ProfileSwitcherSheet` actions and effects.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     func makeProfileSwitcherCoordinator(
