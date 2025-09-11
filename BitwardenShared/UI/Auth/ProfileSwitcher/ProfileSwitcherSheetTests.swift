@@ -145,8 +145,8 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
             allowLockAndLogout: true,
             isVisible: true
         )
-        let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.labelView().callOnTapGesture()
+        let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
+        try alternateRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
@@ -172,8 +172,8 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
             allowLockAndLogout: true,
             isVisible: true
         )
-        let addAccountRow = try subject.inspect().find(button: "")
-        try addAccountRow.labelView().callOnTapGesture()
+        let secondAlternateRow = try subject.inspect().find(button: "")
+        try secondAlternateRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
