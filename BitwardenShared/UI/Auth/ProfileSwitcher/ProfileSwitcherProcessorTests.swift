@@ -48,13 +48,15 @@ class ProfileSwitcherProcessorTests: BitwardenTestCase {
         }
         handler.profileSwitcherState.isVisible = true
         subject.receive(.dismissTapped)
-        XCTAssertTrue(handler.dismissProfileSwitcherCalled)
+        XCTAssertTrue(handler.handleProfileSwitcherActionCalled)
+        XCTAssertEqual(handler.handleProfileSwitcherActionReceivedAction, .dismissTapped)
     }
 
     /// `perform(effect:)` passes the effect to the handler.
     @MainActor
     func test_perform() async {
         await subject.perform(.addAccountPressed)
-        XCTAssertTrue(handler.showAddAccountCalled)
+        XCTAssertTrue(handler.handleProfileSwitcherEffectCalled)
+        XCTAssertEqual(handler.handleProfileSwitcherEffectReceivedEffect, .addAccountPressed)
     }
 }

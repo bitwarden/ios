@@ -9,6 +9,7 @@ import XCTest
 class ProfileSwitcherCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var handler: MockProfileSwitcherHandler!
     var stackNavigator: MockStackNavigator!
     var subject: ProfileSwitcherCoordinator!
 
@@ -17,10 +18,11 @@ class ProfileSwitcherCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        handler = MockProfileSwitcherHandler()
         stackNavigator = MockStackNavigator()
 
         subject = ProfileSwitcherCoordinator(
-            handler: MockProfileSwitcherHandler(),
+            handler: handler,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -45,6 +47,8 @@ class ProfileSwitcherCoordinatorTests: BitwardenTestCase {
     /// `navigate(to: .open)` opens the profile switcher.
     @MainActor
     func test_navigate_open() throws {
+        handler.profileSwitcherState = .empty()
+
         subject.navigate(to: .open)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)

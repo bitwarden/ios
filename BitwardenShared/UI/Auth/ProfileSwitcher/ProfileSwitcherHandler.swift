@@ -7,7 +7,7 @@ import Foundation
 ///     Most likely, this will be a processor.
 ///
 @MainActor
-protocol ProfileSwitcherHandler: AnyObject {
+protocol ProfileSwitcherHandler: AnyObject { // sourcery: AutoMockable
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
 
