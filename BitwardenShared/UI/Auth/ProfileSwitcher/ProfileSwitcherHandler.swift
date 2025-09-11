@@ -314,18 +314,15 @@ private extension ProfileSwitcherHandler {
                 profileSwitcherState.isVisible = false
             }
         }
-        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else {
-            if #available(iOS 26, *) {
-                dismissProfileSwitcher()
-            }
-            return
-        }
         if #available(iOS 26, *) {
             // This has to happen before the account switch event is handled, otherwise in the share extension,
             // the stack navigator believes it's not presenting anything, and the dismiss becomes a no-op, leaving
             // the profile switcher on the screen.
             // Making sure we do the dismiss *first* solves the problem.
             dismissProfileSwitcher()
+        }
+        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else {
+            return
         }
         await handleAuthEvent(
             .action(
