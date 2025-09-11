@@ -959,7 +959,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false
                     ),
                 ]
             )
@@ -1052,7 +1053,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false
                     ),
                 ]
             )
