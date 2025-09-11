@@ -83,15 +83,26 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     private func confirmAndUpdateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
         switch defaultUriMatchType {
         case .regularExpression:
-            coordinator.showAlert(.confirmRegularExpressionMatchDetectionAlert {
-                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
-            })
+            coordinator.showAlert(
+                .confirmRegularExpressionMatchDetectionAlert {
+                    await self.updateDefaultUriMatchType(
+                        defaultUriMatchType,
+                        learnMoreLocalizedMatchType: Localizations.regEx
+                    )
+                })
         case .startsWith:
-            coordinator.showAlert(.confirmStartsWithMatchDetectionAlert {
-                await self.updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: true)
-            })
+            coordinator.showAlert(
+                .confirmStartsWithMatchDetectionAlert {
+                    await self.updateDefaultUriMatchType(
+                        defaultUriMatchType,
+                        learnMoreLocalizedMatchType: Localizations.startsWith
+                    )
+                })
         default:
-            await updateDefaultUriMatchType(defaultUriMatchType, showLearnMore: false)
+            await updateDefaultUriMatchType(
+                defaultUriMatchType,
+                learnMoreLocalizedMatchType: nil
+            )
         }
     }
 
@@ -132,15 +143,19 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
 
     /// Updates the default URI match type value for the user.
     /// - Parameters:
-    /// - defaultUriMatchType: The default URI match type.
-    /// - showLearnMore: If should display the learn more dialog.
-    /// 
-    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType, showLearnMore: Bool) async {
+    ///   - updateUriMatchType: The new selected URI match type.
+    ///   - learnMoreLocalizedMatchType: The localized text to display on the learn more dialog.
+    ///
+    private func updateDefaultUriMatchType(
+        _ defaultUriMatchType: UriMatchType,
+        learnMoreLocalizedMatchType: String?
+    ) async {
         do {
             state.defaultUriMatchType = defaultUriMatchType
             try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
-            if showLearnMore {
-                showLearnMoreAlert(defaultUriMatchType.localizedName)
+
+            if let learnMoreText = learnMoreLocalizedMatchType, !learnMoreText.isEmpty {
+                showLearnMoreAlert(learnMoreText)
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
