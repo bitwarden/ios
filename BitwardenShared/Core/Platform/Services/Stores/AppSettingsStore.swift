@@ -73,6 +73,13 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The user's v2 account keys.
+    ///
+    /// - Parameter userId: The user ID associated with the stored account keys.
+    /// - Returns: The user's account keys.
+    ///
+    func accountKeys(userId: String) -> PrivateKeysResponseModel?
+
     /// The user's progress for setting up autofill.
     ///
     /// - Parameter userId: The user ID associated with the stored autofill setup progress.
@@ -257,6 +264,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the account v2 keys for a user ID.
+    ///
+    /// - Parameters:
+    ///   - keys: The user's account keys.
+    ///   - userId: The user ID associated with the encrypted private key.
+    ///
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String)
 
     /// Sets the user's progress for autofill setup.
     ///
@@ -725,6 +740,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
@@ -785,6 +801,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .accountKeys(userId):
+                key = "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
             case let .accountSetupImportLogins(userId):
@@ -1002,6 +1020,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         }
     }
 
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        fetch(for: .accountKeys(userId: userId))
+    }
+
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupAutofill(userId: userId))
     }
@@ -1118,6 +1140,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
+        store(keys, for: .accountKeys(userId: userId))
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {

@@ -249,7 +249,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "privateKey",
+                encryptedUserKey: nil
+            )
         )
     }
 
@@ -282,7 +286,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, false)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "privateKey",
+                encryptedUserKey: nil
+            )
         )
     }
 
@@ -895,6 +903,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
@@ -1159,6 +1168,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
@@ -1189,6 +1199,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "encryptedUserKey"
             )
@@ -1213,6 +1224,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword_error() async {
         clientService.mockCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setMasterPassword(
@@ -1237,6 +1253,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
@@ -1253,7 +1270,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+            AccountEncryptionKeys(
+                accountKeys: .fixture(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY"
+            )
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
 
@@ -1364,6 +1385,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
                 encryptedUserKey: "recipe"
             ),
@@ -1389,6 +1411,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
                 encryptedUserKey: "recipe"
             ),
@@ -1416,6 +1439,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
                 encryptedUserKey: "recipe"
             ),
@@ -1443,6 +1467,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
                 encryptedUserKey: "recipe"
             ),
@@ -1719,7 +1744,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVault() async throws {
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
         stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
 
@@ -1734,8 +1763,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
@@ -1752,6 +1781,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_error_cryptoFail() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             ),
@@ -1799,6 +1829,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
             "1": .init(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "Private Key",
                 encryptedUserKey: "Encrypted User Key"
             ),
@@ -1816,6 +1847,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_emptyKey() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             ),
@@ -1831,6 +1863,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_success() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             ),
@@ -1854,6 +1887,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             ),
@@ -1890,6 +1924,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
         keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
             self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             )
@@ -1941,6 +1976,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
         keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
             self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             )
@@ -1968,6 +2004,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: nil
             ),
@@ -2105,7 +2142,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultFromLoginWithDevice_withMasterPasswordHash() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
 
         try await subject.unlockVaultFromLoginWithDevice(
@@ -2121,8 +2162,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY")
@@ -2137,7 +2178,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultFromLoginWithDevice_withoutMasterPasswordHash() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
 
         try await subject.unlockVaultFromLoginWithDevice(
@@ -2153,8 +2198,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .userKey(protectedUserKey: "KEY")
@@ -2177,7 +2222,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
         stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
@@ -2191,8 +2240,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
@@ -2216,7 +2265,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
         stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
@@ -2230,8 +2283,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey")
             )
         )
@@ -2250,7 +2303,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
         stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
 
@@ -2263,8 +2320,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                securityState: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .pinEnvelope(pin: "123", pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope")
             )
         )
@@ -2303,6 +2360,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
@@ -2327,7 +2385,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "NEW_PASSWORD_HASH")
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+            AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY"
+            )
         )
         XCTAssertNil(stateService.forcePasswordResetReason["1"])
     }
@@ -2350,6 +2412,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_noPasswordHash() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
@@ -2367,6 +2430,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_noPasswordHash_invalidPassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
@@ -2455,7 +2519,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
 
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
 
         stateService.encryptedPinByUserId[account.profile.userId] = "123"

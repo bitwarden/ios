@@ -371,6 +371,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    accountKeys: nil,
                     encryptedPrivateKey: "PRIVATE_KEY",
                     encryptedUserKey: "KEY"
                 ),
@@ -440,6 +441,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    accountKeys: nil,
                     encryptedPrivateKey: "PRIVATE_KEY",
                     encryptedUserKey: "KEY"
                 ),
@@ -697,6 +699,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    accountKeys: nil,
                     encryptedPrivateKey: "PRIVATE_KEY",
                     encryptedUserKey: "KEY"
                 ),
@@ -767,6 +770,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    accountKeys: nil,
                     encryptedPrivateKey: "PRIVATE_KEY",
                     encryptedUserKey: "KEY"
                 ),
@@ -833,6 +837,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    accountKeys: nil,
                     encryptedPrivateKey: "PRIVATE_KEY",
                     encryptedUserKey: "KEY"
                 ),
@@ -896,7 +901,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` set forcePasswordResetReason as
     /// weakMasterPasswordOnLogin as master password doesn't fullfil org policies.
-    func test_loginWithTwoFactorCode_forcePasswordResetReason() async throws { // swiftlint:disable:this function_body_length line_length
+    func test_loginWithTwoFactorCode_forcePasswordResetReason() async throws {
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
