@@ -42,7 +42,7 @@ struct ProfileSwitcherAccountsView: View {
         accountProfile: ProfileSwitcherItem,
         showDivider: Bool = true
     ) -> some View {
-        let isActive = (accountProfile.userId == store.state.activeAccountId)
+        let isActive = accountProfile.userId == store.state.activeAccountId
         ProfileSwitcherRow(
             store: store.child(
                 state: { _ in
