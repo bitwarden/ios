@@ -1,10 +1,11 @@
+import CryptoKit
 import Foundation
 import SwiftUI
 
 // MARK: - URLDecodingError
 
 /// Errors that can be encountered when attempting to decode a string from it's url encoded format.
-enum URLDecodingError: Error, Equatable {
+public enum URLDecodingError: Error, Equatable {
     /// The provided string is an invalid length.
     ///
     /// Base64 encoded strings are padded at the end with `=` characters to ensure that the length of the resulting
@@ -19,7 +20,7 @@ enum URLDecodingError: Error, Equatable {
 
 // MARK: - String
 
-extension String {
+public extension String {
     // MARK: Type Properties
 
     /// En-dashes are used to represent number ranges. https://en.wikipedia.org/wiki/Dash#En_dash
@@ -49,6 +50,12 @@ extension String {
         }
 
         return Color(hex: color)
+    }
+
+    /// Returns a SHA256-hashed version of this string as a hexadecimal string.
+    var hexSHA256Hash: String {
+        let hashedData = SHA256.hash(data: Data(utf8))
+        return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 
     /// A Boolean value indicating whether the string represents the "bitwarden" scheme for custom
@@ -82,7 +89,39 @@ extension String {
         }
     }
 
+    /// Returns a new string that has been percent-encoded.
+    /// This is aggressive compared to the W3C recommendations and percent-encodes
+    /// all non-alphanumeric characters.
+    var percentEncoded: String? {
+        addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+    }
+
     // MARK: Methods
+
+    /// Formats a credit card number by inserting spaces every 4 digits.
+    /// Only formats if the string contains only digits, otherwise returns the original string.
+    ///
+    /// - Returns: A formatted credit card number with spaces every 4 digits,
+    /// or the original string if not a valid card number.
+    ///
+    func formattedCreditCardNumber() -> String {
+        // Only format if the string contains only digits and spaces
+        let digitsOnly = replacingOccurrences(of: " ", with: "")
+        guard digitsOnly.allSatisfy(\.isNumber) else {
+            return self
+        }
+
+        // Insert spaces every 4 digits
+        var result = ""
+        for (index, character) in digitsOnly.enumerated() {
+            if index > 0, index % 4 == 0 {
+                result += " "
+            }
+            result += String(character)
+        }
+
+        return result
+    }
 
     /// Returns a copy of the string, padded to the specified length on the left side with the
     /// provided padding character.
@@ -129,6 +168,14 @@ extension String {
             ))
     }
 
+    /// Returns a copy of the string with all of the whitespace characters removed.
+    ///
+    /// - Returns: a copy of the string with all of the whitespace characters removed.
+    ///
+    func whitespaceRemoved() -> String {
+        replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+    }
+
     /// Creates a new string that prevents email addresses from being turned into tappable links
     /// when interpreted in a Markdown context. It does this by
     /// applying a Word Joiner character before the @, which is sufficient
@@ -136,30 +183,5 @@ extension String {
     /// space, this will not affect where very long lines would be broken.
     func withoutAutomaticEmailLinks() -> String {
         replacingOccurrences(of: "@", with: "\u{2060}@")
-    }
-
-    /// Formats a credit card number by inserting spaces every 4 digits.
-    /// Only formats if the string contains only digits, otherwise returns the original string.
-    ///
-    /// - Returns: A formatted credit card number with spaces every 4 digits,
-    /// or the original string if not a valid card number.
-    ///
-    func formattedCreditCardNumber() -> String {
-        // Only format if the string contains only digits and spaces
-        let digitsOnly = replacingOccurrences(of: " ", with: "")
-        guard digitsOnly.allSatisfy(\.isNumber) else {
-            return self
-        }
-
-        // Insert spaces every 4 digits
-        var result = ""
-        for (index, character) in digitsOnly.enumerated() {
-            if index > 0 && index % 4 == 0 {
-                result += " "
-            }
-            result += String(character)
-        }
-
-        return result
     }
 }

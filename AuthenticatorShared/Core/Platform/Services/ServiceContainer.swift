@@ -20,6 +20,9 @@ public class ServiceContainer: Services {
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
+    /// The service used by the application to get info about the app and device it's running on.
+    public var appInfoService: any AppInfoService
+
     /// The service for persisting app setting values.
     let appSettingsStore: AppSettingsStore
 
@@ -77,6 +80,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - application: The application instance.
+    ///   - appInfoService: The service used by the application to get info about the app and device it's running on.
     ///   - appSettingsStore: The service for persisting app settings
     ///   - authenticatorItemRepository: The service to manage items
     ///   - biometricsRepository: The repository to manage biometric unlock policies
@@ -98,6 +102,7 @@ public class ServiceContainer: Services {
     ///
     init(
         application: Application?,
+        appInfoService: AppInfoService,
         appSettingsStore: AppSettingsStore,
         authenticatorItemRepository: AuthenticatorItemRepository,
         biometricsRepository: BiometricsRepository,
@@ -117,6 +122,7 @@ public class ServiceContainer: Services {
         totpService: TOTPService
     ) {
         self.application = application
+        self.appInfoService = appInfoService
         self.appSettingsStore = appSettingsStore
         self.authenticatorItemRepository = authenticatorItemRepository
         self.biometricsRepository = biometricsRepository
@@ -151,6 +157,8 @@ public class ServiceContainer: Services {
         )
 
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appInfoService = DefaultAppInfoService()
+
         let biometricsService = DefaultBiometricsService()
         let cameraService = DefaultCameraService()
         let dataStore = DataStore(errorReporter: errorReporter)
@@ -281,6 +289,7 @@ public class ServiceContainer: Services {
 
         self.init(
             application: application,
+            appInfoService: appInfoService,
             appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authenticatorItemRepository,
             biometricsRepository: biometricsRepository,

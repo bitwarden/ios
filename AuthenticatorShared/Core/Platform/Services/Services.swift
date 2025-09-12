@@ -2,7 +2,8 @@ import BitwardenKit
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasAppSettingsStore
+typealias Services = HasAppInfoService
+    & HasAppSettingsStore
     & HasApplication
     & HasAuthenticatorItemRepository
     & HasBiometricsRepository

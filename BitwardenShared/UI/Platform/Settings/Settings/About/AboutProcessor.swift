@@ -1,5 +1,6 @@
 // MARK: - AboutProcessor
 
+import BitwardenKit
 import BitwardenResources
 import Foundation
 

@@ -8,6 +8,7 @@ import Networking
 extension ServiceContainer {
     static func withMocks(
         application: Application? = nil,
+        appInfoService: AppInfoService = MockAppInfoService(),
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authenticatorItemRepository: AuthenticatorItemRepository = MockAuthenticatorItemRepository(),
         biometricsRepository: BiometricsRepository = MockBiometricsRepository(),
@@ -28,6 +29,7 @@ extension ServiceContainer {
     ) -> ServiceContainer {
         ServiceContainer(
             application: application,
+            appInfoService: appInfoService,
             appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authenticatorItemRepository,
             biometricsRepository: biometricsRepository,

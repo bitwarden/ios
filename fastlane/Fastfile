@@ -18,14 +18,14 @@ APP_CONFIG_MAP = {
     build_ipa_path: "build/Bitwarden/Bitwarden.ipa",
     build_dsyms_path: "build/Bitwarden.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app",
-    ci_build_info_filepath: "BitwardenShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
   "authenticator" => {
     project_filepath: "project-bwa.yml",
     build_ipa_path: "build/Authenticator/Authenticator.ipa",
     build_dsyms_path: "build/Authenticator.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
-    ci_build_info_filepath: "AuthenticatorShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
 }
 
@@ -133,8 +133,8 @@ platform :ios do |options|
         Dir.chdir("..") do
             FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
             File.write(ci_build_info_filepath, <<~CONTENT)
-                enum CIBuildInfo {
-                    static let info: KeyValuePairs<String, String> = [
+                public enum CIBuildInfo {
+                    public static let info: KeyValuePairs<String, String> = [
                         "🧱 commit:": "#{git_source}",
                         "💻 build source:": "#{ci_run_source}",
                         "🛠️ compiler flags:": "#{compiler_flags}",

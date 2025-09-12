@@ -88,13 +88,6 @@ protocol HasAppIdService {
     var appIdService: AppIdService { get }
 }
 
-/// Protocol for an object that provides an `AppInfoService`.
-///
-protocol HasAppInfoService {
-    /// The service used by the application to get info about the app and device it's running on.
-    var appInfoService: AppInfoService { get }
-}
-
 /// Protocol for an object that provides an `AppSettingsStore`.
 ///
 protocol HasAppSettingsStore {

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -12,7 +13,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
         & TutorialModule
 
-    typealias Services = HasAppSettingsStore
+    typealias Services = HasAppInfoService
+        & HasAppSettingsStore
         & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
