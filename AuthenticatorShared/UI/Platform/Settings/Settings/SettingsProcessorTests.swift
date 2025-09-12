@@ -248,7 +248,9 @@ class SettingsProcessorTests: BitwardenTestCase {
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             """
         )
-        XCTAssertEqual(subject.state.toast, Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo)).text
+        )
     }
-
 }
