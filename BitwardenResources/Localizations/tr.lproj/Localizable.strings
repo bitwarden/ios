@@ -1053,7 +1053,7 @@
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
 "SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then **Done** to finish syncing.";
-"ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "For your security, be sure to **delete your saved password file.**";
+"ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "Güvenliğiniz için, **kayıtlı parola dosyanızı sildiğinizden emin olun.**";
 "BitwardenTools" = "Bitwarden araçları";
 "ImportSuccessful" = "İçe aktarma başarılı!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Hesaplarınızı Bitwarden web ve masaüstü araçlarıyla her yerden yönetebilirsiniz.";
@@ -1100,13 +1100,13 @@
 "ShowVault" = "Kasayı göster";
 "ImportNotAvailable" = "İçe aktarma kullanılamıyor";
 "ImportingFromAnotherProviderIsNotAvailableForThisDevice" = "Importing from another provider is not available for this device.";
-"ExportVaultToAFile" = "Export vault to a file";
-"ExportVaultToAnotherApp" = "Export vault to another app";
+"ExportVaultToAFile" = "Kasayı bir dosyaya aktarma";
+"ExportVaultToAnotherApp" = "Kasayı başka bir uygulamaya aktarma";
 "ExportItems" = "Kayıtları dışa aktar";
-"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
+"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Parolaları, geçiş anahtarlarını, kredi kartlarını ve tüm kişisel kimlik bilgilerini dışa aktarın.";
 "RetryExport" = "Dışa aktarmayı yeniden dene";
 "ExportFailed" = "Dışa aktarma başarısız oldu";
-"ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
+"ThereHasBeenAnIssueExportingItems" = "Kayıtların dışa aktarılmasında bir sorun yaşandı.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Dışa aktarma işlemini iptal etmek istediğinize emin misiniz?";
 "PleaseDoNotCloseTheApp" = "Lütfen uygulamayı kapatmayın.";
 "ThisIsTakingLongerThanExpected" = "Bu işlem beklenenden uzun zaman alıyor";

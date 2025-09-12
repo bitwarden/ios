@@ -1282,11 +1282,11 @@
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
-"StartsWithAdvanced" = "Starts with (advanced)";
-"RegularExpressionAdvanced" = "Regular expression (advanced)";
-"AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
-"KeepYourCredentialsSecure" = "Keep your credentials secure";
-"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";
+"StartsWithAdvanced" = "Почиње са (напредно)";
+"RegularExpressionAdvanced" = "Регуларни израз (напредно)";
+"AreYouSureYouWantToUseX" = "Јесте ли сигурни да желите да користите “%1$@”?";
+"KeepYourCredentialsSecure" = "Чувајте своје акредитиве на сигурном";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Сазнајте више о томе како да чувате акредитиве сигурне када користите “%1$@”.";
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** \"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
-"DefaultX" = "Default (%1$@)";
+"DefaultX" = "Подразумевано (%1$@)";
