@@ -746,7 +746,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the start registration screen from expired link screen.
     ///
-    public func showStartRegistrationFromExpiredLink() {
+    private func showStartRegistrationFromExpiredLink() {
         guard let stackNavigator else { return }
         stackNavigator.dismiss {
             let processor = LandingProcessor(

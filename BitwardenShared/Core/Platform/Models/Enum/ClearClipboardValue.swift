@@ -28,7 +28,7 @@ enum ClearClipboardValue: Int, Menuable {
     case fiveMinutes = 300
 
     /// All of the cases to show in the menu, in order.
-    public static let allCases: [Self] = [
+    static let allCases: [Self] = [
         .never,
         .tenSeconds,
         .twentySeconds,

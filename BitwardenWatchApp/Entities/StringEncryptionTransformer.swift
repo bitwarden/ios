@@ -5,7 +5,7 @@ import UIKit
 class StringEncryptionTransformer: ValueTransformer {
     var cryptoService: CryptoService = .init()
 
-    override public class func allowsReverseTransformation() -> Bool {
+    override class func allowsReverseTransformation() -> Bool {
         true
     }
 
@@ -41,7 +41,7 @@ extension StringEncryptionTransformer {
     static let name = NSValueTransformerName(rawValue: String(describing: StringEncryptionTransformer.self))
 
     /// Registers the value transformer with `ValueTransformer`.
-    public static func register() {
+    static func register() {
         let transformer = StringEncryptionTransformer()
         ValueTransformer.setValueTransformer(transformer, forName: name)
     }

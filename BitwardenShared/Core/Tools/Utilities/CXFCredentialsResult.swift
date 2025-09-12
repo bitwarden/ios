@@ -49,7 +49,7 @@ struct CXFCredentialsResult: Equatable, Sendable {
 // MARK: - Identifiable
 
 extension CXFCredentialsResult: Identifiable {
-    public var id: CXFCredentialType {
+    var id: CXFCredentialType {
         type
     }
 }

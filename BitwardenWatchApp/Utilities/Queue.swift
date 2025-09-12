@@ -6,7 +6,7 @@ import Foundation
 /// approach
 struct ArrayQueue<T>: CustomStringConvertible {
     private var elements: [T] = []
-    public init() {}
+    init() {}
 
     var isEmpty: Bool {
         elements.isEmpty

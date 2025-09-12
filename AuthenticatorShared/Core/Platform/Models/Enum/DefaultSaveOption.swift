@@ -16,7 +16,7 @@ enum DefaultSaveOption: String, Equatable, Menuable {
     case saveToBitwarden
 
     /// All of the cases to show in the menu, in order.
-    public static let allCases: [Self] = [
+    static let allCases: [Self] = [
         .saveToBitwarden,
         .saveHere,
         .none,

@@ -141,7 +141,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     // MARK: Public Methods
 
-    public func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
+    func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
         do {
             return try await authBridgeItemService.fetchTemporaryItem()
         } catch {
@@ -150,7 +150,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
     }
 
-    public func start() async {
+    func start() async {
         guard !started else { return }
         started = true
 

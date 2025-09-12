@@ -6,11 +6,11 @@ protocol AppContextHelper {
 
 /// Default implementation of `AppContextHelper`.
 struct DefaultAppContextHelper: AppContextHelper {
-    public private(set) var appContext: AppContext
+    private(set) var appContext: AppContext
 
     /// Initializes a `DefaultAppContextHelper`.
     /// - Parameter appcontext: The current `AppContext` mode.
-    public init(appContext: AppContext) {
+    init(appContext: AppContext) {
         self.appContext = appContext
     }
 }

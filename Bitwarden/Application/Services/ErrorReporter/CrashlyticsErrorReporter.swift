@@ -35,7 +35,7 @@ final class CrashlyticsErrorReporter: ErrorReporter {
 
     // MARK: ErrorReporter
 
-    public func add(logger: any BitwardenLogger) {
+    func add(logger: any BitwardenLogger) {
         additionalLoggers.append(logger)
     }
 
