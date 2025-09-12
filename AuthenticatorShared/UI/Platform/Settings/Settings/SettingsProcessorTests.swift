@@ -13,6 +13,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var pasteboardService: MockPasteboardService!
     var subject: SettingsProcessor!
 
     // MARK: Setup & Teardown
@@ -26,6 +27,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
+        pasteboardService = MockPasteboardService()
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -33,7 +35,8 @@ class SettingsProcessorTests: BitwardenTestCase {
                 appSettingsStore: appSettingsStore,
                 authenticatorItemRepository: authItemRepository,
                 biometricsRepository: biometricsRepository,
-                configService: configService
+                configService: configService,
+                pasteboardService: pasteboardService
             ),
             state: SettingsState()
         )
@@ -48,6 +51,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = nil
         configService = nil
         coordinator = nil
+        pasteboardService = nil
         subject = nil
     }
 
@@ -230,4 +234,21 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
     }
+
+    /// Receiving `.versionTapped` copies the copyright, the version string and device info to the pasteboard.
+    @MainActor
+    func test_receive_versionTapped() {
+        subject.receive(.versionTapped)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015–2025
+
+            Version: 1.0 (1)
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            """
+        )
+        XCTAssertEqual(subject.state.toast, Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+    }
+
 }

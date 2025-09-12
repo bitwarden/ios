@@ -207,7 +207,7 @@ class AboutProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string
-    /// and device info to the pasteboard..
+    /// and device info to the pasteboard.
     @MainActor
     func test_receive_versionTapped() {
         subject.receive(.versionTapped)
