@@ -19,7 +19,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         appAdditionalInfo = MockAppAdditionalInfo()
         bundle = MockBundle()
         systemDevice = MockSystemDevice()
-        timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 1, day: 1)))
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 1, day: 2)))
 
         subject = DefaultAppInfoService(
             appAdditionalInfo: appAdditionalInfo,
@@ -152,6 +152,13 @@ class AppInfoServiceTests: BitwardenTestCase {
         bundle.appVersion = "1.2.3"
         bundle.buildNumber = "4"
         XCTAssertEqual(subject.versionString, "Version: 1.2.3 (4)")
+    }
+
+    // MARK: - DefaultAppAdditionalInfo
+
+    /// `ciBuildInfo` is empty outside of CI.
+    func test_appAdditionalInfo_ciBuildInfo() {
+        XCTAssertTrue(DefaultAppAdditionalInfo().ciBuildInfo.isEmpty)
     }
 }
 
