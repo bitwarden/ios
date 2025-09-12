@@ -12,6 +12,7 @@ public struct ProfileSwitcherSheet: View {
 
             SectionView(Localizations.selectAccount) {
                 ProfileSwitcherAccountsView(store: store)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 if store.state.showsAddAccount {
                     addAccountRow
                 }
