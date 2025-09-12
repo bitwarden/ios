@@ -122,6 +122,13 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
+    /// preserve any additional UI properties on the state.
+    ///
+    /// - Parameter cipherView: The updated `CipherView`.
+    ///
+    mutating func update(from cipherView: CipherView)
 }
 
 /// extension for `GuidedTourStepState` to provide states for learn new login guided tour.

@@ -1550,6 +1550,44 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `perform(_:)` with `.streamCipherDetails` updates the state if any updates to the cipher occur.
+    @MainActor
+    func test_perform_streamCipherDetails() async throws {
+        subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        let updatedCipher = CipherView.fixture(name: "Updated name")
+
+        var updatedState = try XCTUnwrap(subject.state as? CipherItemState)
+        updatedState.update(from: updatedCipher)
+
+        vaultRepository.cipherDetailsSubject.send(updatedCipher)
+        try await waitForAsync { self.subject.state.name == "Updated name" }
+
+        try XCTAssertEqual(XCTUnwrap(subject.state as? CipherItemState), updatedState)
+        XCTAssertEqual(subject.state.name, "Updated name")
+    }
+
+    /// `perform(_:)` with `.streamCipherDetails` logs an error if getting updates for the cipher fails.
+    @MainActor
+    func test_perform_streamCipherDetails_error() async throws {
+        subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `receive(_:)` with `.addFolder` navigates to the add folder view.
     @MainActor
     func test_receive_addFolder() {
