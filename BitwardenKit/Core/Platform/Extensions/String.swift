@@ -89,7 +89,39 @@ public extension String {
         }
     }
 
+    /// Returns a new string that has been percent-encoded.
+    /// This is aggressive compared to the W3C recommendations and percent-encodes
+    /// all non-alphanumeric characters.
+    var percentEncoded: String? {
+        addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+    }
+
     // MARK: Methods
+
+    /// Formats a credit card number by inserting spaces every 4 digits.
+    /// Only formats if the string contains only digits, otherwise returns the original string.
+    ///
+    /// - Returns: A formatted credit card number with spaces every 4 digits,
+    /// or the original string if not a valid card number.
+    ///
+    func formattedCreditCardNumber() -> String {
+        // Only format if the string contains only digits and spaces
+        let digitsOnly = replacingOccurrences(of: " ", with: "")
+        guard digitsOnly.allSatisfy(\.isNumber) else {
+            return self
+        }
+
+        // Insert spaces every 4 digits
+        var result = ""
+        for (index, character) in digitsOnly.enumerated() {
+            if index > 0, index % 4 == 0 {
+                result += " "
+            }
+            result += String(character)
+        }
+
+        return result
+    }
 
     /// Returns a copy of the string, padded to the specified length on the left side with the
     /// provided padding character.
@@ -136,6 +168,14 @@ public extension String {
             ))
     }
 
+    /// Returns a copy of the string with all of the whitespace characters removed.
+    ///
+    /// - Returns: a copy of the string with all of the whitespace characters removed.
+    ///
+    func whitespaceRemoved() -> String {
+        replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+    }
+
     /// Creates a new string that prevents email addresses from being turned into tappable links
     /// when interpreted in a Markdown context. It does this by
     /// applying a Word Joiner character before the @, which is sufficient
@@ -143,30 +183,5 @@ public extension String {
     /// space, this will not affect where very long lines would be broken.
     func withoutAutomaticEmailLinks() -> String {
         replacingOccurrences(of: "@", with: "\u{2060}@")
-    }
-
-    /// Formats a credit card number by inserting spaces every 4 digits.
-    /// Only formats if the string contains only digits, otherwise returns the original string.
-    ///
-    /// - Returns: A formatted credit card number with spaces every 4 digits,
-    /// or the original string if not a valid card number.
-    ///
-    func formattedCreditCardNumber() -> String {
-        // Only format if the string contains only digits and spaces
-        let digitsOnly = replacingOccurrences(of: " ", with: "")
-        guard digitsOnly.allSatisfy(\.isNumber) else {
-            return self
-        }
-
-        // Insert spaces every 4 digits
-        var result = ""
-        for (index, character) in digitsOnly.enumerated() {
-            if index > 0 && index % 4 == 0 {
-                result += " "
-            }
-            result += String(character)
-        }
-
-        return result
     }
 }

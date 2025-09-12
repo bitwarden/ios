@@ -1,3 +1,5 @@
+import BitwardenKit
+
 public class MockBundle: BundleProtocol {
     public var appExtensionIdentifier = "com.8bit.bitwarden.find-login-action-extension"
     public var appIdentifier = "com.8bit.bitwarden"

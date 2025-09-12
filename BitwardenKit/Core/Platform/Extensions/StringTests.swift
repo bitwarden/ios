@@ -6,6 +6,32 @@ import XCTest
 class StringTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `formattedCreditCardNumber()` formats valid credit card numbers with spaces every 4 digits.
+    func test_formattedCreditCardNumber_withValidNumbers() {
+        XCTAssertEqual("1234567890123456".formattedCreditCardNumber(), "1234 5678 9012 3456")
+        XCTAssertEqual("4400123456789".formattedCreditCardNumber(), "4400 1234 5678 9")
+        XCTAssertEqual("378282246310005".formattedCreditCardNumber(), "3782 8224 6310 005")
+        XCTAssertEqual("4111111111111111".formattedCreditCardNumber(), "4111 1111 1111 1111")
+        XCTAssertEqual("1234".formattedCreditCardNumber(), "1234")
+        XCTAssertEqual("".formattedCreditCardNumber(), "")
+    }
+
+    /// `formattedCreditCardNumber()` handles already spaced numbers correctly.
+    func test_formattedCreditCardNumber_withSpacedNumbers() {
+        XCTAssertEqual("1234 5678 9012 3456".formattedCreditCardNumber(), "1234 5678 9012 3456")
+        XCTAssertEqual("4400 1234 5678 9".formattedCreditCardNumber(), "4400 1234 5678 9")
+        XCTAssertEqual("1234 5678".formattedCreditCardNumber(), "1234 5678")
+    }
+
+    /// `formattedCreditCardNumber()` returns original string for invalid input.
+    func test_formattedCreditCardNumber_withInvalidInput() {
+        XCTAssertEqual("1234-5678-9012-3456".formattedCreditCardNumber(), "1234-5678-9012-3456")
+        XCTAssertEqual("abcd5678".formattedCreditCardNumber(), "abcd5678")
+        XCTAssertEqual("1234 abcd".formattedCreditCardNumber(), "1234 abcd")
+        XCTAssertEqual("hello world".formattedCreditCardNumber(), "hello world")
+        XCTAssertEqual("4111-1111-1111-1111".formattedCreditCardNumber(), "4111-1111-1111-1111")
+    }
+
     /// `hashColor` returns a color generated from a hash of the string's characters.
     func test_hashColor() {
         XCTAssertEqual("test".hashColor.description, "#924436FF")
@@ -112,6 +138,15 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(encoded, "a_bcd-")
     }
 
+    /// `whitespaceRemoved()` returns the string with whitespace removed.
+    func test_whitespaceRemoved() {
+        let subject = "  N  o  Whi te  Space   "
+        let expected = "NoWhiteSpace"
+
+        XCTAssertEqual(expected, subject.whitespaceRemoved())
+    }
+
+
     /// `withoutAutomaticEmailLinks()` returns the string with email addresses appropriately modified.
     func test_withoutAutomaticEmailLinks() {
         let subject = "person@example.com"
@@ -120,29 +155,5 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(modified, "person\u{2060}@example.com")
     }
 
-    /// `formattedCreditCardNumber()` formats valid credit card numbers with spaces every 4 digits.
-    func test_formattedCreditCardNumber_withValidNumbers() {
-        XCTAssertEqual("1234567890123456".formattedCreditCardNumber(), "1234 5678 9012 3456")
-        XCTAssertEqual("4400123456789".formattedCreditCardNumber(), "4400 1234 5678 9")
-        XCTAssertEqual("378282246310005".formattedCreditCardNumber(), "3782 8224 6310 005")
-        XCTAssertEqual("4111111111111111".formattedCreditCardNumber(), "4111 1111 1111 1111")
-        XCTAssertEqual("1234".formattedCreditCardNumber(), "1234")
-        XCTAssertEqual("".formattedCreditCardNumber(), "")
-    }
 
-    /// `formattedCreditCardNumber()` handles already spaced numbers correctly.
-    func test_formattedCreditCardNumber_withSpacedNumbers() {
-        XCTAssertEqual("1234 5678 9012 3456".formattedCreditCardNumber(), "1234 5678 9012 3456")
-        XCTAssertEqual("4400 1234 5678 9".formattedCreditCardNumber(), "4400 1234 5678 9")
-        XCTAssertEqual("1234 5678".formattedCreditCardNumber(), "1234 5678")
-    }
-
-    /// `formattedCreditCardNumber()` returns original string for invalid input.
-    func test_formattedCreditCardNumber_withInvalidInput() {
-        XCTAssertEqual("1234-5678-9012-3456".formattedCreditCardNumber(), "1234-5678-9012-3456")
-        XCTAssertEqual("abcd5678".formattedCreditCardNumber(), "abcd5678")
-        XCTAssertEqual("1234 abcd".formattedCreditCardNumber(), "1234 abcd")
-        XCTAssertEqual("hello world".formattedCreditCardNumber(), "hello world")
-        XCTAssertEqual("4111-1111-1111-1111".formattedCreditCardNumber(), "4111-1111-1111-1111")
-    }
 }
