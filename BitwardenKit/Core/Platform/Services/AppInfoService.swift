@@ -22,6 +22,15 @@ public struct DefaultAppAdditionalInfo: AppAdditionalInfo {
     public init() {}
 }
 
+// MARK: - HasAppInfoService
+
+/// Protocol for an object that provides an `AppInfoService`.
+///
+public protocol HasAppInfoService {
+    /// The service used by the application to get info about the app and device it's running on.
+    var appInfoService: AppInfoService { get }
+}
+
 // MARK: - AppInfoService
 
 /// A protocol for a service that can provide formatted information about the app and the device
