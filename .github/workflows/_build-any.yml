@@ -46,6 +46,7 @@ jobs:
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
+      runner: macos-26
     steps:
       - name: Log inputs to job summary
         run: |
