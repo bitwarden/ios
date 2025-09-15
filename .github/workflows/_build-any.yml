@@ -35,7 +35,6 @@ env:
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
   _EXPORT_PATH: 'export'
 
-  
 jobs:
   build:
     name: Build ${{ inputs.bw-env }}
