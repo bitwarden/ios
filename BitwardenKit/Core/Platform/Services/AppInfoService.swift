@@ -147,6 +147,7 @@ public extension DefaultAppInfoService {
         var buildVariant = switch bundle.bundleIdentifier {
         case "com.8bit.bitwarden.beta": "Beta"
         case "com.8bit.bitwarden": "Production"
+        case "com.bitwarden.authenticator": "Production"
         default: "Unknown"
         }
         buildVariant = "📦 \(buildVariant)"
