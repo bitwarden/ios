@@ -351,7 +351,9 @@ struct VaultListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
             }
-            profileSwitcher
+            if #unavailable(iOS 26) {
+                profileSwitcher
+            }
         }
         .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {

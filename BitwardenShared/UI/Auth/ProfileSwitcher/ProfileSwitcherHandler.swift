@@ -7,7 +7,7 @@ import Foundation
 ///     Most likely, this will be a processor.
 ///
 @MainActor
-protocol ProfileSwitcherHandler: AnyObject {
+protocol ProfileSwitcherHandler: AnyObject { // sourcery: AutoMockable
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
 
@@ -31,6 +31,11 @@ protocol ProfileSwitcherHandler: AnyObject {
 
     /// The `State` for a toast view.
     var toast: Toast? { get set }
+
+    /// Dismisses the profile switcher; this is used on iOS >=26 for making sure the sheet
+    /// is dismissed appropriately; on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    @available(iOS 26, *)
+    func dismissProfileSwitcher()
 
     /// Handles auth events that require asynchronous management.
     ///
@@ -63,6 +68,11 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// - Parameter alert: The alert to show.
     ///
     func showAlert(_ alert: Alert)
+
+    /// Shows the profile switcher; this is used on iOS >=26 for displaying the sheet;
+    /// on iOS <26, `profileSwitcherState.isVisible` is used instead.
+    @available(iOS 26, *)
+    func showProfileSwitcher()
 }
 
 extension ProfileSwitcherHandler {
@@ -85,8 +95,9 @@ extension ProfileSwitcherHandler {
             case let .remove(account):
                 confirmRemoveAccount(account)
             }
-        case .backgroundPressed:
-            profileSwitcherState.isVisible = false
+        case .backgroundTapped,
+             .dismissTapped:
+            hideProfileSwitcher()
         }
     }
 
@@ -104,14 +115,20 @@ extension ProfileSwitcherHandler {
         case let .accountPressed(account):
             await select(account)
         case .addAccountPressed:
-            profileSwitcherState.isVisible = false
+            hideProfileSwitcher()
             showAddAccount()
+        case .refreshAccountProfiles:
+            await refreshProfileState()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
                 await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
                 await refreshProfileState()
             }
-            profileSwitcherState.isVisible = isVisible
+            if #available(iOS 26, *) {
+                showProfileSwitcher()
+            } else {
+                profileSwitcherState.isVisible = isVisible
+            }
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
         }
@@ -137,19 +154,25 @@ private extension ProfileSwitcherHandler {
         showAlert(
             .logoutConfirmation(profile) { [weak self] in
                 guard let self else { return }
+                if #available(iOS 26, *) {
+                    self.dismissProfileSwitcher()
+                }
                 await logout(profile)
             }
         )
     }
 
-    /// Confirms that the user would like to log out of an account by presenting an alert.
+    /// Confirms that the user would like to remove an account by presenting an alert.
     ///
-    /// - Parameter profile: The profile switcher item for the account to be logged out.
+    /// - Parameter profile: The profile switcher item for the account to be removed.
     ///
     func confirmRemoveAccount(_ profile: ProfileSwitcherItem) {
         showAlert(
             .removeAccountConfirmation(profile) { [weak self] in
                 guard let self else { return }
+                if #available(iOS 26, *) {
+                    self.dismissProfileSwitcher()
+                }
                 await removeAccount(profile)
             }
         )
@@ -160,11 +183,20 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
-        profileSwitcherState.isVisible = false
+        if #unavailable(iOS 26) {
+            // We only want to hide the profile switcher on long press prior to iOS 26.
+            // From iOS 26 onwards, the alert presents from the sheet, and should therefore
+            // be part of the sheet; the sheet should otherwise dismiss when it makes sense
+            // in the flow.
+            profileSwitcherState.isVisible = false
+        }
         showAlert(
             .accountOptions(
                 account,
                 lockAction: {
+                    if #available(iOS 26, *) {
+                        self.dismissProfileSwitcher()
+                    }
                     await self.lock(account)
                 },
                 logoutAction: {
@@ -175,6 +207,17 @@ private extension ProfileSwitcherHandler {
                 }
             )
         )
+    }
+
+    /// Hides the profile switcher. On iOS 26, this means dismissing it; on earlier versions, this
+    /// means making the view invisible.
+    ///
+    func hideProfileSwitcher() {
+        if #available(iOS 26, *) {
+            dismissProfileSwitcher()
+        } else {
+            profileSwitcherState.isVisible = false
+        }
     }
 
     /// Lock an account.
@@ -266,8 +309,21 @@ private extension ProfileSwitcherHandler {
     /// - Parameter account: The profile switcher item for the account to activate.
     ///
     func select(_ account: ProfileSwitcherItem) async {
-        defer { profileSwitcherState.isVisible = false }
-        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else { return }
+        defer {
+            if #unavailable(iOS 26) {
+                profileSwitcherState.isVisible = false
+            }
+        }
+        if #available(iOS 26, *) {
+            // This has to happen before the account switch event is handled, otherwise in the share extension,
+            // the stack navigator believes it's not presenting anything, and the dismiss becomes a no-op, leaving
+            // the profile switcher on the screen.
+            // Making sure we do the dismiss *first* solves the problem.
+            dismissProfileSwitcher()
+        }
+        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else {
+            return
+        }
         await handleAuthEvent(
             .action(
                 .switchAccount(

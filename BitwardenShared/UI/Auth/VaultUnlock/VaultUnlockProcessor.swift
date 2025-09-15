@@ -328,6 +328,10 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
     }
@@ -338,5 +342,9 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
 
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

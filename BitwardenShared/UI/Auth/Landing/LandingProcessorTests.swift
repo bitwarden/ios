@@ -795,9 +795,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.backgroundTapped)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_backgroundPressed() {
+    func test_receive_backgroundTapped() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -807,7 +807,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
 
         let task = Task {
-            subject.receive(.profileSwitcher(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundTapped))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -834,5 +834,23 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 } // swiftlint:disable:this file_length

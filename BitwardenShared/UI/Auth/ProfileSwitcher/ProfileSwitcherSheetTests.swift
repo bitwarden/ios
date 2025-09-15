@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
@@ -6,13 +7,14 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ProfileSwitcherViewTests
+// MARK: - ProfileSwitcherSheet Tests
 
-class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+
     // MARK: Properties
 
     var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
-    var subject: ProfileSwitcherView!
+    var subject: ProfileSwitcherSheet!
 
     // MARK: Setup & Teardown
 
@@ -26,7 +28,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         processor = MockProcessor(state: state)
-        subject = ProfileSwitcherView(store: Store(processor: processor))
+        subject = ProfileSwitcherSheet(store: Store(processor: processor))
     }
 
     override func tearDown() {
@@ -177,16 +179,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
     }
 
-    /// Tapping the background triggers a `.backgroundPressed` action.
-    @MainActor
-    func test_background_tap() throws {
-        let view = try subject.inspect().view(ProfileSwitcherView.self)
-        let background = view.first
-        try background?.callOnTapGesture()
-
-        XCTAssertEqual(processor.dispatchedActions.last, .backgroundTapped)
-    }
-
     /// Tests the add account visibility below the maximum account limit
     @MainActor
     func test_addAccountRow_subMaximumAccounts_showAdd() throws {
@@ -235,10 +227,21 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(subject.store.state.showsAddAccount)
     }
 
+    /// The close toolbar button closes the sheet.
+    @MainActor
+    func test_closeToolbarButton() throws {
+        let closeButton = try subject.inspect().find(button: Localizations.close)
+        try closeButton.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
+    }
+
     // MARK: Snapshots
 
+    // NB: There's not really a good way, it seems, to capture a view hierarchy when it's presenting a sheet.
+    // cf. https://github.com/pointfreeco/swift-snapshot-testing/discussions/956
+
     func test_snapshot_singleAccount() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
@@ -269,19 +272,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortraitAX5)
     }
 
     @MainActor
@@ -312,7 +315,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
@@ -349,16 +352,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Test a snapshot of the ProfileSwitcherView previews.
-    func test_snapshot_profileSwitcherView_previews() {
-        for preview in ProfileSwitcherView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [.defaultPortrait]
-            )
-        }
+        assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 }
