@@ -16,6 +16,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 

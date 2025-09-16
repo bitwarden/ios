@@ -503,6 +503,8 @@ private extension ViewItemProcessor {
                 if let orgId = cipher.organizationId {
                     organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
                 }
+                let ownershipOptions = try await services.vaultRepository
+                    .fetchCipherOwnershipOptions(includePersonal: false)
                 let showWebIcons = await services.stateService.getShowWebIcons()
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
@@ -522,6 +524,7 @@ private extension ViewItemProcessor {
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
                     itemState.organizationName = organization?.name
+                    itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
                     newState.loadingState = .data(itemState)
                 }

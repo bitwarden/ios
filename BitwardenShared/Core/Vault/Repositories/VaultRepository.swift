@@ -337,6 +337,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
+    
+    /// The helper functions for collections.
+    private let collectionHelper: CollectionHelper
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
@@ -381,6 +384,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - collectionHelper: The helper functions for collections.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -398,6 +402,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        collectionHelper: CollectionHelper,
         collectionService: CollectionService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -414,6 +419,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.collectionHelper = collectionHelper
         self.collectionService = collectionService
         self.configService = configService
         self.environmentService = environmentService
@@ -1066,10 +1072,10 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
-        let collections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
-        return try await clientService.vault().collections()
-            .decryptList(collections: collections)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let rawCollections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
+        let collections = try await clientService.vault().collections()
+            .decryptList(collections: rawCollections)
+        return try await collectionHelper.order(collections)
     }
 
     func deleteCipher(_ id: String) async throws {

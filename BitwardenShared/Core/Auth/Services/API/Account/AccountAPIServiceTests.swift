@@ -177,7 +177,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         let resultData = APITestData.registerFinishSuccess
         client.result = .httpSuccess(testData: resultData)
 
-        let successfulResponse = try await subject.registerFinish(
+        _ = try await subject.registerFinish(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
                 emailVerificationToken: "thisisanawesometoken",

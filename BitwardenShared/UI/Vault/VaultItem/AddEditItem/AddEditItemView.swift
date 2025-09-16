@@ -120,7 +120,7 @@ struct AddEditItemView: View {
                             isCloneEnabled: false,
                             isCollectionsEnabled: store.state.canAssignToCollection,
                             isDeleteEnabled: store.state.canBeDeleted,
-                            isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
+                            isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },

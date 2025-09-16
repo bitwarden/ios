@@ -26,6 +26,9 @@ enum ProfileSwitcherEffect: Equatable {
     /// The add account row was pressed.
     case addAccountPressed
 
+    /// The sheet needs to refresh account profiles.
+    case refreshAccountProfiles
+
     /// An effect to toggle the visibility of the profile switcher view and optionally
     /// refresh the profile switcher state.
     case requestedProfileSwitcher(visible: Bool)

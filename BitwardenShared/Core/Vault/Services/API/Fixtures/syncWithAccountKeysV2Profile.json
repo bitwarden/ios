@@ -1,0 +1,44 @@
+{
+  "profile": {
+    "id": "c8aa1e36-4427-11ee-be56-0242ac120002",
+    "name": null,
+    "email": "user@bitwarden.com",
+    "emailVerified": false,
+    "premium": false,
+    "premiumFromOrganization": false,
+    "masterPasswordHint": null,
+    "culture": "en-US",
+    "twoFactorEnabled": false,
+    "key": "key",
+    "privateKey": "private key",
+    "accountKeys": {
+      "publicKeyEncryptionKeyPair": {
+        "wrappedPrivateKey": "WRAPPED_PRIVATE_KEY",
+        "publicKey": "PUBLIC_KEY",
+        "signedPublicKey": "SIGNED_PUBLIC_KEY"
+      },
+      "signatureKeyPair": {
+        "wrappedSigningKey": "WRAPPED_SIGNING_KEY",
+        "verifyingKey": "VERIFYING_KEY"
+      },
+      "securityState": {
+        "securityState": "SECURITY_STATE"
+      }
+    },
+    "securityStamp": "stamp",
+    "forcePasswordReset": false,
+    "usesKeyConnector": false,
+    "avatarColor": null,
+    "organizations": [],
+    "providers": [],
+    "providerOrganizations": [],
+    "object": "profile"
+  },
+  "folders": [],
+  "collections": [],
+  "ciphers": [],
+  "domains": null,
+  "policies": [],
+  "sends": [],
+  "object": "sync"
+}
