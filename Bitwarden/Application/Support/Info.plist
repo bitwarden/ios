@@ -102,10 +102,6 @@
 	<string>Use Face ID to unlock your vault.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to the photo library in order to share files.</string>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>ASCredentialExchangeActivityType</string>
-	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
