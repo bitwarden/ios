@@ -41,6 +41,7 @@ struct AddEditItemView: View {
         .navigationTitle(store.state.navigationTitle)
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
+        .task { await store.perform(.streamCipherDetails) }
         .task { await store.perform(.streamFolders) }
         .toast(store.binding(
             get: \.toast,

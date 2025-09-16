@@ -31,6 +31,9 @@ enum AddEditItemEffect {
     /// Show the learn new login guided tour.
     case showLearnNewLoginGuidedTour
 
+    /// Stream the cipher details.
+    case streamCipherDetails
+
     /// Stream the list of folders in the vault.
     case streamFolders
 }
