@@ -3,9 +3,14 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 final class MockStateClient: StateClientProtocol {
-    var registerCipherRepositoryReceivedStore: CipherRepository?
+    var registerCipherRepositoryReceivedRepository: CipherRepository?
+    var state: SqliteConfiguration?
 
-    func registerCipherRepository(store: CipherRepository) {
-        registerCipherRepositoryReceivedStore = store
+    func initializeState(configuration: SqliteConfiguration) async throws {
+        state = configuration
+    }
+
+    func registerCipherRepository(repository: CipherRepository) {
+        registerCipherRepositoryReceivedRepository = repository
     }
 }
