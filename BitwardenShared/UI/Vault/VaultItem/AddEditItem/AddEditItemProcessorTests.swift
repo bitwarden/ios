@@ -1569,7 +1569,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try await waitForAsync { self.subject.state.name == "Updated name" }
 
         try XCTAssertEqual(XCTUnwrap(subject.state as? CipherItemState), updatedState)
-        XCTAssertEqual(subject.state.name, "Updated name")
     }
 
     /// `perform(_:)` with `.streamCipherDetails` logs an error if getting updates for the cipher fails.
