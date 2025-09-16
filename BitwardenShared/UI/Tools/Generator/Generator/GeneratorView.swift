@@ -15,6 +15,8 @@ struct GeneratorView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
+    @SwiftUI.State private var referenceViewHeight: CGFloat = 0
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
@@ -24,6 +26,9 @@ struct GeneratorView: View {
                         selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
                         selections: store.state.availableGeneratorTypes
                     )
+                    .backport.onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { size in
+                        referenceViewHeight = size.height
+                    }
                     .guidedTourStep(.step1, perform: { frame in
                         let steps: [GuidedTourStep] = [.step1, .step2, .step3]
                         for step in steps {
@@ -38,6 +43,7 @@ struct GeneratorView: View {
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
                     .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                    .zIndex(1)
                 }
 
                 Divider()
@@ -75,6 +81,7 @@ struct GeneratorView: View {
                     }
                     .padding(12)
                 }
+                .background(Color.blue)
             }
             .coordinateSpace(name: "generatorView")
             .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
@@ -118,7 +125,18 @@ struct GeneratorView: View {
                     }
                 }
             }
+            .apply { view in
+                if #available(iOS 26, *) {
+                    view.contentMargins(.top, referenceViewHeight)
+                } else {
+                    view
+                }
+            }
         }
+    }
+
+    var internalBody: some View {
+
     }
 
     /// Returns a view for displaying a section of items in the form.
