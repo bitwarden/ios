@@ -373,14 +373,16 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
         cipherId: String = "1",
         rpId: String = "myApp.com",
         userNameForUi: String? = nil,
-        userHandle: Data = Data(capacity: 64)
+        userHandle: Data = Data(capacity: 64),
+        hasCounter: Bool = false
     ) -> BitwardenSdk.Fido2CredentialAutofillView {
         .init(
             credentialId: credentialId,
             cipherId: cipherId,
             rpId: rpId,
             userNameForUi: userNameForUi,
-            userHandle: userHandle
+            userHandle: userHandle,
+            hasCounter: hasCounter
         )
     }
 }
