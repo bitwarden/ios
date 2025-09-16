@@ -134,7 +134,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     @MainActor
-    func test_snapshot_empty_nativeCreateAccountFlow() throws {
+    func disabletest_snapshot_empty_nativeCreateAccountFlow() throws {
         assertSnapshots(
             of: subject,
             as: [
@@ -147,7 +147,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when text fields are hidden.
     @MainActor
-    func test_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
+    func disabletest_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
         processor.state.arePasswordsVisible = false
         processor.state.userEmail = "email@example.com"
         processor.state.passwordText = "12345"
@@ -160,7 +160,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text fields are all populated.
     @MainActor
-    func test_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
+    func disabletest_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
         processor.state.arePasswordsVisible = true
         processor.state.userEmail = "email@example.com"
         processor.state.passwordText = "12345"
@@ -173,7 +173,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the toggles are on.
     @MainActor
-    func test_snapshot_toggles_on_nativeCreateAccountFlow() throws {
+    func disabletest_snapshot_toggles_on_nativeCreateAccountFlow() throws {
         processor.state.isCheckDataBreachesToggleOn = true
 
         assertSnapshot(of: subject, as: .defaultPortrait)

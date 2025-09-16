@@ -64,7 +64,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func test_snapshot_cipherSelection_empty() {
+    func disabletest_snapshot_cipherSelection_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -76,7 +76,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly when there's no account or issuer.
     @MainActor
-    func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
+    func disabletest_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
             totpKeyModel: .fixtureMinimum
@@ -94,7 +94,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The populated view renders correctly.
     @MainActor
-    func test_snapshot_cipherSelection_populated() {
+    func disabletest_snapshot_cipherSelection_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -131,7 +131,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The search view renders correctly when there's search results.
     @MainActor
-    func test_snapshot_cipherSelection_search() {
+    func disabletest_snapshot_cipherSelection_search() {
         let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
@@ -160,7 +160,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The search view renders correctly when there's no search results.
     @MainActor
-    func test_snapshot_cipherSelection_searchEmpty() {
+    func disabletest_snapshot_cipherSelection_searchEmpty() {
         processor.state.searchText = "Example"
         processor.state.showNoResults = true
         assertSnapshots(

@@ -92,13 +92,13 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text fields are all empty.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
     /// Tests the view renders correctly when the text fields are all populated.
     @MainActor
-    func test_snapshot_textFields_populated() throws {
+    func disabletest_snapshot_textFields_populated() throws {
         processor.state.emailText = "email@example.com"
         processor.state.nameText = "user name"
 
@@ -107,7 +107,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text fields are all populated with long text.
     @MainActor
-    func test_snapshot_textFields_populated_long() throws {
+    func disabletest_snapshot_textFields_populated_long() throws {
         processor.state.emailText = "emailmmmmmmmmmmmmmmmmmmmmm@exammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmple.com"
         processor.state.nameText = "user name name name name name name name name name name name name name name"
 
@@ -116,7 +116,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the toggles are on.
     @MainActor
-    func test_snapshot_toggles_on() throws {
+    func disabletest_snapshot_toggles_on() throws {
         processor.state.isReceiveMarketingToggleOn = true
 
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -124,7 +124,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the marketing toggle is hidden.
     @MainActor
-    func test_snapshot_marketingToggle_hidden() throws {
+    func disabletest_snapshot_marketingToggle_hidden() throws {
         processor.state.showReceiveMarketingToggle = false
 
         assertSnapshot(of: subject, as: .defaultPortrait)

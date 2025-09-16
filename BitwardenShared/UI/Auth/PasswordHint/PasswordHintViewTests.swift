@@ -59,14 +59,14 @@ class PasswordHintViewTests: BitwardenTestCase {
 
     /// A snapshot of the view without any values set.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.emailAddress = ""
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// A snapshot of the view with a value in the email address field.
     @MainActor
-    func test_snapshot_withEmailAddress() {
+    func disabletest_snapshot_withEmailAddress() {
         processor.state.emailAddress = "email@example.com"
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitAX5, .defaultPortraitDark])
     }

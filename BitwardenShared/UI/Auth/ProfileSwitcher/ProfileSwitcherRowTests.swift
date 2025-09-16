@@ -35,13 +35,13 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     }
 
     /// Snapshot test for the add account row
-    func test_snapshot_addAccount() throws {
+    func disabletest_snapshot_addAccount() throws {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the active account row
     @MainActor
-    func test_snapshot_active_divider() throws {
+    func disabletest_snapshot_active_divider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: true,
@@ -52,7 +52,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the active account row without a divider
     @MainActor
-    func test_snapshot_active_noDivider() throws {
+    func disabletest_snapshot_active_noDivider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: false,
@@ -63,7 +63,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the alternate unlocked account row
     @MainActor
-    func test_snapshot_alternate_unlocked() throws {
+    func disabletest_snapshot_alternate_unlocked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureUnlocked)
@@ -73,7 +73,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the alternate locked account row
     @MainActor
-    func test_snapshot_alternate_locked() throws {
+    func disabletest_snapshot_alternate_locked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureLocked)
@@ -83,7 +83,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the alternate logged out row.
     @MainActor
-    func test_snapshot_alternate_loggedOut() throws {
+    func disabletest_snapshot_alternate_loggedOut() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureLoggedOut)

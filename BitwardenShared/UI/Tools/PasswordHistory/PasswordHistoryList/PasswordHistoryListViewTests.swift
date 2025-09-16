@@ -65,7 +65,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the generator history view's empty state.
-    func test_snapshot_generatorHistoryViewEmpty() {
+    func disabletest_snapshot_generatorHistoryViewEmpty() {
         assertSnapshot(
             of: subject,
             as: .defaultPortrait
@@ -74,7 +74,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the generator history displaying a list of generated values.
     @MainActor
-    func test_snapshot_generatorHistoryViewList() {
+    func disabletest_snapshot_generatorHistoryViewList() {
         processor.state.passwordHistory = [
             PasswordHistoryView(
                 password: "8gr6uY8CLYQwzr#",

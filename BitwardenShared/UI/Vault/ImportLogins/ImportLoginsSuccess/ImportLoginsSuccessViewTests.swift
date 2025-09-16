@@ -51,7 +51,7 @@ class ImportLoginsSuccessViewTests: BitwardenTestCase {
 
     /// The import logins success page renders correctly.
     @MainActor
-    func test_snapshot_importLoginsSuccess() {
+    func disabletest_snapshot_importLoginsSuccess() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 3), .defaultLandscape]

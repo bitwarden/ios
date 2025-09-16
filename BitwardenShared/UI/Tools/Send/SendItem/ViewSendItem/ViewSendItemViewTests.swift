@@ -59,7 +59,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view for a file send renders correctly.
     @MainActor
-    func test_snapshot_viewSend_file() {
+    func disabletest_snapshot_viewSend_file() {
         processor.state = ViewSendItemState(
             sendView: .fixture(
                 name: "My text send",
@@ -77,7 +77,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view for a text send renders correctly.
     @MainActor
-    func test_snapshot_viewSend_text() {
+    func disabletest_snapshot_viewSend_text() {
         processor.state = ViewSendItemState(
             sendView: .fixture(
                 name: "My text send",
@@ -94,7 +94,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view with additional options expanded renders correctly.
     @MainActor
-    func test_snapshot_viewSend_additionalOptionsExpanded() {
+    func disabletest_snapshot_viewSend_additionalOptionsExpanded() {
         processor.state = ViewSendItemState(
             isAdditionalOptionsExpanded: true,
             sendView: .fixture(

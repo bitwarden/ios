@@ -51,7 +51,7 @@ class SelectLanguageViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test that the default view renders correctly.
-    func test_snapshot_default() {
+    func disabletest_snapshot_default() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [

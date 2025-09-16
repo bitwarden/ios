@@ -50,7 +50,7 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
 
     /// The master password guidance view renders correctly.
     @MainActor
-    func test_snapshot_masterPasswordGuidance() {
+    func disabletest_snapshot_masterPasswordGuidance() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [

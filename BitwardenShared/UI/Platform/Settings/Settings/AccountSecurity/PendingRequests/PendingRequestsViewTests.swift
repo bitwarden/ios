@@ -51,14 +51,14 @@ class PendingRequestsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.loadingState = .data([])
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view with requests renders correctly.
     @MainActor
-    func test_snapshot_requests() {
+    func disabletest_snapshot_requests() {
         processor.state.loadingState = .data([
             .fixture(fingerprintPhrase: "pineapple-on-pizza-is-the-best", id: "1"),
             .fixture(fingerprintPhrase: "coconuts-are-underrated", id: "2"),

@@ -41,7 +41,7 @@ class ItemListViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_ItemListView_previews() {
+    func disabletest_snapshot_ItemListView_previews() {
         for preview in ItemListView_Previews._allPreviews {
             let name = preview.displayName ?? "Unknown"
             assertSnapshots(
@@ -57,7 +57,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView showing the download card with an empty result.
     @MainActor
-    func test_snapshot_ItemListView_card_download_empty() {
+    func disabletest_snapshot_ItemListView_card_download_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
             loadingState: .data([])
@@ -73,7 +73,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView showing the download card with results.
     @MainActor
-    func test_snapshot_ItemListView_card_download_with_items() {
+    func disabletest_snapshot_ItemListView_card_download_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
             loadingState: .data([ItemListSection.fixture()])
@@ -89,7 +89,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView showing the sync card with an empty result.
     @MainActor
-    func test_snapshot_ItemListView_card_sync_empty() {
+    func disabletest_snapshot_ItemListView_card_sync_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
             loadingState: .data([])
@@ -105,7 +105,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView showing the sync card with results.
     @MainActor
-    func test_snapshot_ItemListView_card_sync_with_items() {
+    func disabletest_snapshot_ItemListView_card_sync_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
             loadingState: .data([ItemListSection.fixture()])

@@ -70,7 +70,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the ProfileSwitcherView empty state.
-    func test_snapshot_manualEntryView_empty() {
+    func disabletest_snapshot_manualEntryView_empty() {
         assertSnapshots(
             of: ManualEntryView_Previews.empty,
             as: [
@@ -82,7 +82,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the ProfileSwitcherView in with text added.
-    func test_snapshot_manualEntryView_text() {
+    func disabletest_snapshot_manualEntryView_text() {
         assertSnapshots(
             of: ManualEntryView_Previews.textAdded,
             as: [

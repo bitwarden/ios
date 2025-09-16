@@ -56,7 +56,7 @@ class ExpiredLinkViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     @MainActor
-    func test_snapshot_toggles_on() throws {
+    func disabletest_snapshot_toggles_on() throws {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

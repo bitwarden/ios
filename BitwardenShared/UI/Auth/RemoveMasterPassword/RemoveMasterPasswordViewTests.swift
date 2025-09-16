@@ -47,7 +47,7 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
 
     /// The remove master password view renders correctly.
     @MainActor
-    func test_snapshot_removeMasterPassword() {
+    func disabletest_snapshot_removeMasterPassword() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.5)]

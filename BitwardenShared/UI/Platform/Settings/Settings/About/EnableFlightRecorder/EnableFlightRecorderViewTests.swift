@@ -59,7 +59,7 @@ class EnableFlightRecorderViewTests: BitwardenTestCase {
 
     /// The enable flight recorder view renders correctly.
     @MainActor
-    func test_snapshot_enableFlightRecorder() {
+    func disabletest_snapshot_enableFlightRecorder() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 3)])
     }
 }

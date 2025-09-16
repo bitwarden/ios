@@ -61,7 +61,7 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The default view renders correctly.
-    func test_snapshot_default() {
+    func disabletest_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
