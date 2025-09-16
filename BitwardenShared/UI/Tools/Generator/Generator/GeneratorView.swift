@@ -19,7 +19,7 @@ struct GeneratorView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
+            ZStack(alignment: .top) {
                 if store.state.availableGeneratorTypes.count > 1 {
                     BitwardenSegmentedControl(
                         isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
@@ -42,11 +42,16 @@ struct GeneratorView: View {
                     })
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
-                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                    .zIndex(1)
+                    .apply { view in
+                        if #unavailable(iOS 26) {
+                            view.background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                        } else {
+                            view.zIndex(1)
+                        }
+                    }
                 }
 
-                Divider()
+//                Divider()
 
                 GuidedTourScrollView(
                     store: store.child(
@@ -133,10 +138,6 @@ struct GeneratorView: View {
                 }
             }
         }
-    }
-
-    var internalBody: some View {
-
     }
 
     /// Returns a view for displaying a section of items in the form.
