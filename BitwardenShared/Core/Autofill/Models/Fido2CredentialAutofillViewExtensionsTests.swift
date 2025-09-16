@@ -14,7 +14,8 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: "username",
-            userHandle: Data(repeating: 1, count: 16)
+            userHandle: Data(repeating: 1, count: 16),
+            hasCounter: false
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -34,7 +35,8 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: nil,
-            userHandle: Data(repeating: 1, count: 16)
+            userHandle: Data(repeating: 1, count: 16),
+            hasCounter: false
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(

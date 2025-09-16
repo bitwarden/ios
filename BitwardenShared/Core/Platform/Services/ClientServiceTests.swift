@@ -228,7 +228,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertIdentical(auth, client.authClient)
         XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoryCalled)
-        XCTAssertNotNil(client.platformClient.stateMock.registerCipherRepositoryReceivedStore)
+        XCTAssertNotNil(client.platformClient.stateMock.registerCipherRepositoryReceivedRepository)
     }
 
     /// `configPublisher` loads flags into the SDK.
