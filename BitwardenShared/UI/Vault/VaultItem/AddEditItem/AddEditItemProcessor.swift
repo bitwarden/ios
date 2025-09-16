@@ -717,6 +717,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         } catch {
             services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 

@@ -1584,6 +1584,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
