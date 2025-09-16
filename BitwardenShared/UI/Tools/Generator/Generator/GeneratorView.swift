@@ -51,7 +51,9 @@ struct GeneratorView: View {
                     }
                 }
 
-//                Divider()
+                if #unavailable(iOS 26) {
+                    Divider()
+                }
 
                 GuidedTourScrollView(
                     store: store.child(
