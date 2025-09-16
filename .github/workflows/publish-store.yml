@@ -132,3 +132,7 @@ jobs:
               changelog:"$CHANGELOG" \
               metadata_path:"$METADATA_PATH" \
               submit_release:"$SUBMIT_RELEASE"
+
+        - name: Publish Github Release
+          run: |
+            gh workflow enable publish-github-release.yml
