@@ -43,7 +43,7 @@ permissions:
 jobs:
     publish:
       name: Publish build ${{ inputs.build-number }} version ${{inputs.build-version}}
-      runs-on: macos-15
+      runs-on: macos-26
 
       steps:
         - name: Log inputs to job summary
