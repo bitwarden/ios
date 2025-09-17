@@ -12,7 +12,7 @@ struct LoginItemState: Equatable {
     var canViewPassword: Bool = true
 
     /// The saved value in autofill settings for the default URI match type.
-    var defaultUriMatchTypeSettingsValue: UriMatchType? = nil
+    var defaultUriMatchTypeSettingsValue: UriMatchType?
 
     /// Whether the user has permissions to edit the cipher
     var editView: Bool = true
