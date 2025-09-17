@@ -48,6 +48,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -120,6 +125,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true

@@ -186,6 +186,11 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// When `.removeUnlockWithPin` policy is enabled and unlock with pin is enabled then Unlock with Pin is shown.
     @MainActor
     func test_unlockWithPin_removeUnlockWithPinPolicyEnabledWithPinEnabled() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.removeUnlockWithPinPolicyEnabled = true
         processor.state.isUnlockWithPINCodeOn = true
         XCTAssertNoThrow(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))

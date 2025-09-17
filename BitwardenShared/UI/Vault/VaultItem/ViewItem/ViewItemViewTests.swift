@@ -137,6 +137,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -145,6 +150,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the download attachment button dispatches the `.downloadAttachment(_)` action.
     @MainActor
     func test_downloadAttachmentButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let state = try XCTUnwrap(CipherItemState(
             existing: .fixture(attachments: [.fixture(id: "2")]),
             hasPremium: true
@@ -158,6 +168,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the floating action button dispatches the `.editPressed` action.`
     @MainActor
     func test_editItemFloatingActionButton() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let fab = try subject.inspect().find(
             floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
         )
@@ -168,6 +183,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// The edit item FAB is hidden if the item has been deleted.
     @MainActor
     func test_editItemFloatingActionButton_hidden_cipherDeleted() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: true)!)
         let fab = try subject.inspect().find(
             floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
@@ -178,6 +198,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
     @MainActor
     func test_passwordHistoryButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(loginState())
         let button = try subject.inspect().find(buttonWithId: "passwordHistoryButton")
         try button.tap()
@@ -187,6 +212,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy name button dispatches the `.copyPressed` action with the name.
     @MainActor
     func test_copyNameButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyNameButton"
@@ -201,6 +231,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy identity username button dispatches the `.copyPressed` action with the identity username.
     @MainActor
     func test_copyIdentityUsernameButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyUsernameButton"
@@ -215,6 +250,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy company button dispatches the `.copyPressed` action with the company.
     @MainActor
     func test_copyCompanyButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyCompanyButton"
@@ -229,6 +269,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy ssn button dispatches the `.copyPressed` action with the social security number.
     @MainActor
     func test_copySsnButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopySsnButton"
@@ -243,6 +288,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy passport number button dispatches the `.copyPressed` action with the passport number.
     @MainActor
     func test_copyPassportButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyPassportNumberButton"
@@ -257,6 +307,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy license number button dispatches the `.copyPressed` action with the license number.
     @MainActor
     func test_copyLicenseNumberButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyLicenseNumberButton"
@@ -271,6 +326,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy phone button dispatches the `.copyPressed` action with the phone.
     @MainActor
     func test_copyPhoneButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyPhoneButton"
@@ -285,6 +345,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy email button dispatches the `.copyPressed` action with the email.
     @MainActor
     func test_copyEmailButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyEmailButton"
@@ -299,6 +364,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the copy fullAddress button dispatches the `.copyPressed` action with the full address.
     @MainActor
     func test_copyAddressButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "IdentityCopyFullAddressButton"

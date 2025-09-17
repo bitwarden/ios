@@ -30,6 +30,11 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping the cancel button sends the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -102,6 +107,11 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Updating the max access count textfield sends the `.maximumAccessCountChanged` action.
     @MainActor
     func test_maxAccessCountTextField_updated() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect()
             .find(viewWithAccessibilityIdentifier: "MaxAccessCountTextField")
