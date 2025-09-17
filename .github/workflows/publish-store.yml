@@ -44,6 +44,7 @@ permissions:
   contents: read
   packages: read
   id-token: write
+  actions: write
 
 jobs:
     publish:
