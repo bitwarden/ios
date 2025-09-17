@@ -30,6 +30,10 @@ on:
         description: "Automatically submit release for review"
         type: boolean
         default: true
+      dry-run:
+        description: "Run the workflow without publishing to the store"
+        type: boolean
+        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,6 +107,7 @@ jobs:
             EOF
 
         - name: Upload app to with Fastlane
+          if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
             VERSION_NAME: ${{inputs.build-version}}
@@ -135,4 +140,8 @@ jobs:
 
         - name: Publish Github Release
           run: |
+            if inputs.dry-run; then
+              gh workflow view publish-github-release.yml
+              exit 0
+            fi
             gh workflow enable publish-github-release.yml
