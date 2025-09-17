@@ -138,10 +138,10 @@ jobs:
               metadata_path:"$METADATA_PATH" \
               submit_release:"$SUBMIT_RELEASE"
 
-        - name: Publish Github Release
+        - name: Enable Publish Github Release Workflow
           run: |
             if ${{ inputs.dry-run }} ; then
               gh workflow view publish-github-release.yml
-              exit 0
+              # exit 0
             fi
             gh workflow enable publish-github-release.yml
