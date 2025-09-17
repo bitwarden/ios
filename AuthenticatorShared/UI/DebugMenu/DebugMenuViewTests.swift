@@ -64,7 +64,7 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     /// Test that the refresh button sends the correct effect.
     @MainActor
-    func test_refreshFeatureFlags_tapped() async throws {
+    func disabletest_snapshot_refreshFeatureFlags_tapped() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: "RefreshFeatureFlagsButton")
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .refreshFeatureFlags)

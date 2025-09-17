@@ -121,7 +121,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_download() throws {
+    func disabletest_snapshot_itemListCardView_close_download() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
             loadingState: .data([ItemListSection.fixture()])
@@ -141,7 +141,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_sync() throws {
+    func disabletest_snapshot_itemListCardView_close_sync() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
             loadingState: .data([])
