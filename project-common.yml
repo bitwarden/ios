@@ -24,4 +24,4 @@ packages:
     exactVersion: 1.18.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.1
+    branch: 0.10.3
