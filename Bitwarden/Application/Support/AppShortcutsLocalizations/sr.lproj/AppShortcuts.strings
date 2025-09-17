@@ -38,7 +38,7 @@
 "Produce a ${applicationName} password phrase" = "Генериши фразу лозинке са ${applicationName}";
 "Generate a random ${applicationName} phrase" = "Генериши случајну фразу за ${applicationName}";
 "${applicationName}, craft a passphrase" = "${applicationName}, креирај лозинку-фразу";
-"Design a secure passphrase via ${applicationName}" = "Design a secure passphrase via ${applicationName}";
-"Develop a ${applicationName} secret phrase" = "Develop a ${applicationName} secret phrase";
-"Compose a new ${applicationName} passphrase" = "Compose a new ${applicationName} passphrase";
-"${applicationName}, generate a strong passphrase" = "${applicationName}, generate a strong passphrase";
+"Design a secure passphrase via ${applicationName}" = "Дизајнирајте сигурну лозинку преко ${applicationName}";
+"Develop a ${applicationName} secret phrase" = "Дизајнирајте сигурну лозинку за ${applicationName}";
+"Compose a new ${applicationName} passphrase" = "Дизајнирајте нову сигурну лозинку за ${applicationName}";
+"${applicationName}, generate a strong passphrase" = "${applicationName}, генерише јаку лозинку";

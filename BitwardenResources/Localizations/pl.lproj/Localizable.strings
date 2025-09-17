@@ -177,7 +177,7 @@
 "SetPINDirection" = "Wpisz 4-cyfrowy kod PIN do odblokowania aplikacji.";
 "ItemUpdated" = "Element został zapisany";
 "Submitting" = "Wysyłanie...";
-"Syncing" = "Synchronizuję...";
+"Syncing" = "Synchronizacja...";
 "SyncingLogins" = "Synchronizacja danych logowania...";
 "SyncingComplete" = "Synchronizacja została zakończona";
 "SyncingFailed" = "Synchronizacja nie powiodła się";

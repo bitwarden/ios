@@ -1455,7 +1455,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_receive_profileSwitcherBackgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcher(.backgroundPressed))
+        subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -1558,5 +1558,23 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 searchVaultFilterType: .organization(organization)
             )
         )
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 }

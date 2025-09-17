@@ -18,6 +18,9 @@ enum ProfileSwitcherAction: Equatable {
     /// An account row accessibility action was triggered.
     case accessibility(ProfileSwitcherAccessibilityAction)
 
-    /// The user tapped the background area of the view
-    case backgroundPressed
+    /// The user tapped the background area of the view.
+    case backgroundTapped
+
+    /// The user tapped the dismiss button on the sheet.
+    case dismissTapped
 }

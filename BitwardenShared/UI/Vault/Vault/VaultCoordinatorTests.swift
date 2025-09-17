@@ -374,6 +374,24 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(masterPasswordRepromptHelper.repromptForMasterPasswordCipherId)
     }
 
+    /// `navigate(to:)` with `.viewProfileSwitcher` opens the profile switcher.
+    @MainActor
+    func test_navigate_viewProfileSwitcher() throws {
+        let handler = MockProfileSwitcherHandler()
+        subject.navigate(to: .viewProfileSwitcher, context: handler)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` does not open the profile switcher if there isn't a handler.
+    @MainActor
+    func test_navigate_viewProfileSwitcher_noHandler() throws {
+        subject.navigate(to: .viewProfileSwitcher, context: nil)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     @MainActor
     func test_show_hide_loadingOverlay() throws {

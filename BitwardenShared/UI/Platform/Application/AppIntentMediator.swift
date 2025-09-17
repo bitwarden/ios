@@ -40,7 +40,7 @@ struct DefaultAppIntentMediator: AppIntentMediator {
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
-    public init(
+    init(
         authRepository: AuthRepository,
         configService: ConfigService,
         errorReporter: ErrorReporter,

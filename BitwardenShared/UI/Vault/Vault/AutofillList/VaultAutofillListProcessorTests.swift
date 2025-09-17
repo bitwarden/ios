@@ -370,7 +370,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_receive_profileSwitcher_backgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcher(.backgroundPressed))
+        subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -407,6 +407,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.receive(.searchStateChanged(isSearching: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
@@ -442,5 +443,23 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_showAlert() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"))
         XCTAssertFalse(coordinator.alertShown.isEmpty)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 } // swiftlint:disable:this file_length
