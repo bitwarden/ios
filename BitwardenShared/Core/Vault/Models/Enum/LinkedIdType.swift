@@ -205,7 +205,7 @@ extension LinkedIdType {
 // MARK: - Identifiable
 
 extension LinkedIdType: Identifiable {
-    public var id: String {
+    var id: String {
         "\(rawValue)"
     }
 }

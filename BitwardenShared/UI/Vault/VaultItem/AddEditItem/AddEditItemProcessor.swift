@@ -153,6 +153,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
             state.guidedTourViewState.currentIndex = 0
             state.guidedTourViewState.showGuidedTour = true
+        case .streamCipherDetails:
+            await streamCipherDetails()
         case .streamFolders:
             await streamFolders()
         }
@@ -498,11 +500,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Load the saved value in autofill settings for the default URI match type.
     ///
     private func loadDefaultUriMatchType() async {
-        do {
-            state.loginState.defaultUriMatchTypeSettingsValue = try await services.stateService.getDefaultUriMatchType()
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+        state.loginState.defaultUriMatchTypeSettingsValue = await services.stateService.getDefaultUriMatchType()
     }
 
     /// Checks the password currently stored in `state`.
@@ -707,6 +705,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         coordinator.showAlert(.passwordAutofillInformation())
         await services.stateService.setAddSitePromptShown(true)
+    }
+
+    /// Stream the cipher details.
+    private func streamCipherDetails() async {
+        guard let cipherId = state.cipher.id else { return }
+        do {
+            for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
+                guard let cipherView else { continue }
+                state.update(from: cipherView)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 
     /// Stream the list of folders.
