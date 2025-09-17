@@ -31,7 +31,7 @@ on:
         type: boolean
         default: true
       dry-run:
-        description: "Run the workflow without publishing to the store"
+        description: "Dry-Run, Run the workflow without publishing to the store"
         type: boolean
         default: false
 
@@ -140,7 +140,7 @@ jobs:
 
         - name: Publish Github Release
           run: |
-            if inputs.dry-run; then
+            if ${{ inputs.dry-run }} ; then
               gh workflow view publish-github-release.yml
               exit 0
             fi
