@@ -17,6 +17,7 @@ class AddItemStateTests: XCTestCase {
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
             """
             ▿ CipherView
+              - archivedDate: Optional<Date>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements
@@ -70,6 +71,7 @@ class AddItemStateTests: XCTestCase {
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
             """
             ▿ CipherView
+              - archivedDate: Optional<Date>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements
