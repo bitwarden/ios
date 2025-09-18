@@ -134,7 +134,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
     @MainActor
-    func test_perform_profileSwitcher_accountPressed() async {
+    func test_perform_profileSwitcher_accountPressed() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = true
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
         authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
@@ -168,7 +173,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
     /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))` updates the state correctly.
     @MainActor
-    func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
+    func test_perform_profileSwitcher_toggleProfilesViewVisibility() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
@@ -448,7 +458,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
     @MainActor
-    func test_receive_profileSwitcher_backgroundPressed() {
+    func test_receive_profileSwitcher_backgroundPressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.backgroundTapped))
 

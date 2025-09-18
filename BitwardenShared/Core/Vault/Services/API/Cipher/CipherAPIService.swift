@@ -43,7 +43,7 @@ protocol CipherAPIService {
     ///
     /// - Returns: The `EmptyResponse`.
     ///
-    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> EmptyResponse
+    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> DeleteAttachmentResponse
 
     /// Performs an API request to delete an existing cipher in the user's vault.
     ///
@@ -149,7 +149,7 @@ extension APIService: CipherAPIService {
         try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 
-    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> EmptyResponse {
+    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> DeleteAttachmentResponse {
         try await apiService.send(DeleteAttachmentRequest(attachmentId: attachmentId, cipherId: cipherId))
     }
 
