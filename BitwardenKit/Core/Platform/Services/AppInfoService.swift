@@ -100,8 +100,13 @@ public extension DefaultAppInfoService {
         [
             copyrightString,
             "",
-            versionString,
-            deviceInfoString,
+            appNameAndVersionString,
+            bundleString,
+            // TODO: PM-18404 - Include server and SDK version
+            // sdkString,
+            // serverString,
+            deviceString,
+            systemOSString,
             additionalInfoString,
         ]
         .compactMap { $0 }
@@ -111,8 +116,13 @@ public extension DefaultAppInfoService {
     /// The application information without including copyright information.
     var appInfoWithoutCopyrightString: String {
         [
-            versionString,
-            deviceInfoString,
+            appNameAndVersionString,
+            bundleString,
+            // TODO: PM-18404 - Include server and SDK version
+            // sdkString,
+            // serverString,
+            deviceString,
+            systemOSString,
             additionalInfoString,
         ]
         .compactMap { $0 }
@@ -137,22 +147,28 @@ public extension DefaultAppInfoService {
         return appAdditionalInfo.ciBuildInfo
             .filter { !$0.value.isEmpty }
             .map { key, value in
-                "\(key) \(value)"
+                "\(key): \(value)"
             }
             .joined(separator: "\n")
     }
 
-    /// A string containing the device and build variant info.
-    private var deviceInfoString: String {
-        var buildVariant = switch bundle.bundleIdentifier {
-        case "com.8bit.bitwarden.beta": "Beta"
-        case "com.8bit.bitwarden": "Production"
-        case "com.bitwarden.authenticator": "Production"
-        default: "Unknown"
-        }
-        buildVariant = "📦 \(buildVariant)"
-        let hardwareInfo = "📱 \(systemDevice.modelIdentifier)"
-        let osInfo = "🍏 \(systemDevice.systemName) \(systemDevice.systemVersion)"
-        return "\(hardwareInfo) \(osInfo) \(buildVariant)"
+    /// A string containing the app name and version
+    private var appNameAndVersionString: String {
+        "📝 \(bundle.appName) \(bundle.appVersion) (\(bundle.buildNumber))"
+    }
+
+    /// A string containing the bundle info.
+    private var bundleString: String {
+        "📦 Bundle: \(bundle.bundleIdentifier ?? "Unknown")"
+    }
+
+    /// A string containing the device info.
+    private var deviceString: String {
+        "📱 Device: \(systemDevice.modelIdentifier)"
+    }
+
+    /// A string containing the OS info.
+    private var systemOSString: String {
+        "🍏 System: \(systemDevice.systemName) \(systemDevice.systemVersion)"
     }
 }

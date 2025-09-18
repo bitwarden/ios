@@ -49,35 +49,38 @@ class AppInfoServiceTests: BitwardenTestCase {
             """
             © Bitwarden Inc. 2015–2025
 
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """
         )
     }
 
-    /// `appInfoString` returns a formatted string containing detailed information about the app and
-    /// device for the beta config.
+    /// The `appInfoString` provides "unknown" if the bundle ID is missing
     func test_appInfoString_beta() {
-        bundle.bundleIdentifier = "com.8bit.bitwarden.beta"
+        bundle.bundleIdentifier = nil
 
         XCTAssertEqual(
             subject.appInfoString,
             """
             © Bitwarden Inc. 2015–2025
 
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Beta
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: Unknown
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """
         )
     }
 
-    /// `appInfoString` returns a formatted string containing detailed information about the app and
+    /// `appInfoString` includes additional information if it is available
     /// device with additional information.
     func test_appInfoString_withAdditionalInfo() {
         appAdditionalInfo.ciBuildInfo = [
-            "🧱 commit:": "bitwarden/ios/main@abc123",
-            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
-            "🛠️ compiler flags:": "DEBUG_MENU",
+            "🧱 Commit": "bitwarden/ios/main@abc123",
+            "💻 Build Source": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ Compiler Flags": "DEBUG_MENU",
         ]
 
         XCTAssertEqual(
@@ -85,11 +88,13 @@ class AppInfoServiceTests: BitwardenTestCase {
             """
             © Bitwarden Inc. 2015–2025
 
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
-            🧱 commit: bitwarden/ios/main@abc123
-            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
-            🛠️ compiler flags: DEBUG_MENU
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            🧱 Commit: bitwarden/ios/main@abc123
+            💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ Compiler Flags: DEBUG_MENU
             """
         )
     }
@@ -99,9 +104,9 @@ class AppInfoServiceTests: BitwardenTestCase {
     @MainActor
     func test_appInfoString_withAdditionalInfoFiltersEmptyValues() {
         appAdditionalInfo.ciBuildInfo = [
-            "🧱 commit:": "bitwarden/ios/main@abc123",
-            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
-            "🛠️ compiler flags:": "",
+            "🧱 Commit": "bitwarden/ios/main@abc123",
+            "💻 Build Source": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ Compiler Flags": "",
         ]
 
         XCTAssertEqual(
@@ -109,10 +114,12 @@ class AppInfoServiceTests: BitwardenTestCase {
             """
             © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
 
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
-            🧱 commit: bitwarden/ios/main@abc123
-            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            🧱 Commit: bitwarden/ios/main@abc123
+            💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
             """
         )
     }
@@ -120,19 +127,21 @@ class AppInfoServiceTests: BitwardenTestCase {
     /// `debugAppInfoString` returns the app info string without copyright info.
     func test_appInfoWithoutCopyrightString() {
         appAdditionalInfo.ciBuildInfo = [
-            "🧱 commit:": "bitwarden/ios/main@abc123",
-            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
-            "🛠️ compiler flags:": "DEBUG_MENU",
+            "🧱 Commit": "bitwarden/ios/main@abc123",
+            "💻 Build Source": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ Compiler Flags": "DEBUG_MENU",
         ]
 
         XCTAssertEqual(
             subject.appInfoWithoutCopyrightString,
             """
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
-            🧱 commit: bitwarden/ios/main@abc123
-            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
-            🛠️ compiler flags: DEBUG_MENU
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            🧱 Commit: bitwarden/ios/main@abc123
+            💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ Compiler Flags: DEBUG_MENU
             """
         )
     }
