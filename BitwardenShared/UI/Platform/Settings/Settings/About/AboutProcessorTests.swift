@@ -216,8 +216,10 @@ class AboutProcessorTests: BitwardenTestCase {
             """
             © Bitwarden Inc. 2015–2025
 
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))

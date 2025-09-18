@@ -80,8 +80,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenKitMocks:       0x0000000000000000
 
             User ID: 1
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """#
         }
         // swiftlint:enable line_length
@@ -115,8 +117,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenKitMocks:       0x0000000000000000
 
             User ID: n/a
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """
         }
     }
@@ -149,8 +153,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenKitMocks:       0x0000000000000000
 
             User ID: 1
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             """
         }
     }
