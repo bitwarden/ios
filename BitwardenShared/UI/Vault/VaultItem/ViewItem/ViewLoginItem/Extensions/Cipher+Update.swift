@@ -33,7 +33,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
@@ -69,7 +70,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 }
