@@ -25,34 +25,50 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     // MARK: View
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(selections) { selection in
-                let isSelected = self.selection.id == selection.id
-                Button {
-                    // Don't update the selection if this segment is already selected.
-                    guard !isSelected else { return }
-                    self.selection = selection
-                } label: {
-                    Text(selection.localizedName)
-                        .styleGuide(.callout, weight: .semibold)
+        if #available(iOS 26, *) {
+            Picker(
+                selection: $selection
+            ) {
+                ForEach(selections) { type in
+                    Text(type.localizedName)
+                        .tag(type)
+                        .selectionDisabled(isSelectionDisabled(type))
+                        .accessibilityIdentifier(type.accessibilityId)
                 }
-                .accessibility(if: isSelected, addTraits: .isSelected)
-                .accessibilityIdentifier(selection.accessibilityId)
-                .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
-                .disabled(isSelectionDisabled(selection))
-                .matchedGeometryEffect(id: selection, in: segmentedControl)
+            } label: {
+                EmptyView()
             }
+            .pickerStyle(.segmented)
+        } else {
+            HStack(spacing: 0) {
+                ForEach(selections) { selection in
+                    let isSelected = self.selection.id == selection.id
+                    Button {
+                        // Don't update the selection if this segment is already selected.
+                        guard !isSelected else { return }
+                        self.selection = selection
+                    } label: {
+                        Text(selection.localizedName)
+                            .styleGuide(.callout, weight: .semibold)
+                    }
+                    .accessibility(if: isSelected, addTraits: .isSelected)
+                    .accessibilityIdentifier(selection.accessibilityId)
+                    .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
+                    .disabled(isSelectionDisabled(selection))
+                    .matchedGeometryEffect(id: selection, in: segmentedControl)
+                }
+            }
+            .background(
+                Capsule()
+                    .strokeBorder(SharedAsset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
+                    .background(Capsule().fill(SharedAsset.Colors.backgroundSecondary.swiftUIColor))
+                    .padding(2)
+                    .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false)
+            )
+            .animation(.default, value: selection)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(Capsule())
         }
-        .background(
-            Capsule()
-                .strokeBorder(SharedAsset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
-                .background(Capsule().fill(SharedAsset.Colors.backgroundSecondary.swiftUIColor))
-                .padding(2)
-                .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false)
-        )
-        .animation(.default, value: selection)
-        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-        .clipShape(Capsule())
     }
 
     // MARK: Initialization
