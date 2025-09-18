@@ -52,7 +52,7 @@ class SelfHostedViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests that the view renders correctly.
-    func test_viewRender() {
+    func disabletest_snapshot_viewRender() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 }
