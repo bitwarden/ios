@@ -9,6 +9,10 @@ import OSLog
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListSectionsBuilder { // sourcery: AutoMockable
+    /// Adds a section with passwords and Fido2 items for Autofill vault list in a combined single section.
+    /// - Returns: The builder for fluent code.
+    func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder
+
     /// Adds a section with passwords items for Autofill vault list.
     /// - Returns: The builder for fluent code.
     func addAutofillPasswordsSection() -> VaultListSectionsBuilder
@@ -106,8 +110,17 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     // MARK: Methods
 
-    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
-        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
+    func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder {
+        guard !preparedData.groupItems.isEmpty || !preparedData.fido2Items.isEmpty else {
+            return self
+        }
+
+        let items = preparedData.groupItems + preparedData.fido2Items
+        vaultListData.sections.append(VaultListSection(
+            id: Localizations.chooseALoginToSaveThisPasskeyTo,
+            items: items.sorted(using: VaultListItem.defaultSortDescriptor),
+            name: Localizations.chooseALoginToSaveThisPasskeyTo
+        ))
         return self
     }
 
@@ -124,6 +137,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             items: matchingItems,
             name: ""
         ))
+        return self
+    }
+
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
@@ -344,6 +362,7 @@ struct VaultListPreparedData {
     ]
     var exactMatchItems: [VaultListItem] = []
     var favorites: [VaultListItem] = []
+    var fido2Items: [VaultListItem] = []
     var folders: [Folder] = []
     var foldersCount: [Uuid: Int] = [:]
     var fuzzyMatchItems: [VaultListItem] = []

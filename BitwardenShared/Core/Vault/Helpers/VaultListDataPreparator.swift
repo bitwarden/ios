@@ -6,6 +6,28 @@ import BitwardenSdk
 /// This decrypts and process data iteratively in batches to improve time and memory on the overall
 /// grouping/filtering/preparation.
 protocol VaultListDataPreparator { // sourcery: AutoMockable
+    /// Prepares autofill's passwords data for the vault list builder.
+    /// - Parameters:
+    ///   - ciphers: An array of `Cipher` objects to be processed.
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
+    func prepareAutofillPasswordsData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData?
+
+    /// Prepares autofill's data on passwords + Fido2 combined in a single section for the vault list builder.
+    /// - Parameters:
+    ///   - ciphers: An array of `Cipher` objects to be processed.
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
+    func prepareAutofillCombinedSingleData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData?
+
     /// Prepares data for the vault list builder.
     /// - Parameters:
     ///   - ciphers: An array of `Cipher` objects to be processed.
@@ -35,17 +57,6 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> VaultListPreparedData?
-
-    /// Prepares autofill's passwords data for the vault list builder.
-    /// - Parameters:
-    ///   - ciphers: An array of `Cipher` objects to be processed.
-    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
-    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
-    /// Returns `nil` if the vault is empty.
-    func prepareAutofillPasswordsData(
-        from ciphers: [Cipher],
-        filter: VaultListFilter
-    ) async throws -> VaultListPreparedData?
 }
 
 /// Default implementation of `VaultListDataPreparator`.
@@ -70,6 +81,78 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     let vaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory
 
     // MARK: Methods
+
+    func prepareAutofillPasswordsData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData? {
+        guard !ciphers.isEmpty, let uri = filter.uri else {
+            return nil
+        }
+
+        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
+
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+
+        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+            ciphers: ciphers
+        ) { decryptedCipher in
+            guard decryptedCipher.deletedDate == nil,
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                return
+            }
+
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+
+            preparedDataBuilder = await preparedDataBuilder.addItem(
+                withMatchResult: matchResult,
+                cipher: decryptedCipher
+            )
+        }
+
+        return preparedDataBuilder.build()
+    }
+
+    func prepareAutofillCombinedSingleData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter
+    ) async throws -> VaultListPreparedData? {
+        guard !ciphers.isEmpty, let uri = filter.uri else {
+            return nil
+        }
+
+        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
+
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+
+        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+            ciphers: ciphers
+        ) { decryptedCipher in
+            guard decryptedCipher.deletedDate == nil,
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                return
+            }
+
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+            guard matchResult != .none else {
+                return
+            }
+
+            guard decryptedCipher.type.loginListView?.hasFido2 == true else {
+                preparedDataBuilder = await preparedDataBuilder.addItem(
+                    forGroup: .login,
+                    with: decryptedCipher
+                )
+                return
+            }
+
+            preparedDataBuilder = await preparedDataBuilder.addFido2Item(cipher: decryptedCipher)
+        }
+
+        return preparedDataBuilder.build()
+    }
 
     func prepareData(
         from ciphers: [Cipher],
@@ -159,38 +242,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             }
 
             preparedDataBuilder = await preparedDataBuilder.addItem(forGroup: group, with: decryptedCipher)
-        }
-
-        return preparedDataBuilder.build()
-    }
-
-    func prepareAutofillPasswordsData(
-        from ciphers: [Cipher],
-        filter: VaultListFilter
-    ) async throws -> VaultListPreparedData? {
-        guard !ciphers.isEmpty, let uri = filter.uri else {
-            return nil
-        }
-
-        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
-
-        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
-
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
-            ciphers: ciphers
-        ) { decryptedCipher in
-            guard decryptedCipher.deletedDate == nil,
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
-                return
-            }
-
-            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
-
-            preparedDataBuilder = await preparedDataBuilder.addItem(
-                withMatchResult: matchResult,
-                cipher: decryptedCipher
-            )
         }
 
         return preparedDataBuilder.build()

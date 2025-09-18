@@ -181,21 +181,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.passwords` mode.
     func test_ciphersAutofillPublisher_mode_passwords() async throws {
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
+        let expectedSections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    VaultListItem(
+                        cipherListView: .fixture(
+                            id: "2",
+                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
+                            name: "Example",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
+                            revisionDate: Date(year: 2024, month: 1, day: 1)
+                        )
+                    )!,
+                ],
+                name: ""
             ),
         ]
-        cipherService.ciphersSubject.value = ciphers
+
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -206,26 +214,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ).makeAsyncIterator()
         let publishedSections = try await iterator.next()?.sections
 
-        XCTAssertEqual(
-            publishedSections,
-            [
-                VaultListSection(
-                    id: "",
-                    items: [
-                        VaultListItem(
-                            cipherListView: .fixture(
-                                id: "2",
-                                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                                name: "Example",
-                                creationDate: Date(year: 2024, month: 1, day: 1),
-                                revisionDate: Date(year: 2024, month: 1, day: 1)
-                            )
-                        )!,
-                    ],
-                    name: ""
-                ),
-            ]
-        )
+        try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
+            """
+            Section[]: 
+              - Cipher: Example
+            """
+        }
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
