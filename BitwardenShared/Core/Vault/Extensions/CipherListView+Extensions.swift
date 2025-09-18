@@ -67,6 +67,7 @@ extension CipherListView {
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate,
+            archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: nil
         )
