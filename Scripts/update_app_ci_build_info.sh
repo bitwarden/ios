@@ -28,17 +28,17 @@ git_source="${repository}/${branch}@${commit_hash}"
 ci_run_source="${repository}/actions/runs/${ci_run_number}/attempts/${ci_run_attempt}"
 
 echo "🧱 Updating app CI Build info..."
-echo "🧱 🧱${git_source}"
-echo "🧱 💻${ci_run_source}"
-echo "🧱 🛠️ ${compiler_flags}"
+echo "🧱 🧱 Commit: ${git_source}"
+echo "🧱 💻 Build Source: ${ci_run_source}"
+echo "🧱 🛠️ Compiler Flags: ${compiler_flags}"
 
 
 cat << EOF > ${ci_build_info_file}
 enum CIBuildInfo {
     static let info: KeyValuePairs<String, String> = [
-        "🧱 commit:": "${git_source}",
-        "💻 build source:": "${ci_run_source}",
-        "🛠️ compiler flags:": "${compiler_flags}",
+        "🧱 Commit": "${git_source}",
+        "💻 Build Source": "${ci_run_source}",
+        "🛠️ Compiler Flags": "${compiler_flags}",
     ]
 }
 EOF
