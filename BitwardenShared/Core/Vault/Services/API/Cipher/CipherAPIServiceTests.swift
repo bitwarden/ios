@@ -47,6 +47,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
@@ -101,6 +102,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
@@ -221,6 +223,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             SaveAttachmentResponse(
                 attachmentId: "1",
                 cipherResponse: CipherDetailsResponseModel(
+                    archivedDate: nil,
                     attachments: [
                         .init(
                             fileName: "2.q4Pl+Pz7D3sxr1VEKuwke",
@@ -287,6 +290,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
