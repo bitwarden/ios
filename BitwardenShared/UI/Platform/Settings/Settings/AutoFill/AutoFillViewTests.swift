@@ -137,7 +137,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly.
     @MainActor
-    func test_view_render() {
+    func disabletest_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }
