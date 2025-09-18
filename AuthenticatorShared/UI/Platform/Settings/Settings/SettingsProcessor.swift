@@ -9,7 +9,8 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasAppSettingsStore
+    typealias Services = HasAppInfoService
+        & HasAppSettingsStore
         & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
@@ -116,9 +117,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
-        // Copy the copyright text followed by the version info.
-        let text = "Bitwarden Authenticator\n\n" + state.copyrightText + "\n\n" + state.version
-        services.pasteboardService.copy(text)
+        services.pasteboardService.copy(services.appInfoService.appInfoString)
         state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 

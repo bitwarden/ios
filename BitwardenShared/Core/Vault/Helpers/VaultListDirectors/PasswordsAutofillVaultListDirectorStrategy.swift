@@ -6,8 +6,6 @@ import Combine
 
 /// The director strategy to be used to build the Autofill's passwords vault sections.
 struct PasswordsAutofillVaultListDirectorStrategy: VaultListDirectorStrategy {
-    // swiftlint:disable:previous type_name
-
     // MARK: Properties
 
     /// The factory for creating vault list builders.

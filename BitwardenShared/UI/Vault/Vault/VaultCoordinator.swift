@@ -69,6 +69,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
+        & ProfileSwitcherModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -257,6 +258,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
         }
     }
 
@@ -506,6 +513,12 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
     }
 }
 
+// MARK: - ProfileSwitcherDisplayable
+
+extension VaultCoordinator: ProfileSwitcherDisplayable {}
+
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length
+extension VaultCoordinator: UserVerificationDelegate {}
+
+// swiftlint:disable:this file_length

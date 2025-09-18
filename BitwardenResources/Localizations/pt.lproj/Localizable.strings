@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "Ao utilizar a verificação de dois passos, introduz o seu nome de utilizador e palavra-passe e um código gerado nesta app.";
 "YesSetDefault" = "Sim, definir predefinição";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Pode atualizar a sua predefinição a qualquer altura nas definições.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "A deteção de correspondência de URI controla a forma como o Bitwarden identifica sugestões de preenchimento automático.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Começa com\\” é uma opção avançada com um risco acrescido de exposição de credenciais.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A \"Expressão regular\\” é uma opção avançada com um risco acrescido de expor credenciais se for utilizada incorretamente.";
+"StartsWithAdvanced" = "Começa com (avançado)";
+"RegularExpressionAdvanced" = "Expressão regular (avançado)";
+"AreYouSureYouWantToUseX" = "Tem a certeza de que pretende utilizar “%1$@”?";
+"KeepYourCredentialsSecure" = "Mantenha as suas credenciais seguras";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Saiba mais sobre como manter as credenciais seguras ao utilizar “%1$@”.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** \"Começa com\\” é uma opção avançada com um risco acrescido de exposição de credenciais.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** A \"Expressão regular\\” é uma opção avançada com um risco acrescido de expor credenciais se for utilizada incorretamente.";
+"DefaultX" = "Predefinido (%1$@)";

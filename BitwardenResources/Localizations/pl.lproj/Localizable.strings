@@ -177,7 +177,7 @@
 "SetPINDirection" = "Wpisz 4-cyfrowy kod PIN do odblokowania aplikacji.";
 "ItemUpdated" = "Element został zapisany";
 "Submitting" = "Wysyłanie...";
-"Syncing" = "Synchronizuję...";
+"Syncing" = "Synchronizacja...";
 "SyncingLogins" = "Synchronizacja danych logowania...";
 "SyncingComplete" = "Synchronizacja została zakończona";
 "SyncingFailed" = "Synchronizacja nie powiodła się";
@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "Podczas korzystania z logowania dwustopniowego wpisz nazwę użytkownika, hasło oraz kod wygenerowany w tej aplikacji.";
 "YesSetDefault" = "Tak, ustaw domyślne";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Możesz zaktualizować domyślne ustawienia w dowolnym momencie.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Wykrywanie dopasowania to sposób, w jaki Bitwarden identyfikuje sugestie autouzupełniania.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Rozpoczyna się od” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
+"StartsWithAdvanced" = "Rozpoczyna się od (zaawansowane)";
+"RegularExpressionAdvanced" = "Wyrażenie regularne (zaawansowane)";
+"AreYouSureYouWantToUseX" = "Czy na pewno chcesz użyć „%1$@”?";
+"KeepYourCredentialsSecure" = "Zabezpiecz dane logowania";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Dowiedz się więcej o tym, jak zabezpieczyć dane logowania korzystając z wykrywania dopasowania w opcji „%1$@”.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Ostrzeżenie:** „Rozpoczyna się od” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Ostrzeżenie:** „Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
+"DefaultX" = "Domyślne (%1$@)";

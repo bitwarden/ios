@@ -16,6 +16,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
@@ -109,6 +112,9 @@ protocol AddEditItemState: Sendable {
     /// When this item was last updated.
     var updatedDate: Date { get set }
 
+    /// The url to open in the device's web browser.
+    var url: URL? { get set }
+
     /// Toggles whether the cipher is included in the specified collection.
     ///
     /// - Parameters:
@@ -116,6 +122,13 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
+    /// preserve any additional UI properties on the state.
+    ///
+    /// - Parameter cipherView: The updated `CipherView`.
+    ///
+    mutating func update(from cipherView: CipherView)
 }
 
 /// extension for `GuidedTourStepState` to provide states for learn new login guided tour.

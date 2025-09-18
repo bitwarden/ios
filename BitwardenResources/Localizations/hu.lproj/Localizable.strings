@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "A kétlépcsős ellenőrzés használatakor megadjuk felhasználónevet és jelszót, valamint az alkalmazásban generált kódot.";
 "YesSetDefault" = "Igen, beállítás alapértelmezettként";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "A beállításokban bármikor frissíthetjük az alapértelmezést.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Az URI egyezés észlelése az, ahogyan a Bitwarden azonosítja az automatikus kitöltési javaslatokat.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A “Kezdés:” egy fejlett opció, amely növeli a hitelesítő adatok felfedésének kockázatát.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“A reguláris kifejezés” egy fejlett opció, amely megnöveli a hitelesítő adatok felfedésének kockázatát, ha helytelenül használják.";
+"StartsWithAdvanced" = "Kezdés: (bővített)";
+"RegularExpressionAdvanced" = "Reguláris kifejezés (bővített)";
+"AreYouSureYouWantToUseX" = "Biztosan szeretnénk használni: “%1$@”?";
+"KeepYourCredentialsSecure" = "Tartsuk biztonságban a hitelesítő adatokat.";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "További információ arról, hogyan tarthatjuk biztonságban a hitelesítő adatokat “%1$@” használatakor.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A “Kezdés:” egy fejlett opció, amely növeli a hitelesítő adatok felfedésének kockázatát.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“A reguláris kifejezés” egy fejlett opció, amely megnöveli a hitelesítő adatok felfedésének kockázatát, ha helytelenül használják.";
+"DefaultX" = "Alapértelmezés (%1$@)";

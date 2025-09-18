@@ -11,7 +11,7 @@ struct LandingView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
+    @ObservedObject var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
         ZStack {
@@ -20,8 +20,10 @@ struct LandingView: View {
         }
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                profileSwitcherToolbarItem
+            ToolbarItem(placement: .topBarLeading) {
+                if !store.state.profileSwitcherState.accounts.isEmpty {
+                    profileSwitcherToolbarItem
+                }
             }
         }
         .task {

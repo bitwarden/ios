@@ -6,7 +6,7 @@ enum ErrorReporterFactory {
     // MARK: Static Functions
 
     /// Creates the default error reporter.
-    public static func makeDefaultErrorReporter() -> ErrorReporter {
+    static func makeDefaultErrorReporter() -> ErrorReporter {
         #if DEBUG
         OSLogErrorReporter()
         #else

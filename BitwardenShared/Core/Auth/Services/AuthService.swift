@@ -972,7 +972,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         await stateService.addAccount(account)
 
         // Save the encryption keys.
-        if let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse) {
+        if let encryptionKeys = AccountEncryptionKeys(responseModel: identityTokenResponse) {
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
         }
 

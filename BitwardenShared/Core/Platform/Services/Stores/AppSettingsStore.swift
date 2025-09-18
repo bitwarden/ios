@@ -73,6 +73,13 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The user's v2 account keys.
+    ///
+    /// - Parameter userId: The user ID associated with the stored account keys.
+    /// - Returns: The user's account keys.
+    ///
+    func accountKeys(userId: String) -> PrivateKeysResponseModel?
+
     /// The user's progress for setting up autofill.
     ///
     /// - Parameter userId: The user ID associated with the stored autofill setup progress.
@@ -230,10 +237,19 @@ protocol AppSettingsStore: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The pin protected user key.
     ///
     func pinProtectedUserKey(userId: String) -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -248,6 +264,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the account v2 keys for a user ID.
+    ///
+    /// - Parameters:
+    ///   - keys: The user's account keys.
+    ///   - userId: The user ID associated with the encrypted private key.
+    ///
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String)
 
     /// Sets the user's progress for autofill setup.
     ///
@@ -427,11 +451,21 @@ protocol AppSettingsStore: AnyObject {
 
     /// Sets the pin protected user key.
     ///
+    /// - Note: This is being replaced by ``setPinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameters:
     ///  - key: A pin protected user key derived from the user's pin.
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the pin protected user key envelope.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key envelope derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -706,6 +740,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
@@ -742,7 +777,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pendingAppIntentActions
-        case pinProtectedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
+        case pinProtectedUserKeyEnvelope(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
@@ -765,6 +801,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .accountKeys(userId):
+                key = "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
             case let .accountSetupImportLogins(userId):
@@ -839,6 +877,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKeyEnvelope(userId):
+                key = "pinProtectedUserKeyEnvelope_\(userId)"
             case .preAuthEnvironmentURLs:
                 key = "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
@@ -980,6 +1020,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         }
     }
 
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        fetch(for: .accountKeys(userId: userId))
+    }
+
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupAutofill(userId: userId))
     }
@@ -1084,6 +1128,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
             for: .accountCreationEnvironmentURLs(email: email)
@@ -1092,6 +1140,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
+        store(keys, for: .accountKeys(userId: userId))
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -1184,6 +1236,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

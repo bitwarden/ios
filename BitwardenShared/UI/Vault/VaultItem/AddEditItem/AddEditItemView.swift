@@ -33,9 +33,15 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
         .navigationTitle(store.state.navigationTitle)
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
+        .task { await store.perform(.streamCipherDetails) }
         .task { await store.perform(.streamFolders) }
         .toast(store.binding(
             get: \.toast,
@@ -115,7 +121,7 @@ struct AddEditItemView: View {
                             isCloneEnabled: false,
                             isCollectionsEnabled: store.state.canAssignToCollection,
                             isDeleteEnabled: store.state.canBeDeleted,
-                            isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
+                            isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },

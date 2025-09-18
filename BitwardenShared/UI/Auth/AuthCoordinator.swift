@@ -32,12 +32,14 @@ protocol AuthCoordinatorDelegate: AnyObject {
 final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_length
     Coordinator,
     HasStackNavigator,
-    HasRouter {
+    HasRouter,
+    ProfileSwitcherDisplayable {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = NavigatorBuilderModule
         & PasswordAutoFillModule
+        & ProfileSwitcherModule
         & SettingsModule
 
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
@@ -232,16 +234,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case .updateMasterPassword:
             showUpdateMasterPassword()
-        case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
-            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
-            showWebAuthn(
-                rpId: rpId,
-                challenge: challenge,
-                credentialIds: allowCredentialIds,
-                userVerificationPreference: userVerificationPreference
-            )
-        case let .webAuthnSelfHosted(url):
-            showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         case let .vaultUnlock(
             account,
             animated,
@@ -256,6 +248,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case let .vaultUnlockSetup(accountSetupFlow):
             showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module
+            )
+        case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
+            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
+            showWebAuthn(
+                rpId: rpId,
+                challenge: challenge,
+                credentialIds: allowCredentialIds,
+                userVerificationPreference: userVerificationPreference
+            )
+        case let .webAuthnSelfHosted(url):
+            showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         }
     }
 
@@ -270,8 +278,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameter rehydratableTarget: The rehydratable target, if any to restore after unlocking if needed.
     private func completeAuth(rehydratableTarget: RehydratableTarget? = nil) {
         if stackNavigator?.isPresenting == true {
-            stackNavigator?.dismiss {
-                self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            if let presented = (stackNavigator as? UINavigationController)?.visibleViewController,
+               presented is UIHostingController<ProfileSwitcherSheet> {
+                // Even though the Profile Switcher Sheet has been asked to dismiss, it has not fully become
+                // un-presented, which would cause the stack navigator to also dismiss the current view,
+                // which we don't want to happen. This circumvents that.
+                delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            } else {
+                stackNavigator?.dismiss {
+                    self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+                }
             }
         } else {
             delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
@@ -730,7 +746,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the start registration screen from expired link screen.
     ///
-    public func showStartRegistrationFromExpiredLink() {
+    private func showStartRegistrationFromExpiredLink() {
         guard let stackNavigator else { return }
         stackNavigator.dismiss {
             let processor = LandingProcessor(

@@ -141,7 +141,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     // MARK: Public Methods
 
-    public func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
+    func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
         do {
             return try await authBridgeItemService.fetchTemporaryItem()
         } catch {
@@ -150,7 +150,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
     }
 
-    public func start() async {
+    func start() async {
         guard !started else { return }
         started = true
 
@@ -368,15 +368,9 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: userId)
 
         try await authenticatorClientService.crypto().initializeUserCrypto(
-            req: InitUserCryptoRequest(
-                userId: account.profile.userId,
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                signingKey: nil,
-                securityState: nil,
-                method: .decryptedKey(decryptedUserKey: authenticatorKey)
-            )
+            account: account,
+            encryptionKeys: encryptionKeys,
+            method: .decryptedKey(decryptedUserKey: authenticatorKey)
         )
         try await initializeOrganizationCrypto(userId: userId)
     }

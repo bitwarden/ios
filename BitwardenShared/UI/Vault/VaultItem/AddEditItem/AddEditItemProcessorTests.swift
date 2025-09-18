@@ -1550,6 +1550,44 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `perform(_:)` with `.streamCipherDetails` updates the state if any updates to the cipher occur.
+    @MainActor
+    func test_perform_streamCipherDetails() async throws {
+        subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        let updatedCipher = CipherView.fixture(name: "Updated name")
+
+        var updatedState = try XCTUnwrap(subject.state as? CipherItemState)
+        updatedState.update(from: updatedCipher)
+
+        vaultRepository.cipherDetailsSubject.send(updatedCipher)
+        try await waitForAsync { self.subject.state.name == "Updated name" }
+
+        try XCTAssertEqual(XCTUnwrap(subject.state as? CipherItemState), updatedState)
+    }
+
+    /// `perform(_:)` with `.streamCipherDetails` logs an error if getting updates for the cipher fails.
+    @MainActor
+    func test_perform_streamCipherDetails_error() async throws {
+        subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `receive(_:)` with `.addFolder` navigates to the add folder view.
     @MainActor
     func test_receive_addFolder() {
@@ -2137,7 +2175,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.uriTypeChanged` with a valid id updates the state correctly.
     @MainActor
-    func test_receive_uriTypeChanged_withValidUriId() {
+    func test_receive_uriTypeChanged_withValidUriId() async {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
@@ -2146,7 +2184,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 0))
-
+        await Task.yield()
         XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.host))
     }
 
@@ -2598,6 +2636,82 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_rehydrationState_nil() {
         subject.state = CipherItemState(addItem: .login, hasPremium: false)
         XCTAssertNil(subject.rehydrationState?.target)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Confirming it updates the `defaultUriMatchType`
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_confirm() async throws {
+        subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.regularExpression))
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Canceling it keeps the `defaultUriMatchType` value
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_cancel() async throws {
+        subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        ))
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default)
+    }
+
+    /// `receive(_:)` with `.regularExpression` shows an alert for navigating to the web vault
+    /// When `Learn more` is tapped on the alert navigates the user to the web app
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_learnMore() async throws {
+        subject.receive(.uriTypeChanged(.custom(.regularExpression), index: 0))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+        let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.regEx),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ]
+        ))
+
+        try await alertLearnMore.tapAction(title: Localizations.learnMore)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+        XCTAssertNil(subject.state.url)
     }
 }
 

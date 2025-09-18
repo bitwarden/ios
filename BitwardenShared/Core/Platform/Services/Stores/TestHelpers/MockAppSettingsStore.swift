@@ -5,6 +5,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
+    var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -50,6 +51,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
+    var pinProtectedUserKeyEnvelope = [String: String]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
@@ -69,6 +71,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        accountKeys[userId]
+    }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]
@@ -167,6 +173,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String) -> String? {
+        pinProtectedUserKeyEnvelope[userId]
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         accountCreationEnvironmentURLs[email]
     }
@@ -177,6 +187,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
+        accountKeys[userId] = keys
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -285,6 +299,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
+        pinProtectedUserKeyEnvelope[userId] = key
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

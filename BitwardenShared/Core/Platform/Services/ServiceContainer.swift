@@ -34,7 +34,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let appIdService: AppIdService
 
     /// The service used by the application to get info about the app and device it's running on.
-    let appInfoService: AppInfoService
+    public let appInfoService: AppInfoService
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
@@ -563,6 +563,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultTimeoutService = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
@@ -695,12 +696,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let collectionHelper = DefaultCollectionHelper(organizationService: organizationService)
+
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
             folderService: folderService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
+                collectionHelper: collectionHelper,
                 errorReporter: errorReporter
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
@@ -729,6 +733,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultRepository = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,

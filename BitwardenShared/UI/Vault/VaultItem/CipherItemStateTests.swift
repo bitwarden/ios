@@ -5,6 +5,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
@@ -64,6 +66,38 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.loginFixture(login: .fixture(), organizationUseTotp: true)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         XCTAssertTrue(state.loginState.isTOTPAvailable)
+    }
+
+    /// `canAssignToCollection` returns false if the user doesn't have access to any organizations.
+    func test_canAssignToCollection_noOrganizations() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        XCTAssertFalse(subject.canAssignToCollection)
+    }
+
+    /// `canAssignToCollection` returns false if the user is in an organization but the cipher is
+    /// still in a personal vault.
+    func test_canAssignToCollection_organizationsAvailable() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertFalse(subject.canAssignToCollection)
+    }
+
+    /// `canAssignToCollection` returns true if the user is in an organization and the cipher is in
+    /// the organization's vault.
+    func test_canAssignToCollection_organizationCipher() throws {
+        let cipher = CipherView.fixture(organizationId: "1")
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertTrue(subject.canAssignToCollection)
     }
 
     /// `canBeDeleted` is true
@@ -206,6 +240,37 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
+    }
+
+    /// `canMoveToOrganization` returns false if the cipher is in an existing organization.
+    func test_canMoveToOrganization_cipherInExistingOrganization() throws {
+        let cipher = CipherView.fixture(organizationId: "1")
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertFalse(subject.canMoveToOrganization)
+    }
+
+    /// `canMoveToOrganization` returns false if the user doesn't have access to any organizations.
+    func test_canMoveToOrganization_noOrganizations() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        XCTAssertFalse(subject.canMoveToOrganization)
+    }
+
+    /// `canMoveToOrganization` returns true if the cipher isn't in an organization and the user has
+    /// access to one or more organizations.
+    func test_canMoveToOrganization_organizationsAvailable() throws {
+        let cipher = CipherView.fixture(organizationId: nil)
+        var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        XCTAssertTrue(subject.canMoveToOrganization)
     }
 
     /// `hasOrganizations` is true when the cipher has a non-nil organizationId.
@@ -380,5 +445,93 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var state = CipherItemState(cloneItem: cipher, hasPremium: true)
         state.isLearnNewLoginActionCardEligible = false
         XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
+    }
+
+    /// `update(from:)` updates the state from an updated card `CipherView`.
+    func test_updateFromCipherView_card() {
+        var subject = CipherItemState(existing: .fixture(type: .card), hasPremium: true)
+        let updatedCipher = CipherView.fixture(
+            card: .fixture(cardholderName: "Bitwarden User", code: "123", number: "1111222233334444"),
+            id: "123",
+            name: "Card",
+            type: .card
+        )
+        subject?.update(from: updatedCipher)
+
+        let expected = CipherItemState(existing: updatedCipher, hasPremium: true)
+
+        XCTAssertEqual(subject, expected)
+    }
+
+    /// `update(from:)` updates the state from an updated identity `CipherView`.
+    func test_updateFromCipherView_identity() {
+        var subject = CipherItemState(existing: .fixture(type: .identity), hasPremium: true)
+        let updatedCipher = CipherView.fixture(
+            id: "123",
+            identity: .fixture(firstName: "First", lastName: "Last"),
+            name: "Identity",
+            type: .identity
+        )
+        subject?.update(from: updatedCipher)
+
+        let expected = CipherItemState(existing: updatedCipher, hasPremium: true)
+
+        XCTAssertEqual(subject, expected)
+    }
+
+    /// `update(from:)` updates the state from an updated login `CipherView`.
+    func test_updateFromCipherView_login() {
+        var subject = CipherItemState(existing: .fixture(), hasPremium: true)
+        let updatedCipher = CipherView.fixture(
+            attachments: [.fixture()],
+            collectionIds: ["collection-1", "collection-2"],
+            creationDate: Date(year: 2025, month: 1, day: 1),
+            favorite: true,
+            folderId: "folder-1",
+            id: "123",
+            login: .fixture(password: "password", username: "user"),
+            name: "Bitwarden",
+            notes: "Secure notes",
+            organizationId: "organization-1",
+            revisionDate: Date(year: 2025, month: 6, day: 1),
+            type: .login
+        )
+        subject?.update(from: updatedCipher)
+
+        let expected = CipherItemState(existing: updatedCipher, hasPremium: true)
+
+        XCTAssertEqual(subject, expected)
+    }
+
+    /// `update(from:)` updates the state from an updated secure note `CipherView`.
+    func test_updateFromCipherView_note() {
+        var subject = CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false)
+        let updatedCipher = CipherView.fixture(
+            id: "123",
+            name: "Identity",
+            notes: "Secure note text",
+            type: .secureNote
+        )
+        subject?.update(from: updatedCipher)
+
+        let expected = CipherItemState(existing: updatedCipher, hasPremium: false)
+
+        XCTAssertEqual(subject, expected)
+    }
+
+    /// `update(from:)` updates the state from an updated SSH key `CipherView`.
+    func test_updateFromCipherView_sshKey() {
+        var subject = CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false)
+        let updatedCipher = CipherView.fixture(
+            id: "123",
+            name: "SSH Key",
+            sshKey: .fixture(),
+            type: .sshKey
+        )
+        subject?.update(from: updatedCipher)
+
+        let expected = CipherItemState(existing: updatedCipher, hasPremium: false)
+
+        XCTAssertEqual(subject, expected)
     }
 }

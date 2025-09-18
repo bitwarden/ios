@@ -526,6 +526,36 @@ class SyncServiceTests: BitwardenTestCase {
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
+        XCTAssertNil(stateService.accountEncryptionKeys["1"]?.accountKeys)
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "private key")
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
+    }
+
+    /// `fetchSync()` updates the user's profile when it has account keys.
+    func test_fetchSync_profileWithAccountKeys() async throws {
+        client.result = .httpSuccess(testData: .syncWithAccountKeysV2Profile)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(
+            stateService.updateProfileResponse,
+            .fixture(
+                accountKeys: .fixtureFilled(),
+                culture: "en-US",
+                email: "user@bitwarden.com",
+                id: "c8aa1e36-4427-11ee-be56-0242ac120002",
+                key: "key",
+                organizations: [],
+                privateKey: "private key",
+                securityStamp: "stamp"
+            )
+        )
+        XCTAssertEqual(stateService.updateProfileUserId, "1")
+        XCTAssertEqual(stateService.usesKeyConnector["1"], false)
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.accountKeys, .fixtureFilled())
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key

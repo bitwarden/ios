@@ -131,6 +131,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
+            await loadDefaultUriMatchType()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -152,6 +153,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
             state.guidedTourViewState.currentIndex = 0
             state.guidedTourViewState.showGuidedTour = true
+        case .streamCipherDetails:
+            await streamCipherDetails()
         case .streamFolders:
             await streamFolders()
         }
@@ -165,6 +168,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
+        case .clearUrl:
+            state.url = nil
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case let .customField(action):
@@ -241,7 +246,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.uris[index].uri = newValue
         case let .uriTypeChanged(newValue, index):
             guard index < state.loginState.uris.count else { return }
-            state.loginState.uris[index].matchType = newValue
+            Task {
+                await confirmAndUpdateDefaultUriMatchType(newValue, index)
+            }
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
         }
@@ -490,6 +497,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Load the saved value in autofill settings for the default URI match type.
+    ///
+    private func loadDefaultUriMatchType() async {
+        state.loginState.defaultUriMatchTypeSettingsValue = await services.stateService.getDefaultUriMatchType()
+    }
+
     /// Checks the password currently stored in `state`.
     ///
     private func checkPassword() async {
@@ -694,6 +707,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
+    /// Stream the cipher details.
+    private func streamCipherDetails() async {
+        guard let cipherId = state.cipher.id else { return }
+        do {
+            for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
+                guard let cipherView else { continue }
+                state.update(from: cipherView)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
+
     /// Stream the list of folders.
     ///
     private func streamFolders() async {
@@ -726,6 +753,63 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         coordinator.showAlert(alert)
     }
 
+    /// Displays a warning for user to confirm if wants to update the ciphers's UriMatchType if necessary
+    ///
+    /// - Parameter newUriMatchType: The default URI match type.
+    ///
+    private func confirmAndUpdateDefaultUriMatchType(
+        _ newUriMatchType: DefaultableType<UriMatchType>,
+        _ index: Int
+    ) async {
+        switch newUriMatchType.customValue {
+        case .regularExpression:
+            coordinator.showAlert(
+                .confirmRegularExpressionMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.regEx
+                    )
+                }
+            )
+        case .startsWith:
+            coordinator.showAlert(
+                .confirmStartsWithMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.startsWith
+                    )
+                }
+            )
+        default:
+            await updateUriMatchType(
+                newUriMatchType: newUriMatchType,
+                index: index,
+                learnMoreLocalizedMatchType: nil
+            )
+        }
+    }
+
+    /// Updates the URI match type value for the uri.
+    ///
+    /// - Parameters:
+    ///   - updateUriMatchType: The new selected URI match type.
+    ///   - index: The index of the uri to update the URI Match type.
+    ///   - learnMoreLocalizedMatchType: The localized text to display on the learn more dialog.
+    ///
+    private func updateUriMatchType(
+        newUriMatchType: DefaultableType<UriMatchType>,
+        index: Int,
+        learnMoreLocalizedMatchType: String?
+    ) async {
+        state.loginState.uris[index].matchType = newUriMatchType
+
+        if let learnMoreText = learnMoreLocalizedMatchType, !learnMoreText.isEmpty {
+            showLearnMoreAlert(learnMoreText)
+        }
+    }
+
     /// Updates the item currently in `state`.
     ///
     private func updateItem(cipherView: CipherView) async throws {
@@ -752,6 +836,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
+    }
+
+    /// Shows an alert asking the user if he wants to know more about Uri Matching
+    private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
+        coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
+            self.state.url = ExternalLinksConstants.uriMatchDetections
+        })
     }
 }
 

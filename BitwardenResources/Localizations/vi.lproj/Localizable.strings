@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "Khi sử dụng xác minh 2 bước, bạn sẽ nhập tên người dùng và mật khẩu của mình cũng như mã được tạo trong ứng dụng này.";
 "YesSetDefault" = "Đúng, đặt mặc định";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Bạn có thể cập nhật cài đặt mặc định bất cứ lúc nào trong phần cài đặt.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Phát hiện khớp URI kiểm soát cách Bitwarden xác định gợi ý tự động điền.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Bắt đầu với\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Biểu thức chính quy\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập nếu sử dụng không đúng cách.";
+"StartsWithAdvanced" = "Bắt đầu với (nâng cao)";
+"RegularExpressionAdvanced" = "Biểu thức chính quy (nâng cao)";
+"AreYouSureYouWantToUseX" = "Bạn có chắc chắn muốn sử dụng “%1$@” không?";
+"KeepYourCredentialsSecure" = "Giữ thông tin xác thực của bạn an toàn";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Tìm hiểu thêm về cách giữ thông tin xác thực an toàn khi sử dụng “%1$@”.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Cảnh báo:** \"Bắt đầu với\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Cảnh báo:** \"Biểu thức chính quy\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập nếu sử dụng không đúng cách.";
+"DefaultX" = "Mặc định (%1$@)";

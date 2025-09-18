@@ -604,6 +604,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: registrationKeys.privateKey,
                 encryptedUserKey: nil
             )
@@ -802,6 +803,8 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
+        let accountKeys = try await stateService.getAccountEncryptionKeys()
+        let accountPrivateKeys = accountKeys.accountKeys
         let email = account.profile.email
         let kdf = account.kdf
         let requestUserKey: String
@@ -812,7 +815,6 @@ extension DefaultAuthRepository: AuthRepository {
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
             let passwordResult = try await clientService.crypto().updatePassword(newPassword: password)
-            let accountKeys = try await stateService.getAccountEncryptionKeys()
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
@@ -848,6 +850,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            accountKeys: accountPrivateKeys,
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: requestUserKey
         ))
@@ -876,10 +879,9 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
-        let pinKey = try await clientService.crypto().derivePinKey(pin: pin)
+        let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
         try await stateService.setPinKeys(
-            encryptedPin: pinKey.encryptedPin,
-            pinProtectedUserKey: pinKey.pinProtectedUserKey,
+            enrollPinResponse: enrollPinResponse,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
     }
@@ -978,10 +980,22 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
-            throw StateServiceError.noPinProtectedUserKey
+        if let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
+            try await unlockVault(
+                method: .pinEnvelope(
+                    pin: pin,
+                    pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope
+                )
+            )
+        } else {
+            // This is needed to support unlocking with a legacy pin protected user key. Once the
+            // vault is unlocked, the user's pin protected user key is migrated to a pin protected
+            // user key envelope.
+            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+                throw StateServiceError.noPinProtectedUserKey
+            }
+            try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
         }
-        try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }
 
     func validatePassword(_ password: String) async throws -> Bool {
@@ -1084,15 +1098,9 @@ extension DefaultAuthRepository: AuthRepository {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
 
         try await clientService.crypto().initializeUserCrypto(
-            req: InitUserCryptoRequest(
-                userId: account.profile.userId,
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                signingKey: nil,
-                securityState: nil,
-                method: method
-            )
+            account: account,
+            encryptionKeys: encryptionKeys,
+            method: method
         )
 
         switch method {
@@ -1108,7 +1116,8 @@ extension DefaultAuthRepository: AuthRepository {
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
-             .pin:
+             .pin,
+             .pinEnvelope:
             // No-op: nothing extra to do.
             break
         }
@@ -1146,6 +1155,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let newEncryptionKeys = AccountEncryptionKeys(
+            accountKeys: encryptionKeys.accountKeys,
             encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
             encryptedUserKey: updatePasswordResponse.newKey
         )
@@ -1196,16 +1206,26 @@ extension DefaultAuthRepository: AuthRepository {
              .deviceKey,
              .keyConnector,
              .pin:
-            break
+            // If the user has a legacy pin, migrate to a pin protected user key envelope.
+            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
+            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
+                encryptedPin: encryptedPin
+            )
+            try await stateService.setPinKeys(
+                enrollPinResponse: enrollPinResponse,
+                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
+            )
         case .decryptedKey,
              .password:
             // If the user has a pin, but requires master password after restart, set the pin
             // protected user key in memory for future unlocks prior to app restart.
             guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
-            let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
+            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
                 encryptedPin: encryptedPin
             )
-            try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+            try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
+        case .pinEnvelope:
+            break
         }
     }
 }

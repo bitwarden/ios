@@ -4,6 +4,7 @@ import Foundation
 
 extension ProfileResponseModel {
     static func fixture(
+        accountKeys: PrivateKeysResponseModel? = nil,
         avatarColor: String? = nil,
         creationDate: Date? = nil,
         culture: String? = nil,
@@ -23,6 +24,7 @@ extension ProfileResponseModel {
         usesKeyConnector: Bool = false
     ) -> ProfileResponseModel {
         self.init(
+            accountKeys: accountKeys,
             avatarColor: avatarColor,
             creationDate: creationDate,
             culture: culture,

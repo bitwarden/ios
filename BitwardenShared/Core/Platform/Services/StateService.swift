@@ -407,10 +407,27 @@ protocol StateService: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The user's pin protected user key.
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key envelope.
+    /// - Returns: The user's pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String?
+
+    /// Whether pin unlock requires the user to enter their master password or use biometrics after
+    /// an app restart.
+    ///
+    /// - Returns: Whether pin unlock the user to enter their master password or use biometrics
+    ///     after an app restart.
+    ///
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool
 
     /// Sets the account encryption keys for an account.
     ///
@@ -630,13 +647,11 @@ protocol StateService: AnyObject {
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - encryptedPin: The user's encrypted pin.
-    ///   - pinProtectedUserKey: The user's pin protected user key.
+    ///   - enrollPinResponse: The user's pin keys from enrolling a pin.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
+        enrollPinResponse: EnrollPinResponse,
         requirePasswordAfterRestart: Bool
     ) async throws
 
@@ -1101,6 +1116,14 @@ extension StateService {
         try await pinProtectedUserKey(userId: nil)
     }
 
+    /// The pin protected user key envelope.
+    ///
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope() async throws -> String? {
+        try await pinProtectedUserKeyEnvelope(userId: nil)
+    }
+
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameter encryptionKeys: The account encryption keys.
@@ -1443,6 +1466,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -1497,6 +1521,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
+            accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
@@ -1783,6 +1808,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
@@ -1798,8 +1824,22 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        let key = accountVolatileData[userId]?.pinProtectedUserKey
+            ?? appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+        return key
+    }
+
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId) == nil
+            && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
@@ -1966,16 +2006,22 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     }
 
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
+        enrollPinResponse: EnrollPinResponse,
         requirePasswordAfterRestart: Bool
     ) async throws {
+        let userId = try getActiveAccountUserId()
         if requirePasswordAfterRestart {
-            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+            try await setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
         } else {
-            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+            appSettingsStore.setPinProtectedUserKeyEnvelope(
+                key: enrollPinResponse.pinProtectedUserKeyEnvelope,
+                userId: userId
+            )
         }
-        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
+        appSettingsStore.setEncryptedPin(enrollPinResponse.userKeyEncryptedPin, userId: userId)
+
+        // Remove any legacy pin protected user keys.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
 
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {

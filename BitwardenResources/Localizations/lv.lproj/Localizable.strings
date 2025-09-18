@@ -1278,3 +1278,14 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI atbilstības noteikšana ietekmē, kā Bitwarden atpazīst automātiskās aizpildes ieteikumus.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Regulārā izteiksme” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
+"StartsWithAdvanced" = "Sākas ar (lietpratējiem)";
+"RegularExpressionAdvanced" = "Regulārā izteiksme (lietpratējiem)";
+"AreYouSureYouWantToUseX" = "Vai tiešām izmantot “%1$@”?";
+"KeepYourCredentialsSecure" = "Turi savus pieteikšanās datus drošībā";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Uzzini vairāk par to, kā turēt pieteikšanās datus drošībā, kad izmanto “%1$@”!";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Brīdinājums:** “Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Brīdinājums:** “Regulārā izteiksme” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
+"DefaultX" = "Noklusējums (%1$@)";

@@ -201,6 +201,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.ciphersForSearch = []
             state.showNoResults = false
             state.profileSwitcherState.isVisible = false
+            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -472,6 +473,10 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -483,6 +488,10 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
 
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }
 

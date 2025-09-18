@@ -229,4 +229,21 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             ]
         )
     }
+
+    /// `handleProfileSwitcherEffect(.refreshAccountProfiles)` refreshes the profile state.
+    @MainActor
+    func test_handleProfileSwitcherEffect_refreshAccountProfiles() async throws {
+        let state = ProfileSwitcherState(
+            accounts: [ProfileSwitcherItem.fixtureUnlocked],
+            activeAccountId: nil,
+            allowLockAndLogout: true,
+            isVisible: false
+        )
+        authRepository.profileSwitcherState = state
+        subject.profileSwitcherState = .empty()
+
+        await subject.handleProfileSwitcherEffect(.refreshAccountProfiles)
+
+        XCTAssertEqual(subject.profileSwitcherState, state)
+    }
 }

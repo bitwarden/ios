@@ -2,16 +2,6 @@ import BitwardenKit
 import Foundation
 
 extension URL {
-    // MARK: Private Properties
-
-    /// A regular expression that matches IP addresses.
-    private var ipRegex: String {
-        "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-    }
-
     // MARK: Properties
 
     /// If the URL is for an app using the Bitwarden `iosapp://` URL scheme, this returns the web
@@ -24,8 +14,7 @@ extension URL {
 
     /// Returns the URL's domain constructed from the top-level and second-level domain.
     var domain: String? {
-        let isIpAddress = host?.range(of: ipRegex, options: .regularExpression) != nil
-        if host == "localhost" || isIpAddress {
+        if host == "localhost" || isIPAddress {
             return host
         }
         return DomainName.parseBaseDomain(url: self) ?? host

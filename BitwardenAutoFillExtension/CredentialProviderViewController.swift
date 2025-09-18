@@ -166,7 +166,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             }
         }
     }
-    
+
     /// Sets up and initializes the app without user interaction.
     /// - Parameter context: The context that describes how the extension is being used.
     private func initializeAppWithoutUserInteraction(
