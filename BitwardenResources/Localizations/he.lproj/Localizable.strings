@@ -1280,6 +1280,9 @@
 "WhenUsingTwoStepVerification" = "בעת שימוש באימות דו־שלבי, אתה תזין את שם המשתמש והסיסמה שלך וקוד שנוצר ביישום זה.";
 "YesSetDefault" = "כן, הגדר ברירת מחדל";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "באפשרותך לעדכן את ברירת המחדל שלך בכל עת בהגדרות.";
+"SelectAccount" = "בחר חשבון";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "חשבונות";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "זיהוי התאמת URI שולט באופן שבו Bitwarden מזהה הצעות למילוי אוטומטי.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "”מתחיל עם\\” היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "”ביטוי רגולרי\\” הוא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים אם נעשה בו שימוש לא נכון.";

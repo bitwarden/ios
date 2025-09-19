@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Atlasīt kontu";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Konti";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI atbilstības noteikšana ietekmē, kā Bitwarden atpazīst automātiskās aizpildes ieteikumus.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Regulārā izteiksme” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";

@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "A kétlépcsős ellenőrzés használatakor megadjuk felhasználónevet és jelszót, valamint az alkalmazásban generált kódot.";
 "YesSetDefault" = "Igen, beállítás alapértelmezettként";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "A beállításokban bármikor frissíthetjük az alapértelmezést.";
+"SelectAccount" = "Fiók kiválasztása";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Fiókok";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Az URI egyezés észlelése az, ahogyan a Bitwarden azonosítja az automatikus kitöltési javaslatokat.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A “Kezdés:” egy fejlett opció, amely növeli a hitelesítő adatok felfedésének kockázatát.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“A reguláris kifejezés” egy fejlett opció, amely megnöveli a hitelesítő adatok felfedésének kockázatát, ha helytelenül használják.";

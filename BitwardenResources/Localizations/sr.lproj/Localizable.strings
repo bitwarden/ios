@@ -1279,6 +1279,9 @@
 "WhenUsingTwoStepVerification" = "Када користите верификацију у 2 корака, унећете своје корисничко име и лозинку и кôд генерисан у овој апликацији.";
 "YesSetDefault" = "Да, постави подразумевано";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Подразумеване вредности можете променити у било ком тренутку у подешавањима.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";
