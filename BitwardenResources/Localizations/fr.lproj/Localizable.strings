@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Lorsque vous utilisez une vérification en 2 étapes, vous saisirez votre nom d'utilisateur et votre mot de passe ainsi qu'un code généré dans cette application.";
 "YesSetDefault" = "Oui, définir par défaut";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Vous pouvez mettre à jour votre valeur par défaut à tout moment dans les paramètres.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

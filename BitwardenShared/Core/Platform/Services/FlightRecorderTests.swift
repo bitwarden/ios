@@ -276,8 +276,10 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             Bitwarden iOS Flight Recorder
             Log Start: 2025-01-01T00:00:00Z
             Log Duration: 24h
-            Version: 1.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
             User ID: n/a
 
 

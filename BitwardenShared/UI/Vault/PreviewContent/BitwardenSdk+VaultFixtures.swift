@@ -27,6 +27,7 @@ extension AttachmentView {
 
 extension Cipher {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
@@ -80,7 +81,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 }
@@ -106,6 +108,7 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil
     ) -> CipherListView {
@@ -129,6 +132,7 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData
         )
@@ -154,6 +158,7 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil
     ) -> CipherListView {
@@ -177,6 +182,7 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData
         )
@@ -185,6 +191,7 @@ extension CipherListView {
 
 extension CipherView {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
@@ -238,11 +245,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
     static func cardFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView = CardView.fixture(),
         collectionIds: [String] = [],
@@ -291,11 +300,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
     static func loginFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -344,7 +355,8 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 

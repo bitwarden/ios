@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "2 addımlı doğrulamanı istifadə edərkən istifadəçi adınızı, parolunuzu və bu tətbiqdə yaradılan kodu daxil edəcəksiniz.";
 "YesSetDefault" = "Bəli, ilkin olaraq ayarla";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "İlkin dəyərləri istənilən vaxt ayarlarda güncəlləyə bilərsiniz.";
+"SelectAccount" = "Hesab seç";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Hesablar";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI uyuşma aşkarlaması, Bitwarden-in avto-doldurma təkliflərini necə müəyyən etdiyini göstərir.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"\\İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Müntəzəm ifadə\\\", yanlış istifadə edilərsə, kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";

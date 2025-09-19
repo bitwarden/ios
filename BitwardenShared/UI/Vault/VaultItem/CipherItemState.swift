@@ -587,7 +587,8 @@ extension CipherItemState {
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,
-            revisionDate: creationDate
+            revisionDate: creationDate,
+            archivedDate: nil
         )
     }
 } // swiftlint:disable:this file_length

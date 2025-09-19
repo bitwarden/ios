@@ -2,6 +2,7 @@ import TestHelpers
 
 extension APITestData {
     static let cipherResponse = loadFromJsonBundle(resource: "cipherResponse")
+    static let deleteAttachment = loadFromJsonBundle(resource: "deleteAttachment")
     static let downloadAttachment = loadFromJsonBundle(resource: "downloadAttachment")
     static let folderResponse = loadFromJsonBundle(resource: "folderResponse")
     static let saveAttachment = loadFromJsonBundle(resource: "saveAttachment")

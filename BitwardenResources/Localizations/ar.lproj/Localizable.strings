@@ -1279,6 +1279,9 @@
 "WhenUsingTwoStepVerification" = "عند استخدام التحقق بخطوتين، ستدخل اسم المستخدم وكلمة المرور الخاصة بك وكلمة المرور التي أنشئت في هذا التطبيق.";
 "YesSetDefault" = "نعم، تعيينه افتراضيا";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "يمكنك تحديث الافتراضي الخاص بك في أي وقت في الإعدادات.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

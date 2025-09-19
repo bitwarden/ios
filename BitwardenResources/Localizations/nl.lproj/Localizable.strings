@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Als je tweestapsverificatie gebruikt, voer je je gebruikersnaam en wachtwoord in en een code die in deze app wordt gegenereerd.";
 "YesSetDefault" = "Ja, standaard instellen";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Je kunt je standaardinstellingen op elk moment bijwerken in de instellingen.";
+"SelectAccount" = "Account selecteren";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI-matche-detectie bepaalt hoe Bitwarden invulsuggesties herkent.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Begint met\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Reguliere expressie\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens als je het verkeerd gebruikt.";

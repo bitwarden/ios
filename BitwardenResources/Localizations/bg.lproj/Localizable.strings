@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Когато използвате двустепенно удостоверяване, ще въвеждате потребителско име и парола, както и код, създаден от това приложение.";
 "YesSetDefault" = "Да, нека бъде стандартна настройка";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Можете да промените стандартната настройка по всяко време в настройките.";
+"SelectAccount" = "Изберете акаунт";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Акаунти";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Разпознаването на съвпадения чрез адреса задава начина, по който Битуорден определя кои елементи да предложи за автоматично попълване.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Започва с“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Регулярен израз“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване, ако се използва неправилно.";
