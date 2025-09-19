@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Quando si utilizza la verifica in 2 passaggi, inserirai nome utente e password e un codice generato in questa app.";
 "YesSetDefault" = "Sì, imposta predefinito";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "È possibile aggiornare il valore predefinito in qualsiasi momento nelle impostazioni.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Inizia con' è un'opzione avanzata con un rischio maggiore di esporre le credenziali.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Espressione regolare' è un'opzione avanzata con un rischio maggiore di esporre le credenziali se usato senza cognizione di causa.";

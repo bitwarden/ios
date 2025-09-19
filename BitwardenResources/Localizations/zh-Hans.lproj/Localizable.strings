@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "当使用两步验证时，您需要输入您的用户名和密码以及在此 App 中生成的代码。";
 "YesSetDefault" = "是的，设置为默认";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "您可以随时在设置中更新您的默认设置。";
+"SelectAccount" = "选择账户";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "账户";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI 匹配检测控制 Bitwarden 如何识别自动填充建议。";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「开始于\\」是一种高级选项，会增加暴露凭据的风险。";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「正则表达方式\\」是一种高级选项，若使用不当，会增加暴露凭据的风险。";

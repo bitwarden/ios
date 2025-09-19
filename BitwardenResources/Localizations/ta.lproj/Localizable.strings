@@ -1279,6 +1279,9 @@
 "WhenUsingTwoStepVerification" = "2-படி சரிபார்ப்பைப் பயன்படுத்தும்போது, உங்கள் பயனர்பெயர், கடவுச்சொல் மற்றும் இந்தப் பயன்பாட்டில் உருவாக்கப்பட்ட குறியீடு ஆகியவற்றை நீங்கள் உள்ளிடுவீர்கள்.";
 "YesSetDefault" = "ஆம், இயல்புநிலையை அமை";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "நீங்கள் அமைப்புகளில் எப்போது வேண்டுமானாலும் உங்கள் இயல்புநிலையைப் புதுப்பிக்கலாம்.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "பிட்வார்டன் தன்னியக்க நிரப்பு பரிந்துரைகளை எவ்வாறு அடையாளம் காட்டுகிறது என்பதை URI பொருத்தக் கண்டறிதல் கட்டுப்படுத்துகிறது.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"தொடங்குகிறது\\\" என்பது சான்றுகளை வெளிப்படுத்தும் அபாயத்தை அதிகரிக்கும் ஒரு மேம்பட்ட விருப்பமாகும்.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"ரெகுலர் எக்ஸ்பிரஷன்\\” என்பது ஒரு மேம்பட்ட விருப்பமாகும், இது தவறாகப் பயன்படுத்தினால் சான்றுகளை வெளிப்படுத்தும் அபாயத்தை அதிகரிக்கிறது.";
