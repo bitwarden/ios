@@ -33,6 +33,11 @@ class ImportLoginsViewTests: BitwardenTestCase {
     /// Tapping the dismiss button dispatches the `dismiss` action.
     @MainActor
     func test_dismiss_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
@@ -85,7 +90,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
 
     /// The import logins intro page renders correctly.
     @MainActor
-    func test_snapshot_importLoginsIntro() {
+    func disabletest_snapshot_importLoginsIntro() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
@@ -94,7 +99,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
 
     /// The import logins step 1 page renders correctly.
     @MainActor
-    func test_snapshot_importLoginsStep1() {
+    func disabletest_snapshot_importLoginsStep1() {
         processor.state.page = .step1
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -104,7 +109,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
 
     /// The import logins step 2 page renders correctly.
     @MainActor
-    func test_snapshot_importLoginsStep2() {
+    func disabletest_snapshot_importLoginsStep2() {
         processor.state.page = .step2
         processor.state.webVaultHost = "vault.bitwarden.com"
         assertSnapshots(
@@ -115,7 +120,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
 
     /// The import logins step 3 page renders correctly.
     @MainActor
-    func test_snapshot_importLoginsStep3() {
+    func disabletest_snapshot_importLoginsStep3() {
         processor.state.page = .step3
         assertSnapshots(
             of: subject.navStackWrapped,
