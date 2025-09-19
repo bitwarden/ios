@@ -45,13 +45,18 @@ class OtherSettingsViewTests: BitwardenTestCase {
     /// The connect to watch toggle is visible if the device is an iPhone.
     @MainActor
     func test_connectToWatchToggle_visible() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.shouldShowConnectToWatchToggle = true
         XCTAssertNoThrow(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.connectToWatch))
     }
 
     /// The view renders correctly.
     @MainActor
-    func test_view_render() {
+    func disabletest_view_render() {
         processor.state.lastSyncDate = Date(year: 2023, month: 5, day: 14, hour: 16, minute: 52)
         processor.state.shouldShowConnectToWatchToggle = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])

@@ -29,6 +29,11 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// The processor gets the action when the private key visibility toggle is pressed.
     @MainActor
     func test_privateKeyVisibilityToggle_pressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "PrivateKeyVisibilityToggle").button()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .privateKeyVisibilityPressed)
@@ -37,6 +42,11 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// The processor gets the action when copying the private key.
     @MainActor
     func test_copyPrivateKeyButton_pressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton").button()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "privateKey", field: .sshPrivateKey))
@@ -67,6 +77,11 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// The processor gets the action when copying the public key.
     @MainActor
     func test_copyPublicKeyButton_pressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPublicKeyButton").button()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "publicKey", field: .sshPublicKey))
@@ -75,6 +90,11 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// The processor gets the action when copying the key fingerprint.
     @MainActor
     func test_copyKeyFingerprintButton_pressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyFingerprintButton").button()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "fingerprint", field: .sshKeyFingerprint))
@@ -83,6 +103,11 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// Copy buttons are not shown when `showCopyButtons` is `false`.
     @MainActor
     func test_copy_notShown() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         initSubject(canViewPrivateKey: true, showCopyButtons: false)
 
         XCTAssertThrowsError(

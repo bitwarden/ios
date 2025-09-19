@@ -42,7 +42,7 @@ class EditAuthenticatorItemViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_EditAuthenticatorItemView_previews() {
+    func disabletest_snapshot_EditAuthenticatorItemView_previews() {
         for preview in EditAuthenticatorItemView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

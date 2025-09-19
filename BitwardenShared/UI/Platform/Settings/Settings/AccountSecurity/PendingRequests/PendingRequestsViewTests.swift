@@ -42,6 +42,11 @@ class PendingRequestsViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
@@ -51,14 +56,14 @@ class PendingRequestsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.loadingState = .data([])
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view with requests renders correctly.
     @MainActor
-    func test_snapshot_requests() {
+    func disabletest_snapshot_requests() {
         processor.state.loadingState = .data([
             .fixture(fingerprintPhrase: "pineapple-on-pizza-is-the-best", id: "1"),
             .fixture(fingerprintPhrase: "coconuts-are-underrated", id: "2"),

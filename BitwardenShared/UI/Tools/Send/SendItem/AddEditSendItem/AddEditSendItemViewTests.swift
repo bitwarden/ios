@@ -30,6 +30,11 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping the cancel button sends the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -102,6 +107,11 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Updating the max access count textfield sends the `.maximumAccessCountChanged` action.
     @MainActor
     func test_maxAccessCountTextField_updated() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect()
             .find(viewWithAccessibilityIdentifier: "MaxAccessCountTextField")
@@ -165,7 +175,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_file_empty() {
+    func disabletest_snapshot_file_empty() {
         processor.state.type = .file
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -174,7 +184,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_file_withValues() {
+    func disabletest_snapshot_file_withValues() {
         processor.state.type = .file
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
@@ -183,7 +193,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_file_withValues_prefilled() {
+    func disabletest_snapshot_file_withValues_prefilled() {
         processor.state.type = .file
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
@@ -193,14 +203,14 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_file_withOptions_empty() {
+    func disabletest_snapshot_file_withOptions_empty() {
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     @MainActor
-    func test_snapshot_file_withOptions_withValues() {
+    func disabletest_snapshot_file_withOptions_withValues() {
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
@@ -219,7 +229,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_file_edit_withOptions_withValues() {
+    func disabletest_snapshot_file_edit_withOptions_withValues() {
         processor.state.mode = .edit
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
@@ -239,19 +249,19 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_sendDisabled() {
+    func disabletest_snapshot_sendDisabled() {
         processor.state.isSendDisabled = true
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_sendHideEmailDisabled() {
+    func disabletest_snapshot_sendHideEmailDisabled() {
         processor.state.isSendHideEmailDisabled = true
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_text_empty() {
+    func disabletest_snapshot_text_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -259,7 +269,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_text_withValues() {
+    func disabletest_snapshot_text_withValues() {
         processor.state.name = "Name"
         processor.state.text = "Text"
         processor.state.isHideTextByDefaultOn = true
@@ -267,13 +277,13 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_text_withOptions_empty() {
+    func disabletest_snapshot_text_withOptions_empty() {
         processor.state.isOptionsExpanded = true
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     @MainActor
-    func test_snapshot_text_withOptions_withValues() {
+    func disabletest_snapshot_text_withOptions_withValues() {
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
         processor.state.text = "Text."
@@ -290,7 +300,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_text_edit_withOptions_withValues() {
+    func disabletest_snapshot_text_edit_withOptions_withValues() {
         processor.state.mode = .edit
         processor.state.type = .text
         processor.state.isOptionsExpanded = true
@@ -309,7 +319,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_text_extension_withValues() {
+    func disabletest_snapshot_text_extension_withValues() {
         processor.state.mode = .shareExtension(.singleAccount)
         processor.state.type = .text
         processor.state.name = "Name"

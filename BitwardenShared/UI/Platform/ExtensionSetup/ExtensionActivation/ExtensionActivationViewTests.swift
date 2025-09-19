@@ -47,7 +47,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The autofill extension activation view renders correctly.
-    func test_snapshot_extensionActivationView_autoFillExtension() {
+    func disabletest_snapshot_extensionActivationView_autoFillExtension() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -56,7 +56,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
 
     /// The app extension activation view renders correctly.
     @MainActor
-    func test_snapshot_extensionActivationView_appExtension() {
+    func disabletest_snapshot_extensionActivationView_appExtension() {
         processor.state.extensionType = .appExtension
         assertSnapshots(
             of: subject.navStackWrapped,

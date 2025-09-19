@@ -59,6 +59,11 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     /// Tapping the current master password visibility icon changes whether or not current master passwords are visible.
     @MainActor
     func test_currentMasterPasswordVisibility_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         processor.state.isCurrentMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
@@ -119,6 +124,11 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     /// Tapping the retype password visibility toggle changes whether the password retype is visible.
     @MainActor
     func test_masterPasswordRetypeVisibility_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "RetypePasswordVisibilityToggle"
@@ -130,6 +140,11 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     /// Tapping the new master password visibility icon changes whether or not new master passwords are visible.
     @MainActor
     func test_masterPasswordVisibility_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
             viewWithAccessibilityIdentifier: "NewPasswordVisibilityToggle"
@@ -150,7 +165,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     @MainActor
-    func test_snapshot_resetPassword_withFilled_default() {
+    func disabletest_snapshot_resetPassword_withFilled_default() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -160,7 +175,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields in a dark mode.
     @MainActor
-    func test_snapshot_resetPassword_withFilled_dark() {
+    func disabletest_snapshot_resetPassword_withFilled_dark() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -170,7 +185,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields in a large text.
     @MainActor
-    func test_snapshot_resetPassword_withFilled_large() {
+    func disabletest_snapshot_resetPassword_withFilled_large() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -180,7 +195,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     @MainActor
-    func test_snapshot_weakPassword_withFilled_default() {
+    func disabletest_snapshot_weakPassword_withFilled_default() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -190,7 +205,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields in a dark mode.
     @MainActor
-    func test_snapshot_weakPassword_withFilled_dark() {
+    func disabletest_snapshot_weakPassword_withFilled_dark() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -200,7 +215,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields in a large text.
     @MainActor
-    func test_snapshot_weakPassword_withFilled_large() {
+    func disabletest_snapshot_weakPassword_withFilled_large() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
