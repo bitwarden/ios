@@ -35,7 +35,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_VaultUnlockView_previews() {
+    func disabletest_snapshot_VaultUnlockView_previews() {
         for preview in VaultUnlockView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

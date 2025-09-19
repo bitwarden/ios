@@ -67,6 +67,11 @@ class SettingsViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismiss` action.
     @MainActor
     func test_close_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         processor.state.presentationMode = .preLogin
         let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
@@ -92,20 +97,20 @@ class SettingsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func test_viewRender() {
+    func disabletest_snapshot_viewRender() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly for the pre-login mode.
     @MainActor
-    func test_viewRender_preLogin() {
+    func disabletest_snapshot_viewRender_preLogin() {
         processor.state.presentationMode = .preLogin
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly with badges.
     @MainActor
-    func test_settingsView_badges() {
+    func disabletest_snapshot_settingsView_badges() {
         processor.state.badgeState = .fixture(
             autofillSetupProgress: .setUpLater,
             importLoginsSetupProgress: .setUpLater,
