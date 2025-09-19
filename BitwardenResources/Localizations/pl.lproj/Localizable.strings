@@ -746,7 +746,7 @@
 "PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Upewnij się, że sejf jest odblokowany, a identyfikator konta pasuje do drugiego urządzenia.";
 "ResendNotification" = "Wyślij ponownie powiadomienie";
 "NeedAnotherOption" = "Potrzebujesz innej opcji?";
-"ViewAllLoginOptions" = "Zobacz wszystkie sposoby logowania";
+"ViewAllLoginOptions" = "Pokaż wszystkie metody logowania";
 "ThisRequestIsNoLongerValid" = "Ta prośba nie jest już ważna";
 "PendingLogInRequests" = "Oczekujące prośby logowania";
 "DeclineAllRequests" = "Odrzuć wszystkie prośby";
@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Podczas korzystania z logowania dwustopniowego wpisz nazwę użytkownika, hasło oraz kod wygenerowany w tej aplikacji.";
 "YesSetDefault" = "Tak, ustaw domyślne";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Możesz zaktualizować domyślne ustawienia w dowolnym momencie.";
+"SelectAccount" = "Wybierz konto";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Konta";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Wykrywanie dopasowania to sposób, w jaki Bitwarden identyfikuje sugestie autouzupełniania.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Rozpoczyna się od” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
