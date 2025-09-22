@@ -16,6 +16,11 @@ public class AppProcessor {
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
+    /// The number of notifications configured being listened to on publishers.
+    /// This is useful in tests to avoid race-conditions where the tasks to subscribe to the publishers
+    /// start late and the notification sent gets missed from there.
+    var notificationsListeningCount: Int = 0
+
     /// The services used by the app.
     let services: ServiceContainer
 
@@ -38,6 +43,7 @@ public class AppProcessor {
         UI.applyDefaultAppearances()
 
         Task {
+            notificationsListeningCount += 1
             for await _ in services.notificationCenterService.willEnterForegroundPublisher().values {
                 let userId = await services.stateService.getActiveAccountId()
 
@@ -48,6 +54,7 @@ public class AppProcessor {
         }
 
         Task {
+            notificationsListeningCount += 1
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher().values {
                 let userId = await services.stateService.getActiveAccountId()
                 services.appSettingsStore.setLastActiveTime(.now, userId: userId)
