@@ -78,8 +78,6 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
 
     /// Starts the import process.
     private func startImport() async {
-        #if SUPPORTS_CXP
-
         guard #available(iOS 26.0, *), let credentialImportToken = state.credentialImportToken else {
             coordinator.showAlert(
                 .defaultAlert(
@@ -110,8 +108,6 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
             state.status = .failure(message: Localizations.thereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted)
             services.errorReporter.log(error: error)
         }
-
-        #endif
     }
 
     /// Shows the alert confirming the user wants to import logins later.
