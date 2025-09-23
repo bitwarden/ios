@@ -48,12 +48,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -125,16 +120,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
         )!
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -277,6 +267,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
     @MainActor
     func test_saveButton_tapAdd() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
@@ -286,6 +281,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
     @MainActor
     func test_saveButton_tapEdit() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()

@@ -76,11 +76,6 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.
     @MainActor
     func test_addItemMenuEmptyState_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state.loadingState = .data([])
         processor.state.group = .folder(id: "1", name: "Folder")
         let button = try subject.inspect()
