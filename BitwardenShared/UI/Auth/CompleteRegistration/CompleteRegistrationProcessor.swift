@@ -234,6 +234,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
+            try await services.authService.createDevicePasskey(masterPasswordHash: services.authService.hashPassword(password: state.passwordText, purpose: .serverAuthorization))
 
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)

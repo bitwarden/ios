@@ -32,6 +32,7 @@ extension Cipher {
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
+        archivedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
         fields: [Field]? = nil,
@@ -80,7 +81,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 }
@@ -106,6 +108,7 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil
     ) -> CipherListView {
@@ -129,6 +132,7 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData
         )
@@ -154,6 +158,7 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil
     ) -> CipherListView {
@@ -177,6 +182,7 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData
         )
@@ -190,6 +196,7 @@ extension CipherView {
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
+        archivedDate: DateTime? = nil,
         edit: Bool = true,
         favorite: Bool = false,
         fields: [FieldView]? = nil,
@@ -238,7 +245,8 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
@@ -263,6 +271,7 @@ extension CipherView {
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         viewPassword: Bool = true
     ) -> CipherView {
         CipherView(
@@ -291,7 +300,8 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
@@ -316,6 +326,7 @@ extension CipherView {
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         viewPassword: Bool = true
     ) -> CipherView {
         CipherView(
@@ -344,7 +355,8 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 

@@ -1,30 +1,30 @@
-import Networking
 import Foundation
+import Networking
 
-struct WebAuthnLoginCredentialCreateOptionsResponse: JSONResponse, Equatable, Sendable {
-  /// Options to be provided to the webauthn authenticator.
-  let options: PublicKeyCredentialCreationOptions;
+struct WebAuthnLoginCredentialCreationOptionsResponse: JSONResponse, Equatable, Sendable {
+    /// Options to be provided to the webauthn authenticator.
+    let options: PublicKeyCredentialCreationOptions;
 
-  /// Contains an encrypted version of the {@link options}.
-  /// Used by the server to validate the attestation response of newly created credentials.
-  let token: String;
+    /// Contains an encrypted version of the {@link options}.
+    /// Used by the server to validate the attestation response of newly created credentials.
+    let token: String;
 }
 
 struct PublicKeyCredentialCreationOptions: Codable, Equatable, Hashable {
     // attestation?: AttestationConveyancePreference
     // let authenticatorSelection: AuthenticatorSelectionCriteria?
     let challenge: String
-    let excludeCredentials: [PublicKeyCredentialDescriptor]?
+    let excludeCredentials: [BwPublicKeyCredentialDescriptor]?
     let extensions: AuthenticationExtensionsClientInputs?
-    let pubKeyCredParams: [PublicKeyCredentialParameters]
-    let rp: PublicKeyCredentialRpEntity
+    let pubKeyCredParams: [BwPublicKeyCredentialParameters]
+    let rp: BwPublicKeyCredentialRpEntity
     let timeout: Int?
-    let user: PublicKeyCredentialUserEntity
+    let user: BwPublicKeyCredentialUserEntity
 }
 
 
 struct AuthenticationExtensionsClientInputs: Codable, Equatable, Hashable {
-    let prf: AuthenticationExtensionsPRFInputs
+    let prf: AuthenticationExtensionsPRFInputs?
 }
 
 struct AuthenticationExtensionsPRFInputs: Codable, Equatable, Hashable {
@@ -37,23 +37,23 @@ struct AuthenticationExtensionsPRFValues: Codable, Equatable, Hashable {
     let second: String?
 }
 
-struct PublicKeyCredentialDescriptor: Codable, Equatable, Hashable {
+struct BwPublicKeyCredentialDescriptor: Codable, Equatable, Hashable {
     let type: String
     let id: String
     // let transports: [String]?
 }
 
-struct PublicKeyCredentialParameters: Codable, Equatable, Hashable {
+struct BwPublicKeyCredentialParameters: Codable, Equatable, Hashable {
     let type: String
     let alg: Int
 }
 
-struct PublicKeyCredentialRpEntity: Codable, Equatable, Hashable {
+struct BwPublicKeyCredentialRpEntity: Codable, Equatable, Hashable {
     let id: String
     let name: String
 }
 
-struct PublicKeyCredentialUserEntity: Codable, Equatable, Hashable {
+struct BwPublicKeyCredentialUserEntity: Codable, Equatable, Hashable {
     let id: String
     let name: String
 }

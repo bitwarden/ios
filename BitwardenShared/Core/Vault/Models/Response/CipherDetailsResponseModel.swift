@@ -21,6 +21,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
+    /// The date the cipher was archived.
+    let archivedDate: Date?
+
     /// Whether the cipher can be edited.
     let edit: Bool
 

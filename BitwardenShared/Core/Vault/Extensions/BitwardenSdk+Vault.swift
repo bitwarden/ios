@@ -66,6 +66,7 @@ extension CipherDetailsResponseModel {
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
+            archivedDate: cipher.archivedDate,
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -353,7 +354,8 @@ extension BitwardenSdk.Cipher {
             passwordHistory: model.passwordHistory?.map(PasswordHistory.init),
             creationDate: model.creationDate,
             deletedDate: model.deletedDate,
-            revisionDate: model.revisionDate
+            revisionDate: model.revisionDate,
+            archivedDate: model.archivedDate,
         )
     }
 }
@@ -432,7 +434,8 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             passwordHistory: nil,
             creationDate: timeProvider.presentTime,
             deletedDate: nil,
-            revisionDate: timeProvider.presentTime
+            revisionDate: timeProvider.presentTime,
+            archivedDate: nil,
         )
     }
 }

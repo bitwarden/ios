@@ -768,6 +768,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 cipherService: cipherService,
                 clientService: clientService,
                 errorReporter: errorReporter,
+                keychainRepository: keychainRepository,
+                stateService: stateService,
                 syncService: syncService
             )
         )
@@ -776,6 +778,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
             syncService: syncService
         )
         #endif
@@ -795,6 +799,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )
+        // HACK: To avoid a circular dependency, we're using late binding.
+        authService.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        authService.fido2CredentialStore = fido2CredentialStore
 
         let credentialManagerFactory = DefaultCredentialManagerFactory()
         let cxfCredentialsResultBuilder = DefaultCXFCredentialsResultBuilder()

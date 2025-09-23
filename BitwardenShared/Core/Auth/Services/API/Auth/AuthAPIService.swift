@@ -20,6 +20,16 @@ protocol AuthAPIService {
     /// - Returns: The pending login request.
     ///
     func checkPendingLoginRequest(withId id: String, accessCode: String) async throws -> LoginRequest
+    
+    /// Retrieves the parameters for creating a new WebAuthn credential.
+    ///  - Parameters:
+    ///    - request: The data needed to send the request.
+    func getCredentialCreationOptions(_ request: SecretVerificationRequestModel) async throws -> WebAuthnLoginCredentialCreationOptionsResponse
+    
+    /// Retrieves the parameters for authenticating with a WebAuthn credential.
+    ///  - Parameters:
+    ///    - request: The data needed to send the request.
+    func getCredentialAssertionOptions(_ request: SecretVerificationRequestModel) async throws -> WebAuthnLoginCredentialAssertionOptionsResponse
 
     /// Performs the identity token request and returns the response.
     ///
@@ -83,6 +93,8 @@ protocol AuthAPIService {
     ///   - model: The data needed to send the request.
     ///
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws
+    
+    func saveCredential(_ model: WebAuthnLoginSaveCredentialRequestModel) async throws
 }
 
 extension APIService: AuthAPIService {
@@ -92,6 +104,14 @@ extension APIService: AuthAPIService {
 
     func checkPendingLoginRequest(withId id: String, accessCode: String) async throws -> LoginRequest {
         try await apiUnauthenticatedService.send(CheckLoginRequestRequest(accessCode: accessCode, id: id))
+    }
+    
+    func getCredentialCreationOptions(_ request: SecretVerificationRequestModel) async throws -> WebAuthnLoginCredentialCreationOptionsResponse {
+        try await apiService.send(WebAuthnLoginGetCredentialCreationOptionsRequest(requestModel: request))
+    }
+    
+    func getCredentialAssertionOptions(_ request: SecretVerificationRequestModel) async throws -> WebAuthnLoginCredentialAssertionOptionsResponse {
+        try await apiService.send(WebAuthnLoginGetCredentialAssertionOptionsRequest(requestModel: request))
     }
 
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel {
@@ -133,6 +153,10 @@ extension APIService: AuthAPIService {
         _ = try await apiUnauthenticatedService.send(ResendNewDeviceOtpRequest(model: model))
     }
 
+    func saveCredential(_ model: WebAuthnLoginSaveCredentialRequestModel) async throws {
+        _ = try await apiService.send(WebAuthnLoginSaveCredentialRequest(requestModel: model))
+    }
+    
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws {
         _ = try await apiService.send(TrustedDeviceKeysRequest(deviceIdentifier: deviceIdentifier, requestModel: model))
     }
