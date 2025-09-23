@@ -63,6 +63,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastUserShouldConnectToWatch = false
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
+    var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -451,6 +452,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
         setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
         try setAccountHasBeenUnlockedInteractivelyResult.get()
+    }
+
+    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel, userId: String) async {
+        masterPasswordUnlockByUserId[userId] = masterPasswordUnlock
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
