@@ -5,7 +5,7 @@ import Networking
 
 /// The request body for an answer login request request.
 ///
-struct SaveCredentialRequestModel: JSONRequestBody, Equatable {
+struct WebAuthnLoginSaveCredentialRequestModel: JSONRequestBody, Equatable {
     static let encoder = JSONEncoder()
 
     // MARK: Properties
@@ -42,7 +42,7 @@ struct WebAuthnLoginAttestationResponseRequest: Encodable, Equatable {
 }
 
 struct WebAuthnLoginAttestationResponseRequestInner: Encodable, Equatable {
-    let attestation_object: String
-    let client_data_json: String
+    let attestationObject: String
+    let clientDataJson: String
     
 }

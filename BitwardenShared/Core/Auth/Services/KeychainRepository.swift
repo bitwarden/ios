@@ -27,6 +27,8 @@ enum KeychainItem: Equatable {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    case devicePasskey(userId: String)
+    
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
@@ -37,7 +39,8 @@ enum KeychainItem: Equatable {
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken:
+             .refreshToken,
+             .devicePasskey:
             nil
         case .biometrics:
             .biometryCurrentSet
@@ -56,6 +59,8 @@ enum KeychainItem: Equatable {
              .authenticatorVaultKey,
              .refreshToken:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        // TODO: These keys are not restored on backups, maybe this is a bad idea
+        case .devicePasskey: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
         }
     }
 
@@ -77,6 +82,8 @@ enum KeychainItem: Equatable {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .devicePasskey(userId: id):
+            "devicePasskey_\(id)"
         }
     }
 }
@@ -114,9 +121,14 @@ protocol KeychainRepository: AnyObject {
 
     /// Attempts to delete the pending admin login request from the keychain.
     ///
-    /// - Parameter userId: The user ID associated with the stored device key.
+    /// - Parameter userId: The user ID associated with the pending admin login request.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
+    
+    /// Attempts to delete the device passkey from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device passkey.
+    func deleteDevicePasskey(userId: String) async throws
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -152,7 +164,14 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The pending admin login request.
     ///
     func getPendingAdminLoginRequest(userId: String) async throws -> String?
-
+    
+    /// Gets the stored device passkey for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device passkey.
+    /// - Returns: The device key.
+    ///
+    func getDevicePasskey(userId: String) async throws -> String?
+    
     /// Gets a user auth key value.
     ///
     /// - Parameter item: The storage key of the user auth key.
@@ -199,6 +218,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user ID associated with the pending admin login request.
     ///
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws
+    
+    /// Sets the device passkey for a user ID.
+    ///
+    /// - Parameters:
+    ///   - value: The passkey to store
+    ///   - userId: The user ID associated with the device passkey.
+    ///
+    func setDevicePasskey(_ value: String, userId: String) async throws
 
     /// Sets a user auth key/value pair.
     ///
@@ -386,6 +413,7 @@ extension DefaultKeychainRepository {
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
             // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
+            // Exclude `devicePasskey` since it is used to log back into an account.
         ]
         for keychainItem in keychainItems {
             try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
@@ -409,6 +437,12 @@ extension DefaultKeychainRepository {
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId))
         )
     }
+    
+    func deleteDevicePasskey(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .devicePasskey(userId: userId))
+        )
+    }
 
     func getAccessToken(userId: String) async throws -> String {
         try await getValue(for: .accessToken(userId: userId))
@@ -430,6 +464,10 @@ extension DefaultKeychainRepository {
         try await getValue(for: .pendingAdminLoginRequest(userId: userId))
     }
 
+    func getDevicePasskey(userId: String) async throws -> String? {
+        try await getValue(for: .devicePasskey(userId: userId))
+    }
+    
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
         try await getValue(for: item)
     }
@@ -452,6 +490,10 @@ extension DefaultKeychainRepository {
 
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
         try await setValue(value, for: .pendingAdminLoginRequest(userId: userId))
+    }
+    
+    func setDevicePasskey(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .devicePasskey(userId: userId))
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {

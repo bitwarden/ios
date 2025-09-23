@@ -15,6 +15,10 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+    
+    private let keychainRepository: KeychainRepository
+    
+    private let stateService: StateService
 
     /// The service used to handle syncing vault data with the API
     private let syncService: SyncService
@@ -31,11 +35,15 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        keychainRepository: KeychainRepository,
+        stateService: StateService,
         syncService: SyncService
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.keychainRepository = keychainRepository
+        self.stateService = stateService
         self.syncService = syncService
     }
 
@@ -83,6 +91,32 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
                 continue
             }
 
+            result.append(cipherView)
+        }
+        // let webVaultRpId = services.environmentService.webVaultURL.domain
+        let webVaultRpId = "localhost"
+        if webVaultRpId == ripId {
+            let json = try await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId())
+            guard json != nil else {
+                print("Matched Bitwarden Web Vault rpID, but no device passkey found. Skipping")
+                return result
+            }
+            let decoder = JSONDecoder()
+            let record: DevicePasskeyRecord = try decoder.decode(DevicePasskeyRecord.self, from: json!.data(using: .utf8)!)
+            let cipherView = BitwardenSdk.CipherView(fido2CredentialNewView: Fido2CredentialNewView(
+                credentialId: record.credId,
+                keyType: "public-key",
+                keyAlgorithm: "ECDSA",
+                keyCurve: "P-256",
+                rpId: record.rpId,
+                userHandle: record.userId,
+                userName: record.userName,
+                counter: "0",
+                rpName: record.rpName,
+                userDisplayName: record.userDisplayName,
+                creationDate: record.creationDate,),
+                timeProvider: CurrentTime(),
+            )
             result.append(cipherView)
         }
         return result
