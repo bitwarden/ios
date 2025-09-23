@@ -34,18 +34,13 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
-        var button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
 
         // Again, with the edit form of the view.
         processor.state.mode = .edit(.fixture())
-        button = try subject.inspect().find(button: Localizations.cancel)
+        button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
@@ -73,6 +68,11 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the save button in add mode performs the `.saveTapped` effect.
     @MainActor
     func test_saveButton_tapAdd() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
@@ -82,6 +82,11 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the save button in edit mode performs the `.saveTapped` effect.
     @MainActor
     func test_saveButton_tapEdit() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         processor.state.mode = .edit(.fixture())
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()

@@ -33,12 +33,7 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismiss` action.
     @MainActor
     func test_closeButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
