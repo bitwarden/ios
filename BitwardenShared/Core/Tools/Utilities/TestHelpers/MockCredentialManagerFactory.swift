@@ -1,4 +1,3 @@
-#if SUPPORTS_CXP
 import AuthenticationServices
 import BitwardenSdk
 import TestHelpers
@@ -92,5 +91,3 @@ class MockCredentialImportManager: CredentialImportManager {
 }
 
 struct MockCredentialExportManagerExportOptions: CredentialExportManagerExportOptions {}
-
-#endif
