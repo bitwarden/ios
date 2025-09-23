@@ -12,9 +12,9 @@ class ClearClipboardValueTests: BitwardenTestCase {
         XCTAssertEqual(ClearClipboardValue.tenSeconds.localizedName, Localizations.tenSeconds)
         XCTAssertEqual(ClearClipboardValue.twentySeconds.localizedName, Localizations.twentySeconds)
         XCTAssertEqual(ClearClipboardValue.thirtySeconds.localizedName, Localizations.thirtySeconds)
-        XCTAssertEqual(ClearClipboardValue.oneMinute.localizedName, Localizations.oneMinute)
-        XCTAssertEqual(ClearClipboardValue.twoMinutes.localizedName, Localizations.twoMinutes)
-        XCTAssertEqual(ClearClipboardValue.fiveMinutes.localizedName, Localizations.fiveMinutes)
+        XCTAssertEqual(ClearClipboardValue.oneMinute.localizedName, Localizations.xMinutes(1))
+        XCTAssertEqual(ClearClipboardValue.twoMinutes.localizedName, Localizations.xMinutes(2))
+        XCTAssertEqual(ClearClipboardValue.fiveMinutes.localizedName, Localizations.xMinutes(5))
     }
 
     /// `rawValue` returns the correct values.
