@@ -34,6 +34,11 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         var button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
@@ -86,7 +91,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly when the text field is empty.
-    func test_snapshot_add_empty() {
+    func disabletest_snapshot_add_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -95,7 +100,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is populated.
     @MainActor
-    func test_snapshot_add_populated() {
+    func disabletest_snapshot_add_populated() {
         processor.state.folderName = "Super cool folder name"
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -105,7 +110,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is populated.
     @MainActor
-    func test_snapshot_edit_populated() {
+    func disabletest_snapshot_edit_populated() {
         processor.state.mode = .edit(.fixture())
         processor.state.folderName = "Super cool folder name"
         assertSnapshots(

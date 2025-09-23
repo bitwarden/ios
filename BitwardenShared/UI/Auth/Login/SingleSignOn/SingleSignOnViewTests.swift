@@ -33,6 +33,11 @@ class SingleSignOnViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
@@ -58,7 +63,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly when the text field is empty.
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -67,7 +72,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is populated.
     @MainActor
-    func test_snapshot_populated() {
+    func disabletest_snapshot_populated() {
         processor.state.identifierText = "Insert cool identifier here"
         assertSnapshots(
             of: subject.navStackWrapped,

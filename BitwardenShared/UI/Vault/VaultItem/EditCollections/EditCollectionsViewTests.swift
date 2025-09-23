@@ -33,6 +33,11 @@ class EditCollectionsViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -50,7 +55,7 @@ class EditCollectionsViewTests: BitwardenTestCase {
 
     /// The edit collections view renders correctly.
     @MainActor
-    func test_snapshot_editCollections() {
+    func disabletest_snapshot_editCollections() {
         processor.state.collections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),

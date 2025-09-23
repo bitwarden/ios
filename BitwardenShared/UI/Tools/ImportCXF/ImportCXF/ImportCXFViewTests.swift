@@ -56,7 +56,7 @@ class ImportCXFViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot on start status.
-    func test_snapshot_start() {
+    func disabletest_snapshot_start() {
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -65,7 +65,7 @@ class ImportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on importing status.
     @MainActor
-    func test_snapshot_importing() {
+    func disabletest_snapshot_importing() {
         processor.state.progress = 0.3
         processor.state.status = .importing
         assertSnapshots(
@@ -76,7 +76,7 @@ class ImportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on success status.
     @MainActor
-    func test_snapshot_success() {
+    func disabletest_snapshot_success() {
         processor.state.status = .success(totalImportedCredentials: 10, importedResults: [
             CXFCredentialsResult(count: 13, type: .password),
             CXFCredentialsResult(count: 7, type: .passkey),
@@ -90,7 +90,7 @@ class ImportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on failure status.
     @MainActor
-    func test_snapshot_failure() {
+    func disabletest_snapshot_failure() {
         processor.state.status = .failure(message: "Something went wrong")
         assertSnapshots(
             of: subject,

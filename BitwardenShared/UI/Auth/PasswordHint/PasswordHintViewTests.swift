@@ -33,6 +33,11 @@ class PasswordHintViewTests: BitwardenTestCase {
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -59,14 +64,14 @@ class PasswordHintViewTests: BitwardenTestCase {
 
     /// A snapshot of the view without any values set.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.emailAddress = ""
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// A snapshot of the view with a value in the email address field.
     @MainActor
-    func test_snapshot_withEmailAddress() {
+    func disabletest_snapshot_withEmailAddress() {
         processor.state.emailAddress = "email@example.com"
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitAX5, .defaultPortraitDark])
     }

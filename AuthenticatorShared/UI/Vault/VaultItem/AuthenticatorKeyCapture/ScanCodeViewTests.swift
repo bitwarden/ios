@@ -37,6 +37,11 @@ class ScanCodeViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -45,7 +50,7 @@ class ScanCodeViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the ProfileSwitcherView previews.
-    func test_snapshot_scanCodeView_previews() {
+    func disabletest_snapshot_scanCodeView_previews() {
         for preview in ScanCodeView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

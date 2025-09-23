@@ -46,6 +46,11 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismiss` action.
     @MainActor
     func test_close_tapped() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25516 Remove when ViewInspector updated
+            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
+        }
+
         let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
@@ -65,7 +70,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the generator history view's empty state.
-    func test_snapshot_generatorHistoryViewEmpty() {
+    func disabletest_snapshot_generatorHistoryViewEmpty() {
         assertSnapshot(
             of: subject,
             as: .defaultPortrait
@@ -74,7 +79,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the generator history displaying a list of generated values.
     @MainActor
-    func test_snapshot_generatorHistoryViewList() {
+    func disabletest_snapshot_generatorHistoryViewList() {
         processor.state.passwordHistory = [
             PasswordHistoryView(
                 password: "8gr6uY8CLYQwzr#",

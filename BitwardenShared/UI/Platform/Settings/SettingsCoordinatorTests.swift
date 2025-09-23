@@ -216,8 +216,6 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
         defer { task.cancel() }
 
-        #if SUPPORTS_CXP
-
         try await waitForAsync { [weak self] in
             guard let self else { return true }
             return stackNavigator.actions.last != nil
@@ -226,20 +224,6 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is UIHostingController<ExportSettingsView>)
-
-        #else
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last?.view is ExportVaultView
-        }
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is ExportVaultView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-
-        #endif
     }
 
     /// `navigate(to:)` with `.exportVaultToFile` presents the export vault to file view.
