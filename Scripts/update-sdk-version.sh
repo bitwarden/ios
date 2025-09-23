@@ -25,5 +25,15 @@ echo "✅ Updated revision line in $PROJECT_FILE"
 echo "🔧 Updating revision in $PACKAGE_RESOLVED..."
 CURRENT_HASH=$(jq -r '.pins[] | select(.identity == "sdk-swift") | .state.revision' "$PACKAGE_RESOLVED")
 echo "Current hash in Package.resolved: $CURRENT_HASH"
-sed -i.bak "s/$CURRENT_HASH/$SDK_SWIFT_REF/g" "$PACKAGE_RESOLVED"
+jq --arg new "$SDK_SWIFT_REF" '
+  .pins |= map(
+    if .identity == "sdk-swift" then
+      .state.revision = $new
+    else
+      .
+    end
+  )
+' "$PACKAGE_RESOLVED" > "$tmp_file" && mv "$tmp_file" "$PACKAGE_RESOLVED"
+
+echo "✅ Updated revision in $PACKAGE_RESOLVED"
 echo "✅ Updated revision in $PACKAGE_RESOLVED"
