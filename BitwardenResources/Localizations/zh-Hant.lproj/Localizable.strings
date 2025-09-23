@@ -131,9 +131,7 @@
 "LastSync" = "上次同步於：";
 "Length" = "長度";
 "Lock" = "鎖定";
-"FifteenMinutes" = "15 分鐘";
 "OneHour" = "1 小時";
-"OneMinute" = "1 分鐘";
 "FourHours" = "4 小時";
 "Immediately" = "立即";
 "VaultTimeout" = "密碼庫逾時時間";
@@ -271,7 +269,7 @@
 "EnvironmentSaved" = "已儲存環境 URL。";
 "FormattedIncorrectly" = "%1$@ 的格式不正確。";
 "IdentityUrl" = "身分伺服器 URL";
-"SelfHostedEnvironment" = "自我裝載環境";
+"SelfHostedEnvironment" = "自行部署環境";
 "SelfHostedEnvironmentFooter" = "指定您內部部署的 Bitwarden 安裝之基礎 URL。";
 "ServerUrl" = "伺服器 URL";
 "WebVaultUrl" = "網頁版密碼庫伺服器 URL";
@@ -433,18 +431,15 @@
 "PIN" = "PIN 碼";
 "Unlock" = "解鎖";
 "UnlockVault" = "解鎖密碼庫";
-"ThirtyMinutes" = "30 分鐘";
 "LoggedInAsOn" = "已在 %2$@ 以 %1$@ 身份登入。";
 "VaultLockedMasterPassword" = "密碼庫已鎖定。請驗證主密碼以繼續。";
 "VaultLockedPIN" = "密碼庫已鎖定。請驗證 PIN 碼以繼續。";
 "VaultLockedIdentity" = "您的密碼庫已鎖定。請驗證身分以繼續。";
 "Dark" = "深色";
 "Light" = "淺色";
-"FiveMinutes" = "5 分鐘";
 "TenSeconds" = "10 秒鐘";
 "ThirtySeconds" = "30 秒鐘";
 "TwentySeconds" = "20 秒鐘";
-"TwoMinutes" = "2 分鐘";
 "ClearClipboard" = "清除剪貼簿";
 "ClearClipboardDescription" = "自動清除剪貼簿中複製的值。";
 "DefaultUriMatchDetection" = "預設的 URI 一致性偵測方式";
