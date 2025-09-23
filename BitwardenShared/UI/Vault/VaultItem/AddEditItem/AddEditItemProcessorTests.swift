@@ -1128,6 +1128,129 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.canAssignToCollection)
     }
 
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// and selects the default user collection when there's any on adding mode.
+    @MainActor
+    func test_perform_fetchCipherOptions_defaultUserCollection() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+        ]
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.allUserCollections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.organization(id: "1", name: "OrgTest")])
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// and doesn't select the default user collection when there isn't any on adding mode.
+    @MainActor
+    func test_perform_fetchCipherOptions_defaultUserCollectionNotFound() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1", type: .sharedCollection),
+            .fixture(id: "2", name: "Engineering", organizationId: "1", type: .sharedCollection),
+        ]
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.allUserCollections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.organization(id: "1", name: "OrgTest")])
+        XCTAssertEqual(subject.state.collectionIds, [])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// and doesn't select the default user collection when personal ownership policy is disabled.
+    @MainActor
+    func test_perform_fetchCipherOptions_defaultUserCollectionPersonalOwnershipDisabled() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1", type: .sharedCollection),
+            .fixture(id: "2", name: "Engineering", organizationId: "1", type: .sharedCollection),
+        ]
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = false
+        vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.allUserCollections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.organization(id: "1", name: "OrgTest")])
+        XCTAssertEqual(subject.state.collectionIds, [])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// and doesn't select the default user collection when it has `nil` ID.
+    @MainActor
+    func test_perform_fetchCipherOptions_defaultUserCollectionIDNil() async {
+        let collections: [CollectionView] = [
+            .fixture(id: nil, name: "Design", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+        ]
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.allUserCollections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.organization(id: "1", name: "OrgTest")])
+        XCTAssertEqual(subject.state.collectionIds, [])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// and doesn't select the default user collection when it's editing a cipher instead of adding.
+    @MainActor
+    func test_perform_fetchCipherOptions_defaultUserCollectionEditing() async {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(),
+                hasPremium: false
+            )!
+        )
+
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+        ]
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.allUserCollections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.organization(id: "1", name: "OrgTest")])
+        XCTAssertEqual(subject.state.collectionIds, [])
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     @MainActor
     func test_perform_savePressed_invalidName() async throws {
