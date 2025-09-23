@@ -67,13 +67,8 @@ class SettingsViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismiss` action.
     @MainActor
     func test_close_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state.presentationMode = .preLogin
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }

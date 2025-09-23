@@ -61,11 +61,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping a profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_accountRow_tap_currentAccount() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
@@ -134,11 +129,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_alternateAccountRow_tap_alternateAccount() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
             userInitials: "NA"
@@ -163,11 +153,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_alternateAccountRows_tap_alternateEmptyAccount() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         let alternate = ProfileSwitcherItem.fixture(
             email: "locked@bitwarden.com",
             isUnlocked: false,
@@ -195,11 +180,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping the background triggers a `.backgroundPressed` action.
     @MainActor
     func test_background_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         let view = try subject.inspect().view(ProfileSwitcherView.self)
         let background = view.first
         try background?.callOnTapGesture()
