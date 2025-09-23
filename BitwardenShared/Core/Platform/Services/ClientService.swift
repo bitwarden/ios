@@ -369,7 +369,14 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        Client(settings: settings)
+        Client(tokenProvider: Token(), settings: settings)
+    }
+}
+
+class Token: ClientManagedTokens {
+    func getAccessToken() async -> String? {
+        // FIXME: Return actual access token
+        return nil
     }
 }
 
