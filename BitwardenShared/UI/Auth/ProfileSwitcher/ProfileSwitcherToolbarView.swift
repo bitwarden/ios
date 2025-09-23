@@ -28,9 +28,7 @@ struct ProfileSwitcherToolbarView: View {
             await store.perform(.requestedProfileSwitcher(visible: !store.state.isVisible))
         } label: {
             profileSwitcherIcon(
-                color: store.state.showPlaceholderToolbarIcon
-                    ? nil
-                    : store.state.activeAccountProfile?.color,
+                color: nil,
                 initials: store.state.showPlaceholderToolbarIcon
                     ? nil
                     : store.state.activeAccountProfile?.userInitials,
@@ -40,12 +38,12 @@ struct ProfileSwitcherToolbarView: View {
                 size: iconSize
             )
         }
+        .backport.buttonStyleGlassProminent()
+        .tint(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
         .padding(.horizontal, horizontalPadding)
         .accessibilityIdentifier("CurrentActiveAccount")
         .accessibilityLabel(Localizations.account)
         .hidden(!store.state.showPlaceholderToolbarIcon && store.state.accounts.isEmpty)
-        .backport.buttonStyleGlassProminent()
-        .tint(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
     }
 }
 
@@ -60,7 +58,7 @@ extension View {
     ///
     @ViewBuilder
     func profileSwitcherIcon(
-        color: Color?,
+        color: Color? = SharedAsset.Colors.backgroundTertiary.swiftUIColor,
         initials: String?,
         textColor: Color?,
         size: ProfileSwitcherIconSize = .standard
@@ -79,7 +77,7 @@ extension View {
                 }
             }
             .foregroundColor(textColor ?? SharedAsset.Colors.textInteraction.swiftUIColor)
-            .background(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
+            .background(color)
             .if(size.shouldClipToCircle) { view in
                 view.clipShape(Circle())
             }
@@ -101,7 +99,7 @@ struct ProfileSwitcherIconSize {
 
     /// The text style for the user's initials.
     let textStyle: StyleGuideFont
-    
+
     /// Whether the user's initials and background should be clipped to a circle.
     let shouldClipToCircle: Bool
 }
