@@ -34,6 +34,12 @@ ARTIFACT_EXTENSION = {
     "device" => "ipa",
 }
 
+APPLE_ID_MAP = {
+    "com.8bit.bitwarden" => "1137397744",
+    "com.8bit.bitwarden.beta" => "6477551146",
+    "com.bitwarden.authenticator" => "6497335175",
+}
+
 platform :ios do |options|
     before_all do
         # Support running independent lanes without --env argument
@@ -146,9 +152,16 @@ platform :ios do |options|
         UI.success("🧱 Successfully updated app CI Build info")
     end
 
-    desc "Push a new build to TestFlight"
+    desc "Upload a new build to TestFlight"
     lane :upload_build do |options|
         bundle_id = ENV["_BUNDLE_ID"] || options[:bundle_id] || "com.8bit.bitwarden" # provides backwards compatibility with old build workflows
+
+        # NOTE workaround for xcode26 altool bug, see:
+        # https://github.com/fastlane/fastlane/issues/29698
+        # https://github.com/fastlane/fastlane/discussions/29680
+        apple_id = APPLE_ID_MAP[bundle_id]
+        ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--apple-id #{apple_id}"
+
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],
