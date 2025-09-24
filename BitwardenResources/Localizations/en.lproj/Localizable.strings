@@ -55,7 +55,7 @@
 "Name" = "Name";
 "No" = "No";
 "Notes" = "Notes";
-"Ok" = "Ok";
+"OK" = "OK";
 "Password" = "Password";
 "Save" = "Save";
 "Move" = "Move";
@@ -155,7 +155,7 @@
 "NoItems" = "There are no items in your vault.";
 "NoItemsTap" = "There are no items in your vault for this website/app. Tap to add one.";
 "NoUsernamePasswordConfigured" = "This login does not have a username or password configured.";
-"OkGotIt" = "Ok, got it!";
+"OKGotIt" = "OK, got it!";
 "OptionDefaults" = "Option defaults are set from the main Bitwarden app's password generator tool.";
 "Options" = "Options";
 "Other" = "Other";
