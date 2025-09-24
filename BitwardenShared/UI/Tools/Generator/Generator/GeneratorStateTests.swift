@@ -88,7 +88,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Menu: Username type
                 Selection: Catch-all email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your domain's configured catch-all inbox.
+                Footer: Use your domain’s configured catch-all inbox.
               Text: Domain name (required) Value: (empty)
             """
         }
@@ -256,7 +256,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Menu: Username type
                 Selection: Plus addressed email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your email provider's subaddress capabilities
+                Footer: Use your email provider’s subaddress capabilities
               Text: Email (required) Value: (empty)
             """
         }
