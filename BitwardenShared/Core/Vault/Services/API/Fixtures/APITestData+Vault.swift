@@ -16,4 +16,5 @@ extension APITestData {
     static let syncWithProfileOrganizations = loadFromJsonBundle(resource: "syncWithProfileOrganizations")
     static let syncWithProfileSingleOrg = loadFromJsonBundle(resource: "syncWithProfileSingleOrg")
     static let syncWithSends = loadFromJsonBundle(resource: "syncWithSends")
+    static let syncWithUserDecryption = loadFromJsonBundle(resource: "syncWithUserDecryption")
 }

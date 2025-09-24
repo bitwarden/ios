@@ -10,7 +10,7 @@ class AccountTests: BitwardenTestCase {
         let subject = Account.fixture(
             profile: .fixture(kdfIterations: nil, kdfMemory: nil, kdfParallelism: nil, kdfType: nil)
         )
-        XCTAssertEqual(subject.kdf, KdfConfig(kdf: .pbkdf2sha256, kdfIterations: 600_000))
+        XCTAssertEqual(subject.kdf, KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000))
     }
 
     /// `kdfConfig` returns the KDF config for the account using the accounts KDF values.
@@ -20,7 +20,7 @@ class AccountTests: BitwardenTestCase {
         )
         XCTAssertEqual(
             subject.kdf,
-            KdfConfig(kdf: .argon2id, kdfIterations: 1_000_000, kdfMemory: 64, kdfParallelism: 4)
+            KdfConfig(kdfType: .argon2id, iterations: 1_000_000, memory: 64, parallelism: 4)
         )
     }
 
