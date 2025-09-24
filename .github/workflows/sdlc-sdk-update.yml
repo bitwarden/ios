@@ -188,6 +188,7 @@ jobs:
           git config user.email "$_BOT_EMAIL"
 
           git add project-common.yml
+          git add Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved
           git commit -m "SDK Update - $_SDK_SWIFT_REF_SHORT ($_SDK_VERSION)"
           git push origin $_BRANCH_NAME
 
