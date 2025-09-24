@@ -16,9 +16,13 @@ struct ProfileSwitcherToolbarView: View {
 
     /// The Toolbar item for the profile switcher view
     @ViewBuilder var profileSwitcherToolbarItem: some View {
-        let color = store.state.showPlaceholderToolbarIcon
+        let tintColor = store.state.showPlaceholderToolbarIcon
             ? nil
             : store.state.activeAccountProfile?.color
+        // iOS 26+ uses the tint color on liquid glass to give the button its color. Prior to iOS 26,
+        // the button's background is colored in `profileSwitcherIcon`.
+        let iconColor: Color? = if #available(iOS 26, *) { nil } else { tintColor }
+
         let iconSize: ProfileSwitcherIconSize = if #available(iOS 26, *) { .toolbar } else { .standard }
         // On iOS 26+, remove extra padding applied around the button, which allows the initials
         // font size to scale larger without increasing the overall width of the button.
@@ -28,7 +32,7 @@ struct ProfileSwitcherToolbarView: View {
             await store.perform(.requestedProfileSwitcher(visible: !store.state.isVisible))
         } label: {
             profileSwitcherIcon(
-                color: nil,
+                color: iconColor,
                 initials: store.state.showPlaceholderToolbarIcon
                     ? nil
                     : store.state.activeAccountProfile?.userInitials,
@@ -39,7 +43,7 @@ struct ProfileSwitcherToolbarView: View {
             )
         }
         .backport.buttonStyleGlassProminent()
-        .tint(color ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
+        .tint(tintColor ?? SharedAsset.Colors.backgroundTertiary.swiftUIColor)
         .padding(.horizontal, horizontalPadding)
         .accessibilityIdentifier("CurrentActiveAccount")
         .accessibilityLabel(Localizations.account)
