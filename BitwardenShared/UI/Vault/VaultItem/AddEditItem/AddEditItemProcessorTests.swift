@@ -1173,7 +1173,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_fetchCipherOptions_defaultUserCollectionPersonalOwnershipDisabled() async {
         let collections: [CollectionView] = [
-            .fixture(id: "1", name: "Design", organizationId: "1", type: .sharedCollection),
+            .fixture(id: "1", name: "Design", organizationId: "1", type: .defaultUserCollection),
             .fixture(id: "2", name: "Engineering", organizationId: "1", type: .sharedCollection),
         ]
 
@@ -1211,29 +1211,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
     /// and doesn't select the default user collection when it's editing a cipher instead of adding.
     @MainActor
-    func test_perform_fetchCipherOptions_defaultUserCollectionEditing() async {
-        subject = AddEditItemProcessor(
-            appExtensionDelegate: appExtensionDelegate,
-            coordinator: coordinator.asAnyCoordinator(),
-            delegate: delegate,
-            services: ServiceContainer.withMocks(
-                authRepository: authRepository,
-                cameraService: cameraService,
-                errorReporter: errorReporter,
-                eventService: eventService,
-                httpClient: client,
-                pasteboardService: pasteboardService,
-                policyService: policyService,
-                rehydrationHelper: rehydrationHelper,
-                stateService: stateService,
-                totpService: totpService,
-                vaultRepository: vaultRepository
-            ),
-            state: CipherItemState(
-                existing: CipherView.fixture(),
-                hasPremium: false
-            )!
-        )
+    func test_perform_fetchCipherOptions_defaultUserCollectionEditing() async throws {
+        subject.state = try XCTUnwrap(CipherItemState(
+            existing: CipherView.fixture(),
+            hasPremium: false
+        ))
 
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design", organizationId: "1", type: .defaultUserCollection),
