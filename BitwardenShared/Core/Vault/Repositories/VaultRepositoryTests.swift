@@ -366,73 +366,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedSingleSection` mode.
     func test_ciphersAutofillPublisher_mode_combinedSingle() async throws {
-        // swiftlint:disable:previous function_body_length
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://bitwarden.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "3",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Example 3",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-        ]
-        cipherService.ciphersSubject.value = ciphers
-
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        cipherService.fetchCipherByIdResult = { cipherId in
-            return switch cipherId {
-            case "2":
-                .success(ciphers[1])
-            case "3":
-                .success(ciphers[2])
-            default:
-                .success(.fixture())
-            }
-        }
-
-        let expectedRpID = "myApp.com"
-        var iterator = try await subject.ciphersAutofillPublisher(
-            availableFido2CredentialsPublisher: fido2UserInterfaceHelper
-                .availableCredentialsForAuthenticationPublisher(),
-            mode: .combinedSingleSection,
-            rpID: expectedRpID,
-            uri: "https://example.com"
-        ).makeAsyncIterator()
-        let vaultListData = try await iterator.next()
-        let sections = try XCTUnwrap(vaultListData?.sections)
-
-        XCTAssertEqual(
-            sections[0],
+        let expectedSections = [
             VaultListSection(
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
@@ -446,156 +380,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                         )
                     )!,
                     VaultListItem(
-                        cipherListView: CipherListView(cipher: ciphers[2]),
+                        cipherListView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                fido2Credentials: [.fixture()],
+                                uris: [.fixture(uri: "https://example.com", match: .exact)]
+                            ),
+                            name: "Example 3",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
+                            revisionDate: Date(year: 2024, month: 1, day: 1)
+                        ),
                         fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: ciphers[2].id ?? "",
-                            rpId: expectedRpID
+                            credentialId: Data(repeating: 123, count: 16),
+                            cipherId: "3",
+                            rpId: "myApp.com"
                         )
                     )!,
                 ],
                 name: Localizations.chooseALoginToSaveThisPasskeyTo
-            )
-        )
-    }
-
-    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
-    /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedSingleSection` mode
-    /// when decrypting Fido2 credentials returns empty array which logs it and ignores the cipher to be returned.
-    func test_ciphersAutofillPublisher_mode_combinedSingle_decryptFido2CredentialsEmpty() async throws {
-        // swiftlint:disable:previous function_body_length
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://bitwarden.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "3",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Example 3",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
             ),
         ]
-        cipherService.ciphersSubject.value = ciphers
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult([])
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
 
-        let expectedRpID = "myApp.com"
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
+
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .combinedSingleSection,
-            rpID: expectedRpID,
+            rpID: "myApp.com",
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let vaultListData = try await iterator.next()
-        let sections = try XCTUnwrap(vaultListData?.sections)
+        let publishedSections = try await iterator.next()?.sections
 
-        XCTAssertEqual(
-            sections[0],
-            VaultListSection(
-                id: Localizations.chooseALoginToSaveThisPasskeyTo,
-                items: [
-                    VaultListItem(
-                        cipherListView: .fixture(
-                            id: "2",
-                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                            name: "Example",
-                            creationDate: Date(year: 2024, month: 1, day: 1),
-                            revisionDate: Date(year: 2024, month: 1, day: 1)
-                        )
-                    )!,
-                ],
-                name: Localizations.chooseALoginToSaveThisPasskeyTo
-            )
-        )
-    }
-
-    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
-    /// throws when in `.combinedSingleSection` mode and decrypting Fido2 credentials throws.
-    func test_ciphersAutofillPublisher_mode_combinedSingleThrowingDecryptingFido2Credentials() async throws {
-        // swiftlint:disable:previous function_body_length
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://bitwarden.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "3",
-                login: .fixture(
-                    fido2Credentials: [.fixture()],
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Example 3",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-        ]
-        cipherService.ciphersSubject.value = ciphers
-
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .throwing(BitwardenTestError.example)
-
-        cipherService.fetchCipherResult = .success(.fixture(login: .fixture(fido2Credentials: [.fixture()])))
-
-        let expectedRpID = "myApp.com"
-        var iterator = try await subject.ciphersAutofillPublisher(
-            availableFido2CredentialsPublisher: fido2UserInterfaceHelper
-                .availableCredentialsForAuthenticationPublisher(),
-            mode: .combinedSingleSection,
-            rpID: expectedRpID,
-            uri: "https://example.com"
-        ).makeAsyncIterator()
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await iterator.next()
+        try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
+            """
+            Section[Choose a login to save this passkey to]: Choose a login to save this passkey to
+              - Cipher: Example
+              - Cipher: Example 3
+            """
         }
     }
 
