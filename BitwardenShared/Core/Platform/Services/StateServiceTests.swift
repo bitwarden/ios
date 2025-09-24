@@ -1947,19 +1947,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
 
         let masterPasswordUnlockUser1 = MasterPasswordUnlockResponseModel(
-            kdf: MasterPasswordUnlockKdfResponseModel(
-                kdfType: .pbkdf2sha256,
-                iterations: 600_000,
-                memory: nil,
-                parallelism: nil
-            ),
+            kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
             masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY1",
             salt: "SALT1"
         )
         await subject.setAccountMasterPasswordUnlock(masterPasswordUnlockUser1, userId: "1")
 
         let masterPasswordUnlockUser2 = MasterPasswordUnlockResponseModel(
-            kdf: MasterPasswordUnlockKdfResponseModel(
+            kdf: KdfConfig(
                 kdfType: .argon2id,
                 iterations: 3,
                 memory: 64,
@@ -1992,12 +1987,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.setAccountMasterPasswordUnlock(
                 MasterPasswordUnlockResponseModel(
-                    kdf: MasterPasswordUnlockKdfResponseModel(
-                        kdfType: .pbkdf2sha256,
-                        iterations: Constants.pbkdf2Iterations,
-                        memory: nil,
-                        parallelism: nil
-                    ),
+                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
                     masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
                     salt: "SALT"
                 )

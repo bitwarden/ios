@@ -35,10 +35,10 @@ extension Account {
     /// The `KdfConfig` for the account.
     var kdf: KdfConfig {
         KdfConfig(
-            kdf: profile.kdfType ?? .pbkdf2sha256,
-            kdfIterations: profile.kdfIterations ?? Constants.pbkdf2Iterations,
-            kdfMemory: profile.kdfMemory,
-            kdfParallelism: profile.kdfParallelism
+            kdfType: profile.kdfType ?? .pbkdf2sha256,
+            iterations: profile.kdfIterations ?? Constants.pbkdf2Iterations,
+            memory: profile.kdfMemory,
+            parallelism: profile.kdfParallelism
         )
     }
 

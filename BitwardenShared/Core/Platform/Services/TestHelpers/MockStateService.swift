@@ -454,7 +454,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try setAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
-    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel, userId: String) async {
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async {
         masterPasswordUnlockByUserId[userId] = masterPasswordUnlock
     }
 

@@ -781,12 +781,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             stateService.masterPasswordUnlockByUserId["1"],
             MasterPasswordUnlockResponseModel(
-                kdf: MasterPasswordUnlockKdfResponseModel(
-                    kdfType: .pbkdf2sha256,
-                    iterations: 600_000,
-                    memory: nil,
-                    parallelism: nil
-                ),
+                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
                 masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
                 salt: "user@bitwarden.com"
             )
