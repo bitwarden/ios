@@ -1930,6 +1930,71 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setAccountMasterPasswordUnlock(_:)` sets the master password unlock data for the user account.
+    func test_setAccountMasterPasswordUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(
+            .fixture(
+                profile: .fixture(
+                    userDecryptionOptions: UserDecryptionOptions(
+                        hasMasterPassword: true,
+                        keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                        trustedDeviceOption: nil
+                    ),
+                    userId: "2"
+                )
+            )
+        )
+
+        let masterPasswordUnlockUser1 = MasterPasswordUnlockResponseModel(
+            kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+            masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY1",
+            salt: "SALT1"
+        )
+        await subject.setAccountMasterPasswordUnlock(masterPasswordUnlockUser1, userId: "1")
+
+        let masterPasswordUnlockUser2 = MasterPasswordUnlockResponseModel(
+            kdf: KdfConfig(
+                kdfType: .argon2id,
+                iterations: 3,
+                memory: 64,
+                parallelism: 4
+            ),
+            masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY2",
+            salt: "SALT2"
+        )
+        try await subject.setAccountMasterPasswordUnlock(masterPasswordUnlockUser2)
+
+        let user1 = appSettingsStore.state?.accounts["1"]
+        XCTAssertEqual(user1?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser1)
+
+        let user2 = appSettingsStore.state?.accounts["2"]
+        XCTAssertEqual(user2?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser2)
+        // Ensure any existing other decryption options aren't affected.
+        XCTAssertEqual(
+            user2?.profile.userDecryptionOptions,
+            UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: masterPasswordUnlockUser2,
+                keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                trustedDeviceOption: nil
+            )
+        )
+    }
+
+    /// `setAccountMasterPasswordUnlock(_:)` throws an error if there's no active account.
+    func test_setAccountMasterPasswordUnlock_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setAccountMasterPasswordUnlock(
+                MasterPasswordUnlockResponseModel(
+                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
+                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                    salt: "SALT"
+                )
+            )
+        }
+    }
+
     /// `setAccountSetupAutofill(_:)` sets the user's autofill setup progress.
     func test_setAccountSetupAutofill() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
