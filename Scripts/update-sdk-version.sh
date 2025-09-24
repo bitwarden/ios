@@ -16,6 +16,11 @@ SDK_VERSION="$3"
 PROJECT_FILE="project-common.yml"
 PACKAGE_RESOLVED="Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 
+# Show sdk-swift block before editing
+CURRENT_SDK_SWIFT_BLOCK=$(jq -r '.pins[] | select(.identity == "sdk-swift")' "$PACKAGE_RESOLVED")
+echo "🔎 Current sdk_swift block Package.resolved:"
+echo $CURRENT_SDK_SWIFT_BLOCK
+
 # Update project-common.yml
 echo "🔧 Updating revision in $PROJECT_FILE..."
 yq -i ".packages[\"$SDK_PACKAGE\"].revision = \"$SDK_SWIFT_REF\" | .packages[\"$SDK_PACKAGE\"].revision line_comment = \"$SDK_VERSION\"" "$PROJECT_FILE"
@@ -25,15 +30,10 @@ echo "✅ Updated revision line in $PROJECT_FILE"
 echo "🔧 Updating revision in $PACKAGE_RESOLVED..."
 CURRENT_HASH=$(jq -r '.pins[] | select(.identity == "sdk-swift") | .state.revision' "$PACKAGE_RESOLVED")
 echo "Current hash in Package.resolved: $CURRENT_HASH"
-TMP_FILE=$(mktemp)
-jq --arg new "$SDK_SWIFT_REF" '
-  .pins |= map(
-    if .identity == "sdk-swift" then
-      .state.revision = $new
-    else
-      .
-    end
-  )
-' "$PACKAGE_RESOLVED" > "$TMP_FILE" && mv "$TMP_FILE" "$PACKAGE_RESOLVED"
-
+sed -i.bak "s/$CURRENT_HASH/$SDK_SWIFT_REF/g" "$PACKAGE_RESOLVED"
 echo "✅ Updated revision in $PACKAGE_RESOLVED"
+
+# Show sdk-swift block after editing
+CURRENT_SDK_SWIFT_BLOCK=$(jq -r '.pins[] | select(.identity == "sdk-swift")' "$PACKAGE_RESOLVED")
+echo "🔎 Current sdk_swift block Package.resolved:"
+echo $CURRENT_SDK_SWIFT_BLOCK
