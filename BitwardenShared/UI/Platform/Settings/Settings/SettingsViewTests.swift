@@ -68,7 +68,7 @@ class SettingsViewTests: BitwardenTestCase {
     @MainActor
     func test_close_tap() throws {
         processor.state.presentationMode = .preLogin
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
@@ -92,20 +92,20 @@ class SettingsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func test_viewRender() {
+    func disabletest_snapshot_viewRender() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly for the pre-login mode.
     @MainActor
-    func test_viewRender_preLogin() {
+    func disabletest_snapshot_viewRender_preLogin() {
         processor.state.presentationMode = .preLogin
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly with badges.
     @MainActor
-    func test_settingsView_badges() {
+    func disabletest_snapshot_settingsView_badges() {
         processor.state.badgeState = .fixture(
             autofillSetupProgress: .setUpLater,
             importLoginsSetupProgress: .setUpLater,

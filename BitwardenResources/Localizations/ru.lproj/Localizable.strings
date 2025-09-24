@@ -1280,6 +1280,9 @@
 "WhenUsingTwoStepVerification" = "При использовании двухэтапной аутентификации необходимо ввести имя пользователя, пароль и код, сгенерированный в этом приложении.";
 "YesSetDefault" = "Да, установить по умолчанию";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Вы можете обновить настройки по умолчанию в любое время.";
+"SelectAccount" = "Выберите аккаунт";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Аккаунты";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Обнаружение соответствия URI определяет, как Bitwarden идентифицирует предложения по автозаполнению.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Начинается с\\” - это расширенный вариант с повышенным риском компрометации учетных данных.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Регулярное выражение\\” - это расширенный вариант с повышенным риском компрометации учетных данных при неправильном использовании.";

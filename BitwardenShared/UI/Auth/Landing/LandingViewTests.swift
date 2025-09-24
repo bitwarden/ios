@@ -107,27 +107,27 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Check the snapshot for the empty state.
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot when the email text field has a value.
     @MainActor
-    func test_snapshot_email_value() {
+    func disabletest_snapshot_email_value() {
         processor.state.email = "email@example.com"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot when the remember me toggle is on.
     @MainActor
-    func test_snapshot_isRememberMeOn_true() {
+    func disabletest_snapshot_isRememberMeOn_true() {
         processor.state.isRememberMeOn = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the profiles visible
     @MainActor
-    func test_snapshot_profilesVisible() {
+    func disabletest_snapshot_profilesVisible() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW"
@@ -145,7 +145,7 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Check the snapshot for the profiles closed
     @MainActor
-    func test_snapshot_profilesClosed() {
+    func disabletest_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW"

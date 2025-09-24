@@ -36,6 +36,11 @@ jobs:
       id-token: write
 
     steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -68,11 +73,6 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
-
-      - name: Log inputs to job summary
-        uses: ./.github/actions/log-inputs
-        with:
-          inputs: ${{ toJson(inputs) }}
 
       - name: Switch to branch
         id: switch-branch
@@ -134,7 +134,7 @@ jobs:
 
           COMMIT_MESSAGE=$(gh api "repos/bitwarden/sdk-swift/commits/$SDK_SWIFT_REF" --jq '.commit.message')
           echo "👀 sdk-swift ref commit message: \"$COMMIT_MESSAGE\""
-          SDK_INTERNAL_REF=$(echo "$COMMIT_MESSAGE" | grep -oE '[a-f0-9]{40}')
+          SDK_INTERNAL_REF=$(echo "$COMMIT_MESSAGE" | grep -oE '[a-f0-9]{40}' | head -n1)
           if [ -z "$SDK_INTERNAL_REF" ]; then
             echo "::error::Failed to parse sdk-internal ref from commit message."
             exit 1
@@ -188,6 +188,7 @@ jobs:
           git config user.email "$_BOT_EMAIL"
 
           git add project-common.yml
+          git add Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved
           git commit -m "SDK Update - $_SDK_SWIFT_REF_SHORT ($_SDK_VERSION)"
           git push origin $_BRANCH_NAME
 

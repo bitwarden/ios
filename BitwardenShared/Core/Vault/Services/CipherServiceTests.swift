@@ -110,12 +110,13 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_deleteAttachmentWithServer() async throws {
         stateService.activeAccount = .fixture()
         cipherDataStore.fetchCipherResult = .fixture(attachments: [.fixture(id: "456")])
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .deleteAttachment)
 
         let updatedCipher = try await subject.deleteAttachmentWithServer(attachmentId: "456", cipherId: "123")
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture(attachments: []))
-        XCTAssertEqual(updatedCipher, .fixture(attachments: []))
+        let expectedCipher = Cipher.fixture(attachments: [], revisionDate: Date(year: 2025, month: 9, day: 17))
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, expectedCipher)
+        XCTAssertEqual(updatedCipher, expectedCipher)
     }
 
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.

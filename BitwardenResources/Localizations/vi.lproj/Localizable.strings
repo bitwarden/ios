@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Khi sử dụng xác minh 2 bước, bạn sẽ nhập tên người dùng và mật khẩu của mình cũng như mã được tạo trong ứng dụng này.";
 "YesSetDefault" = "Đúng, đặt mặc định";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Bạn có thể cập nhật cài đặt mặc định bất cứ lúc nào trong phần cài đặt.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Phát hiện khớp URI kiểm soát cách Bitwarden xác định gợi ý tự động điền.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Bắt đầu với\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Biểu thức chính quy\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập nếu sử dụng không đúng cách.";

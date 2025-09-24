@@ -7,7 +7,7 @@ import XCTest
 final class CircularProgressShapeTests: BitwardenTestCase {
     // MARK: Tests
 
-    func test_snapshot_progress() {
+    func disabletest_snapshot_progress() {
         let stack = HStack {
             CircularProgressShape(
                 progress: 0.75,

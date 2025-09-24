@@ -1279,6 +1279,9 @@
 "WhenUsingTwoStepVerification" = "Kada koristiš dvostruku autentifikaciju, unijet ćeš svoje korisničko ime i zaporku te kôd generiran u ovoj aplikaciji.";
 "YesSetDefault" = "Da, postavi kao zadano";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Svoju zadanu postavku možeš uvijek promijeniti u postavkama.";
+"SelectAccount" = "Odaberi račun";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Računi";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Otkrivanje podudaranja URI-ja upravlja kako Bitwarden identificira prijedloge za auto-ispunu.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Počinje s\\” je napredna mogućnost s povećnim rizikom od otkrivanja vjerodajnica.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Regularni izraz\\” je napredna mogućnost s povećanim rizikom curenja vjerodajnica u slučaju krivog korištenja.";

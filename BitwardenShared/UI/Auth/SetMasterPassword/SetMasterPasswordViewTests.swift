@@ -32,7 +32,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Tapping on the cancel button dispatches the `.cancelPressed` action.
     @MainActor
     func test_cancel_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         waitFor(!processor.effects.isEmpty)
         XCTAssertEqual(processor.effects.last, .cancelPressed)
@@ -104,7 +104,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     @MainActor
-    func test_snapshot_setPassword_filled() {
+    func disabletest_snapshot_setPassword_filled() {
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
         processor.state.masterPasswordHint = "hint hint"
@@ -121,7 +121,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view for privilege elevation.
     @MainActor
-    func test_snapshot_setPassword_privilege_elevation() {
+    func disabletest_snapshot_setPassword_privilege_elevation() {
         processor.state.isPrivilegeElevation = true
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"

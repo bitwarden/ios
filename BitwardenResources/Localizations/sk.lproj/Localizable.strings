@@ -1278,6 +1278,9 @@
 "WhenUsingTwoStepVerification" = "Pri používaní dvojstupňového overenia zadáte svoje používateľské meno a heslo a kód vygenerovaný v tejto aplikácii.";
 "YesSetDefault" = "Áno, nastaviť ako predvolené";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Predvolené nastavenie môžete kedykoľvek zmeniť v nastaveniach.";
+"SelectAccount" = "Vyberte účet";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Účty";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Zisťovanie zhody URI ovláda, ako Bitwarden identifikuje návrhy na automatické vypĺňanie.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov, ak sa použije nesprávne.";

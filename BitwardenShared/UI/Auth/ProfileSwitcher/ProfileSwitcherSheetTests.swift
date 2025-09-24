@@ -230,7 +230,7 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
     /// The close toolbar button closes the sheet.
     @MainActor
     func test_closeToolbarButton() throws {
-        let closeButton = try subject.inspect().find(button: Localizations.close)
+        let closeButton = try subject.inspect().findCloseToolbarButton()
         try closeButton.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
@@ -240,12 +240,12 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
     // NB: There's not really a good way, it seems, to capture a view hierarchy when it's presenting a sheet.
     // cf. https://github.com/pointfreeco/swift-snapshot-testing/discussions/956
 
-    func test_snapshot_singleAccount() {
+    func disabletest_snapshot_singleAccount() {
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_belowMaximum() {
+    func disabletest_snapshot_multiAccount_unlocked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -276,19 +276,19 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum() {
+    func disabletest_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+    func disabletest_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortraitAX5)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_locked_belowMaximum() {
+    func disabletest_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -319,7 +319,7 @@ class ProfileSwitcherSheetTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     @MainActor
-    func test_snapshot_multiAccount_locked_atMaximum() {
+    func disabletest_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(

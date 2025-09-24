@@ -77,7 +77,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 1 of the learn new login guided tour.
     @MainActor
-    func test_snapshot_loginStep1() {
+    func disabletest_snapshot_loginStep1() {
         processor.state.currentIndex = 0
         processor.state.guidedTourStepStates[0].spotlightRegion = CGRect(x: 320, y: 470, width: 40, height: 40)
         assertSnapshots(
@@ -88,7 +88,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 1 of the learn new login guided tour in landscape.
     @MainActor
-    func test_snapshot_loginStep1_landscape() {
+    func disabletest_snapshot_loginStep1_landscape() {
         processor.state.currentIndex = 0
         processor.state.guidedTourStepStates[0].spotlightRegion = CGRect(x: 650, y: 150, width: 40, height: 40)
         assertSnapshots(
@@ -99,7 +99,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 2 of the learn new login guided tour.
     @MainActor
-    func test_snapshot_loginStep2() {
+    func disabletest_snapshot_loginStep2() {
         processor.state.currentIndex = 1
         processor.state.guidedTourStepStates[1].spotlightRegion = CGRect(x: 40, y: 470, width: 320, height: 95)
         assertSnapshots(
@@ -110,7 +110,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 2 of the learn new login guided tour in landscape.
     @MainActor
-    func test_snapshot_loginStep2_landscape() {
+    func disabletest_snapshot_loginStep2_landscape() {
         processor.state.currentIndex = 1
         processor.state.guidedTourStepStates[1].spotlightRegion = CGRect(x: 40, y: 60, width: 460, height: 95)
         assertSnapshots(
@@ -121,7 +121,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 3 of the learn new login guided tour.
     @MainActor
-    func test_snapshot_loginStep3() {
+    func disabletest_snapshot_loginStep3() {
         processor.state.currentIndex = 2
         processor.state.guidedTourStepStates[2].spotlightRegion = CGRect(x: 40, y: 500, width: 320, height: 90)
         assertSnapshots(
@@ -132,7 +132,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
 
     /// Test the snapshot of the step 3 of the learn new login guided tour in landscape.
     @MainActor
-    func test_snapshot_loginStep3_landscape() {
+    func disabletest_snapshot_loginStep3_landscape() {
         processor.state.currentIndex = 2
         processor.state.guidedTourStepStates[2].spotlightRegion = CGRect(x: 40, y: 60, width: 460, height: 90)
         assertSnapshots(

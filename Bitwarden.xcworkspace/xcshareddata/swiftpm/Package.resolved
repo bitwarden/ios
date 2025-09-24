@@ -123,7 +123,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bitwarden/sdk-swift",
       "state" : {
-        "revision" : "730c5b9c07bc4980ec13982594ba79b28f38d19b"
+        "revision" : "f3c527ff2c53b576743e090ed118f0a5a7c613d3"
       }
     },
     {
@@ -176,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nalexn/ViewInspector",
       "state" : {
-        "revision" : "788e7879d38a839c4e348ab0762dcc0364e646a2",
-        "version" : "0.10.1"
+        "revision" : "e9a06346499a3a889165647e3f23f8a7b2609a1c",
+        "version" : "0.10.3"
       }
     },
     {
