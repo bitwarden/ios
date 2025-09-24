@@ -45,13 +45,8 @@ class VaultUnlockViewTests: BitwardenTestCase {
     /// Tapping the cancel button in the navigation bar dispatches the `.cancelPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state.isInAppExtension = true
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelPressed)
     }
@@ -59,11 +54,6 @@ class VaultUnlockViewTests: BitwardenTestCase {
     /// The secure field is visible when `isMasterPasswordRevealed` is `false`.
     @MainActor
     func test_isMasterPasswordRevealed_false() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state.isMasterPasswordRevealed = false
         XCTAssertNoThrow(try subject.inspect().find(secureField: ""))
         let textField = try subject.inspect().find(textField: "")
@@ -73,11 +63,6 @@ class VaultUnlockViewTests: BitwardenTestCase {
     /// The text field is visible when `isMasterPasswordRevealed` is `true`.
     @MainActor
     func test_isMasterPasswordRevealed_true() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
         processor.state.isMasterPasswordRevealed = true
         XCTAssertNoThrow(try subject.inspect().find(textField: ""))
         XCTAssertThrowsError(try subject.inspect().find(secureField: ""))

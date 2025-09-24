@@ -33,12 +33,7 @@ class EditCollectionsViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-25516 Remove when ViewInspector updated
-            throw XCTSkip("ViewInspector bug, waiting on new library version release. See #395")
-        }
-
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -46,6 +41,11 @@ class EditCollectionsViewTests: BitwardenTestCase {
     /// Tapping the save button dispatches the `.save` action.
     @MainActor
     func test_saveButton_tap() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .save)
