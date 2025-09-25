@@ -3,8 +3,8 @@ import SwiftUI
 public extension View {
     /// Adds an async action to perform when this view recognizes a tap gesture.
     ///
-    /// Use this method to perform the specified `action` when the user clicks
-    /// or taps on the view or container `count` times.
+    /// Use this method to perform the specified `action` when the user taps
+    /// on the view or container `count` times.
     ///
     /// > Note: If you create a control that's functionally equivalent
     /// to a ``Button``, use ``ButtonStyle`` to create a customized button
@@ -29,8 +29,6 @@ public extension View {
     ///                 }
     ///         }
     ///     }
-    ///
-    /// ![A screenshot of a view of a heart.](SwiftUI-View-TapGesture.png)
     ///
     /// - Parameters:
     ///    - count: The number of taps or clicks required to trigger the action
