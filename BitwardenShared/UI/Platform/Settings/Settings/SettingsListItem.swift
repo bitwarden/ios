@@ -108,7 +108,7 @@ struct SettingsListItem<Content: View>: View {
 #Preview {
     ScrollView {
         ContentBlock(dividerLeadingPadding: 16) {
-            SettingsListItem("Account Security", icon: Asset.Images.locked24) {} trailingContent: {
+            SettingsListItem("Account Security", icon: SharedAsset.Icons.locked24) {} trailingContent: {
                 Text("Trailing content")
             }
 

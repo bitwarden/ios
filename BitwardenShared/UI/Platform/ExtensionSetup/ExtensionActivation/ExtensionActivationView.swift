@@ -39,7 +39,7 @@ struct ExtensionActivationView: View {
     @ViewBuilder private var content: some View {
         VStack(spacing: 0) {
             IllustratedMessageView(
-                image: SharedAsset.Icons.autofill,
+                image: Asset.Images.autofill,
                 title: Localizations.youreAllSet,
                 message: Localizations.autoFillActivatedDescriptionLong
             )

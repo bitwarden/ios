@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 /// Data model for an item displayed in the vault list.
