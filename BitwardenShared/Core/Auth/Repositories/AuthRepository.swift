@@ -1223,7 +1223,7 @@ extension DefaultAuthRepository: AuthRepository {
                 enrollPinResponse: enrollPinResponse,
                 requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
             )
-            await flightRecorder.log("[Auth] Migrated from legacy pin to pin protected user key envelope")
+            await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
              .password:
             // If the user has a pin, but requires master password after restart, set the pin
@@ -1233,7 +1233,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPin: encryptedPin
             )
             try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
-            await flightRecorder.log("[Auth] Set pin protected user key in memory")
+            await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
         case .pinEnvelope:
             break
         }
