@@ -794,6 +794,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            keychainRepository: keychainRepository,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

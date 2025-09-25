@@ -47,9 +47,48 @@ extension GetAssertionRequest {
                 rk: false,
                 uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
             ),
-            extensions: nil
+            extensions: createExtensionJson(passkeyRequest: passkeyRequest),
         )
     }
+}
+
+@available(iOSApplicationExtension 17.0, *)
+private func createExtensionJson(passkeyRequest: ASPasskeyCredentialRequest) -> String? {
+    guard #available(iOSApplicationExtension 18.0, *) else {
+        return nil
+    }
+    let prf: (Data, Data?)? = switch passkeyRequest.extensionInput {
+    case let .assertion(ext):
+        if let input = ext.prf?.inputValues {
+            (input.saltInput1, input.saltInput2)
+        }
+        else {
+            nil
+        }
+    case let .registration(ext):
+        if let input = ext.prf?.inputValues {
+            (input.saltInput1, input.saltInput2)
+        }
+        else {
+            nil
+        }
+    default:
+        nil
+    }
+    guard let prf else { return nil }
+    
+    let encoder = JSONEncoder()
+    let salt2 = if let salt2 = prf.1 {
+        "\"" + salt2.base64UrlEncodedString(trimPadding: true) + "\""
+    }
+    else { "null" }
+    let eval = #"""
+        {
+            "first": "\#(prf.0.base64UrlEncodedString(trimPadding: true))",
+            "second": \#(salt2)
+        }
+        """#
+    return #"{"prf":{"eval":\#(eval)}"#
 }
 
 // MARK: - MakeCredentialRequest
