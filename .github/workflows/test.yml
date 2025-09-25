@@ -54,8 +54,8 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: macos-26
-    timeout-minutes: 60
+    runs-on: macos-26-xlarge
+    timeout-minutes: 50
     permissions:
       contents: read
 
