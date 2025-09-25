@@ -5,7 +5,7 @@ import SwiftUI
 /// `View` modifiers that are applied conditionally.
 ///
 public extension View {
-    /// Conditionally adds accessibility traits to a view/
+    /// Conditionally adds accessibility traits to a view.
     ///
     /// - Parameters:
     ///     - condition: Should the traits be added?
