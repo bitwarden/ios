@@ -7,19 +7,19 @@ extension BitwardenSdk.InitUserCryptoMethod {
     var methodType: String {
         switch self {
         case .authRequest:
-            return "authRequest"
+            return "Auth Request"
         case .password:
-            return "password"
+            return "Password"
         case .decryptedKey:
-            return "decryptedKey"
+            return "Decrypted Key (Never Lock/Biometrics)"
         case .deviceKey:
-            return "deviceKey"
+            return "Device Key"
         case .keyConnector:
-            return "keyConnector"
+            return "Key Connector"
         case .pin:
-            return "pin"
+            return "PIN"
         case .pinEnvelope:
-            return "pinEnvelope"
+            return "PIN Envelope"
         }
     }
 }
