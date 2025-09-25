@@ -301,7 +301,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 state.owner = ownershipOptions.first
             }
 
-            if !state.configuration.isAdding {
+            if state.configuration.isAdding {
+                let defaultCollection = state.collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
+                if let defaultCollectionId = defaultCollection?.id, state.collectionIds.isEmpty {
+                    state.collectionIds.append(defaultCollectionId)
+                }
+            } else {
                 await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
             }
         } catch {
