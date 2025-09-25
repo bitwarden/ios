@@ -94,7 +94,7 @@
 "AppExtension" = "App 扩展";
 "AutofillAccessibilityDescription" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。";
 "AutofillService" = "自动填充服务";
-"SetBitwardenAsPasskeyManagerDescription" = "在设备的「设置」中将 Bitwarden 设置为您的通行密钥提供程序。";
+"SetBitwardenAsPasskeyManagerDescription" = "在设备的设置中将 Bitwarden 设置为您的通行密钥提供程序。";
 "AvoidAmbiguousCharacters" = "避免易混淆的字符";
 "BitwardenAppExtension" = "Bitwarden App 扩展";
 "BitwardenAppExtensionAlert2" = "向您的密码库中添加新登录项目的最简单方法，就是通过 Bitwarden App 扩展。转到「设置」界面进一步了解 Bitwarden App 扩展的使用。";
@@ -131,9 +131,7 @@
 "LastSync" = "上次同步：";
 "Length" = "长度";
 "Lock" = "锁定";
-"FifteenMinutes" = "15 分钟";
 "OneHour" = "1 小时";
-"OneMinute" = "1 分钟";
 "FourHours" = "4 小时";
 "Immediately" = "立即";
 "VaultTimeout" = "密码库超时时间";
@@ -433,18 +431,15 @@
 "PIN" = "PIN 码";
 "Unlock" = "解锁​​​​";
 "UnlockVault" = "解锁密码库";
-"ThirtyMinutes" = "30 分钟";
 "LoggedInAsOn" = "已在 %2$@ 上以 %1$@ 身份登录。";
 "VaultLockedMasterPassword" = "您的密码库已锁定，请验证您的主密码以继续。";
 "VaultLockedPIN" = "您的密码库已锁定。请验证您的 PIN 码以继续。";
 "VaultLockedIdentity" = "您的密码库已锁定。请验证您的身份以继续。";
 "Dark" = "深色";
 "Light" = "浅色";
-"FiveMinutes" = "5 分钟";
 "TenSeconds" = "10 秒";
 "ThirtySeconds" = "30 秒";
 "TwentySeconds" = "20 秒";
-"TwoMinutes" = "2 分钟";
 "ClearClipboard" = "清除剪贴板";
 "ClearClipboardDescription" = "自动清除复制到剪贴板的值。";
 "DefaultUriMatchDetection" = "默认的 URI 匹配检测方式";
@@ -865,7 +860,7 @@
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "在网页 App 上探索您的 Bitwarden 账户的更多功能。";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden 允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站进一步了解。";
 "RateAppDescriptionLong" = "帮助他人了解 Bitwarden 是否适合他们。立即访问 App Store 并留下评分。";
-"DefaultDarkThemeDescriptionLong" = "当设备的深色模式启用时，选择要使用的深色主题。";
+"DefaultDarkThemeDescriptionLong" = "当设备的深色模式启用时，选择要使用的深色主题";
 "CreatedX" = "创建于 %1$@";
 "TooManyAttempts" = "尝试次数过多";
 "AccountLoggedOutBiometricExceeded" = "账户已注销。";
@@ -875,8 +870,8 @@
 "ChooseALoginToSaveThisPasskeyTo" = "选择一个用于保存此通行密钥的登录项目";
 "SavePasskeyAsNewLogin" = "将通行密钥保存为新的登录";
 "SavePasskey" = "保存通行密钥";
-"PasskeysForX" = "%1$@ 的通行密钥";
-"PasswordsForX" = "%1$@ 的密码";
+"PasskeysForX" = "适用于 %1$@ 的通行密钥";
+"PasswordsForX" = "适用于 %1$@ 的密码";
 "OverwritePasskey" = "覆盖通行密钥吗？";
 "ThisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey" = "此项目已包含一个通行密钥。确定要覆盖当前的通行密钥吗？";
 "DuoTwoStepLoginIsRequiredForYourAccount" = "您的账户要求使用 Duo 两步登录。";

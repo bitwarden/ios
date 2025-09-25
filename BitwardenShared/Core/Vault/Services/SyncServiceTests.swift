@@ -771,6 +771,23 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(policyService.replacePoliciesUserId, "1")
     }
 
+    /// `fetchSync()` updates the user's master password unlock decryption options.
+    func test_fetchSync_userDecryptionOptions() async throws {
+        client.result = .httpSuccess(testData: .syncWithUserDecryption)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(
+            stateService.masterPasswordUnlockByUserId["1"],
+            MasterPasswordUnlockResponseModel(
+                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                salt: "user@bitwarden.com"
+            )
+        )
+    }
+
     /// `fetchSync()` throws an error if the request fails.
     func test_fetchSync_error() async throws {
         client.result = .httpFailure()
