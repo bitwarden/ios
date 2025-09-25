@@ -432,6 +432,9 @@ class DefaultAuthRepository {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
 
@@ -472,6 +475,7 @@ class DefaultAuthRepository {
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - keychainService: The keychain service used by the application.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
@@ -492,6 +496,7 @@ class DefaultAuthRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         keychainService: KeychainRepository,
         keyConnectorService: KeyConnectorService,
         organizationAPIService: OrganizationAPIService,
@@ -510,6 +515,7 @@ class DefaultAuthRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.keychainService = keychainService
         self.keyConnectorService = keyConnectorService
         self.organizationAPIService = organizationAPIService
@@ -1103,6 +1109,8 @@ extension DefaultAuthRepository: AuthRepository {
             method: method
         )
 
+        await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")
+
         switch method {
         case .authRequest:
             // Remove admin pending login request if exists
@@ -1215,6 +1223,7 @@ extension DefaultAuthRepository: AuthRepository {
                 enrollPinResponse: enrollPinResponse,
                 requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
             )
+            await flightRecorder.log("[Auth] Migrated from legacy pin to pin protected user key envelope")
         case .decryptedKey,
              .password:
             // If the user has a pin, but requires master password after restart, set the pin
@@ -1224,6 +1233,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPin: encryptedPin
             )
             try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
+            await flightRecorder.log("[Auth] Set pin protected user key in memory")
         case .pinEnvelope:
             break
         }
