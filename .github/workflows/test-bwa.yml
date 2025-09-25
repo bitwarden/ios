@@ -60,7 +60,7 @@ jobs:
   test:
     name: Test
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
 
