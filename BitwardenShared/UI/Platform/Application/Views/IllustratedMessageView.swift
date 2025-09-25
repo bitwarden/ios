@@ -206,7 +206,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 
 #Preview("LargeTextTintedIcon") {
     IllustratedMessageView(
-        image: Asset.Images.plus24,
+        image: SharedAsset.Icons.plus24,
         style: .largeTextTintedIcon,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins

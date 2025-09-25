@@ -97,5 +97,5 @@ struct AccessoryButton: View {
 // MARK: Previews
 
 #Preview {
-    AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copy) {}
+    AccessoryButton(asset: SharedAsset.Icons.copy24, accessibilityLabel: Localizations.copy) {}
 }

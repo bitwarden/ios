@@ -36,9 +36,9 @@ struct ExportCXFState: Equatable, Sendable {
     var mainIcon: ImageAsset {
         return switch status {
         case .prepared, .start:
-            Asset.Images.fileUpload24
+            SharedAsset.Icons.fileUpload24
         case .failure:
-            Asset.Images.circleX16
+            SharedAsset.Icons.circleX16
         }
     }
 

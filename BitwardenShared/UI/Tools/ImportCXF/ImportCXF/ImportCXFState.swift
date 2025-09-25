@@ -49,11 +49,11 @@ struct ImportCXFState: Equatable, Sendable {
     var mainIcon: ImageAsset {
         return switch status {
         case .importing, .start:
-            Asset.Images.fileUpload24
+            SharedAsset.Icons.fileUpload24
         case .success:
-            Asset.Images.checkCircle24
+            SharedAsset.Icons.checkCircle24
         case .failure:
-            Asset.Images.circleX16
+            SharedAsset.Icons.circleX16
         }
     }
 

@@ -108,8 +108,8 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
-                            ? Asset.Images.eyeSlash24
-                            : Asset.Images.eye24,
+                            ? SharedAsset.Icons.eyeSlash24
+                            : SharedAsset.Icons.eye24,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
                             : Localizations.passwordIsNotVisibleTapToShow
@@ -407,7 +407,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
             title: "Title",
             text: .constant("Text field text")
         ) {
-            AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
+            AccessoryButton(asset: SharedAsset.Icons.cog24, accessibilityLabel: "") {}
         }
         .padding()
     }
@@ -422,7 +422,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
             footer: Localizations.vaultLockedMasterPassword,
             isPasswordVisible: .constant(false)
         ) {
-            AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
+            AccessoryButton(asset: SharedAsset.Icons.cog24, accessibilityLabel: "") {}
         }
         .padding()
     }
@@ -436,7 +436,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
             text: .constant("Text field text"),
             isPasswordVisible: .constant(false)
         ) {
-            AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
+            AccessoryButton(asset: SharedAsset.Icons.cog24, accessibilityLabel: "") {}
         } footerContent: {
             Button("Footer button") {}
                 .buttonStyle(.bitwardenBorderless)

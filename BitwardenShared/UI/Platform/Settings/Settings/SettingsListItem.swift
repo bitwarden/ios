@@ -113,7 +113,7 @@ struct SettingsListItem<Content: View>: View {
             }
 
             SettingsListItem("Account Security") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink24)
+                Image(asset: SharedAsset.Icons.externalLink24)
             }
 
             SettingsListItem("Account Security") {}
@@ -121,7 +121,7 @@ struct SettingsListItem<Content: View>: View {
             SettingsListItem("Account Security with Badge!", badgeValue: "3") {}
 
             SettingsListItem("Account Security with Badge!", badgeValue: "4") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink24)
+                Image(asset: SharedAsset.Icons.externalLink24)
             }
         }
     }

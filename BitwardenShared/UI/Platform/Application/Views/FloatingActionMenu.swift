@@ -53,7 +53,7 @@ struct FloatingActionMenu<Content: View>: View {
 #if DEBUG
 #Preview {
     VStack {
-        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             Button("Item 1") {}
             Button("Item 2") {}
             Button("Item 3") {}

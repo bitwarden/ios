@@ -25,20 +25,20 @@ struct ImportLoginsSuccessView: View {
 
             ContentBlock(dividerLeadingPadding: 48) {
                 rowView(
-                    image: Asset.Images.puzzle24,
+                    image: SharedAsset.Icons.puzzle24,
                     title: Localizations.downloadTheBrowserExtension,
                     subtitle: Localizations
                         .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience
                 )
 
                 rowView(
-                    image: Asset.Images.desktop24,
+                    image: SharedAsset.Icons.desktop24,
                     title: Localizations.useTheWebApp,
                     subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings
                 )
 
                 rowView(
-                    image: Asset.Images.shield24,
+                    image: SharedAsset.Icons.shield24,
                     title: Localizations.autofillPasswords,
                     subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere
                 )

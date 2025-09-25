@@ -100,40 +100,40 @@ extension VaultListItem {
         case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
             case .card:
-                Asset.Images.card24
+                SharedAsset.Icons.card24
             case .identity:
-                Asset.Images.idCard24
+                SharedAsset.Icons.idCard24
             case .login:
-                fido2CredentialAutofillView != nil ? Asset.Images.passkey24 : Asset.Images.globe24
+                fido2CredentialAutofillView != nil ? SharedAsset.Icons.passkey24 : SharedAsset.Icons.globe24
             case .secureNote:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .sshKey:
-                Asset.Images.key24
+                SharedAsset.Icons.key24
             }
         case let .group(group, _):
             switch group {
             case .card:
-                Asset.Images.card24
+                SharedAsset.Icons.card24
             case .collection:
-                Asset.Images.collections24
+                SharedAsset.Icons.collections24
             case .folder,
                  .noFolder:
-                Asset.Images.folder24
+                SharedAsset.Icons.folder24
             case .identity:
-                Asset.Images.idCard24
+                SharedAsset.Icons.idCard24
             case .login:
-                Asset.Images.globe24
+                SharedAsset.Icons.globe24
             case .secureNote:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .sshKey:
-                Asset.Images.key24
+                SharedAsset.Icons.key24
             case .totp:
-                Asset.Images.clock24
+                SharedAsset.Icons.clock24
             case .trash:
-                Asset.Images.trash24
+                SharedAsset.Icons.trash24
             }
         case .totp:
-            Asset.Images.clock24
+            SharedAsset.Icons.clock24
         }
     }
 

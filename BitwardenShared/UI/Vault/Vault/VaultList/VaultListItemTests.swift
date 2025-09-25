@@ -119,76 +119,76 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.icon.name,
-            Asset.Images.card24.name
+            SharedAsset.Icons.card24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .identity))?.icon.name,
-            Asset.Images.idCard24.name
+            SharedAsset.Icons.idCard24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(login: .fixture()))?.icon.name,
-            Asset.Images.globe24.name
+            SharedAsset.Icons.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(
                 cipherListView: .fixture(login: .fixture()),
                 fido2CredentialAutofillView: .fixture()
             )?.icon.name,
-            Asset.Images.passkey24.name
+            SharedAsset.Icons.passkey24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .secureNote))?.icon.name,
-            Asset.Images.file24.name
+            SharedAsset.Icons.file24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .sshKey))?.icon.name,
-            Asset.Images.key24.name
+            SharedAsset.Icons.key24.name
         )
 
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).icon.name,
-            Asset.Images.card24.name
+            SharedAsset.Icons.card24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1)).icon.name,
-            Asset.Images.collections24.name
+            SharedAsset.Icons.collections24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.folder(id: "", name: ""), 1)).icon.name,
-            Asset.Images.folder24.name
+            SharedAsset.Icons.folder24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
-            Asset.Images.idCard24.name
+            SharedAsset.Icons.idCard24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,
-            Asset.Images.globe24.name
+            SharedAsset.Icons.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).icon.name,
-            Asset.Images.file24.name
+            SharedAsset.Icons.file24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.sshKey, 1)).icon.name,
-            Asset.Images.key24.name
+            SharedAsset.Icons.key24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).icon.name,
-            Asset.Images.clock24.name
+            SharedAsset.Icons.clock24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            Asset.Images.trash24.name
+            SharedAsset.Icons.trash24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            Asset.Images.trash24.name
+            SharedAsset.Icons.trash24.name
         )
 
         XCTAssertEqual(
             VaultListItem.fixtureTOTP(totp: .fixture()).icon.name,
-            Asset.Images.clock24.name
+            SharedAsset.Icons.clock24.name
         )
     }
 

@@ -312,49 +312,49 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_icon_cardKnownBrand() throws {
         let cipher = CipherView.cardFixture(card: .fixture(brand: "Visa"))
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.Cards.visa.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.Cards.visa.name)
     }
 
     /// `getter:icon` returns the icon for a card cipher with "other" brand.
     func test_icon_cardOtherBrand() throws {
         let cipher = CipherView.cardFixture(card: .fixture(brand: "Other"))
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.card24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
     }
 
     /// `getter:icon` returns the icon for a card cipher with no brand.
     func test_icon_cardNoBrand() throws {
         let cipher = CipherView.cardFixture(card: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.card24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
     }
 
     /// `getter:icon` returns the icon for an identity cipher.
     func test_icon_identity() throws {
         let cipher = CipherView.fixture(type: .identity)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.idCard24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.idCard24.name)
     }
 
     /// `getter:icon` returns the icon for a login cipher.
     func test_icon_login() throws {
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.globe24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.globe24.name)
     }
 
     /// `getter:icon` returns the icon for a secure note cipher.
     func test_icon_secureNote() throws {
         let cipher = CipherView.fixture(type: .secureNote)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.stickyNote24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.stickyNote24.name)
     }
 
     /// `getter:icon` returns the icon for a SSH key cipher.
     func test_icon_sshKey() throws {
         let cipher = CipherView.fixture(type: .sshKey)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertEqual(state.icon.name, Asset.Images.key24.name)
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.key24.name)
     }
 
     /// `getter:iconAccessibilityId` returns the icon accessibility id.
