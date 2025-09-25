@@ -68,8 +68,8 @@ class MockCryptoClient: CryptoClientProtocol {
         )
     )
 
-    var updatePasswordNewPassword: String?
-    var updatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
+    var makeUpdatePasswordNewPassword: String?
+    var makeUpdatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
         UpdatePasswordResponse(
             passwordHash: "password hash",
             newKey: "new key"
@@ -127,12 +127,11 @@ class MockCryptoClient: CryptoClientProtocol {
     }
 
     func makeUpdatePassword(newPassword: String) throws -> UpdatePasswordResponse {
-        updatePasswordNewPassword = newPassword
-        return try updatePasswordResult.get()
+        makeUpdatePasswordNewPassword = newPassword
+        return try makeUpdatePasswordResult.get()
     }
 
     func updatePassword(newPassword: String) throws -> BitwardenSdk.UpdatePasswordResponse {
-        updatePasswordNewPassword = newPassword
-        return try updatePasswordResult.get()
+        fatalError("Use makeUpdatePassword(newPassword:) instead")
     }
 }
