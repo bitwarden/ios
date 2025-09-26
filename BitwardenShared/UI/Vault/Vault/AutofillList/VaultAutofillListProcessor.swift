@@ -578,7 +578,6 @@ extension VaultAutofillListProcessor {
                 for: fido2RequestParameters,
                 fido2UserInterfaceHelperDelegate: self
             )
-            print(assertionCredential)
 
             autofillAppExtensionDelegate.completeAssertionRequest(assertionCredential: assertionCredential)
         } catch {
