@@ -38,6 +38,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
     private var groupTotpExpirationManager: TOTPExpirationManager?
 
+    /// An object to manage TOTP code expirations and batch refresh calls for search results.
+    private var searchTotpExpirationManager: TOTPExpirationManager?
+
     // MARK: Initialization
 
     /// Creates a new `ItemListProcessor`.
@@ -62,6 +65,15 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
+                }
+            }
+        )
+        searchTotpExpirationManager = TOTPExpirationManager(
+            timeProvider: services.timeProvider,
+            onExpiration: { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
             }
         )
@@ -107,7 +119,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await determineItemListCardState()
             await streamItemList()
         case let .search(text):
-            state.searchResults = await searchItems(for: text)
+            await searchItems(for: text)
         case .streamItemList:
             await streamItemList()
         }
@@ -154,9 +166,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
-            if !state.searchText.isEmpty {
-                state.searchResults = await searchItems(for: state.searchText)
-            }
             state.toast = Toast(text: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
@@ -208,9 +217,21 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             let allItems = updatedSections.flatMap(\.items)
             groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
             state.loadingState = .data(updatedSections)
-            if !state.searchResults.isEmpty {
-                state.searchResults = await searchItems(for: state.searchText)
-            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Refreshes TOTP Codes for the search results.
+    ///
+    private func refreshTOTPCodes(searchItems: [ItemListItem]) async {
+        guard case let .data(currentSections) = state.loadingState else { return }
+        do {
+            let refreshedItems = try await services.authenticatorItemRepository.refreshTotpCodes(on: searchItems)
+            let updatedSections = currentSections.updated(with: refreshedItems)
+            let allItems = updatedSections.flatMap(\.items)
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            state.searchResults = updatedSections[0].items
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -246,29 +267,27 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
-    /// Searches items using the provided string, and returns any matching results.
+    /// Searches items using the provided string and sets to state any matching results.
     ///
     /// - Parameters:
     ///   - searchText: The string to use when searching items.
-    /// - Returns: An array of `ItemListItem` objects. If no results can be found, an empty array will be returned.
     ///
-    private func searchItems(for searchText: String) async -> [ItemListItem] {
+    private func searchItems(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
         do {
             let result = try await services.authenticatorItemRepository.searchItemListPublisher(
                 searchText: searchText
             )
             for try await items in result {
-                let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
-                return itemList
+                state.searchResults = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+                searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
             }
         } catch {
             services.errorReporter.log(error: error)
         }
-        return []
     }
 
     /// Subscribe to receive foreground notifications so that we can refresh the item list when the app is relaunched.
@@ -328,9 +347,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 state.loadingState = .data(sectionList)
                 if showToast {
                     state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
-                }
-                if !state.searchText.isEmpty {
-                    state.searchResults = await searchItems(for: state.searchText)
                 }
             }
         } catch {
