@@ -291,6 +291,33 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
     }
 
+    /// `updateKdf()` performs the request to update a user's KDF settings.
+    func test_updateKdf() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = UpdateKdfRequestModel(
+            authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                kdf: KdfConfig(),
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+                salt: "AUTHENTICATION_SALT"
+            ),
+            key: "key",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HINT",
+            unlockData: MasterPasswordUnlockDataRequestModel(
+                kdf: KdfConfig(),
+                masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                salt: "UNLOCK_SALT"
+            )
+        )
+        try await subject.updateKdf(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/kdf")
+    }
+
     /// `updatePassword()` doesn't throw an error when receiving the empty response.
     func test_updatePassword() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
