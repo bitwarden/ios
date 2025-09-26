@@ -6,6 +6,11 @@ import BitwardenSdk
 /// A model for configuring KDF options.
 ///
 struct KdfConfig: Codable, Equatable, Hashable {
+    // MARK: Type Properties
+
+    /// The default `KdfConfig` used for new accounts or when upgrading the KDF config to minimums.
+    static let defaultKdfConfig = KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations)
+
     // MARK: Properties
 
     /// The type of KDF used in the request.

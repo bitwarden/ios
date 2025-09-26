@@ -131,7 +131,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
         try await subject.updateKdfToMinimums(password: "password123!")
 
-        XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfKdf, .pbkdf2(iterations: 599_999))
+        XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfKdf, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfPassword, "password123!")
 
         XCTAssertEqual(client.requests.count, 1)
@@ -200,8 +200,9 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
         try await subject.updateKdfToMinimumsIfNeeded(password: "password123!")
 
-        XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfKdf, .pbkdf2(iterations: 599_999))
+        XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfKdf, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfPassword, "password123!")
+        XCTAssertEqual(stateService.setAccountKdfByUserId["1"], KdfConfig.defaultKdfConfig)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)

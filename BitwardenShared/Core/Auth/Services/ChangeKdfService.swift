@@ -102,13 +102,15 @@ class DefaultChangeKdfService: ChangeKdfService {
         let account = try await stateService.getActiveAccount()
 
         do {
+            let kdfConfig = KdfConfig.defaultKdfConfig
             let updateKdfResponse = try await clientService.crypto().makeUpdateKdf(
                 password: password,
-                kdf: account.kdf.sdkKdf
+                kdf: kdfConfig.sdkKdf
             )
             try await accountAPIService.updateKdf(
                 UpdateKdfRequestModel(response: updateKdfResponse)
             )
+            try await stateService.setAccountKdf(kdfConfig, userId: account.profile.userId)
         } catch {
             // If an error occurs, log the error. Don't throw since that would block the vault unlocking.
             errorReporter.log(error: BitwardenError.generalError(
