@@ -290,19 +290,15 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The store which makes credential identities available to the system for AutoFill suggestions.
     private let credentialIdentityStore: CredentialIdentityStore
 
+    /// The service used to create and assert the device passkey for logging into remote clients.
+    private let devicePasskeyService: DevicePasskeyService
+    
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    // TODO: Exposing this externally so we can do late binding
-    /// The service to provide the UI for FIDO2 ceremonies.
-    var fido2UserInterfaceHelper: Fido2UserInterfaceHelper?
-    
-    /// The store to place FIDO2 credentials into.
-    var fido2CredentialStore: Fido2CredentialStore?
-    
     /// The repository used to manages keychain items.
     private let keychainRepository: KeychainRepository
 
@@ -351,6 +347,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityStore: The store which makes credential identities available to the
     ///     system for AutoFill suggestions.
+    ///   - devicePasskeyService: The service used to create and assert the device passkey for logging into remote clients.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
@@ -366,10 +363,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         clientService: ClientService,
         configService: ConfigService,
         credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        devicePasskeyService: DevicePasskeyService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
-        // fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
-        // fido2CredentialStore: Fido2CredentialStore,
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
         stateService: StateService,
@@ -382,6 +378,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.clientService = clientService
         self.configService = configService
         self.credentialIdentityStore = credentialIdentityStore
+        self.devicePasskeyService = devicePasskeyService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -389,8 +386,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.trustDeviceService = trustDeviceService
-        // self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
-        // self.fido2CredentialStore = fido2CredentialStore
     }
 
     // MARK: Methods
@@ -709,6 +704,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         return false
     }
+    
+    /// Create device passkey with PRF encryption key.
+    func createDevicePasskey(masterPasswordHash: String) async throws {
+        try await devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash)
+    }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod {
         // Get the identity token to log in to Bitwarden.
@@ -1026,272 +1026,4 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             purpose: .localAuthorization
         ))
     }
-    
-    /// Create device passkey with PRF encryption key.
-    func createDevicePasskey(masterPasswordHash: String) async throws {
-        // try await clientService.crypto().initializeUserCrypto(req: cryptoInitRequest)
-        let response = try await authAPIService.getCredentialCreationOptions(SecretVerificationRequestModel(passwordHash: masterPasswordHash))
-        let options = response.options
-        let token = response.token
-        // TODO: Does server request PRF extension?
-        // let credResponse: PublicKeyCredentialAuthenticatorAttestationResponse = try await BitwardenSdk.CreateWebAuthnCredential(options)
-        let loginWithPrfSalt = Data(SHA256.hash(data: "passwordless-login".data(using: .utf8)!))
-        let excludeCredentials: [PublicKeyCredentialDescriptor]? = if options.excludeCredentials != nil {
-            options.excludeCredentials!.map {
-                return PublicKeyCredentialDescriptor(ty: $0.type, id: Data(base64Encoded: normalizeBase64url($0.id))!, transports: nil)
-            }
-        }
-        else  { nil }
-        let credParams = options.pubKeyCredParams.map {
-            PublicKeyCredentialParameters(ty: $0.type, alg: Int64($0.alg))
-        }
-        // Would be nice if Fido2Net allowed specifying clientDataJson or hash
-        // TODO: This doesn't validate URLs as proper web origins (no path, with port + scheme, etc.)
-        let origin = environmentService.webVaultURL.absoluteString
-        let clientDataJson = #"{"type":"webauthn.create","challenge":"\#(options.challenge)","origin":"\#(origin)"}"#
-        let clientDataHash = Data(SHA256.hash(data: clientDataJson.data(using: .utf8)!))
-        let credRequest = MakeCredentialRequest(
-            clientDataHash: clientDataHash,
-            rp: PublicKeyCredentialRpEntity(id: options.rp.id, name: options.rp.name),
-            user: PublicKeyCredentialUserEntity(
-                id: Data(base64Encoded: normalizeBase64url(options.user.id))!,
-                displayName: options.user.name,
-                name: options.user.name
-            ),
-            pubKeyCredParams: credParams,
-            excludeList: excludeCredentials,
-            options: Options(
-                rk: true,
-                // TODO: hard-coding
-                uv: .required
-            ),
-            extensions: """
-                {
-                    "prf": {
-                        "eval": { "first": "\(loginWithPrfSalt.base64EncodedString())" }
-                    }
-                }
-                """
-        )
-        /*
-        let createdCredential = try await clientService.platform().fido2()
-            .authenticator(
-                userInterface: fido2UserInterfaceHelper!,
-                credentialStore: fido2CredentialStore!
-            )
-            .makeCredential(request: credRequest)
-         */
-        let makeResult = try makeWebAuthnCredential(request: credRequest)
-        let createdCredential = makeResult.credential
-        let prfResult = makeResult.prfResult
-        let credRecord = DevicePasskeyRecord(
-            credId: createdCredential.credentialId.base64EncodedString(),
-            privKey: makeResult.privKey.rawRepresentation.base64EncodedString(),
-            prfSeed: makeResult.prfSeed.base64EncodedString(),
-            rpId: credRequest.rp.id,
-            rpName: credRequest.rp.name,
-            userId: credRequest.user.id.base64UrlEncodedString(trimPadding: false),
-            userName: credRequest.user.name,
-            userDisplayName: credRequest.user.displayName,
-            creationDate: CurrentTime().presentTime,
-            
-        )
-        let encoder = JSONEncoder()
-        let recordJson = try String(data: encoder.encode(credRecord), encoding: .utf8)!
-        try await keychainRepository.setDevicePasskey(recordJson, userId: stateService.getActiveAccountId())
-        // This may be filled in if the device supports the hmac-secret-mc extension
-        /*
-        let authData = credResponse.response.authenticatorData
-        let flags = authData[32]
-        let AUTH_DATA_AT: UInt8 = 0b0100_0000
-        let AUTH_DATA_ED: UInt8 = 0b1000_0000
-        let hasExtensions = flags & AUTH_DATA_ED > 0
-        let hasAttestationData = flags & AUTH_DATA_AT > 0
-         var pos = 37 + 16
-         let credIdLen = authData[pos..pos + 2].toUint16
-         pos += 2 + credIdLen
-         // have to parse CBOR to know how long this thing is...
-         // pos += ???
-         let extensionCbor = authData[pos..]
-         // [parse CBOR to get this out of here
-         // This is bogus, we should add helper methods to Rust SDK so we don't have to do this manually.
-         */
-        /*
-        let prfResult =
-        if createdCredential.extensions?.prf?.enabled == true
-                && credResponse.authData.extensions?.prf?.results.first != nil {
-                credResponse.authData.extensions.prf.results.first
-            }
-            // otherwise, send a attestation request to get the PRF value
-            else {
-                // We should request a new challenge rather than reusing this one.
-                // The server should be modified to accept two signatures and make sure the assertion signature matches the credential in the attestation.
-                let nativeOptions = PublicKeyCredentialAssertionOptions(
-                    rpId: options.rp.id,
-                    challenge: options.challenge,
-                    allowCredentials: [[ "id": credResponse.rawId, "type": "public-key" ]],
-                    timeout: options.timeout,
-                    userVerification: options.authenticatorSelection.userVerification,
-                    extensions: """
-                        {
-                            prf: { eval: { first: "\(loginWithPrfSalt)" } },
-                        }
-                        """
-                )
-                let assertion = try await BitwardenSdk.GetAssertion(nativeOptions)
-                assertion.authData.extensions?.prf?.first
-            }
-         */
-        
-        // Since we have alternative methods of signing with biometrics/local OS auth,
-        // the only purpose of this key is to provide PRF for remote clients.
-        // So let's assert that we can create the PRF.
-        guard prfResult != nil else { throw AuthError.unableToCreateDevicePasskey }
-        let prfKeyResponse = try await clientService.crypto().derivePrfKey(prf: prfResult.base64EncodedString())
-        print(prfKeyResponse)
-        
-        // TODO: Get real app name
-        let clientName = "My local device"
-        // authAPIService.saveWebAuthnCredential(clientName, credResponse, supportsPrf: true, keySet)
-        let request = WebAuthnLoginSaveCredentialRequestModel(
-            deviceResponse: WebAuthnLoginAttestationResponseRequest(
-                id: createdCredential.credentialId.base64UrlEncodedString(trimPadding: false),
-                rawId: createdCredential.credentialId.base64UrlEncodedString(trimPadding: false),
-                type: "public-key",
-                response: WebAuthnLoginAttestationResponseRequestInner(
-                    attestationObject: createdCredential.attestationObject.base64UrlEncodedString(trimPadding: false),
-                    clientDataJson: clientDataJson.data(using: .utf8)!.base64UrlEncodedString(trimPadding: false),
-                ),
-            ),
-            name: clientName,
-            token: token,
-            supportsPrf: true,
-            encryptedUserKey: prfKeyResponse.encapsulatedUserKey,
-            encryptedPublicKey: prfKeyResponse.encryptedEncapsulationKey,
-            encryptedPrivateKey: prfKeyResponse.prfKeyEncryptedDecapsulationKey,
-        )
-        try await authAPIService.saveCredential(request)
-    }
-    
-    private func normalizeBase64url(_ str: String) -> String {
-        let hasPadding = str.last == "="
-        let padding = if !hasPadding {
-            switch str.count % 4 {
-            case 2: "=="
-            case 3: "="
-            default: ""
-            }
-        } else { "" }
-        return str
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-            + padding
-    }
-    
-    private func makeWebAuthnCredential(request: MakeCredentialRequest) throws -> DevicePasskeyResult {
-        // attested credential data
-        let aaguid = Data(count:16)
-        let credId = Data(repeating: 0xf1, count: 16)
-        let privKey = P256.Signing.PrivateKey(compactRepresentable: false)
-        let publicKeyBytes = privKey.publicKey.rawRepresentation
-        let pointX = publicKeyBytes[1..<33]
-        let pointY = publicKeyBytes[33...]
-        var cosePubKey = Data()
-        cosePubKey.append(contentsOf: [
-            0xA5, // Map, length 5
-            0x01, 0x02, // 1 (kty): 2 (EC2)
-            0x03,  0x26, // 3 (alg): -7 (ES256)
-            0x20,  0x01, // -1 (crv): 1 (P256)
-        ])
-        cosePubKey.append(contentsOf: [
-            0x21, 0x58, 0x20// -2 (x): bytes, len 32
-        ])
-        cosePubKey.append(contentsOf: pointX)
-        cosePubKey.append(contentsOf: [
-            0x22, 0x58, 0x20// -3 (x): bytes, len 32
-        ])
-        cosePubKey.append(contentsOf: pointY)
-        let attestedCredentialData = aaguid + UInt16(credId.count).bytes + credId + cosePubKey
-        
-        // extensions
-        // prf
-        let prfSeed = "this is a PRF secret, I promise!".data(using: .utf8)!
-        let saltPrefix = "WebAuthn PRF\0".data(using: .utf8)!
-        // hard-coding instead of parsing extensions from request
-        let loginWithPrfSalt = Data(SHA256.hash(data: "passwordless-login".data(using: .utf8)!))
-        let salt1 = saltPrefix + loginWithPrfSalt
-        // This should be encrypted with a shared secret between the client and authenticator so that the RP doesn't see the PRF output. Skipping that for now.
-        let prfResult = Data(HMAC<SHA256>.authenticationCode(for: salt1, using: SymmetricKey(data: prfSeed)))
-        var extensions = Data()
-        extensions.append(contentsOf:[
-            0xA1, // map, length 1
-              0x63, 0x70, 0x72, 0x66, // string, len 3 "prf"
-                0xA2, // map, length 2
-                  0x67, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, // text, length 7 "enabled"
-                    0xF5, // true
-                  0x67, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73, // text, length 7 "results
-                    0xA1, // map, length 1
-                      0x65, 0x66, 0x69, 0x72, 0x73, 0x74, // text, length 5, "first"
-                        0x58, 0x20, // bytes, length 32
-        ])
-        extensions.append(contentsOf: prfResult)
-
-        // authenticatorData
-        let rpIdHash = Data(SHA256.hash(data: request.rp.id.data(using: .utf8)!))
-        let flags = 0b11000101 // ED, AT, UV, UP
-        let signCount = UInt32(0)
-        let authData = rpIdHash + UInt8(flags).bytes + signCount.bigEndian.bytes + attestedCredentialData + extensions
-        
-        // signature
-        let payload = authData + request.clientDataHash
-        let sig = try privKey.signature(for: payload).derRepresentation
-        
-        // attestation object
-        var attObj = Data()
-        attObj.append(contentsOf: [
-            0xA3, // map, length 3
-              0x63, 0x66, 0x6d, 0x74, // string, len 3 "fmt"
-              //   0x64, 0x6e, 0x6f, 0x6e, 0x65, // string, len 3 "none"
-              // 0x67, 0x61, 0x74, 0x74, 0x53, 0x74, 0x6d, 0x74, // string, len 7, "attStmt"
-              //   0xA0, // map, length 0
-                0x66, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x64, // string, len 6, "packed"
-              0x67, 0x61, 0x74, 0x74, 0x53, 0x74, 0x6d, 0x74, // string, len 7, "attStmt"
-                0xA2, // map, length 2
-                  0x63, 0x61, 0x6c, 0x67, // string, len 3, "alg"
-                    0x26, // -7 (P256)
-                  0x63, 0x73, 0x69, 0x67, // string, len 3, "sig"
-                  0x58, // bytes, length specified in following byte
-        ])
-        attObj.append(contentsOf: UInt8(sig.count).bytes)
-        attObj.append(contentsOf: sig)
-        attObj.append(contentsOf:[
-              0x68, 0x61, 0x75, 0x74, 0x68, 0x44, 0x61, 0x74, 0x61, // string, len 8, "authData"
-                0x58, // bytes, length specified in following byte.
-        ])
-        attObj.append(contentsOf: UInt8(authData.count).bytes)
-        attObj.append(contentsOf: authData)
-        let result = MakeCredentialResult(authenticatorData: authData, attestationObject: attObj, credentialId: credId)
-        // Even though prfResult is included in extensions, we'd have to parse CBOR, so just including it for now
-        return DevicePasskeyResult(credential: result, privKey: privKey, prfSeed: prfSeed, prfResult: prfResult)
-    }
-    struct DevicePasskeyResult {
-        let credential: MakeCredentialResult
-        let privKey: P256.Signing.PrivateKey
-        let prfSeed: Data
-        let prfResult: Data
-    }
-}
-
-extension Data {
-    func base64UrlEncodedString(trimPadding: Bool? = true) -> String {
-        let shouldTrim = if trimPadding != nil { trimPadding! } else { true }
-        let encoded = base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
-        if shouldTrim {
-            return encoded.trimmingCharacters(in: CharacterSet(["="]))
-        } else {
-            return encoded
-        }
-    }
-}
-
-// swiftlint:disable:this file_length
+} // swiftlint:disable:this file_length
