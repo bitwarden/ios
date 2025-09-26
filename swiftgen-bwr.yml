@@ -26,4 +26,5 @@ xcassets:
       params:
         enumName: SharedAsset
         forceFileNameEnum: true
+        imageTypeName: SharedImageAsset
         publicAccess: true
