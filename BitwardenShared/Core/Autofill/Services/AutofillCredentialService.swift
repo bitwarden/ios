@@ -272,6 +272,18 @@ class DefaultAutofillCredentialService {
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
+                // Add device passkey
+                if let json = try await keychainRepository.getDevicePasskey(userId: userId) {
+                    let decoder = JSONDecoder()
+                    let record = try decoder.decode(DevicePasskeyRecord.self, from: json.data(using: .utf8)!)
+                    identities.append(ASPasskeyCredentialIdentity(
+                        relyingPartyIdentifier: record.rpId,
+                        userName: record.userName!,
+                        credentialID: Data(base64Encoded: record.credId)!,
+                        userHandle: Data(base64Encoded: record.userId!)!,
+                        recordIdentifier: "DEVICE_PASSKEY",
+                    ))
+                }
 
                 try await identityStore.replaceCredentialIdentities(identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
