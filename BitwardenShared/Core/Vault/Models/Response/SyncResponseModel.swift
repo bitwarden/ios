@@ -25,4 +25,7 @@ struct SyncResponseModel: JSONResponse, Equatable {
 
     /// The user's list of sends.
     let sends: [SendResponseModel]
+
+    /// The user's decryption info.
+    let userDecryption: UserDecryptionResponseModel?
 }

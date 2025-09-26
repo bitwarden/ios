@@ -443,6 +443,17 @@ protocol StateService: AnyObject {
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
 
+    /// Sets the master password unlock data for an account.
+    ///
+    /// - Parameters:
+    ///   - masterPasswordUnlock: The account master password unlock data.
+    ///   - userId: The user ID of the account to associate with the master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async
+
     /// Sets the user's progress for setting up autofill.
     ///
     /// - Parameters:
@@ -1136,6 +1147,15 @@ extension StateService {
     /// - Parameter value: Whether the user has unlocked their account in the current session
     func setAccountHasBeenUnlockedInteractively(value: Bool) async throws {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
+    }
+
+    /// Sets the master password unlock data for the active account.
+    ///
+    /// - Parameter masterPasswordUnlock: The account master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel) async throws {
+        let userId = try await getActiveAccountId()
+        await setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
     }
 
     /// Sets the active user's progress for setting up autofill.
@@ -1850,6 +1870,27 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             userId,
             default: AccountVolatileData()
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async {
+        guard var state = appSettingsStore.state,
+              var profile = state.accounts[userId]?.profile
+        else {
+            return
+        }
+        var userDecryptionOptions = profile.userDecryptionOptions
+            ?? UserDecryptionOptions(
+                hasMasterPassword: true,
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil
+            )
+        userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+        profile.userDecryptionOptions = userDecryptionOptions
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
