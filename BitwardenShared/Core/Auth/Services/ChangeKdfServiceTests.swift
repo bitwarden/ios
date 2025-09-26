@@ -17,9 +17,9 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     var stateService: MockStateService!
     var subject: ChangeKdfService!
 
-    let accountIterationsBelowMin = Account.fixture(profile: .fixture(kdfIterations: 599_999))
-    let accountIterationsAtMin = Account.fixture(profile: .fixture(kdfIterations: 600_000))
-    let accountIterationsAboveMin = Account.fixture(profile: .fixture(kdfIterations: 600_001))
+    let accountIterationsBelowMin = Account.fixture(profile: .fixture(kdfIterations: 599_999, kdfType: .pbkdf2sha256))
+    let accountIterationsAtMin = Account.fixture(profile: .fixture(kdfIterations: 600_000, kdfType: .pbkdf2sha256))
+    let accountIterationsAboveMin = Account.fixture(profile: .fixture(kdfIterations: 600_001, kdfType: .pbkdf2sha256))
 
     // MARK: Setup & Teardown
 
@@ -69,6 +69,16 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     func test_needsKdfUpdateToMinimums_false_featureFlagOff() async {
         configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         stateService.activeAccount = accountIterationsBelowMin
+
+        let needsUpdate = await subject.needsKdfUpdateToMinimums()
+        XCTAssertFalse(needsUpdate)
+    }
+
+    /// `needsKdfUpdateToMinimums()` returns false if the account doesn't have a master password.
+    func test_needsKdfUpdateToMinimums_false_noMasterPassword() async {
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
+        stateService.activeAccount = accountIterationsBelowMin
+        stateService.userHasMasterPassword["1"] = false
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
         XCTAssertFalse(needsUpdate)

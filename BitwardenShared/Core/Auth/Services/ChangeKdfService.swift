@@ -84,7 +84,9 @@ class DefaultChangeKdfService: ChangeKdfService {
         do {
             let account = try await stateService.getActiveAccount()
             guard account.kdf.kdfType == .pbkdf2sha256,
-                  account.kdf.kdfIterations < Constants.minimumPbkdf2IterationsForUpgrade else {
+                  account.kdf.kdfIterations < Constants.minimumPbkdf2IterationsForUpgrade,
+                  try await stateService.getUserHasMasterPassword(userId: account.profile.userId)
+            else {
                 return false
             }
             return true
