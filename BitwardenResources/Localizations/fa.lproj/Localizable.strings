@@ -131,9 +131,7 @@
 "LastSync" = "آخرین همگام‌سازی:";
 "Length" = "طول";
 "Lock" = "قفل";
-"FifteenMinutes" = "۱۵ دقیقه";
 "OneHour" = "۱ ساعت";
-"OneMinute" = "۱ دقیقه";
 "FourHours" = "۴ ساعت";
 "Immediately" = "بلافاصله";
 "VaultTimeout" = "متوقف شدن گاو‌صندوق";
@@ -433,18 +431,15 @@
 "PIN" = "پین";
 "Unlock" = "باز کردن قفل";
 "UnlockVault" = "بازگشایی گاوصندوق";
-"ThirtyMinutes" = "۳۰ دقیقه";
 "LoggedInAsOn" = "وارد شده به عنوان %1$@ در %2$@.";
 "VaultLockedMasterPassword" = "گاوصندوق شما قفل شد. برای ادامه کلمه عبور اصلی را وارد کنید.";
 "VaultLockedPIN" = "گاوصندوق شما قفل شده است. برای ادامه کد پین خود را تأیید کنید.";
 "VaultLockedIdentity" = "گاوصندوق شما قفل شده است. برای ادامه هویت خود را تأیید کنید.";
 "Dark" = "تیره";
 "Light" = "روشن";
-"FiveMinutes" = "۵ دقیقه";
 "TenSeconds" = "۱۰ ثانیه";
 "ThirtySeconds" = "۳۰ ثانیه";
 "TwentySeconds" = "۲۰ ثانیه";
-"TwoMinutes" = "۲ دقیقه";
 "ClearClipboard" = "پاکسازی حافظه موقت";
 "ClearClipboardDescription" = "به صورت خودکار، مقادیر کپی شده را از حافظه موقت پاک کن.";
 "DefaultUriMatchDetection" = "بررسی مطابقت نشانی اینترنتی پیش‌فرض";
@@ -1280,6 +1275,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

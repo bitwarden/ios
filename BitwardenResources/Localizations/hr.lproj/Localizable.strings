@@ -131,9 +131,7 @@
 "LastSync" = "Posljednja sinkronizacija:";
 "Length" = "Duljina";
 "Lock" = "Zaključaj";
-"FifteenMinutes" = "15 minuta";
 "OneHour" = "1 sat";
-"OneMinute" = "1 minuta";
 "FourHours" = "4 sata";
 "Immediately" = "Odmah";
 "VaultTimeout" = "Istek trezora";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Otključaj";
 "UnlockVault" = "Otključaj trezor";
-"ThirtyMinutes" = "30 minuta";
 "LoggedInAsOn" = "Prijavljen/a kao %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak.";
 "VaultLockedPIN" = "Tvoj trezor je zaključan. Potvrdi PIN-om za nastavak.";
 "VaultLockedIdentity" = "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak.";
 "Dark" = "Tamna";
 "Light" = "Svijetla";
-"FiveMinutes" = "5 minuta";
 "TenSeconds" = "10 sekundi";
 "ThirtySeconds" = "30 sekundi";
 "TwentySeconds" = "20 sekundi";
-"TwoMinutes" = "2 minute";
 "ClearClipboard" = "Očisti međuspremnik";
 "ClearClipboardDescription" = "Vremenski period automatskog pražnjenja međuspremnika.";
 "DefaultUriMatchDetection" = "Zadano otkrivanje URI podudaranja";
@@ -1279,6 +1274,9 @@
 "WhenUsingTwoStepVerification" = "Kada koristiš dvostruku autentifikaciju, unijet ćeš svoje korisničko ime i zaporku te kôd generiran u ovoj aplikaciji.";
 "YesSetDefault" = "Da, postavi kao zadano";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Svoju zadanu postavku možeš uvijek promijeniti u postavkama.";
+"SelectAccount" = "Odaberi račun";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Računi";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Otkrivanje podudaranja URI-ja upravlja kako Bitwarden identificira prijedloge za auto-ispunu.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Počinje s\\” je napredna mogućnost s povećnim rizikom od otkrivanja vjerodajnica.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Regularni izraz\\” je napredna mogućnost s povećanim rizikom curenja vjerodajnica u slučaju krivog korištenja.";

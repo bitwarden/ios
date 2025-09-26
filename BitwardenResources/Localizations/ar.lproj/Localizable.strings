@@ -131,9 +131,7 @@
 "LastSync" = "آخر مزامنة:";
 "Length" = "الطول";
 "Lock" = "قفل";
-"FifteenMinutes" = "15 دقيقة";
 "OneHour" = "ساعة واحدة";
-"OneMinute" = "1 دقيقة";
 "FourHours" = "4 ساعات";
 "Immediately" = "فورًا";
 "VaultTimeout" = "مهلة الخزانة";
@@ -433,18 +431,15 @@
 "PIN" = "رقم تعريف شخصي";
 "Unlock" = "إلغاء القفل";
 "UnlockVault" = "افتح الحافظة";
-"ThirtyMinutes" = "30 دقيقة";
 "LoggedInAsOn" = "مسجل الدخول كـ %1$@ على %2$@.";
 "VaultLockedMasterPassword" = "خزانتك مقفلة. تحقق من كلمة المرور الرئيسية للمتابعة.";
 "VaultLockedPIN" = "خزانتك مقفلة. تحقق من رمز PIN الخاص بك للمتابعة.";
 "VaultLockedIdentity" = "خزانتك مقفلة. تحقق من هويتك للمتابعة.";
 "Dark" = "داكن";
 "Light" = "فاتح";
-"FiveMinutes" = "5 دقائق";
 "TenSeconds" = "10 ثوانِ";
 "ThirtySeconds" = "30 ثانية";
 "TwentySeconds" = "20 ثانية";
-"TwoMinutes" = "دقيقتان";
 "ClearClipboard" = "مسح الحافظة";
 "ClearClipboardDescription" = "مسح القيم المنسوخة تلقائيًا من حافظتك.";
 "DefaultUriMatchDetection" = "كشف تطابق الرابط الافتراضي";
@@ -1279,6 +1274,9 @@
 "WhenUsingTwoStepVerification" = "عند استخدام التحقق بخطوتين، ستدخل اسم المستخدم وكلمة المرور الخاصة بك وكلمة المرور التي أنشئت في هذا التطبيق.";
 "YesSetDefault" = "نعم، تعيينه افتراضيا";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "يمكنك تحديث الافتراضي الخاص بك في أي وقت في الإعدادات.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

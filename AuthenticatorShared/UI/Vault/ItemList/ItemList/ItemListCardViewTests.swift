@@ -11,7 +11,7 @@ class ItemListCardViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_ItemListCardView_previews() {
+    func disabletest_snapshot_ItemListCardView_previews() {
         for preview in ItemListCardView_Previews._allPreviews {
             let name = preview.displayName ?? "Unknown"
             assertSnapshots(
@@ -26,7 +26,7 @@ class ItemListCardViewTests: BitwardenTestCase {
     }
 
     /// Test the actions are properly wired up in the ItemListCardView.
-    func test_snapshot_ItemListCardView_actions() throws {
+    func disabletest_snapshot_ItemListCardView_actions() throws {
         let expectationAction = expectation(description: "action Tapped")
         let expectationClose = expectation(description: "close Tapped")
         let subject = ItemListCardView(

@@ -131,9 +131,7 @@
 "LastSync" = "Azken sinkronizazioa:";
 "Length" = "Luzera";
 "Lock" = "Blokeatu";
-"FifteenMinutes" = "15 minutu";
 "OneHour" = "Ordu 1";
-"OneMinute" = "Minutu 1";
 "FourHours" = "4 ordu";
 "Immediately" = "Berehala";
 "VaultTimeout" = "Kutxa gotorraren itxaronaldia";
@@ -433,18 +431,15 @@
 "PIN" = "PIN-a";
 "Unlock" = "Desblokeatu";
 "UnlockVault" = "Desblokeatu kutxa gotorra";
-"ThirtyMinutes" = "30 minutu";
 "LoggedInAsOn" = "%2$@-en %1$@ bezala saioa hasita.";
 "VaultLockedMasterPassword" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure pasahitz nagusia jarraitzeko.";
 "VaultLockedPIN" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure PIN kodea jarraitzeko.";
 "VaultLockedIdentity" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure identitatea jarraitzeko.";
 "Dark" = "Iluna";
 "Light" = "Argia";
-"FiveMinutes" = "5 minutu";
 "TenSeconds" = "10 segundu";
 "ThirtySeconds" = "30 segundu";
 "TwentySeconds" = "20 segundu";
-"TwoMinutes" = "2 minutu";
 "ClearClipboard" = "Hustu arbela";
 "ClearClipboardDescription" = "Ezabatu automatikoki arbelean kopiatutako balioak.";
 "DefaultUriMatchDetection" = "Lehenetsitako detekzioa URI kointzidentziarako";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

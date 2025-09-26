@@ -131,9 +131,7 @@
 "LastSync" = "Последно синхронизиране:";
 "Length" = "Дължина";
 "Lock" = "Заключване";
-"FifteenMinutes" = "15 минути";
 "OneHour" = "1 час";
-"OneMinute" = "1 минута";
 "FourHours" = "4 часа";
 "Immediately" = "Незабавно";
 "VaultTimeout" = "Време за достъп";
@@ -433,18 +431,15 @@
 "PIN" = "ПИН";
 "Unlock" = "Отключване";
 "UnlockVault" = "Отключване на трезора";
-"ThirtyMinutes" = "30 минути";
 "LoggedInAsOn" = "Влезли сте като %1$@ в %2$@.";
 "VaultLockedMasterPassword" = "Трезорът е заключен — въведете главната си парола, за да продължите.";
 "VaultLockedPIN" = "Трезорът е заключен. Въведете своя ПИН, за да продължите.";
 "VaultLockedIdentity" = "Трезорът е заключен. Потвърдете самоличността си, за да продължите.";
 "Dark" = "Тъмен";
 "Light" = "Светъл";
-"FiveMinutes" = "5 минути";
 "TenSeconds" = "10 секунди";
 "ThirtySeconds" = "30 секунди";
 "TwentySeconds" = "20 секунди";
-"TwoMinutes" = "2 минути";
 "ClearClipboard" = "Изчистване на буфера";
 "ClearClipboardDescription" = "Автоматично изчистване на буфера след поставяне на стойността.";
 "DefaultUriMatchDetection" = "Стандартно засичане на съвпадения на адреси";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Когато използвате двустепенно удостоверяване, ще въвеждате потребителско име и парола, както и код, създаден от това приложение.";
 "YesSetDefault" = "Да, нека бъде стандартна настройка";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Можете да промените стандартната настройка по всяко време в настройките.";
+"SelectAccount" = "Изберете акаунт";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Акаунти";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Разпознаването на съвпадения чрез адреса задава начина, по който Битуорден определя кои елементи да предложи за автоматично попълване.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Започва с“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Регулярен израз“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване, ако се използва неправилно.";

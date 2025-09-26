@@ -131,9 +131,7 @@
 "LastSync" = "סנכרון אחרון:";
 "Length" = "אורך";
 "Lock" = "נעל";
-"FifteenMinutes" = "15 דקות";
 "OneHour" = "1 שעה";
-"OneMinute" = "דקה אחת";
 "FourHours" = "4 שעות";
 "Immediately" = "מיד";
 "VaultTimeout" = "משך זמן מירבי עבור חיבור לכספת";
@@ -434,18 +432,15 @@
 "PIN" = "קוד PIN";
 "Unlock" = "בטל נעילה";
 "UnlockVault" = "בטל נעילת כספת";
-"ThirtyMinutes" = "30 דקות";
 "LoggedInAsOn" = "נכנסת כ־%1$@ ב־%2$@.";
 "VaultLockedMasterPassword" = "הכספת שלך נעולה. הזן את הסיסמה הראשית שלך כדי להמשיך.";
 "VaultLockedPIN" = "הכספת שלך נעולה. הזן את קוד הPIN שלך כדי להמשיך.";
 "VaultLockedIdentity" = "הכספת שלך נעולה. אמת את זהותך כדי להמשיך.";
 "Dark" = "כהה";
 "Light" = "בהיר";
-"FiveMinutes" = "5 דקות";
 "TenSeconds" = "10 שניות";
 "ThirtySeconds" = "30 שניות";
 "TwentySeconds" = "20 שניות";
-"TwoMinutes" = "2 דקות";
 "ClearClipboard" = "נקה לוח העתקות";
 "ClearClipboardDescription" = "נקה אוטומטית ערכים שהועתקו ללוח ההעתקות (clipboard).";
 "DefaultUriMatchDetection" = "ברירת מחדל לזיהוי התאמת כתובות";
@@ -1280,6 +1275,9 @@
 "WhenUsingTwoStepVerification" = "בעת שימוש באימות דו־שלבי, אתה תזין את שם המשתמש והסיסמה שלך וקוד שנוצר ביישום זה.";
 "YesSetDefault" = "כן, הגדר ברירת מחדל";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "באפשרותך לעדכן את ברירת המחדל שלך בכל עת בהגדרות.";
+"SelectAccount" = "בחר חשבון";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "חשבונות";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "זיהוי התאמת URI שולט באופן שבו Bitwarden מזהה הצעות למילוי אוטומטי.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "”מתחיל עם\\” היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "”ביטוי רגולרי\\” הוא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים אם נעשה בו שימוש לא נכון.";

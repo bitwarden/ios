@@ -131,9 +131,7 @@
 "LastSync" = "前回の同期：";
 "Length" = "長さ";
 "Lock" = "ロック";
-"FifteenMinutes" = "15分";
 "OneHour" = "1時間";
-"OneMinute" = "1 分";
 "FourHours" = "4時間";
 "Immediately" = "即時";
 "VaultTimeout" = "保管庫のタイムアウト";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "ロック解除";
 "UnlockVault" = "保管庫のロックを解除";
-"ThirtyMinutes" = "30分";
 "LoggedInAsOn" = "%1$@ として %2$@ にログインしました。";
 "VaultLockedMasterPassword" = "保管庫がロックされています。開くにはマスターパスワードを入力してください。";
 "VaultLockedPIN" = "保管庫がロックされています。PIN コードで認証してください。";
 "VaultLockedIdentity" = "保管庫がロックされています。続行するには本人確認を行ってください。";
 "Dark" = "ダーク";
 "Light" = "ライト";
-"FiveMinutes" = "5 分";
 "TenSeconds" = "10 秒";
 "ThirtySeconds" = "30 秒";
 "TwentySeconds" = "20 秒";
-"TwoMinutes" = "2 分";
 "ClearClipboard" = "クリップボードの消去";
 "ClearClipboardDescription" = "コピー内容をクリップボードから自動的に消去します。";
 "DefaultUriMatchDetection" = "デフォルトの URI 一致検出方法";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "2段階認証を行う際、ユーザー名とパスワードに加えて、このアプリで生成されたコードを入力します。";
 "YesSetDefault" = "はい、デフォルトに設定します";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "設定からいつでもデフォルトを変更できます。";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

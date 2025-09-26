@@ -131,9 +131,7 @@
 "LastSync" = "Son sinxr:";
 "Length" = "Uzunluq";
 "Lock" = "Kilidlə";
-"FifteenMinutes" = "15 dəqiqə";
 "OneHour" = "1 saat";
-"OneMinute" = "1 dəqiqə";
 "FourHours" = "4 saat";
 "Immediately" = "Dərhal";
 "VaultTimeout" = "Seyf vaxtının bitməsi";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Kilidi aç";
 "UnlockVault" = "Seyfin kilidini aç";
-"ThirtyMinutes" = "30 dəqiqə";
 "LoggedInAsOn" = "%2$@ saytında %1$@ kimi giriş edildi.";
 "VaultLockedMasterPassword" = "Seyfiniz kilidlənib. Davam etmək üçün ana parolunuzu doğrulayın.";
 "VaultLockedPIN" = "Seyfiniz kilidlənib. Davam etmək üçün PIN kodunuzu doğrulayın.";
 "VaultLockedIdentity" = "Seyfiniz kilidlənib. Davam etmək üçün kimliyinizi doğrulayın.";
 "Dark" = "Tünd";
 "Light" = "Açıq";
-"FiveMinutes" = "5 dəqiqə";
 "TenSeconds" = "10 saniyə";
 "ThirtySeconds" = "30 saniyə";
 "TwentySeconds" = "20 saniyə";
-"TwoMinutes" = "2 dəqiqə";
 "ClearClipboard" = "Lövhəni təmizlə";
 "ClearClipboardDescription" = "Kopyalanmış dəyərləri lövhədən avtomatik təmizlə.";
 "DefaultUriMatchDetection" = "İlkin URI uyuşma aşkarlaması";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "2 addımlı doğrulamanı istifadə edərkən istifadəçi adınızı, parolunuzu və bu tətbiqdə yaradılan kodu daxil edəcəksiniz.";
 "YesSetDefault" = "Bəli, ilkin olaraq ayarla";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "İlkin dəyərləri istənilən vaxt ayarlarda güncəlləyə bilərsiniz.";
+"SelectAccount" = "Hesab seç";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Hesablar";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI uyuşma aşkarlaması, Bitwarden-in avto-doldurma təkliflərini necə müəyyən etdiyini göstərir.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"\\İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Müntəzəm ifadə\\\", yanlış istifadə edilərsə, kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";

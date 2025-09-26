@@ -131,9 +131,7 @@
 "LastSync" = "Ultima sincronizzazione:";
 "Length" = "Lunghezza";
 "Lock" = "Blocca";
-"FifteenMinutes" = "15 minuti";
 "OneHour" = "1 ora";
-"OneMinute" = "1 minuto";
 "FourHours" = "4 ore";
 "Immediately" = "Immediatamente";
 "VaultTimeout" = "Timeout cassaforte";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Sblocca";
 "UnlockVault" = "Sblocca cassaforte";
-"ThirtyMinutes" = "30 minuti";
 "LoggedInAsOn" = "Accesso effettuato come %1$@ su %2$@.";
 "VaultLockedMasterPassword" = "La tua cassaforte è bloccata. Inserisci la tua password principale per continuare.";
 "VaultLockedPIN" = "La tua cassaforte è bloccata. Inserisci il tuo codice PIN per continuare.";
 "VaultLockedIdentity" = "La tua cassaforte è bloccata. Verifica la tua identità per continuare.";
 "Dark" = "Scuro";
 "Light" = "Chiaro";
-"FiveMinutes" = "5 minuti";
 "TenSeconds" = "10 secondi";
 "ThirtySeconds" = "30 secondi";
 "TwentySeconds" = "20 secondi";
-"TwoMinutes" = "2 minuti";
 "ClearClipboard" = "Cancella appunti";
 "ClearClipboardDescription" = "Cancella automaticamente i valori copiati dagli appunti.";
 "DefaultUriMatchDetection" = "Rilevamento di corrispondenza URI predefinito";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Quando si utilizza la verifica in 2 passaggi, inserirai nome utente e password e un codice generato in questa app.";
 "YesSetDefault" = "Sì, imposta predefinito";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "È possibile aggiornare il valore predefinito in qualsiasi momento nelle impostazioni.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Inizia con' è un'opzione avanzata con un rischio maggiore di esporre le credenziali.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Espressione regolare' è un'opzione avanzata con un rischio maggiore di esporre le credenziali se usato senza cognizione di causa.";

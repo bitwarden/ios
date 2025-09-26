@@ -131,9 +131,7 @@
 "LastSync" = "Førre synkronisering:";
 "Length" = "Lengd";
 "Lock" = "Lås";
-"FifteenMinutes" = "15 minutt";
 "OneHour" = "1 time";
-"OneMinute" = "1 minutt";
 "FourHours" = "4 timar";
 "Immediately" = "Med éin gong";
 "VaultTimeout" = "Avbrot frå kvelvet";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Lås opp";
 "UnlockVault" = "Lås opp kvelvet";
-"ThirtyMinutes" = "30 minutt";
 "LoggedInAsOn" = "Logga inn som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Kvelvet ditt er låst. Stadfesta hovudpassordet ditt for å halda fram.";
 "VaultLockedPIN" = "Kvelvet ditt er låst. Stadfesta PIN-koden din for å halda fram.";
 "VaultLockedIdentity" = "Kvelvet ditt er låst. Stadfesta identiteten din for å halda fram.";
 "Dark" = "Mørk";
 "Light" = "Ljos";
-"FiveMinutes" = "5 minutt";
 "TenSeconds" = "10 sekund";
 "ThirtySeconds" = "30 sekund";
 "TwentySeconds" = "20 sekund";
-"TwoMinutes" = "2 minutt";
 "ClearClipboard" = "Tøm utklippstavla";
 "ClearClipboardDescription" = "Automatically clear copied values from your clipboard.";
 "DefaultUriMatchDetection" = "Default URI match detection";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

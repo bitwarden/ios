@@ -131,9 +131,7 @@
 "LastSync" = "Ultima sincronizare:";
 "Length" = "Lungime";
 "Lock" = "Blocare";
-"FifteenMinutes" = "15 minute";
 "OneHour" = "1 oră";
-"OneMinute" = "1 minut";
 "FourHours" = "4 ore";
 "Immediately" = "Imediat";
 "VaultTimeout" = "Timp de expirare seif";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Deblocare";
 "UnlockVault" = "Deblocare seif";
-"ThirtyMinutes" = "30 de minute";
 "LoggedInAsOn" = "Autentificat ca %1$@ pe %2$@.";
 "VaultLockedMasterPassword" = "Seiful dvs. este blocat. Verificați parola principală pentru a continua.";
 "VaultLockedPIN" = "Seiful dvs. este blocat. Verificați codul PIN pentru a continua.";
 "VaultLockedIdentity" = "Seiful dvs. este blocat. Verificați-vă identitatea pentru a continua.";
 "Dark" = "Întunecat";
 "Light" = "Luminos";
-"FiveMinutes" = "5 minute";
 "TenSeconds" = "10 secunde";
 "ThirtySeconds" = "30 de secunde";
 "TwentySeconds" = "20 de secunde";
-"TwoMinutes" = "2 minute";
 "ClearClipboard" = "Golire clipboard";
 "ClearClipboardDescription" = "Șterge automat valorile copiate din clipboard.";
 "DefaultUriMatchDetection" = "Detectare implicită a potrivirii URI";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

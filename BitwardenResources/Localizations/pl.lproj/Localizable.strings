@@ -131,9 +131,7 @@
 "LastSync" = "Ostatnia synchronizacja:";
 "Length" = "Liczba znaków";
 "Lock" = "Zablokuj";
-"FifteenMinutes" = "15 minut";
 "OneHour" = "1 godzina";
-"OneMinute" = "1 minuta";
 "FourHours" = "4 godziny";
 "Immediately" = "Natychmiast";
 "VaultTimeout" = "Blokowanie sejfu";
@@ -433,18 +431,15 @@
 "PIN" = "Kod PIN";
 "Unlock" = "Odblokuj";
 "UnlockVault" = "Odblokuj sejf";
-"ThirtyMinutes" = "30 minut";
 "LoggedInAsOn" = "Zalogowano jako %1$@ do %2$@.";
 "VaultLockedMasterPassword" = "Sejf jest zablokowany. Wpisz hasło główne, aby kontynuować.";
 "VaultLockedPIN" = "Sejf jest zablokowany. Wpisz kod PIN, aby kontynuować.";
 "VaultLockedIdentity" = "Sejf jest zablokowany. Zweryfikuj swoją tożsamość, aby kontynuować.";
 "Dark" = "Ciemny";
 "Light" = "Jasny";
-"FiveMinutes" = "5 minut";
 "TenSeconds" = "10 sekund";
 "ThirtySeconds" = "30 sekund";
 "TwentySeconds" = "20 sekund";
-"TwoMinutes" = "2 minuty";
 "ClearClipboard" = "Wyczyść schowek";
 "ClearClipboardDescription" = "Automatycznie wyczyść skopiowaną wartość ze schowka.";
 "DefaultUriMatchDetection" = "Domyślne wykrywanie dopasowania";
@@ -746,7 +741,7 @@
 "PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Upewnij się, że sejf jest odblokowany, a identyfikator konta pasuje do drugiego urządzenia.";
 "ResendNotification" = "Wyślij ponownie powiadomienie";
 "NeedAnotherOption" = "Potrzebujesz innej opcji?";
-"ViewAllLoginOptions" = "Zobacz wszystkie sposoby logowania";
+"ViewAllLoginOptions" = "Pokaż wszystkie metody logowania";
 "ThisRequestIsNoLongerValid" = "Ta prośba nie jest już ważna";
 "PendingLogInRequests" = "Oczekujące prośby logowania";
 "DeclineAllRequests" = "Odrzuć wszystkie prośby";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Podczas korzystania z logowania dwustopniowego wpisz nazwę użytkownika, hasło oraz kod wygenerowany w tej aplikacji.";
 "YesSetDefault" = "Tak, ustaw domyślne";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Możesz zaktualizować domyślne ustawienia w dowolnym momencie.";
+"SelectAccount" = "Wybierz konto";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Konta";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Wykrywanie dopasowania to sposób, w jaki Bitwarden identyfikuje sugestie autouzupełniania.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Rozpoczyna się od” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "„Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";

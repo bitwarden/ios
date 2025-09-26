@@ -131,9 +131,7 @@
 "LastSync" = "Апошняя сінхранізацыя:";
 "Length" = "Даўжыня";
 "Lock" = "Заблакіраваць";
-"FifteenMinutes" = "15 хвілін";
 "OneHour" = "1 гадзіна";
-"OneMinute" = "1 хвіліна";
 "FourHours" = "4 гадзіны";
 "Immediately" = "Адразу";
 "VaultTimeout" = "Час чакання сховішча";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Разблакіраваць";
 "UnlockVault" = "Разблакіраваць сховішча";
-"ThirtyMinutes" = "30 хвілін";
 "LoggedInAsOn" = "Вы ўвайшлі як %1$@ у %2$@.";
 "VaultLockedMasterPassword" = "Ваша сховішча заблакіравана. Увядзіце асноўны пароль для працягу.";
 "VaultLockedPIN" = "Ваша сховішча заблакіравана. Увядзіце PIN-код для працягу.";
 "VaultLockedIdentity" = "Ваша сховішча заблакіравана. Каб працягнуць, пацвердзіце сваю асобу.";
 "Dark" = "Цёмная";
 "Light" = "Светлая";
-"FiveMinutes" = "5 хвілін";
 "TenSeconds" = "10 секунд";
 "ThirtySeconds" = "30 секунд";
 "TwentySeconds" = "20 секунд";
-"TwoMinutes" = "2 хвіліны";
 "ClearClipboard" = "Ачысціць буфер абмену";
 "ClearClipboardDescription" = "Аўтаматычна ачышчаць скапіяваныя значэнні з вашага буфера абмену.";
 "DefaultUriMatchDetection" = "Прадвызначанае выяўленне супадзення URI";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Пры выкарыстанні двухэтапнай верыфікацыі вы ўведзяце сваё імя карыстальніка, пароль і код, згенераваны ў гэтай праграме.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

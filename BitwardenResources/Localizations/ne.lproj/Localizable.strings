@@ -131,9 +131,7 @@
 "LastSync" = "Last sync:";
 "Length" = "Length";
 "Lock" = "Lock";
-"FifteenMinutes" = "15 minutes";
 "OneHour" = "1 hour";
-"OneMinute" = "1 minute";
 "FourHours" = "4 hours";
 "Immediately" = "Immediately";
 "VaultTimeout" = "Vault timeout";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Unlock";
 "UnlockVault" = "Unlock vault";
-"ThirtyMinutes" = "30 minutes";
 "LoggedInAsOn" = "Logged in as %1$@ on %2$@.";
 "VaultLockedMasterPassword" = "Your vault is locked. Verify your master password to continue.";
 "VaultLockedPIN" = "Your vault is locked. Verify your PIN code to continue.";
 "VaultLockedIdentity" = "Your vault is locked. Verify your identity to continue.";
 "Dark" = "Dark";
 "Light" = "Light";
-"FiveMinutes" = "5 minutes";
 "TenSeconds" = "10 seconds";
 "ThirtySeconds" = "30 seconds";
 "TwentySeconds" = "20 seconds";
-"TwoMinutes" = "2 minutes";
 "ClearClipboard" = "Clear clipboard";
 "ClearClipboardDescription" = "Automatically clear copied values from your clipboard.";
 "DefaultUriMatchDetection" = "Default URI match detection";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

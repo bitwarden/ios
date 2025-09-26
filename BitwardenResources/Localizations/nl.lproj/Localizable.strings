@@ -131,9 +131,7 @@
 "LastSync" = "Laatste synchronisatie:";
 "Length" = "Lengte";
 "Lock" = "Vergrendelen";
-"FifteenMinutes" = "15 minuten";
 "OneHour" = "1 uur";
-"OneMinute" = "1 minuut";
 "FourHours" = "4 uur";
 "Immediately" = "Onmiddellijk";
 "VaultTimeout" = "Time-out van de kluis";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Ontgrendelen";
 "UnlockVault" = "Kluis ontgrendelen";
-"ThirtyMinutes" = "30 minuten";
 "LoggedInAsOn" = "Aangemeld als %1$@ op %2$@.";
 "VaultLockedMasterPassword" = "Je kluis is vergrendeld. Voer je hoofdwachtwoord in om door te gaan.";
 "VaultLockedPIN" = "Je kluis is vergrendeld. Voer je PIN-code in om door te gaan.";
 "VaultLockedIdentity" = "Je kluis is vergrendeld. Bevestig je identiteit om door te gaan.";
 "Dark" = "Donker";
 "Light" = "Licht";
-"FiveMinutes" = "5 minuten";
 "TenSeconds" = "10 seconden";
 "ThirtySeconds" = "30 seconden";
 "TwentySeconds" = "20 seconden";
-"TwoMinutes" = "2 minuten";
 "ClearClipboard" = "Klembord wissen";
 "ClearClipboardDescription" = "Gekopieerde waarden automatisch van het klembord wissen.";
 "DefaultUriMatchDetection" = "Standaard URI-overeenkomstdetectie";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Als je tweestapsverificatie gebruikt, voer je je gebruikersnaam en wachtwoord in en een code die in deze app wordt gegenereerd.";
 "YesSetDefault" = "Ja, standaard instellen";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Je kunt je standaardinstellingen op elk moment bijwerken in de instellingen.";
+"SelectAccount" = "Account selecteren";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI-matche-detectie bepaalt hoe Bitwarden invulsuggesties herkent.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Begint met\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Reguliere expressie\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens als je het verkeerd gebruikt.";

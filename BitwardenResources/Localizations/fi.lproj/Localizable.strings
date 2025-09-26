@@ -131,9 +131,7 @@
 "LastSync" = "Viimeisin synkronointi:";
 "Length" = "Pituus";
 "Lock" = "Lukitse";
-"FifteenMinutes" = "15 minuuttia";
 "OneHour" = "1 tunti";
-"OneMinute" = "1 minuutti";
 "FourHours" = "4 tuntia";
 "Immediately" = "Välittömästi";
 "VaultTimeout" = "Holvin aikakatkaisu";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Avaa";
 "UnlockVault" = "Avaa holvi";
-"ThirtyMinutes" = "30 minuuttia";
 "LoggedInAsOn" = "Kirjautui palvelimelle %2$@ tunnuksella %1$@.";
 "VaultLockedMasterPassword" = "Holvisi on lukittu. Jatka vahvistamalla pääsalasanasi.";
 "VaultLockedPIN" = "Holvisi on lukittu. Jatka vahvistamalla PIN-koodisi.";
 "VaultLockedIdentity" = "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi.";
 "Dark" = "Tumma";
 "Light" = "Vaalea";
-"FiveMinutes" = "5 minuuttia";
 "TenSeconds" = "10 sekuntia";
 "ThirtySeconds" = "30 sekuntia";
 "TwentySeconds" = "20 sekuntia";
-"TwoMinutes" = "2 minuuttia";
 "ClearClipboard" = "Tyhjennä leikepöytä";
 "ClearClipboardDescription" = "Poista kopioidut arvot leikepöydältä automaattisesti.";
 "DefaultUriMatchDetection" = "URI:n oletuarvoinen tunnistustapa";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Kun käytät kaksivaiheista todennusta, syötät käyttäjänimesi ja salasanansi sekä koodin, jonka sovellus luo.";
 "YesSetDefault" = "Kyllä, aseta oletukseksi";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Voit vaihtaa oletustasi koska tahansa asetuksista.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

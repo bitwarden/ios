@@ -131,9 +131,7 @@
 "LastSync" = "Última Sincronização:";
 "Length" = "Comprimento";
 "Lock" = "Bloquear";
-"FifteenMinutes" = "15 minutos";
 "OneHour" = "1 hora";
-"OneMinute" = "1 minuto";
 "FourHours" = "4 horas";
 "Immediately" = "Imediatamente";
 "VaultTimeout" = "Tempo Limite do Cofre";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear cofre";
-"ThirtyMinutes" = "30 minutos";
 "LoggedInAsOn" = "Sessão iniciada como %1$@ em %2$@.";
 "VaultLockedMasterPassword" = "O seu cofre está bloqueado. Verifique a sua senha mestra para continuar.";
 "VaultLockedPIN" = "O seu cofre está bloqueado. Verifique o seu PIN para continuar.";
 "VaultLockedIdentity" = "Seu cofre está trancado. Verifique sua identidade para continuar.";
 "Dark" = "Escuro";
 "Light" = "Claro";
-"FiveMinutes" = "5 minutos";
 "TenSeconds" = "10 segundos";
 "ThirtySeconds" = "30 segundos";
 "TwentySeconds" = "20 segundos";
-"TwoMinutes" = "2 minutos";
 "ClearClipboard" = "Limpar a Área de Transferência";
 "ClearClipboardDescription" = "Limpar automaticamente valores copiados da sua área de transferência.";
 "DefaultUriMatchDetection" = "Detecção de Correspondência de URI Padrão";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Ao usar a verificação em duas etapas, você digitará seu nome de usuário e senha e um código gerado neste aplicativo.";
 "YesSetDefault" = "Sim, defina como padrão";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Você pode atualizar seu padrão a qualquer momento nas configurações.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

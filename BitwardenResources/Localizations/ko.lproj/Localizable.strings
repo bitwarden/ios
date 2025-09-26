@@ -131,9 +131,7 @@
 "LastSync" = "마지막 동기화:";
 "Length" = "길이";
 "Lock" = "잠금";
-"FifteenMinutes" = "15분";
 "OneHour" = "1시간";
-"OneMinute" = "1분";
 "FourHours" = "4시간";
 "Immediately" = "즉시";
 "VaultTimeout" = "보관함 시간 제한";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "잠금 해제";
 "UnlockVault" = "보관함 잠금 해제";
-"ThirtyMinutes" = "30분";
 "LoggedInAsOn" = "%2$@에 %1$@으로 로그인되었습니다.";
 "VaultLockedMasterPassword" = "보관함이 잠겨 있습니다. 마스터 비밀번호를 입력하여 계속하세요.";
 "VaultLockedPIN" = "보관함이 잠겨 있습니다. PIN 코드를 입력하여 계속하세요.";
 "VaultLockedIdentity" = "보관함이 잠겨 있습니다. PIN 코드를 입력하여 계속하세요.";
 "Dark" = "어두운 테마";
 "Light" = "밝은 테마";
-"FiveMinutes" = "5분";
 "TenSeconds" = "10초";
 "ThirtySeconds" = "30초";
 "TwentySeconds" = "20초";
-"TwoMinutes" = "2분";
 "ClearClipboard" = "클립보드 비우기";
 "ClearClipboardDescription" = "클립보드에 복사된 값을 자동으로 제거합니다.";
 "DefaultUriMatchDetection" = "기본 URI 일치 인식";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

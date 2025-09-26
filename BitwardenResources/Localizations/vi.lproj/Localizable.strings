@@ -131,9 +131,7 @@
 "LastSync" = "Đồng bộ lúc:";
 "Length" = "Độ dài";
 "Lock" = "Khóa";
-"FifteenMinutes" = "15 phút";
 "OneHour" = "1 giờ";
-"OneMinute" = "1 phút";
 "FourHours" = "4 giờ";
 "Immediately" = "Tức thì";
 "VaultTimeout" = "Đóng kho sau";
@@ -433,18 +431,15 @@
 "PIN" = "Mã PIN";
 "Unlock" = "Mở khóa";
 "UnlockVault" = "Mở kho";
-"ThirtyMinutes" = "30 phút";
 "LoggedInAsOn" = "Đã đăng nhập như %1$@ trên %2$@.";
 "VaultLockedMasterPassword" = "Kho lưu trữ đã bị khóa. Nhập mật khẩu chính của bạn để mở.";
 "VaultLockedPIN" = "Kho lưu trữ đã bị khóa. Nhập mã PIN của bạn để mở.";
 "VaultLockedIdentity" = "Kho của bạn đã bị khóa. Xác minh danh tính của bạn để mở khoá.";
 "Dark" = "Tối";
 "Light" = "Sáng";
-"FiveMinutes" = "5 phút";
 "TenSeconds" = "10 giây";
 "ThirtySeconds" = "30 giây";
 "TwentySeconds" = "20 giây";
-"TwoMinutes" = "2 phút";
 "ClearClipboard" = "Xóa bảng nhớ tạm";
 "ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.";
 "DefaultUriMatchDetection" = "Cách nhận diện đường dẫn (URI)";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Khi sử dụng xác minh 2 bước, bạn sẽ nhập tên người dùng và mật khẩu của mình cũng như mã được tạo trong ứng dụng này.";
 "YesSetDefault" = "Đúng, đặt mặc định";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Bạn có thể cập nhật cài đặt mặc định bất cứ lúc nào trong phần cài đặt.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Phát hiện khớp URI kiểm soát cách Bitwarden xác định gợi ý tự động điền.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Bắt đầu với\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Biểu thức chính quy\\\" là một tuỳ chọn nâng cao khiến nguy cơ cao bị lộ thông tin đăng nhập nếu sử dụng không đúng cách.";

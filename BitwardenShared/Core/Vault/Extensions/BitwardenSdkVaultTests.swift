@@ -208,7 +208,8 @@ class CipherViewTests: BitwardenTestCase {
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
-                revisionDate: timeProvider.presentTime
+                revisionDate: timeProvider.presentTime,
+                archivedDate: nil
             )
         )
     }
@@ -258,7 +259,8 @@ class CipherViewTests: BitwardenTestCase {
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
-                revisionDate: timeProvider.presentTime
+                revisionDate: timeProvider.presentTime,
+                archivedDate: nil
             )
         )
     }

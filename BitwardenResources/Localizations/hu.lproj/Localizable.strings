@@ -131,9 +131,7 @@
 "LastSync" = "Utolsó szinkronizálás:";
 "Length" = "Hossz";
 "Lock" = "Lezárás";
-"FifteenMinutes" = "15 perc";
 "OneHour" = "1 óra";
-"OneMinute" = "1 perc";
 "FourHours" = "4 óra";
 "Immediately" = "Azonnal";
 "VaultTimeout" = "Széf időkifutás";
@@ -433,18 +431,15 @@
 "PIN" = "Pinkód";
 "Unlock" = "Feloldás";
 "UnlockVault" = "Széf feloldása";
-"ThirtyMinutes" = "30 perc";
 "LoggedInAsOn" = "Bejelentkezve mint %1$@ :: %2$@.";
 "VaultLockedMasterPassword" = "A széf zárolva van. A folytatáshoz adjuk meg a mesterjelszót.";
 "VaultLockedPIN" = "A széf zárolva van. A folytatáshoz adjuk meg a pinkódot.";
 "VaultLockedIdentity" = "A széf zárolásra került. A folytatáshoz ellenőrizni kell az azonosítást.";
 "Dark" = "Sötét";
 "Light" = "Világos";
-"FiveMinutes" = "5 perc";
 "TenSeconds" = "10 másodperc";
 "ThirtySeconds" = "30 másodperc";
 "TwentySeconds" = "20 másodperc";
-"TwoMinutes" = "2 perc";
 "ClearClipboard" = "Vágólap ürítése";
 "ClearClipboardDescription" = "Automatikusan törli a vágólapra másolt értékeket.";
 "DefaultUriMatchDetection" = "URI-egyezések alapértelmezett felismerése";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "A kétlépcsős ellenőrzés használatakor megadjuk felhasználónevet és jelszót, valamint az alkalmazásban generált kódot.";
 "YesSetDefault" = "Igen, beállítás alapértelmezettként";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "A beállításokban bármikor frissíthetjük az alapértelmezést.";
+"SelectAccount" = "Fiók kiválasztása";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Fiókok";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Az URI egyezés észlelése az, ahogyan a Bitwarden azonosítja az automatikus kitöltési javaslatokat.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A “Kezdés:” egy fejlett opció, amely növeli a hitelesítő adatok felfedésének kockázatát.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“A reguláris kifejezés” egy fejlett opció, amely megnöveli a hitelesítő adatok felfedésének kockázatát, ha helytelenül használják.";

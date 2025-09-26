@@ -131,9 +131,7 @@
 "LastSync" = "Dernière synchronisation :";
 "Length" = "Longueur";
 "Lock" = "Verrouiller";
-"FifteenMinutes" = "15 minutes";
 "OneHour" = "1 heure";
-"OneMinute" = "1 minute";
 "FourHours" = "4 heures";
 "Immediately" = "Immédiatement";
 "VaultTimeout" = "Délai d'expiration du coffre";
@@ -433,18 +431,15 @@
 "PIN" = "Code PIN";
 "Unlock" = "Déverrouiller";
 "UnlockVault" = "Déverrouiller le coffre";
-"ThirtyMinutes" = "30 minutes";
 "LoggedInAsOn" = "Connecté en tant que %1$@ sur %2$@.";
 "VaultLockedMasterPassword" = "Votre coffre est verrouillé. Vérifiez votre mot de passe principal pour continuer.";
 "VaultLockedPIN" = "Votre coffre est verrouillé. Vérifiez votre code PIN pour continuer.";
 "VaultLockedIdentity" = "Votre coffre est verrouillé. Vérifiez votre identité pour continuer.";
 "Dark" = "Sombre";
 "Light" = "Clair";
-"FiveMinutes" = "5 minutes";
 "TenSeconds" = "10 secondes";
 "ThirtySeconds" = "30 secondes";
 "TwentySeconds" = "20 secondes";
-"TwoMinutes" = "2 minutes";
 "ClearClipboard" = "Effacer le presse-papiers";
 "ClearClipboardDescription" = "Effacez automatiquement les valeurs copiées de votre presse-papiers.";
 "DefaultUriMatchDetection" = "Détection de correspondance URI par défaut";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Lorsque vous utilisez une vérification en 2 étapes, vous saisirez votre nom d'utilisateur et votre mot de passe ainsi qu'un code généré dans cette application.";
 "YesSetDefault" = "Oui, définir par défaut";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Vous pouvez mettre à jour votre valeur par défaut à tout moment dans les paramètres.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

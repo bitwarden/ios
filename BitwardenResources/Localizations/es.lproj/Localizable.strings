@@ -131,9 +131,7 @@
 "LastSync" = "Última sincronización:";
 "Length" = "Longitud";
 "Lock" = "Bloquear";
-"FifteenMinutes" = "15 minutos";
 "OneHour" = "1 hora";
-"OneMinute" = "1 minuto";
 "FourHours" = "4 horas";
 "Immediately" = "Inmediatamente";
 "VaultTimeout" = "Tiempo de espera de la caja fuerte";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear caja fuerte";
-"ThirtyMinutes" = "30 minutos";
 "LoggedInAsOn" = "Iniciado como %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "Tu caja fuerte está bloqueada. Verifica tu contraseña maestra para continuar.";
 "VaultLockedPIN" = "Su caja fuerte está bloqueada. Verifique su código PIN para continuar.";
 "VaultLockedIdentity" = "Tu caja fuerte está bloqueada. Verifica tu identidad para continuar.";
 "Dark" = "Oscuro";
 "Light" = "Claro";
-"FiveMinutes" = "5 minutos";
 "TenSeconds" = "10 segundos";
 "ThirtySeconds" = "30 segundos";
 "TwentySeconds" = "20 segundos";
-"TwoMinutes" = "2 minutos";
 "ClearClipboard" = "Limpiar el portapapeles";
 "ClearClipboardDescription" = "Borrar automáticamente los valores copiados de tu portapapeles.";
 "DefaultUriMatchDetection" = "Detección por defecto de coincidencia de URI";
@@ -1279,6 +1274,9 @@
 "WhenUsingTwoStepVerification" = "Cuando utilices la verificación en 2 pasos, introducirás tu nombre de usuario y contraseña y un código generado en esta aplicación.";
 "YesSetDefault" = "Sí, establecer como predeterminado";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Puedes actualizar tu configuración predeterminada en cualquier momento en los ajustes.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

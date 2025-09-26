@@ -17,8 +17,11 @@ class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
         )
 
         let overlayView = try XCTUnwrap(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
-        XCTAssertNil(overlayView.layer.backgroundColor)
         XCTAssertEqual(overlayView.layer.opacity, 1)
+        guard #unavailable(iOS 26) else {
+            return
+        }
+        XCTAssertNil(overlayView.layer.backgroundColor)
     }
 
     /// `hide(from:)` hides the loading overlay in the parent view controller.

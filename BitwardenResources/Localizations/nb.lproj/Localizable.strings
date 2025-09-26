@@ -131,9 +131,7 @@
 "LastSync" = "Siste synkronisering:";
 "Length" = "Lengde";
 "Lock" = "Lås";
-"FifteenMinutes" = "15 minutter";
 "OneHour" = "1 time";
-"OneMinute" = "1 minutt";
 "FourHours" = "4 timer";
 "Immediately" = "Umiddelbart";
 "VaultTimeout" = "Tidsavbrudd for hvelvet";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Lås opp";
 "UnlockVault" = "Lås opp hvelvet";
-"ThirtyMinutes" = "30 minutter";
 "LoggedInAsOn" = "Logget på som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Hvelvet ditt er låst. Kontroller hovedpassordet ditt for å fortsette.";
 "VaultLockedPIN" = "Hvelvet ditt er låst. Kontroller PIN-koden din for å fortsette.";
 "VaultLockedIdentity" = "Hvelvet ditt er låst. Bekreft identiteten din for å fortsette.";
 "Dark" = "Mørk";
 "Light" = "Lys";
-"FiveMinutes" = "5 minutter";
 "TenSeconds" = "10 sekunder";
 "ThirtySeconds" = "30 sekunder";
 "TwentySeconds" = "20 sekunder";
-"TwoMinutes" = "2 minutter";
 "ClearClipboard" = "Tøm utklippstavlen";
 "ClearClipboardDescription" = "Slett kopierte verdier fra utklippstavlen automatisk.";
 "DefaultUriMatchDetection" = "Standard URI-samsvarsgjenkjenning";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Ja, sett som standard";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

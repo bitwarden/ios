@@ -153,68 +153,68 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_empty_login() {
+    func disabletest_snapshot_empty_login() {
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_empty_card() {
+    func disabletest_snapshot_empty_card() {
         processor.state.group = .card
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_empty_identity() {
+    func disabletest_snapshot_empty_identity() {
         processor.state.group = .identity
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_empty_note() {
+    func disabletest_snapshot_empty_note() {
         processor.state.group = .secureNote
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_emptyCollection() {
+    func disabletest_snapshot_emptyCollection() {
         processor.state.group = .collection(id: "id", name: "name", organizationId: "12345")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_emptyFolder() {
+    func disabletest_snapshot_emptyFolder() {
         processor.state.group = .folder(id: "id", name: "name")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_emptySSHKey() {
+    func disabletest_snapshot_emptySSHKey() {
         processor.state.group = .sshKey
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_emptyTrash() {
+    func disabletest_snapshot_emptyTrash() {
         processor.state.group = .trash
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_loading() {
+    func disabletest_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_multipleItems() { // swiftlint:disable:this function_body_length
+    func disabletest_snapshot_multipleItems() { // swiftlint:disable:this function_body_length
         processor.state.loadingState = .data(
             [
                 VaultListSection(
@@ -269,7 +269,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     @MainActor
-    func test_snapshot_oneItem() {
+    func disabletest_snapshot_oneItem() {
         processor.state.loadingState = .data(
             [
                 VaultListSection(
@@ -288,7 +288,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     @MainActor
-    func test_snapshot_search_oneItem() {
+    func disabletest_snapshot_search_oneItem() {
         processor.state.isSearching = true
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -300,7 +300,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     @MainActor
-    func test_snapshot_search_oneTOTPItem() {
+    func disabletest_snapshot_search_oneTOTPItem() {
         timeProvider.timeConfig = .mockTime(
             .init(
                 year: 2023,

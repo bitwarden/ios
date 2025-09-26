@@ -131,9 +131,7 @@
 "LastSync" = "Posledná synchronizácia:";
 "Length" = "Dĺžka";
 "Lock" = "Zámok";
-"FifteenMinutes" = "15 minút";
 "OneHour" = "1 hodina";
-"OneMinute" = "1 minúta";
 "FourHours" = "4 hodiny";
 "Immediately" = "Okamžite";
 "VaultTimeout" = "Časový limit pre trezor";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Odomknúť";
 "UnlockVault" = "Odomknúť trezor";
-"ThirtyMinutes" = "30 minút";
 "LoggedInAsOn" = "Prihlásený ako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamknutý. Overte sa hlavným heslom ak chcete pokračovať.";
 "VaultLockedPIN" = "Váš trezor je uzamknutý. Overte sa PIN kódom ak chcete pokračovať.";
 "VaultLockedIdentity" = "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu.";
 "Dark" = "Tmavý";
 "Light" = "Svetlý";
-"FiveMinutes" = "5 minút";
 "TenSeconds" = "10 sekúnd";
 "ThirtySeconds" = "30 sekúnd";
 "TwentySeconds" = "20 sekúnd";
-"TwoMinutes" = "2 minúty";
 "ClearClipboard" = "Vymazať schránku";
 "ClearClipboardDescription" = "Automaticky vymazať skopírované hodnoty zo schránky.";
 "DefaultUriMatchDetection" = "Predvolený spôsob zisťovania zhody URI";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Pri používaní dvojstupňového overenia zadáte svoje používateľské meno a heslo a kód vygenerovaný v tejto aplikácii.";
 "YesSetDefault" = "Áno, nastaviť ako predvolené";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Predvolené nastavenie môžete kedykoľvek zmeniť v nastaveniach.";
+"SelectAccount" = "Vyberte účet";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Účty";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Zisťovanie zhody URI ovláda, ako Bitwarden identifikuje návrhy na automatické vypĺňanie.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov, ak sa použije nesprávne.";

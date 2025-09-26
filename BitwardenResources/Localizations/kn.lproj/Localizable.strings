@@ -132,9 +132,7 @@
 "LastSync" = "ಕೊನೆಯ ಸಿಂಕ್";
 "Length" = "ಉದ್ದ";
 "Lock" = "ಲಾಕ್‌";
-"FifteenMinutes" = "೧೫ ನಿಮಿಷಗಳು";
 "OneHour" = "೧ ಗಂಟೆ";
-"OneMinute" = "೧ ನಿಮಿಷ";
 "FourHours" = "೪ ಗಂಟೆಗಳು";
 "Immediately" = "ತಕ್ಷಣ";
 "VaultTimeout" = "ವಾಲ್ಟ್ ಕಾಲಾವಧಿ";
@@ -434,18 +432,15 @@
 "PIN" = "ಪಿನ್";
 "Unlock" = "ಅನ್‌ಲಾಕ್ ಮಾಡಿ";
 "UnlockVault" = "Unlock vault";
-"ThirtyMinutes" = "30 ನಿಮಿಷಗಳು";
 "LoggedInAsOn" = "%2$@ ನಲ್ಲಿ %1$@ ಆಗಿ ಲಾಗ್ ಇನ್ ಮಾಡಲಾಗಿದೆ.";
 "VaultLockedMasterPassword" = "ನಿಮ್ಮ ವಾಲ್ಟ್ ಲಾಕ್ ಆಗಿದೆ. ಮುಂದುವರೆಯಲು ನಿಮ್ಮ ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ.";
 "VaultLockedPIN" = "ನಿಮ್ಮ ವಾಲ್ಟ್ ಲಾಕ್ ಆಗಿದೆ. ಮುಂದುವರೆಯಲು ನಿಮ್ಮ ಪಿನ್ ಕೋಡ್ ಪರಿಶೀಲಿಸಿ.";
 "VaultLockedIdentity" = "Your vault is locked. Verify your identity to continue.";
 "Dark" = "ಡಾರ್ಕ್";
 "Light" = "ಬೆಳಕು";
-"FiveMinutes" = "೫ ನಿಮಿಷಗಳು";
 "TenSeconds" = "೧೦ ಕ್ಷಣ";
 "ThirtySeconds" = "೩೦ ಕ್ಷಣ";
 "TwentySeconds" = "೨0 ಸೆಕೆಂಡುಗಳು";
-"TwoMinutes" = "೨ ನಿಮಿಷಗಳು";
 "ClearClipboard" = "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್ ತೆರವುಗೊಳಿಸಿ";
 "ClearClipboardDescription" = "ನಿಮ್ಮ ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ನಿಂದ ನಕಲಿಸಿದ ಮೌಲ್ಯಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ತೆರವುಗೊಳಿಸಿ.";
 "DefaultUriMatchDetection" = "ಡೀಫಾಲ್ಟ್ ಯುಆರ್ಐ ಹೊಂದಾಣಿಕೆ ಪತ್ತೆ";
@@ -1279,6 +1274,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

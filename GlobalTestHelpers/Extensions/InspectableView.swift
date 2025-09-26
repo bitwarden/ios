@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import ViewInspector
+import XCTest
 
 // swiftlint:disable file_length
 
@@ -329,6 +330,41 @@ extension InspectableView {
     ) throws -> InspectableView<ViewType.Toggle> {
         try find(ViewType.Toggle.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
+        }
+    }
+
+    // MARK: Toolbar
+
+    /// Attempts to locate the toolbar cancel default button.
+    ///
+    /// - Returns: A cancel toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCancelToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CancelButton"
+        }
+    }
+
+    /// Attempts to locate the toolbar close default button.
+    ///
+    /// - Returns: A close toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCloseToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CloseButton"
+        }
+    }
+
+    /// Attempts to locate the toolbar save default button.
+    ///
+    /// - Returns: A save toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findSaveToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "SaveButton"
         }
     }
 }

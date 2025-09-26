@@ -131,9 +131,7 @@
 "LastSync" = "Viimane sünkroniseerimine:";
 "Length" = "Pikkus";
 "Lock" = "Lukusta";
-"FifteenMinutes" = "15 minuti pärast";
 "OneHour" = "1 tunni pärast";
-"OneMinute" = "1 minuti pärast";
 "FourHours" = "4 tunni pärast";
 "Immediately" = "Koheselt";
 "VaultTimeout" = "Hoidla ajalõpp";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Lukusta lahti";
 "UnlockVault" = "Hoidla lahtilukustamine";
-"ThirtyMinutes" = "30 minuti pärast";
 "LoggedInAsOn" = "Sisse logitud kontoga %1$@ lehel %2$@.";
 "VaultLockedMasterPassword" = "Hoidla on lukus. Jätkamiseks sisesta ülemparool.";
 "VaultLockedPIN" = "Hoidla on lukus. Jätkamiseks sisesta PIN kood.";
 "VaultLockedIdentity" = "Hoidla on lukus. Jätkamiseks kinnita oma identiteet.";
 "Dark" = "Tume";
 "Light" = "Hele";
-"FiveMinutes" = "5 minuti pärast";
 "TenSeconds" = "10 sekundi pärast";
 "ThirtySeconds" = "30 sekundi pärast";
 "TwentySeconds" = "20 sekundi pärast";
-"TwoMinutes" = "2 minuti pärast";
 "ClearClipboard" = "Lõikelaua puhastamine";
 "ClearClipboardDescription" = "Puhastab automaatselt lõikelauale kopeeritud sisu.";
 "DefaultUriMatchDetection" = "Vaike URI sobivuse tuvastamine";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

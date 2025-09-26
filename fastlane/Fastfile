@@ -18,20 +18,26 @@ APP_CONFIG_MAP = {
     build_ipa_path: "build/Bitwarden/Bitwarden.ipa",
     build_dsyms_path: "build/Bitwarden.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app",
-    ci_build_info_filepath: "BitwardenShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
   "authenticator" => {
     project_filepath: "project-bwa.yml",
     build_ipa_path: "build/Authenticator/Authenticator.ipa",
     build_dsyms_path: "build/Authenticator.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
-    ci_build_info_filepath: "AuthenticatorShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
 }
 
 ARTIFACT_EXTENSION = {
     "simulator" => "app",
     "device" => "ipa",
+}
+
+APPLE_ID_MAP = {
+    "com.8bit.bitwarden" => "1137397744",
+    "com.8bit.bitwarden.beta" => "6477551146",
+    "com.bitwarden.authenticator" => "6497335175",
 }
 
 platform :ios do |options|
@@ -126,18 +132,18 @@ platform :ios do |options|
         ci_run_source = "#{repository}/actions/runs/#{ci_run_number}/attempts/#{ci_run_attempt}"
 
         UI.message("🧱 Updating app CI Build info with:")
-        UI.message("🧱 commit: #{git_source}")
-        UI.message("💻 build source: #{ci_run_source}")
-        UI.message("🛠️ compiler flags: #{compiler_flags}")
+        UI.message("🧱 Commit: #{git_source}")
+        UI.message("💻 Build Source: #{ci_run_source}")
+        UI.message("🛠️ Compiler Flags: #{compiler_flags}")
 
         Dir.chdir("..") do
             FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
             File.write(ci_build_info_filepath, <<~CONTENT)
-                enum CIBuildInfo {
-                    static let info: KeyValuePairs<String, String> = [
-                        "🧱 commit:": "#{git_source}",
-                        "💻 build source:": "#{ci_run_source}",
-                        "🛠️ compiler flags:": "#{compiler_flags}",
+                public enum CIBuildInfo {
+                    public static let info: KeyValuePairs<String, String> = [
+                        "🧱 Commit": "#{git_source}",
+                        "💻 Build Source": "#{ci_run_source}",
+                        "🛠️ Compiler Flags": "#{compiler_flags}",
                     ]
                 }
             CONTENT
@@ -146,9 +152,16 @@ platform :ios do |options|
         UI.success("🧱 Successfully updated app CI Build info")
     end
 
-    desc "Push a new build to TestFlight"
+    desc "Upload a new build to TestFlight"
     lane :upload_build do |options|
         bundle_id = ENV["_BUNDLE_ID"] || options[:bundle_id] || "com.8bit.bitwarden" # provides backwards compatibility with old build workflows
+
+        # NOTE workaround for xcode26 altool bug, see:
+        # https://github.com/fastlane/fastlane/issues/29698
+        # https://github.com/fastlane/fastlane/discussions/29680
+        apple_id = APPLE_ID_MAP[bundle_id]
+        ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--apple-id #{apple_id}"
+
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],
@@ -263,12 +276,6 @@ platform :ios do |options|
         FileUtils.mkdir_p(File.dirname(export_options_file))
         File.write(local_xcconfig_file, xcconfig_content.map { |key, value| "#{key} = #{value}" }.join("\n"))
         File.write(export_options_file, export_options_plist_content)
-      end
-
-      if compiler_flags.include?("SUPPORTS_CXP")
-        Dir.chdir("..") do
-          sh("./Scripts/alpha_update_cxp_infoplist.sh")
-        end
       end
 
       UI.success("Successfully created config files for #{bundle_id}")

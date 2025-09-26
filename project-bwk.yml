@@ -154,6 +154,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers

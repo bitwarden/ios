@@ -131,9 +131,7 @@
 "LastSync" = "Poslednja sinhronizacija:";
 "Length" = "Dužina";
 "Lock" = "Zaključajte";
-"FifteenMinutes" = "15 minuta";
 "OneHour" = "1 sat";
-"OneMinute" = "1 minut";
 "FourHours" = "4 sata";
 "Immediately" = "Odmah";
 "VaultTimeout" = "Vremensko ograničenje trezora";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Otključaj";
 "UnlockVault" = "Otključaj trezor";
-"ThirtyMinutes" = "30 minuta";
 "LoggedInAsOn" = "Prijavljen kao %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Vaš trezor je zaključan. Potvrdite glavnu lozinku da nastavite.";
 "VaultLockedPIN" = "Vaš trezor je zaključan. Potvrdite vaš PIN da nastavite.";
 "VaultLockedIdentity" = "Vaš trezor je zaključan. Potvrdite glavnu lozinku da nastavite.";
 "Dark" = "Tamno";
 "Light" = "Svijetlo";
-"FiveMinutes" = "5 minuta";
 "TenSeconds" = "10 sekundi";
 "ThirtySeconds" = "30 sekundi";
 "TwentySeconds" = "20 sekundi";
-"TwoMinutes" = "2 minute";
 "ClearClipboard" = "Očisti međumemoriju";
 "ClearClipboardDescription" = "Automatski očistiti kopirane vrijednosti iz vaše međumemorije.";
 "DefaultUriMatchDetection" = "Zadani otkrivanje URI podudaranja";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

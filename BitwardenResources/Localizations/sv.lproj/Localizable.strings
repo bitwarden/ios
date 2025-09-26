@@ -131,9 +131,7 @@
 "LastSync" = "Senaste synkronisering:";
 "Length" = "Längd";
 "Lock" = "Lås";
-"FifteenMinutes" = "15 minuter";
 "OneHour" = "1 timme";
-"OneMinute" = "1 minut";
 "FourHours" = "4 timmar";
 "Immediately" = "Omedelbart";
 "VaultTimeout" = "Valvets tidsgräns";
@@ -434,18 +432,15 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "PIN" = "PIN-kod";
 "Unlock" = "Lås upp";
 "UnlockVault" = "Lås upp valv";
-"ThirtyMinutes" = "30 minuter";
 "LoggedInAsOn" = "Inloggad som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Valvet är låst. Bekräfta ditt huvudlösenord för att fortsätta.";
 "VaultLockedPIN" = "Valvet är låst. Bekräfta din PIN-kod för att fortsätta.";
 "VaultLockedIdentity" = "Ditt valv är låst. Bekräfta din identitet för att fortsätta.";
 "Dark" = "Mörkt";
 "Light" = "Ljust";
-"FiveMinutes" = "5 minuter";
 "TenSeconds" = "10 sekunder";
 "ThirtySeconds" = "30 sekunder";
 "TwentySeconds" = "20 sekunder";
-"TwoMinutes" = "2 minuter";
 "ClearClipboard" = "Rensa urklipp";
 "ClearClipboardDescription" = "Rensa automatiskt kopierade värden från urklipp.";
 "DefaultUriMatchDetection" = "Standardmatchning för URI";
@@ -1279,6 +1274,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "WhenUsingTwoStepVerification" = "När du använder tvåstegsverifiering anger du ditt användarnamn och lösenord samt en kod som genereras i den här appen.";
 "YesSetDefault" = "Ja, ställ in som standard";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Du kan uppdatera dina standardalternativ i inställningarna.";
+"SelectAccount" = "Välj konto";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Konton";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Detektering av URI-matchning styr hur Bitwarden identifierar automatisk ifyllning.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Börjar med\\\" är ett avancerat alternativ med ökad risk för att exponera inloggningsuppgifter.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Reguljärt uttryck\\\" är ett avancerat alternativ med ökad risk för att exponera inloggningsuppgifter om de används felaktigt.";

@@ -131,9 +131,7 @@
 "LastSync" = "Cysonwyd ddiwethaf:";
 "Length" = "Hyd";
 "Lock" = "Cloi";
-"FifteenMinutes" = "ar ôl chwarter awr";
 "OneHour" = "ar ôl awr";
-"OneMinute" = "ar ôl munud";
 "FourHours" = "ar ôl 4 awr";
 "Immediately" = "ar unwaith";
 "VaultTimeout" = "Cloi'r gell";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Datgloi";
 "UnlockVault" = "Datgloi'ch cell";
-"ThirtyMinutes" = "ar ôl hanner awr";
 "LoggedInAsOn" = "Rydych wedi mewngofnodi fel %1$@ ar %2$@.";
 "VaultLockedMasterPassword" = "Mae eich cell dan glo. Gwiriwch eich prif gyfrinair i barhau.";
 "VaultLockedPIN" = "Mae eich cell dan glo. Gwiriwch eich cod PIN i barhau.";
 "VaultLockedIdentity" = "Mae eich cell dan glo. Gwiriwch eich hunaniaeth i barhau.";
 "Dark" = "Tywyll";
 "Light" = "Golau";
-"FiveMinutes" = "ar ôl 5 munud";
 "TenSeconds" = "ar ôl 10 eiliad";
 "ThirtySeconds" = "ar ôl 30 eiliad";
 "TwentySeconds" = "ar ôl 20 eiliad";
-"TwoMinutes" = "ar ôl 2 funud";
 "ClearClipboard" = "Clirio'r clipfwrdd";
 "ClearClipboardDescription" = "Clirio eitemau a gopïwyd o'ch clipfwrdd yn awtomatig.";
 "DefaultUriMatchDetection" = "Default URI match detection";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"SelectAccount" = "Select account";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Starts with\\” is an advanced option with increased risk of exposing credentials.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regular expression\\” is an advanced option with increased risk of exposing credentials if used incorrectly.";

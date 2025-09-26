@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 @testable import BitwardenShared
@@ -45,8 +46,30 @@ class MockCryptoClient: CryptoClientProtocol {
     var initializeUserCryptoRequest: InitUserCryptoRequest?
     var initializeUserCryptoResult: Result<Void, Error> = .success(())
 
-    var updatePasswordNewPassword: String?
-    var updatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
+    var makeUpdateKdfKdf: Kdf?
+    var makeUpdateKdfPassword: String?
+    var makeUpdateKdfResult: Result<UpdateKdfResponse, Error> = .success(
+        UpdateKdfResponse(
+            masterPasswordAuthenticationData: MasterPasswordAuthenticationData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                salt: "AUTHENTICATION_SALT",
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH"
+            ),
+            masterPasswordUnlockData: MasterPasswordUnlockData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                salt: "UNLOCK_SALT"
+            ),
+            oldMasterPasswordAuthenticationData: MasterPasswordAuthenticationData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                salt: "OLD_AUTHENTICATION_SALT",
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH"
+            )
+        )
+    )
+
+    var makeUpdatePasswordNewPassword: String?
+    var makeUpdatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
         UpdatePasswordResponse(
             passwordHash: "password hash",
             newKey: "new key"
@@ -97,8 +120,18 @@ class MockCryptoClient: CryptoClientProtocol {
         return try initializeUserCryptoResult.get()
     }
 
+    func makeUpdateKdf(password: String, kdf: Kdf) throws -> UpdateKdfResponse {
+        makeUpdateKdfPassword = password
+        makeUpdateKdfKdf = kdf
+        return try makeUpdateKdfResult.get()
+    }
+
+    func makeUpdatePassword(newPassword: String) throws -> UpdatePasswordResponse {
+        makeUpdatePasswordNewPassword = newPassword
+        return try makeUpdatePasswordResult.get()
+    }
+
     func updatePassword(newPassword: String) throws -> BitwardenSdk.UpdatePasswordResponse {
-        updatePasswordNewPassword = newPassword
-        return try updatePasswordResult.get()
+        fatalError("Use makeUpdatePassword(newPassword:) instead")
     }
 }

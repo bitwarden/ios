@@ -131,9 +131,7 @@
 "LastSync" = "Última sincronização:";
 "Length" = "Comprimento";
 "Lock" = "Bloquear";
-"FifteenMinutes" = "15 minutos";
 "OneHour" = "1 hora";
-"OneMinute" = "1 minuto";
 "FourHours" = "4 horas";
 "Immediately" = "Imediatamente";
 "VaultTimeout" = "Tempo limite do cofre";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear cofre";
-"ThirtyMinutes" = "30 minutos";
 "LoggedInAsOn" = "Sessão iniciada como %1$@ em %2$@.";
 "VaultLockedMasterPassword" = "O seu cofre está bloqueado. Verifique a sua palavra-passe mestra para continuar.";
 "VaultLockedPIN" = "O seu cofre está bloqueado. Verifique o seu código PIN para continuar.";
 "VaultLockedIdentity" = "O seu cofre está bloqueado. Verifique a sua identidade para continuar.";
 "Dark" = "Escuro";
 "Light" = "Claro";
-"FiveMinutes" = "5 minutos";
 "TenSeconds" = "10 segundos";
 "ThirtySeconds" = "30 segundos";
 "TwentySeconds" = "20 segundos";
-"TwoMinutes" = "2 minutos";
 "ClearClipboard" = "Limpar área de transferência";
 "ClearClipboardDescription" = "Limpar automaticamente os valores copiados da sua área de transferência.";
 "DefaultUriMatchDetection" = "Deteção de correspondência de URI predefinida";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Ao utilizar a verificação de dois passos, introduz o seu nome de utilizador e palavra-passe e um código gerado nesta app.";
 "YesSetDefault" = "Sim, definir predefinição";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Pode atualizar a sua predefinição a qualquer altura nas definições.";
+"SelectAccount" = "Selecionar conta";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Contas";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "A deteção de correspondência de URI controla a forma como o Bitwarden identifica sugestões de preenchimento automático.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Começa com\\” é uma opção avançada com um risco acrescido de exposição de credenciais.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A \"Expressão regular\\” é uma opção avançada com um risco acrescido de expor credenciais se for utilizada incorretamente.";
