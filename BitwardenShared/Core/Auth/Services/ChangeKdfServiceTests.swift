@@ -14,6 +14,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var stateService: MockStateService!
     var subject: ChangeKdfService!
 
@@ -31,6 +32,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         stateService = MockStateService()
 
         subject = DefaultChangeKdfService(
@@ -38,6 +40,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             stateService: stateService
         )
     }
@@ -50,6 +53,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         clientService = nil
         configService = nil
         errorReporter = nil
+        flightRecorder = nil
         stateService = nil
         subject = nil
     }
@@ -211,5 +215,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/kdf")
+        XCTAssertEqual(flightRecorder.logMessages, ["[Auth] Upgraded user's KDF to minimums"])
     }
 }

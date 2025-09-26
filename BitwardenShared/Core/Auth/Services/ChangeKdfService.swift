@@ -48,6 +48,9 @@ class DefaultChangeKdfService: ChangeKdfService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -60,6 +63,7 @@ class DefaultChangeKdfService: ChangeKdfService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -67,12 +71,14 @@ class DefaultChangeKdfService: ChangeKdfService {
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         stateService: StateService
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.stateService = stateService
     }
 
@@ -111,6 +117,7 @@ class DefaultChangeKdfService: ChangeKdfService {
                 UpdateKdfRequestModel(response: updateKdfResponse)
             )
             try await stateService.setAccountKdf(kdfConfig, userId: account.profile.userId)
+            await flightRecorder.log("[Auth] Upgraded user's KDF to minimums")
         } catch {
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Force Update KDF Error",

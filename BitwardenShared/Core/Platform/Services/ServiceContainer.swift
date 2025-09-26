@@ -481,6 +481,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             stateService: stateService
         )
 
