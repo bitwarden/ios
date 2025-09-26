@@ -39,6 +39,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
                 EmptyView()
             }
             .pickerStyle(.segmented)
+            .glassEffect()
         } else {
             HStack(spacing: 0) {
                 ForEach(selections) { selection in
