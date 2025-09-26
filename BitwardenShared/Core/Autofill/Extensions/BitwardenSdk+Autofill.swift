@@ -88,7 +88,7 @@ private func createExtensionJson(passkeyRequest: ASPasskeyCredentialRequest) -> 
             "second": \#(salt2)
         }
         """#
-    return #"{"prf":{"eval":\#(eval)}"#
+    return #"{"prf":{"eval":\#(eval)}}"#
 }
 
 // MARK: - MakeCredentialRequest
