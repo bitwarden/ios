@@ -202,7 +202,7 @@ actor DefaultFlightRecorder {
                         // timer's sleep time is slightly off from the true expiration.
                         let sleepSeconds = max(Double(seconds), UI.duration(1))
 
-                        Logger.application.debug(
+                        Logger.flightRecorder.debug(
                             """
                             FlightRecorder: next log lifecycle: \(nextLogLifecycleDate), \
                             sleeping for \(sleepSeconds) seconds
@@ -252,14 +252,14 @@ actor DefaultFlightRecorder {
 
         // Check if the active log should be disabled after its duration has elapsed.
         if let activeLog = data.activeLog, activeLog.endDate <= timeProvider.presentTime {
-            Logger.application.debug("FlightRecorder: active log reached end date, deactivating")
+            Logger.flightRecorder.debug("FlightRecorder: active log reached end date, deactivating")
             data.activeLog = nil
         }
 
         for (index, log) in data.inactiveLogs.enumerated() {
             guard log.expirationDate <= timeProvider.presentTime else { continue }
 
-            Logger.application.debug(
+            Logger.flightRecorder.debug(
                 "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)"
             )
 
@@ -433,6 +433,7 @@ extension DefaultFlightRecorder: FlightRecorder {
 
     func log(_ message: String, file: String, line: UInt) async {
         guard var data = await getFlightRecorderData(), let log = data.activeLog else { return }
+        Logger.flightRecorder.debug("\(message)")
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)
