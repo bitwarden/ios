@@ -93,6 +93,9 @@ class DefaultAutofillCredentialService {
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
 
+    /// The service used to create and assert the device passkey for logging into remote clients.
+    private let devicePasskeyService: DevicePasskeyService
+    
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -141,6 +144,7 @@ class DefaultAutofillCredentialService {
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - credentialIdentityFactory: The factory to create credential identities.
+    ///   - devicePasskeyService: The service used to create and assert the device passkey for logging into remote clients.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
@@ -158,6 +162,7 @@ class DefaultAutofillCredentialService {
         cipherService: CipherService,
         clientService: ClientService,
         credentialIdentityFactory: CredentialIdentityFactory,
+        devicePasskeyService: DevicePasskeyService,
         errorReporter: ErrorReporter,
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
@@ -173,6 +178,7 @@ class DefaultAutofillCredentialService {
         self.cipherService = cipherService
         self.clientService = clientService
         self.credentialIdentityFactory = credentialIdentityFactory
+        self.devicePasskeyService = devicePasskeyService
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
@@ -477,7 +483,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         #endif
 
         do {
-            let devicePasskeyResult = try await useDevicePasskey(for: request, rpId: rpId, clientDataHash: clientDataHash)
+            let devicePasskeyResult = try await devicePasskeyService.useDevicePasskey(for: request)
             let (assertionResult, prfResult): (GetAssertionResult, Data?) = if let devicePasskeyResult {
                 devicePasskeyResult
             } else {
@@ -547,124 +553,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw error
         }
     }
-    
-    private func useDevicePasskey(for request: GetAssertionRequest, rpId: String, clientDataHash: Data) async throws -> (GetAssertionResult, Data?)? {
-        // let webVaultRpId = services.environmentService.webVaultURL.domain
-        let webVaultRpId = "localhost"
-        guard webVaultRpId == rpId else { return nil }
-        guard let json = try await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId()) else {
-            print("Matched Bitwarden Web Vault rpID, but no device passkey found. Forwarding to main implementation")
-            return nil
-        }
-        
-        let decoder = JSONDecoder()
-        let loginWithPrfSalt = Data(SHA256.hash(data: "passwordless-login".data(using: .utf8)!))
-        let saltInput1 = try getPrfInput(extensionsInput: request.extensions) ?? loginWithPrfSalt
-        let record: DevicePasskeyRecord = try decoder.decode(DevicePasskeyRecord.self, from: json.data(using: .utf8)!)
-        
-        // extensions
-        // prf
-        let prfSeed = Data(base64Encoded: record.prfSeed)!
-        let saltPrefix = "WebAuthn PRF\0".data(using: .utf8)!
-        // hard-coding instead of parsing extensions from request
-        let salt1 = saltPrefix + saltInput1
-        // This should be encrypted with a shared secret between the client and authenticator so that the RP doesn't see the PRF output. Skipping that for now.
-        let prfResult = Data(HMAC<SHA256>.authenticationCode(for: salt1, using: SymmetricKey(data: prfSeed)))
-        var extensions = Data()
-        /*
-        extensions.append(contentsOf:[
-            0xA1, // map, length 1
-              0x63, 0x70, 0x72, 0x66, // string, len 3 "prf"
-                0xA1, // map, length 1
-                  0x67, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73, // text, length 7 "results
-                    0xA1, // map, length 1
-                      0x65, 0x66, 0x69, 0x72, 0x73, 0x74, // text, length 5, "first"
-                        0x58, 0x20, // bytes, length 32
-        ])
-        extensions.append(contentsOf: prfResult)
-         */
-
-        // authenticatorData
-        let rpIdHash = Data(SHA256.hash(data: rpId.data(using: .utf8)!))
-        let flags = 0b0001_1101 // UV, UP, BE and BS also set because macOS requires it :(
-        let signCount = UInt32(0)
-        let authData = rpIdHash + UInt8(flags).bytes + signCount.bytes // + extensions
-        
-        // signature
-        let payload = authData + request.clientDataHash
-        let privKey = try P256.Signing.PrivateKey(rawRepresentation: Data(base64Encoded: record.privKey)!)
-        let sig = try privKey.signature(for: payload).derRepresentation
-        
-        // attestation object
-        var attObj = Data()
-        attObj.append(contentsOf: [
-            0xA3, // map, length 3
-              0x63, 0x66, 0x6d, 0x74, // string, len 3 "fmt"
-                0x66, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x64, // string, len 6, "packed"
-              0x67, 0x61, 0x74, 0x74, 0x53, 0x74, 0x6d, 0x74, // string, len 7, "attStmt"
-                0xA2, // map, length 2
-                  0x63, 0x61, 0x6c, 0x67, // string, len 3, "alg"
-                    0x26, // -7 (P256)
-                  0x63, 0x73, 0x69, 0x67, // string, len 3, "sig"
-                  0x58, // bytes, length specified in following byte
-        ])
-        attObj.append(contentsOf: UInt8(sig.count).bytes)
-        attObj.append(contentsOf: sig)
-        attObj.append(contentsOf:[
-              0x68, 0x61, 0x75, 0x74, 0x68, 0x44, 0x61, 0x74, 0x61, // string, len 8, "authData"
-                0x58, // bytes, length specified in following byte.
-        ])
-        attObj.append(contentsOf: UInt8(authData.count).bytes)
-        attObj.append(contentsOf: authData)
-        let fido2View = Fido2CredentialView(
-            credentialId: record.credId,
-            keyType: "public-key",
-            keyAlgorithm: "ECDSA",
-            keyCurve: "P-256",
-            keyValue: EncString(),
-            rpId: record.rpId,
-            userHandle: nil,
-            userName: nil,
-            counter: "0",
-            rpName: nil,
-            userDisplayName: nil,
-            discoverable: "true",
-            creationDate: record.creationDate,
-        )
-        let fido2NewView = Fido2CredentialNewView(
-            credentialId: record.credId,
-            keyType: "public-key",
-            keyAlgorithm: "ECDSA",
-            keyCurve: "P-256",
-            rpId: record.rpId,
-            userHandle: nil,
-            userName: nil,
-            counter: "0",
-            rpName: nil,
-            userDisplayName: nil,
-            creationDate: record.creationDate,
-        )
-        let credId = Data(base64Encoded: record.credId)!
-        let userHandle = Data(base64Encoded: record.userId!)!
-        let result = GetAssertionResult(
-            credentialId: credId,
-            authenticatorData: authData,
-            signature: sig,
-            userHandle: userHandle,
-            selectedCredential: SelectedCredential(cipher: CipherView(fido2CredentialNewView: fido2NewView, timeProvider: CurrentTime()), credential: fido2View),
-        )
-        return (result, prfResult)
-        // Even though prfResult is included in extensions, we'd have to parse CBOR, so just including it for now
-        // return DevicePasskeyResult(credential: result, privKey: privKey, prfSeed: prfSeed, prfResult: prfResult)
-    }
-}
-
-private func getPrfInput(extensionsInput extensions: String?) throws -> Data? {
-    guard let extensions else { return nil }
-    let decoder = JSONDecoder()
-    let extInputs = try decoder.decode(AuthenticationExtensionsClientInputs.self, from: extensions.data(using: .utf8)!)
-    guard let first = extInputs.prf?.eval?.first else { return nil }
-    return Data(base64Encoded: first)
 }
 
 // MARK: - CredentialIdentityStore

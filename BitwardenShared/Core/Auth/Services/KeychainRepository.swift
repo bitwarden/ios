@@ -39,10 +39,10 @@ enum KeychainItem: Equatable {
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken,
-             .devicePasskey:
+             .refreshToken:
             nil
-        case .biometrics:
+        case .biometrics,
+             .devicePasskey:
             .biometryCurrentSet
         }
     }
