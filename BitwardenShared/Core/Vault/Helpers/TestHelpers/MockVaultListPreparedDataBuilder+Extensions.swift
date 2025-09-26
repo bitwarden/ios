@@ -16,6 +16,10 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("addFavoriteItem")
             return self
         }
+        addFido2ItemClosure = { _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addFido2Item")
+            return self
+        }
         addFolderItemClosure = { _, _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addFolderItem")
             return self

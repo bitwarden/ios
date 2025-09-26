@@ -13,6 +13,8 @@ protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
 
 /// The default implementation of `VaultListPreparedDataBuilderFactory`.
 struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
+    /// The service used to manage syncing and updates to the user's ciphers.
+    let cipherService: CipherService
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
@@ -24,6 +26,7 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
     func make() -> VaultListPreparedDataBuilder {
         DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -40,6 +43,8 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the prepared data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
+    /// Adds a Fido2 item to the prepared data.
+    func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder
     /// Adds a folder item to the prepared data.
     func addFolderItem(
         cipher: CipherListView,
@@ -80,6 +85,8 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
 class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     // MARK: Properties
 
+    /// The service used to manage syncing and updates to the user's ciphers.
+    let cipherService: CipherService
     /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
@@ -100,16 +107,19 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     /// Initializes a `DefaultVaultListPreparedDataBuilder`.
     /// - Parameters:
+    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The service used to get the present time.
     init(
+        cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
+        self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -130,6 +140,40 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
            let favoriteListItem = VaultListItem(cipherListView: cipher) {
             preparedData.favorites.append(favoriteListItem)
         }
+        return self
+    }
+
+    func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
+        do {
+            guard let id = cipher.id else {
+                return self
+            }
+
+            guard let cipherRaw = try await cipherService.fetchCipher(withId: id) else { return self }
+            let cipherView = try await clientService.vault().ciphers().decrypt(cipher: cipherRaw)
+
+            let decryptedFido2Credentials = try await clientService
+                .platform()
+                .fido2()
+                .decryptFido2AutofillCredentials(cipherView: cipherView)
+
+            guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
+                errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)
+                return self
+            }
+
+            guard let fido2Item = VaultListItem(
+                cipherListView: cipher,
+                fido2CredentialAutofillView: fido2CredentialAutofillView
+            ) else {
+                return self
+            }
+
+            preparedData.fido2Items.append(fido2Item)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         return self
     }
 
