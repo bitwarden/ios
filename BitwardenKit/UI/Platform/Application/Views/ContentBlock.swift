@@ -8,7 +8,7 @@ import SwiftUI
 ///
 /// Adapted from: https://movingparts.io/variadic-views-in-swiftui
 ///
-struct ContentBlock<Content: View>: View {
+public struct ContentBlock<Content: View>: View {
     // MARK: Properties
 
     /// The content to display in the content block.
@@ -19,7 +19,7 @@ struct ContentBlock<Content: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         // This uses SwiftUI's `VariadicView` API, which isn't part of SwiftUI's public API but
         // since much of SwiftUI itself uses this, there's a low likelihood of this being removed.
         _VariadicView.Tree(Layout(dividerLeadingPadding: dividerLeadingPadding)) {
@@ -36,7 +36,7 @@ struct ContentBlock<Content: View>: View {
     ///     to `0` which will cause the divider to span the full width of the view.
     ///   - content: The content to display in the content block.
     ///
-    init(dividerLeadingPadding: CGFloat = 0, @ViewBuilder content: () -> Content) {
+    public init(dividerLeadingPadding: CGFloat = 0, @ViewBuilder content: () -> Content) {
         self.content = content()
         self.dividerLeadingPadding = dividerLeadingPadding
     }
@@ -76,7 +76,7 @@ extension ContentBlock {
 
 // MARK: - View + ContentBlock
 
-extension View {
+public extension View {
     /// Wraps the view within a `ContentBlock`.
     ///
     func contentBlock() -> some View {
