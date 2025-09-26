@@ -37,7 +37,7 @@ extension SendListItem {
 
 extension SendListItem {
     /// An image asset for this item that can be used in the UI.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch itemType {
         case let .send(sendView):
             switch sendView.type {

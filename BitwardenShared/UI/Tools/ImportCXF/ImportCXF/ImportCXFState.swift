@@ -46,7 +46,7 @@ struct ImportCXFState: Equatable, Sendable {
     }
 
     /// The main icon to be displayed.
-    var mainIcon: ImageAsset {
+    var mainIcon: SharedImageAsset {
         return switch status {
         case .importing, .start:
             SharedAsset.Icons.fileUpload24

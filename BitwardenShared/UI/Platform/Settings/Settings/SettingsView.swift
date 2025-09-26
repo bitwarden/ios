@@ -110,7 +110,7 @@ struct SettingsView: View {
 
     /// The other settings row.
     private var otherRow: some View {
-        SettingsListItem(Localizations.other, icon: Asset.Images.other) {
+        SettingsListItem(Localizations.other, icon: SharedAsset.Icons.other) {
             store.send(.otherPressed)
         } trailingContent: {
             chevron
@@ -123,7 +123,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.vault,
             badgeValue: store.state.vaultBadgeValue,
-            icon: Asset.Images.vaultSettings
+            icon: SharedAsset.Icons.vaultSettings
         ) {
             store.send(.vaultPressed)
         } trailingContent: {

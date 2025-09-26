@@ -472,7 +472,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     ///   - name: The name to display.
     /// - Returns: A view with an icon and a name stating where the item belongs to.
     @ViewBuilder
-    private func belongingView(icon: ImageAsset, name: String) -> some View {
+    private func belongingView(icon: SharedImageAsset, name: String) -> some View {
         HStack(alignment: .top) {
             Image(decorative: icon)
                 .resizable()

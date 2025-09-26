@@ -68,7 +68,7 @@ struct PreventAccountLockView: View {
     ///
     @ViewBuilder
     private func rowView(
-        image: ImageAsset,
+        image: SharedImageAsset,
         title: String,
         subtitle: String? = nil
     ) -> some View {

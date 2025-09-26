@@ -477,7 +477,7 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
             guard case let .custom(brand) = cardItemState.brand else {

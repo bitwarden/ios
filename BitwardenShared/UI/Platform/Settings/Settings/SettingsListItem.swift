@@ -19,7 +19,7 @@ struct SettingsListItem<Content: View>: View {
     let badgeValue: String?
 
     /// The optional icon to display on the leading edge of the list item.
-    let icon: ImageAsset?
+    let icon: SharedImageAsset?
 
     /// The name of the list item.
     let name: String
@@ -87,7 +87,7 @@ struct SettingsListItem<Content: View>: View {
         _ name: String,
         accessibilityIdentifier: String? = nil,
         badgeValue: String? = nil,
-        icon: ImageAsset? = nil,
+        icon: SharedImageAsset? = nil,
         nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }

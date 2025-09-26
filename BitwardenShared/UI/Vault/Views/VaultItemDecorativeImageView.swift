@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultItemDecorativeImageView
@@ -17,7 +18,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
     let showWebIcons: Bool
 
     /// The placeholder content to build from the icon asset.
-    let placeholderContent: ((ImageAsset) -> PlaceholderContent)?
+    let placeholderContent: ((SharedImageAsset) -> PlaceholderContent)?
 
     var body: some View {
         // The Group is needed so `.accessibilityHidden(false)` can be applied to this image wrapper.
@@ -60,7 +61,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
         item: VaultItemWithDecorativeIcon,
         iconBaseURL: URL?,
         showWebIcons: Bool,
-        placeholderContent: ((ImageAsset) -> PlaceholderContent)? = nil
+        placeholderContent: ((SharedImageAsset) -> PlaceholderContent)? = nil
     ) {
         self.item = item
         self.iconBaseURL = iconBaseURL
@@ -75,7 +76,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
     /// - Parameter icon: The icon to use in the placeholder view.
     /// - Returns: The placeholder view.
     @ViewBuilder
-    private func placeholder(_ icon: ImageAsset) -> some View {
+    private func placeholder(_ icon: SharedImageAsset) -> some View {
         if item.shouldUseCustomPlaceholderContent, let placeholderContent {
             placeholderContent(icon)
         } else {
@@ -84,7 +85,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
     }
 
     /// The placeholder image for the decorative image.
-    private func placeholderDecorativeImage(_ icon: ImageAsset) -> some View {
+    private func placeholderDecorativeImage(_ icon: SharedImageAsset) -> some View {
         Image(decorative: icon)
             .resizable()
             .scaledToFit()

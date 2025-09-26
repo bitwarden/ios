@@ -140,7 +140,7 @@ extension CardComponent.Brand: Menuable {
 
 extension CardComponent.Brand {
     /// Gets the icon corresponding to each card brand.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch self {
         case .americanExpress:
             SharedAsset.Icons.Cards.amex

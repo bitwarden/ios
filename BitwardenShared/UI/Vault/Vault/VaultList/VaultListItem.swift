@@ -96,7 +96,7 @@ extension VaultListItem {
     }
 
     /// An image asset for this item that can be used in the UI.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch itemType {
         case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
