@@ -267,9 +267,9 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
     
     private func getPrfInput(extensionsInput extInputs: AuthenticationExtensionsClientInputs?) throws -> (salt1: Data, salt2: Data?) {
         if let prfInputs = extInputs?.prf?.eval {
-            let input1 = Data(base64Encoded: prfInputs.first)!
+            let input1 = Data(base64UrlEncoded: prfInputs.first)!
             let input2: Data? = if let second = prfInputs.second {
-                Data(base64Encoded: second)
+                Data(base64UrlEncoded: second)
             } else { nil }
             return (input1, input2)
         }
