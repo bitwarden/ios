@@ -1,7 +1,11 @@
 import SwiftUI
 
-extension View {
-    /// Conditionally adds traits to a view
+// MARK: View+Conditionals
+
+/// `View` modifiers that are applied conditionally.
+///
+public extension View {
+    /// Conditionally adds accessibility traits to a view.
     ///
     /// - Parameters:
     ///     - condition: Should the traits be added?
@@ -14,24 +18,6 @@ extension View {
         addTraits traits: AccessibilityTraits
     ) -> some View {
         accessibility(addTraits: condition ? traits : [])
-    }
-
-    /// Adds an async accessibility action to the view.
-    ///
-    /// - Parameters:
-    ///   - name: The name of the action.
-    ///   - asyncHandler: The async action.
-    ///
-    /// - Returns: A modifeid version of the content, with or without the accessibility action,
-    ///    based on the supplied condition.
-    ///
-    func accessibilityAsyncAction<S>(
-        named name: S,
-        _ asyncHandler: @escaping () async -> Void
-    ) -> some View where S: StringProtocol {
-        accessibilityAction(
-            named: name, { Task { await asyncHandler() } }
-        )
     }
 
     /// Conditionally adds an accessibility action to the view.
@@ -79,6 +65,24 @@ extension View {
             ) {
                 await asyncHandler()
             }
+        } else {
+            self
+        }
+    }
+
+    /// Conditionally hides a view based on the specified value.
+    ///
+    /// NOTE: This should only be used when the view needs to remain in the view hierarchy while hidden,
+    /// which is often useful for sizing purposes (e.g. hide or swap a view without resizing the parent).
+    /// Otherwise, `if condition { view }` is preferred.
+    ///
+    /// - Parameter hidden: `true` if the view should be hidden.
+    /// - Returns The original view if `hidden` is false, or the view with the hidden modifier applied.
+    ///
+    @ViewBuilder
+    func hidden(_ hidden: Bool) -> some View {
+        if hidden {
+            self.hidden()
         } else {
             self
         }
@@ -168,54 +172,5 @@ extension View {
         } else {
             self
         }
-    }
-
-    /// Adds an async action to perform when this view recognizes a tap gesture.
-    ///
-    /// Use this method to perform the specified `action` when the user clicks
-    /// or taps on the view or container `count` times.
-    ///
-    /// > Note: If you create a control that's functionally equivalent
-    /// to a ``Button``, use ``ButtonStyle`` to create a customized button
-    /// instead.
-    ///
-    /// In the example below, the color of the heart images changes to a random
-    /// color from the `colors` array whenever the user clicks or taps on the
-    /// view twice:
-    ///
-    ///     struct TapGestureExample: View {
-    ///         let colors: [Color] = [.gray, .red, .orange, .yellow,
-    ///                                .green, .blue, .purple, .pink]
-    ///         @State private var fgColor: Color = .gray
-    ///
-    ///         var body: some View {
-    ///             Image(systemName: "heart.fill")
-    ///                 .resizable()
-    ///                 .frame(width: 200, height: 200)
-    ///                 .foregroundColor(fgColor)
-    ///                 .onTapGesture(count: 2) {
-    ///                     fgColor = colors.randomElement()!
-    ///                 }
-    ///         }
-    ///     }
-    ///
-    /// ![A screenshot of a view of a heart.](SwiftUI-View-TapGesture.png)
-    ///
-    /// - Parameters:
-    ///    - count: The number of taps or clicks required to trigger the action
-    ///      closure provided in `action`. Defaults to `1`.
-    ///    - asyncAction: The action to perform.
-    public func onTapGesture(
-        count: Int = 1,
-        performAsync asyncAction: @escaping () async -> Void
-    ) -> some View {
-        onTapGesture(
-            count: count,
-            perform: {
-                Task {
-                    await asyncAction()
-                }
-            }
-        )
     }
 }
