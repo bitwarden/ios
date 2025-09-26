@@ -62,27 +62,11 @@ class TokenServiceTests: BitwardenTestCase {
     }
 
     /// `getAccessToken()` returns the access token stored in the state service for the active account
-    /// for the `ClientManagedTokens` function.
+    /// for the `ClientManagedTokens` function. Now it temporarily returns `nil` until the expired validation is added
+    /// as the SDK always expect a valid token.
     func test_getAccessToken_sdk() async throws {
-        stateService.activeAccount = .fixture()
-
-        let accessToken: String? = await subject.getAccessToken()
-        XCTAssertEqual(accessToken, "ACCESS_TOKEN")
-
-        keychainRepository.getAccessTokenResult = .success("🔑")
-
-        let updatedAccessToken: String? = await subject.getAccessToken()
-        XCTAssertEqual(updatedAccessToken, "🔑")
-    }
-
-    /// `getAccessToken()` returns nil if there isn't an active account
-    /// for the `ClientManagedTokens` function.
-    func test_getAccessToken_sdkNoAccountNil() async {
-        stateService.activeAccount = nil
-
         let accessToken: String? = await subject.getAccessToken()
         XCTAssertNil(accessToken)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
     /// `getIsExternal()` returns false if the user isn't an external user.

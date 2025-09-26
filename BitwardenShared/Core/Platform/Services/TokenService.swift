@@ -96,12 +96,8 @@ actor DefaultTokenService: TokenService {
 extension DefaultTokenService: ClientManagedTokens {
     /// Gets the access token for the SDK, nil if any errors are thrown.
     func getAccessToken() async -> String? {
-        do {
-            let accessToken: String = try await getAccessToken()
-            return accessToken
-        } catch {
-            errorReporter.log(error: error)
-            return nil
-        }
+        // TODO: PM-21846 Returning `nil` temporarily until we add validation
+        // given that the SDK expects non-expired token.
+        return nil
     }
 }
