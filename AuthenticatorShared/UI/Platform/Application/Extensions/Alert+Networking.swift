@@ -45,11 +45,6 @@ extension Alert {
                 title: Localizations.anErrorHasOccurred,
                 message: serverError.message
             )
-        case let BitwardenSdk.BitwardenError.E(message):
-            return defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: message
-            )
         case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
             return internetConnectionError(tryAgain)
         case let error as URLError where error.code == .timedOut:
