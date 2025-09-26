@@ -481,8 +481,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         rpId: String,
         clientDataHash: Data
     ) async throws -> ASPasskeyAssertionCredential {
-        let logger = Logger()
-        logger.info("Starting provideFido2Credential")
         await fido2UserInterfaceHelper.setupDelegate(
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
@@ -507,16 +505,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                     .getAssertion(request: request)
                 , nil as Data?)
             }
-            
-            print(request)
-            logger.debug("clientDataHash: \(request.clientDataHash.base64EncodedString())")
-            logger.debug("rpId: \(request.rpId)")
-            logger.debug("Passkey result")
-            logger.debug("authData: \(assertionResult.authenticatorData.base64EncodedString())")
-            logger.debug("credId: \(assertionResult.credentialId.base64EncodedString())")
-            logger.debug("signature: \(assertionResult.signature.base64EncodedString())")
-            logger.debug("userHandle: \(assertionResult.userHandle.base64EncodedString())")
-            logger.debug("prfResult: \(prfResult?.base64EncodedString() ?? "<null>")")
 
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
