@@ -148,13 +148,15 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         }
     }
 
-    /// `updateKdfToMinimums(password:)` logs an error but doesn't throw if updating the KDF fails.
+    /// `updateKdfToMinimums(password:)` logs an error and throws it if updating the KDF fails.
     func test_updateKdfToMinimums_error_updateKdfError() async throws {
         clientService.mockCrypto.makeUpdateKdfResult = .failure(BitwardenTestError.example)
         configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 
-        try await subject.updateKdfToMinimums(password: "password123!")
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.updateKdfToMinimums(password: "password123!")
+        }
 
         let nsError = try XCTUnwrap(errorReporter.errors.last as? NSError)
         XCTAssertEqual(nsError.domain, "General Error: Force Update KDF Error")
@@ -195,6 +197,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `updateKdfToMinimumsIfNeeded(password:)` updates the user's KDF settings if the
     /// iterations are below the minimum.
     func test_updateKdfToMinimumsIfNeeded_iterationsBelowMinimum() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
         configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 

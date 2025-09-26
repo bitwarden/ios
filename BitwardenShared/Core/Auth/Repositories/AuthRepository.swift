@@ -1119,7 +1119,7 @@ extension DefaultAuthRepository: AuthRepository {
                 purpose: .localAuthorization
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
-            try await changeKdfService.updateKdfToMinimumsIfNeeded(password: password)
+            await updateKdfToMinimumsIfNeeded(password: password)
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
@@ -1140,6 +1140,20 @@ extension DefaultAuthRepository: AuthRepository {
         do {
             try await stateService.setManuallyLockedAccount(false, userId: account.profile.userId)
         } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the user's KDF settings to the minimums.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    private func updateKdfToMinimumsIfNeeded(password: String) async {
+        do {
+            try await changeKdfService.updateKdfToMinimumsIfNeeded(password: password)
+        } catch {
+            // If an error occurs, log the error. Don't throw since that would block the vault from
+            // unlocking.
             errorReporter.log(error: error)
         }
     }

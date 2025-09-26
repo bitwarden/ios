@@ -112,12 +112,12 @@ class DefaultChangeKdfService: ChangeKdfService {
             )
             try await stateService.setAccountKdf(kdfConfig, userId: account.profile.userId)
         } catch {
-            // If an error occurs, log the error. Don't throw since that would block the vault unlocking.
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Force Update KDF Error",
                 message: "Unable to update KDF settings (\(account.kdf)",
                 error: error
             ))
+            throw error
         }
     }
 }

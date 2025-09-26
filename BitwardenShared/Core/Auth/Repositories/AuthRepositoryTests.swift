@@ -2070,6 +2070,48 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(changeKdfService.updateKdfToMinimumsPassword, "password")
     }
 
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and checks if the
+    // user's KDF settings need to be updated. If updating the user's KDF fails, an error is logged
+    // but vault unlock still succeeds.
+    func test_unlockVaultWithPassword_checksForKdfUpdate_error() async throws {
+        let account = Account.fixture(profile: .fixture(kdfIterations: 100_000))
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
+        ]
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(100_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY")
+            )
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `logout` throws an error with no accounts.
     func test_logout_noAccounts() async {
         stateService.accounts = []
