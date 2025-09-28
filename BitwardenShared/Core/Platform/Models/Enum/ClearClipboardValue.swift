@@ -44,11 +44,11 @@ enum ClearClipboardValue: Int, Menuable {
         case .never:
             Localizations.never
         case .tenSeconds:
-            Localizations.tenSeconds
+            Localizations.XSeconds(10)
         case .twentySeconds:
-            Localizations.twentySeconds
+            Localizations.XSeconds(20)
         case .thirtySeconds:
-            Localizations.thirtySeconds
+            Localizations.XSeconds(30)
         case .oneMinute:
             Localizations.xMinutes(1)
         case .twoMinutes:

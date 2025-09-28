@@ -1,22 +1,236 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>XMinutes</key>
 	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@minutes@</string>
-		<key>minutes</key>
+		<key>XMinutes</key>
 		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
-			<key>one</key>
-			<string>%d minute</string>
-			<key>other</key>
-			<string>%d minutes</string>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@minutes@</string>
+			<key>minutes</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d minute</string>
+				<key>other</key>
+				<string>%d minutes</string>
+			</dict>
+		</dict>
+		<key>XHours</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@hours@</string>
+			<key>hours</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d hour</string>
+				<key>other</key>
+				<string>%d hours</string>
+			</dict>
+		</dict>
+		<key>XSeconds</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@seconds@</string>
+			<key>seconds</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d second</string>
+				<key>other</key>
+				<string>%d seconds</string>
+			</dict>
+		</dict>
+		<key>XDays</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@days@</string>
+			<key>days</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d day</string>
+				<key>other</key>
+				<string>%d days</string>
+			</dict>
+		</dict>
+		<key>XWeeks</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@weeks@</string>
+			<key>weeks</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d week</string>
+				<key>other</key>
+				<string>%d weeks</string>
+			</dict>
+		</dict>
+		<key>XCharacters</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@characters@</string>
+			<key>characters</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d character</string>
+				<key>other</key>
+				<string>%d characters</string>
+			</dict>
+		</dict>
+		<key>XItems</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@items@</string>
+			<key>items</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d item</string>
+				<key>other</key>
+				<string>%d items</string>
+			</dict>
+		</dict>
+		<key>PasswordExposed</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+			<key>times</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d time</string>
+				<key>other</key>
+				<string>%d times</string>
+			</dict>
+		</dict>
+		<key>ItemsSuccessfullyImported</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@items@ successfully imported</string>
+			<key>items</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d item</string>
+				<key>other</key>
+				<string>%d items</string>
+			</dict>
+		</dict>
+		<key>VaultTimeoutPolicyInEffect</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>Your organization policies have set your maximum allowed vault timeout to %#@hours@ and %#@minutes@.</string>
+			<key>hours</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d hour</string>
+				<key>other</key>
+				<string>%d hours</string>
+			</dict>
+			<key>minutes</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d minute</string>
+				<key>other</key>
+				<string>%d minutes</string>
+			</dict>
+		</dict>
+		<key>VaultTimeoutPolicyWithActionInEffect</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>Your organization policies are affecting your vault timeout. Maximum allowed vault timeout is %#@hours@ and %#@minutes@. Your vault timeout action is set to %@.</string>
+			<key>hours</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d hour</string>
+				<key>other</key>
+				<string>%d hours</string>
+			</dict>
+			<key>minutes</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d minute</string>
+				<key>other</key>
+				<string>%d minutes</string>
+			</dict>
+		</dict>
+		<key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+			<key>characters</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d character</string>
+				<key>other</key>
+				<string>%d characters</string>
+			</dict>
+		</dict>
+		<key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>Bitwarden could not decrypt %#@items@. Copy and share this error report with customer success to avoid additional data loss.</string>
+			<key>items</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d vault item</string>
+				<key>other</key>
+				<string>%d vault items</string>
+			</dict>
 		</dict>
 	</dict>
-</dict>
 </plist>

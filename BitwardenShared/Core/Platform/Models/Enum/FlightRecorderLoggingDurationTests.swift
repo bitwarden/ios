@@ -25,10 +25,10 @@ class FlightRecorderLoggingDurationTests: BitwardenTestCase {
 
     /// `localizedName` returns the correct values.
     func test_localizedName() {
-        XCTAssertEqual(FlightRecorderLoggingDuration.oneHour.localizedName, Localizations.oneHour)
+        XCTAssertEqual(FlightRecorderLoggingDuration.oneHour.localizedName, Localizations.XHours(1))
         XCTAssertEqual(FlightRecorderLoggingDuration.eightHours.localizedName, Localizations.xHours(8))
         XCTAssertEqual(FlightRecorderLoggingDuration.twentyFourHours.localizedName, Localizations.xHours(24))
-        XCTAssertEqual(FlightRecorderLoggingDuration.oneWeek.localizedName, Localizations.oneWeek)
+        XCTAssertEqual(FlightRecorderLoggingDuration.oneWeek.localizedName, Localizations.XWeeks(1))
     }
 
     /// `shortDescription` returns a short string representation of the logging duration.

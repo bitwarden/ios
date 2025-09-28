@@ -37,12 +37,12 @@ class SendDeletionDateTypeTests: BitwardenTestCase {
 
     /// `localizedName` returns the localized name of the option to display in the menu.
     func test_localizedName() {
-        XCTAssertEqual(SendDeletionDateType.oneHour.localizedName, Localizations.oneHour)
-        XCTAssertEqual(SendDeletionDateType.oneDay.localizedName, Localizations.oneDay)
-        XCTAssertEqual(SendDeletionDateType.twoDays.localizedName, Localizations.twoDays)
-        XCTAssertEqual(SendDeletionDateType.threeDays.localizedName, Localizations.threeDays)
-        XCTAssertEqual(SendDeletionDateType.sevenDays.localizedName, Localizations.sevenDays)
-        XCTAssertEqual(SendDeletionDateType.thirtyDays.localizedName, Localizations.thirtyDays)
+        XCTAssertEqual(SendDeletionDateType.oneHour.localizedName, Localizations.XHours(1))
+        XCTAssertEqual(SendDeletionDateType.oneDay.localizedName, Localizations.XDays(1))
+        XCTAssertEqual(SendDeletionDateType.twoDays.localizedName, Localizations.XDays(2))
+        XCTAssertEqual(SendDeletionDateType.threeDays.localizedName, Localizations.XDays(3))
+        XCTAssertEqual(SendDeletionDateType.sevenDays.localizedName, Localizations.XDays(7))
+        XCTAssertEqual(SendDeletionDateType.thirtyDays.localizedName, Localizations.XDays(30))
 
         XCTAssertEqual(
             SendDeletionDateType.custom(Date(year: 2024, month: 1, day: 19)).localizedName,
