@@ -76,7 +76,7 @@ struct SettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.rightAngle)
+        Image(asset: SharedAsset.Icons.chevronRight16)
             .resizable()
             .scaledFrame(width: 12, height: 12)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
