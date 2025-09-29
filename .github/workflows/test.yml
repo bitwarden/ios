@@ -126,8 +126,7 @@ jobs:
             -resultBundlePath $_RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 1 \
-            -quiet
+            -maximum-test-execution-time-allowance 1
 
       - name: Print Logs Summary
         if: always()
