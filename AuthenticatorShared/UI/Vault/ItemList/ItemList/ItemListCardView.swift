@@ -55,7 +55,7 @@ struct ItemListCardView<ImageContent: View>: View {
                 Button {
                     closeTapped()
                 } label: {
-                    Image(decorative: Asset.Images.cancel)
+                    Image(decorative: SharedAsset.Icons.close16)
                         .padding(16) // Add padding to increase tappable area...
                 }
                 .padding(-16) // ...but remove it to not affect layout.
