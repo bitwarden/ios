@@ -96,7 +96,7 @@ extension View {
         Menu {
             content()
         } label: {
-            Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }
