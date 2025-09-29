@@ -110,7 +110,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
             Button {
                 text = ""
             } label: {
-                Asset.Images.cancelRound.swiftUIImage
+                SharedAsset.Icons.circleX16.swiftUIImage
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .frame(width: 14, height: 14)
             }
