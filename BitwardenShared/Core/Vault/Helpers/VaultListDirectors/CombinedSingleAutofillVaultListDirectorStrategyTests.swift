@@ -47,16 +47,6 @@ class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `build(filter:)` returns empty when there are no ciphers.
-    func test_build_returnsEmptyWhenNoCiphers() async throws {
-        cipherService.ciphersSubject.value = []
-
-        var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
-        let vaultListData = try await iteratorPublisher.next()
-
-        XCTAssertEqual(vaultListData, VaultListData())
-    }
-
     /// `build(filter:)` returns empty when preparing data fails to return data.
     func test_build_returnsEmptyWhenPreparingDataFailsToReturnData() async throws {
         cipherService.ciphersSubject.value = [.fixture()]

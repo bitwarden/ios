@@ -38,8 +38,6 @@ struct CombinedSingleAutofillVaultListDirectorStrategy: VaultListDirectorStrateg
         from ciphers: [Cipher],
         filter: VaultListFilter
     ) async throws -> VaultListData {
-        guard !ciphers.isEmpty else { return VaultListData() }
-
         guard let preparedData = try await vaultListDataPreparator.prepareAutofillCombinedSingleData(
             from: ciphers,
             filter: filter

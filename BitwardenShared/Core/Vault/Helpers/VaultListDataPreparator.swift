@@ -93,7 +93,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers
@@ -125,7 +125,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers

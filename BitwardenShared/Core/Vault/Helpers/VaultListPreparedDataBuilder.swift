@@ -145,11 +145,9 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
         do {
-            guard let id = cipher.id else {
+            guard let id = cipher.id, let cipherRaw = try await cipherService.fetchCipher(withId: id) else {
                 return self
             }
-
-            guard let cipherRaw = try await cipherService.fetchCipher(withId: id) else { return self }
             let cipherView = try await clientService.vault().ciphers().decrypt(cipher: cipherRaw)
 
             let decryptedFido2Credentials = try await clientService
