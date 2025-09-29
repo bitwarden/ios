@@ -79,7 +79,7 @@ public enum UI {
         let image = SharedAsset.Icons.circleX16.image
         let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
-        UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+        UISearchBar.appearance().setImage(SharedAsset.Icons.search16.image, for: .search, state: .normal)
 
         // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
         // iOS 15.
