@@ -253,7 +253,7 @@ struct SettingsView: View {
         SettingsListItem(name, hasDivider: hasDivider) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink2.swiftUIImage
+            SharedAsset.Icons.externalLink16.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }
@@ -282,7 +282,7 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
 
-                    Asset.Images.externalLink2.swiftUIImage
+                    SharedAsset.Icons.externalLink16.swiftUIImage
                         .imageStyle(.rowIcon)
                 }
                 .padding(16)
