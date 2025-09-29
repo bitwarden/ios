@@ -164,7 +164,7 @@ struct SettingsView: View {
                     SettingsListItem(store.state.version, hasDivider: false) {
                         store.send(.versionTapped)
                     } trailingContent: {
-                        Asset.Images.copy.swiftUIImage
+                        SharedAsset.Icons.copy16.swiftUIImage
                             .imageStyle(.rowIcon)
                     }
                 }
