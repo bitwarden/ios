@@ -254,7 +254,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     HStack(spacing: 4) {
                         Text(Localizations.delete)
                         Spacer()
-                        Image(decorative: Asset.Images.trash)
+                        Image(decorative: SharedAsset.Icons.trash16)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
