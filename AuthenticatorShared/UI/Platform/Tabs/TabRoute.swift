@@ -26,7 +26,7 @@ extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
         case .itemList: return Asset.Images.recoveryCodes.image
-        case .settings: return Asset.Images.gearFilled.image
+        case .settings: return SharedAsset.Icons.gearFilled24.image
         }
     }
 
@@ -40,7 +40,7 @@ extension TabRoute: TabRepresentable {
     public var selectedImage: UIImage? {
         switch self {
         case .itemList: return Asset.Images.recoveryCodes.image
-        case .settings: return Asset.Images.gearFilled.image
+        case .settings: return SharedAsset.Icons.gearFilled24.image
         }
     }
 
