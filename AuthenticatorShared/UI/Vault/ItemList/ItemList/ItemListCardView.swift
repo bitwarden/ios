@@ -104,7 +104,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                         .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
                     buttonText: Localizations.takeMeToTheAppSettings,
                     leftImage: {
-                        Image(decorative: Asset.Images.syncArrow)
+                        Image(decorative: SharedAsset.Icons.arrowSync24)
                             .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                             .frame(width: 24, height: 24)
                     },
@@ -118,7 +118,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                         .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
                     buttonText: Localizations.takeMeToTheAppSettings,
                     leftImage: {
-                        Image(decorative: Asset.Images.syncArrow)
+                        Image(decorative: SharedAsset.Icons.arrowSync24)
                             .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                             .frame(width: 24, height: 24)
                     },

@@ -159,7 +159,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
-                Image(decorative: Asset.Images.syncArrow)
+                Image(decorative: SharedAsset.Icons.arrowSync24)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
@@ -240,7 +240,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         HStack(spacing: 4) {
                             Text(Localizations.copyToBitwardenVault)
                             Spacer()
-                            Image(decorative: Asset.Images.rightArrow)
+                            Image(decorative: SharedAsset.Icons.arrowRight16)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
                         }
                     }
