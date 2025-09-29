@@ -814,7 +814,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
-            let passwordResult = try await clientService.crypto().updatePassword(newPassword: password)
+            let passwordResult = try await clientService.crypto().makeUpdatePassword(newPassword: password)
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
@@ -1144,7 +1144,7 @@ extension DefaultAuthRepository: AuthRepository {
         reason: ForcePasswordResetReason
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let updatePasswordResponse = try await clientService.crypto().updatePassword(newPassword: newPassword)
+        let updatePasswordResponse = try await clientService.crypto().makeUpdatePassword(newPassword: newPassword)
 
         let masterPasswordHash = try await clientService.auth().hashPassword(
             email: account.profile.email,
