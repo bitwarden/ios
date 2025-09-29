@@ -7,7 +7,7 @@ protocol ViewLoginItemState: Sendable {
     // MARK: Properties
 
     /// The TOTP Key.
-    var authenticatorKey: String? { get }
+    var authenticatorKey: String { get }
 
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool { get }
@@ -15,11 +15,11 @@ protocol ViewLoginItemState: Sendable {
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] { get }
 
+    /// A flag indicating if this view has no data to display.
+    var isEmpty: Bool { get }
+
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
-
-    /// Whether the TOTP code is visible.
-    var isTOTPCodeVisible: Bool { get }
 
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool { get }

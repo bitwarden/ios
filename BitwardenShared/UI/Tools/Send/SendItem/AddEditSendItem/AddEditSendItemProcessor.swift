@@ -1,7 +1,7 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
-
-// swiftlint:disable file_length
 
 // MARK: - AddEditSendItemProcessor
 
@@ -12,9 +12,11 @@ class AddEditSendItemProcessor:
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasSendRepository
 
     // MARK: Private Properties
@@ -26,7 +28,7 @@ class AddEditSendItemProcessor:
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendItemRoute, AuthAction>
+    let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
 
     /// The services required by this processor.
     let services: Services
@@ -41,7 +43,7 @@ class AddEditSendItemProcessor:
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendItemRoute, AuthAction>,
+        coordinator: AnyCoordinator<SendItemRoute, AuthAction>,
         services: Services,
         state: AddEditSendItemState
     ) {
@@ -59,7 +61,7 @@ class AddEditSendItemProcessor:
             await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
+            let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
                 await self?.deleteSend(sendView)
             }
             coordinator.showAlert(alert)
@@ -69,7 +71,10 @@ class AddEditSendItemProcessor:
             await handle(profileEffect)
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
+            let alert = Alert.confirmationDestructive(
+                title: Localizations.areYouSureRemoveSendPassword,
+                destructiveTitle: Localizations.remove
+            ) { [weak self] in
                 await self?.removePassword(sendView)
             }
             coordinator.showAlert(alert)
@@ -85,18 +90,8 @@ class AddEditSendItemProcessor:
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
-        case .clearExpirationDatePressed:
-            state.customExpirationDate = nil
-        case let .customDeletionDateChanged(newValue):
-            state.customDeletionDate = newValue
-        case let .customExpirationDateChanged(newValue):
-            state.customExpirationDate = newValue
-        case let .deactivateThisSendChanged(newValue):
-            state.isDeactivateThisSendOn = newValue
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
-        case let .expirationDateChanged(newValue):
-            state.expirationDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
         case let .hideMyEmailChanged(newValue):
@@ -114,9 +109,6 @@ class AddEditSendItemProcessor:
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
-        case let .maximumAccessCountTextFieldChanged(newValue):
-            state.maximumAccessCount = Int(newValue) ?? 0
-            state.maximumAccessCountText = newValue.isEmpty ? "" : "\(state.maximumAccessCount)"
         case let .nameChanged(newValue):
             state.name = newValue
         case let .notesChanged(newValue):
@@ -129,8 +121,6 @@ class AddEditSendItemProcessor:
                 onNextToastClear?()
                 onNextToastClear = nil
             }
-        case let .typeChanged(newValue):
-            updateType(newValue)
         }
     }
 
@@ -158,11 +148,10 @@ class AddEditSendItemProcessor:
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .deleted)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.deleteSend(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.deleteSend(sendView)
+            }
         }
     }
 
@@ -223,18 +212,17 @@ class AddEditSendItemProcessor:
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.removingSendPassword))
         do {
             let newSend = try await services.sendRepository.removePassword(from: sendView)
-            var newState = AddEditSendItemState(sendView: newSend, hasPremium: state.hasPremium)
+            var newState = AddEditSendItemState(sendView: newSend)
             newState.isOptionsExpanded = state.isOptionsExpanded
             state = newState
 
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.sendPasswordRemoved)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.removePassword(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.removePassword(sendView)
+            }
         }
     }
 
@@ -258,13 +246,18 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
+                await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }
             coordinator.hideLoadingOverlay()
             switch state.mode {
-            case .add, .edit:
+            case .add:
                 coordinator.navigate(to: .complete(newSendView))
+                coordinator.showToast(Localizations.newSendCreated)
+            case .edit:
+                coordinator.navigate(to: .complete(newSendView))
+                coordinator.showToast(Localizations.sendUpdated)
             case .shareExtension:
                 onNextToastClear = { [weak self] in
                     self?.coordinator.navigate(to: .complete(newSendView))
@@ -272,9 +265,9 @@ class AddEditSendItemProcessor:
                 await copyLink(to: newSendView)
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) { [weak self] in
-                await self?.saveSendItem()
-            })
+            await coordinator.showErrorAlert(error: error) {
+                await self.saveSendItem()
+            }
         }
     }
 
@@ -287,20 +280,6 @@ class AddEditSendItemProcessor:
         else { return }
 
         coordinator.navigate(to: .share(url: url))
-    }
-
-    /// Attempts to update the send type. If the new value requires premium access and the active
-    /// account does not have premium access, this method will display an alert informing the user
-    /// that they do not have access to this feature.
-    ///
-    /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
-    ///
-    private func updateType(_ newValue: SendType) {
-        guard !newValue.requiresPremium || state.hasPremium else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
-            return
-        }
-        state.type = newValue
     }
 
     /// Validates that the content in the state comprises a valid send. If any validation issue is
@@ -318,8 +297,8 @@ class AddEditSendItemProcessor:
         // Only perform further checks for file sends.
         guard state.type == .file else { return true }
 
-        let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-        guard hasPremium ?? false else {
+        let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+        guard hasPremium else {
             let alert = Alert.defaultAlert(
                 message: Localizations.sendFilePremiumRequired
             )
@@ -340,7 +319,10 @@ class AddEditSendItemProcessor:
         guard state.mode == .add else { return true }
 
         guard let fileData = state.fileData, state.fileName != nil else {
-            let alert = Alert.validationFieldRequired(fieldName: Localizations.file)
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            )
             coordinator.showAlert(alert)
             return false
         }
@@ -406,6 +388,10 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss(nil))
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -418,4 +404,8 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
-}
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
+    }
+} // swiftlint:disable:this file_length

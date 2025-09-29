@@ -12,7 +12,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///
     /// - Parameter items: The encrypted array of items to be decrypted
     /// - Returns: the array of items with their data decrypted
-    /// - Throws: AuthenticatorKeychainServiceError.keyNotFound if the Authenticator
+    /// - Throws: SharedKeychainServiceError.keyNotFound if the Authenticator
     ///     key is not in the shared repository.
     ///
     func decryptAuthenticatorItems(
@@ -24,7 +24,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///
     /// - Parameter items: The decrypted array of items to be encrypted
     /// - Returns: the array of items with their data encrypted
-    /// - Throws: AuthenticatorKeychainServiceError.keyNotFound if the Authenticator
+    /// - Throws: SharedKeychainServiceError.keyNotFound if the Authenticator
     ///     key is not in the shared repository.
     ///
     func encryptAuthenticatorItems(

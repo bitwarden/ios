@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AccessoryButtonStyle
@@ -5,14 +6,19 @@ import SwiftUI
 /// The style for an accessory button.
 ///
 struct AccessoryButtonStyle: ButtonStyle {
+    /// A value indicating whether the button is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 14, height: 14)
-            .padding(10)
-            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-            .background(Asset.Colors.Legacy.fillTertiary.swiftUIColor)
-            .clipShape(Circle())
+            .frame(width: 24, height: 24)
+            .foregroundColor(
+                isEnabled
+                    ? SharedAsset.Colors.iconPrimary.swiftUIColor
+                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            )
             .opacity(configuration.isPressed ? 0.5 : 1)
+            .contentShape(Rectangle())
     }
 }
 
@@ -31,14 +37,14 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 #if DEBUG
 #Preview("Enabled") {
     Button {} label: {
-        Asset.Images.copy16.swiftUIImage
+        Asset.Images.copy24.swiftUIImage
     }
     .buttonStyle(.accessory)
 }
 
 #Preview("Disabled") {
     Button {} label: {
-        Asset.Images.copy16.swiftUIImage
+        Asset.Images.copy24.swiftUIImage
     }
     .buttonStyle(.accessory)
     .disabled(true)

@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import BitwardenKit
 import Foundation
 
 // MARK: - KeychainService
@@ -61,7 +62,7 @@ enum KeychainServiceError: Error, Equatable, CustomNSError {
     case osStatusError(OSStatus)
 
     /// The user-info dictionary.
-    public var errorUserInfo: [String: Any] {
+    var errorUserInfo: [String: Any] {
         switch self {
         case .accessControlFailed:
             return [:]
@@ -132,6 +133,6 @@ class DefaultKeychainService: KeychainService {
     }
 }
 
-// MARK: - AuthenticatorKeychainService
+// MARK: - SharedKeychainService
 
-extension DefaultKeychainService: AuthenticatorKeychainService {}
+extension DefaultKeychainService: SharedKeychainService {}

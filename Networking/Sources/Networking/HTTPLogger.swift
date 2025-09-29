@@ -1,13 +1,35 @@
 import OSLog
 
-/// An object that handles logging HTTP requests and responses.
+// MARK: - HTTPLogger
+
+/// A protocol for an object that can log HTTP request and responses.
 ///
-class HTTPLogger {
+public protocol HTTPLogger: Sendable {
     /// Logs the details of a `HTTPRequest`.
     ///
     /// - Parameter httpRequest: The `HTTPRequest` to log the details of.
     ///
-    func logRequest(_ httpRequest: HTTPRequest) {
+    func logRequest(_ httpRequest: HTTPRequest) async
+
+    /// Logs the details of a `HTTPResponse`.
+    ///
+    /// - Parameter httpResponse: The `HTTPResponse` to log the details of.
+    ///
+    func logResponse(_ httpResponse: HTTPResponse) async
+}
+
+// MARK: - OSLogHTTPLogger
+
+/// An object that handles logging HTTP requests and responses to OSLog.
+///
+public final class OSLogHTTPLogger: HTTPLogger {
+    // MARK: Initialization
+
+    public init() {}
+
+    // MARK: HTTPLogger
+
+    public func logRequest(_ httpRequest: HTTPRequest) async {
         let formattedBody = formattedBody(httpRequest.body)
         let formattedHeaders = formattedHeaders(httpRequest.headers)
         Logger.networking.info("""
@@ -18,11 +40,7 @@ class HTTPLogger {
         )
     }
 
-    /// Logs the details of a `HTTPResponse`.
-    ///
-    /// - Parameter httpResponse: The `HTTPResponse` to log the details of.
-    ///
-    func logResponse(_ httpResponse: HTTPResponse) {
+    public func logResponse(_ httpResponse: HTTPResponse) async {
         let formattedBody = formattedBody(httpResponse.body)
         let formattedHeaders = formattedHeaders(httpResponse.headers)
         Logger.networking.info("""

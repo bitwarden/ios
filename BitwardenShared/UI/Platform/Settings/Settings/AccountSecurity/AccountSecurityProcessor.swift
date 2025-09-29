@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 import OSLog
 
@@ -131,12 +133,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         }
     }
 
-    /// If the native create account feature flag is enabled, this marks the user's vault unlock
-    /// account setup complete. This should be called whenever PIN or biometrics unlock has been
-    /// turned on.
+    /// This marks the user's vault unlock account setup complete.
+    /// This should be called whenever PIN or biometrics unlock has been turned on.
     ///
     private func completeAccountSetupVaultUnlockIfNeeded() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
         do {
             guard let progress = try await services.stateService.getAccountSetupVaultUnlock(),
                   progress != .complete
@@ -161,16 +161,17 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     /// Load any initial data for the view.
     private func loadData() async {
         do {
+            state.removeUnlockWithPinPolicyEnabled = await services.policyService.policyAppliesToUser(
+                .removeUnlockWithPin
+            )
+
             state.biometricUnlockStatus = await loadBiometricUnlockPreference()
 
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
-            state.shouldShowAuthenticatorSyncSection =
-                await services.configService.getFeatureFlag(.enableAuthenticatorSync)
-            if state.shouldShowAuthenticatorSyncSection {
-                state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
-            }
+
+            state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()
@@ -211,6 +212,15 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     ///
     private func setSyncToAuthenticator(_ enabled: Bool) async {
         do {
+            if enabled {
+                Task {
+                    do {
+                        try await services.settingsRepository.fetchSync(forceSync: false)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+            }
             try await services.stateService.setSyncToAuthenticator(enabled)
             state.isAuthenticatorSyncEnabled = enabled
         } catch {
@@ -339,7 +349,6 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     /// Streams the state of the badges in the settings tab.
     ///
     private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.badgeState = badgeState

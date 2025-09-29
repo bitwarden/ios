@@ -63,4 +63,30 @@ extension CardItemState: ViewCardItemState {
         }
         return brand.localizedName
     }
+
+    /// The formatted card number with spaces every 4 digits.
+    var formattedCardNumber: String {
+        cardNumber.formattedCreditCardNumber()
+    }
+
+    /// The card's formatted expiration string.
+    var expirationString: String {
+        var strings = [String]()
+        if case let .custom(month) = expirationMonth {
+            strings.append("\(month.rawValue)")
+        }
+        if !expirationYear.isEmpty {
+            strings.append(expirationYear)
+        }
+        return strings.joined(separator: "/")
+    }
+
+    /// Whether the card details section is empty.
+    var isCardDetailsSectionEmpty: Bool {
+        cardholderName.isEmpty
+            && cardNumber.isEmpty
+            && brand.customValue == nil
+            && expirationString.isEmpty
+            && cardSecurityCode.isEmpty
+    }
 }

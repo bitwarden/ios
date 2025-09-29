@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -18,8 +19,7 @@ class ViewItemStateTests: BitwardenTestCase {
                     ),
                     hasPremium: true
                 )!
-            ),
-            hasVerifiedMasterPassword: false
+            )
         )
         XCTAssertTrue(subject.canClone)
     }
@@ -36,99 +36,58 @@ class ViewItemStateTests: BitwardenTestCase {
                     ),
                     hasPremium: true
                 )!
-            ),
-            hasVerifiedMasterPassword: false
+            )
         )
         XCTAssertFalse(subject.canClone)
     }
 
-    /// `isMasterPasswordRequired` is false when the user has no password.
-    func test_isMasterPasswordRequired_repromptOff_noPassword() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            hasMasterPassword: false,
-            hasVerifiedMasterPassword: false
-        )
-        XCTAssertFalse(subject.isMasterPasswordRequired)
+    /// `canEdit` returns `true` for a cipher that isn't deleted.
+    func test_canEdit() throws {
+        let subject = try ViewItemState(loadingState: .data(
+            XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: false))
+        ))
+        XCTAssertTrue(subject.canEdit)
     }
 
-    /// `isMasterPasswordRequired` is true when the reprompt is on and the master password has not
-    /// been verified yet.
-    func test_isMasterPasswordRequired_repromptOn_unverifiedPassword() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            hasVerifiedMasterPassword: false
-        )
-        XCTAssertTrue(subject.isMasterPasswordRequired)
+    /// `canEdit` returns `false` for a cipher that is deleted.
+    func test_canEdit_deleted() throws {
+        let subject = try ViewItemState(loadingState: .data(
+            XCTUnwrap(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: false))
+        ))
+        XCTAssertFalse(subject.canEdit)
     }
 
-    /// `isMasterPasswordRequired` is false when the reprompt is on and the master password has been
-    /// verified.
-    func test_isMasterPasswordRequired_repromptOn_verifiedPassword() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            hasVerifiedMasterPassword: true
+    /// `navigationTitle` returns the navigation title for the view based on the cipher type.
+    func test_navigationTitle_loaded() throws {
+        let subjectCard = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false)))
         )
-        XCTAssertFalse(subject.isMasterPasswordRequired)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.viewCard)
+
+        let subjectIdentity = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.viewIdentity)
+
+        let subjectLogin = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.viewLogin)
+
+        let subjectSecureNote = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.viewNote)
+
+        let subjectSSHKey = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.viewSSHKey)
     }
 
-    /// `isMasterPasswordRequired` is false when the reprompt is off and the master password has not
-    /// been verified yet.
-    func test_isMasterPasswordRequired_repromptOff_unverifiedPassword() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .none
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            hasVerifiedMasterPassword: false
-        )
-        XCTAssertFalse(subject.isMasterPasswordRequired)
-    }
-
-    /// `isMasterPasswordRequired` is false when the reprompt is off and the master password has
-    /// been verified.
-    func test_isMasterPasswordRequired_repromptOff_verifiedPassword() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .none
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            hasVerifiedMasterPassword: true
-        )
-        XCTAssertFalse(subject.isMasterPasswordRequired)
+    /// `navigationTitle` returns an empty navigation title for the view before the item is loaded.
+    func test_navigationTitle_loading() {
+        let subject = ViewItemState()
+        XCTAssertEqual(subject.navigationTitle, "")
     }
 }

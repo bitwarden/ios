@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Combine
 import SwiftUI
 
@@ -81,11 +83,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func receive(_ action: LandingAction) {
         switch action {
         case .createAccountPressed:
-            if state.emailVerificationFeatureFlag {
-                coordinator.navigate(to: .startRegistration, context: self)
-            } else {
-                coordinator.navigate(to: .createAccount)
-            }
+            coordinator.navigate(to: .startRegistration, context: self)
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):
@@ -95,6 +93,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             if !newValue {
                 updateRememberedEmail()
             }
+        case .showPreLoginSettings:
+            coordinator.navigate(to: .preLoginSettings)
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -108,17 +108,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func refreshConfig() async {
         await services.configService.getConfig(
             forceRefresh: true,
-            isPreAuth: true
-        )
-        await loadFeatureFlag()
-    }
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
-            FeatureFlag.emailVerification,
-            defaultValue: false,
             isPreAuth: true
         )
     }
@@ -190,6 +179,10 @@ extension LandingProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
     }
@@ -201,12 +194,16 @@ extension LandingProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
+    }
 }
 
 // MARK: - SelfHostedProcessorDelegate
 
 extension LandingProcessor: SelfHostedProcessorDelegate {
-    func didSaveEnvironment(urls: EnvironmentUrlData) async {
+    func didSaveEnvironment(urls: EnvironmentURLData) async {
         await setRegion(.selfHosted, urls)
         state.toast = Toast(title: Localizations.environmentSaved)
         await regionHelper.loadRegion()
@@ -230,7 +227,7 @@ extension LandingProcessor: RegionDelegate {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region

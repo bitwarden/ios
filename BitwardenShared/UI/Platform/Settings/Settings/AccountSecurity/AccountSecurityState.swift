@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - UnlockMethod
@@ -19,37 +21,7 @@ public enum UnlockMethod {
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable, Sendable {
-    /// Timeout immediately.
-    case immediately
-
-    /// Timeout after 1 minute.
-    case oneMinute
-
-    /// Timeout after 5 minutes.
-    case fiveMinutes
-
-    /// Timeout after 15 minutes.
-    case fifteenMinutes
-
-    /// Timeout after 30 minutes.
-    case thirtyMinutes
-
-    /// Timeout after 1 hour.
-    case oneHour
-
-    /// Timeout after 4 hours.
-    case fourHours
-
-    /// Timeout on app restart.
-    case onAppRestart
-
-    /// Never timeout the session.
-    case never
-
-    /// A custom timeout value.
-    case custom(Int)
-
+extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
         .immediately,
@@ -70,13 +42,13 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
         case .immediately:
             Localizations.immediately
         case .oneMinute:
-            Localizations.oneMinute
+            Localizations.xMinutes(1)
         case .fiveMinutes:
-            Localizations.fiveMinutes
+            Localizations.xMinutes(5)
         case .fifteenMinutes:
-            Localizations.fifteenMinutes
+            Localizations.xMinutes(15)
         case .thirtyMinutes:
-            Localizations.thirtyMinutes
+            Localizations.xMinutes(30)
         case .oneHour:
             Localizations.oneHour
         case .fourHours:
@@ -87,52 +59,6 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
             Localizations.never
         case .custom:
             Localizations.custom
-        }
-    }
-
-    /// The session timeout value in seconds.
-    var seconds: Int {
-        rawValue * 60
-    }
-
-    /// The session timeout value in minutes.
-    public var rawValue: Int {
-        switch self {
-        case .immediately: 0
-        case .oneMinute: 1
-        case .fiveMinutes: 5
-        case .fifteenMinutes: 15
-        case .thirtyMinutes: 30
-        case .oneHour: 60
-        case .fourHours: 240
-        case .onAppRestart: -1
-        case .never: -2
-        case let .custom(customValue): customValue
-        }
-    }
-
-    public init(rawValue: Int) {
-        switch rawValue {
-        case 0:
-            self = .immediately
-        case 1:
-            self = .oneMinute
-        case 5:
-            self = .fiveMinutes
-        case 15:
-            self = .fifteenMinutes
-        case 30:
-            self = .thirtyMinutes
-        case 60:
-            self = .oneHour
-        case 240:
-            self = .fourHours
-        case -1:
-            self = .onAppRestart
-        case -2:
-            self = .never
-        default:
-            self = .custom(rawValue)
         }
     }
 }
@@ -210,14 +136,14 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout action, if set.
     var policyTimeoutAction: SessionTimeoutAction?
 
+    /// Whether the policy to remove Unlock with pin feature is enabled.
+    var removeUnlockWithPinPolicyEnabled: Bool = false
+
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
 
     /// The length of time before a session timeout occurs.
     var sessionTimeoutValue: SessionTimeoutValue = .immediately
-
-    /// Whether the sync with the authenticator app section should be included.
-    var shouldShowAuthenticatorSyncSection = false
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
@@ -294,5 +220,18 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout value in minutes.
     var policyTimeoutMinutes: Int {
         policyTimeoutValue % 60
+    }
+
+    /// Whether to show/hide unlock options.
+    var showUnlockOptions: Bool {
+        guard case .available = biometricUnlockStatus else {
+            return unlockWithPinFeatureAvailable
+        }
+        return true
+    }
+
+    /// Whether the unlock with Pin feature is available.
+    var unlockWithPinFeatureAvailable: Bool {
+        !removeUnlockWithPinPolicyEnabled || isUnlockWithPINCodeOn
     }
 }

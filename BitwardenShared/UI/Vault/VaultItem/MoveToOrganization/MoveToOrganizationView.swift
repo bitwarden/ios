@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -36,17 +38,19 @@ struct MoveToOrganizationView: View {
 
     /// The section containing the collections for the organizations.
     private var collectionsSections: some View {
-        SectionView(Localizations.collections) {
-            ForEach(store.state.collectionsForOwner, id: \.id) { collection in
-                if let collectionId = collection.id {
-                    Toggle(isOn: store.binding(
-                        get: { _ in store.state.collectionIds.contains(collectionId) },
-                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                    )) {
-                        Text(collection.name)
+        SectionView(Localizations.collections, contentSpacing: 8) {
+            ContentBlock {
+                ForEach(store.state.collectionsForOwner, id: \.id) { collection in
+                    if let collectionId = collection.id {
+                        BitwardenToggle(
+                            collection.name,
+                            isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collectionId) },
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                            ),
+                            accessibilityIdentifier: "CollectionItemSwitch"
+                        )
                     }
-                    .toggleStyle(.bitwarden)
-                    .accessibilityIdentifier("CollectionItemCell")
                 }
             }
         }
@@ -57,14 +61,16 @@ struct MoveToOrganizationView: View {
         if store.state.ownershipOptions.isEmpty {
             Text(Localizations.noOrgsToList)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
                 .padding(16)
                 .frame(maxWidth: .infinity)
         } else {
-            organizationSection
+            VStack(spacing: 16) {
+                organizationSection
 
-            collectionsSections
+                collectionsSections
+            }
         }
     }
 

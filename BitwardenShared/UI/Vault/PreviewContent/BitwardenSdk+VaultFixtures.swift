@@ -27,6 +27,7 @@ extension AttachmentView {
 
 extension Cipher {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
@@ -46,6 +47,7 @@ extension Cipher {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistory]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNote? = nil,
@@ -71,6 +73,7 @@ extension Cipher {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -78,13 +81,117 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
+        )
+    }
+}
+
+extension CipherListView {
+    static func fixture(
+        id: Uuid? = "1",
+        organizationId: Uuid? = nil,
+        folderId: Uuid? = nil,
+        collectionIds: [Uuid] = [],
+        key: EncString? = nil,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        type: CipherListViewType = .login(.fixture()),
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = false,
+        permissions: CipherPermissions? = nil,
+        viewPassword: Bool = false,
+        attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: DateTime? = nil,
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: type,
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
+            copyableFields: copyableFields,
+            localData: localData
+        )
+    }
+
+    static func fixture(
+        id: Uuid? = "1",
+        organizationId: Uuid? = nil,
+        folderId: Uuid? = nil,
+        collectionIds: [Uuid] = [],
+        key: EncString? = nil,
+        login: LoginListView,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = false,
+        permissions: CipherPermissions? = nil,
+        viewPassword: Bool = false,
+        attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: DateTime? = nil,
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: .login(login),
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 }
 
 extension CipherView {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
@@ -104,6 +211,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNoteView? = nil,
@@ -129,6 +237,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -136,11 +245,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
     static func cardFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView = CardView.fixture(),
         collectionIds: [String] = [],
@@ -158,6 +269,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         viewPassword: Bool = true
@@ -180,6 +292,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -187,11 +300,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
     static func loginFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -209,6 +324,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         viewPassword: Bool = true
@@ -231,6 +347,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -238,7 +355,8 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate
         )
     }
 
@@ -263,7 +381,9 @@ extension Collection {
         externalId: String = "",
         hidePasswords: Bool = false,
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        defaultUserCollectionEmail: String? = nil,
+        type: BitwardenSdk.CollectionType = .sharedCollection
     ) -> Collection {
         Collection(
             id: id,
@@ -272,7 +392,9 @@ extension Collection {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            defaultUserCollectionEmail: defaultUserCollectionEmail,
+            type: type
         )
     }
 }
@@ -301,11 +423,12 @@ extension CollectionView {
     static func fixture(
         externalId: String = "",
         hidePasswords: Bool = false,
-        id: String = "collection-view-1",
+        id: String? = "collection-view-1",
         name: String = "",
         organizationId: String = "",
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        type: BitwardenSdk.CollectionType = .sharedCollection
     ) -> CollectionView {
         CollectionView(
             id: id,
@@ -314,7 +437,8 @@ extension CollectionView {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            type: type
         )
     }
 }
@@ -359,14 +483,36 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
         cipherId: String = "1",
         rpId: String = "myApp.com",
         userNameForUi: String? = nil,
-        userHandle: Data = Data(capacity: 64)
+        userHandle: Data = Data(capacity: 64),
+        hasCounter: Bool = false
     ) -> BitwardenSdk.Fido2CredentialAutofillView {
         .init(
             credentialId: credentialId,
             cipherId: cipherId,
             rpId: rpId,
             userNameForUi: userNameForUi,
-            userHandle: userHandle
+            userHandle: userHandle,
+            hasCounter: hasCounter
+        )
+    }
+}
+
+extension Fido2CredentialListView {
+    static func fixture(
+        credentialId: String = "1",
+        rpId: String = "myApp.com",
+        userHandle: String? = nil,
+        userName: String? = nil,
+        userDisplayName: String? = nil,
+        counter: String = "0"
+    ) -> Fido2CredentialListView {
+        .init(
+            credentialId: credentialId,
+            rpId: rpId,
+            userHandle: userHandle,
+            userName: userName,
+            userDisplayName: userDisplayName,
+            counter: counter
         )
     }
 }
@@ -421,6 +567,50 @@ extension BitwardenSdk.FieldView {
     }
 }
 
+extension BitwardenSdk.IdentityView {
+    static func fixture(
+        title: String? = nil,
+        firstName: String? = nil,
+        middleName: String? = nil,
+        lastName: String? = nil,
+        address1: String? = nil,
+        address2: String? = nil,
+        address3: String? = nil,
+        city: String? = nil,
+        state: String? = nil,
+        postalCode: String? = nil,
+        country: String? = nil,
+        company: String? = nil,
+        email: String? = nil,
+        phone: String? = nil,
+        ssn: String? = nil,
+        username: String? = nil,
+        passportNumber: String? = nil,
+        licenseNumber: String? = nil
+    ) -> BitwardenSdk.IdentityView {
+        BitwardenSdk.IdentityView(
+            title: title,
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            address1: address1,
+            address2: address2,
+            address3: address3,
+            city: city,
+            state: state,
+            postalCode: postalCode,
+            country: country,
+            company: company,
+            email: email,
+            phone: phone,
+            ssn: ssn,
+            username: username,
+            passportNumber: passportNumber,
+            licenseNumber: licenseNumber
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
@@ -439,6 +629,24 @@ extension BitwardenSdk.Login {
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
             fido2Credentials: fido2Credentials
+        )
+    }
+}
+
+extension BitwardenSdk.LoginListView {
+    static func fixture(
+        fido2Credentials: [Fido2CredentialListView]? = nil,
+        hasFido2: Bool = false,
+        username: String? = nil,
+        totp: EncString? = nil,
+        uris: [LoginUriView]? = nil
+    ) -> LoginListView {
+        .init(
+            fido2Credentials: fido2Credentials,
+            hasFido2: hasFido2,
+            username: username,
+            totp: totp,
+            uris: uris
         )
     }
 }
@@ -522,33 +730,6 @@ extension PasswordHistoryView {
             password: password,
             lastUsedDate: lastUsedDate
         )
-    }
-}
-
-extension Date {
-    init(
-        year: Int,
-        month: Int,
-        day: Int,
-        hour: Int = 0,
-        minute: Int = 0,
-        second: Int = 0,
-        nanosecond: Int = 0,
-        timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
-    ) {
-        let calendar = Calendar(identifier: .gregorian)
-        let dateComponents = DateComponents(
-            calendar: calendar,
-            timeZone: timeZone,
-            year: year,
-            month: month,
-            day: day,
-            hour: hour,
-            minute: minute,
-            second: second,
-            nanosecond: nanosecond
-        )
-        self = dateComponents.date!
     }
 }
 #endif

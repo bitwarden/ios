@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - CheckEmailState
@@ -14,6 +15,6 @@ struct CheckEmailState: Equatable {
 
     /// Text with user email in bold
     var headelineTextBoldEmail: String {
-        Localizations.followTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount("**\(email)**")
+        Localizations.weSentAnEmailTo("**\(email)**")
     }
 }

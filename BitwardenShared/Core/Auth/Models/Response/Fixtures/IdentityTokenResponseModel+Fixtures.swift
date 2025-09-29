@@ -2,20 +2,16 @@
 
 extension AuthMethodsData {
     static func fixture() -> AuthMethodsData {
-        var methodsData = AuthMethodsData(
+        let methodsData = AuthMethodsData(
+            authenticator: true,
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true)
         )
-        methodsData.providersAvailable = [
-            String(TwoFactorAuthMethod.email.rawValue),
-            String(TwoFactorAuthMethod.yubiKey.rawValue),
-            String(TwoFactorAuthMethod.authenticatorApp.rawValue),
-        ]
         return methodsData
     }
 
     static func fixtureWebAuthn() -> AuthMethodsData {
-        var methodsData = AuthMethodsData(
+        let methodsData = AuthMethodsData(
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true),
             webAuthn: WebAuthn(
@@ -33,13 +29,13 @@ extension AuthMethodsData {
                 userVerification: "discouraged"
             )
         )
-        methodsData.providersAvailable = [String(TwoFactorAuthMethod.webAuthn.rawValue)]
         return methodsData
     }
 }
 
 extension IdentityTokenResponseModel {
     static func fixture(
+        accountKeys: PrivateKeysResponseModel? = nil,
         forcePasswordReset: Bool = false,
         kdf: KdfType = .pbkdf2sha256,
         kdfIterations: Int = 600_000,
@@ -63,6 +59,7 @@ extension IdentityTokenResponseModel {
         refreshToken: String = "REFRESH_TOKEN"
     ) -> IdentityTokenResponseModel {
         IdentityTokenResponseModel(
+            accountKeys: accountKeys,
             forcePasswordReset: forcePasswordReset,
             kdf: kdf,
             kdfIterations: kdfIterations,

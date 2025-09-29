@@ -1,3 +1,7 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -154,7 +158,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
@@ -165,7 +169,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_webVaultHost() async throws {
         stateService.activeAccount = .fixture(settings: .fixture(
-            environmentUrls: .fixture(webVault: URL(string: "https://example.com")!)
+            environmentURLs: .fixture(webVault: URL(string: "https://example.com")!)
         ))
 
         await subject.perform(.appeared)
@@ -186,7 +190,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_webVaultHostNil() async throws {
         stateService.activeAccount = .fixture(settings: .fixture(
-            environmentUrls: .fixture(base: nil, webVault: nil)
+            environmentURLs: .fixture(base: nil, webVault: nil)
         ))
 
         await subject.perform(.appeared)

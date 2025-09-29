@@ -1,4 +1,7 @@
 import AuthenticationServices
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -101,24 +104,6 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.titleText, Localizations.logInInitiated)
     }
 
-    /// `captchaErrored(error:)` records an error.
-    @MainActor
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    @MainActor
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
-
     /// `checkForResponse()`stops the request timer if the request has been denied.
     @MainActor
     func test_checkForResponse_denied() throws {
@@ -139,16 +124,16 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     /// `checkForResponse()` stops the request timer if the request returns an error. Once the error
     /// alert has been dismissed, requests resume again.
     @MainActor
-    func test_checkForResponse_error() throws {
+    func test_checkForResponse_error() {
         authService.checkPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
-        let task = Task {
-            await self.subject.perform(.appeared)
+        let task = Task { @MainActor in
+            await subject.perform(.appeared)
         }
-        waitFor(!coordinator.alertShown.isEmpty)
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
 
         authService.checkPendingLoginRequestResult = .success(.fixture(requestApproved: true))
         coordinator.alertOnDismissed?()
@@ -225,7 +210,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
         await subject.perform(.appeared)
 
-        XCTAssertEqual(coordinator.alertShown.last, Alert.defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -245,5 +230,45 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         subject.receive(.dismiss)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `checkForResponse()` records an error when result fails with newDeviceNotVerified error
+    @MainActor
+    func test_checkForResponse_errorNewDeviceNotVerified() throws {
+        let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
+        authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
+        authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
+        authService.loginWithDeviceResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors as? [IdentityTokenRequestError], [.newDeviceNotVerified])
+    }
+
+    /// `checkForResponse()` records an error when result fails with encryptionKeyMigrationRequired error
+    @MainActor
+    func test_checkForResponse_errorEncryptionKeyMigrationRequired() throws {
+        let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
+        authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
+        authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
+        authService.loginWithDeviceResult = .failure(
+            IdentityTokenRequestError.encryptionKeyMigrationRequired
+        )
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors as? [IdentityTokenRequestError], [.encryptionKeyMigrationRequired])
     }
 }

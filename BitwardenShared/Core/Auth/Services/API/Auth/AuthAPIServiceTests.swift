@@ -1,3 +1,4 @@
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -60,7 +61,6 @@ class AuthAPIServiceTests: BitwardenTestCase {
         let response = try await subject.getIdentityToken(
             IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "username", password: "password"),
-                captchaToken: nil,
                 deviceInfo: .fixture(),
                 loginRequestId: nil
             )
@@ -72,19 +72,18 @@ class AuthAPIServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `getIdentityToken()` throws a `.captchaRequired` error when a `400` http response with the correct data
+    /// `getIdentityToken()` throws a `.newDeviceNotVerified` error when a `400` http response with the correct data
     /// is returned.
-    func test_getIdentityToken_captchaError() async throws {
+    func test_getIdentityToken_newDeviceNotVerified() async throws {
         client.result = .httpFailure(
             statusCode: 400,
-            data: APITestData.identityTokenCaptchaError.data
+            data: APITestData.identityTokenNewDeviceError.data
         )
 
-        await assertAsyncThrows(error: IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "1234")) {
+        await assertAsyncThrows(error: IdentityTokenRequestError.newDeviceNotVerified) {
             _ = try await subject.getIdentityToken(
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
-                    captchaToken: nil,
                     deviceInfo: .fixture(),
                     loginRequestId: nil
                 )

@@ -1,5 +1,9 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import Combine
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -11,6 +15,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
     var clientService: MockClientService!
+    var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -26,6 +31,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
+    var vaultListDirectorStrategy: MockVaultListDirectorStrategy!
+    var vaultListDirectorStrategyFactory: MockVaultListDirectorStrategyFactory!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -37,6 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
         clientService = MockClientService()
+        collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
@@ -48,13 +56,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         policyService = MockPolicyService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
+        vaultListDirectorStrategyFactory = MockVaultListDirectorStrategyFactory()
         vaultTimeoutService = MockVaultTimeoutService()
         clientService.mockVault.clientCiphers = clientCiphers
         stateService = MockStateService()
 
+        vaultListDirectorStrategy = MockVaultListDirectorStrategy()
+        vaultListDirectorStrategyFactory.makeReturnValue = vaultListDirectorStrategy
+
         subject = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,
@@ -66,6 +79,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
+            vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -77,6 +91,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client = nil
         clientCiphers = nil
         clientService = nil
+        collectionHelper = nil
         collectionService = nil
         configService = nil
         environmentService = nil
@@ -89,6 +104,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = nil
         subject = nil
         timeProvider = nil
+        vaultListDirectorStrategy = nil
+        vaultListDirectorStrategyFactory = nil
         vaultTimeoutService = nil
     }
 
@@ -102,6 +119,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
 
         XCTAssertEqual(cipherService.addCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+        XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -157,7 +175,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var iterator = try await subject.cipherPublisher().makeAsyncIterator()
         let publishedCiphers = try await iterator.next()
 
-        XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
+        XCTAssertEqual(publishedCiphers, ciphers.map { CipherListView(cipher: $0) })
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
@@ -186,7 +204,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: nil,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
+        let publishedSections = try await iterator.next()?.sections
 
         XCTAssertEqual(
             publishedSections,
@@ -195,11 +213,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherView: .fixture(
-                                creationDate: Date(year: 2024, month: 1, day: 1),
+                            cipherListView: .fixture(
                                 id: "2",
                                 login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                                 name: "Example",
+                                creationDate: Date(year: 2024, month: 1, day: 1),
                                 revisionDate: Date(year: 2024, month: 1, day: 1)
                             )
                         )!,
@@ -211,6 +229,43 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// returns a publisher for the list of a user's ciphers in `.all` mode.
+    @MainActor
+    func test_ciphersAutofillPublisher_mode_all() async throws {
+        let expectedSections = [
+            VaultListSection(
+                id: "1",
+                items: [VaultListItem(cipherListView: .fixture())!],
+                name: "TestingSection"
+            ),
+        ]
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
+
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .all,
+            rpID: nil,
+            uri: nil
+        ).makeAsyncIterator()
+
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
+
+        XCTAssertTrue(vaultListDirectorStrategyFactory.makeCalled)
+        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeReceivedFilter)
+        XCTAssertTrue(vaultListDirectorStrategy.buildCalled)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
+        XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
+        XCTAssertEqual(sections[safeIndex: 0]?.items.count, 1)
+    }
+
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedMultipleSections` mode.
     func test_ciphersAutofillPublisher_mode_combinedMultipleSections() async throws {
         // swiftlint:disable:previous function_body_length
@@ -219,7 +274,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
             name: "Bitwarden"
         )
-        let ciphers: [Cipher] = [
+
+        let cipherFixtures: [Cipher] = [
             expectedCipher,
             .fixture(
                 creationDate: Date(year: 2024, month: 1, day: 1),
@@ -228,6 +284,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "Example",
                 revisionDate: Date(year: 2024, month: 1, day: 1)
             ),
+            .fixture(id: "3", login: .fixture(), name: "Café", type: .login),
+            .fixture(id: "4"),
+        ]
+
+        let ciphers: [Cipher] = [
+            expectedCipher,
+            cipherFixtures[1],
         ]
         cipherService.ciphersSubject.value = ciphers
 
@@ -235,11 +298,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
 
         let expectedCiphersInFido2Section = [
-            CipherView(cipher: expectedCipher),
-            .fixture(id: "3", name: "Café", type: .login),
-            .fixture(id: "4"),
+            CipherListView(cipher: expectedCipher),
+            CipherListView(cipher: cipherFixtures[2]),
+            CipherListView(cipher: cipherFixtures[3]),
         ]
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send(expectedCiphersInFido2Section)
+        cipherService.fetchCipherByIdResult = { cipherId in
+            return switch cipherId {
+            case "1":
+                .success(expectedCipher)
+            case "3":
+                .success(cipherFixtures[2])
+            case "4":
+                .success(cipherFixtures[3])
+            default:
+                .success(.fixture())
+            }
+        }
+
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+            CipherView(cipher: expectedCipher),
+            CipherView(cipher: cipherFixtures[2]),
+            CipherView(cipher: cipherFixtures[3]),
+        ])
 
         let expectedRpID = "myApp.com"
         var iterator = try await subject.ciphersAutofillPublisher(
@@ -249,8 +329,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -258,7 +338,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.passkeysForX(expectedRpID),
                 items: expectedCiphersInFido2Section.map { cipherView in
                     VaultListItem(
-                        cipherView: cipherView,
+                        cipherListView: cipherView,
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipherView.id ?? "",
@@ -275,11 +355,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.passwordsForX(expectedRpID),
                 items: [
                     VaultListItem(
-                        cipherView: .fixture(
-                            creationDate: Date(year: 2024, month: 1, day: 1),
+                        cipherListView: .fixture(
                             id: "2",
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )
                     )!,
@@ -335,6 +415,17 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let expectedCredentialId = Data(repeating: 123, count: 16)
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
 
+        cipherService.fetchCipherByIdResult = { cipherId in
+            return switch cipherId {
+            case "2":
+                .success(ciphers[1])
+            case "3":
+                .success(ciphers[2])
+            default:
+                .success(.fixture())
+            }
+        }
+
         let expectedRpID = "myApp.com"
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: fido2UserInterfaceHelper
@@ -343,8 +434,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -352,16 +443,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     VaultListItem(
-                        cipherView: .fixture(
-                            creationDate: Date(year: 2024, month: 1, day: 1),
+                        cipherListView: .fixture(
                             id: "2",
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )
                     )!,
                     VaultListItem(
-                        cipherView: CipherView(cipher: ciphers[2]),
+                        cipherListView: CipherListView(cipher: ciphers[2]),
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: ciphers[2].id ?? "",
@@ -429,8 +520,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: expectedRpID,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -438,11 +529,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     VaultListItem(
-                        cipherView: .fixture(
-                            creationDate: Date(year: 2024, month: 1, day: 1),
+                        cipherListView: .fixture(
                             id: "2",
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )
                     )!,
@@ -498,6 +589,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
             .throwing(BitwardenTestError.example)
 
+        cipherService.fetchCipherResult = .success(.fixture(login: .fixture(fido2Credentials: [.fixture()])))
+
         let expectedRpID = "myApp.com"
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: fido2UserInterfaceHelper
@@ -515,36 +608,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.totp` mode.
     func test_ciphersAutofillPublisher_mode_totp() async throws {
-        let ciphers: [Cipher] = [
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://bitwarden.com",
-                            match: .exact
-                        ),
-                    ]
-                ),
-                name: "Bitwarden"
-            ),
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ],
-                    totp: "123"
-                ),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
+        let expectedSections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    VaultListItem(
+                        id: "1",
+                        itemType: .totp(
+                            name: "Example",
+                            totpModel: VaultListTOTP(
+                                id: "2",
+                                cipherListView: .fixture(),
+                                requiresMasterPassword: false,
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: .now,
+                                    period: 30
+                                )
+                            )
+                        )
+                    ),
+                ],
+                name: ""
             ),
         ]
-        cipherService.ciphersSubject.value = ciphers
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -553,54 +645,58 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rpID: nil,
             uri: "https://example.com"
         ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
+        let publishedSections = try await iterator.next()?.sections
 
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
+        try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
             """
-            Section: 
+            Section[]: 
               - TOTP: 2 Example 123 456 
             """
         }
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
-    /// doesn't return the item on `.totp` mode because of Totp generation throwing.
-    func test_ciphersAutofillPublisher_mode_totpThrowsOnGeneration() async throws {
-        let ciphers: [Cipher] = [
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(
-                    uris: [
-                        .fixture(
-                            uri: "https://example.com",
-                            match: .exact
-                        ),
-                    ],
-                    totp: "123"
-                ),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
-            ),
-        ]
-        cipherService.ciphersSubject.value = ciphers
-        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+    /// doesn't return the item on `.totp` mode because of the vault list publisher buildthrows.
+    func test_ciphersAutofillPublisher_mode_totpThrows() async throws {
+        vaultListDirectorStrategy.buildThrowableError = BitwardenTestError.example
 
-        var iterator = try await subject.ciphersAutofillPublisher(
-            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
-                .availableCredentialsForAuthenticationPublisher(),
-            mode: .totp,
-            rpID: nil,
-            uri: "https://example.com"
-        ).makeAsyncIterator()
-        let publishedSections = try await iterator.next()
-        let sections = try XCTUnwrap(publishedSections)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.ciphersAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .totp,
+                rpID: nil,
+                uri: "https://example.com"
+            )
+        }
+    }
 
-        XCTAssertTrue(sections.isEmpty)
-        XCTAssertEqual(
-            errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 2")]
-        )
+    /// `createAutofillListExcludedCredentialSection(from:)` creates a `VaultListSection`
+    /// from the given excluded credential cipher.
+    func test_createAutofillListExcludedCredentialSection() async throws {
+        let cipher = CipherView.fixture()
+        let expectedCredentialId = Data(repeating: 123, count: 16)
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
+
+        let result = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
+        XCTAssertEqual(result.id, Localizations.aPasskeyAlreadyExistsForThisApplication)
+        XCTAssertEqual(result.name, Localizations.aPasskeyAlreadyExistsForThisApplication)
+        XCTAssertEqual(result.items.count, 1)
+        XCTAssertEqual(result.items.first?.id, cipher.id)
+        XCTAssertEqual(result.items.first?.fido2CredentialRpId, "myApp.com")
+    }
+
+    /// `createAutofillListExcludedCredentialSection(from:)` throws when decrypting Fido2 credentials.
+    func test_createAutofillListExcludedCredentialSection_throws() async throws {
+        let cipher = CipherView.fixture()
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .throwing(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
+        }
     }
 
     /// `deleteCipher()` throws on id errors.
@@ -640,12 +736,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
     func test_doesActiveAccountHavePremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
-        var hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = true
+        var hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
 
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = false
+        hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }
 
@@ -656,47 +752,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
         try Data("🪿".utf8).write(to: downloadUrl)
         cipherService.downloadAttachmentResult = .success(downloadUrl)
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipher = CipherView.fixture(attachments: [attachment])
 
+        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+        let cipherView = CipherView.fixture(
+            attachments: [attachment],
+            id: "2"
+        )
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            id: "2",
+            key: "new key"
+        )
+        cipherService.fetchCipherResult = .success(cipher)
         // Test.
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
 
         // Confirm the results.
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipher)
+
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
+        XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
     /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
     func test_downloadAttachment_nilId() async throws {
-        await assertAsyncThrows {
+        await assertAsyncThrows(error: BitwardenError.dataError("Missing data")) {
+            stateService.activeAccount = .fixture()
             _ = try await subject.downloadAttachment(.fixture(id: nil), cipher: .fixture(id: nil))
         }
     }
 
-    /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_downloadAttachment_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
-        try Data("🪿".utf8).write(to: downloadUrl)
-        cipherService.downloadAttachmentResult = .success(downloadUrl)
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipherView = CipherView.fixture(attachments: [attachment])
-        let cipher = Cipher.fixture(
-            attachments: [Attachment(attachmentView: attachment)],
-            key: "new key"
-        )
-        clientCiphers.encryptCipherResult = .success(cipher)
-
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
-
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipherView)
-        XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
+    /// `downloadAttachment(_:cipher:)` throws an error if the cipher can't be found in local data storage.
+    func test_downloadAttachment_cipherNotFound() async throws {
+        await assertAsyncThrows(error: BitwardenError.dataError("Unable to fetch cipher with ID 2")) {
+            stateService.activeAccount = .fixture()
+            let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+            let cipherView = CipherView.fixture(
+                attachments: [attachment],
+                id: "2"
+            )
+            _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
+        }
     }
 
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
@@ -773,17 +870,59 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
     func test_fetchCollections() async throws {
         collectionService.fetchAllCollectionsResult = .success([
-            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
         ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "2", name: "Collection 2", type: .defaultUserCollection),
+            .fixture(id: "3", name: "Collection 1", type: .sharedCollection),
+            .fixture(id: "1", name: "Collection 3", type: .sharedCollection),
+        ]
         let collections = try await subject.fetchCollections(includeReadOnly: false)
 
         XCTAssertEqual(
-            collections,
+            collections.map(\.name),
             [
-                .fixture(id: "1", name: "Collection 1"),
+                "Collection 2",
+                "Collection 1",
+                "Collection 3",
             ]
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
+    }
+
+    /// `fetchFolder(withId:)` fetches and decrypts the folder with the specified id.
+    func test_fetchFolder() async throws {
+        folderService.fetchFolderResult = .success(.fixture(id: "1"))
+        let expectedResult = FolderView.fixture(id: "1")
+        clientService.mockVault.clientFolders.decryptFolderResult = .success(expectedResult)
+        let result = try await subject.fetchFolder(withId: "1")
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    /// `fetchFolder(withId:)` returns `nil` when can't be fetched.
+    func test_fetchFolder_nil() async throws {
+        folderService.fetchFolderResult = .success(nil)
+        let result = try await subject.fetchFolder(withId: "1")
+        XCTAssertNil(result)
+    }
+
+    /// `fetchFolder(withId:)` throws when attempting to fetch the folder.
+    func test_fetchFolder_throwsFetching() async throws {
+        folderService.fetchFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchFolder(withId: "1")
+        }
+    }
+
+    /// `fetchFolder(withId:)` throws when attempting to decrypt the folder.
+    func test_fetchFolder_throwsDecrypting() async throws {
+        folderService.fetchFolderResult = .success(.fixture(id: "1"))
+        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchFolder(withId: "1")
+        }
     }
 
     /// `fetchFolders` returns the folders for the user.
@@ -806,36 +945,85 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
     }
 
-    /// `fetchSync(isManualRefresh:)` only syncs when expected.
+    /// `fetchOrganization(withId:)` fetches the organization by its id.
+    func test_fetchOrganization() async throws {
+        let expectedResult = Organization.fixture(id: "2", useEvents: true)
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", useEvents: true),
+            expectedResult,
+            .fixture(id: "3", useEvents: true),
+        ])
+
+        let result = try await subject.fetchOrganization(withId: "2")
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    /// `fetchOrganization(withId:)` returns `nil` if the organization is not found.
+    func test_fetchOrganization_nil() async throws {
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", useEvents: true),
+            .fixture(id: "2", useEvents: true),
+            .fixture(id: "3", useEvents: true),
+        ])
+
+        let result = try await subject.fetchOrganization(withId: "42")
+        XCTAssertNil(result)
+    }
+
+    /// `fetchOrganization(withId:)` throws when fetching all organizations.
+    func test_fetchOrganization_throws() async throws {
+        organizationService.fetchAllOrganizationsResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchOrganization(withId: "throwing")
+        }
+    }
+
+    /// `fetchSync(forceSync:)` only syncs when expected.
     func test_fetchSync() async throws {
         stateService.activeAccount = .fixture()
 
-        // If it's not a manual refresh, it should sync.
-        let automaticSections = try await subject.fetchSync(
-            isManualRefresh: false,
-            filter: .allVaults
+        // If it's not a forced sync, it should sync.
+        try await subject.fetchSync(
+            forceSync: false,
+            filter: .allVaults,
+            isPeriodic: true
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(automaticSections)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
-        // If it's a manual refresh and the user has allowed sync on refresh,
+        // Same as before but to check `isPeriodic` is passed correctly.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = true
+        try await subject.fetchSync(
+            forceSync: false,
+            filter: .allVaults,
+            isPeriodic: false
+        )
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
+
+        // If it's a forced sync and the user has allowed sync on refresh,
         // it should sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        let manualSections = try await subject.fetchSync(
-            isManualRefresh: true,
-            filter: .myVault
+        try await subject.fetchSync(
+            forceSync: true,
+            filter: .myVault,
+            isPeriodic: true
         )
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertNotNil(manualSections)
+        XCTAssertTrue(syncService.fetchSyncIsPeriodic == true)
 
-        // If it's a manual refresh and the user has not allowed sync on refresh,
+        // If it's a forced sync and the user has not allowed sync on refresh,
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        let nilSections = try await subject.fetchSync(isManualRefresh: true, filter: .allVaults)
+        try await subject.fetchSync(
+            forceSync: true,
+            filter: .allVaults,
+            isPeriodic: true
+        )
         XCTAssertFalse(syncService.didFetchSync)
-        XCTAssertNil(nilSections)
     }
 
     /// `getDisableAutoTotpCopy()` gets the user's disable auto-copy TOTP value.
@@ -849,6 +1037,146 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.disableAutoTotpCopyByUserId["1"] = true
         isDisabled = try await subject.getDisableAutoTotpCopy()
         XCTAssertTrue(isDisabled)
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and true are policies enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(
+            result,
+            [.secureNote, .identity, .login],
+        )
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is false.
+    @MainActor
+    func test_getItemTypesUserCanCreate_flag_false() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = false
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and no policies apply to the user.
+    @MainActor
+    func test_getItemTypesUserCanCreate_no_policies() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = []
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
+    /// is enable to auto copy the TOTP and cipher organization uses TOTP.
+    func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTP() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: true
+        ))
+        XCTAssertEqual(totpKey, "123")
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
+    /// is enable to auto copy the TOTP and cipher organization doesn't use TOTP but active account
+    /// has premiium.
+    func test_getTOTPKeyIfAllowedToCopy_accountHasPremium() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: false
+        ))
+        XCTAssertEqual(totpKey, "123")
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
+    /// is enable to auto copy the TOTP and cipher organization use TOTP and active account
+    /// has premiium.
+    func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTPAndAccountHasPremium() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: true
+        ))
+        XCTAssertEqual(totpKey, "123")
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher doesn't have TOTP key.
+    func test_getTOTPKeyIfAllowedToCopy_totpNil() async throws {
+        stateService.activeAccount = .fixture()
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: nil),
+            organizationUseTotp: true
+        ))
+        XCTAssertNil(totpKey)
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has TOTP key
+    /// but auto copy the TOTP is disabled.
+    func test_getTOTPKeyIfAllowedToCopy_autoTOTPCopyDisabled() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = true
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: false
+        ))
+        XCTAssertNil(totpKey)
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has TOTP key,
+    /// is enable to auto copy the TOTP and cipher organization doesn't use TOTP and active account
+    /// doesn't have premiium.
+    func test_getTOTPKeyIfAllowedToCopy_orgDoesntUseTOTPAndAccountDoesntHavePremium() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+        stateService.doesActiveAccountHavePremiumResult = false
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: false
+        ))
+        XCTAssertNil(totpKey)
+    }
+
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` throws when no active account.
+    func test_getTOTPKeyIfAllowedToCopy_throws() async throws {
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+                login: .fixture(totp: "123"),
+                organizationUseTotp: false
+            ))
+        }
     }
 
     /// `needsSync()` Calls the sync service to check it.
@@ -934,7 +1262,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginView: .fixture(),
+            cipherListView: .fixture(),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -964,7 +1292,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginView: .fixture(totp: .standardTotpKey),
+            cipherListView: .fixture(type: .login(.fixture(totp: .standardTotpKey))),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -978,7 +1306,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         switch newItem.itemType {
         case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
-            XCTAssertEqual(model.loginView, totpModel.loginView)
+            XCTAssertEqual(model.cipherListView, totpModel.cipherListView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
             XCTAssertNotEqual(model.totpCode.codeGenerationDate, totpModel.totpCode.codeGenerationDate)
             XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
@@ -997,19 +1325,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(
+                            cipherListView: cipherListView
+                        )!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
@@ -1022,19 +1363,30 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
             .fixture(id: "4", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(cipherListView: cipherListView)!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
@@ -1046,19 +1398,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "31232131245435234", name: "qwe"),
             .fixture(id: "434343434", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "312321312"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(
+                            cipherListView: cipherListView
+                        )!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
@@ -1071,19 +1436,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "4", name: "Café", type: .secureNote),
             .fixture(id: "3", name: "Café", type: .login),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(
+                            cipherListView: cipherListView
+                        )!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(searchText:, filterType:)` returns search matching cipher URI
@@ -1107,19 +1485,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "Café"
             ),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "domain"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(
+                            cipherListView: cipherListView
+                        )!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
@@ -1135,9 +1526,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(id: "3", name: "Café", type: .login),
         ]
         cipherService.ciphersSubject.value = ciphers
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        cipherService.fetchCipherByIdResult = { cipherId in
+            return switch cipherId {
+            case "1":
+                .success(ciphers[0])
+            case "2":
+                .success(ciphers[1])
+            case "3":
+                .success(ciphers[2])
+            default:
+                .success(.fixture())
+            }
+        }
+
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1147,13 +1551,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedMultipleSections,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -1161,7 +1565,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.passkeysForX("cafe"),
                 items: ciphers.suffix(from: 2).compactMap { cipher in
                     VaultListItem(
-                        cipherView: CipherView(cipher: cipher),
+                        cipherListView: CipherListView(cipher: cipher),
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipher.id ?? "",
@@ -1176,7 +1580,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             sections[1],
             VaultListSection(
                 id: Localizations.passwordsForX("cafe"),
-                items: [VaultListItem(cipherView: cipherView)!],
+                items: [VaultListItem(cipherListView: cipherListView)!],
                 name: Localizations.passwordsForX("cafe")
             )
         )
@@ -1190,7 +1594,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
         cipherService.ciphersSubject.value = []
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1200,13 +1604,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedMultipleSections,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
     }
@@ -1223,27 +1627,27 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(id: "3", name: "Café", type: .login),
         ]
         cipherService.ciphersSubject.value = ciphers
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedMultipleSections,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
             VaultListSection(
                 id: Localizations.passwordsForX("cafe"),
-                items: [VaultListItem(cipherView: cipherView)!],
+                items: [VaultListItem(cipherListView: cipherListView)!],
                 name: Localizations.passwordsForX("cafe")
             )
         )
@@ -1265,7 +1669,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         cipherService.ciphersSubject.value = ciphers
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        cipherService.fetchCipherByIdResult = { cipherId in
+            return switch cipherId {
+            case "1":
+                .success(ciphers[0])
+            case "2":
+                .success(ciphers[1])
+            case "3":
+                .success(ciphers[2])
+            default:
+                .success(.fixture())
+            }
+        }
+
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1275,7 +1692,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedMultipleSections,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "cafe"
             )
@@ -1288,6 +1705,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
     /// returns search matching cipher name in `.combinedSingleSection` mode.
     func test_searchCipherAutofillPublisher_mode_combinedSingle() async throws {
+        // swiftlint:disable:previous function_body_length
         stateService.activeAccount = .fixtureAccountLogin()
         let expectedCredentialId = Data(repeating: 123, count: 16)
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
@@ -1306,18 +1724,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         cipherService.ciphersSubject.value = ciphers
 
+        cipherService.fetchCipherByIdResult = { cipherId in
+            guard let cipherIntId = Int(cipherId), cipherIntId <= ciphers.count else {
+                return .success(.fixture())
+            }
+            return .success(ciphers[cipherIntId - 1])
+        }
+
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedSingleSection,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertEqual(
             sections[0],
@@ -1325,10 +1750,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     VaultListItem(
-                        cipherView: CipherView(cipher: ciphers[2])
+                        cipherListView: CipherListView(cipher: ciphers[2])
                     )!,
                     VaultListItem(
-                        cipherView: CipherView(cipher: ciphers[3]),
+                        cipherListView: CipherListView(cipher: ciphers[3]),
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: ciphers[3].id ?? "",
@@ -1354,13 +1779,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedSingleSection,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "cafe"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
     }
@@ -1388,12 +1813,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         cipherService.ciphersSubject.value = ciphers
 
+        cipherService.fetchCipherByIdResult = { cipherId in
+            guard let cipherIntId = Int(cipherId), cipherIntId <= ciphers.count else {
+                return .success(.fixture())
+            }
+            return .success(ciphers[cipherIntId - 1])
+        }
+
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .combinedSingleSection,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
                 searchText: "caf"
             )
@@ -1413,19 +1845,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "bcdew"),
             .fixture(id: "3", name: "dabcd"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .passwords,
-                filterType: .organization(.fixture(id: "testOrg")),
+                filter: VaultListFilter(filterType: .organization(.fixture(id: "testOrg"))),
                 rpID: nil,
                 searchText: "bcd"
             )
             .makeAsyncIterator()
-        let sections = try await iterator.next()
-        XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(
+            sections,
+            [
+                VaultListSection(
+                    id: "",
+                    items: [
+                        VaultListItem(
+                            cipherListView: cipherListView
+                        )!,
+                    ],
+                    name: ""
+                ),
+            ]
+        )
     }
 
     /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
@@ -1452,13 +1897,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .totp,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         assertInlineSnapshot(of: dumpVaultListSections(sections), as: .lines) {
             """
@@ -1493,19 +1938,80 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .totp,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
                 searchText: "caf"
             )
             .makeAsyncIterator()
-        let sectionsResult = try await iterator.next()
-        let sections = try XCTUnwrap(sectionsResult)
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 4")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 4")]
         )
+    }
+
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns search matching cipher name in `.all` mode.
+    @MainActor
+    func test_searchCipherAutofillPublisher_searchText_name_allMode() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd", type: .login),
+            .fixture(id: "2", name: "qwe", type: .secureNote),
+            .fixture(id: "3", name: "Café", type: .identity),
+            .fixture(id: "4", name: "Caféeee", type: .card),
+            .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
+        ]
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .all,
+                filter: VaultListFilter(filterType: .allVaults),
+                rpID: nil,
+                searchText: "cafe"
+            )
+            .makeAsyncIterator()
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(sections?.count, 1)
+        let section = try XCTUnwrap(sections?.first)
+        XCTAssertEqual(section.items.count, 3)
+        XCTAssertEqual(section.items[0].id, "3")
+        XCTAssertEqual(section.items[1].id, "5")
+        XCTAssertEqual(section.items[2].id, "4")
+    }
+
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns search matching cipher name in `.all` mode and `.identity` group.
+    @MainActor
+    func test_searchCipherAutofillPublisher_searchText_name_allModeIdentityGroup() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd", type: .login),
+            .fixture(id: "2", name: "qwe", type: .secureNote),
+            .fixture(id: "3", name: "Café", type: .identity),
+            .fixture(id: "4", name: "Caféeee", type: .card),
+            .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
+        ]
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .all,
+                filter: VaultListFilter(filterType: .allVaults),
+                group: .identity,
+                rpID: nil,
+                searchText: "cafe"
+            )
+            .makeAsyncIterator()
+        let sections = try await iterator.next()?.sections
+        XCTAssertEqual(sections?.count, 1)
+        let section = try XCTUnwrap(sections?.first)
+        XCTAssertEqual(section.items.count, 1)
+        XCTAssertEqual(section.items[0].id, "3")
     }
 
     /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher name.
@@ -1516,10 +2022,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "qwe"),
             .fixture(id: "3", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
-            .searchVaultListPublisher(searchText: "cafe", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "cafe", filter: VaultListFilter(filterType: .allVaults))
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
@@ -1535,10 +2041,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
             .fixture(id: "4", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
-            .searchVaultListPublisher(searchText: "cafe", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "cafe", filter: VaultListFilter(filterType: .allVaults))
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
@@ -1554,13 +2060,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
             .fixture(id: "4", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[2]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[2]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .trash,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1585,13 +2091,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[0]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[0]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .card,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1622,13 +2128,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .folder(id: "coffee", name: "Caff-fiend"),
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1664,8 +2170,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
@@ -1674,7 +2180,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     name: "The beans",
                     organizationId: "Giv-em-da-beanz"
                 ),
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1710,13 +2216,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .identity,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1755,12 +2261,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
                 )
             ),
             XCTUnwrap(
                 VaultListItem(
-                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[6]))
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[6]))
                 )
             ),
         ]
@@ -1768,7 +2274,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1807,12 +2313,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
                 )
             ),
             XCTUnwrap(
                 VaultListItem(
-                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[5]))
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[5]))
                 )
             ),
         ]
@@ -1820,7 +2326,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .secureNote,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1831,7 +2337,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// returns search matching cipher name for SSH key items.
     @MainActor
     func test_searchVaultListPublisher_searchText_sshKey() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "café", type: .card),
@@ -1861,7 +2366,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[7]))
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[7]))
                 )
             ),
         ]
@@ -1869,53 +2374,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .sshKey,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
-    }
-
-    /// `searchVaultListPublisher(searchText:, group: .sshKey, filterType:)`
-    /// returns 0 search matching cipher name for SSH key items when `.sshKeyVaultItem` flag is disabled.
-    @MainActor
-    func test_searchVaultListPublisher_searchText_sshKeyWithFlagDisabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = false
-        stateService.activeAccount = .fixture()
-        cipherService.ciphersSubject.value = [
-            .fixture(id: "1", name: "café", type: .card),
-            .fixture(id: "2", name: "cafepass", type: .login),
-            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
-            .fixture(
-                folderId: "coffee",
-                id: "0",
-                name: "Best Cafes",
-                type: .secureNote
-            ),
-            .fixture(
-                collectionIds: ["123", "meep"],
-                id: "4",
-                name: "Café Friend",
-                type: .identity
-            ),
-            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
-            .fixture(
-                id: "6",
-                login: .fixture(totp: .standardTotpKey),
-                name: "one time cafefe",
-                type: .login
-            ),
-            .fixture(id: "7", name: "cafe", type: .sshKey),
-        ]
-        var iterator = try await subject
-            .searchVaultListPublisher(
-                searchText: "cafe",
-                group: .sshKey,
-                filterType: .allVaults
-            )
-            .makeAsyncIterator()
-        let ciphers = try await iterator.next()
-        XCTAssertEqual(ciphers, [])
     }
 
     /// `searchVaultListPublisher(searchText:, group: .totp, filterType:)`
@@ -1933,7 +2396,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 type: .login
             ),
         ]
-        let totpCipher = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+        let totpCipher = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+        guard case .login = totpCipher.type else {
+            XCTFail("Cipher type should be login.")
+            return
+        }
+
         let expectedResults = try [
             VaultListItem(
                 id: "6",
@@ -1941,7 +2409,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     name: "one time cafefe",
                     totpModel: .init(
                         id: "6",
-                        loginView: XCTUnwrap(totpCipher.login),
+                        cipherListView: XCTUnwrap(totpCipher),
                         requiresMasterPassword: false,
                         totpCode: .init(
                             code: "123456",
@@ -1957,7 +2425,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .totp,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1972,10 +2440,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "31232131245435234", name: "qwe"),
             .fixture(id: "434343434", name: "Café"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
-            .searchVaultListPublisher(searchText: "312321312", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "312321312", filter: VaultListFilter(filterType: .allVaults))
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
@@ -2001,10 +2469,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "Café"
             ),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
-            .searchVaultListPublisher(searchText: "domain", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "domain", filter: VaultListFilter(filterType: .allVaults))
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
@@ -2019,10 +2487,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "bcdew"),
             .fixture(id: "3", name: "dabcd"),
         ]
-        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
         var iterator = try await subject
-            .searchVaultListPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
+            .searchVaultListPublisher(
+                searchText: "bcd",
+                filter: VaultListFilter(
+                    filterType: .organization(
+                        .fixture(
+                            id: "testOrg"
+                        )
+                    )
+                )
+            )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
@@ -2043,6 +2520,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+        XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
     }
 
     /// `shareCipher()` migrates any attachments without an attachment key.
@@ -2079,6 +2557,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "1"
         )
         cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)
         clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
             CipherView(cipher: cipherAfterAttachmentDelete)
         )
@@ -2150,6 +2629,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipher(cipher)
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
@@ -2180,31 +2660,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 Organization.fixture(id: "ORG_2", name: "ORG_NAME"),
             ]
         )
-    }
-
-    /// `remove(userId:)` Removes an account id from the vault timeout service.
-    func test_removeAccountId_success_unlocked() async {
-        let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.isClientLocked = [account.profile.userId: false]
-        await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
-    }
-
-    /// `remove(userId:)` Removes an account id from the vault timeout service.
-    func test_removeAccountId_success_locked() async {
-        let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.isClientLocked[account.profile.userId] = true
-        await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
-    }
-
-    /// `remove(userId:)` Throws no error when no account is found.
-    func test_removeAccountId_failure() async {
-        let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        await assertAsyncDoesNotThrow {
-            await subject.remove(userId: "123")
-        }
     }
 
     /// `repromptRequiredForCipher(id:)` returns `true` if reprompt is required for a cipher.
@@ -2269,12 +2724,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.restoreCipher(cipherView)
 
         XCTAssertEqual(cipherService.restoredCipher, cipher)
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
@@ -2299,7 +2755,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_saveAttachment_updatesMigratedCipher() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
@@ -2312,6 +2768,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, cipher)
         XCTAssertEqual(updatedCipher.id, "42")
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `softDeleteCipher()` throws on id errors.
@@ -2341,7 +2798,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.softDeleteCipher(cipherView)
 
@@ -2349,904 +2806,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
     }
 
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_card() async throws {
-        let cipher = Cipher.fixture(id: "1", type: .card)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .card, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_collection() async throws {
-        let cipher = Cipher.fixture(collectionIds: ["1"], id: "1")
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "1", name: "", organizationId: "1"),
-            filter: .allVaults
-        )
-        .makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list sections within
-    /// the collection group with nested collections.
-    func test_vaultListPublisher_groups_collection_nestedCollections() async throws {
-        let workCipher = Cipher.fixture(collectionIds: ["1"], id: "1")
-        let workEngineeringCipher = Cipher.fixture(collectionIds: ["3"], id: "2")
-        cipherService.ciphersSubject.send([workCipher, workEngineeringCipher])
-
-        let workCollection = Collection.fixture(id: "1", name: "Work")
-        let workDesignCollection = Collection.fixture(id: "2", name: "Work/Design")
-        let workEngineeringCollection = Collection.fixture(id: "3", name: "Work/Engineering")
-        collectionService.collectionsSubject.send([workCollection, workDesignCollection, workEngineeringCollection])
-
-        var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "1", name: "", organizationId: "1"),
-            filter: .allVaults
-        ).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(vaultListSections)), as: .lines) {
-            """
-            Section: Collections
-              - Group: Design (0)
-              - Group: Engineering (1)
-            Section: Items
-              - Cipher: Bitwarden
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_folder() async throws {
-        let cipher = Cipher.fixture(folderId: "1", id: "1")
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .folder(id: "1", name: ""), filter: .allVaults)
-            .makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list sections within
-    /// the folder group with nested folders.
-    func test_vaultListPublisher_groups_folder_nestedFolders() async throws {
-        let workCipher = Cipher.fixture(folderId: "1", id: "1")
-        let workEngineeringCipher = Cipher.fixture(folderId: "3", id: "2")
-        cipherService.ciphersSubject.send([workCipher, workEngineeringCipher])
-
-        let workFolder = Folder.fixture(id: "1", name: "Work")
-        let workDesignFolder = Folder.fixture(id: "2", name: "Work/Design")
-        let workEngineeringFolder = Folder.fixture(id: "3", name: "Work/Engineering")
-        folderService.foldersSubject.send([workFolder, workDesignFolder, workEngineeringFolder])
-
-        var iterator = try await subject.vaultListPublisher(group: .folder(id: "1", name: ""), filter: .allVaults)
-            .makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(vaultListSections)), as: .lines) {
-            """
-            Section: Folder
-              - Group: Design (0)
-              - Group: Engineering (1)
-            Section: Items
-              - Cipher: Bitwarden
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_identity() async throws {
-        let cipher = Cipher.fixture(id: "1", type: .identity)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .identity, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_login() async throws {
-        let cipher = Cipher.fixture(id: "1", type: .login)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_secureNote() async throws {
-        let cipher = Cipher.fixture(id: "1", type: .secureNote)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .secureNote, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items on SSH key group.
-    func test_vaultListPublisher_groups_sshKey() async throws {
-        let cipher = Cipher.fixture(id: "1", type: .sshKey)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .sshKey, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium accounts.
-    func test_vaultListPublisher_groups_totp_premium() async throws {
-        stateService.activeAccount = premiumAccount
-        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
-
-        let itemType = try XCTUnwrap(vaultListItems.last?.itemType)
-        if case let .totp(name, _) = itemType {
-            XCTAssertEqual(name, "Bitwarden")
-        } else {
-            XCTFail("Totp item not found")
-        }
-    }
-
-    /// `vaultListPublisher(group:filter:)` does not return TOTP items for non-premium accounts.
-    func test_vaultListPublisher_groups_totp_notPremium() async throws {
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
-        XCTAssertTrue(vaultListItems.isEmpty)
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium
-    /// accounts if the organization uses TOTP.
-    func test_vaultListPublisher_groups_totp_organizationUseTotp() async throws {
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        cipherService.ciphersSubject.send([
-            Cipher.fixture(
+    /// `vaultListPublisher(filter:)` makes a strategy and builds the vault list sections.
+    func test_vaultListPublisher() async throws {
+        let expectedSections = [
+            VaultListSection(
                 id: "1",
-                login: .fixture(totp: "123"),
-                name: "Org TOTP",
-                organizationUseTotp: true,
-                type: .login
-            ),
-            Cipher.fixture(
-                id: "2",
-                login: .fixture(totp: "123"),
-                name: "Non-org TOTP",
-                organizationUseTotp: false,
-                type: .login
-            ),
-        ])
-
-        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
-
-        let itemNames: [String] = vaultListItems.compactMap { item in
-            guard case let .totp(name, _) = item.itemType else { return nil }
-            return name
-        }
-        XCTAssertEqual(itemNames, ["Org TOTP"])
-    }
-
-    /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
-    ///      the SDK cannot parse into TOTP codes.
-    func test_vaultListPublisher_groups_totp_invalidCode() async throws {
-        stateService.activeAccount = premiumAccount
-        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
-        struct InvalidCodeError: Error, Equatable {}
-        clientService.mockVault.generateTOTPCodeResult = .failure(InvalidCodeError())
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        try XCTAssertTrue(XCTUnwrap(vaultListSections).allSatisfy(\.items.isEmpty))
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_trash() async throws {
-        let cipher = Cipher.fixture(deletedDate: Date(), id: "1")
-        cipherService.ciphersSubject.send([cipher])
-
-        var iterator = try await subject.vaultListPublisher(group: .trash, filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        XCTAssertEqual(
-            vaultListSections,
-            [
-                VaultListSection(
-                    id: "Items",
-                    items: [.fixture(cipherView: .init(cipher: cipher))],
-                    name: Localizations.items
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections.
-    func test_vaultListPublisher_section_premium() async throws { // swiftlint:disable:this function_body_length
-        stateService.activeAccount = premiumAccount
-        let ciphers: [Cipher] = [
-            .fixture(folderId: "1", id: "1", type: .login),
-            .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
-            .fixture(collectionIds: ["1"], favorite: true, id: "3"),
-            .fixture(deletedDate: Date(), id: "3"),
-        ]
-        let collection = Collection.fixture(id: "1")
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send(ciphers)
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        let expectedResult: [VaultListSection] = [
-            .init(
-                id: "TOTP",
-                items: [.fixtureGroup(id: "Types.VerificationCodes", group: .totp, count: 1)],
-                name: Localizations.totp
-            ),
-            .init(
-                id: "Favorites",
-                items: [.fixture(cipherView: .init(cipher: ciphers[2]))],
-                name: Localizations.favorites
-            ),
-            .init(
-                id: "Types",
-                items: [
-                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
-                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
-                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
-                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
-                ],
-                name: Localizations.types
-            ),
-            .init(
-                id: "Folders",
-                items: [
-                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
-                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
-                ],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "Collections",
-                items: [
-                    .fixtureGroup(
-                        id: "1",
-                        group: .collection(id: "1", name: "", organizationId: ""),
-                        count: 1
-                    ),
-                ],
-                name: Localizations.collections
-            ),
-            .init(
-                id: "Trash",
-                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
-                name: Localizations.trash
+                items: [VaultListItem(cipherListView: .fixture())!],
+                name: "TestingSection"
             ),
         ]
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
 
-        XCTAssertEqual(vaultListSections, expectedResult)
-    }
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
-    ///   with no TOTP items for accounts without premium.
-    func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        let ciphers: [Cipher] = [
-            .fixture(folderId: "1", id: "1", type: .login),
-            .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
-            .fixture(collectionIds: ["1"], favorite: true, id: "3"),
-            .fixture(deletedDate: Date(), id: "3"),
-        ]
-        let collection = Collection.fixture(id: "1")
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send(ciphers)
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
+        let filter = VaultListFilter(addTOTPGroup: true)
+        var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
 
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-
-        let expectedResult: [VaultListSection] = [
-            .init(
-                id: "Favorites",
-                items: [.fixture(cipherView: .init(cipher: ciphers[2]))],
-                name: Localizations.favorites
-            ),
-            .init(
-                id: "Types",
-                items: [
-                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
-                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
-                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
-                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
-                ],
-                name: Localizations.types
-            ),
-            .init(
-                id: "Folders",
-                items: [
-                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
-                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
-                ],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "Collections",
-                items: [
-                    .fixtureGroup(
-                        id: "1",
-                        group: .collection(id: "1", name: "", organizationId: ""),
-                        count: 1
-                    ),
-                ],
-                name: Localizations.collections
-            ),
-            .init(
-                id: "Trash",
-                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
-                name: Localizations.trash
-            ),
-        ]
-
-        XCTAssertEqual(vaultListSections, expectedResult)
-    }
-
-    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
-    ///  with a TOTP section if the user has ciphers where the organization uses TOTP.
-    func test_vaultListPublisher_section_nonPremiumOrganizationUseTotp() async throws {
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        let ciphers: [Cipher] = [
-            .fixture(id: "1", login: .fixture(totp: "123"), type: .login),
-            .fixture(id: "2", login: .fixture(totp: "123"), organizationUseTotp: true, type: .login),
-            .fixture(
-                deletedDate: Date(),
-                id: "3",
-                login: .fixture(totp: "123"),
-                organizationUseTotp: true,
-                type: .login
-            ),
-        ]
-        let collection = Collection.fixture(id: "1")
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send(ciphers)
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let totpSections = vaultListSections?.filter { $0.id == "TOTP" }
-        XCTAssertEqual(
-            totpSections,
-            [
-                VaultListSection(
-                    id: "TOTP",
-                    items: [.fixtureGroup(id: "Types.VerificationCodes", group: .totp, count: 1)],
-                    name: Localizations.totp
-                ),
-            ]
-        )
-    }
-
-    /// `vaultListPublisher(filter:)` records an error if the folder ids is nil.
-    func test_vaultListPublisher_section_collectionError() async throws {
-        stateService.activeAccount = .fixture()
-        let collection = Collection.fixture(id: nil)
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send([.fixture()])
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        _ = try await iterator.next()
-
-        XCTAssertEqual(
-            errorReporter.errors.last as? NSError,
-            BitwardenError.dataError("Received a collection from the API with a missing ID.")
-        )
-    }
-
-    /// `vaultListPublisher(filter:)` records an error if the folder ids is nil.
-    func test_vaultListPublisher_section_folderError() async throws {
-        stateService.activeAccount = .fixture()
-        let collection = Collection.fixture(id: "1")
-        let folder = Folder.fixture(id: nil)
-        cipherService.ciphersSubject.send([.fixture()])
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        _ = try await iterator.next()
-
-        XCTAssertEqual(
-            errorReporter.errors.last as? NSError,
-            BitwardenError.dataError("Received a folder from the API with a missing ID.")
-        )
-    }
-
-    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when collections are available.
-    func test_vaultListPublisher_section_noFolderItem() async throws { // swiftlint:disable:this function_body_length
-        stateService.activeAccount = .fixture()
-        let ciphers: [Cipher] = [
-            .fixture(folderId: "1", id: "1", type: .login),
-            .fixture(id: "2", login: .fixture(), type: .login),
-            .fixture(collectionIds: ["1"], favorite: false, id: "3"),
-            .fixture(deletedDate: Date(), id: "3"),
-        ]
-        let collection = Collection.fixture(id: "1")
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send(ciphers)
-        collectionService.collectionsSubject.send([collection])
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let expectedResult: [VaultListSection] = [
-            .init(
-                id: "Types",
-                items: [
-                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
-                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
-                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
-                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
-                ],
-                name: Localizations.types
-            ),
-            .init(
-                id: "Folders",
-                items: [
-                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
-                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
-                ],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "Collections",
-                items: [
-                    .fixtureGroup(
-                        id: "1",
-                        group: .collection(id: "1", name: "", organizationId: ""),
-                        count: 1
-                    ),
-                ],
-                name: Localizations.collections
-            ),
-            .init(
-                id: "Trash",
-                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
-                name: Localizations.trash
-            ),
-        ]
-        XCTAssertEqual(
-            vaultListSections,
-            expectedResult
-        )
-    }
-
-    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when there are
-    /// more than 100 ciphers without a folder assigned.
-    func test_vaultListPublisher_section_100Cipher() async throws {
-        stateService.activeAccount = .fixture()
-        var ciphers: [Cipher] = []
-        for index in 1 ... 100 {
-            ciphers.append(.fixture(id: "\(index)", type: .login))
-        }
-        let folder = Folder.fixture(id: "1")
-        cipherService.ciphersSubject.send(ciphers)
-        folderService.foldersSubject.send([folder])
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let vaultListSections = try await iterator.next()
-        let expectedResult: [VaultListSection] = [
-            .init(
-                id: "Types",
-                items: [
-                    .fixtureGroup(id: "Types.Logins", group: .login, count: 100),
-                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
-                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
-                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
-                ],
-                name: Localizations.types
-            ),
-            .init(
-                id: "Folders",
-                items: [
-                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 0),
-                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 100)),
-                ],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "Trash",
-                items: [.fixtureGroup(id: "Trash", group: .trash, count: 0)],
-                name: Localizations.trash
-            ),
-        ]
-        XCTAssertEqual(
-            vaultListSections,
-            expectedResult
-        )
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections and folders, with no filter.
-    func test_vaultListPublisher_withCollections_all() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Favorites
-              - Cipher: Apple
-            Section: Types
-              - Group: Login (6)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-            Section: Folders
-              - Group: Development (0)
-              - Group: Internal (1)
-              - Group: Social (2)
-              - Group: No Folder (5)
-            Section: Collections
-              - Group: Design (2)
-              - Group: Engineering (3)
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections and folders, with no filter.
-    @MainActor
-    func test_vaultListPublisher_withCollections_allWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Favorites
-              - Cipher: Apple
-            Section: Types
-              - Group: Login (6)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-              - Group: SSH key (1)
-            Section: Folders
-              - Group: Development (0)
-              - Group: Internal (1)
-              - Group: Social (2)
-              - Group: No Folder (6)
-            Section: Collections
-              - Group: Design (2)
-              - Group: Engineering (3)
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections with the my vault filter.
-    func test_vaultListPublisher_withCollections_myVault() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Types
-              - Group: Login (1)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-            Section: Folders
-              - Group: Social (1)
-            Section: No Folder
-              - Cipher: Bitwarden User
-              - Cipher: Top Secret Note
-              - Cipher: Visa
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections with the my vault filter with SSH Key flag enabled.
-    @MainActor
-    func test_vaultListPublisher_withCollections_myVaultWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Types
-              - Group: Login (1)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-              - Group: SSH key (1)
-            Section: Folders
-              - Group: Social (1)
-            Section: No Folder
-              - Cipher: Bitwarden User
-              - Cipher: Top Secret Note
-              - Cipher: Top SSH Key
-              - Cipher: Visa
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections with the organization filter.
-    func test_vaultListPublisher_withCollections_organization() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        let organization = Organization.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")
-        var iterator = try await subject.vaultListPublisher(filter: .organization(organization)).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Favorites
-              - Cipher: Apple
-            Section: Types
-              - Group: Login (5)
-              - Group: Card (0)
-              - Group: Identity (0)
-              - Group: Secure note (0)
-            Section: Folders
-              - Group: Development/Artifacts (1)
-              - Group: Internal (1)
-              - Group: Social (1)
-              - Group: No Folder (2)
-            Section: Collections
-              - Group: Design (2)
-              - Group: Engineering (3)
-            Section: Trash
-              - Group: Trash (0)
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault list.
-    func test_vaultListPublisher_forGroup_login() async throws {
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-
-        var iterator = try await subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
-        let items = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
-            """
-            Section: Items
-              - Cipher: Apple
-              - Cipher: Azure
-              - Cipher: Facebook
-              - Cipher: Figma
-              - Cipher: Reddit
-              - Cipher: Zoom
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
-    /// list filtered by the user's vault.
-    func test_vaultListPublisher_forGroup_login_myVault() async throws {
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-
-        var iterator = try await subject.vaultListPublisher(group: .login, filter: .myVault).makeAsyncIterator()
-        let items = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
-            """
-            Section: Items
-              - Cipher: Facebook
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
-    /// list filtered by an organization.
-    func test_vaultListPublisher_forGroup_login_organization() async throws {
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            group: .login,
-            filter: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"))
-        ).makeAsyncIterator()
-        let items = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
-            """
-            Section: Items
-              - Cipher: Apple
-              - Cipher: Azure
-              - Cipher: Figma
-              - Cipher: Reddit
-              - Cipher: Zoom
-            """
-        }
-    }
-
-    /// `vaultListPublisher(group:filter:)` returns a publisher for a group of items in a collection within
-    /// the vault list.
-    func test_vaultListPublisher_forGroup_collection() async throws {
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            group: .collection(
-                id: "f96de98e-618a-4886-b396-66b92a385325",
-                name: "Engineering",
-                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
-            ),
-            filter: .allVaults
-        ).makeAsyncIterator()
-        let items = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
-            """
-            Section: Items
-              - Cipher: Apple
-              - Cipher: Azure
-              - Cipher: Reddit
-            """
-        }
+        XCTAssertTrue(vaultListDirectorStrategyFactory.makeCalled)
+        XCTAssertNotNil(vaultListDirectorStrategyFactory.makeReceivedFilter)
+        XCTAssertTrue(vaultListDirectorStrategy.buildCalled)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
+        XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
+        XCTAssertEqual(sections[safeIndex: 0]?.items.count, 1)
     }
 
     // MARK: Private

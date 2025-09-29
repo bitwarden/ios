@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -33,7 +35,7 @@ public protocol SendRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Validates the user's active account has a verified email.
     ///
@@ -44,9 +46,10 @@ public protocol SendRepository: AnyObject {
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
-    ///
-    func fetchSync(isManualRefresh: Bool) async throws
+    /// - Parameters:
+    ///   - forceSync: Whether the sync should be forced.
+    ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     /// Performs an API request to remove the password on the provided send.
     ///
@@ -85,6 +88,13 @@ public protocol SendRepository: AnyObject {
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
+
+    /// A publisher for a send.
+    ///
+    /// - Parameter id: The ID of the send that is being subscribed to.
+    /// - Returns: A publisher for a send with a specified identifier.
+    ///
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>>
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -162,8 +172,8 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Methods
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
@@ -216,10 +226,10 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: API Methods
 
-    func fetchSync(isManualRefresh: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
-        if !isManualRefresh || allowSyncOnRefresh {
-            try await syncService.fetchSync(forceSync: isManualRefresh)
+        if !forceSync || allowSyncOnRefresh {
+            try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)
         }
     }
 
@@ -288,6 +298,16 @@ class DefaultSendRepository: SendRepository {
             .values
     }
 
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>> {
+        try await sendService.sendPublisher(id: id)
+            .asyncTryMap { send in
+                guard let send else { return nil }
+                return try await self.clientService.sends().decrypt(send: send)
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
     // MARK: Private Methods
 
     /// Returns a list of the sections in the vault list from a sync response.
@@ -321,13 +341,11 @@ class DefaultSendRepository: SendRepository {
         return [
             SendListSection(
                 id: "Types",
-                isCountDisplayed: false,
                 items: types,
                 name: Localizations.types
             ),
             SendListSection(
                 id: "AllSends",
-                isCountDisplayed: true,
                 items: allItems,
                 name: Localizations.allSends
             ),

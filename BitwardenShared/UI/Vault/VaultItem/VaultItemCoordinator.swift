@@ -10,8 +10,10 @@ import SwiftUI
 class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
-    typealias Module = FileSelectionModule
+    typealias Module = AddEditFolderModule
+        & FileSelectionModule
         & GeneratorModule
+        & NavigatorBuilderModule
         & PasswordHistoryModule
         & VaultItemModule
 
@@ -19,9 +21,13 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & GeneratorCoordinator.Services
         & HasAPIService
         & HasAuthRepository
+        & HasConfigService
+        & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasRehydrationHelper
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasTimeProvider
@@ -79,12 +85,21 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(allowTypeSelection, group, hasPremium, newCipherOptions):
+        case .addFolder:
+            showAddFolder(delegate: context as? AddEditFolderDelegate)
+        case let .addItem(
+            group,
+            hasPremium,
+            newCipherOptions,
+            organizationId,
+            type
+        ):
             showAddItem(
                 for: group,
-                allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
+                organizationId: organizationId,
+                type: type,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
@@ -132,10 +147,24 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
     private func presentChildVaultItemCoordinator(route: VaultItemRoute, context: AnyObject?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the add folder screen.
+    ///
+    /// - Parameter delegate: A `AddEditFolderDelegate` that is notified when the user makes a
+    ///     change to folders.
+    ///
+    private func showAddFolder(delegate: AddEditFolderDelegate?) {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: nil), context: delegate)
+
         stackNavigator?.present(navigationController)
     }
 
@@ -143,27 +172,28 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
-    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
+    ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(
+    private func showAddItem( // swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
-        allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
+        organizationId: String?,
+        type: CipherType,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
-            addItem: group.flatMap(CipherType.init) ?? .login,
-            allowTypeSelection: allowTypeSelection,
+            addItem: type,
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             folderId: group?.folderId,
             hasPremium: hasPremium,
             name: newCipherOptions?.name,
-            organizationId: group?.organizationId,
+            organizationId: organizationId ?? group?.organizationId,
             password: newCipherOptions?.password,
             totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,
@@ -191,16 +221,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: AttachmentsState(cipher: cipher)
         )
-        let view = AttachmentsView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(AttachmentsView(store: Store(processor: processor)))
     }
 
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
@@ -257,9 +286,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: EditCollectionsState(cipher: cipher)
         )
-        let view = EditCollectionsView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(EditCollectionsView(store: Store(processor: processor)))
     }
 
     /// Shows the edit item screen.
@@ -324,7 +351,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         emailWebsite: String?,
         delegate: GeneratorCoordinatorDelegate
     ) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
+        if type != .username {
+            // Username doesn't show the segmented control so the divider should show. Otherwise,
+            // remove it to make the segmented control appear to be part of the navigation controller.
+            navigationController.removeHairlineDivider()
+        }
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
             stackNavigator: navigationController
@@ -337,8 +369,9 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
@@ -357,9 +390,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: MoveToOrganizationState(cipher: cipher)
         )
-        let view = MoveToOrganizationView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(MoveToOrganizationView(store: Store(processor: processor)))
     }
 
     /// A route to view the password history view.
@@ -367,7 +398,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameter passwordHistory: The password history to view.
     ///
     private func showPasswordHistory(_ passwordHistory: [PasswordHistoryView]) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
@@ -404,6 +435,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension VaultItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - View Extension

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - DeleteAccountView
@@ -13,18 +15,46 @@ struct DeleteAccountView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Image(asset: Asset.Images.warning24)
-                .foregroundColor(Color(asset: Asset.Colors.error))
+        VStack(alignment: .leading, spacing: 16) {
+            viewContent
+        }
+        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
+        .scrollView()
+        .toolbar {
+            cancelToolbarItem {
+                store.send(.dismiss)
+            }
+        }
+        .task {
+            await store.perform(.loadData)
+        }
+    }
 
-            Text(Localizations.deletingYourAccountIsPermanent)
-                .foregroundColor(Color(asset: Asset.Colors.error))
-                .styleGuide(.headline, weight: .semibold)
+    /// The content is presented to the user depending on their state.
+    @ViewBuilder var viewContent: some View {
+        HStack(spacing: 12) {
+            Image(decorative: store.state.mainIcon)
+                .foregroundColor(Color(asset: SharedAsset.Colors.error))
 
-            Text(Localizations.deleteAccountExplanation)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .styleGuide(.subheadline)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(store.state.title)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.error))
+                    .styleGuide(
+                        .headline,
+                        weight: .semibold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false
+                    )
 
+                Text(store.state.description)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                    .styleGuide(.subheadline)
+            }
+        }
+        .padding(12)
+        .contentBlock()
+
+        if store.state.showDeleteAccountButtons {
             VStack(spacing: 12) {
                 AsyncButton(Localizations.deleteAccount) {
                     await store.perform(.deleteAccount)
@@ -37,15 +67,8 @@ struct DeleteAccountView: View {
                 } label: {
                     Text(Localizations.cancel)
                 }
-                .buttonStyle(.tertiary(isDestructive: true))
-                .accessibilityIdentifier("CANCEL")
-            }
-        }
-        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView()
-        .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
+                .buttonStyle(.secondary(isDestructive: true))
+                .accessibilityIdentifier("CancelDeletionButton")
             }
         }
     }

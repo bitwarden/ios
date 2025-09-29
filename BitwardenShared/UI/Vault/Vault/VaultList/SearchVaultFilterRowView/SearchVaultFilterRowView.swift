@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -21,8 +22,9 @@ struct SearchVaultFilterRowView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .styleGuide(.body)
+                        .accessibilityIdentifier("ActiveFilterNameLabel")
 
                     Spacer()
 
@@ -44,15 +46,14 @@ struct SearchVaultFilterRowView: View {
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
-                    .accessibilityIdentifier("OpenOrgFilter")
                     .accessibilityLabel(Localizations.filterByVault)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier("ActiveFilterRow")
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
                 .frame(minHeight: 60)
-                .accessibilityIdentifier(accessibilityID ?? "")
-                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
 
                 if hasDivider {
                     Divider()

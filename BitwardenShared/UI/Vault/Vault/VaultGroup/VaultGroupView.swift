@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultGroupView
@@ -32,13 +34,7 @@ struct VaultGroupView: View {
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-            .toolbar {
-                // Using this state here temporarily until we remove the toolbar button.
-                addToolbarItem(hidden: !store.state.showAddItemFloatingActionButton) {
-                    store.send(.addItemPressed)
-                }
-            }
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .task {
                 await store.perform(.appeared)
             }
@@ -77,29 +73,44 @@ struct VaultGroupView: View {
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    Spacer()
+        VStack(spacing: 24) {
+            Text(store.state.noItemsString)
+                .multilineTextAlignment(.center)
+                .styleGuide(.callout)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
 
-                    Text(store.state.noItemsString)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            if let newItemButtonType = store.state.newItemButtonType {
+                let newItemLabel = Label(
+                    store.state.addItemButtonTitle,
+                    image: Asset.Images.plus16.swiftUIImage
+                )
 
-                    if store.state.showAddItemButton {
-                        Button(Localizations.addAnItem) {
-                            store.send(.addItemPressed)
+                Group {
+                    switch newItemButtonType {
+                    case .button:
+                        Button {
+                            store.send(.addItemPressed(nil))
+                        } label: {
+                            newItemLabel
                         }
-                        .buttonStyle(.tertiary())
+                        .buttonStyle(.primary(shouldFillWidth: false))
+                    case .menu:
+                        Menu {
+                            ForEach(store.state.itemTypesUserCanCreate, id: \.hashValue) { type in
+                                Button(type.localizedName) {
+                                    store.send(.addItemPressed(type))
+                                }
+                            }
+                        } label: {
+                            newItemLabel
+                        }
                     }
-
-                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .frame(minWidth: reader.size.width, minHeight: reader.size.height)
+                .accessibilityIdentifier("AddItemButton")
+                .buttonStyle(.primary(shouldFillWidth: false))
             }
         }
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays either the group or empty interface.
@@ -112,8 +123,19 @@ struct VaultGroupView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton(hidden: !store.state.showAddItemFloatingActionButton) {
-                store.send(.addItemPressed)
+            if let floatingActionButtonType = store.state.newItemButtonType {
+                switch floatingActionButtonType {
+                case .button:
+                    addItemFloatingActionButton {
+                        store.send(.addItemPressed(nil))
+                    }
+                case .menu:
+                    addVaultItemFloatingActionMenu(
+                        availableItemTypes: store.state.itemTypesUserCanCreate,
+                    ) { type in
+                        store.send(.addItemPressed(type))
+                    }
+                }
             }
         }
     }
@@ -135,7 +157,7 @@ struct VaultGroupView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -183,21 +205,19 @@ struct VaultGroupView: View {
     ///
     @ViewBuilder
     private func groupView(with sections: [VaultListSection]) -> some View {
-        ScrollView {
-            VStack(spacing: 20.0) {
-                ForEach(sections) { section in
-                    VaultListSectionView(section: section) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                        }
+        VStack(spacing: 16) {
+            ForEach(sections) { section in
+                VaultListSectionView(section: section) { item in
+                    Button {
+                        store.send(.itemPressed(item))
+                    } label: {
+                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
                     }
                 }
             }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.
@@ -285,14 +305,18 @@ struct VaultGroupView: View {
                                 .init(
                                     id: "Items",
                                     items: [
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: "1",
-                                            login: .fixture(username: "email@example.com"),
+                                            login: .fixture(
+                                                username: "email@example.com"
+                                            ),
                                             name: "Example"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: "2",
-                                            login: .fixture(username: "email2@example.com"),
+                                            login: .fixture(
+                                                username: "email2@example.com"
+                                            ),
                                             name: "Example 2"
                                         ))!,
                                     ],

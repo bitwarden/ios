@@ -8,6 +8,15 @@ protocol VaultItemWithDecorativeIcon {
     /// The accessibility ID for the ciphers icon.
     var iconAccessibilityId: String { get }
 
-    /// The login view containing the uri's to download the special decorative icon, if applicable.
-    var loginView: BitwardenSdk.LoginView? { get }
+    /// The cipher's data view to be used for decorative icons.
+    var cipherDecorativeIconDataView: CipherDecorativeIconDataView? { get }
+
+    /// Whether the placeholder needs a custom content view to be shown.
+    var shouldUseCustomPlaceholderContent: Bool { get }
+}
+
+extension VaultItemWithDecorativeIcon {
+    var shouldUseCustomPlaceholderContent: Bool {
+        false
+    }
 }

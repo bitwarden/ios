@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - ImportLoginsProcessor
 
 /// The processor used to manage state and handle actions for the import logins screen.
@@ -149,7 +152,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
             coordinator.navigate(to: .importLoginsSuccess)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

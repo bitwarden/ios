@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -46,7 +48,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     func test_delegate_folderAdded() {
         XCTAssertNil(subject.state.toast)
 
-        subject.folderAdded()
+        subject.folderAdded(.fixture())
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 

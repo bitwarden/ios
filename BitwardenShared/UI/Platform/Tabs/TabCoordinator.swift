@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 import UIKit
 
@@ -10,6 +12,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = GeneratorModule
+        & NavigatorBuilderModule
         & SendModule
         & SettingsModule
         & VaultModule
@@ -104,6 +107,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             // TODO: BIT-327 Add show generation function for navigation to a generator route
             break
         case let .settings(settingsRoute):
+            settingsCoordinator?.start()
             settingsCoordinator?.navigate(to: settingsRoute, context: context)
         }
     }
@@ -112,35 +116,49 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         vaultCoordinator?.navigate(to: vaultRoute, context: context)
     }
 
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        errorReporter.log(error: BitwardenError.generalError(
+            type: "TabCoordinator: `showErrorAlert` Not Supported",
+            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator."
+        ))
+    }
+
     func start() {
         guard let rootNavigator, let tabNavigator, let settingsDelegate, let vaultDelegate else { return }
 
         rootNavigator.show(child: tabNavigator)
 
-        let vaultNavigator = UINavigationController()
-        vaultNavigator.navigationBar.prefersLargeTitles = true
+        let vaultNavigator = module.makeNavigationController()
+        vaultNavigator.navigationBar.prefersLargeTitles = false
+        vaultNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         vaultCoordinator = module.makeVaultCoordinator(
             delegate: vaultDelegate,
             stackNavigator: vaultNavigator
         )
 
-        let sendNavigator = UINavigationController()
-        sendNavigator.navigationBar.prefersLargeTitles = true
+        let sendNavigator = module.makeNavigationController()
+        sendNavigator.navigationBar.prefersLargeTitles = false
+        sendNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         sendCoordinator = module.makeSendCoordinator(
             stackNavigator: sendNavigator
         )
         sendCoordinator?.start()
 
-        let generatorNavigator = UINavigationController()
-        generatorNavigator.navigationBar.prefersLargeTitles = true
+        let generatorNavigator = module.makeNavigationController()
+        generatorNavigator.navigationBar.prefersLargeTitles = false
+        generatorNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
+        // Remove the hairline divider under the navigation bar to make it appear that the segmented
+        // control is part of the navigation bar.
+        generatorNavigator.removeHairlineDivider()
         generatorCoordinator = module.makeGeneratorCoordinator(
             delegate: nil,
             stackNavigator: generatorNavigator
         )
         generatorCoordinator?.start()
 
-        let settingsNavigator = UINavigationController()
-        settingsNavigator.navigationBar.prefersLargeTitles = true
+        let settingsNavigator = module.makeNavigationController()
+        settingsNavigator.navigationBar.prefersLargeTitles = false
+        settingsNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,
             stackNavigator: settingsNavigator
@@ -152,7 +170,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .vault(.list): vaultNavigator,
             .send: sendNavigator,
             .generator(.generator()): generatorNavigator,
-            .settings(.settings): settingsNavigator,
+            .settings(.settings(.tab)): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
         streamOrganizations()

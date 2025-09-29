@@ -1,4 +1,7 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -8,11 +11,14 @@ import XCTest
 class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<GeneratorRoute, Void>!
     var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var reviewPromptService: MockReviewPromptService!
+    var stateService: MockStateService!
     var subject: GeneratorProcessor!
 
     // MARK: Setup & Teardown
@@ -20,11 +26,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         generatorRepository = MockGeneratorRepository()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
+        stateService = MockStateService()
 
         setUpSubject()
     }
@@ -32,11 +41,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         errorReporter = nil
         generatorRepository = nil
         pasteboardService = nil
         policyService = nil
+        reviewPromptService = nil
+        stateService = nil
         subject = nil
     }
 
@@ -45,10 +57,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,
                 pasteboardService: pasteboardService,
-                policyService: policyService
+                policyService: policyService,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService
             ),
             state: GeneratorState()
         )
@@ -66,7 +81,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(
             subject.state.passwordState,
             GeneratorState.PasswordState(
-                passwordGeneratorType: .password,
                 avoidAmbiguous: false,
                 containsLowercase: true,
                 containsNumbers: true,
@@ -110,10 +124,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
 
+        XCTAssertEqual(subject.state.generatorType, .passphrase)
         XCTAssertEqual(
             subject.state.passwordState,
             GeneratorState.PasswordState(
-                passwordGeneratorType: .passphrase,
                 avoidAmbiguous: true,
                 containsLowercase: false,
                 containsNumbers: false,
@@ -160,10 +174,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
 
+        XCTAssertEqual(subject.state.generatorType, .passphrase)
         XCTAssertEqual(
             subject.state.passwordState,
             GeneratorState.PasswordState(
-                passwordGeneratorType: .passphrase,
                 avoidAmbiguous: false,
                 containsLowercase: true,
                 containsNumbers: true,
@@ -186,22 +200,20 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_generatePassword_error() {
         subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
 
-        struct PasswordGeneratorError: Error {}
+        struct PasswordGeneratorError: Error, Equatable {}
         generatorRepository.passwordResult = .failure(PasswordGeneratorError())
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !coordinator.alertShown.isEmpty }
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        waitFor { !coordinator.errorAlertsShown.isEmpty }
+        XCTAssertEqual(coordinator.errorAlertsShown as? [PasswordGeneratorError], [PasswordGeneratorError()])
     }
 
     /// Generating a new password validates the password options before generating the value.
     @MainActor
     func test_generatePassword_validatesOptions() {
         subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
 
         subject.state.passwordState.containsLowercase = false
         subject.state.passwordState.containsNumbers = false
@@ -225,7 +237,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
 
         subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
 
         subject.state.passwordState.containsLowercase = false
         subject.state.passwordState.containsUppercase = false
@@ -256,13 +267,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             options.type = .password
         }
 
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .passphrase
+        subject.state.generatorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
         waitFor { generatorRepository.passwordGeneratorRequest != nil }
 
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
+        XCTAssertEqual(subject.state.generatorType, .password)
     }
 
     /// If an error occurs generating an username, an alert is shown.
@@ -271,13 +281,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.generatorType = .username
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
 
-        struct UsernameGeneratorError: Error {}
+        struct UsernameGeneratorError: Error, Equatable {}
         generatorRepository.usernameResult = .failure(UsernameGeneratorError())
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !coordinator.alertShown.isEmpty }
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        waitFor { !coordinator.errorAlertsShown.isEmpty }
+        XCTAssertEqual(coordinator.errorAlertsShown as? [UsernameGeneratorError], [UsernameGeneratorError()])
     }
 
     /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.
@@ -291,7 +301,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(
             errorReporter.errors as? [StateServiceError],
-            [StateServiceError.noActiveAccount]
+            [
+                StateServiceError.noActiveAccount,
+                StateServiceError.noActiveAccount,
+            ]
         )
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(subject.state.generatedValue, "")
@@ -380,7 +393,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_appear_generatesValue() {
         subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
 
         waitFor(subject.didLoadGeneratorOptions)
 
@@ -408,30 +420,88 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
     }
 
+    /// `perform(_:)` with `.appeared` calls `reloadGeneratorOptions` and
+    ///  loads the generator options.
+    @MainActor
+    func test_perform_appeared_reloadGeneratorOptions() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
+    @MainActor
+    func test_perform_appear_reloadGeneratorOptions_logsError() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+        generatorRepository.getPasswordGenerationOptionsResult = .failure(
+            BitwardenTestError.example
+        )
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as? BitwardenTestError,
+            BitwardenTestError.example
+        )
+    }
+
+    /// `perform(:)` with `.appeared` should set the `isLearnGeneratorActionCardEligible` to `true`
+    /// if the `learnGeneratorActionCardStatus` is `incomplete`.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility() async {
+        stateService.learnGeneratorActionCardStatus = .incomplete
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the `learnGeneratorActionCardStatus` is `complete`.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility_false_complete() async {
+        stateService.learnGeneratorActionCardStatus = .complete
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
     /// pasteboard and shows a toast.
     @MainActor
     func test_receive_copiedGeneratedValue_password() {
         subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
 
         subject.state.generatedValue = "PASSWORD"
         subject.receive(.copyGeneratedValue)
+        waitFor { !reviewPromptService.userActions.isEmpty }
+
         XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated passphrase to the system
     /// pasteboard and shows a toast.
     @MainActor
     func test_receive_copiedGeneratedValue_passphrase() {
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .passphrase
+        subject.state.generatorType = .passphrase
 
         subject.state.generatedValue = "PASSPHRASE"
         subject.receive(.copyGeneratedValue)
+        waitFor { !reviewPromptService.userActions.isEmpty }
+
         XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.passphrase)))
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated username to the system
@@ -442,8 +512,11 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.state.generatedValue = "USERNAME"
         subject.receive(.copyGeneratedValue)
+        waitFor { !reviewPromptService.userActions.isEmpty }
+
         XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.dismissPressed` navigates to the `.cancel` route.
@@ -451,6 +524,30 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.isLearnGeneratorActionCardEligible` to
+    /// false  and updates `.learnGeneratorActionCardStatus` via  stateService.
+    @MainActor
+    func test_perform_dismissLearnGeneratorActionCard() async {
+        subject.state.isLearnGeneratorActionCardEligible = true
+        await subject.perform(.dismissLearnGeneratorActionCard)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+        XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+    }
+
+    /// `perform(_:)` with `.showLearnGeneratorGuidedTour` sets `isLearnGeneratorActionCardEligible`
+    /// to `false`.
+    @MainActor
+    func test_perform_showLearnNewLoginGuidedTour() async {
+        subject.state.guidedTourViewState.showGuidedTour = false
+        subject.state.isLearnGeneratorActionCardEligible = true
+        subject.state.generatorType = .username
+        await subject.perform(.showLearnGeneratorGuidedTour)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+        XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+        XCTAssertEqual(subject.state.generatorType, .password)
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
@@ -487,21 +584,67 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.generatorType, .username)
     }
 
-    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
+    /// `receive(_:)` with `.guidedTourViewAction(.backTapped)` updates the guided tour state to the previous step.
     @MainActor
-    func test_receive_passwordGeneratorTypeChanged() {
-        subject.receive(.passwordGeneratorTypeChanged(.password))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
+    func test_receive_guidedTourViewAction_backTapped() {
+        subject.state.guidedTourViewState.currentIndex = 1
 
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 0)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.nextTapped)` updates the guided tour state to the next step.
+    @MainActor
+    func test_receive_guidedTourViewAction_nextTapped() {
+        subject.state.guidedTourViewState.currentIndex = 0
+
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.doneTapped)` completes the guided tour.
+    @MainActor
+    func test_receive_doneTapped() {
+        subject.receive(.guidedTourViewAction(.doneTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.dismissTapped)` dismisses the guided tour.
+    @MainActor
+    func test_receive_guidedTourViewAction_dismissTapped() {
+        subject.receive(.guidedTourViewAction(.dismissTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.didRenderViewToSpotlight)` updates the spotlight region.
+    @MainActor
+    func test_receive_guidedTourViewAction_didRenderViewToSpotlight() {
+        let frame = CGRect(x: 10, y: 10, width: 100, height: 100)
+        subject.state.guidedTourViewState.currentIndex = 0
+
+        subject.receive(.guidedTourViewAction(.didRenderViewToSpotlight(frame: frame, step: .step1)))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState.spotlightRegion, frame)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
+    /// updates the visibility of the guided tour.
+    @MainActor
+    func test_receive_guidedTourViewAction_toggleGuidedTourVisibilityChanged() {
+        subject.state.guidedTourViewState.showGuidedTour = false
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
     @MainActor
     func test_receive_refreshGeneratedValue_passphrase() throws {
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .passphrase
+        waitFor(subject.didLoadGeneratorOptions)
+
+        subject.state.generatorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
 
@@ -583,6 +726,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.generatedValue = "password"
         subject.receive(.selectButtonPressed)
         XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
@@ -811,7 +956,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { subject.didLoadGeneratorOptions }
 
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        subject.receive(.generatorTypeChanged(.passphrase))
         waitFor { generatorRepository.passwordGenerationOptions.type == .passphrase }
         XCTAssertEqual(
             generatorRepository.passwordGenerationOptions,
@@ -869,7 +1014,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_saveGeneratorOptions_password_error() {
         generatorRepository.setPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
 
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        subject.receive(.generatorTypeChanged(.passphrase))
 
         waitFor { !errorReporter.errors.isEmpty }
         XCTAssertEqual(

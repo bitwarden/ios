@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -263,6 +265,26 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `handleEvent(_:)` with `.accountBecameActive` has the router handle account activation.
+    @MainActor
+    func test_handleEvent_accountBecameActive() async {
+        let account = Account.fixtureAccountLogin()
+        await subject.handleEvent(
+            .accountBecameActive(account, attemptAutomaticBiometricUnlock: true, didSwitchAccountAutomatically: true)
+        )
+        XCTAssertEqual(
+            router.events,
+            [
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: true
+                ),
+            ]
+        )
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     @MainActor
     func test_navigateTo_auth() throws {
@@ -288,6 +310,32 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.navigate(to: .debugMenu)
 
         waitFor(module.debugMenuCoordinator.isStarted)
+        XCTAssertTrue(subject.isShowingDebugMenu)
+        XCTAssertTrue(module.debugMenuCoordinatorDelegate === subject)
+    }
+
+    /// `navigate(to:)` with `.debugMenu` doesn't navigate to the debug menu if it is already showing.
+    @MainActor
+    func test_navigateTo_debugMenu_alreadyShowing() throws {
+        subject.navigate(to: .debugMenu)
+
+        XCTAssertTrue(subject.isShowingDebugMenu)
+        XCTAssertTrue(module.debugMenuCoordinatorDelegate === subject)
+
+        let newDebugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
+        module.debugMenuCoordinator = newDebugMenuCoordinator
+
+        // Since the original debug menu is still showing, navigating to it again shouldn't start
+        // the new coordinator.
+        subject.navigate(to: .debugMenu)
+        XCTAssertFalse(newDebugMenuCoordinator.isStarted)
+
+        // Once the original is dismissed, navigating to the debug menu should start the new coordinator.
+        module.debugMenuCoordinatorDelegate?.didDismissDebugMenu()
+        XCTAssertFalse(subject.isShowingDebugMenu)
+
+        subject.navigate(to: .debugMenu)
+        XCTAssertTrue(newDebugMenuCoordinator.isStarted)
     }
 
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup
@@ -335,16 +383,16 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
     }
 
-    /// `navigate(to:)` with `.sendItem(.add(content:hasPremium:))` starts the send item coordinator
+    /// `navigate(to:)` with `.sendItem(.add(content:))` starts the send item coordinator
     /// and navigates to the proper route.
     @MainActor
     func test_navigateTo_sendItem() {
-        subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
+        subject.navigate(to: .sendItem(.add(content: nil)))
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
         XCTAssertEqual(
             module.sendItemCoordinator.routes,
-            [.add(content: nil, hasPremium: false)]
+            [.add(content: nil)]
         )
     }
 
@@ -352,15 +400,15 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// creating a new one.
     @MainActor
     func test_navigateTo_sendItem_twice() {
-        subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
-        subject.navigate(to: .sendItem(.add(content: .text("test"), hasPremium: true)))
+        subject.navigate(to: .sendItem(.add(content: nil)))
+        subject.navigate(to: .sendItem(.add(content: .text("test"))))
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
         XCTAssertEqual(
             module.sendItemCoordinator.routes,
             [
-                .add(content: nil, hasPremium: false),
-                .add(content: .text("test"), hasPremium: true),
+                .add(content: nil),
+                .add(content: .text("test")),
             ]
         )
     }
@@ -460,5 +508,12 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             [.action(.switchAccount(isAutomatic: true, userId: "1", authCompletionRoute: authCompletionRoute))]
         )
         XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
+    }
+
+    /// `switchToSettingsTab(route:)` switches to the settings tab and navigates to the settings route.
+    @MainActor
+    func test_switchToSettingsTab() {
+        subject.switchToSettingsTab(route: .about)
+        XCTAssertEqual(module.tabCoordinator.routes, [.settings(.about)])
     }
 } // swiftlint:disable:this file_length

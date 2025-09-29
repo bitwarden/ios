@@ -1,4 +1,8 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import Networking
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -49,7 +53,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         await subject.perform(.submitPressed)
 
         let responseError = ResponseValidationError(response: errorResponse)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(responseError))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [ResponseValidationError], [responseError])
         XCTAssertEqual(errorReporter.errors.last as? ResponseValidationError, responseError)
     }
 

@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - LoginRequestDelegate
@@ -110,7 +111,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
             coordinator.navigate(to: .dismiss(dismissAction))
         } catch {
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -120,7 +121,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
         do {
             state.email = try await services.stateService.getActiveAccount().profile.email
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

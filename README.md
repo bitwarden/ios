@@ -1,143 +1,35 @@
-# Bitwarden iOS
+<p align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset=".github/images/ios-dark.png">
+        <source media="(prefers-color-scheme: light)" srcset=".github/images/ios-light.png">
+        <img alt="Bitwarden iOS apps screenshots." src=".github/images/ios-light.png">
+    </picture>
+</p>
+<p align="center">
+    <a href="https://github.com/bitwarden/ios/actions/workflows/ci-main.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/CI-main.yml/badge.svg?branch=main" alt="GitHub Workflow iOS CI build on main" /></a>
+    <a href="https://github.com/bitwarden/ios/actions/workflows/test.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Password Manager Test on main" /></a>
+    <a href="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Authenticator Test on main" /></a>
+    <a href="https://gitter.im/bitwarden/Lobby" target="_blank"><img src="https://badges.gitter.im/bitwarden/Lobby.svg" alt="gitter chat" /></a>
+</p>
 
-## Contents
+---
 
-- [Compatibility](#compatibility)
-- [Setup](#setup)
-- [Dependencies](#dependencies)
-- [Project Structure](#project-structure)
+# Bitwarden iOS Password Manager & Authenticator Apps
 
-## Compatibility
+Please refer to the [iOS section](https://contributing.bitwarden.com/getting-started/mobile/ios/) of the [Contributing Documentation](https://contributing.bitwarden.com/) for build instructions, recommended tooling, code style tips, and lots of other great information to get you started.
 
-- **Minimum iOS**: 15.0
-- **Target SDK**: 15.0
-- **Device Types Supported**: iPhone, iPad
-- **Screen Sizes Supported**: iPhone SE to iPhone 16 Pro Max, iPad Mini to iPad Pro 12.9"
-- **Orientations Supported**: Portrait, Landscape
+## Related projects:
 
-## Setup
+- [bitwarden/server](https://github.com/bitwarden/server): The core infrastructure backend (API, database, Docker, etc).
+- [bitwarden/clients](https://github.com/bitwarden/clients): Non-mobile Bitwarden Clients Applications.
+- [bitwarden/directory-connector](https://github.com/bitwarden/directory-connector): A tool for syncing a directory (AD, LDAP, Azure, G Suite, Okta) to an organization.
 
-1. Clone the repository:
+# We're Hiring!
 
-    ```sh
-    $ git clone https://github.com/bitwarden/ios
-    ```
+Interested in contributing in a big way? Consider joining our team! We're hiring for many positions. Please take a look at our [Careers page](https://bitwarden.com/careers/) to see what opportunities are [currently open](https://bitwarden.com/careers/#open-positions) as well as what it's like to work at Bitwarden.
 
-2. Install [Mint](https://github.com/yonaskolb/mint):
+# Contribute
 
-    ```sh
-    $ brew install mint
-    ```
+Code contributions are welcome! Please commit any pull requests against the `main` branch. Learn more about how to contribute by reading the [Contributing Guidelines](https://contributing.bitwarden.com/contributing/). Check out the [Contributing Documentation](https://contributing.bitwarden.com/) for how to get started with your first contribution.
 
-    Alternatively, if you prefer to install Mint without `brew`, clone the Mint repo into a temporary directory and run `make`.
-
-    ```sh
-    $ git clone https://github.com/yonaskolb/Mint.git
-    $ cd Mint
-    $ make
-    ```
-
-3. Bootstrap the project:
-
-    ```sh
-    $ Scripts/bootstrap.sh
-    ```
-
-    > **Hint**
-    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing.bitwarden.com/getting-started/sdk/internal/#linking-the-sdk-to-clients) for more details.
-
-    > **Note**
-    > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
-
-    Alternatively, you can create git hooks to automatically execute the `bootstrap.sh` script every time a git hook occurs. To use the git hook scripts already defined in the `Scripts` directory, copy the scripts to the `.git/hooks` directory.
-
-    ```sh
-    $ cp Scripts/post-merge .git/hooks/
-    $ cp Scripts/post-checkout .git/hooks/
-    ```
-
-### Run the App
-
-1. Open the project in Xcode 16.1+.
-2. Run the app in the Simulator with the `Bitwarden` target.
-
-### Running Tests
-
-The test target requires running in an iPhone 16 Pro simulator running iOS 18.1. While our snapshot tests work off of enforced device dimensions, small differences can still arise between devices and iOS versions, and this makes sure our snapshots are as consistent as we can make them in testing.
-
-1. In Xcode's toolbar, select the project and a connected device or simulator.
-   - The `Generic iOS Device` used for builds will not work for testing.
-
-2. In Xcode's menu bar, select `Product > Test`.
-   - Test results appear in the Debug Area, which can be accessed from `View > Debug Area > Show Debug Area` if not already visible.
-
-### Linting
-
-This project is linted using both SwiftLint and SwiftFormat. Both tools run in linting mode with every build of the `Bitwarden` target. However, if you would like to have SwiftFormat autocorrect any issues that are discovered while linting, you can manually run the fix command `mint run swiftformat .`.
-
-Additionally, if you would like SwiftFormat to autocorrect any issues before every commit, you can use a git hook script. To use the git hook script already defined in the `Scripts` directory, copy the script to the `.git/hooks` directory.
-
-```sh
-$ cp Scripts/pre-commit .git/hooks/
-```
-
-## Dependencies
-
-### Icons
-- The icons used in the app are all custom. No additional licensing is required.
-
-### App Dependencies
-
-The following is a list of all third-party dependencies included as part of the application.
-
-- **Firebase Crashlytics**
-    - https://github.com/firebase/firebase-ios-sdk
-    - Purpose: SDK for crash and non-fatal error reporting.
-    - License: Apache 2.0
-
-### Development Dependencies
-
-The following dependencies are used in the development environment only. They are not present in deployed code.
-
-- **LicensePlist**
-    - https://github.com/mono0926/LicensePlist
-    - Purpose: A tool to generate a list of third-party software licenses displayed in app settings.
-    - License: MIT
-- **Mint**
-    - https://github.com/yonaskolb/mint
-    - Purpose: A package manager that installs and runs Swift command line tool packages.
-    - License: MIT
-- **SnapshotTesting**
-    - https://github.com/pointfreeco/swift-snapshot-testing
-    - Purpose: Allow a snapshot test case which renders a UI component, takes a snapshot, then compares it to a reference snapshot file stored alongside the test.
-    - License: MIT
-- **SwiftGen**
-    - https://github.com/SwiftGen/SwiftGen
-    - Purpose: A tool to automatically generate Swift code for project resources (like images, localized strings, etc), to make them type-safe to use.
-    - License: MIT
-- **SwiftFormat**
-    - https://github.com/nicklockwood/SwiftFormat
-    - Purpose: A tool used to reformat Swift code to automatically adjust for some style conventions.
-    - License: MIT
-- **SwiftLint**
-    - https://github.com/realm/SwiftLint
-    - Purpose: A tool to enforce Swift style and conventions.
-    - License: MIT
-- **ViewInspector**
-    - https://github.com/nalexn/ViewInspector
-    - Purpose: A tool used to unit test SwiftUI views.
-    - License: MIT
-- **XcodeGen**
-    - https://github.com/yonaskolb/XcodeGen
-    - Purpose: Generates the Xcode project using the folder structure and a project spec.
-    - License: MIT
-
-## Project Structure
-
-### BitwardenShared
-
-This project's structure is split into separate sections to support sharing as much code between all of the targets as possible. All core functionality and the majority of UI elements can be found in the `BitwardenShared` framework.
-
-### GlobalTestHelpers
-
-`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project.yml` file.
+Security audits and feedback are welcome. Please open an issue or email us privately if the report is sensitive in nature. You can read our security policy in the [`SECURITY.md`](SECURITY.md) file.

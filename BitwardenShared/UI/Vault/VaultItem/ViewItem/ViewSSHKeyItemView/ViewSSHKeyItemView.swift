@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -14,7 +16,7 @@ struct ViewSSHKeyItemView: View {
     @ObservedObject var store: Store<SSHKeyItemState, ViewSSHKeyItemAction, Void>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
+        ContentBlock {
             privateKeyField
 
             publicKeyField
@@ -29,7 +31,7 @@ struct ViewSSHKeyItemView: View {
         BitwardenField(title: Localizations.privateKey) {
             PasswordText(password: privateKey, isPasswordVisible: store.state.isPrivateKeyVisible)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("PrivateKeyEntry")
         } accessoryContent: {
             if store.state.canViewPrivateKey {
@@ -44,8 +46,8 @@ struct ViewSSHKeyItemView: View {
                     Button {
                         store.send(.copyPressed(value: privateKey, field: .sshPrivateKey))
                     } label: {
-                        Asset.Images.copy16.swiftUIImage
-                            .imageStyle(.accessoryIcon)
+                        Asset.Images.copy24.swiftUIImage
+                            .imageStyle(.accessoryIcon24)
                     }
                     .accessibilityLabel(Localizations.copy)
                     .accessibilityIdentifier("SSHKeyCopyPrivateKeyButton")
@@ -68,8 +70,8 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: publicKey, field: .sshPublicKey))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("SSHKeyCopyPublicKeyButton")
@@ -91,8 +93,8 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: keyFingerprint, field: .sshKeyFingerprint))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("SSHKeyCopyFingerprintButton")
@@ -122,7 +124,7 @@ struct ViewSSHKeyItemView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .ignoresSafeArea()
     }
 }

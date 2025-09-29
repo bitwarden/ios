@@ -1,3 +1,6 @@
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -52,36 +55,6 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
-
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
-    @MainActor
-    func test_perform_appeared_loadFeatureFlag_true() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-        subject.state.nativeCreateAccountFeatureFlag = false
-
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        subject.state.nativeCreateAccountFeatureFlag = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag defaulting to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
-        subject.state.nativeCreateAccountFeatureFlag = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
-    }
 
     /// `perform(.turnAutoFillOnLaterButtonTapped)` will show an alert  the status to `setupLater`
     ///   /// `receive(_:)` with `.setUpLater` shows an alert confirming the user wants to skip unlock

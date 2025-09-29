@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// Protocol to create `TOTPExpirationManager`.
 protocol TOTPExpirationManagerFactory {
     /// Creates a `TOTPExpirationManager` passing the `onExpiration` closure.

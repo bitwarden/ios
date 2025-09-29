@@ -1,4 +1,7 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length
@@ -11,9 +14,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -28,8 +33,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -40,8 +47,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -61,8 +70,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         authRepository = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         stateService = nil
@@ -106,7 +117,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_appeared() {
         let vaultListItem = VaultListItem.fixture()
         let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
-        vaultRepository.vaultListGroupSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -120,8 +131,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
-    func test_perform_appeared_error_vaultListGroupSubjectFail() {
-        vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
+    func test_perform_appeared_error_vaultListSubjectFail() {
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -146,6 +157,18 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
 
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
     }
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
@@ -209,6 +232,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_refreshed() async {
         await subject.perform(.refresh)
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
@@ -219,25 +243,25 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.perform(.refresh)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search() async {
-        let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
         subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         await subject.perform(.search("example"))
         XCTAssertEqual(subject.state.searchResults.count, 1)
         XCTAssertEqual(
-            vaultRepository.searchVaultListFilterType,
+            vaultRepository.searchVaultListFilterType?.filterType,
             .organization(.fixture(id: "id1"))
         )
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
         )
     }
 
@@ -258,14 +282,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
             id: "1",
             itemType: .totp(
                 name: "refreshed totp",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "654321",
@@ -289,7 +313,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -306,7 +330,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -338,7 +362,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
         let task = Task {
             await subject.perform(.search("example"))
@@ -349,7 +373,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -366,7 +390,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -472,8 +496,27 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_receive_addItemPressed() {
         subject.state.group = .card
-        subject.receive(.addItemPressed)
-        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
+        subject.receive(.addItemPressed(.card))
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card, type: .card))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
+    @MainActor
+    func test_receive_addItemPressed_default() {
+        let group = VaultListGroup.folder(id: "1", name: "Folder")
+        subject.state.group = group
+        subject.receive(.addItemPressed(nil))
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: group, type: .login))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with an organization
+    /// group.
+    @MainActor
+    func test_receive_addItemPressed_collection() {
+        let group = VaultListGroup.collection(id: "1", name: "Team A", organizationId: "12345")
+        subject.state.group = group
+        subject.receive(.addItemPressed(.secureNote))
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: group, type: .secureNote))
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
@@ -503,7 +546,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListGroupSubject.send([resultSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [resultSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(subject.state.loadingState.data == [newResultSection])
         task.cancel()
@@ -517,6 +560,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -628,7 +672,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             name: "Items"
         )
-        vaultRepository.vaultListGroupSubject.send([vaultListSection])
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
 
@@ -665,9 +709,37 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        subject.receive(.itemPressed(.fixture(cipherView: .fixture(id: "id"))))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture(id: "id")
+
+        subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        subject.receive(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
@@ -679,10 +751,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
         subject.receive(.itemPressed(totpItem))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
@@ -752,6 +829,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_totpExpired_error() throws {
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -777,7 +855,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let task = Task {
             await subject.perform(.appeared)
         }
-        vaultRepository.vaultListGroupSubject.send([VaultListSection(id: "1", items: [result], name: "")])
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [result], name: "")]
+        ))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()

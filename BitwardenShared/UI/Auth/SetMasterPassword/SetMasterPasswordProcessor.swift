@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -14,6 +16,7 @@ class SetMasterPasswordProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasOrganizationAPIService
         & HasPolicyService
@@ -55,7 +58,7 @@ class SetMasterPasswordProcessor: StateProcessor<
             await loadData()
         case .cancelPressed:
             coordinator.navigate(to: .dismiss)
-        case .submitPressed:
+        case .saveTapped:
             await setPassword()
         }
     }
@@ -68,6 +71,8 @@ class SetMasterPasswordProcessor: StateProcessor<
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .revealMasterPasswordFieldPressed(isOn):
             state.isMasterPasswordRevealed = isOn
         }
@@ -99,7 +104,7 @@ class SetMasterPasswordProcessor: StateProcessor<
                 state.masterPasswordPolicy = policy
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -119,6 +124,7 @@ class SetMasterPasswordProcessor: StateProcessor<
             if state.masterPasswordPolicy?.isInEffect == true {
                 let isInvalid = try await services.authService.requirePasswordChange(
                     email: services.authRepository.getAccount().profile.email,
+                    isPreAuth: false,
                     masterPassword: state.masterPassword,
                     policy: state.masterPasswordPolicy
                 )
@@ -153,7 +159,7 @@ class SetMasterPasswordProcessor: StateProcessor<
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

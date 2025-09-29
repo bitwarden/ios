@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TwoFactorAuthView
@@ -36,7 +38,10 @@ struct TwoFactorAuthView: View {
                 get: \.toast,
                 send: TwoFactorAuthAction.toastShown
             ))
-            .navigationBar(title: store.state.authMethod.title, titleDisplayMode: .inline)
+            .navigationBar(title: store.state.titleText, titleDisplayMode: .inline)
+            .task {
+                await store.perform(.appeared)
+            }
             .task(id: store.state.authMethod) {
                 guard store.state.authMethod == .yubiKey else { return }
                 await store.perform(.listenForNFC)
@@ -49,7 +54,9 @@ struct TwoFactorAuthView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    authMethodsMenu
+                    if !store.state.deviceVerificationRequired {
+                        authMethodsMenu
+                    }
                 }
             }
     }
@@ -93,17 +100,30 @@ struct TwoFactorAuthView: View {
 
     /// The body content for most 2FA methods.
     private var defaultContent: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
+            if let authMethodImage = store.state.authMethodImageAsset {
+                Image(decorative: authMethodImage)
+                    .resizable()
+                    .frame(width: 124, height: 124)
+            }
+
             detailText
 
-            verificationCodeTextField
+            VStack(spacing: 8) {
+                verificationCodeTextField
 
-            rememberMeToggle
+                if !store.state.deviceVerificationRequired {
+                    rememberMeToggle
+                }
+            }
 
-            continueButton
+            VStack(spacing: 12) {
+                continueButton
 
-            resendEmailButton
+                resendEmailButton
+            }
         }
+        .padding(.top, 12)
         .scrollView()
     }
 
@@ -112,7 +132,7 @@ struct TwoFactorAuthView: View {
         VStack(spacing: 16) {
             Text(store.state.detailsText)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             if let detailImageAsset = store.state.detailImageAsset {
@@ -133,13 +153,14 @@ struct TwoFactorAuthView: View {
 
     /// A view for DUO 2FA type.
     @ViewBuilder private var duo2FAView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             detailText
 
             rememberMeToggle
 
             duoButton
         }
+        .padding(.top, 12)
         .scrollView()
     }
 
@@ -153,41 +174,41 @@ struct TwoFactorAuthView: View {
 
     /// A view for WebAuthn 2FA type.
     @ViewBuilder private var webAuthn2FAView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             detailText
 
             rememberMeToggle
 
             webAuthnButton
         }
+        .padding(.top, 12)
         .scrollView()
     }
 
     /// The remember me toggle.
     private var rememberMeToggle: some View {
-        Toggle(
+        BitwardenToggle(
             Localizations.rememberMe,
             isOn: store.binding(
                 get: { $0.isRememberMeOn },
                 send: { .rememberMeToggleChanged($0) }
             )
         )
-        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        .toggleStyle(.bitwarden)
+        .contentBlock()
     }
 
     /// The resend email button for the email authentication option.
     @ViewBuilder private var resendEmailButton: some View {
         if store.state.authMethod == .email {
-            AsyncButton(Localizations.sendVerificationCodeAgain) {
+            AsyncButton(Localizations.resendCode) {
                 await store.perform(.resendEmailTapped)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
         } else if store.state.authMethod == .yubiKey {
             AsyncButton(Localizations.tryAgain) {
                 await store.perform(.tryAgainTapped)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
         }
     }
 
@@ -207,5 +228,19 @@ struct TwoFactorAuthView: View {
 // MARK: - Previews
 
 #Preview {
-    TwoFactorAuthView(store: Store(processor: StateProcessor(state: TwoFactorAuthState())))
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState()
+    ))).navStackWrapped
+}
+
+#Preview("Duo") {
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState(authMethod: .duo)
+    ))).navStackWrapped
+}
+
+#Preview("WebAuthn") {
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState(authMethod: .webAuthn)
+    ))).navStackWrapped
 }

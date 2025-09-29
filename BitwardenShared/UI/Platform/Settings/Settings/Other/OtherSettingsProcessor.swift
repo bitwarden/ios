@@ -1,4 +1,6 @@
+import BitwardenResources
 import Foundation
+import WatchConnectivity
 
 // MARK: - OtherSettingsProcessor
 
@@ -7,8 +9,11 @@ import Foundation
 final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
+        & HasSystemDevice
+        & HasWatchService
 
     // MARK: Properties
 
@@ -59,8 +64,13 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
             updateAllowSyncOnRefresh(isOn)
+        case let .toggleAllowUniversalClipboard(isOn):
+            services.settingsRepository.allowUniversalClipboard = isOn
+            state.isAllowUniversalClipboardToggleOn = isOn
         case let .toggleConnectToWatch(isOn):
             updateConnectToWatch(isOn)
+        case let .toggleSiriAndShortcutsAccessToggleOn(isOn):
+            updateSiriAndShortcutsAccess(isOn)
         }
     }
 
@@ -70,8 +80,11 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     private func loadInitialValues() async {
         do {
             state.clearClipboardValue = services.settingsRepository.clearClipboardValue
+            state.isAllowUniversalClipboardToggleOn = services.settingsRepository.allowUniversalClipboard
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
+            state.isSiriAndShortcutsAccessToggleOn = try await services.settingsRepository.getSiriAndShortcutsAccess()
+            state.shouldShowConnectToWatchToggle = services.watchService.isSupported()
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -99,9 +112,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             try await services.settingsRepository.fetchSync()
             state.toast = Toast(title: Localizations.syncingComplete)
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.syncVault()
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }
@@ -124,6 +137,18 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             do {
                 try await services.settingsRepository.updateConnectToWatch(newValue)
                 state.isConnectToWatchToggleOn = newValue
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Update the value of the Siri & Shortcuts access setting.
+    private func updateSiriAndShortcutsAccess(_ newValue: Bool) {
+        Task {
+            do {
+                try await services.settingsRepository.updateSiriAndShortcutsAccess(newValue)
+                state.isSiriAndShortcutsAccessToggleOn = newValue
             } catch {
                 services.errorReporter.log(error: error)
             }

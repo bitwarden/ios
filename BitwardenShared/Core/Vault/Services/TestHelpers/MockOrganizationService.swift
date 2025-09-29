@@ -4,7 +4,10 @@ import Combine
 @testable import BitwardenShared
 
 class MockOrganizationService: OrganizationService {
+    var fetchAllOrganizationsCalled = false
     var fetchAllOrganizationsResult: Result<[Organization], Error> = .success([])
+
+    var fetchAllOrganizationsUserIdResult: Result<[Organization], Error> = .success([])
 
     var initializeOrganizationCryptoCalled = false
     var initializeOrganizationCryptoError: Error?
@@ -17,7 +20,13 @@ class MockOrganizationService: OrganizationService {
     var replaceOrganizationsUserId: String?
 
     func fetchAllOrganizations() async throws -> [Organization] {
-        try fetchAllOrganizationsResult.get()
+        fetchAllOrganizationsCalled = true
+        return try fetchAllOrganizationsResult.get()
+    }
+
+    func fetchAllOrganizations(userId: String) async throws -> [Organization] {
+        fetchAllOrganizationsCalled = true
+        return try fetchAllOrganizationsUserIdResult.get()
     }
 
     func initializeOrganizationCrypto() async throws {

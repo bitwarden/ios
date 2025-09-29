@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -9,7 +10,7 @@ class AlertErrorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.title, "title")
         XCTAssertEqual(subject.message, "message")
-        XCTAssertEqual(subject.alertActions, [AlertAction(title: "Ok", style: .cancel)])
+        XCTAssertEqual(subject.alertActions, [AlertAction(title: Localizations.ok, style: .cancel)])
     }
 
     /// `defaultAlert(error:)` constructs an `Alert` with the title and message based on the error,
@@ -19,7 +20,7 @@ class AlertErrorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(subject.message, StateServiceError.noActiveAccount.errorDescription)
-        XCTAssertEqual(subject.alertActions, [AlertAction(title: "Ok", style: .cancel)])
+        XCTAssertEqual(subject.alertActions, [AlertAction(title: Localizations.ok, style: .cancel)])
     }
 
     /// `inputValidationAlert(error:)` creates an `Alert` for an input validation error.

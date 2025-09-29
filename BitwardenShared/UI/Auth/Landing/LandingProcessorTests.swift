@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -63,13 +66,13 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `didChangeRegion(urls:)` update URLs when they change on the StartRegistration modal
     @MainActor
     func test_didChangeRegion() async {
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: .example)
         subject.state.region = .unitedStates
         await subject.didChangeRegion()
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentUrlsData,
-            EnvironmentUrlData(base: .example)
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: .example)
         )
     }
 
@@ -77,25 +80,25 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// the environment.
     @MainActor
     func test_didSaveEnvironment() async {
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: .example)
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
+        await subject.didSaveEnvironment(urls: EnvironmentURLData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentUrlsData,
-            EnvironmentUrlData(base: .example)
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: .example)
         )
     }
 
     /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
     @MainActor
     func test_didSaveEnvironment_empty() async {
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData()
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData()
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData())
+        await subject.didSaveEnvironment(urls: EnvironmentURLData())
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
     }
 
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
@@ -103,80 +106,38 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
     }
 
     /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
     }
 
     /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
     /// and sets the URLs to the environment.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
-        let urls = EnvironmentUrlData(base: .example)
-        stateService.preAuthEnvironmentUrls = urls
+        let urls = EnvironmentURLData(base: .example)
+        stateService.preAuthEnvironmentURLs = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, urls)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, urls)
     }
 
     /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
-        stateService.preAuthEnvironmentUrls = .defaultUS
+        stateService.preAuthEnvironmentURLs = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
-    }
-
-    /// `perform(.appeared)` with feature flag for .emailVerification set to true
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_true() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-        subject.state.emailVerificationFeatureFlag = false
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag for .emailVerification set to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        subject.state.emailVerificationFeatureFlag = true
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag defaulting to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = nil
-        subject.state.emailVerificationFeatureFlag = true
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
-        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
-        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
@@ -441,18 +402,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isRememberMeOn)
     }
 
-    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `false`.
+    /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen.
     @MainActor
-    func test_receive_createAccountPressed_ff_false() {
-        subject.state.emailVerificationFeatureFlag = false
-        subject.receive(.createAccountPressed)
-        XCTAssertEqual(coordinator.routes.last, .createAccount)
-    }
-
-    /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen if feature flag is `true`.
-    @MainActor
-    func test_receive_createAccountPressed_ff_true() {
-        subject.state.emailVerificationFeatureFlag = true
+    func test_receive_createAccountPressed() {
         subject.receive(.createAccountPressed)
         XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }
@@ -528,6 +480,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// lock the selected account.
     @MainActor
     func test_receive_accountLongPressed_lock() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
@@ -557,6 +514,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
     @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
@@ -583,6 +545,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// log out of the selected account.
     @MainActor
     func test_receive_accountLongPressed_logout() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -617,6 +584,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// account.
     @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -646,7 +618,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` with the active account
     ///  dismisses the profile switcher.
     @MainActor
-    func test_receive_accountPressed_active_unlocked() {
+    func test_receive_accountPressed_active_unlocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
@@ -680,7 +657,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)`  with the active account
     ///  dismisses the profile switcher.
     @MainActor
-    func test_receive_accountPressed_active_locked() {
+    func test_receive_accountPressed_active_locked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let account = Account.fixture(profile: .fixture(
             userId: profile.userId
@@ -717,7 +699,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_alternateUnlocked() {
+    func test_receive_accountPressed_alternateUnlocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(
@@ -755,7 +742,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_alternateLocked() {
+    func test_receive_accountPressed_alternateLocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(profile: .fixture(
@@ -791,7 +783,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_noMatch() {
+    func test_receive_accountPressed_noMatch() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = ProfileSwitcherState(
@@ -823,7 +820,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_addAccountPressed() {
+    func test_receive_addAccountPressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -843,9 +845,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.backgroundTapped)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_backgroundPressed() {
+    func test_receive_backgroundTapped() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -855,7 +862,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
 
         let task = Task {
-            subject.receive(.profileSwitcher(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundTapped))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -863,6 +870,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.showPreLoginSettings` requests the coordinator navigate to the
+    /// pre-login settings.
+    @MainActor
+    func test_receive_showPreLoginSettings() {
+        subject.receive(.showPreLoginSettings)
+        XCTAssertEqual(coordinator.routes, [.preLoginSettings])
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
@@ -874,5 +889,23 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 } // swiftlint:disable:this file_length

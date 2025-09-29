@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Combine
 import Foundation
+import TestHelpers
 
 @testable import BitwardenShared
 
@@ -36,6 +37,8 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate?
     var userVerificationPreferenceSetup: Uv?
 
+    nonisolated init() {}
+
     func availableCredentialsForAuthenticationPublisher() -> AnyPublisher<[BitwardenSdk.CipherView]?, Error> {
         credentialsForAuthenticationSubject.eraseToAnyPublisher()
     }
@@ -50,7 +53,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> BitwardenSdk.CheckUserResult {
         checkUserCalled = true

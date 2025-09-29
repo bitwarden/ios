@@ -6,7 +6,9 @@ final class MockStackNavigator: StackNavigator {
         var type: NavigationType
         var view: Any?
         var animated: Bool
+        var embedInNavigationController: Bool?
         var hidesBottomBar: Bool?
+        var isModalInPresentation: Bool?
         var overFullscreen: Bool?
     }
 
@@ -22,6 +24,7 @@ final class MockStackNavigator: StackNavigator {
     }
 
     var actions: [NavigationAction] = []
+    var alertOnDismissed: (() -> Void)?
     var alerts: [BitwardenShared.Alert] = []
     var isEmpty = true
     var isNavigationBarHidden = false
@@ -74,11 +77,14 @@ final class MockStackNavigator: StackNavigator {
 
     func present(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
         alerts.append(alert)
+        alertOnDismissed = onDismissed
     }
 
-    func present<Content: View>(
+    func present<Content: View>( // swiftlint:disable:this function_parameter_count
         _ view: Content,
         animated: Bool,
+        embedInNavigationController: Bool,
+        isModalInPresentation: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?
     ) {
@@ -88,6 +94,8 @@ final class MockStackNavigator: StackNavigator {
                 type: .presented,
                 view: view,
                 animated: animated,
+                embedInNavigationController: embedInNavigationController,
+                isModalInPresentation: isModalInPresentation,
                 overFullscreen: overFullscreen
             )
         )

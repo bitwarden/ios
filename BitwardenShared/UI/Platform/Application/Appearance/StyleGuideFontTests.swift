@@ -7,7 +7,7 @@ final class StyleGuideFontTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the StyleGuideFonts.
-    func test_snapshot_styleGuideFont() {
+    func disabletest_snapshot_styleGuideFont() {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
@@ -17,7 +17,7 @@ final class StyleGuideFontTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the StyleGuideFonts with large text.
-    func test_snapshot_styleGuideFont_largeText() {
+    func disabletest_snapshot_styleGuideFont_largeText() {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

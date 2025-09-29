@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LandingView
@@ -9,7 +11,7 @@ struct LandingView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
+    @ObservedObject var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
         ZStack {
@@ -18,8 +20,10 @@ struct LandingView: View {
         }
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                profileSwitcherToolbarItem
+            ToolbarItem(placement: .topBarLeading) {
+                if !store.state.profileSwitcherState.accounts.isEmpty {
+                    profileSwitcherToolbarItem
+                }
             }
         }
         .task {
@@ -76,7 +80,7 @@ struct LandingView: View {
                 Image(decorative: Asset.Images.logo)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity, maxHeight: 34)
                     .padding(.horizontal, 12)
 
@@ -92,41 +96,44 @@ struct LandingView: View {
 
     /// The section of the view containing input fields, and action buttons.
     private var landingDetails: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
             Text(Localizations.logInToBitwarden)
                 .styleGuide(.title2, weight: .semibold)
                 .multilineTextAlignment(.center)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .frame(maxWidth: .infinity)
 
-            BitwardenTextField(
-                title: Localizations.emailAddress,
-                text: store.binding(
-                    get: \.email,
-                    send: LandingAction.emailChanged
-                ),
-                accessibilityIdentifier: "EmailAddressEntry"
-            )
-            .textFieldConfiguration(.email)
-            .onSubmit {
-                guard store.state.isContinueButtonEnabled else { return }
-                Task { await store.perform(.continuePressed) }
-            }
+            VStack(spacing: 8) {
+                BitwardenTextField(
+                    title: Localizations.emailAddress,
+                    text: store.binding(
+                        get: \.email,
+                        send: LandingAction.emailChanged
+                    ),
+                    accessibilityIdentifier: "LoginEmailAddressEntry",
+                    footerContent: {
+                        RegionSelector(
+                            selectorLabel: Localizations.loggingInOn,
+                            regionName: store.state.region.baseURLDescription
+                        ) {
+                            await store.perform(.regionPressed)
+                        }
+                        .padding(.vertical, 14)
+                    }
+                )
+                .textFieldConfiguration(.email)
+                .onSubmit {
+                    guard store.state.isContinueButtonEnabled else { return }
+                    Task { await store.perform(.continuePressed) }
+                }
 
-            RegionSelector(
-                selectorLabel: Localizations.loggingInOn,
-                regionName: store.state.region.baseUrlDescription
-            ) {
-                await store.perform(.regionPressed)
+                BitwardenToggle(Localizations.rememberMe, isOn: store.binding(
+                    get: { $0.isRememberMeOn },
+                    send: { .rememberMeChanged($0) }
+                ))
+                .accessibilityIdentifier("RememberMeSwitch")
+                .contentBlock()
             }
-
-            Toggle(Localizations.rememberMe, isOn: store.binding(
-                get: { $0.isRememberMeOn },
-                send: { .rememberMeChanged($0) }
-            ))
-            .accessibilityIdentifier("RememberMeSwitch")
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .toggleStyle(.bitwarden)
 
             AsyncButton(Localizations.continue) {
                 await store.perform(.continuePressed)
@@ -138,14 +145,23 @@ struct LandingView: View {
             HStack(spacing: 4) {
                 Spacer()
                 Text(Localizations.newAroundHere)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 Button(Localizations.createAccount) {
                     store.send(.createAccountPressed)
                 }
-                .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                .accessibilityIdentifier("CreateAccountButton")
+                .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                 Spacer()
             }
             .styleGuide(.footnote)
+
+            Button {
+                store.send(.showPreLoginSettings)
+            } label: {
+                Label(Localizations.appSettings, image: Asset.Images.cog16.swiftUIImage)
+            }
+            .buttonStyle(.bitwardenBorderless)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }

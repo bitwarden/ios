@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -7,7 +8,7 @@ import XCTest
 
 // MARK: - BitwardenSdk.CipherType
 
-class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher type.
@@ -43,7 +44,7 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
 
 // MARK: - CipherDetailsResponseModel
 
-class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init(cipher:)` Inits a cipher details response model from an SDK cipher without id throws.
@@ -66,6 +67,34 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // s
         XCTAssertEqual(responseModel.sshKey?.privateKey, cipher.sshKey?.privateKey)
         XCTAssertEqual(responseModel.sshKey?.publicKey, cipher.sshKey?.publicKey)
         XCTAssertEqual(responseModel.sshKey?.keyFingerprint, cipher.sshKey?.fingerprint)
+    }
+}
+
+// MARK: - CipherListViewType
+
+class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `isLogin` returns whether the type is a login.
+    func test_isLogin() {
+        XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
+        XCTAssertFalse(CipherListViewType.card(.init(brand: nil)).isLogin)
+        XCTAssertFalse(CipherListViewType.identity.isLogin)
+        XCTAssertFalse(CipherListViewType.secureNote.isLogin)
+        XCTAssertFalse(CipherListViewType.sshKey.isLogin)
+    }
+
+    /// `loginListView` returns the `LoginListView` when the type is `.login`.
+    func test_loginListView() {
+        let expectedResult = LoginListView.fixture(fido2Credentials: [.fixture()], hasFido2: true)
+        XCTAssertEqual(
+            CipherListViewType.login(expectedResult).loginListView,
+            expectedResult
+        )
+        XCTAssertNil(CipherListViewType.card(.init(brand: nil)).loginListView)
+        XCTAssertNil(CipherListViewType.identity.loginListView)
+        XCTAssertNil(CipherListViewType.secureNote.loginListView)
+        XCTAssertNil(CipherListViewType.sshKey.loginListView)
     }
 }
 
@@ -102,6 +131,15 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(type: .identity), .identity)
         XCTAssertEqual(CipherType(type: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
+    }
+
+    /// `init(type:)` initializes the SDK cipher type based on the cipher list view type.
+    func test_init_byCipherListViewType() {
+        XCTAssertEqual(CipherType(CipherListViewType.login(.fixture())), .login)
+        XCTAssertEqual(CipherType(CipherListViewType.card(.fixture())), .card)
+        XCTAssertEqual(CipherType(CipherListViewType.identity), .identity)
+        XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
+        XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
     }
 }
 
@@ -162,6 +200,7 @@ class CipherViewTests: BitwardenTestCase {
                 reprompt: .none,
                 organizationUseTotp: false,
                 edit: false,
+                permissions: nil,
                 viewPassword: true,
                 localData: nil,
                 attachments: nil,
@@ -169,7 +208,8 @@ class CipherViewTests: BitwardenTestCase {
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
-                revisionDate: timeProvider.presentTime
+                revisionDate: timeProvider.presentTime,
+                archivedDate: nil
             )
         )
     }
@@ -211,6 +251,7 @@ class CipherViewTests: BitwardenTestCase {
                 reprompt: .none,
                 organizationUseTotp: false,
                 edit: false,
+                permissions: nil,
                 viewPassword: true,
                 localData: nil,
                 attachments: nil,
@@ -218,7 +259,8 @@ class CipherViewTests: BitwardenTestCase {
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
-                revisionDate: timeProvider.presentTime
+                revisionDate: timeProvider.presentTime,
+                archivedDate: nil
             )
         )
     }
@@ -226,7 +268,7 @@ class CipherViewTests: BitwardenTestCase {
 
 // MARK: - Collection
 
-class BitwardenSdkVaultBitwardenCollectionTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class BitwardenSdkVaultBitwardenCollectionTests: BitwardenTestCase {
     /// `init(collectionDetailsResponseModel:)` sets `manage` with the value in the model
     /// if the server sent a value
     func test_init_manageNotNull() {

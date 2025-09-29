@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - StartRegistrationView
@@ -21,6 +22,9 @@ struct StartRegistrationView: View {
                 title: Localizations.createAccount,
                 titleDisplayMode: .inline
             )
+            .onDisappear {
+                store.send(.disappeared)
+            }
             .task {
                 await store.perform(.appeared)
             }
@@ -60,7 +64,16 @@ struct StartRegistrationView: View {
                 get: \.emailText,
                 send: StartRegistrationAction.emailTextChanged
             ),
-            accessibilityIdentifier: "EmailAddressEntry"
+            accessibilityIdentifier: "EmailAddressEntry",
+            footerContent: {
+                RegionSelector(
+                    selectorLabel: Localizations.creatingOn,
+                    regionName: store.state.region.baseURLDescription
+                ) {
+                    await store.perform(.regionTapped)
+                }
+                .padding(.vertical, 14)
+            }
         )
         .textFieldConfiguration(.email)
     }
@@ -69,24 +82,22 @@ struct StartRegistrationView: View {
     private var mainContent: some View {
         GeometryReader { proxy in
             VStack(spacing: 0) {
-                if store.state.isCreateAccountFeatureFlagEnabled {
-                    Spacer(minLength: 24)
+                Spacer(minLength: 24)
 
-                    Image(decorative: Asset.Images.logo)
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                        .frame(maxWidth: .infinity, maxHeight: 34)
-                        .padding(.horizontal, 12)
+                Image(decorative: Asset.Images.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
+                    .frame(maxWidth: .infinity, maxHeight: 34)
+                    .padding(.horizontal, 12)
 
-                    Spacer(minLength: 24)
-                }
+                Spacer(minLength: 24)
 
                 registrationDetails
             }
-            .padding(.top, store.state.isCreateAccountFeatureFlagEnabled ? 0 : 16)
+            .padding(.top, 0)
             .padding(.bottom, 16)
-            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
+            .frame(minHeight: proxy.size.height)
             .scrollView(addVerticalPadding: false, showsIndicators: false)
         }
     }
@@ -99,7 +110,7 @@ struct StartRegistrationView: View {
                 get: \.nameText,
                 send: StartRegistrationAction.nameTextChanged
             ),
-            accessibilityIdentifier: "nameEntry"
+            accessibilityIdentifier: "NameEntry"
         )
         .textFieldConfiguration(.username)
     }
@@ -107,18 +118,17 @@ struct StartRegistrationView: View {
     /// A toggle for the terms and privacy agreement.
     @ViewBuilder private var receiveMarketingToggle: some View {
         if store.state.showReceiveMarketingToggle {
-            Toggle(isOn: store.binding(
+            BitwardenToggle(isOn: store.binding(
                 get: \.isReceiveMarketingToggleOn,
                 send: StartRegistrationAction.toggleReceiveMarketing
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
-            .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-            .toggleStyle(.bitwarden)
+            .contentBlock()
             .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
     }
@@ -126,24 +136,14 @@ struct StartRegistrationView: View {
     /// The section of the view containing input fields, and action buttons.
     private var registrationDetails: some View {
         VStack(spacing: 16) {
-            name
-
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(spacing: 8) {
+                name
                 email
-                    .padding(.bottom, 8)
-
-                RegionSelector(
-                    selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseUrlDescription
-                ) {
-                    await store.perform(.regionTapped)
-                }
+                receiveMarketingToggle
             }
 
-            receiveMarketingToggle
             continueButton
             termsAndPrivacyText
-                .frame(maxWidth: .infinity)
         }
     }
 
@@ -151,8 +151,8 @@ struct StartRegistrationView: View {
     private var termsAndPrivacyText: some View {
         Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
     }
@@ -169,9 +169,7 @@ struct StartRegistrationView: View {
     StartRegistrationView(
         store: Store(
             processor: StateProcessor(
-                state: StartRegistrationState(
-                    isCreateAccountFeatureFlagEnabled: true
-                )
+                state: StartRegistrationState()
             )
         )
     )

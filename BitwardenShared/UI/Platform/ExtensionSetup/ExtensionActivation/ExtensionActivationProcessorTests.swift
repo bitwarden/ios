@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -41,35 +42,5 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         subject.receive(.cancelTapped)
 
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
-    }
-
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
-    @MainActor
-    func test_perform_appeared_loadFeatureFlag_true() async {
-        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
-        subject.state.isNativeCreateAccountFeatureFlagEnabled = false
-
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.isNativeCreateAccountFeatureFlagEnabled)
-    }
-
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        subject.state.isNativeCreateAccountFeatureFlagEnabled = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isNativeCreateAccountFeatureFlagEnabled)
-    }
-
-    /// `perform(.appeared)` with feature flag defaulting to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
-        subject.state.isNativeCreateAccountFeatureFlagEnabled = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isNativeCreateAccountFeatureFlagEnabled)
     }
 }

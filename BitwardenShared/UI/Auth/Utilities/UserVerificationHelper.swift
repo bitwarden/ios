@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 /// Helper for user verification flows.
 ///
 protocol UserVerificationHelper {

@@ -1,3 +1,6 @@
+import AuthenticatorBridgeKitMocks
+import BitwardenKit
+import BitwardenKitMocks
 import Foundation
 import XCTest
 
@@ -27,7 +30,8 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         itemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: cryptoService,
             dataStore: dataStore,
-            sharedKeychainRepository: MockSharedKeychainRepository()
+            sharedKeychainRepository: MockSharedKeychainRepository(),
+            sharedTimeoutService: MockSharedTimeoutService()
         )
     }
 

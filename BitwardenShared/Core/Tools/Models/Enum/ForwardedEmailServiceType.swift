@@ -1,6 +1,10 @@
+import BitwardenResources
+
 /// The service used to generate a forwarded email alias.
 ///
 enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable {
+    // MARK: Cases
+
     /// Generate a forwarded email using addy.io.
     case addyIO = 0
 
@@ -19,8 +23,18 @@ enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable 
     /// Generate a forwarded email using ForwardEmail.
     case forwardEmail = 5
 
+    // MARK: Static properties
+
     /// All of the cases to show in the menu.
     static let allCases: [Self] = [.addyIO, .duckDuckGo, .fastmail, .firefoxRelay, .forwardEmail, .simpleLogin]
+
+    /// The default base URL for addy.io.
+    static let defaultAddyIOBaseUrl = "https://app.addy.io"
+
+    /// The default base URL for SimpleLogin.
+    static let defaultSimpleLoginBaseUrl = "https://app.simplelogin.io"
+
+    // MARK: Properties
 
     var localizedName: String {
         switch self {

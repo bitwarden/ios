@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -20,23 +22,29 @@ struct ViewLoginItemView: View {
     // MARK: View
 
     var body: some View {
-        if !store.state.username.isEmpty {
-            usernameRow
-        }
+        if !store.state.isEmpty {
+            SectionView(Localizations.loginCredentials, contentSpacing: 8) {
+                ContentBlock {
+                    if !store.state.username.isEmpty {
+                        usernameRow
+                    }
 
-        if !store.state.password.isEmpty {
-            passwordRow
-        }
+                    if !store.state.password.isEmpty {
+                        passwordRow
+                    }
 
-        if let fido2Credential = store.state.fido2Credentials.first {
-            passkeyRow(fido2Credential)
-        }
+                    if let fido2Credential = store.state.fido2Credentials.first {
+                        passkeyRow(fido2Credential)
+                    }
+                }
 
-        if let totpModel = store.state.totpCode {
-            if store.state.isTOTPAvailable {
-                totpRow(totpModel)
-            } else {
-                premiumSubscriptionRequired
+                if let totpModel = store.state.totpCode {
+                    if store.state.isTOTPAvailable {
+                        totpRow(totpModel)
+                    } else {
+                        premiumSubscriptionRequired
+                    }
+                }
             }
         }
     }
@@ -50,7 +58,7 @@ struct ViewLoginItemView: View {
         BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
             PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
@@ -58,23 +66,24 @@ struct ViewLoginItemView: View {
                     store.send(.passwordVisibilityPressed)
                 }
 
-                AsyncButton {
-                    await store.perform(.checkPasswordPressed)
-                } label: {
-                    Asset.Images.checkCircle16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
-                }
-                .accessibilityLabel(Localizations.checkPassword)
-                .accessibilityIdentifier("CheckPasswordButton")
-
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("LoginCopyPasswordButton")
+            }
+        } footerContent: {
+            if store.state.canViewPassword {
+                AsyncButton(Localizations.checkPasswordForDataBreaches) {
+                    await store.perform(.checkPasswordPressed)
+                }
+                .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
+                .accessibilityLabel(Localizations.checkPassword)
+                .accessibilityIdentifier("CheckPasswordButton")
             }
         }
         .accessibilityElement(children: .contain)
@@ -84,12 +93,12 @@ struct ViewLoginItemView: View {
     ///
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(
-            title: Localizations.verificationCodeTotp,
+            title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName"
         ) {
             Text(Localizations.premiumSubscriptionRequired)
                 .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier("ItemValue")
         }
         .accessibilityElement(children: .contain)
@@ -107,8 +116,8 @@ struct ViewLoginItemView: View {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
+                Asset.Images.copy24.swiftUIImage
+                    .imageStyle(.accessoryIcon24)
             }
             .accessibilityLabel(Localizations.copy)
             .accessibilityIdentifier("LoginCopyUsernameButton")
@@ -123,11 +132,9 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdXY(
-                fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-            )
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay)
         )
+        .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
     }
 
@@ -138,19 +145,14 @@ struct ViewLoginItemView: View {
     ///
     private func totpRow(_ model: TOTPCodeModel) -> some View {
         BitwardenField(
-            title: Localizations.verificationCodeTotp,
+            title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName",
             content: {
-                if store.state.isTOTPCodeVisible {
-                    Text(model.displayCode)
-                        .styleGuide(.bodyMonospaced)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                } else {
-                    PasswordText(password: model.displayCode, isPasswordVisible: false)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                }
+                Text(model.displayCode)
+                    .styleGuide(.bodyMonospaced)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("LoginTotpEntry")
             },
             accessoryContent: {
                 TOTPCountdownTimerView(
@@ -165,8 +167,8 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyTotpValueButton")

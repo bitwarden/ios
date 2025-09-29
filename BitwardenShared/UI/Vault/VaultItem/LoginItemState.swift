@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -9,6 +10,9 @@ struct LoginItemState: Equatable {
 
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool = true
+
+    /// The saved value in autofill settings for the default URI match type.
+    var defaultUriMatchTypeSettingsValue: UriMatchType?
 
     /// Whether the user has permissions to edit the cipher
     var editView: Bool = true
@@ -22,11 +26,16 @@ struct LoginItemState: Equatable {
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
+    /// A flag indicating if this view has no data to display.
+    var isEmpty: Bool {
+        username.isEmpty
+            && password.isEmpty
+            && fido2Credentials.isEmpty
+            && totpCode == nil
+    }
+
     /// A flag indicating if the totp feature is available.
     let isTOTPAvailable: Bool
-
-    /// Whether the user can see the TOTP code.
-    var isTOTPCodeVisible: Bool = false
 
     /// The password for this item.
     var password: String = ""
@@ -46,12 +55,40 @@ struct LoginItemState: Equatable {
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
 
+    /// The options for URI match types ordered based on menu display.
+    var uriMatchTypeOptions: [DefaultableType<UriMatchType>] {
+        [
+            DefaultableType<UriMatchType>.default,
+            DefaultableType<UriMatchType>.custom(UriMatchType.domain),
+            DefaultableType<UriMatchType>.custom(UriMatchType.host),
+            DefaultableType<UriMatchType>.custom(UriMatchType.exact),
+            DefaultableType<UriMatchType>.custom(UriMatchType.never),
+            DefaultableType<UriMatchType>.custom(UriMatchType.startsWith),
+            DefaultableType<UriMatchType>.custom(UriMatchType.regularExpression),
+        ]
+    }
+
+    /// The option label for the default uri match type.
+    var defaultUriMatchTypeOptionLabel: String {
+        guard let defaultUriMatchTypeSettingsValue else {
+            return DefaultableType<UriMatchType>.default.localizedName
+        }
+
+        let suffix = switch defaultUriMatchTypeSettingsValue {
+        case .regularExpression: Localizations.regEx
+        case .startsWith: Localizations.startsWith
+        default: defaultUriMatchTypeSettingsValue.localizedName
+        }
+
+        return Localizations.defaultX(suffix)
+    }
+
     /// The username for this item.
     var username: String = ""
 
     /// The TOTP Key.
-    var authenticatorKey: String? {
-        totpState.rawAuthenticatorKeyString
+    var authenticatorKey: String {
+        totpState.rawAuthenticatorKeyString ?? ""
     }
 
     /// BitwardenSDK loginView representation of loginItemState.
@@ -61,7 +98,7 @@ struct LoginItemState: Equatable {
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
-            totp: authenticatorKey,
+            totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
             fido2Credentials: nil
         )

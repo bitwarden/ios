@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - RemoveMasterPasswordView
@@ -13,10 +15,26 @@ struct RemoveMasterPasswordView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 24) {
-            Text(Localizations.removeMasterPasswordMessage(store.state.organizationName))
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .styleGuide(.body)
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Localizations.removeMasterPasswordConfirmDomain)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .styleGuide(.body)
+                Text(Localizations.keyConnectorOrganization)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .styleGuide(.body)
+                Text(store.state.organizationName)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .styleGuide(.body)
+                Text(Localizations.keyConnectorDomain)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .styleGuide(.body)
+                Text(store.state.keyConnectorUrl)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .styleGuide(.body)
+            }
+            .multilineTextAlignment(.leading)
+            .padding(.horizontal, 12)
 
             BitwardenTextField(
                 title: Localizations.masterPassword,
@@ -45,8 +63,14 @@ struct RemoveMasterPasswordView: View {
                 await store.perform(.continueFlow)
             }
             .buttonStyle(.primary())
+
+            AsyncButton(Localizations.leaveOrganization) {
+                await store.perform(.leaveOrganizationFlow)
+            }
+            .buttonStyle(.secondary())
         }
         .navigationBar(title: Localizations.removeMasterPassword, titleDisplayMode: .inline)
+        .padding(.top, 12)
         .scrollView()
     }
 }
@@ -60,10 +84,13 @@ struct RemoveMasterPasswordView: View {
             processor: StateProcessor(
                 state: RemoveMasterPasswordState(
                     masterPassword: "password",
-                    organizationName: "Example Org"
+                    organizationName: "Example Org",
+                    organizationId: "Mock-Id",
+                    keyConnectorUrl: "www.example.com"
                 )
             )
         )
     )
+    .navStackWrapped
 }
 #endif

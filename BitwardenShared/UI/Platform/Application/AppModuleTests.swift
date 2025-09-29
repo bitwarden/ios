@@ -1,4 +1,6 @@
+import BitwardenKitMocks
 import SwiftUI
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -26,6 +28,16 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `makeAddEditFolderCoordinator` builds the add/edit folder coordinator.
+    @MainActor
+    func test_makeAddEditFolderCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .addEditFolder(folder: nil))
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<AddEditFolderView>)
+    }
 
     /// `makeAppCoordinator` builds the app coordinator.
     @MainActor
@@ -57,11 +69,24 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeDebugMenuCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeDebugMenuCoordinator(
+            delegate: MockDebugMenuCoordinatorDelegate(),
             stackNavigator: navigationController
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 1)
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
+    }
+
+    /// `makeExportCXFCoordinator(stackNavigator:)` builds the Credential Exchange export coordinator.
+    @MainActor
+    func test_makeExportCXFCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeExportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ExportCXFView>)
     }
 
     /// `makeExtensionSetupCoordinator` builds the extensions setup coordinator.

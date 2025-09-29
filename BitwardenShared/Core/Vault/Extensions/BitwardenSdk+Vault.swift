@@ -1,6 +1,8 @@
 // swiftlint:disable:this file_name
 // swiftlint:disable file_length
 
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - DataMappingError
@@ -59,6 +61,7 @@ extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
         self.init(
+            archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
@@ -77,6 +80,7 @@ extension CipherDetailsResponseModel {
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
+            permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
             revisionDate: cipher.revisionDate,
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
@@ -176,6 +180,15 @@ extension CipherPasswordHistoryModel {
     }
 }
 
+extension CipherPermissionsModel {
+    init?(cipherPermissions: BitwardenSdk.CipherPermissions?) {
+        guard let cipherPermissions else {
+            return nil
+        }
+        self.init(delete: cipherPermissions.delete, restore: cipherPermissions.restore)
+    }
+}
+
 extension CipherRepromptType {
     init(type: BitwardenSdk.CipherRepromptType) {
         switch type {
@@ -205,6 +218,21 @@ extension CipherSSHKeyModel {
 
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
+        switch type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login
+        case .secureNote:
+            self = .secureNote
+        case .sshKey:
+            self = .sshKey
+        }
+    }
+
+    init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
         case .card:
             self = .card
@@ -318,6 +346,7 @@ extension BitwardenSdk.Cipher {
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: model.edit,
+            permissions: model.permissions.map(CipherPermissions.init),
             viewPassword: model.viewPassword,
             localData: nil,
             attachments: model.attachments?.map(Attachment.init),
@@ -325,14 +354,45 @@ extension BitwardenSdk.Cipher {
             passwordHistory: model.passwordHistory?.map(PasswordHistory.init),
             creationDate: model.creationDate,
             deletedDate: model.deletedDate,
-            revisionDate: model.revisionDate
+            revisionDate: model.revisionDate,
+            archivedDate: model.archivedDate
         )
     }
 }
 
-extension BitwardenSdk.CipherListView: @retroactive Identifiable {}
+extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
 
-extension BitwardenSdk.CipherView: @retroactive Identifiable {
+extension BitwardenSdk.CipherListViewType {
+    /// Whether the type is card.
+    var isCard: Bool {
+        switch self {
+        case .card:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Whether the type is login.
+    var isLogin: Bool {
+        switch self {
+        case .login:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// The `LoginListView` if this type is a `.login`, otherwise `nil`.
+    var loginListView: BitwardenSdk.LoginListView? {
+        guard case let .login(loginListView) = self else {
+            return nil
+        }
+        return loginListView
+    }
+}
+
+extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiableCipherView {
     /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
     /// - Parameters:
     ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
@@ -366,6 +426,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable {
             reprompt: .none,
             organizationUseTotp: false,
             edit: false,
+            permissions: nil,
             viewPassword: true,
             localData: nil,
             attachments: nil,
@@ -373,7 +434,8 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable {
             passwordHistory: nil,
             creationDate: timeProvider.presentTime,
             deletedDate: nil,
-            revisionDate: timeProvider.presentTime
+            revisionDate: timeProvider.presentTime,
+            archivedDate: nil
         )
     }
 }
@@ -507,6 +569,10 @@ extension BitwardenSdk.LoginUri {
     }
 }
 
+extension BitwardenSdk.LoginListView: CipherDecorativeIconDataView {}
+
+extension BitwardenSdk.LoginView: CipherDecorativeIconDataView {}
+
 extension BitwardenSdk.PasswordHistory {
     init(cipherPasswordHistoryModel model: CipherPasswordHistoryModel) {
         self.init(
@@ -524,6 +590,12 @@ extension BitwardenSdk.PasswordHistory {
             password: password,
             lastUsedDate: lastUsedDate
         )
+    }
+}
+
+extension BitwardenSdk.CipherPermissions {
+    init(cipherPermissionsModel model: CipherPermissionsModel) {
+        self.init(delete: model.delete, restore: model.restore)
     }
 }
 
@@ -577,14 +649,27 @@ extension CollectionDetailsResponseModel {
     init(collection: Collection) throws {
         guard let id = collection.id else { throw DataMappingError.missingId }
         self.init(
+            defaultUserCollectionEmail: collection.defaultUserCollectionEmail,
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
             manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
-            readOnly: collection.readOnly
+            readOnly: collection.readOnly,
+            type: BitwardenShared.CollectionType(type: collection.type)
         )
+    }
+}
+
+extension CollectionType {
+    init(type: BitwardenSdk.CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
@@ -606,12 +691,25 @@ extension BitwardenSdk.Collection {
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
             readOnly: model.readOnly,
-            manage: model.manage ?? !model.readOnly
+            manage: model.manage ?? !model.readOnly,
+            defaultUserCollectionEmail: model.defaultUserCollectionEmail,
+            type: BitwardenSdk.CollectionType(type: model.type)
         )
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, TreeNodeModel {}
+extension BitwardenSdk.CollectionType {
+    init(type: CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
+    }
+}
+
+extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, @retroactive Identifiable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 

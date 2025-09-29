@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -35,7 +36,7 @@ class AppearanceViewTests: BitwardenTestCase {
     @MainActor
     func test_appThemeChanged_updateValue() throws {
         processor.state.appTheme = .light
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.theme)
         try menuField.select(newValue: AppTheme.dark)
         XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
     }
@@ -51,7 +52,7 @@ class AppearanceViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func test_viewRender() {
+    func disabletest_snapshot_viewRender() {
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

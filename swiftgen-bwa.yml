@@ -1,0 +1,10 @@
+output_dir: AuthenticatorShared/UI/Platform/Application/Support/Generated/
+xcassets:
+  inputs:
+    - AuthenticatorShared/UI/Platform/Application/Support/Colors.xcassets
+    - AuthenticatorShared/UI/Platform/Application/Support/Images.xcassets
+  outputs:
+    - templateName: swift5
+      output: Assets.swift
+      params:
+        publicAccess: true

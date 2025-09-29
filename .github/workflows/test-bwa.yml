@@ -1,0 +1,202 @@
+name: Test Authenticator
+
+on:
+  # push:
+  #   branches:
+  #     - "main"
+  #     - "rc"
+  #     - "hotfix-rc"
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - Bitwarden/**
+      - BitwardenActionExtension/**
+      - BitwardenAutoFillExtension/**
+      - BitwardenShared/**
+      - BitwardenShareExtension/**
+      - BitwardenWatchApp/**
+      - BitwardenWatchWidgetExtension/**
+  workflow_dispatch:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+  workflow_call:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+
+env:
+  MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
+  MINT_PATH: .mint/lib # used by mint in bootstrap.sh
+  _COVERAGE_PATH: build/coverage.xml
+  _RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
+  _SIMULATOR_NAME: ${{ inputs.simulator-name }}
+  _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
+  _XCODE_VERSION: ${{ inputs.xcode-version }}
+  _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+  _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: macos-26
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
+      - name: Check out repo
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Read Xcode version and simulator configuration from file if not provided
+        run: |
+          if [ -z "$_XCODE_VERSION" ]; then
+            echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$_SIMULATOR_NAME" ]; then
+            echo "_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$_SIMULATOR_VERSION" ]; then
+            echo "_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: ${{ env._XCODE_VERSION }}
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
+        with:
+          bundler-cache: true
+
+      - name: Cache Mint packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Cache SPM packages
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Update local config
+        run: |
+          ./Scripts-bwa/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
+
+      - name: Install Homebrew Dependencies and run bootstrap.sh
+        run: |
+          brew update
+          brew bundle
+          ./Scripts/bootstrap.sh
+
+      - name: Build and test
+        run: |
+          xcrun xcodebuild test \
+            -workspace Bitwarden.xcworkspace \
+            -scheme Authenticator \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -resultBundlePath $_RESULT_BUNDLE_PATH \
+            -derivedDataPath build/DerivedData \
+            -test-timeouts-enabled yes \
+            -maximum-test-execution-time-allowance 1 \
+            -quiet
+
+      - name: Print Logs Summary
+        if: always()
+        run: |
+          xcresultparser -o cli "$_RESULT_BUNDLE_PATH"
+          echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o txt "$_RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
+
+      - name: Convert coverage to Cobertura
+        run: |
+          set -o pipefail && \
+            xcresultparser --output-format cobertura \
+            "$_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: test-reports
+          compression-level: 9
+          path: |
+            ${{ env._COVERAGE_PATH }}
+            ${{ env._RESULT_BUNDLE_PATH }}
+
+  report:
+    name: Process Test Reports
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+      pull-requests: write
+    if: success()
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          sparse-checkout: .github/codecov.yml
+          sparse-checkout-cone-mode: false
+
+      - name: Download test artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: test-reports
+
+      - name: Upload to codecov.io
+        id: upload-to-codecov
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        continue-on-error: true
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
+
+      - name: Comment PR if tests failed
+        if: steps.upload-to-codecov.outcome == 'failure'
+        env:
+            PR_NUMBER: ${{ github.event.number }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            RUN_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
+          echo "> Uploading code coverage report failed. Please check the \"Upload to codecov.io\" step of \"Process Test Reports\" job for more details." >> $GITHUB_STEP_SUMMARY
+
+          if [ ! -z "$PR_NUMBER" ]; then
+            message=$'> [!WARNING]\n> @'$RUN_ACTOR' Uploading code coverage report failed. Please check the "Upload to codecov.io" step of [Process Test Reports job]('$_GITHUB_ACTION_RUN_URL') for more details.'
+            gh pr comment --repo $GITHUB_REPOSITORY $PR_NUMBER --body "$message"
+          fi

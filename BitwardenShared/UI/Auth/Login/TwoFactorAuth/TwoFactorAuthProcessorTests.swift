@@ -1,5 +1,9 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length
@@ -13,7 +17,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
-    var captchaService: MockCaptchaService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -27,7 +30,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         authRepository = MockAuthRepository()
         authService = MockAuthService()
-        captchaService = MockCaptchaService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -38,7 +40,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 authService: authService,
-                captchaService: captchaService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 nfcReaderService: nfcReaderService
@@ -52,7 +53,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         authRepository = nil
         authService = nil
-        captchaService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -61,36 +61,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     // MARK: Tests
-
-    /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
-    @MainActor
-    func test_captchaCompleted() {
-        subject.state.verificationCode = "Test"
-        subject.captchaCompleted(token: "token")
-        waitFor(!coordinator.routes.isEmpty)
-
-        XCTAssertEqual(authService.loginWithTwoFactorCodeCaptchaToken, "token")
-
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-    }
-
-    /// `captchaErrored(error:)` records an error.
-    @MainActor
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    @MainActor
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
 
     /// `init` sets up the state correctly.
     @MainActor
@@ -254,7 +224,48 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? WebAuthnError, .unableToDecodeCredential)
     }
 
-    /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn Connector flow on self-hosted vaults.
+    /// `perform(_:)` with `.appeared` sends the verification code email if the user's auth method
+    /// is email.
+    @MainActor
+    func test_perform_appeared_authMethodEmail_sendsVerificationCodeEmail() async {
+        subject.state.authMethod = .email
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
+        XCTAssertTrue(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.appeared` does not send the verification code email if the user's auth method
+    /// is email and device verification is required.
+    @MainActor
+    func test_perform_appeared_authMethodEmail_deviceVerificationRequired_doesNotSendVerificationCodeEmail() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(subject.state.toast)
+        XCTAssertFalse(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.appeared` does not send the verification code email if the user's auth
+    /// method is anything other than email.
+    @MainActor
+    func test_perform_appeared_authMethodAuthApp_doesNotSendVerificationCodeEmail() async {
+        subject.state.authMethod = .authenticatorApp
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(subject.state.toast)
+        XCTAssertFalse(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.beginWebAuthn` initiates the WebAuthn Connector flow on self-hosted vaults.
     @available(iOS 16.0, *)
     @MainActor
     func test_perform_beginWebAuthn_selfHosted() async throws {
@@ -346,42 +357,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `perform(_:)` with `.continueTapped` navigates to the `.captcha` route if there was a captcha error.
-    @MainActor
-    func test_perform_continueTapped_captchaError() async {
-        subject.state.verificationCode = "Test"
-        authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
-        )
-
-        await subject.perform(.continueTapped)
-
-        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-
-        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
-    }
-
-    /// `perform(_:)` with `.continueTapped` and a captcha flow error records the error.
-    @MainActor
-    func test_perform_continueTapped_captchaFlowError() async {
-        subject.state.verificationCode = "Test"
-        authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
-        )
-        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.continueTapped)
-
-        XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
     /// `perform(_:)` with `.continueTapped` handles any errors correctly.
     @MainActor
     func test_perform_continueTapped_error() async {
@@ -394,8 +369,26 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
         XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.continueTapped` handles identity device verification code error correctly.
+    @MainActor
+    func test_perform_continueTapped_deviceVerificationCode_error() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+        subject.state.verificationCode = "123123123  "
+        authService.loginWithTwoFactorCodeResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
+        XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "123123123")
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidVerificationCode))
     }
 
     /// `perform(_:)` with `.continueTapped` shows an alert for empty verification code text.
@@ -483,7 +476,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(TwoFactorAuthError.missingOrgIdentifier))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingOrgIdentifier)
         XCTAssertEqual(coordinator.routes, [])
         XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
     }
@@ -498,7 +491,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(error))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? IdentityTokenRequestError, error)
     }
 
     /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
@@ -531,7 +524,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.listenForNFC)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles an error correctly.
@@ -544,7 +537,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.receivedDuoToken("DuoToken"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.
@@ -629,6 +622,21 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
+        XCTAssertTrue(authService.sentVerificationEmail)
+    }
+
+    /// `perform(_:)` with `.resendEmailTapped` with device verification needed sends the email and displays the toast.
+    @MainActor
+    func test_perform_resendEmailTapped_deviceVerification_success() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+
+        await subject.perform(.resendEmailTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
+        XCTAssertTrue(authService.sentNewDeviceOtp)
     }
 
     /// `perform(_:)` with `.tryAgainTapped` starts reading NFC tags.
@@ -706,8 +714,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// applicable.
     @MainActor
     func test_receive_verificationCodeChanged() {
-        subject.receive(.verificationCodeChanged("123"))
-        XCTAssertEqual(subject.state.verificationCode, "123")
+        subject.receive(.verificationCodeChanged(""))
+        XCTAssertEqual(subject.state.verificationCode, "")
         XCTAssertFalse(subject.state.continueEnabled)
 
         subject.receive(.verificationCodeChanged("123456"))

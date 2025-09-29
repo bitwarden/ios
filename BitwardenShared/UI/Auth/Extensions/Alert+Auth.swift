@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - Alert+Auth
@@ -77,37 +79,49 @@ extension Alert {
         )
     }
 
-    /// Display the options to log out of or lock the selected profile switcher item.
+    /// Display the options to log out of, lock, or remove the selected profile switcher item.
     ///
     /// - Parameters:
     ///   - item: The selected item from the profile switcher view.
     ///   - lockAction: The action to perform if the user chooses to lock the account.
     ///   - logoutAction: The action to perform if the user chooses to log out of the account.
+    ///   - removeAccountAction: The action to perform if the user chooses to remove the account.
     ///
     /// - Returns: An alert displaying the options for the item.
     ///
     static func accountOptions(
         _ item: ProfileSwitcherItem,
         lockAction: @escaping () async -> Void,
-        logoutAction: @escaping () async -> Void
+        logoutAction: @escaping () async -> Void,
+        removeAccountAction: @escaping () async -> Void
     ) -> Alert {
-        // All accounts have the option to log out, but only display the lock option if
-        // the account is not currently locked.
-        var alertActions = [
-            AlertAction(
-                title: Localizations.logOut,
-                style: .default,
-                handler: { _, _ in await logoutAction() }
-            ),
-        ]
-        if item.isUnlocked {
-            alertActions.insert(
+        var alertActions = [AlertAction]()
+
+        if item.isUnlocked, item.canBeLocked {
+            alertActions.append(
                 AlertAction(
                     title: Localizations.lock,
                     style: .default,
                     handler: { _, _ in await lockAction() }
-                ),
-                at: 0
+                )
+            )
+        }
+
+        if item.isLoggedOut {
+            alertActions.append(
+                AlertAction(
+                    title: Localizations.removeAccount,
+                    style: .default,
+                    handler: { _, _ in await removeAccountAction() }
+                )
+            )
+        } else {
+            alertActions.append(
+                AlertAction(
+                    title: Localizations.logOut,
+                    style: .default,
+                    handler: { _, _ in await logoutAction() }
+                )
             )
         }
 
@@ -116,6 +130,22 @@ extension Alert {
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+        )
+    }
+
+    /// An alert notifying the user that they need to migrate their encryption key.
+    ///
+    /// - Returns: An alert notifying the user that they need to migrate their encryption key.
+    ///
+    static func encryptionKeyMigrationRequiredAlert(
+        environmentUrl: String,
+    ) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden(environmentUrl),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
         )
     }
 
@@ -135,6 +165,25 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     await continueAction()
                 },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the user wants to leave the organization
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm leave organization.
+    /// - Returns: An alert that is displayed to confirm the user wants to leave the organization.
+    ///
+    static func leaveOrganizationConfirmation(
+        orgName: String,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.leaveOrganization,
+            message: Localizations.leaveOrganizationName(orgName),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
@@ -180,6 +229,24 @@ extension Alert {
         )
     }
 
+    /// An alert that is displayed to confirm the key connector domain.
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm the domain.
+    /// - Returns: An alert that is displayed to confirm the key connector domain.
+    static func keyConnectorConfirmation(
+        keyConnectorUrl: URL,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.confirmKeyConnectorDomain,
+            message: Localizations.keyConnectorConfirmDomainWithAdmin(keyConnectorUrl),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// Returns an alert notifying the user that their master password is invalid.
     ///
     /// - Returns: An alert notifying the user that their master password is invalid.
@@ -211,6 +278,28 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action()
                 },
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the user wants to remove the account.
+    ///
+    /// - Parameters:
+    ///   - profile: The profile switcher item to remove.
+    ///   - action: An action to perform when the user taps `Yes`, to confirm removing the account.
+    /// - Returns: An alert that is displayed to confirm the user wants to remove the account.
+    ///
+    static func removeAccountConfirmation(
+        _ profile: ProfileSwitcherItem,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.removeAccount,
+            message: Localizations.removeAccountConfirmation + "\n\n"
+                + [profile.email, profile.webVault].joined(separator: "\n"),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
     }
@@ -288,7 +377,9 @@ extension Alert {
     ) -> Alert {
         Alert(
             title: Localizations.enterPIN,
-            message: settingUp ? Localizations.setPINDescription : Localizations.verifyPIN,
+            message: settingUp
+                ? Localizations.yourPINMustBeAtLeastXCharactersDescriptionLong(Constants.minimumPinLength)
+                : Localizations.verifyPIN,
             alertActions: [
                 AlertAction(
                     title: Localizations.submit,
@@ -296,6 +387,10 @@ extension Alert {
                     handler: { _, alertTextFields in
                         guard let pin = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
                         await completion(pin)
+                    },
+                    shouldEnableAction: { textFields in
+                        guard let pin = textFields.first(where: { $0.id == "pin" })?.text else { return false }
+                        return pin.count >= Constants.minimumPinLength
                     }
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
@@ -312,4 +407,4 @@ extension Alert {
             ]
         )
     }
-}
+} // swiftlint:disable:this file_length

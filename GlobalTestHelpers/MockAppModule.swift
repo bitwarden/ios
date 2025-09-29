@@ -1,32 +1,44 @@
+import BitwardenKit
+import UIKit
+
 @testable import BitwardenShared
 
 // MARK: - MockAppModule
 
 class MockAppModule:
+    AddEditFolderModule,
     AppModule,
     AuthModule,
     DebugMenuModule,
+    ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
+    ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
+    NavigatorBuilderModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
+    ProfileSwitcherModule,
     SendModule,
     SendItemModule,
     SettingsModule,
     TabModule,
     VaultModule,
     VaultItemModule {
+    var addEditFolderCoordinator = MockCoordinator<AddEditFolderRoute, Void>()
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
+    var debugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate?
+    var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
     var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
@@ -34,6 +46,7 @@ class MockAppModule:
     // swiftlint:disable:next weak_navigator identifier_name
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
+    var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -41,6 +54,12 @@ class MockAppModule:
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
+
+    func makeAddEditFolderCoordinator(
+        stackNavigator _: StackNavigator
+    ) -> AnyCoordinator<AddEditFolderRoute, Void> {
+        addEditFolderCoordinator.asAnyCoordinator()
+    }
 
     func makeAppCoordinator(
         appContext _: AppContext,
@@ -62,9 +81,17 @@ class MockAppModule:
     }
 
     func makeDebugMenuCoordinator(
+        delegate: DebugMenuCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
-        debugMenuCoordinator.asAnyCoordinator()
+        debugMenuCoordinatorDelegate = delegate
+        return debugMenuCoordinator.asAnyCoordinator()
+    }
+
+    func makeExportCXFCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<ExportCXFRoute, Void> {
+        exportCXFCoordinator.asAnyCoordinator()
     }
 
     func makeExtensionSetupCoordinator(
@@ -88,6 +115,12 @@ class MockAppModule:
         generatorCoordinator.asAnyCoordinator()
     }
 
+    func makeImportCXFCoordinator(
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportCXFRoute, Void> {
+        importCXFCoordinator.asAnyCoordinator()
+    }
+
     func makeImportLoginsCoordinator(
         delegate: any ImportLoginsCoordinatorDelegate,
         stackNavigator: any StackNavigator
@@ -99,6 +132,10 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<LoginRequestRoute, Void> {
         loginRequestCoordinator.asAnyCoordinator()
+    }
+
+    func makeNavigationController() -> UINavigationController {
+        UINavigationController()
     }
 
     func makePasswordAutoFillCoordinator(
@@ -116,6 +153,13 @@ class MockAppModule:
         passwordHistoryCoordinator.asAnyCoordinator()
     }
 
+    func makeProfileSwitcherCoordinator(
+        handler: any ProfileSwitcherHandler,
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ProfileSwitcherRoute, Void> {
+        profileSwitcherCoordinator.asAnyCoordinator()
+    }
+
     func makeSendCoordinator(
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<SendRoute, Void> {
@@ -130,7 +174,7 @@ class MockAppModule:
     }
 
     func makeSettingsCoordinator(
-        delegate _: SettingsCoordinatorDelegate,
+        delegate _: SettingsCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         settingsNavigator = stackNavigator
@@ -138,7 +182,7 @@ class MockAppModule:
     }
 
     func makeTabCoordinator( // swiftlint:disable:this function_parameter_count
-        errorReporter _: BitwardenShared.ErrorReporter,
+        errorReporter _: ErrorReporter,
         rootNavigator _: BitwardenShared.RootNavigator,
         settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
         tabNavigator _: BitwardenShared.TabNavigator,

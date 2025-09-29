@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 @testable import BitwardenShared
@@ -30,7 +31,7 @@ extension Account {
                 userId: "13512467-9cfe-43b0-969f-07534084764b"
             ),
             settings: Account.AccountSettings(
-                environmentUrls: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+                environmentUrls: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
             ),
             tokens: nil
         )
@@ -80,6 +81,7 @@ extension Account {
 extension Account.AccountProfile {
     static func fixture(
         avatarColor: String? = nil,
+        creationDate: Date? = nil,
         email: String = "user@bitwarden.com",
         emailVerified: Bool? = true,
         forcePasswordResetReason: ForcePasswordResetReason? = nil,
@@ -91,11 +93,13 @@ extension Account.AccountProfile {
         name: String? = nil,
         orgIdentifier: String? = nil,
         stamp: String? = "stamp",
+        twoFactorEnabled: Bool? = nil,
         userDecryptionOptions: UserDecryptionOptions? = nil,
         userId: String = "1"
     ) -> Account.AccountProfile {
         Account.AccountProfile(
             avatarColor: avatarColor,
+            creationDate: creationDate,
             email: email,
             emailVerified: emailVerified,
             forcePasswordResetReason: forcePasswordResetReason,
@@ -107,6 +111,7 @@ extension Account.AccountProfile {
             name: name,
             orgIdentifier: orgIdentifier,
             stamp: stamp,
+            twoFactorEnabled: twoFactorEnabled,
             userDecryptionOptions: userDecryptionOptions,
             userId: userId
         )
@@ -115,10 +120,10 @@ extension Account.AccountProfile {
 
 extension Account.AccountSettings {
     static func fixture(
-        environmentUrls: EnvironmentUrlData? = .fixture()
+        environmentURLs: EnvironmentURLData? = .fixture()
     ) -> Account.AccountSettings {
         Account.AccountSettings(
-            environmentUrls: environmentUrls
+            environmentUrls: environmentURLs
         )
     }
 }

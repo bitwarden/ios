@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SetMasterPasswordView
@@ -11,30 +13,32 @@ struct SetMasterPasswordView: View {
     @ObservedObject var store: Store<SetMasterPasswordState, SetMasterPasswordAction, SetMasterPasswordEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(store.state.explanationText)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                    .styleGuide(.callout)
-                    .multilineTextAlignment(.leading)
+        VStack(spacing: 24) {
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.lock,
+                title: Localizations.chooseYourMasterPassword,
+                message: store.state.explanationText
+            )
+            .padding(.top, 12)
 
-                if store.state.resetPasswordAutoEnroll {
-                    InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning, textAlignment: .leading)
-                }
+            if store.state.resetPasswordAutoEnroll {
+                InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning)
+            }
 
-                if let policy = store.state.masterPasswordPolicy,
-                   policy.isInEffect,
-                   let policySummary = policy.policySummary {
-                    InfoContainer(policySummary, textAlignment: .leading)
-                }
+            if let policy = store.state.masterPasswordPolicy,
+               policy.isInEffect,
+               let policySummary = policy.policySummary {
+                InfoContainer(policySummary)
+            }
 
+            ContentBlock {
                 BitwardenTextField(
-                    title: Localizations.masterPassword,
+                    title: Localizations.masterPasswordRequired,
                     text: store.binding(
                         get: \.masterPassword,
                         send: SetMasterPasswordAction.masterPasswordChanged
                     ),
-                    footer: Localizations.masterPasswordDescription,
+                    footer: Localizations.theMasterPasswordIsThePasswordYouUseToAccessYourVault,
                     accessibilityIdentifier: "NewPasswordField",
                     passwordVisibilityAccessibilityId: "NewPasswordVisibilityToggle",
                     isPasswordVisible: store.binding(
@@ -45,7 +49,7 @@ struct SetMasterPasswordView: View {
                 .textFieldConfiguration(.password)
 
                 BitwardenTextField(
-                    title: Localizations.retypeMasterPassword,
+                    title: Localizations.retypeMasterPasswordRequired,
                     text: store.binding(
                         get: \.masterPasswordRetype,
                         send: SetMasterPasswordAction.masterPasswordRetypeChanged
@@ -65,19 +69,27 @@ struct SetMasterPasswordView: View {
                         get: \.masterPasswordHint,
                         send: SetMasterPasswordAction.masterPasswordHintChanged
                     ),
-                    footer: Localizations.masterPasswordHintDescription,
-                    accessibilityIdentifier: "MasterPasswordHintLabel"
-                )
+                    accessibilityIdentifier: "MasterPasswordHintLabel",
+                    footerContent: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+                                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                                .styleGuide(.footnote)
 
-                AsyncButton(Localizations.submit) {
-                    await store.perform(.submitPressed)
-                }
-                .accessibilityIdentifier("SubmitButton")
-                .buttonStyle(.primary())
+                            Button {
+                                store.send(.preventAccountLockTapped)
+                            } label: {
+                                Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                            }
+                            .buttonStyle(.bitwardenBorderless)
+                        }
+                        .padding(.vertical, 12)
+                    }
+                )
             }
-            .padding(16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -89,6 +101,15 @@ struct SetMasterPasswordView: View {
                         }
                     }
                 }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                primaryActionToolbarButton(Localizations.save) {
+                    Task {
+                        await store.perform(.saveTapped)
+                    }
+                }
+                .accessibilityIdentifier("SubmitButton")
             }
         }
         .task {

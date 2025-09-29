@@ -15,18 +15,19 @@ protocol OrganizationAPIService {
     ///
     func getOrganizationKeys(organizationId: String) async throws -> OrganizationKeysResponseModel
 
-    /// Query the API to determine if the user's email is able to use single sign on and if the organization
-    /// identifier is already known.
-    ///
-    /// - Parameter email: The user's email address.
-    /// - Returns: A `SingleSignOnDetailsResponse`.
-    ///
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
-
     /// Checks for the verified organization domains of an email for single sign on purposes.
     /// - Parameter email: The user's email address
     /// - Returns: A `SingleSignOnDomainsVerifiedResponse` with the verified domains list.
     func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse
+
+    /// Performs the API request to leave an organization.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The organization identifier for the organization the user wants to leave.
+    ///
+    func leaveOrganization(
+        organizationId: String
+    ) async throws
 }
 
 extension APIService: OrganizationAPIService {
@@ -38,11 +39,13 @@ extension APIService: OrganizationAPIService {
         try await apiService.send(OrganizationKeysRequest(id: organizationId))
     }
 
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
-        try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
-    }
-
     func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDomainsVerifiedRequest(email: email))
+    }
+
+    func leaveOrganization(organizationId: String) async throws {
+        _ = try await apiService.send(
+            OrganizationLeaveRequest(identifier: organizationId)
+        )
     }
 }

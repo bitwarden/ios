@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - FloatingActionButton
@@ -15,23 +16,16 @@ struct FloatingActionButton: View {
     let image: Image
 
     /// A closure that defines the action to be performed when the button is tapped.
-    let action: () -> Void
+    let action: () async -> Void
 
     // MARK: View
 
     var body: some View {
-        Button(action: action) {
-            image
-                .imageStyle(
-                    .init(
-                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
-                        scaleWithFont: false,
-                        width: 32,
-                        height: 32
-                    )
-                )
+        AsyncButton(action: action) {
+            image.imageStyle(.floatingActionButton)
         }
-        .buttonStyle(CircleButtonStyle())
+        .buttonStyle(CircleButtonStyle(diameter: 50))
+        .accessibilitySortPriority(1)
     }
 }
 

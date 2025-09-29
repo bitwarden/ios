@@ -38,6 +38,14 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
+    /// A `TextFieldConfiguration` for applying common properties to organization identifier text fields.
+    static let organizationIdentifier = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .asciiCapable,
+        textContentType: nil,
+        textInputAutocapitalization: .never
+    )
+
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
     static let url = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
@@ -49,7 +57,7 @@ extension TextFieldConfiguration {
     /// A `TextFieldConfiguration` for applying common properties to username text fields.
     static let username = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
-        keyboardType: .default,
+        keyboardType: .emailAddress,
         textContentType: .username,
         textInputAutocapitalization: .never
     )

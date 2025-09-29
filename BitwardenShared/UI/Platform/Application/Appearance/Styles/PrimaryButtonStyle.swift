@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PrimaryButtonStyle
@@ -5,22 +6,6 @@ import SwiftUI
 /// The style for all primary buttons in this application.
 ///
 struct PrimaryButtonStyle: ButtonStyle {
-    // MARK: Types
-
-    /// The different sizes that the button style supports.
-    enum Size {
-        case medium
-        case large
-
-        /// The amount of vertical padding to apply to the button content for this size.
-        var verticalPadding: CGFloat {
-            switch self {
-            case .medium: 8
-            case .large: 14
-            }
-        }
-    }
-
     // MARK: Properties
 
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -29,39 +14,39 @@ struct PrimaryButtonStyle: ButtonStyle {
     var isDestructive = false
 
     /// The size of the button.
-    var size: Size
+    var size: ButtonStyleSize
 
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
     /// The background color of this button.
     var backgroundColor: Color {
-        if isDestructive {
-            Asset.Colors.error.swiftUIColor
-        } else {
-            isEnabled
-                ? Asset.Colors.buttonFilledBackground.swiftUIColor
-                : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+        guard isEnabled else {
+            return SharedAsset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
+        return isDestructive
+            ? SharedAsset.Colors.error.swiftUIColor
+            : SharedAsset.Colors.buttonFilledBackground.swiftUIColor
     }
 
     /// The color of the foreground elements in this button, including text and template
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledForeground.swiftUIColor
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .styleGuide(.bodyBold)
+            .multilineTextAlignment(.center)
+            .styleGuide(size.fontStyle, includeLinePadding: false, includeLineSpacing: false)
             .padding(.vertical, size.verticalPadding)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: shouldFillWidth ? .infinity : nil)
+            .padding(.horizontal, size.horizontalPadding)
+            .frame(maxWidth: shouldFillWidth ? .infinity : nil, minHeight: size.minimumHeight)
             .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
@@ -78,8 +63,8 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
     ///
     static func primary(
         isDestructive: Bool = false,
-        size: PrimaryButtonStyle.Size = .large,
-        shouldFillWidth: Bool = true
+        shouldFillWidth: Bool = true,
+        size: ButtonStyleSize = .large
     ) -> PrimaryButtonStyle {
         PrimaryButtonStyle(
             isDestructive: isDestructive,
@@ -108,6 +93,9 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 
 #Preview("Sizes") {
     VStack {
+        Button("Small") {}
+            .buttonStyle(.primary(size: .small))
+
         Button("Medium") {}
             .buttonStyle(.primary(size: .medium))
 

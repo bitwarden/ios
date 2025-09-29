@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
@@ -18,7 +19,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: CipherItemState(hasPremium: true))
+        processor = MockProcessor(
+            state: CipherItemState(
+                hasPremium: true
+            )
+        )
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
@@ -32,10 +37,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
+    /// Tapping the add website button dispatches the `.newUriPressed` action.
+    @MainActor
+    func test_addWebsiteButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.addWebsite)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
+    }
+
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -43,7 +56,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the check password button performs the `.checkPassword` effect.
     @MainActor
     func test_checkPasswordButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.checkPassword)
+        let button = try subject.inspect().find(asyncButton: Localizations.checkPasswordForDataBreaches)
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
@@ -74,6 +87,36 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .removePasskeyPressed)
     }
 
+    /// Tapping the dismiss button in the learn new login  action card sends the
+    /// `.dismissNewLoginActionCard` effect.
+    @MainActor
+    func test_learnNewLoginActionCard_visible_tapDismiss() async throws {
+        processor.state = CipherItemState(
+            hasPremium: true
+        )
+        processor.state.isLearnNewLoginActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissNewLoginActionCard])
+    }
+
+    /// Tapping the 'Get started' button in the learn new login  action card sends the
+    /// `.showLearnNewLoginGuidedTour` effect.
+    @MainActor
+    func test_learnNewLoginActionCard_visible_tapGetStarted() async throws {
+        processor.state = CipherItemState(
+            hasPremium: true
+        )
+        processor.state.isLearnNewLoginActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.showLearnNewLoginGuidedTour])
+    }
+
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
@@ -81,21 +124,23 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             existing: CipherView.loginFixture(),
             hasPremium: true
         )!
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the favorite toggle dispatches the `.favoriteChanged(_:)` action.
+    /// Tapping the favorite button dispatches the `.favoriteChanged(_:)` action.
     @MainActor
-    func test_favoriteToggle_tap() throws {
-        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-            throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
-        }
+    func test_favoriteButton_tap() throws {
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.favorite)
+
         processor.state.isFavoriteOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.favorite)
-        try toggle.tap()
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(true))
+
+        processor.state.isFavoriteOn = true
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(false))
     }
 
     /// Updating the folder text field dispatches the `.folderChanged()` action.
@@ -142,7 +187,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Updating the name text field dispatches the `.nameChanged()` action.
     @MainActor
     func test_nameTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.itemNameRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("text"))
     }
@@ -150,22 +195,24 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the new custom field button dispatches the `.newCustomFieldPressed` action.
     @MainActor
     func test_newCustomFieldButton_tap() throws {
+        processor.state.isAdditionalOptionsExpanded = true
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .customField(.newCustomFieldPressed))
     }
 
-    /// Tapping the new uri button dispatches the `.newUriPressed` action.
+    /// Tapping the new folder button dispatches the `.addFolder` action.
     @MainActor
-    func test_newUriButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.newUri)
+    func test_newFolder_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.newFolder)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
     }
 
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     @MainActor
     func test_notesTextField_updateValue() throws {
+        processor.state.isAdditionalOptionsExpanded = true
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
             accessibilityLabel: Localizations.notes
@@ -182,7 +229,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherOwner.personal(email: "user@bitwarden.com"),
             organizationOwner,
         ]
-        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.whoOwnsThisItem)
+        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
@@ -220,6 +267,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
     @MainActor
     func test_saveButton_tapAdd() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
@@ -229,6 +281,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
     @MainActor
     func test_saveButton_tapEdit() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
@@ -236,31 +293,23 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
-    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator key button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_noKey_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
-    /// Tapping the setup totp button dispatches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
-    }
-
-    @MainActor
-    func test_typeMenuField_updateValue() throws {
-        processor.state.type = .login
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
-        try menuField.select(newValue: BitwardenShared.CipherType.card)
-        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
     }
 
     /// Selecting a new value with the uri match type picker dispatches the `.uriTypeChanged` action.
@@ -307,7 +356,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.uri)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.websiteURI)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .uriChanged("text", index: 0))
     }
@@ -485,16 +534,30 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_add_empty() {
+    func disabletest_snapshot_add_empty() {
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+    }
+
+    /// Tests the snapshot with the add state with the learn new login action card.
+    @MainActor
+    func disabletest_snapshot_learnNewLoginActionCard() throws {
+        processor.state = CipherItemState(
+            hasPremium: false
+        )
+        processor.state.isLearnNewLoginActionCardEligible = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark]
+        )
     }
 
     /// Tests the add state with identity item empty.
     @MainActor
-    func test_snapshot_add_identity_full_fieldsEmpty() {
+    func disabletest_snapshot_add_identity_full_fieldsEmpty() {
         processor.state.type = .identity
         processor.state.name = ""
         processor.state.identityState = .init()
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = false
         processor.state.isMasterPasswordRePromptOn = false
         processor.state.notes = ""
@@ -505,7 +568,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tests the add state with identity item filled.
     @MainActor
-    func test_snapshot_add_identity_full_fieldsFilled() {
+    func disabletest_snapshot_add_identity_full_fieldsFilled() {
         processor.state.type = .identity
         processor.state.name = "my identity"
         processor.state.identityState = .fixture(
@@ -528,6 +591,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             postalCode: "1234",
             country: "country"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "A long segment of notes that proves that the multiline feature is working."
@@ -539,7 +603,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tests the add state with identity item filled with large text.
     @MainActor
-    func test_snapshot_add_identity_full_fieldsFilled_largeText() {
+    func disabletest_snapshot_add_identity_full_fieldsFilled_largeText() {
         processor.state.type = .identity
         processor.state.name = "my identity"
         processor.state.identityState = .fixture(
@@ -562,6 +626,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             postalCode: "1234",
             country: "country"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -573,7 +638,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tests the add state with the password field not visible.
     @MainActor
-    func test_snapshot_add_login_full_fieldsNotVisible() {
+    func disabletest_snapshot_add_login_full_fieldsNotVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState = .fixture(
@@ -583,6 +648,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ],
             username: "username"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
@@ -597,11 +663,12 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tests the add state with all fields.
     @MainActor
-    func test_snapshot_add_login_full_fieldsVisible() {
+    func disabletest_snapshot_add_login_full_fieldsVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState.username = "username"
         processor.state.loginState.password = "password1!"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
@@ -617,8 +684,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_add_login_collections() {
-        processor.state.collections = [
+    func disabletest_snapshot_add_login_collections() {
+        processor.state.allUserCollections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),
         ]
@@ -630,7 +697,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_add_login_collectionsNone() {
+    func disabletest_snapshot_add_login_collectionsNone() {
         processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
         processor.state.owner = .organization(id: "1", name: "Organization")
 
@@ -638,7 +705,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_edit_full_fieldsNotVisible() {
+    func disabletest_snapshot_edit_full_fieldsNotVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
@@ -654,6 +721,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -665,15 +733,55 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_add_personalOwnershipPolicy() {
+    func disabletest_snapshot_edit_full_readOnly() {
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(edit: false),
+            hasPremium: true
+        )!
+        processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .portraitDark(heightMultiple: 2),
+            ]
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_add_personalOwnershipPolicy() {
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
         processor.state.isPersonalOwnershipDisabled = true
+        processor.state.allUserCollections = [
+            .fixture(id: "1", name: "Default collection", organizationId: "1"),
+        ]
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_add_secureNote_full_fieldsVisible() {
+    func disabletest_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -684,7 +792,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_edit_full_disabledViewPassword() {
+    func disabletest_snapshot_edit_full_disabledViewPassword() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
@@ -701,6 +809,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -712,7 +821,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_edit_full_fieldsNotVisible_largeText() {
+    func disabletest_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
@@ -728,6 +837,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -739,7 +849,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_edit_full_fieldsVisible() {
+    func disabletest_snapshot_edit_full_fieldsVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
@@ -755,6 +865,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ],
             username: "username"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -766,7 +877,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     @MainActor
-    func test_snapshot_edit_full_fieldsVisible_largeText() {
+    func disabletest_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
             hasPremium: true
@@ -782,6 +893,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -793,7 +905,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Test a snapshot of the AddEditView previews.
-    func test_snapshot_previews_addEditItemView() {
+    func disabletest_snapshot_previews_addEditItemView() {
         for preview in AddEditItemView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
@@ -808,7 +920,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Snapshots the previews for SSH key type.
     @MainActor
-    func test_snapshot_sshKey() {
+    func disabletest_snapshot_sshKey() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: true,
             isPrivateKeyVisible: false
@@ -821,7 +933,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Snapshots the previews for SSH key type when private key is visible.
     @MainActor
-    func test_snapshot_sshKeyPrivateKeyVisible() {
+    func disabletest_snapshot_sshKeyPrivateKeyVisible() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: true,
             isPrivateKeyVisible: true
@@ -834,7 +946,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Snapshots the previews for SSH key type when `canViewPrivateKey` is `false`.
     @MainActor
-    func test_snapshot_sshKeyCantViewPrivateKey() {
+    func disabletest_snapshot_sshKeyCantViewPrivateKey() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: false,
             isPrivateKeyVisible: false

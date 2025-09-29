@@ -1,0 +1,239 @@
+name: Create GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact-run-id:
+        description: 'GitHub Action Run ID containing artifacts'
+        required: true
+        type: string
+      release-ticket-id:
+        description: 'Release Ticket ID - e.g. RELEASE-1762'
+        required: true
+        type: string
+
+env:
+    _ARTIFACTS_PATH: artifacts
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+
+    steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
+      - name: Check out repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0
+
+      - name: Get branch from workflow run
+        id: get_release_branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+        run: |
+          workflow_data=$(gh run view $ARTIFACT_RUN_ID --json headBranch,workflowName)
+          release_branch=$(echo "$workflow_data" | jq -r .headBranch)
+          workflow_name=$(echo "$workflow_data" | jq -r .workflowName)
+
+          # branch protection check
+          if [[ "$release_branch" != "main" && ! "$release_branch" =~ ^release/ ]]; then
+            echo "::error::Branch '$release_branch' is not 'main' or a release branch starting with 'release/'. Releases must be created from protected branches."
+            exit 1
+          fi
+
+          echo "🔖 Release branch: $release_branch"
+          echo "🔖 Workflow name: $workflow_name"
+          echo "release_branch=$release_branch" >> $GITHUB_OUTPUT
+          echo "workflow_name=$workflow_name" >> $GITHUB_OUTPUT
+
+          case "$workflow_name" in
+            *"Password Manager"* | "Build" | "CI - main")
+              app_name="Password Manager"
+              app_name_suffix="bwpm"
+              ;;
+            *"Authenticator"*)
+              app_name="Authenticator"
+              app_name_suffix="bwa"
+              ;;
+            *)
+              echo "::error::Unknown workflow name: $workflow_name"
+              exit 1
+              ;;
+          esac
+          echo "🔖 App name: $app_name"
+          echo "🔖 App name suffix: $app_name_suffix"
+          echo "app_name=$app_name" >> $GITHUB_OUTPUT
+          echo "app_name_suffix=$app_name_suffix" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _DOWNLOAD_FILTER: "release_${{ steps.get_release_branch.outputs.app_name_suffix}}"
+        run: ./Scripts/download-artifacts.sh $_ARTIFACTS_PATH $_ARTIFACT_RUN_ID $_DOWNLOAD_FILTER
+
+      - name: Parse version info from run logs and set release tag name
+        id: get_release_info
+        env:
+          _APP_NAME_SUFFIX: ${{ steps.get_release_branch.outputs.app_name_suffix }}
+        run: |
+          if [ -f "$_ARTIFACTS_PATH/version-info.zip" ]; then
+            echo "🔖 version-info.zip was found, extracting info"
+            unzip -o "$_ARTIFACTS_PATH/version-info.zip" -d "tmp"
+            filepath="tmp/version-info/version_info.json"
+            version_name=$(jq -r '.version_name' "$filepath")
+            version_number=$(jq -r '.version_number' "$filepath")
+            rm -rf tmp
+            rm "$_ARTIFACTS_PATH/version-info.zip"
+          else
+            echo "::warning::version-info.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
+            version_name="0.0.0"
+            version_number="0"
+          fi
+
+          echo "version_number=$version_number" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+          echo "🔖 Version: $version_name ($version_number)"
+
+          tag_name="v$version_name-$_APP_NAME_SUFFIX" # e.g. v2025.6.0-bwpm
+          echo "🔖 New tag name: $tag_name"
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+
+          last_release_tag=$(git tag -l --sort=-authordate | grep "$_APP_NAME_SUFFIX" | head -n 1)
+          echo "🔖 Last release tag: $last_release_tag"
+          echo "last_release_tag=$last_release_tag" >> $GITHUB_OUTPUT
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-ios
+          secrets: "JIRA-API-EMAIL,JIRA-API-TOKEN"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Get product release notes
+        id: get_release_notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _RELEASE_TICKET_ID: ${{ inputs.release-ticket-id }}
+          _JIRA_API_EMAIL: ${{ steps.get-kv-secrets.outputs.JIRA-API-EMAIL }}
+          _JIRA_API_TOKEN: ${{ steps.get-kv-secrets.outputs.JIRA-API-TOKEN }}
+        run: |
+          echo "Getting product release notes"
+          product_release_notes=$(python3 .github/scripts/jira-get-release-notes/jira_release_notes.py $_RELEASE_TICKET_ID $_JIRA_API_EMAIL $_JIRA_API_TOKEN)
+
+          if [[ -z "$product_release_notes" || $product_release_notes == "Error checking"* ]]; then
+            echo "::warning::Failed to fetch release notes from Jira. Output: $product_release_notes"
+            product_release_notes="<insert product release notes here>"
+          else
+            echo "✅ Product release notes:"
+            echo "$product_release_notes"
+          fi
+
+          echo "$product_release_notes" > product_release_notes.txt
+
+      - name: Create GitHub Release
+        id: create_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _APP_NAME: ${{ steps.get_release_branch.outputs.app_name }}
+          _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
+          _TAG_NAME: ${{ steps.get_release_info.outputs.tag_name }}
+          _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
+        run: |
+          is_latest_release=false
+          if [[ "$_APP_NAME" == "Password Manager" ]]; then
+            is_latest_release=true
+          fi
+
+          echo "⌛️ Creating release for $_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER) on $_RELEASE_BRANCH"
+          release_url=$(gh release create "$_TAG_NAME" \
+            --title "$_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER)" \
+            --target $_RELEASE_BRANCH \
+            --generate-notes \
+            --notes-start-tag "$_LAST_RELEASE_TAG" \
+            --latest=$is_latest_release \
+            --draft \
+            $_ARTIFACTS_PATH/*)
+
+          # Extract release tag from URL
+          release_id_from_url=$(echo "$release_url" | sed 's/.*\/tag\///')
+          echo "release_id_from_url=$release_id_from_url" >> $GITHUB_OUTPUT
+
+          echo "url=$release_url" >> $GITHUB_OUTPUT
+
+          echo "✅ Release created: $release_url"
+          echo "🔖 Release ID from URL: $release_id_from_url"
+
+      - name: Update Release Description
+        id: update_release_description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _RELEASE_ID: ${{ steps.create_release.outputs.release_id_from_url }}
+          _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+        run: |
+          echo "Getting current release body. Release ID: $_RELEASE_ID"
+          current_body=$(gh release view "$_RELEASE_ID" --json body --jq .body)
+
+          product_release_notes=$(cat product_release_notes.txt)
+
+          # Update release description with product release notes and builds source
+          updated_body="# Overview
+          ${product_release_notes}
+
+          ${current_body}
+          **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$_ARTIFACT_RUN_ID"
+
+          new_release_url=$(gh release edit "$_RELEASE_ID" --notes "$updated_body")
+
+          # draft release links change after editing
+          echo "release_url=$new_release_url" >> $GITHUB_OUTPUT
+
+      - name: Add Release Summary
+        env:
+          _RELEASE_TAG: ${{ steps.get_release_info.outputs.tag_name }}
+          _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
+          _RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
+        run: |
+          echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
+          echo "$_RELEASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "$_VERSION_NAME" == "0.0.0" || "$_VERSION_NUMBER" == "0" ]]; then
+            echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+            echo "> Version name or number wasn't previously found and a default value was used. You'll need to manually update the release Title, Tag and Description, specifically, the "Full Changelog" link." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo ":clipboard: Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
+          echo " * :bookmark: New tag name: \`$_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :palm_tree: Target branch: \`$_RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: \`$_LAST_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :white_check_mark: Description has automated release notes and they match the commits in the release branch" >> $GITHUB_STEP_SUMMARY
+          echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
+          echo "> Commits directly pushed to branches without a Pull Request won't appear in the automated release notes." >> $GITHUB_STEP_SUMMARY

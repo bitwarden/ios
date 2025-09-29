@@ -1,4 +1,17 @@
+import BitwardenKit
 import Foundation
+
+// MARK: - IdentityTokenErrors
+
+/// Constants for the `error` type returned in `IdentityTokenErrorModel`.
+///
+enum IdentityTokenError {
+    static let deviceError = "device_error"
+
+    static let invalidGrant = "invalid_grant"
+
+    static let encryptionKeyMigrationRequired = "Encryption key migration is required. Please log in to the web vault"
+}
 
 // MARK: - IdentityTokenErrorModel
 
@@ -9,26 +22,28 @@ struct IdentityTokenErrorModel: Codable {
 
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
-        case captchaBypassToken = "CaptchaBypassToken"
-        case siteCode = "HCaptcha_SiteKey"
-        case ssoToken = "SsoEmail2faSessionToken"
-        case twoFactorProviders = "TwoFactorProviders"
-        case twoFactorProvidersData = "TwoFactorProviders2"
+        case masterPasswordPolicy
+        case ssoToken = "ssoEmail2faSessionToken"
+        case twoFactorProvidersData = "twoFactorProviders2"
+        case error
+        case errorDetails = "errorModel"
     }
+
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Properties
 
-    /// The captcha bypass token to use on subsequent requests to bypass captcha.
-    let captchaBypassToken: String?
+    /// The error type.
+    let error: String?
 
-    /// The site code used to access hCaptcha.
-    let siteCode: String?
+    /// An `ErrorModel` object that provides more details about the error.
+    let errorDetails: ErrorModel?
+
+    /// The master password policies that the org has enabled.
+    let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
 
     /// The user's SSO token.
     let ssoToken: String?
-
-    /// The two-factor providers that the user has enabled and set up for their account.
-    let twoFactorProviders: [String]?
 
     /// The two-factor providers data that the user has enabled and set up for their account.
     let twoFactorProvidersData: AuthMethodsData?
@@ -40,12 +55,16 @@ struct IdentityTokenErrorModel: Codable {
 public struct AuthMethodsData: Codable, Equatable, Sendable {
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
+        case authenticator = "0"
         case email = "1"
         case duo = "2"
         case organizationDuo = "6"
         case yubikey = "3"
         case webAuthn = "7"
     }
+
+    /// Whether authenticator provider is enabled.
+    let authenticator: Bool
 
     /// Information for two factor authentication with Email
     let email: Email?
@@ -63,17 +82,39 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
     let webAuthn: WebAuthn?
 
     /// List of all available two factor authentication for the user
-    /// This is necessary because authenticator is one possible option but has no information
-    var providersAvailable: [String]?
+    var providersAvailable: [String]? {
+        var providers: [String] = []
+        if authenticator { providers.append(CodingKeys.authenticator.rawValue) }
+        if email != nil { providers.append(CodingKeys.email.rawValue) }
+        if duo != nil { providers.append(CodingKeys.duo.rawValue) }
+        if organizationDuo != nil { providers.append(CodingKeys.organizationDuo.rawValue) }
+        if yubikey != nil { providers.append(CodingKeys.yubikey.rawValue) }
+        if webAuthn != nil { providers.append(CodingKeys.webAuthn.rawValue) }
+        return providers.nilIfEmpty
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        email = try container.decodeIfPresent(Email.self, forKey: .email)
+        duo = try container.decodeIfPresent(Duo.self, forKey: .duo)
+        organizationDuo = try container.decodeIfPresent(Duo.self, forKey: .organizationDuo)
+        yubikey = try container.decodeIfPresent(Yubikey.self, forKey: .yubikey)
+        webAuthn = try container.decodeIfPresent(WebAuthn.self, forKey: .webAuthn)
+
+        authenticator = container.contains(.authenticator)
+    }
 
     /// Constructor to initialise the AuthMethodsData empty
     init(
+        authenticator: Bool = false,
         email: Email? = nil,
         duo: Duo? = nil,
         organizationDuo: Duo? = nil,
         yubikey: Yubikey? = nil,
         webAuthn: WebAuthn? = nil
     ) {
+        self.authenticator = authenticator
         self.email = email
         self.duo = duo
         self.organizationDuo = organizationDuo
@@ -86,12 +127,6 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Duo two factor authentication
 public struct Duo: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case authUrl = "AuthUrl"
-        case host = "Host"
-        case signature = "Signature"
-    }
-
     let authUrl, host, signature: String?
 }
 
@@ -99,10 +134,6 @@ public struct Duo: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Email two factor authentication
 public struct Email: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case email = "Email"
-    }
-
     /// Email used to send the code to verify 2fa
     let email: String?
 }
@@ -148,10 +179,6 @@ public struct AllowCredential: Codable, Equatable, Sendable {
 
 /// Struct with information for two factor authentication with Yubikeys
 public struct Yubikey: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case nfc = "Nfc"
-    }
-
     /// Indicates if NFC is supported
     let nfc: Bool?
 }

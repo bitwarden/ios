@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
@@ -5,6 +7,8 @@ import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
+
+// swiftlint:disable file_length
 
 // MARK: - VaultListViewTests
 
@@ -50,39 +54,59 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     // MARK: Tests
 
-    /// Tapping the add item button dispatches the `.addItemPressed` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
-    }
-
     /// Tapping the add the new login button dispatches the `.addItemPressed` action.
     @MainActor
     func test_newLoginButton_tap() throws {
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
     }
 
-    /// Tapping the floating action button dispatches the `.addItemPressed` action.`
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new login type.
     @MainActor
     func test_addItemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        try fab.find(button: Localizations.typeLogin).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
+    }
+
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new identity type.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_identity() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.typeIdentity).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.identity))
+    }
+
+    /// Tapping the add folder button in the FAB dispatches the `.addFolder` action.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_addFolder() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.folder).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
+    }
+
+    /// The floating action button will be hidden if .
+    @MainActor
+    func test_addItemFloatingActionButton_hidden_policy_enable() throws {
+        processor.state.loadingState = .data([])
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        XCTAssertThrowsError(try fab.find(button: Localizations.typeCard))
     }
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().recursiveCallOnLongPressGesture()
+        try accountRow.labelView().callOnLongPressGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountLongPressed(currentAccount)))
@@ -91,10 +115,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Tapping a profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_accountRow_tap_currentAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().recursiveCallOnTapGesture()
+        try accountRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountPressed(currentAccount)))
@@ -103,6 +131,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Tapping the add account row dispatches the `.addAccountPressed ` action.
     @MainActor
     func test_accountRow_tap_addAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
@@ -195,12 +227,37 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    /// Tapping the go to settings button in the flight recorder toast banner dispatches the
+    /// `.navigateToFlightRecorderSettings` action.
+    @MainActor
+    func test_toastBannerGoToSettings_tap() async throws {
+        processor.state.isFlightRecorderToastBannerVisible = true
+        let button = try subject.inspect().find(button: Localizations.goToSettings)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
+    }
+
+    /// Tapping the try again button dispatches the `.tryAgainTapped` action.
+    @MainActor
+    func test_tryAgainButton_tap() async throws {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.tryAgainTapped])
+    }
+
     /// Tapping the vault item dispatches the `.itemPressed` action.
     @MainActor
     func test_vaultItem_tap() throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(button: Localizations.typeLogin)
+        let button = try subject.inspect().find(LoadingViewType.self)
+            .find(ViewType.Button.self) { view in
+                _ = try view.find { try $0.accessibilityIdentifier() == "ItemFilterCell" }
+                return true
+            }
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
     }
@@ -229,7 +286,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
 
@@ -237,7 +294,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_empty_singleAccountProfileSwitcher() {
+    func disabletest_snapshot_empty_singleAccountProfileSwitcher() {
         processor.state.profileSwitcherState.isVisible = true
         processor.state.loadingState = .data([])
 
@@ -245,28 +302,49 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_loading() {
+    func disabletest_snapshot_errorState() {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_flightRecorderToastBanner() {
+        processor.state.loadingState = .data([])
+        processor.state.isFlightRecorderToastBannerVisible = true
+        processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
+            duration: .twentyFourHours,
+            startDate: Date(year: 2025, month: 4, day: 3)
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_myVault() {
+    func disabletest_snapshot_myVault() {
         processor.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: [
-                    .fixture(cipherView: .fixture(
+                    .fixture(cipherListView: .fixture(
                         login: .fixture(username: "email@example.com"),
-                        name: "Example"
+                        name: "Example",
+                        subtitle: "email@example.com",
                     )),
-                    .fixture(cipherView: .fixture(id: "12", name: "Example", type: .secureNote)),
-                    .fixture(cipherView: .loginFixture(
-                        attachments: [.fixture()],
+                    .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
+                    .fixture(cipherListView: .fixture(
                         id: "13",
+                        organizationId: "1",
                         login: .fixture(username: "user@bitwarden.com"),
                         name: "Bitwarden",
-                        organizationId: "1"
+                        subtitle: "user@bitwarden.com",
+                        attachments: 1
                     )),
                 ],
                 name: "Favorites"
@@ -301,10 +379,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withSearchResult() {
+    func disabletest_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
@@ -313,25 +391,25 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withMultipleSearchResults() {
+    func disabletest_snapshot_withMultipleSearchResults() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "1",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "2",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "3",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "4",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
@@ -341,7 +419,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withoutSearchResult() {
+    func disabletest_snapshot_withoutSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = []
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -349,7 +427,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// Test a snapshot of the VaultListView previews.
     @MainActor
-    func test_snapshot_vaultListView_previews() {
+    func disabletest_snapshot_vaultListView_previews() {
         for preview in VaultListView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

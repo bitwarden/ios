@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -27,6 +28,42 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDelete)
         XCTAssertNil(subject.message)
+    }
+
+    /// `confirmDeleteLog(action:)` constructs an `Alert` with the title,
+    /// message, yes, and cancel buttons to confirm deleting a log.
+    func test_confirmDeleteLog() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmDeleteLog(isBulkDeletion: false) { actionCalled = true }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDeleteThisLog)
+        XCTAssertNil(subject.message)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.yes)
+        XCTAssertTrue(actionCalled)
+    }
+
+    /// `confirmDeleteLog(action:)` constructs an `Alert` with the title,
+    /// message, yes, and cancel buttons to confirm deleting all logs.
+    func test_confirmDeleteLog_bulkDeletion() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmDeleteLog(isBulkDeletion: true) { actionCalled = true }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDeleteAllRecordedLogs)
+        XCTAssertNil(subject.message)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.yes)
+        XCTAssertTrue(actionCalled)
     }
 
     /// `confirmDenyingAllRequests(action:)` constructs an `Alert` with the title,
@@ -201,6 +238,17 @@ class AlertSettingsTests: BitwardenTestCase {
     }
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `biometrics`.
+    func test_unlockWithPINAlert_biometrics() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .unknown) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireUnknownBiometricsOrMasterPasswordRestart)
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
     /// when `biometricType` is `faceID`.
     func test_unlockWithPINAlert_faceID() {
         let subject = Alert.unlockWithPINCodeAlert(biometricType: .faceID) { _ in }
@@ -209,6 +257,17 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
         XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID))
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `opticID`.
+    func test_unlockWithPINAlert_opticID() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .opticID) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID))
     }
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons

@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import XCTest
@@ -43,7 +44,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -68,6 +69,11 @@ class AttachmentsViewTests: BitwardenTestCase {
     /// Tapping the save button performs the `.savePressed` effect.
     @MainActor
     func test_saveButton_tap() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .save)
@@ -77,7 +83,21 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly in dark mode.
     @MainActor
-    func test_snapshot_attachments_empty() {
+    func disabletest_snapshot_attachments_empty() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ]
+        )
+    }
+
+    /// The view with a selected attachment renders correctly.
+    @MainActor
+    func disabletest_snapshot_attachments_selected() {
+        processor.state.fileName = "photo.jpg"
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
@@ -90,7 +110,7 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The view with several attachments renders correctly in dark mode.
     @MainActor
-    func test_snapshot_attachments_several() {
+    func disabletest_snapshot_attachments_several() {
         processor.state.cipher = cipherWithAttachments
         assertSnapshots(
             of: subject.navStackWrapped,

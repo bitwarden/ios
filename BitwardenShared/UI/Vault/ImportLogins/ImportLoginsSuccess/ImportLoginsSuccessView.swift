@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportLoginsSuccessView
@@ -14,8 +16,9 @@ struct ImportLoginsSuccessView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.devices,
+                style: .mediumImage,
                 title: Localizations.importSuccessful,
                 message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
             )
@@ -46,7 +49,7 @@ struct ImportLoginsSuccessView: View {
             }
             .buttonStyle(.primary())
         }
-        .padding(.top, 8)
+        .padding(.top, 12)
         .scrollView()
         .navigationBar(title: Localizations.bitwardenTools, titleDisplayMode: .inline)
         .toolbar {
@@ -78,17 +81,17 @@ struct ImportLoginsSuccessView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .styleGuide(.body, weight: .bold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                 if let subtitle {
                     Text(subtitle)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
             }
         }

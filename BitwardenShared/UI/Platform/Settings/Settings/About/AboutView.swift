@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AboutView
@@ -11,20 +13,26 @@ struct AboutView: View {
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<AboutState, AboutAction, Void>
+    @ObservedObject var store: Store<AboutState, AboutAction, AboutEffect>
 
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             submitCrashLogs
+
+            flightRecorderSection
 
             miscSection
 
             copyrightNotice
         }
+        .animation(.default, value: store.state.flightRecorderActiveLog)
         .scrollView()
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.streamFlightRecorderLog)
+        }
         .toast(store.binding(
             get: \.toast,
             send: AboutAction.toastShown
@@ -47,14 +55,53 @@ struct AboutView: View {
     private var copyrightNotice: some View {
         Text(store.state.copyrightText)
             .styleGuide(.caption2)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
 
+    /// The section for the flight recorder.
+    @ViewBuilder private var flightRecorderSection: some View {
+        ContentBlock(dividerLeadingPadding: 16) {
+            BitwardenToggle(
+                isOn: store.bindingAsync(
+                    get: { $0.flightRecorderActiveLog != nil },
+                    perform: AboutEffect.toggleFlightRecorder
+                ),
+                accessibilityIdentifier: "FlightRecorderSwitch",
+                accessibilityLabel: store.state.flightRecorderToggleAccessibilityLabel
+            ) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) {
+                        Text(Localizations.flightRecorder)
+
+                        Button {
+                            openURL(ExternalLinksConstants.flightRecorderHelp)
+                        } label: {
+                            Asset.Images.questionCircle16.swiftUIImage
+                                .scaledFrame(width: 16, height: 16)
+                                .accessibilityLabel(Localizations.learnMore)
+                        }
+                        .buttonStyle(.fieldLabelIcon)
+                    }
+
+                    if let log = store.state.flightRecorderActiveLog {
+                        Text(Localizations.loggingEndsOnDateAtTime(log.formattedEndDate, log.formattedEndTime))
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .styleGuide(.subheadline)
+                    }
+                }
+            }
+
+            SettingsListItem(Localizations.viewRecordedLogs) {
+                store.send(.viewFlightRecorderLogsTapped)
+            }
+        }
+    }
+
     /// The section of miscellaneous about items.
     private var miscSection: some View {
-        VStack(spacing: 0) {
+        ContentBlock(dividerLeadingPadding: 16) {
             externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped)
 
             externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
@@ -63,27 +110,27 @@ struct AboutView: View {
 
             externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 
-            SettingsListItem(store.state.version, hasDivider: false) {
+            SettingsListItem(store.state.version) {
                 store.send(.versionTapped)
             } trailingContent: {
                 Asset.Images.copy24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
-        .cornerRadius(10)
     }
 
     /// The submit crash logs toggle.
     private var submitCrashLogs: some View {
-        Toggle(isOn: store.binding(
-            get: \.isSubmitCrashLogsToggleOn,
-            send: AboutAction.toggleSubmitCrashLogs
-        )) {
-            Text(Localizations.submitCrashLogs)
+        ContentBlock {
+            BitwardenToggle(
+                Localizations.submitCrashLogs,
+                isOn: store.binding(
+                    get: \.isSubmitCrashLogsToggleOn,
+                    send: AboutAction.toggleSubmitCrashLogs
+                ),
+                accessibilityIdentifier: "SubmitCrashLogsSwitch"
+            )
         }
-        .toggleStyle(.bitwarden)
-        .styleGuide(.body)
-        .accessibilityIdentifier("SubmitCrashLogsSwitch")
     }
 
     /// Returns a `SettingsListItem` configured for an external web link.
@@ -106,5 +153,10 @@ struct AboutView: View {
 // MARK: - Previews
 
 #Preview {
-    AboutView(store: Store(processor: StateProcessor(state: AboutState())))
+    AboutView(store: Store(processor: StateProcessor(state: AboutState(
+        flightRecorderActiveLog: FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4)
+        )
+    ))))
 }

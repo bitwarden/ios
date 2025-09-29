@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -17,12 +19,13 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
-        & HasConfigService
         & HasErrorReporter
         & HasEventService
+        & HasFlightRecorder
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -31,6 +34,16 @@ final class VaultListProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// Whether the cipher decryption failure alert was shown to the user, if the vault has any
+    /// ciphers which failed to decrypt.
+    private(set) var hasShownCipherDecryptionFailureAlert = false
+
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
+    /// The task that schedules the app review prompt.
+    private(set) var reviewPromptTask: Task<Void, Never>?
 
     /// The services used by this processor.
     private let services: Services
@@ -44,20 +57,27 @@ final class VaultListProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
+    }
+
+    deinit {
+        reviewPromptTask?.cancel()
     }
 
     // MARK: Methods
@@ -65,10 +85,15 @@ final class VaultListProcessor: StateProcessor<
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault(isManualRefresh: false)
-            await handleNotifications()
-            await checkPendingLoginRequests()
-            await checkPersonalOwnershipPolicy()
+            await appeared()
+        case .checkAppReviewEligibility:
+            if await services.reviewPromptService.isEligibleForReviewPrompt() {
+                await scheduleReviewPrompt()
+            } else {
+                state.isEligibleForAppReview = false
+            }
+        case .dismissFlightRecorderToastBanner:
+            await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -86,11 +111,13 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault(isManualRefresh: true)
+            await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -99,27 +126,28 @@ final class VaultListProcessor: StateProcessor<
             }
         case .streamVaultList:
             await streamVaultList()
+        case .tryAgainTapped:
+            state.loadingState = .loading(nil)
+            await appeared()
         }
     }
 
     override func receive(_ action: VaultListAction) {
         switch action {
-        case .addItemPressed:
-            setProfileSwitcher(visible: false)
-            coordinator.navigate(to: .addItem())
+        case .addFolder:
+            coordinator.navigate(to: .addFolder)
+        case let .addItemPressed(type):
+            addItem(type: type)
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
+        case .disappeared:
+            reviewPromptTask?.cancel()
         case let .itemPressed(item):
-            switch item.itemType {
-            case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id), context: self)
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                coordinator.navigate(to: .viewItem(id: model.id))
-            }
+            handleItemTapped(item)
+        case .navigateToFlightRecorderSettings:
+            coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
@@ -133,6 +161,12 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -148,6 +182,30 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Navigates to the add vault item screen.
+    ///
+    /// - Parameter type: The type of vault item to add.
+    ///
+    private func addItem(type: CipherType) {
+        setProfileSwitcher(visible: false)
+        switch state.vaultFilterType {
+        case let .organization(organization):
+            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+        default:
+            coordinator.navigate(to: .addItem(type: type))
+        }
+        reviewPromptTask?.cancel()
+    }
+
+    /// Called when the vault list appears on screen.
+    private func appeared() async {
+        await refreshVault(syncWithPeriodicCheck: true)
+        await handleNotifications()
+        await checkPendingLoginRequests()
+        await checkPersonalOwnershipPolicy()
+        await loadItemTypesUserCanCreate()
+    }
 
     /// Check if there are any pending login requests for the user to deal with.
     private func checkPendingLoginRequests() async {
@@ -181,6 +239,53 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+    }
+
+    /// Dismisses the flight recorder toast banner for the active user.
+    ///
+    private func dismissFlightRecorderToastBanner() async {
+        state.isFlightRecorderToastBannerVisible = false
+        await services.flightRecorder.setFlightRecorderBannerDismissed()
+    }
+
+    /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
+    /// hasn't been shown yet, notify the user that a cipher(s) failed to decrypt.
+    ///
+    /// - Parameter cipherIds: The list of identifiers for ciphers which failed to decrypt.
+    ///
+    private func handleCipherDecryptionFailures(cipherIds: [Uuid]) {
+        guard !cipherIds.isEmpty, !hasShownCipherDecryptionFailureAlert else { return }
+        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds, isFromCipherTap: false) { stringToCopy in
+            self.services.pasteboardService.copy(stringToCopy)
+        })
+        hasShownCipherDecryptionFailureAlert = true
+    }
+
+    /// Handles the primary action for when a `VaultListItem` is tapped in the list.
+    ///
+    /// - Parameter item: The `VaultListItem` that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
+    }
+
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
@@ -193,22 +298,71 @@ extension VaultListProcessor {
         }
     }
 
+    /// Navigates to the view item view for the specified cipher. If the cipher requires master
+    /// password reprompt, this will prompt the user before navigation.
+    ///
+    /// - Parameters:
+    ///     - cipherListView: The cipher list view item for the cipher that will be shown in the view item view.
+    ///     - id: The cipher's identifier.
+    ///
+    private func navigateToViewItem(cipherListView: CipherListView, id: String) {
+        Task {
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+            }
+        }
+    }
+
     /// Refreshes the vault's contents.
     ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
-    ///
-    private func refreshVault(isManualRefresh: Bool) async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
-            guard let sections = try await services.vaultRepository.fetchSync(
-                isManualRefresh: isManualRefresh,
-                filter: state.vaultFilterType
-            ) else { return }
-            state.loadingState = .data(sections)
+            let takingTimeTask = Task {
+                try await Task.sleep(forSeconds: 5)
+                // If we already have data, don't show the toast
+                guard case .loading = self.state.loadingState else { return }
+                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+            }
+            defer {
+                state.toast = nil
+                takingTimeTask.cancel()
+            }
+
+            try await services.vaultRepository.fetchSync(
+                forceSync: false,
+                filter: state.vaultFilterType,
+                isPeriodic: syncWithPeriodicCheck
+            )
+
+            if try await services.vaultRepository.isVaultEmpty() {
+                // Normally after syncing the database will publish the contents of the vault which is
+                // used to transition from the loading to loaded state. If the vault is empty, nothing
+                // will be published by the database, so it needs to be manually updated.
+                state.loadingState = .data([])
+            }
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
+
+            let needsSync = try? await services.vaultRepository.needsSync()
+            if needsSync == true {
+                // If the vault needs a sync and there are cached items,
+                // display the cached data and show an error alert.
+                if let sections = state.loadingState.data, !sections.isEmpty {
+                    await coordinator.showErrorAlert(error: error)
+                } else {
+                    // If the vault needs a sync and there were no cached items,
+                    // show the full screen error view.
+                    state.loadingState = .error(
+                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                    )
+                }
+            } else {
+                await coordinator.showErrorAlert(error: error)
+            }
         }
     }
 
@@ -256,7 +410,7 @@ extension VaultListProcessor {
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -291,16 +445,39 @@ extension VaultListProcessor {
         state.profileSwitcherState.isVisible = visible
     }
 
+    /// Triggers the app review prompt after a delay.
+    private func scheduleReviewPrompt() async {
+        reviewPromptTask?.cancel()
+        reviewPromptTask = Task {
+            do {
+                try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
+                state.isEligibleForAppReview = true
+            } catch is CancellationError {
+                // Task was cancelled, no need to handle this error
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the flight recorder enabled status.
+    ///
+    private func streamFlightRecorderLog() async {
+        for await log in await services.flightRecorder.activeLogPublisher().values {
+            state.activeFlightRecorderLog = log
+            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
         }
     }
 
@@ -318,13 +495,18 @@ extension VaultListProcessor {
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
-            for try await value in try await services.vaultRepository
-                .vaultListPublisher(filter: state.vaultFilterType) {
+            for try await vaultList in try await services.vaultRepository
+                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 
+                let value = vaultList.sections
+
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
+                    // Dismiss the "this is taking a while" toast now that we have data,
+                    // since this might not happen because of the sync in `refreshVault()`.
+                    state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {
@@ -333,9 +515,16 @@ extension VaultListProcessor {
                 }
 
                 // Dismiss the import logins action card once the vault has items in it.
-                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                if !value.isEmpty {
                     await setImportLoginsProgress(.complete)
                 }
+                // Dismiss the coach mark action cards once the vault has at least one login item in it.
+                if value.hasLoginItems {
+                    await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+                    await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+                }
+                // Alert the user of any cipher decryption failures.
+                handleCipherDecryptionFailures(cipherIds: vaultList.cipherDecryptionFailureIds)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -373,10 +562,10 @@ enum MoreOptionsAction: Equatable {
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
-    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
+    case copyTotp(totpKey: TOTPKeyModel)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
+    case edit(cipherView: CipherView)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
@@ -423,11 +612,19 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         await coordinator.handleEvent(authAction)
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func showAddAccount() {
         coordinator.navigate(to: .addAccount)
     }
 
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

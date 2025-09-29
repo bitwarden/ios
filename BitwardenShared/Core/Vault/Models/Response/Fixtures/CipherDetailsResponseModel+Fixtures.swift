@@ -4,6 +4,7 @@ import Foundation
 
 extension CipherDetailsResponseModel {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentResponseModel]? = nil,
         card: CipherCardModel? = nil,
         collectionIds: [String] = [],
@@ -22,6 +23,7 @@ extension CipherDetailsResponseModel {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [CipherPasswordHistoryModel]? = nil,
+        permissions: CipherPermissionsModel? = nil,
         reprompt: CipherRepromptType = .none,
         revisionDate: Date = Date(),
         secureNote: CipherSecureNoteModel? = nil,
@@ -30,6 +32,7 @@ extension CipherDetailsResponseModel {
         viewPassword: Bool = false
     ) -> CipherDetailsResponseModel {
         self.init(
+            archivedDate: archivedDate,
             attachments: attachments,
             card: card,
             collectionIds: collectionIds,
@@ -48,6 +51,7 @@ extension CipherDetailsResponseModel {
             organizationId: organizationId,
             organizationUseTotp: organizationUseTotp,
             passwordHistory: passwordHistory,
+            permissions: permissions,
             reprompt: reprompt,
             revisionDate: revisionDate,
             secureNote: secureNote,

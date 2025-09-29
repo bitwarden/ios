@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordStrengthIndicator
@@ -16,9 +17,6 @@ struct PasswordStrengthIndicator: View {
     /// The required text count for the password
     let requiredTextCount: Int
 
-    /// If the native-create-account feature flag is on.
-    let nativeCreateAccountFlow: Bool
-
     // MARK: View
 
     var body: some View {
@@ -26,7 +24,7 @@ struct PasswordStrengthIndicator: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(asset: Asset.Colors.strokeDivider))
+                        .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
@@ -36,39 +34,30 @@ struct PasswordStrengthIndicator: View {
                 .frame(height: 4)
             }
 
-            if nativeCreateAccountFlow {
-                HStack {
-                    HStack(spacing: 4) {
-                        if passwordTextCount >= requiredTextCount {
-                            Image(asset: Asset.Images.check12)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                .padding(.leading, 1)
-                        } else {
-                            Circle()
-                                .stroke(Asset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
-                                .frame(width: 10, height: 10)
-                                .padding(.leading, 1)
-                        }
-
-                        Text(Localizations.xCharacters(requiredTextCount))
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            .styleGuide(.footnote, weight: .bold)
-                            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+            HStack {
+                HStack(spacing: 4) {
+                    if passwordTextCount >= requiredTextCount {
+                        Image(asset: Asset.Images.check12)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .padding(.leading, 1)
+                    } else {
+                        Circle()
+                            .stroke(SharedAsset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
+                            .frame(width: 10, height: 10)
+                            .padding(.leading, 1)
                     }
 
-                    Spacer()
+                    Text(Localizations.xCharacters(requiredTextCount))
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .styleGuide(.footnote, weight: .bold)
+                        .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                }
 
-                    Text(passwordStrength.text ?? "")
-                        .foregroundColor(Color(asset: passwordStrength.color))
-                        .styleGuide(.footnote)
-                }
-            } else {
-                if let text = passwordStrength.text {
-                    Text(text)
-                        .foregroundColor(Color(asset: passwordStrength.color))
-                        .styleGuide(.footnote)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                Spacer()
+
+                Text(passwordStrength.text ?? "")
+                    .foregroundColor(Color(asset: passwordStrength.color))
+                    .styleGuide(.footnote)
             }
         }
     }
@@ -80,19 +69,15 @@ struct PasswordStrengthIndicator: View {
     ///     entered password. The value's range is 0-4. Defaults to `nil`.
     ///   - passwordTextCount: The current length of the entered password.
     ///   - requiredTextCount: The required minimum length for the password.
-    ///   - nativeCreateAccountFlow: A feature flag indicating whether the indicator is being
-    ///     used in the native account creation flow.
     ///
     init(
         passwordStrengthScore: UInt8? = nil,
         passwordTextCount: Int = 0,
-        requiredTextCount: Int = 0,
-        nativeCreateAccountFlow: Bool = false
+        requiredTextCount: Int = 0
     ) {
         passwordStrength = PasswordStrength(score: passwordStrengthScore)
         self.passwordTextCount = passwordTextCount
         self.requiredTextCount = requiredTextCount
-        self.nativeCreateAccountFlow = nativeCreateAccountFlow
     }
 }
 
@@ -124,21 +109,21 @@ extension PasswordStrengthIndicator {
         init(score: UInt8?) {
             switch score {
             case 0, 1:
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = Localizations.weak
             case 2:
-                color = Asset.Colors.statusWeak2
+                color = SharedAsset.Colors.statusWeak2
                 text = Localizations.weak
             case 3:
-                color = Asset.Colors.statusGood
+                color = SharedAsset.Colors.statusGood
                 text = Localizations.good
             case 4:
-                color = Asset.Colors.statusStrong
+                color = SharedAsset.Colors.statusStrong
                 text = Localizations.strong
             default:
                 // Provide the initial color when not visible so the color isn't animated when the
                 // first segment appears.
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = nil
             }
 
@@ -171,15 +156,13 @@ extension PasswordStrengthIndicator {
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(4),
-                passwordTextCount: 0,
-                nativeCreateAccountFlow: true
+                passwordTextCount: 0
             )
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(12),
                 passwordTextCount: 5,
-                requiredTextCount: 12,
-                nativeCreateAccountFlow: true
+                requiredTextCount: 12
             )
         }
         .padding()

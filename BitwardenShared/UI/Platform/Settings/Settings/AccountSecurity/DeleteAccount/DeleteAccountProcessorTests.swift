@@ -1,3 +1,7 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -60,13 +64,43 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert. If there's an
-    /// invalid password error with deleting the account, an alert is shown.
+    /// error with deleting the account, an alert is shown and the error is logged.
     @MainActor
-    func test_perform_deleteAccount_serverError() async throws {
+    func test_perform_deleteAccount_error() async throws {
+        let error = URLError(.timedOut)
+        authRepository.deleteAccountResult = .failure(error)
+
+        await subject.perform(.deleteAccount)
+
+        let passwordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try passwordAlert.setText("password", forTextFieldWithId: "password")
+        try await passwordAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+
+        authRepository.deleteAccountCalled = false
+        errorReporter.errors.removeAll()
+
+        authRepository.deleteAccountResult = .success(())
+        await errorAlertWithRetry.retry()
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// Perform with `.deleteAccount` presents the OTP code verification alert.
+    /// If the error is that user verification failed
+    /// And the user does not have a master password
+    /// Then display an invalid verification code mesage
+    @MainActor
+    func test_perform_deleteAccount_serverError_otpIncorrect() async throws {
+        authRepository.hasMasterPasswordResult = .success(false)
         authRepository.deleteAccountResult = .failure(
             ServerError.error(
                 errorResponse: ErrorResponseModel(
-                    validationErrors: nil,
+                    validationErrors: ["": ["User verification failed."]],
                     message: ""
                 )
             )
@@ -75,16 +109,94 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "password", text: "password")
+        try alert.setText("password", forTextFieldWithId: "otp")
+        try await alert.tapAction(title: Localizations.submit)
 
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
+    }
+
+    /// Perform with `.deleteAccount` presents the master password prompt alert.
+    /// If the error is that user verification failed
+    /// And the user has a master password
+    /// Then display an invalid master password mesage
+    @MainActor
+    func test_perform_deleteAccount_serverError_passwordIncorrect() async throws {
+        authRepository.deleteAccountResult = .failure(
+            ServerError.error(
+                errorResponse: ErrorResponseModel(
+                    validationErrors: ["": ["User verification failed."]],
+                    message: ""
+                )
+            )
+        )
+
+        await subject.perform(.deleteAccount)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// Perform with `.deleteAccount` presents the master password prompt alert.
+    /// If the error is that user is the sole owner of an organization
+    /// Then display a message indicating such
+    @MainActor
+    func test_perform_deleteAccount_serverError_soleOrgOwner() async throws {
+        authRepository.deleteAccountResult = .failure(
+            ServerError.error(
+                errorResponse: ErrorResponseModel(
+                    // swiftlint:disable:next line_length
+                    validationErrors: ["": ["Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user."]],
+                    message: ""
+                )
+            )
+        )
+
+        await subject.perform(.deleteAccount)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong))
+    }
+
+    /// Perform with `.deleteAccount` presents the master password prompt alert.
+    /// If the error is unknown
+    /// Then log the error and display a generic error
+    @MainActor
+    func test_perform_deleteAccount_serverError_unknown() async throws {
+        let error = ServerError.error(
+            errorResponse: ErrorResponseModel(
+                validationErrors: ["": ["Example error"]],
+                message: "Example message"
+            )
+        )
+
+        authRepository.deleteAccountResult = .failure(error)
+
+        await subject.perform(.deleteAccount)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? ServerError, error)
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.
@@ -97,11 +209,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(text: "password")
-
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         await assertAsyncThrows {
             _ = try await stateService.getAccounts()
@@ -121,10 +230,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(text: "password")
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertEqual(stateService.activeAccount, account2)
     }
@@ -145,10 +252,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertTrue(authRepository.requestOtpCalled)
         coordinator.loadingOverlaysShown.removeAll()
 
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "otp", text: "otp")
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("otp", forTextFieldWithId: "otp")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -168,36 +273,39 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.deleteAccount)
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// Perform with `.deleteAccount` presents the OTP code verification alert. If there's an
-    /// invalid verification error error, an alert is shown.
+    /// `perform(_:)` with `.loadData` loads the initial data for the view.
     @MainActor
-    func test_perform_deleteAccount_noMasterPassword_serverError() async throws {
-        authRepository.deleteAccountResult = .failure(
-            ServerError.error(
-                errorResponse: ErrorResponseModel(
-                    validationErrors: nil,
-                    message: ""
-                )
-            )
-        )
-        authRepository.hasMasterPasswordResult = .success(false)
+    func test_perform_loadData() async {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .success(true)
+        await subject.perform(.loadData)
 
-        await subject.perform(.deleteAccount)
+        XCTAssertTrue(subject.state.shouldPreventUserFromDeletingAccount)
 
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "otp", text: "otp")
+        authRepository.isUserManagedByOrganizationResult = .success(false)
+        await subject.perform(.loadData)
 
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        XCTAssertFalse(subject.state.shouldPreventUserFromDeletingAccount)
+    }
 
-        XCTAssertTrue(authRepository.deleteAccountCalled)
+    /// `perform(_:)` with `.loadData` loads the initial data for the view. If an error occurs it's logged
+    ///  and an alert is shown.
+    @MainActor
+    func test_perform_loadData_error() async throws {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .failure(BitwardenTestError.example)
 
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
+        await subject.perform(.loadData)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+
+        coordinator.alertOnDismissed?()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 }

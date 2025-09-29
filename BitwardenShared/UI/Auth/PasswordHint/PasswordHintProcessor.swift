@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - PasswordHintProcessor
 
 /// The processor used to manage state and handle actions for the passwort hint screen.
@@ -6,6 +8,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -77,7 +80,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(alert)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

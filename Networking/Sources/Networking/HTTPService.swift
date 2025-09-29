@@ -2,20 +2,20 @@ import Foundation
 
 /// A networking service that can be used to perform HTTP requests.
 ///
-public class HTTPService {
+public final class HTTPService: Sendable {
     // MARK: Properties
 
     /// The URL against which requests are resolved.
-    var baseURL: URL { baseUrlGetter() }
+    var baseURL: URL { baseURLGetter() }
 
     /// A getter function for dynamically retrieving the base url against which requests are resolved.
-    let baseUrlGetter: () -> URL
+    let baseURLGetter: @Sendable () -> URL
 
     /// The underlying `HTTPClient` that performs the network request.
     let client: HTTPClient
 
-    /// A logger used to log HTTP request and responses.
-    let logger = HTTPLogger()
+    /// The loggers used to log HTTP request and responses.
+    let loggers: [HTTPLogger]
 
     /// A list of `RequestHandler`s that have the option to view or modify the request prior to it
     /// being sent. Handlers are applied in the order of the items in the handler list.
@@ -36,6 +36,7 @@ public class HTTPService {
     /// - Parameters:
     ///   - baseURL: The URL against which requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///   - loggers: The loggers used to log HTTP request and responses.
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
     ///     request prior to it being sent.
     ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
@@ -45,12 +46,14 @@ public class HTTPService {
     public init(
         baseURL: URL,
         client: HTTPClient = URLSession.shared,
+        loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
-        baseUrlGetter = { baseURL }
+        baseURLGetter = { baseURL }
         self.client = client
+        self.loggers = loggers
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers
         self.tokenProvider = tokenProvider
@@ -59,9 +62,10 @@ public class HTTPService {
     /// Initialize a `HTTPService`.
     ///
     /// - Parameters:
-    ///   - baseUrlGetter: A getter function for dynamically retrieving the base url against which
+    ///   - baseURLGetter: A getter function for dynamically retrieving the base url against which
     ///     requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///   - loggers: The loggers used to log HTTP request and responses.
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
     ///     request prior to it being sent.
     ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
@@ -69,14 +73,16 @@ public class HTTPService {
     ///   - tokenProvider: An object used to get an access token and refresh it when necessary.
     ///
     public init(
-        baseUrlGetter: @escaping () -> URL,
+        baseURLGetter: @escaping @Sendable () -> URL,
         client: HTTPClient = URLSession.shared,
+        loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
-        self.baseUrlGetter = baseUrlGetter
+        self.baseURLGetter = baseURLGetter
         self.client = client
+        self.loggers = loggers
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers
         self.tokenProvider = tokenProvider
@@ -129,10 +135,14 @@ public class HTTPService {
     ) async throws -> HTTPResponse {
         var httpRequest = httpRequest
         try await applyRequestHandlers(&httpRequest)
-        logger.logRequest(httpRequest)
+        for logger in loggers {
+            await logger.logRequest(httpRequest)
+        }
 
         var httpResponse = try await client.send(httpRequest)
-        logger.logResponse(httpResponse)
+        for logger in loggers {
+            await logger.logResponse(httpResponse)
+        }
 
         if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
             try await tokenProvider.refreshToken()

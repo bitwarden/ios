@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 
@@ -26,9 +27,24 @@ extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
-    /// - Color: `Asset.Colors.iconSecondary`
+    /// - Color: `Asset.Colors.iconPrimary`
     ///
-    static let accessoryIcon = accessoryIcon()
+    static let accessoryIcon16 = accessoryIcon16()
+
+    /// An `ImageStyle` for applying common properties to a circular accessory icon.
+    ///
+    /// - Size: 24x24pt
+    /// - Color: `Asset.Colors.iconPrimary`
+    ///
+    static let accessoryIcon24 = accessoryIcon24()
+
+    /// An `ImageStyle` for applying common properties to an image in a floating action button.
+    static let floatingActionButton = ImageStyle(
+        color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
+        scaleWithFont: false,
+        width: 32,
+        height: 32
+    )
 
     /// An `ImageStyle` for applying common properties for icons within a row.
     ///
@@ -43,7 +59,7 @@ extension ImageStyle {
     /// - Color: `Asset.Colors.iconSecondary`
     ///
     static let toolbarIcon = ImageStyle(
-        color: Asset.Colors.iconSecondary.swiftUIColor,
+        color: SharedAsset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
         width: 24,
         height: 24
@@ -55,14 +71,30 @@ extension ImageStyle {
     /// - Color: Defaults to `Asset.Colors.iconSecondary`
     ///
     /// - Parameters:
-    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconSecondary`.
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconPrimary`.
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
-    static func accessoryIcon(
-        color: Color = Asset.Colors.iconSecondary.swiftUIColor,
+    static func accessoryIcon16(
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
+    }
+
+    /// An `ImageStyle` for applying common properties to a circular accessory icon.
+    ///
+    /// - Size: 24x24pt
+    /// - Color: Defaults to `Asset.Colors.iconSecondary`
+    ///
+    /// - Parameters:
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconPrimary`.
+    ///   - scaleWithFont: Whether the image should scale with font size changes.
+    ///
+    static func accessoryIcon24(
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
+        scaleWithFont: Bool = false
+    ) -> ImageStyle {
+        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
     }
 
     /// An `ImageStyle` for applying common properties for icons within a row.
@@ -75,10 +107,28 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func rowIcon(
-        color: Color = Asset.Colors.textSecondary.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = true
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
+    }
+
+    /// An `ImageStyle` for applying common properties for icons within a full screen view.
+    ///
+    /// - Size: 36x36pt
+    /// - Color: Defaults to `Asset.Colors.textSecondary`
+    ///
+    /// - Parameters:
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.illustrationOutline`.
+    ///   - scaleWithFont: Whether the image should scale with font size changes.
+    ///   - size: The size of the icon.
+    ///
+    static func viewIcon(
+        color: Color = SharedAsset.Colors.illustrationOutline.swiftUIColor,
+        scaleWithFont: Bool = true,
+        size: CGFloat = 36
+    ) -> ImageStyle {
+        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: size, height: size)
     }
 }
 
@@ -93,7 +143,7 @@ extension Image {
     func imageStyle(_ style: ImageStyle) -> some View {
         resizable()
             .frame(width: style.width, height: style.height, scaleWithFont: style.scaleWithFont)
-            .foregroundStyle(style.color)
+            .tint(style.color)
     }
 }
 
@@ -111,6 +161,6 @@ extension View {
     ///
     func imageStyle(_ style: ImageStyle) -> some View {
         frame(width: style.width, height: style.height, scaleWithFont: style.scaleWithFont)
-            .foregroundStyle(style.color)
+            .tint(style.color)
     }
 }

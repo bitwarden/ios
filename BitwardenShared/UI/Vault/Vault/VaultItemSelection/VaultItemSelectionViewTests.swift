@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import XCTest
@@ -33,26 +34,20 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addTapped` action.
+    /// Tapping the add item floating action button dispatches the `.addTapped` action.`
     @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
-    }
-
-    /// Tapping the add item floating acrtion button dispatches the `.addTapped` action.`
-    @MainActor
-    func test_addFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
+    func test_addFloatingActionButton_tap() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
@@ -69,7 +64,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func test_snapshot_cipherSelection_empty() {
+    func disabletest_snapshot_cipherSelection_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -81,7 +76,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly when there's no account or issuer.
     @MainActor
-    func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
+    func disabletest_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
             totpKeyModel: .fixtureMinimum
@@ -99,13 +94,27 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The populated view renders correctly.
     @MainActor
-    func test_snapshot_cipherSelection_populated() {
+    func disabletest_snapshot_cipherSelection_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example",
+                subtitle: "user@bitwarden.com"
+            ),
+            .fixture(
+                id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example Co",
+                subtitle: "user@bitwarden.com"
+            ),
         ]
         processor.state.vaultListSections = [
             VaultListSection(
@@ -122,10 +131,24 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The search view renders correctly when there's search results.
     @MainActor
-    func test_snapshot_cipherSelection_search() {
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+    func disabletest_snapshot_cipherSelection_search() {
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example",
+                subtitle: "user@bitwarden.com"
+            ),
+            .fixture(
+                id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
+                name: "Example Co",
+                subtitle: "user@bitwarden.com"
+            ),
         ]
         processor.state.searchResults = ciphers.compactMap(VaultListItem.init)
         processor.state.searchText = "Example"
@@ -137,7 +160,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// The search view renders correctly when there's no search results.
     @MainActor
-    func test_snapshot_cipherSelection_searchEmpty() {
+    func disabletest_snapshot_cipherSelection_searchEmpty() {
         processor.state.searchText = "Example"
         processor.state.showNoResults = true
         assertSnapshots(

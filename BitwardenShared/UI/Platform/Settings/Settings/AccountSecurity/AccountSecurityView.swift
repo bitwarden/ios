@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AccountSecurityView
@@ -16,12 +18,14 @@ struct AccountSecurityView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             setUpUnlockActionCard
 
             pendingLoginRequests
 
-            unlockOptionsSection
+            if store.state.showUnlockOptions {
+                unlockOptionsSection
+            }
 
             authenticatorSyncSection
 
@@ -74,10 +78,8 @@ struct AccountSecurityView: View {
 
     /// The other section.
     private var otherSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.other)
-
-            VStack(spacing: 0) {
+        SectionView(Localizations.other) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(
                     Localizations.accountFingerprintPhrase,
                     accessibilityIdentifier: "AccountFingerprintPhraseLabel"
@@ -117,49 +119,43 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.deleteAccount,
-                    hasDivider: false,
                     accessibilityIdentifier: "DeleteAccountLabel"
                 ) {
                     store.send(.deleteAccountPressed)
                 }
             }
-            .cornerRadius(10)
         }
     }
 
     /// The pending login requests section.
     private var pendingLoginRequests: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.approveLoginRequests)
-
+        SectionView(Localizations.approveLoginRequests) {
             SettingsListItem(
                 Localizations.pendingLogInRequests,
-                hasDivider: false,
                 accessibilityIdentifier: "PendingLogInRequestsLabel"
             ) {
                 store.send(.pendingLoginRequestsTapped)
+            } trailingContent: {
+                Image(asset: Asset.Images.chevronRight16)
+                    .imageStyle(.accessoryIcon16)
             }
-            .cornerRadius(10)
+            .contentBlock()
         }
     }
 
     /// The session timeout section.
     private var sessionTimeoutSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.sessionTimeout)
-
-            VStack(spacing: 0) {
+        SectionView(Localizations.sessionTimeout, contentSpacing: 8) {
+            VStack(spacing: 16) {
                 if let policyTimeoutMessage = store.state.policyTimeoutMessage {
                     InfoContainer(policyTimeoutMessage)
-                        .padding(16)
                 }
 
-                VStack(spacing: 0) {
-                    SettingsMenuField(
+                ContentBlock(dividerLeadingPadding: 16) {
+                    BitwardenMenuField(
                         title: Localizations.sessionTimeout,
-                        options: store.state.availableTimeoutOptions,
                         accessibilityIdentifier: "VaultTimeoutChooser",
-                        selectionAccessibilityID: "SessionTimeoutStatusLabel",
+                        options: store.state.availableTimeoutOptions,
                         selection: store.binding(
                             get: \.sessionTimeoutValue,
                             send: AccountSecurityAction.sessionTimeoutValueChanged
@@ -174,16 +170,15 @@ struct AccountSecurityView: View {
                                 get: \.customTimeoutValueSeconds,
                                 send: AccountSecurityAction.customTimeoutValueSecondsChanged
                             ),
+                            hasDivider: false,
                             customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
                         )
                     }
 
-                    SettingsMenuField(
+                    BitwardenMenuField(
                         title: Localizations.sessionTimeoutAction,
-                        options: store.state.availableTimeoutActions,
-                        hasDivider: false,
                         accessibilityIdentifier: "VaultTimeoutActionChooser",
-                        selectionAccessibilityID: "SessionTimeoutActionStatusLabel",
+                        options: store.state.availableTimeoutActions,
                         selection: store.binding(
                             get: \.sessionTimeoutAction,
                             send: AccountSecurityAction.sessionTimeoutActionChanged
@@ -191,49 +186,42 @@ struct AccountSecurityView: View {
                     )
                     .disabled(store.state.isSessionTimeoutActionDisabled)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
-        .padding(.top, 8)
     }
 
     /// The unlock options section.
     private var unlockOptionsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            SectionHeaderView(Localizations.unlockOptions)
-
-            VStack(spacing: 24) {
+        SectionView(Localizations.unlockOptions) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 biometricsSetting
 
-                Toggle(isOn: store.bindingAsync(
-                    get: \.isUnlockWithPINCodeOn,
-                    perform: AccountSecurityEffect.toggleUnlockWithPINCode
-                )) {
-                    Text(Localizations.unlockWithPIN)
+                if store.state.unlockWithPinFeatureAvailable {
+                    BitwardenToggle(
+                        Localizations.unlockWithPIN,
+                        isOn: store.bindingAsync(
+                            get: \.isUnlockWithPINCodeOn,
+                            perform: AccountSecurityEffect.toggleUnlockWithPINCode
+                        )
+                    )
+                    .accessibilityIdentifier("UnlockWithPinSwitch")
                 }
-                .toggleStyle(.bitwarden)
-                .accessibilityIdentifier("UnlockWithPinSwitch")
             }
         }
     }
 
     /// The authenticator sync section.
     @ViewBuilder private var authenticatorSyncSection: some View {
-        if store.state.shouldShowAuthenticatorSyncSection {
-            VStack(alignment: .leading, spacing: 16) {
-                SectionHeaderView(Localizations.authenticatorSync)
-
-                VStack(spacing: 24) {
-                    Toggle(isOn: store.bindingAsync(
-                        get: \.isAuthenticatorSyncEnabled,
-                        perform: AccountSecurityEffect.toggleSyncWithAuthenticator
-                    )) {
-                        Text(Localizations.allowAuthenticatorSyncing)
-                    }
-                    .toggleStyle(.bitwarden)
-                    .accessibilityLabel(Localizations.allowAuthenticatorSyncing)
-                }
-            }
+        SectionView(Localizations.authenticatorSync) {
+            BitwardenToggle(
+                Localizations.allowAuthenticatorSyncing,
+                isOn: store.bindingAsync(
+                    get: \.isAuthenticatorSyncEnabled,
+                    perform: AccountSecurityEffect.toggleSyncWithAuthenticator
+                ),
+                accessibilityIdentifier: Localizations.allowAuthenticatorSyncing
+            )
+            .contentBlock()
         }
     }
 
@@ -253,23 +241,27 @@ struct AccountSecurityView: View {
     @ViewBuilder
     private func biometricUnlockToggle(enabled: Bool, type: BiometricAuthenticationType) -> some View {
         let toggleText = biometricsToggleText(type)
-        Toggle(isOn: store.bindingAsync(
-            get: { _ in enabled },
-            perform: AccountSecurityEffect.toggleUnlockWithBiometrics
-        )) {
-            Text(toggleText)
-        }
+        BitwardenToggle(
+            toggleText,
+            isOn: store.bindingAsync(
+                get: { _ in enabled },
+                perform: AccountSecurityEffect.toggleUnlockWithBiometrics
+            )
+        )
         .accessibilityIdentifier("UnlockWithBiometricsSwitch")
         .accessibilityLabel(toggleText)
-        .toggleStyle(.bitwarden)
     }
 
     private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
         switch biometryType {
         case .faceID:
             return Localizations.unlockWith(Localizations.faceID)
+        case .opticID:
+            return Localizations.unlockWith(Localizations.opticID)
         case .touchID:
             return Localizations.unlockWith(Localizations.touchID)
+        case .unknown:
+            return Localizations.unlockWithUnknownBiometrics
         }
     }
 }

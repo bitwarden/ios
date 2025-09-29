@@ -1,19 +1,22 @@
 // MARK: - AboutProcessor
 
+import BitwardenKit
+import BitwardenResources
+import Foundation
+
 /// The processor used to manage state and handle actions for the `AboutView`.
 ///
-final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
+final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect> {
     // MARK: Types
 
-    typealias Services = HasEnvironmentService
+    typealias Services = HasAppInfoService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasFlightRecorder
         & HasPasteboardService
-        & HasSystemDevice
 
     // MARK: Properties
-
-    /// Additional info to be used by this processor.
-    private let aboutAdditionalInfo: AboutAdditionalInfo
 
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
@@ -26,28 +29,40 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     /// Initializes a new `AboutProcessor`.
     ///
     /// - Parameters:
-    ///   - aboutAdditionalInfo: Additional info to be used by this processor.
     ///   - coordinator: The coordinator used to manage navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     init(
-        aboutAdditionalInfo: AboutAdditionalInfo,
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AboutState
     ) {
-        self.aboutAdditionalInfo = aboutAdditionalInfo
         self.coordinator = coordinator
         self.services = services
 
         // Set the initial value of the crash logs toggle.
         var state = state
-        state.isSubmitCrashLogsToggleOn = self.services.errorReporter.isEnabled
+        state.copyrightText = services.appInfoService.copyrightString
+        state.isSubmitCrashLogsToggleOn = services.errorReporter.isEnabled
+        state.version = services.appInfoService.versionString
 
         super.init(state: state)
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: AboutEffect) async {
+        switch effect {
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
+        case let .toggleFlightRecorder(isOn):
+            if isOn {
+                coordinator.navigate(to: .enableFlightRecorder)
+            } else {
+                await services.flightRecorder.disableFlightRecorder()
+            }
+        }
+    }
 
     override func receive(_ action: AboutAction) {
         switch action {
@@ -76,6 +91,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
+        case .viewFlightRecorderLogsTapped:
+            coordinator.navigate(to: .flightRecorderLogs)
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
@@ -87,37 +104,14 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
-        var infoParts = [
-            state.copyrightText,
-            "",
-            state.version,
-            "\n-------- Device --------\n",
-            "Model: \(services.systemDevice.modelIdentifier)",
-            "OS: \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)",
-        ]
-        if !aboutAdditionalInfo.ciBuildInfo.isEmpty {
-            infoParts.append("\n------- CI Info --------\n")
-            infoParts.append(
-                contentsOf: aboutAdditionalInfo.ciBuildInfo.map { key, value in
-                    "\(key): \(value)"
-                }
-                .sorted()
-            )
-        }
-        services.pasteboardService.copy(infoParts.joined(separator: "\n"))
+        services.pasteboardService.copy(services.appInfoService.appInfoString)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
-}
 
-/// Protocol for additional info used by the `AboutProcessor`
-protocol AboutAdditionalInfo {
-    /// CI Build information.
-    var ciBuildInfo: [String: String] { get }
-}
-
-/// Default implementation of `AboutAdditionalInfo`
-struct DefaultAboutAdditionalInfo: AboutAdditionalInfo {
-    var ciBuildInfo: [String: String] {
-        CIBuildInfo.info
+    /// Streams the flight recorder's active log metadata.
+    private func streamFlightRecorderLog() async {
+        for await activeLog in await services.flightRecorder.activeLogPublisher().values {
+            state.flightRecorderActiveLog = activeLog
+        }
     }
 }

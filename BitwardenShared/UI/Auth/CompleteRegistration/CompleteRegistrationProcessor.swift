@@ -1,4 +1,6 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Combine
 import Foundation
@@ -49,7 +51,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasClientService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -87,7 +88,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await setRegion()
-            await loadFeatureFlag()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
@@ -174,10 +174,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     }
 
     /// Performs an API request to create the user's account.
-    ///
-    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
-    ///
-    private func createAccount(captchaToken: String?) async throws {
+    private func createAccount() async throws {
         let kdfConfig = KdfConfig()
 
         let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
@@ -195,7 +192,6 @@ class CompleteRegistrationProcessor: StateProcessor<
 
         _ = try await services.accountAPIService.registerFinish(
             body: RegisterFinishRequestModel(
-                captchaResponse: captchaToken,
                 email: state.userEmail,
                 emailVerificationToken: state.emailVerificationToken,
                 kdfConfig: kdfConfig,
@@ -213,10 +209,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     }
 
     /// Creates the user's account with their provided credentials.
-    ///
-    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
-    ///
-    private func completeRegistration(captchaToken: String? = nil) async {
+    private func completeRegistration() async {
         defer { coordinator.hideLoadingOverlay() }
 
         do {
@@ -232,12 +225,11 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            try await createAccount(captchaToken: captchaToken)
+            try await createAccount()
 
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                captchaToken: captchaToken,
                 isNewAccount: true
             )
 
@@ -258,9 +250,9 @@ class CompleteRegistrationProcessor: StateProcessor<
                 return
             }
 
-            coordinator.showAlert(.networkResponseError(error) {
-                await self.completeRegistration(captchaToken: captchaToken)
-            })
+            await coordinator.showErrorAlert(error: error) {
+                await self.completeRegistration()
+            }
         }
     }
 
@@ -273,7 +265,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             }
 
             guard
-                let urls = await services.stateService.getAccountCreationEnvironmentUrls(email: state.userEmail)
+                let urls = await services.stateService.getAccountCreationEnvironmentURLs(email: state.userEmail)
             else { throw CompleteRegistrationError.preAuthUrlsEmpty }
 
             await services.environmentService.setPreAuthURLs(urls: urls)
@@ -282,15 +274,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
-    }
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow,
-            isPreAuth: true
-        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.
@@ -321,11 +304,15 @@ class CompleteRegistrationProcessor: StateProcessor<
             return
         }
         Task {
-            state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
-                email: state.userEmail,
-                password: state.passwordText,
-                isPreAuth: true
-            )
+            do {
+                state.passwordStrengthScore = try await services.authRepository.passwordStrength(
+                    email: state.userEmail,
+                    password: state.passwordText,
+                    isPreAuth: true
+                )
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 
@@ -347,9 +334,9 @@ class CompleteRegistrationProcessor: StateProcessor<
             } catch VerifyEmailTokenRequestError.tokenExpired {
                 coordinator.navigate(to: .expiredLink)
             } catch {
-                coordinator.showAlert(.networkResponseError(error) {
+                await coordinator.showErrorAlert(error: error) {
                     await self.verifyUserEmail()
-                })
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 import InlineSnapshotTesting
 import Networking
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -33,7 +34,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_addCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.addCipher(.fixture())
+        let response = try await subject.addCipher(
+            .fixture(),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -43,15 +47,16 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
                 edit: true,
-                favorite: false,
+                favorite: true,
                 fields: nil,
-                folderId: nil,
+                folderId: "folderId",
                 id: "3792af7a-4441-11ee-be56-0242ac120002",
                 identity: nil,
                 key: nil,
@@ -69,6 +74,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 organizationId: nil,
                 organizationUseTotp: false,
                 passwordHistory: nil,
+                permissions: nil,
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
@@ -83,7 +89,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_addCipherWithCollections() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.addCipherWithCollections(.fixture(collectionIds: ["1", "2", "3"]))
+        let response = try await subject.addCipherWithCollections(
+            .fixture(collectionIds: ["1", "2", "3"]),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -93,15 +102,16 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
                 edit: true,
-                favorite: false,
+                favorite: true,
                 fields: nil,
-                folderId: nil,
+                folderId: "folderId",
                 id: "3792af7a-4441-11ee-be56-0242ac120002",
                 identity: nil,
                 key: nil,
@@ -119,6 +129,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 organizationId: nil,
                 organizationUseTotp: false,
                 passwordHistory: nil,
+                permissions: nil,
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
@@ -131,14 +142,23 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
     /// `deleteAttachment(withID:cipherId:)` performs the delete attachment request.
     func test_deleteAttachment() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .deleteAttachment)
 
-        _ = try await subject.deleteAttachment(withID: "456", cipherId: "123")
+        let response = try await subject.deleteAttachment(withID: "456", cipherId: "123")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .delete)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/attachment/456")
+
+        XCTAssertEqual(
+            response,
+            DeleteAttachmentResponse(
+                cipher: DeleteAttachmentResponse.DeleteAttachmentResponseCipher(
+                    revisionDate: Date(year: 2025, month: 9, day: 17)
+                )
+            )
+        )
     }
 
     /// `deleteCipher()` performs the delete cipher request.
@@ -212,6 +232,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             SaveAttachmentResponse(
                 attachmentId: "1",
                 cipherResponse: CipherDetailsResponseModel(
+                    archivedDate: nil,
                     attachments: [
                         .init(
                             fileName: "2.q4Pl+Pz7D3sxr1VEKuwke",
@@ -247,6 +268,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     organizationId: nil,
                     organizationUseTotp: false,
                     passwordHistory: nil,
+                    permissions: nil,
                     reprompt: .none,
                     revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                     secureNote: nil,
@@ -264,7 +286,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_shareCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.shareCipher(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
+        let response = try await subject.shareCipher(
+            .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -274,15 +299,16 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
                 edit: true,
-                favorite: false,
+                favorite: true,
                 fields: nil,
-                folderId: nil,
+                folderId: "folderId",
                 id: "3792af7a-4441-11ee-be56-0242ac120002",
                 identity: nil,
                 key: nil,
@@ -300,6 +326,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 organizationId: nil,
                 organizationUseTotp: false,
                 passwordHistory: nil,
+                permissions: nil,
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,

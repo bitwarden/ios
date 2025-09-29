@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -6,14 +7,17 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
-    /// Whether the user should be able to select the type of item to add.
-    var allowTypeSelection: Bool { get }
-
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
+    /// Whether or not this item can be assigned to collections.
+    var canAssignToCollection: Bool { get }
+
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
+
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool { get }
 
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
@@ -22,7 +26,7 @@ protocol AddEditItemState: Sendable {
     var collectionIds: [String] { get set }
 
     /// The full list of collections for the user, across all organizations.
-    var collections: [CollectionView] { get set }
+    var allUserCollections: [CollectionView] { get set }
 
     /// The list of collections that can be selected from for the current owner.
     var collectionsForOwner: [CollectionView] { get }
@@ -42,11 +46,23 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The state for guided tour view.
+    var guidedTourViewState: GuidedTourViewState { get set }
+
+    /// Whether the user belongs to any organization.
+    var hasOrganizations: Bool { get }
+
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
+    /// Whether the additional options section is expanded.
+    var isAdditionalOptionsExpanded: Bool { get set }
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
+
+    /// If account is eligible for Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool { get set }
 
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool { get set }
@@ -54,11 +70,17 @@ protocol AddEditItemState: Sendable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool { get set }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool { get }
+
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 
     /// The name of this item.
     var name: String { get set }
+
+    /// The view's navigation title.
+    var navigationTitle: String { get }
 
     /// The notes for this item.
     var notes: String { get set }
@@ -75,6 +97,9 @@ protocol AddEditItemState: Sendable {
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
+    /// A computed property that indicates if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool { get }
+
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
 
@@ -87,6 +112,9 @@ protocol AddEditItemState: Sendable {
     /// When this item was last updated.
     var updatedDate: Date { get set }
 
+    /// The url to open in the device's web browser.
+    var url: URL? { get set }
+
     /// Toggles whether the cipher is included in the specified collection.
     ///
     /// - Parameters:
@@ -94,4 +122,35 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
+    /// preserve any additional UI properties on the state.
+    ///
+    /// - Parameter cipherView: The updated `CipherView`.
+    ///
+    mutating func update(from cipherView: CipherView)
+}
+
+/// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
+extension GuidedTourStepState {
+    /// The first step of the learn new login guided tour.
+    static let loginStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .circle,
+        title: Localizations.useThisButtonToGenerateANewUniquePassword
+    )
+
+    /// The second step of the learn new login guided tour.
+    static let loginStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+    )
+
+    /// The third step of the learn new login guided tour.
+    static let loginStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+    )
 }

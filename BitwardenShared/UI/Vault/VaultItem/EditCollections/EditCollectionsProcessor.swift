@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - EditCollectionsProcessorDelegate
 
 /// A delegate of `EditCollectionsProcessor` that is notified when the user successfully moves
@@ -21,7 +23,8 @@ class EditCollectionsProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -114,7 +117,7 @@ class EditCollectionsProcessor: StateProcessor<
                 self.delegate?.didUpdateCipher()
             }))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

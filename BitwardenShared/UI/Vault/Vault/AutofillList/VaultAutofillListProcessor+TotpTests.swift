@@ -1,6 +1,8 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -112,7 +114,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
             items: items,
             name: ""
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -145,7 +147,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
             items: items,
             name: ""
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -331,7 +333,12 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
 
     /// `refreshTOTPCodes(searchItems:)` does nothing if vault list sections are empty..
     @MainActor
-    func test_refreshTOTPCodes_searchItemsEmpty() {
+    func test_refreshTOTPCodes_searchItemsEmpty() throws {
+        // WORKAROUND: initialize `configuredTOTPRefreshSchedulingItems` with something so `waitFor`
+        // doens't have race condition issues.
+        totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems = [
+            VaultListItem(id: "1", itemType: .cipher(.fixture())),
+        ]
         let items = [
             VaultListItem(
                 id: "2",
@@ -361,8 +368,10 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         onExpiration(items)
 
         waitFor(totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems?.isEmpty == true)
-        XCTAssertEqual(subject.state.ciphersForSearch.count, 1)
-        XCTAssertEqual(subject.state.ciphersForSearch[0].items.count, 0)
+        let ciphersForSearch = subject.state.ciphersForSearch
+        let section = try XCTUnwrap(ciphersForSearch.first)
+        XCTAssertEqual(ciphersForSearch.count, 1)
+        XCTAssertEqual(section.items.count, 0)
     }
 
     /// `refreshTOTPCodes(searchItems:)` logs when refreshing throws.
@@ -395,4 +404,4 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
 
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
-}
+} // swiftlint:disable:this file_length

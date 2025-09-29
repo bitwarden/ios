@@ -13,8 +13,8 @@ enum GeneratorAction: Equatable {
     /// The generator type was changed.
     case generatorTypeChanged(GeneratorType)
 
-    /// The password generator type was changed.
-    case passwordGeneratorTypeChanged(PasswordGeneratorType)
+    /// A guided tour view action was triggered.
+    case guidedTourViewAction(GuidedTourViewAction)
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
@@ -64,7 +64,6 @@ extension GeneratorAction {
         switch self {
         case .emailTypeChanged,
              .generatorTypeChanged,
-             .passwordGeneratorTypeChanged,
              .refreshGeneratedValue,
              .sliderValueChanged,
              .stepperValueChanged,
@@ -78,6 +77,7 @@ extension GeneratorAction {
             return keyPath == nil
         case .copyGeneratedValue,
              .dismissPressed,
+             .guidedTourViewAction,
              .selectButtonPressed,
              .showPasswordHistory,
              .sliderEditingChanged,

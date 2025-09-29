@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultUnlockSetupView
@@ -13,35 +15,29 @@ struct VaultUnlockSetupView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 32) {
-            PageHeaderView(
+        VStack(spacing: 24) {
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.biometricsPhone,
                 title: Localizations.setUpUnlock,
                 message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
             )
-            .padding(.top, 40)
+            .padding(.top, 12)
 
-            VStack(spacing: 0) {
+            ContentBlock(dividerLeadingPadding: 12) {
                 ForEach(store.state.unlockMethods) { unlockMethod in
                     Toggle(isOn: store.bindingAsync(
                         get: { $0[keyPath: unlockMethod.keyPath] },
                         perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) }
                     )) {
                         Text(unlockMethod.title)
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     }
                     .accessibilityIdentifier(unlockMethod.accessibilityIdentifier)
                     .toggleStyle(.bitwarden)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
-
-                    if unlockMethod != store.state.unlockMethods.last {
-                        Divider().padding(.leading, 16)
-                    }
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(spacing: 12) {
                 AsyncButton(Localizations.continue) {
@@ -54,10 +50,9 @@ struct VaultUnlockSetupView: View {
                     Button(Localizations.setUpLater) {
                         store.send(.setUpLater)
                     }
-                    .buttonStyle(.transparent)
+                    .buttonStyle(.secondary())
                 }
             }
-            .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBar(title: store.state.navigationBarTitle, titleDisplayMode: .inline)

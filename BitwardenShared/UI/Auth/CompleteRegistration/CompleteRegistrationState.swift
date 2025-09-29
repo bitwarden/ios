@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - CompleteRegistrationState
@@ -12,13 +13,9 @@ struct CompleteRegistrationState: Equatable, Sendable {
 
     /// Whether the continue button is enabled.
     var continueButtonEnabled: Bool {
-        if nativeCreateAccountFeatureFlag {
-            !passwordText.isEmpty
-                && !retypePasswordText.isEmpty
-                && passwordText.count >= requiredPasswordCount
-        } else {
-            true
-        }
+        !passwordText.isEmpty
+            && !retypePasswordText.isEmpty
+            && passwordText.count >= requiredPasswordCount
     }
 
     /// Whether the user's account has been created when completing registration.
@@ -38,9 +35,6 @@ struct CompleteRegistrationState: Equatable, Sendable {
         guard let passwordStrengthScore else { return false }
         return passwordStrengthScore < 3
     }
-
-    /// Whether the native create account feature flag is on.
-    var nativeCreateAccountFeatureFlag: Bool = false
 
     /// The text in the password hint text field.
     var passwordHintText: String = ""
@@ -63,11 +57,4 @@ struct CompleteRegistrationState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    // MARK: Computed Properties
-
-    /// Text with user email in bold
-    var headelineTextBoldEmail: String {
-        Localizations.finishCreatingYourAccountForXBySettingAPassword("**\(userEmail)**")
-    }
 }

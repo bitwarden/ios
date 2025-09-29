@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 /// Helper functions extended off the `View` protocol.
@@ -8,26 +10,6 @@ extension View {
     /// of iOS.
     func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V {
         block(self)
-    }
-
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
-    ///
-    func dismissKeyboardImmediately() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.immediately)
-        } else {
-            return self
-        }
-    }
-
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard interactively.
-    ///
-    func dismissKeyboardInteractively() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.interactively)
-        } else {
-            return self
-        }
     }
 
     /// Focuses next field in sequence, from the given `FocusState`.
@@ -108,35 +90,16 @@ extension View {
         ))
     }
 
-    /// Applies the `ScrollViewModifier` to a view.
-    ///
-    /// - Parameters:
-    ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
-    ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
-    ///   - showsIndicators: Whether or not the scroll indicators are shown.
-    ///
-    /// - Returns: A view within a `ScrollView`.
-    ///
-    func scrollView(
-        addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
-        showsIndicators: Bool = true
-    ) -> some View {
-        modifier(ScrollViewModifier(
-            addVerticalPadding: addVerticalPadding,
-            backgroundColor: backgroundColor,
-            showsIndicators: showsIndicators
-        ))
-    }
-
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
-    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
+    ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
     func addItemFloatingActionButton(
         hidden: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
@@ -147,9 +110,72 @@ extension View {
         .accessibilityIdentifier("AddItemFloatingActionButton")
     }
 
+    /// Returns a floating action menu positioned at the bottom-right corner of the screen for
+    /// adding a send item.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether the menu button should be hidden.
+    ///   - action: The action to perform when a send type is tapped in the menu.
+    /// - Returns: A `FloatingActionMenu` configured for adding a send item.
+    ///
+    func addSendItemFloatingActionMenu(
+        hidden: Bool = false,
+        action: @escaping (SendType) async -> Void
+    ) -> some View {
+        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+            ForEach(SendType.allCases) { type in
+                AsyncButton(type.localizedName) {
+                    await action(type)
+                }
+            }
+        }
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+        .padding([.trailing, .bottom], 16)
+    }
+
+    /// Returns a floating action menu positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether the menu button should be hidden.
+    ///   - availableItemTypes: The list of cipher item types available for creation.
+    ///   - addItem: The action to perform when a new cipher item type is tapped in the menu.
+    ///   - addFolder: The action to perform when the new folder button is tapped in the menu.
+    /// - Returns: A `FloatingActionMenu` configured for adding a vault item for folder.
+    ///
+    func addVaultItemFloatingActionMenu(
+        hidden: Bool = false,
+        availableItemTypes: [CipherType] = CipherType.canCreateCases,
+        addItem: @escaping (CipherType) -> Void,
+        addFolder: (() -> Void)? = nil
+    ) -> some View {
+        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+            // The items in the menu are added in reverse order so that when the context menu
+            // displays above the button, which is the common case, the types are at the top with
+            // folder at the bottom.
+
+            if let addFolder {
+                Button(Localizations.folder, action: addFolder)
+                Divider()
+            }
+
+            ForEach(availableItemTypes, id: \.hashValue) { type in
+                Button(type.localizedName) {
+                    addItem(type)
+                }
+            }
+        }
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
+    }
+
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
-    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
+    ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
     func editItemFloatingActionButton(
@@ -168,6 +194,7 @@ extension View {
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
     ///   - image: The image to display within the button.
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured with the specified image and action.
@@ -175,7 +202,7 @@ extension View {
     func floatingActionButton(
         hidden: Bool = false,
         image: Image,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         FloatingActionButton(
             image: image,

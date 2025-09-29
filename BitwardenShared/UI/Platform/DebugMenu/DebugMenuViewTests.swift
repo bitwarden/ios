@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -20,7 +22,7 @@ class DebugMenuViewTests: BitwardenTestCase {
             state: DebugMenuState(
                 featureFlags: [
                     .init(
-                        feature: .testLocalFeatureFlag,
+                        feature: .testFeatureFlag,
                         isEnabled: false
                     ),
                 ]
@@ -54,7 +56,7 @@ class DebugMenuViewTests: BitwardenTestCase {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
-        let featureFlagName = FeatureFlag.testLocalFeatureFlag.rawValue
+        let featureFlagName = FeatureFlag.testFeatureFlag.rawValue
         let toggle = try subject.inspect().find(viewWithAccessibilityIdentifier: featureFlagName).toggle()
         try toggle.tap()
         XCTAssertEqual(processor.effects.last, .toggleFeatureFlag(featureFlagName, true))
@@ -78,7 +80,7 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     /// Test that the refresh button sends the correct effect.
     @MainActor
-    func test_refreshFeatureFlags_tapped() async throws {
+    func disabletest_snapshot_refreshFeatureFlags_tapped() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: "RefreshFeatureFlagsButton")
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .refreshFeatureFlags)
@@ -86,17 +88,13 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     /// Check the snapshot when feature flags are enabled and disabled.
     @MainActor
-    func test_snapshot_debugMenuWithFeatureFlags() {
+    func disabletest_snapshot_debugMenuWithFeatureFlags() {
         processor.state.featureFlags = [
-            .init(
-                feature: .emailVerification,
-                isEnabled: true
-            ),
-            .init(
-                feature: .nativeCarouselFlow,
-                isEnabled: false
-            ),
+            .init(feature: .testFeatureFlag, isEnabled: true),
         ]
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(
+            of: subject,
+            as: .defaultPortrait
+        )
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AutoFillView
@@ -10,10 +12,13 @@ struct AutoFillView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<AutoFillState, AutoFillAction, AutoFillEffect>
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             autofillActionCard
 
             autoFillSection
@@ -23,6 +28,11 @@ struct AutoFillView: View {
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
         .task {
             await store.perform(.fetchSettingValues)
         }
@@ -52,65 +62,58 @@ struct AutoFillView: View {
 
     /// The additional options section.
     private var additionalOptionsSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.additionalOptions)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Toggle(isOn: store.binding(
+        SectionView(Localizations.additionalOptions, contentSpacing: 8) {
+            BitwardenToggle(
+                Localizations.copyTotpAutomatically,
+                footer: Localizations.copyTotpAutomaticallyDescription,
+                isOn: store.binding(
                     get: \.isCopyTOTPToggleOn,
                     send: AutoFillAction.toggleCopyTOTPToggle
-                )) {
-                    Text(Localizations.copyTotpAutomatically)
-                }
-                .toggleStyle(.bitwarden)
-                .styleGuide(.body)
-                .accessibilityIdentifier("CopyTotpAutomaticallySwitch")
+                ),
+                accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
+            )
+            .contentBlock()
 
-                Text(Localizations.copyTotpAutomaticallyDescription)
-                    .styleGuide(.subheadline)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            }
-            .padding(.bottom, 12)
-
-            VStack(spacing: 2) {
-                SettingsMenuField(
-                    title: Localizations.defaultUriMatchDetection,
-                    options: UriMatchType.allCases,
-                    hasDivider: false,
-                    selection: store.binding(
-                        get: \.defaultUriMatchType,
-                        send: AutoFillAction.defaultUriMatchTypeChanged
-                    )
+            BitwardenMenuField(
+                title: Localizations.defaultUriMatchDetection,
+                accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
+                options: store.state.uriMatchTypeOptions,
+                selection: store.binding(
+                    get: \.defaultUriMatchType,
+                    send: AutoFillAction.defaultUriMatchTypeChanged
                 )
-                .cornerRadius(10)
-                .padding(.bottom, 8)
-                .accessibilityIdentifier("DefaultUriMatchDetectionChooser")
+            ) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
+                        .bitwardenMenuFooterText(
+                            topPadding: 12,
+                            bottomPadding: store.state.warningMessage == nil ? 12 : 4
+                        )
 
-                Text(Localizations.defaultUriMatchDetectionDescription)
-                    .styleGuide(.subheadline)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    store.state.warningMessage.map { warningMessage in
+                        Text(LocalizedStringKey(warningMessage))
+                            .bitwardenMenuFooterText(
+                                topPadding: 0,
+                                bottomPadding: 12
+                            )
+                    }
+                }
             }
         }
     }
 
     /// The auto-fill section.
     private var autoFillSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.autofill)
-
-            VStack(spacing: 0) {
+        SectionView(Localizations.autofill, contentSpacing: 8) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(Localizations.passwordAutofill) {
                     store.send(.passwordAutoFillTapped)
                 }
 
-                SettingsListItem(
-                    Localizations.appExtension,
-                    hasDivider: false
-                ) {
+                SettingsListItem(Localizations.appExtension) {
                     store.send(.appExtensionTapped)
                 }
             }
-            .cornerRadius(10)
         }
     }
 }

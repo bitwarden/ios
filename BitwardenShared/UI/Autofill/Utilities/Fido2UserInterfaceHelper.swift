@@ -9,12 +9,22 @@ import Combine
 ///
 @MainActor
 protocol Fido2UserInterfaceHelperDelegate: Fido2UserVerificationMediatorDelegate {
+    // MARK: Properties
+
     /// Whether the Fido2 flow for autofill is from credential list or not.
     var isAutofillingFromList: Bool { get }
+
+    // MARK: Methods
+
+    /// Informs that an excluded credential has been found in the Fido2 registration flow.
+    func informExcludedCredentialFound(cipherView: CipherView) async
 }
+
+// MARK: - Fido2UserInterfaceHelper
 
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
+@MainActor
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// The `BitwardenSdk.CheckUserOptions` the SDK provides while in Fido2 creation flow.
     var fido2CreationOptions: BitwardenSdk.CheckUserOptions? { get }
@@ -42,7 +52,7 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// verification fails.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> CheckUserResult
 
@@ -63,7 +73,9 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     func setupCurrentUserVerificationPreference(userVerificationPreference: Uv)
 }
 
-/// Default implemenation of `Fido2UserInterfaceHelper`.
+// MARK: - DefaultFido2UserInterfaceHelper
+
+/// Default implementation of `Fido2UserInterfaceHelper`.
 class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// Mediator which manages user verification on Fido2 flows.
     private var fido2UserVerificationMediator: Fido2UserVerificationMediator
@@ -110,12 +122,17 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
             )
         }
 
+        if case let .informExcludedCredentialFound(cipherView) = hint {
+            await fido2UserInterfaceHelperDelegate?.informExcludedCredentialFound(cipherView: cipherView)
+            return BitwardenSdk.CheckUserResult(userPresent: true, userVerified: false)
+        }
+
         return BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
     }
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> CheckUserResult {
         let result = try await fido2UserVerificationMediator.checkUser(
@@ -139,7 +156,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
             throw Fido2Error.noDelegateSetup
         }
 
-        guard await fido2UserInterfaceHelperDelegate.isAutofillingFromList else {
+        guard fido2UserInterfaceHelperDelegate.isAutofillingFromList else {
             guard availableCredentials.count == 1 else {
                 throw Fido2Error.invalidOperationError
             }

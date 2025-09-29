@@ -16,6 +16,10 @@ struct CipherRequestModel: JSONRequestBody {
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
 
+    /// The ID of the user that encrypted the cipher. It should always represent a UserId.
+    /// This is used to check that the user who encrypted the cipher is the same making the request.
+    let encryptedFor: String?
+
     /// Whether the cipher is a favorite.
     let favorite: Bool
 
@@ -66,15 +70,17 @@ struct CipherRequestModel: JSONRequestBody {
 extension CipherRequestModel {
     /// Initialize a `CipherRequestModel` from a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` used to initialize a `CipherRequestModel`.
-    ///
-    init(cipher: Cipher) {
+    /// - Parameters:
+    ///   - cipher: The `Cipher` used to initialize a `CipherRequestModel`.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    init(cipher: Cipher, encryptedFor: String? = nil) {
         self.init(
             attachments2: cipher.attachments?.reduce(into: [String: AttachmentRequestModel]()) { result, attachment in
                 guard let id = attachment.id else { return }
                 result[id] = AttachmentRequestModel(attachment: attachment)
             },
             card: cipher.card.map(CipherCardModel.init),
+            encryptedFor: encryptedFor,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
             folderId: cipher.folderId,

@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - RemoveMasterPasswordProcessor
@@ -12,6 +13,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -47,6 +49,8 @@ class RemoveMasterPasswordProcessor: StateProcessor<
         switch effect {
         case .continueFlow:
             await migrateUser()
+        case .leaveOrganizationFlow:
+            showLeaveOrganizationConfirmation()
         }
     }
 
@@ -60,6 +64,25 @@ class RemoveMasterPasswordProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// User leaves the current key connector organization
+    ///
+    private func leaveOrganization() async {
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.loading)
+            defer { coordinator.hideLoadingOverlay() }
+
+            try await services.authRepository.leaveOrganization(organizationId: state.organizationId)
+            let userId = try await services.authRepository.getUserId()
+            try await services.authRepository.logout(userId: userId, userInitiated: true)
+
+            await coordinator.handleEvent(.didLogout(userId: userId, userInitiated: true))
+            coordinator.hideLoadingOverlay()
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
 
     /// Migrates the user to use Key Connector.
     ///
@@ -84,7 +107,17 @@ class RemoveMasterPasswordProcessor: StateProcessor<
             ))
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
         }
+    }
+
+    /// Shows an alert asking the user to confirm that they want to logout.
+    ///
+    private func showLeaveOrganizationConfirmation() {
+        let alert = Alert.leaveOrganizationConfirmation(orgName: state.organizationName) { [weak self] in
+            guard let self else { return }
+            await leaveOrganization()
+        }
+        coordinator.showAlert(alert)
     }
 }

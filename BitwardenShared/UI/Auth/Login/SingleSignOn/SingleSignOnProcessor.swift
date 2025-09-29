@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import Foundation
 
 // MARK: - SingleSignOnFlowDelegate
@@ -29,6 +30,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasOrganizationAPIService
         & HasStateService
@@ -84,7 +86,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     // MARK: Private Methods
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
         coordinator.hideLoadingOverlay()
         switch error {
         case ASWebAuthenticationSessionError.canceledLogin:
@@ -100,7 +102,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
                 organizationIdentifier: state.identifierText
             ))
         default:
-            coordinator.showAlert(.networkResponseError(error, tryAgain))
+            await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
             services.errorReporter.log(error: error)
         }
     }
@@ -126,7 +128,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
-            handleError(error) { await self.handleLoginTapped() }
+            await handleError(error) { await self.handleLoginTapped() }
         }
     }
 
@@ -136,19 +138,24 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer {
             coordinator.hideLoadingOverlay()
-            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
         }
 
         // Get the single sign on details for the user.
         do {
-            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifier(
-                email: state.email
-            ) {
-                state.identifierText = organizationIdentifier
-                coordinator.hideLoadingOverlay()
-                await handleLoginTapped()
+            guard let organizationIdentifier = try await services.authRepository
+                .getSingleSignOnOrganizationIdentifier(email: state.email)
+            else {
+                // Default back to the last used org identifier if the API doesn't return one.
+                state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
+                return
             }
+
+            state.identifierText = organizationIdentifier
+            coordinator.hideLoadingOverlay()
+            await handleLoginTapped()
         } catch {
+            // Default back to the last used org identifier if the API doesn't return one.
+            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
             services.errorReporter.log(error: error)
         }
     }
@@ -160,6 +167,30 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     private func rememberOrgIdentifierAndNavigate(to route: AuthRoute) {
         services.stateService.rememberedOrgIdentifier = state.identifierText
         coordinator.navigate(to: route)
+    }
+
+    /// Migrates a new user to KeyConnector and unlocks the vault with the KeyConnector
+    ///
+    /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
+    ///
+    private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
+        do {
+            try await services.authRepository.convertNewUserToKeyConnector(
+                keyConnectorURL: keyConnectorUrl,
+                orgIdentifier: state.identifierText
+            )
+
+            try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                keyConnectorURL: keyConnectorUrl,
+                orgIdentifier: state.identifierText
+            )
+
+            await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
     }
 }
 
@@ -188,6 +219,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
                     await coordinator.handleEvent(.didCompleteAuth)
+                    coordinator.navigate(to: .dismiss)
                 case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
@@ -197,19 +229,30 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             didSwitchAccountAutomatically: false
                         )
                     )
+                    coordinator.navigate(to: .dismiss)
                 case let .keyConnector(keyConnectorUrl):
-                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                        keyConnectorURL: keyConnectorUrl,
-                        orgIdentifier: state.identifierText
-                    )
-                    await coordinator.handleEvent(.didCompleteAuth)
+                    do {
+                        try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                            keyConnectorURL: keyConnectorUrl,
+                            orgIdentifier: state.identifierText
+                        )
+                        await coordinator.handleEvent(.didCompleteAuth)
+                        coordinator.navigate(to: .dismiss)
+                    } catch StateServiceError.noEncryptedPrivateKey {
+                        // The delay is necessary in order to ensure the alert displays over the WebAuth view.
+                        Task { @MainActor in
+                            try await Task.sleep(forSeconds: UI.duration(0.5))
+                            coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
+                                await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
+                            })
+                        }
+                    }
                 }
-
-                coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-                DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
-                    self.handleError(error)
+                Task { @MainActor in
+                    try await Task.sleep(forSeconds: UI.duration(0.5))
+                    await self.handleError(error)
                 }
             }
         }
@@ -217,8 +260,9 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
 
     func singleSignOnErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
-            self.handleError(error)
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error)
         }
     }
 }

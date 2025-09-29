@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenSdk
 import Foundation
 
 // MARK: - KeychainItem
@@ -381,7 +383,8 @@ extension DefaultKeychainRepository {
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
             .neverLock(userId: userId),
-            .pendingAdminLoginRequest(userId: userId),
+            // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
+            // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
         ]
         for keychainItem in keychainItems {

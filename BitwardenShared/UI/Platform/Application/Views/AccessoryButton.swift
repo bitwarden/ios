@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 /// A view that displays a button for use as an accessory to a field.
@@ -35,7 +37,7 @@ struct AccessoryButton: View {
             AsyncButton(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 16, height: 16)
+                    .frame(width: 24, height: 24)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
@@ -44,7 +46,7 @@ struct AccessoryButton: View {
             Button(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 16, height: 16)
+                    .frame(width: 24, height: 24)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
@@ -95,5 +97,5 @@ struct AccessoryButton: View {
 // MARK: Previews
 
 #Preview {
-    AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copy) {}
+    AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copy) {}
 }

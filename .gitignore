@@ -72,10 +72,14 @@ fastlane/README.md
 /*.xcodeproj
 
 # Local xcconfig
-Configs/Local.xcconfig
+Configs/Local*.xcconfig
 
 # Local export options
 Configs/export_options.plist
 
 # LicensePlist
 Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_result.txt
+Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result.txt
+
+# Backup files
+*.bak

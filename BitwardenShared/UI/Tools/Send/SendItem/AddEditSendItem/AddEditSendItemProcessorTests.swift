@@ -1,4 +1,8 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -9,24 +13,33 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
+    var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
+    var reviewPromptService: MockReviewPromptService!
     var subject: AddEditSendItemProcessor!
+
+    /// A deletion date to use within the tests.
+    let deletionDate = Date(year: 2023, month: 11, day: 5)
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
-            coordinator: coordinator,
+            coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                reviewPromptService: reviewPromptService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -36,9 +49,11 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         pasteboardService = nil
         policyService = nil
         sendRepository = nil
+        reviewPromptService = nil
         subject = nil
     }
 
@@ -71,7 +86,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -84,17 +99,19 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_deletePressed_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
-        sendRepository.deleteSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.deleteSendResult = .failure(error)
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
         sendRepository.deleteSendResult = .success(())
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
@@ -144,7 +161,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -160,17 +177,19 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_sendListItemRow_removePassword_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
-        sendRepository.removePasswordFromSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.removePasswordFromSendResult = .failure(error)
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
         sendRepository.removePasswordFromSendResult = .success(sendView)
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
@@ -207,8 +226,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.addTextSendResult = .success(sendView)
 
@@ -219,10 +238,12 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.newSendCreated)])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -231,9 +252,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.addTextSendResult = .failure(URLError(.timedOut))
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
+        let error = URLError(.timedOut)
+        sendRepository.addTextSendResult = .failure(error)
 
         await subject.perform(.savePressed)
 
@@ -242,16 +264,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
-
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.addTextSendResult = .success(sendView)
-        try await alert.tapAction(title: Localizations.tryAgain)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
+
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
@@ -271,7 +294,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no premium shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = "filename"
@@ -288,7 +311,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noVerifiedEmail() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -306,7 +329,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = nil
@@ -318,14 +341,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
     /// `perform(_:)` with `.savePressed` and no file name shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -337,14 +363,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
     /// `perform(_:)` with `.savePressed` and file data that is too large shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
@@ -371,8 +400,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(
             id: "SEND_ID",
             name: "Name",
@@ -388,7 +417,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
@@ -410,8 +439,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.updateSendResult = .success(sendView)
 
@@ -422,10 +451,11 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.sendUpdated)])
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
@@ -436,9 +466,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.updateSendResult = .failure(URLError(.timedOut))
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
+        let error = URLError(.timedOut)
+        sendRepository.updateSendResult = .failure(error)
 
         await subject.perform(.savePressed)
 
@@ -447,16 +478,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
-
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.updateSendResult = .success(sendView)
-        try await alert.tapAction(title: Localizations.tryAgain)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
+
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
@@ -494,42 +526,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
-    /// `receive(_:)` with `.clearExpirationDatePressed` removes the expiration date.
-    @MainActor
-    func test_receive_clearExpirationDatePressed() {
-        subject.state.customExpirationDate = Date(year: 2023, month: 11, day: 5)
-        subject.receive(.clearExpirationDatePressed)
-
-        XCTAssertNil(subject.state.customExpirationDate)
-    }
-
-    /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.
-    @MainActor
-    func test_receive_customDeletionDateChanged() {
-        subject.state.customDeletionDate = Date(year: 2000, month: 5, day: 5)
-        subject.receive(.customDeletionDateChanged(Date(year: 2023, month: 11, day: 5)))
-
-        XCTAssertEqual(subject.state.customDeletionDate, Date(year: 2023, month: 11, day: 5))
-    }
-
-    /// `receive(_:)` with `.customExpirationDateChanged` updates the custom expiration date.
-    @MainActor
-    func test_receive_customExpirationDateChanged() {
-        subject.state.customExpirationDate = Date(year: 2000, month: 5, day: 5)
-        subject.receive(.customExpirationDateChanged(Date(year: 2023, month: 11, day: 5)))
-
-        XCTAssertEqual(subject.state.customExpirationDate, Date(year: 2023, month: 11, day: 5))
-    }
-
-    /// `receive(_:)` with `.deactivateThisSendChanged` updates the deactivate this send toggle.
-    @MainActor
-    func test_receive_deactivateThisSendChanged() {
-        subject.state.isDeactivateThisSendOn = false
-        subject.receive(.deactivateThisSendChanged(true))
-
-        XCTAssertTrue(subject.state.isDeactivateThisSendOn)
-    }
-
     /// `receive(_:)` with `.deletionDateChanged` updates the deletion date.
     @MainActor
     func test_receive_deletionDateChanged() {
@@ -545,15 +541,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .cancel)
-    }
-
-    /// `receive(_:)` with `.expirationDateChanged` updates the expiration date.
-    @MainActor
-    func test_receive_expirationDateChanged() {
-        subject.state.expirationDate = .sevenDays
-        subject.receive(.expirationDateChanged(.thirtyDays))
-
-        XCTAssertEqual(subject.state.expirationDate, .thirtyDays)
     }
 
     /// `receive(_:)` with `.hideMyEmailChanged` updates the hide my email toggle.
@@ -582,36 +569,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(subject.state.maximumAccessCount, 42)
         XCTAssertEqual(subject.state.maximumAccessCountText, "42")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged("32"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 32)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "32")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_zeroToEmptyState() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged(""))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_emptyToZeroState() {
-        subject.state.maximumAccessCountText = ""
-        subject.receive(.maximumAccessCountTextFieldChanged("0"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "0")
     }
 
     /// `receive(_:)` with `.nameChanged` updates the name.
@@ -670,16 +627,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.text, "Text")
     }
 
-    /// `receive(_:)` with `.typeChanged` and premium access updates the type.
-    @MainActor
-    func test_receive_typeChanged_hasPremium() {
-        subject.state.hasPremium = true
-        subject.state.type = .text
-        subject.receive(.typeChanged(.file))
-
-        XCTAssertEqual(subject.state.type, .file)
-    }
-
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
     @MainActor
     func test_receive_toastShown() {
@@ -688,16 +635,21 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `receive(_:)` with `.typeChanged` and no premium access does not update the type.
-    @MainActor
-    func test_receive_typeChanged_notHasPremium() {
-        subject.state.hasPremium = false
-        subject.state.type = .text
-        subject.receive(.typeChanged(.file))
+    // MARK: ProfileSwitcherHandler
 
-        XCTAssertEqual(coordinator.alertShown, [
-            .defaultAlert(title: Localizations.sendFilePremiumRequired),
-        ])
-        XCTAssertEqual(subject.state.type, .text)
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss(nil)])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 } // swiftlint:disable:this file_length

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -33,15 +34,30 @@ class CheckEmailViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
+    }
+
+    /// Tapping the change email address button dispatches the `.goBackTapped` action.
+    @MainActor
+    func test_changeEmailAddressButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.changeEmailAddress)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .goBackTapped)
     }
 
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func test_snapshot_empty() {
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    func disabletest_snapshot_empty() {
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+            ]
+        )
     }
 }

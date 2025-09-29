@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ProfileSwitcherRow
@@ -56,18 +58,18 @@ struct ProfileSwitcherRow: View {
                             Text(title)
                                 .styleGuide(.body)
                                 .accessibilityIdentifier("AccountEmailLabel")
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                             if let hostSubtitle {
                                 Text(hostSubtitle)
                                     .styleGuide(.subheadline)
                                     .accessibilityIdentifier("AccountHostUrlLabel")
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             }
                             if let statusSubtitle {
                                 Text(statusSubtitle)
                                     .styleGuide(.subheadline, isItalic: true)
                                     .accessibilityIdentifier("AccountStatusLabel")
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             }
                         }
                         .lineLimit(1)
@@ -85,7 +87,7 @@ struct ProfileSwitcherRow: View {
             }
             .padding([.leading], 16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// A row divider view
@@ -94,7 +96,7 @@ struct ProfileSwitcherRow: View {
             Rectangle()
                 .frame(height: 1.0)
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Asset.Colors.strokeDivider.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.strokeDivider.swiftUIColor)
         } else {
             EmptyView()
         }
@@ -113,7 +115,7 @@ struct ProfileSwitcherRow: View {
             .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus16.swiftUIImage
-                .imageStyle(.accessoryIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
+                .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
     }
@@ -183,11 +185,11 @@ struct ProfileSwitcherRow: View {
     private var trailingIconColor: Color {
         switch store.state.rowType {
         case .active:
-            Asset.Colors.iconPrimary.swiftUIColor
+            SharedAsset.Colors.iconPrimary.swiftUIColor
         case .alternate:
-            Asset.Colors.textSecondary.swiftUIColor
+            SharedAsset.Colors.textSecondary.swiftUIColor
         case .addAccount:
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundSecondary.swiftUIColor
         }
     }
 
@@ -223,20 +225,29 @@ struct ProfileSwitcherRow: View {
                     )
                 }
         }
-        .accessibilityAsyncAction(named: Localizations.select) {
-            await store.perform(.accessibility(.select(profileSwitcherItem)))
+        .accessibilityAction {
+            Task {
+                await store.perform(.accessibility(.select(profileSwitcherItem)))
+            }
         }
         .conditionalAccessibilityAsyncAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
+                && profileSwitcherItem.isUnlocked,
             named: Localizations.lock
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && !profileSwitcherItem.isLoggedOut,
             named: Localizations.logOut
         ) {
             store.send(.accessibility(.logout(profileSwitcherItem)))
+        }
+        .conditionalAccessibilityAction(
+            if: store.state.allowLockAndLogout && profileSwitcherItem.isLoggedOut,
+            named: Localizations.remove
+        ) {
+            store.send(.accessibility(.remove(profileSwitcherItem)))
         }
         .accessibility(
             if: isSelected,

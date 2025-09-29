@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 /// A view that allows the user to enter their master password to unlock the vault or logout of the
@@ -15,6 +17,7 @@ struct VaultUnlockView: View {
         \(store.state.unlockMethod == .pin
             ? Localizations.vaultLockedPIN
             : Localizations.vaultLockedMasterPassword)
+
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }
@@ -42,7 +45,7 @@ struct VaultUnlockView: View {
                 } else {
                     optionsToolbarMenu {
                         Button(Localizations.logOut) {
-                            store.send(.morePressed)
+                            store.send(.logOut)
                         }
                     }
                 }
@@ -62,30 +65,26 @@ struct VaultUnlockView: View {
 
     /// the scrollable content of the view.
     @ViewBuilder var scrollView: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    textField
-
-                    Text(footerText)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
-                }
-
-                biometricAuthButton
-
-                AsyncButton {
-                    await store.perform(.unlockVault)
-                } label: {
-                    Text(Localizations.unlock)
-                }
-                .buttonStyle(.primary(shouldFillWidth: true))
-                .accessibilityIdentifier("UnlockVaultButton")
+        VStack(spacing: 24) {
+            if store.state.shouldShowPasswordOrPinFields {
+                textField
             }
-            .padding(16)
+
+            VStack(spacing: 12) {
+                biometricAuthButton
+                if store.state.shouldShowPasswordOrPinFields {
+                    AsyncButton {
+                        await store.perform(.unlockVault)
+                    } label: {
+                        Text(Localizations.unlock)
+                    }
+                    .buttonStyle(.primary(shouldFillWidth: true))
+                    .accessibilityIdentifier("UnlockVaultButton")
+                }
+            }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// The Toolbar item for the profile switcher view.
@@ -144,14 +143,20 @@ struct VaultUnlockView: View {
                     get: \.masterPassword,
                     send: VaultUnlockAction.masterPasswordChanged
                 ),
-                footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
-                )
+                ),
+                footerContent: {
+                    Text(footerText)
+                        .styleGuide(.footnote)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                        .padding(.vertical, 12)
+                }
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -167,14 +172,20 @@ struct VaultUnlockView: View {
                     get: \.pin,
                     send: VaultUnlockAction.pinChanged
                 ),
-                footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed
-                )
+                ),
+                footerContent: {
+                    Text(footerText)
+                        .styleGuide(.footnote)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                        .padding(.vertical, 12)
+                }
             )
             .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
@@ -190,8 +201,12 @@ struct VaultUnlockView: View {
         switch biometryType {
         case .faceID:
             Text(Localizations.useFaceIDToUnlock)
+        case .opticID:
+            Text(Localizations.useOpticIDToUnlock)
         case .touchID:
             Text(Localizations.useFingerprintToUnlock)
+        case .unknown:
+            Text(Localizations.useBiometricsToUnlock)
         }
     }
 }

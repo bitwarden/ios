@@ -1,15 +1,22 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import OSLog
 
 /// The processor used to manage state and handle actions for the generator screen.
 ///
 final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, GeneratorEffect> {
+    // swiftlint:disable:previous type_body_length
+
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
+        & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
     /// and persisting it.
@@ -76,26 +83,38 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
+            await checkLearnGeneratorActionCardEligibility()
+        case .dismissLearnGeneratorActionCard:
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
+        case .showLearnGeneratorGuidedTour:
+            state.generatorType = .password
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
     override func receive(_ action: GeneratorAction) { // swiftlint:disable:this function_body_length
-        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue ?
-            .generateNewValue(shouldSave: true) : nil
+        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue
+            ? .generateNewValue(shouldSave: true)
+            : nil
 
         switch action {
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
+            Task {
+                await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
+            }
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
         case let .emailTypeChanged(emailType):
             state.usernameState.updateEmailType(emailType)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
-        case let .passwordGeneratorTypeChanged(passwordGeneratorType):
-            state.passwordState.passwordGeneratorType = passwordGeneratorType
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
@@ -106,6 +125,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                     value: state.generatedValue
                 )
             )
+            Task {
+                await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
+            }
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderEditingChanged(_, isEditing):
@@ -152,6 +174,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.forwardedEmailService = forwardedEmailService
         case let .usernameGeneratorTypeChanged(usernameGeneratorType):
             state.usernameState.usernameGeneratorType = usernameGeneratorType
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         }
 
         if let generateValueBehavior {
@@ -169,6 +193,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
+
+    /// Checks the eligibility of the generator Login action card.
+    ///
+    private func checkLearnGeneratorActionCardEligibility() async {
+        state.isLearnGeneratorActionCardEligible = await services.stateService
+            .getLearnGeneratorActionCardStatus() == .incomplete
+    }
 
     /// Generate a new passphrase.
     ///
@@ -204,7 +235,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating password: \(error)")
         }
     }
@@ -226,7 +257,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
@@ -242,9 +273,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             try await loadGeneratorOptionsTask?.value
 
             switch state.generatorType {
-            case .password:
-                let passwordState = await validatePasswordOptionsAndApplyPolicies()
-                switch state.passwordState.passwordGeneratorType {
+            case .passphrase, .password:
+                let (type, passwordState) = await validatePasswordOptionsAndApplyPolicies()
+                // It's possible that applying a policy changes the generator type, so a second
+                // switch on the type is needed.
+                switch type {
                 case .passphrase:
                     await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
                 case .password:
@@ -252,6 +285,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                         settings: passwordState.passwordGeneratorRequest,
                         shouldSavePassword: shouldSavePassword
                     )
+                case .username:
+                    // We shouldn't get here since validating the password options shouldn't switch
+                    // to the username generator.
+                    await generateUsername()
                 }
             case .username:
                 await generateUsername()
@@ -269,11 +306,22 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
             options: &passwordOptions
         )
-        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
+        state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
+        state.passwordState.update(with: passwordOptions)
 
         let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
         state.usernameState.update(with: usernameOptions)
         didLoadGeneratorOptions = true
+    }
+
+    /// Re-loads generator options.
+    ///
+    private func reloadGeneratorOptions() async {
+        do {
+            try await loadGeneratorOptions()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Saves the existing generated value to the user's password history.
@@ -287,7 +335,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         do {
             try await saveGeneratedValue(state.generatedValue)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
@@ -310,8 +358,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func saveGeneratorOptions() async {
         do {
             switch state.generatorType {
-            case .password:
-                let passwordOptions = state.passwordState.passwordGenerationOptions
+            case .passphrase, .password:
+                let passwordOptions = state.passwordState.passwordGenerationOptions(generatorType: state.generatorType)
                 try await services.generatorRepository.setPasswordGenerationOptions(passwordOptions)
             case .username:
                 try await services.generatorRepository.setUsernameGenerationOptions(
@@ -332,7 +380,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///
     func setGeneratedValue(_ value: String, shouldSavePassword: Bool = true) async throws {
         state.generatedValue = value
-        if state.generatorType == .password, shouldSavePassword {
+        if state.generatorType != .username, shouldSavePassword {
             try await saveGeneratedValue(value)
         }
     }
@@ -340,15 +388,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Validates any password options to ensure the combination of options are valid and applies
     /// any policies to ensure a generated password conforms to the set policies.
     ///
-    /// - Returns: A copy of the validated state, which can be used to generate a new password or
-    ///     passphrase.
+    /// - Returns: A copy of the generator type and validated state, which can be used to generate
+    ///     a new password or passphrase.
     ///
-    func validatePasswordOptionsAndApplyPolicies() async -> GeneratorState.PasswordState {
+    func validatePasswordOptionsAndApplyPolicies() async -> (GeneratorType, GeneratorState.PasswordState) {
         state.passwordState.validateOptions()
-        var passwordOptions = state.passwordState.passwordGenerationOptions
+        var passwordOptions = state.passwordState.passwordGenerationOptions(generatorType: state.generatorType)
         state.isPolicyInEffect = await (try? services.policyService
             .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
-        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
+        state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
+        state.passwordState.update(with: passwordOptions)
 
         var policyOptions = PasswordGenerationOptions()
         _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &policyOptions)
@@ -356,6 +405,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
         // Return the validated state to prevent any race conditions of the state being updated
         // before the value is generated.
-        return state.passwordState
+        return (state.generatorType, state.passwordState)
     }
-}
+} // swiftlint:disable:this file_length

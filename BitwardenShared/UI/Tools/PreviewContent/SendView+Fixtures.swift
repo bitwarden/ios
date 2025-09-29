@@ -1,10 +1,11 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
 #if DEBUG
 extension SendView {
     static func fixture(
-        id: String = "id",
+        id: String? = "id",
         accessId: String = "accessId",
         name: String = "name",
         notes: String? = nil,

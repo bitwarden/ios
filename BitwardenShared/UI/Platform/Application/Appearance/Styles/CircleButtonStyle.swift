@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - CircleButtonStyle
@@ -13,21 +14,24 @@ struct CircleButtonStyle: ButtonStyle {
     /// The background color of this button.
     var backgroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledBackground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledBackground.swiftUIColor
+            : SharedAsset.Colors.buttonFilledDisabledBackground.swiftUIColor
     }
+
+    /// The diameter of the circle in the button.
+    let diameter: CGFloat
 
     /// The color of the foreground elements, including text and template images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            ? SharedAsset.Colors.buttonFilledForeground.swiftUIColor
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .frame(width: 50, height: 50)
+            .frame(width: diameter, height: diameter)
             .background(backgroundColor)
             .clipShape(Circle())
             .opacity(configuration.isPressed ? 0.5 : 1)
@@ -43,14 +47,14 @@ struct CircleButtonStyle: ButtonStyle {
             Asset.Images.plus32.swiftUIImage
                 .imageStyle(
                     .init(
-                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                        color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
                         width: 32,
                         height: 32
                     )
                 )
         }
-        .buttonStyle(CircleButtonStyle())
+        .buttonStyle(CircleButtonStyle(diameter: 50))
     }
     .padding()
 }

@@ -1,6 +1,8 @@
+import BitwardenResources
+
 /// An enum describing the type of data contained in a cipher.
 ///
-enum CipherType: Int, Codable {
+public enum CipherType: Int, Codable, Sendable {
     /// A login containing a username and password.
     case login = 1
 
@@ -45,7 +47,7 @@ extension CipherType {
 }
 
 extension CipherType: CaseIterable {
-    static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey]
+    public static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey]
 }
 
 extension CipherType: Menuable {

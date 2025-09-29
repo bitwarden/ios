@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -14,8 +16,8 @@ struct ViewItemView: View {
 
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
-        guard let cipher = store.state.loadingState.data?.cipher else { return false }
-        return cipher.organizationId != nil
+        guard let data = store.state.loadingState.data else { return false }
+        return data.canAssignToCollection
     }
 
     /// Whether to show the delete option in the toolbar menu.
@@ -23,10 +25,15 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeDeleted ?? false
     }
 
+    /// Whether the restore option is available.
+    /// New permission model from PM-18091
+    var isRestoredEnabled: Bool {
+        store.state.loadingState.data?.canBeRestored ?? false
+    }
+
     /// Whether to show the move to organization option in the toolbar menu.
     var isMoveToOrganizationEnabled: Bool {
-        guard let cipher = store.state.loadingState.data?.cipher else { return false }
-        return cipher.organizationId == nil
+        store.state.loadingState.data?.canMoveToOrganization ?? false
     }
 
     /// The `Store` for this view.
@@ -43,8 +50,8 @@ struct ViewItemView: View {
                 details(for: viewState)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(navigationTitle)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(
             store.binding(
@@ -61,17 +68,11 @@ struct ViewItemView: View {
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if let state = store.state.loadingState.data {
-                    if state.isSoftDeleted {
-                        toolbarButton(Localizations.restore) {
-                            await store.perform(.restorePressed)
-                        }
-                        .accessibilityIdentifier("RestoreButton")
-                    } else {
-                        editToolbarButton {
-                            store.send(.editPressed)
-                        }
+                if isRestoredEnabled {
+                    toolbarButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
                     }
+                    .accessibilityIdentifier("RestoreButton")
                 }
 
                 VaultItemManagementMenuView(
@@ -88,18 +89,21 @@ struct ViewItemView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            editItemFloatingActionButton {
+            editItemFloatingActionButton(hidden: !store.state.canEdit) {
                 store.send(.editPressed)
             }
         }
-        .task {
-            await store.perform(.appeared)
+        .onAppear {
+            // GitHub issue #1344: Changed from `.task` to `.onAppear` because the close button
+            // on the navigation bar was consistently shifting position
+            // on physical devices running iOS 16.
+            Task {
+                await store.perform(.appeared)
+            }
         }
-    }
-
-    /// The title of the view
-    private var navigationTitle: String {
-        Localizations.viewItem
+        .onDisappear {
+            store.send(.disappeared)
+        }
     }
 
     // MARK: Private Views
@@ -109,76 +113,31 @@ struct ViewItemView: View {
     /// added to all of them at once.
     @ViewBuilder
     private func details(for state: ViewVaultItemState) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                ViewItemDetailsView(
-                    store: store.child(
-                        state: { _ in state },
-                        mapAction: { $0 },
-                        mapEffect: { $0 }
-                    ),
-                    timeProvider: timeProvider
-                )
-            }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        LazyVStack(alignment: .leading, spacing: 16) {
+            ViewItemDetailsView(
+                store: store.child(
+                    state: { _ in state },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                ),
+                timeProvider: timeProvider
+            )
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 }
 
 // MARK: Previews
 
 #if DEBUG
-/// A `TimeProvider` for previews.
-///
-class PreviewTimeProvider: TimeProvider {
-    /// A fixed date to use for previews.
-    var fixedDate: Date
-
-    var presentTime: Date {
-        fixedDate
-    }
-
-    init(
-        fixedDate: Date = .init(
-            timeIntervalSinceReferenceDate: 1_695_000_011
-        )
-    ) {
-        self.fixedDate = fixedDate
-    }
-
-    func timeSince(_ date: Date) -> TimeInterval {
-        presentTime.timeIntervalSince(date)
-    }
-}
-
 struct ViewItemView_Previews: PreviewProvider {
-    static var cipher = CipherView.fixture(
-        attachments: [
-            .fixture(
-                fileName: "selfieWithACat.png",
-                id: "1",
-                sizeName: "11.2 MB"
-            ),
-            .fixture(
-                fileName: "selfieWithAPotato.png",
-                id: "2",
-                sizeName: "18.7 MB"
-            ),
-        ],
-        id: "123",
-        login: .fixture(),
-        type: .login,
-        viewPassword: false
-    )
-
     static var cardState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .card),
             hasPremium: true
         )!
         state.type = CipherType.card
-        state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
@@ -194,7 +153,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var loginState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .login),
             hasPremium: true
         )!
         state.customFieldsState.customFields = [
@@ -205,8 +164,8 @@ struct ViewItemView_Previews: PreviewProvider {
                 value: "Value"
             ),
         ]
-        state.isMasterPasswordRePromptOn = false
         state.name = "Example"
+        state.notes = "secure note"
         state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
@@ -228,9 +187,19 @@ struct ViewItemView_Previews: PreviewProvider {
         return state
     }
 
+    static var secureNoteState: CipherItemState {
+        var state = CipherItemState(
+            existing: cipher(forType: .secureNote),
+            hasPremium: true
+        )!
+        state.notes = "secure note"
+        state.type = .secureNote
+        return state
+    }
+
     static var sshKeyState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .sshKey),
             hasPremium: true
         )!
         state.name = "Example"
@@ -267,6 +236,8 @@ struct ViewItemView_Previews: PreviewProvider {
         cardPreview
 
         loginPreview
+
+        secureNotePreview
 
         sshKeyPreview
     }
@@ -315,6 +286,28 @@ struct ViewItemView_Previews: PreviewProvider {
         .previewDisplayName("Login")
     }
 
+    @ViewBuilder static var secureNotePreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(secureNoteState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("SecureNote")
+    }
+
     @ViewBuilder static var sshKeyPreview: some View {
         NavigationView {
             ViewItemView(
@@ -335,6 +328,27 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("SSH Key")
+    }
+
+    static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
+        CipherView.fixture(
+            attachments: [
+                .fixture(
+                    fileName: "selfieWithACat.png",
+                    id: "1",
+                    sizeName: "11.2 MB"
+                ),
+                .fixture(
+                    fileName: "selfieWithAPotato.png",
+                    id: "2",
+                    sizeName: "18.7 MB"
+                ),
+            ],
+            id: "123",
+            login: .fixture(),
+            type: forType,
+            viewPassword: false
+        )
     }
 }
 #endif

@@ -9,12 +9,14 @@ import Foundation
 class MockSendRepository: SendRepository {
     // MARK: Properties
 
-    var doesActivateAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActivateAccountHavePremiumResult: Bool = true
 
     var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
 
     var fetchSyncCalled = false
-    var fetchSyncIsManualRefresh: Bool?
+    var fetchSyncForceSync: Bool?
+    var fetchSyncIsPeriodic: Bool?
+    var fetchSyncHandler: (() -> Void)?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var searchSendSearchText: String?
@@ -22,6 +24,8 @@ class MockSendRepository: SendRepository {
     var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
 
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
+
+    var sendSubject = CurrentValueSubject<SendView?, Error>(nil)
 
     var sendTypeListPublisherType: BitwardenShared.SendType?
     var sendTypeListSubject = CurrentValueSubject<[SendListItem], Error>([])
@@ -73,17 +77,19 @@ class MockSendRepository: SendRepository {
         return try updateSendResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try doesActivateAccountHavePremiumResult.get()
+    func doesActiveAccountHavePremium() async -> Bool {
+        doesActivateAccountHavePremiumResult
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
         try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
-    func fetchSync(isManualRefresh: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         fetchSyncCalled = true
-        fetchSyncIsManualRefresh = isManualRefresh
+        fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
+        fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 
@@ -98,6 +104,12 @@ class MockSendRepository: SendRepository {
 
     func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         sendListSubject
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>> {
+        sendSubject
             .eraseToAnyPublisher()
             .values
     }

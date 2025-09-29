@@ -1,43 +1,7 @@
+import BitwardenKit
 import Foundation
 
 extension URL {
-    // MARK: Private Properties
-
-    /// A regular expression that matches IP addresses.
-    private var ipRegex: String {
-        "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-    }
-
-    /// Valid top-level domain values.
-    private var validTlds: [String] {
-        [
-            ".com",
-            ".net",
-            ".org",
-            ".edu",
-            ".uk",
-            ".gov",
-            ".ca",
-            ".de",
-            ".jp",
-            ".fr",
-            ".au",
-            ".ru",
-            ".ch",
-            ".io",
-            ".es",
-            ".us",
-            ".co",
-            ".xyz",
-            ".info",
-            ".ly",
-            ".mil",
-        ]
-    }
-
     // MARK: Properties
 
     /// If the URL is for an app using the Bitwarden `iosapp://` URL scheme, this returns the web
@@ -50,26 +14,15 @@ extension URL {
 
     /// Returns the URL's domain constructed from the top-level and second-level domain.
     var domain: String? {
-        let isIpAddress = host?.range(of: ipRegex, options: .regularExpression) != nil
-        if host == "localhost" || isIpAddress {
+        if host == "localhost" || isIPAddress {
             return host
         }
         return DomainName.parseBaseDomain(url: self) ?? host
     }
 
-    /// Whether the URL's domain ends in an accepted top-level domain value.
-    var hasValidTld: Bool {
-        guard let host else { return false }
-
-        for tld in validTlds where host.hasSuffix(tld) {
-            return true
-        }
-        return false
-    }
-
     /// Whether the URL has valid components that are in the correct order.
     var hasValidURLComponents: Bool {
-        guard absoluteString.isValidURL, hasValidTld else { return false }
+        guard absoluteString.isValidURL else { return false }
         let scheme = scheme ?? ""
         let host = host ?? ""
 
@@ -90,21 +43,6 @@ extension URL {
     /// Determines if the URI is an app with the Bitwarden `iosapp://` URL scheme.
     var isApp: Bool {
         absoluteString.starts(with: Constants.iOSAppProtocol)
-    }
-
-    /// Returns a sanitized version of the URL. This will add a https scheme to the URL if the
-    /// scheme is missing and remove a trailing slash.
-    var sanitized: URL {
-        let stringUrl = if absoluteString.hasSuffix("/") {
-            String(absoluteString.dropLast())
-        } else {
-            absoluteString
-        }
-
-        guard stringUrl.starts(with: "https://") || stringUrl.starts(with: "http://") else {
-            return URL(string: "https://" + stringUrl) ?? self
-        }
-        return URL(string: stringUrl) ?? self
     }
 
     // MARK: Methods
@@ -130,5 +68,16 @@ extension URL {
             components.queryItems = queryItems
             return components.url
         }
+    }
+
+    /// Sets whether the file should be excluded from backups.
+    ///
+    /// - Parameter value: `true` if the file should be excluded from backups, or `false` otherwise.
+    ///
+    func setIsExcludedFromBackup(_ value: Bool) throws {
+        var url = self
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = value
+        try url.setResourceValues(values)
     }
 }

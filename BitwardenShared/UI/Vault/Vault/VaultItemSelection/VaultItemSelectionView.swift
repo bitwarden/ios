@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -44,10 +46,6 @@ struct VaultItemSelectionView: View {
                         mapEffect: VaultItemSelectionEffect.profileSwitcher
                     )
                 )
-            }
-
-            addToolbarItem {
-                store.send(.addTapped)
             }
         }
     }
@@ -145,7 +143,7 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
         )
-        .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
+        .background(Color(asset: SharedAsset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -154,9 +152,9 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
-            EmptyContentView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.items.swiftUIImage,
-                text: emptyViewMessage
+                message: emptyViewMessage
             ) {
                 Button {
                     store.send(.addTapped)
@@ -165,13 +163,15 @@ private struct VaultItemSelectionSearchableView: View {
                         Text(Localizations.newItem)
                     } icon: {
                         Asset.Images.plus16.swiftUIImage
-                            .imageStyle(.accessoryIcon(
-                                color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                            .imageStyle(.accessoryIcon16(
+                                color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true
                             ))
                     }
                 }
+                .buttonStyle(.primary(shouldFillWidth: false))
             }
+            .scrollView(centerContentVertically: true)
         } else {
             matchingItemsView()
         }
@@ -181,7 +181,7 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func matchingItemsView() -> some View {
         VStack(spacing: 16) {
-            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem, textAlignment: .leading)
+            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem)
 
             ForEach(store.state.vaultListSections) { section in
                 VaultListSectionView(section: section) { item in
@@ -212,7 +212,7 @@ private struct VaultItemSelectionSearchableView: View {
                     vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         }
     }
 
@@ -242,7 +242,6 @@ private struct VaultItemSelectionSearchableView: View {
                 ),
                 timeProvider: CurrentTime()
             )
-            .accessibilityIdentifier("CipherCell")
         }
     }
 }
@@ -277,7 +276,7 @@ private struct VaultItemSelectionSearchableView: View {
 
 #Preview("Matching Items") {
     NavigationView {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
                 login: .fixture(username: "user@bitwarden.com"),

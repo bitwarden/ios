@@ -37,6 +37,9 @@ extension GeneratorState {
         /// The domain name used to generate a forwarded email alias with addy.io.
         var addyIODomainName: String = ""
 
+        /// The base URL for the addy.io api.
+        var addyIOSelfHostServerUrl: String = ""
+
         /// The DuckDuckGo API key used to generate a forwarded email alias.
         var duckDuckGoAPIKey: String = ""
 
@@ -60,6 +63,9 @@ extension GeneratorState {
 
         /// The simple login API key used to generate a forwarded email alias.
         var simpleLoginAPIKey: String = ""
+
+        /// The base URL for the SimpleLogin api.
+        var simpleLoginSelfHostServerUrl: String = ""
 
         // MARK: Plus Addressed Email Properties
 
@@ -93,6 +99,7 @@ extension GeneratorState {
             // Forwarded Email Properties
             addyIOAPIAccessToken = options.anonAddyApiAccessToken ?? addyIOAPIAccessToken
             addyIODomainName = options.anonAddyDomainName ?? addyIODomainName
+            addyIOSelfHostServerUrl = options.anonAddyBaseUrl ?? addyIOSelfHostServerUrl
             duckDuckGoAPIKey = options.duckDuckGoApiKey ?? duckDuckGoAPIKey
             fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
             firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
@@ -100,6 +107,7 @@ extension GeneratorState {
             forwardEmailAPIToken = options.forwardEmailApiToken ?? forwardEmailAPIToken
             forwardEmailDomainName = options.forwardEmailDomainName ?? forwardEmailDomainName
             simpleLoginAPIKey = options.simpleLoginApiKey ?? simpleLoginAPIKey
+            simpleLoginSelfHostServerUrl = options.simpleLoginBaseUrl ?? simpleLoginSelfHostServerUrl
 
             // Plus Address Email Properties
             email = options.plusAddressedEmail ?? email
@@ -134,8 +142,9 @@ extension GeneratorState.UsernameState {
     /// generated.
     var canGenerateUsername: Bool {
         switch usernameGeneratorType {
-        case .catchAllEmail,
-             .plusAddressedEmail,
+        case .catchAllEmail:
+            !domain.isEmpty
+        case .plusAddressedEmail,
              .randomWord:
             true
         case .forwardedEmail:
@@ -162,6 +171,7 @@ extension GeneratorState.UsernameState {
         UsernameGenerationOptions(
             anonAddyApiAccessToken: addyIOAPIAccessToken.nilIfEmpty,
             anonAddyDomainName: addyIODomainName.nilIfEmpty,
+            anonAddyBaseUrl: addyIOSelfHostServerUrl.nilIfEmpty,
             capitalizeRandomWordUsername: capitalize,
             catchAllEmailDomain: domain.nilIfEmpty,
             catchAllEmailType: catchAllEmailType,
@@ -175,6 +185,7 @@ extension GeneratorState.UsernameState {
             plusAddressedEmailType: plusAddressedEmailType,
             serviceType: forwardedEmailService,
             simpleLoginApiKey: simpleLoginAPIKey.nilIfEmpty,
+            simpleLoginBaseUrl: simpleLoginSelfHostServerUrl.nilIfEmpty,
             type: usernameGeneratorType
         )
     }
@@ -216,12 +227,12 @@ extension GeneratorState.UsernameState {
     /// Returns a `UsernameGeneratorRequest` used to generate a forwarded email alias username.
     ///
     private func forwardedEmailGeneratorRequest() -> UsernameGeneratorRequest {
-        let service: ForwarderServiceType = switch forwardedEmailService {
+        let service = switch forwardedEmailService {
         case .addyIO:
             ForwarderServiceType.addyIo(
                 apiToken: addyIOAPIAccessToken,
                 domain: addyIODomainName,
-                baseUrl: "https://app.addy.io"
+                baseUrl: addyIOSelfHostServerUrl.nilIfEmpty ?? ForwardedEmailServiceType.defaultAddyIOBaseUrl
             )
         case .duckDuckGo:
             ForwarderServiceType.duckDuckGo(token: duckDuckGoAPIKey)
@@ -235,9 +246,16 @@ extension GeneratorState.UsernameState {
                 domain: forwardEmailDomainName
             )
         case .simpleLogin:
-            ForwarderServiceType.simpleLogin(apiKey: simpleLoginAPIKey)
+            ForwarderServiceType.simpleLogin(
+                apiKey: simpleLoginAPIKey,
+                baseUrl: simpleLoginSelfHostServerUrl.nilIfEmpty
+                    ?? ForwardedEmailServiceType.defaultSimpleLoginBaseUrl
+            )
         }
-        return UsernameGeneratorRequest.forwarded(service: service, website: emailWebsite)
+
+        // Fastmail does not allow emailWebsite to be nil.
+        let website = (forwardedEmailService == .fastmail) ? (emailWebsite ?? "") : emailWebsite
+        return UsernameGeneratorRequest.forwarded(service: service, website: website)
     }
 
     /// Returns a `UsernameGeneratorRequest` used to generate a plus-addressed email username.

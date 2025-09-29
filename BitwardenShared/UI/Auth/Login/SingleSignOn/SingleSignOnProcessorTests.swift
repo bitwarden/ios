@@ -1,8 +1,11 @@
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 
-class SingleSignOnProcessorTests: BitwardenTestCase {
+class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -57,6 +60,21 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadSingleSignOnDetails_error() async throws {
         authRepository.getSSOOrganizationIdentifierByResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        XCTAssertEqual(subject.state.identifierText, "")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if getting the org id throws
+    /// and loads the last used organization identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_errorRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .failure(BitwardenTestError.example)
         stateService.rememberedOrgIdentifier = "BestOrganization"
 
         await subject.perform(.loadSingleSignOnDetails)
@@ -83,6 +101,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
@@ -100,6 +119,50 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
+    /// if the organization identifier is `nil`, but populates the organization identifier with the
+    /// last used identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_orgIdNilRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success(nil)
+        stateService.rememberedOrgIdentifier = "BestOrganization"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.first, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+        XCTAssertEqual(subject.state.identifierText, "BestOrganization")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` loads the SSO organization identifier even if
+    /// there's a remembered org identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_successWithRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success("OrgId")
+        stateService.rememberedOrgIdentifier = "SSO"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.loading),
+                LoadingOverlayState(title: Localizations.loggingIn),
+            ]
+        )
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
@@ -134,7 +197,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.generateSingleSignOnOrgIdentifier, "BestOrganization")
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(URLError(.timedOut)) {})
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? URLError, URLError(.timedOut))
         XCTAssertEqual(errorReporter.errors.last as? URLError, URLError(.timedOut))
     }
 
@@ -186,7 +249,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         // Verify the results.
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertNil(stateService.rememberedOrgIdentifier)
     }
@@ -303,6 +366,83 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
+    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
+    /// if user has no private key and uses Key Connector.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey() async throws {
+        // Set up the mock data.
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.identifierText = "BestOrganization"
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+        waitFor(!coordinator.alertShown.isEmpty)
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert,
+                       Alert.keyConnectorConfirmation(keyConnectorUrl: URL(string: "https://example.com")!) {})
+
+        try await alert?.tapAction(title: Localizations.yes)
+
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertTrue(authRepository.convertNewUserToKeyConnectorKeyCalled)
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorOrgIdentifier, "BestOrganization")
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorKeyConnectorURL, URL(string: "https://example.com")!)
+
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
+    /// if user has no private key and uses Key Connector.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey_error() async throws {
+        // Set up the mock data.
+        let error = BitwardenTestError.example
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.identifierText = "BestOrganization"
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+        waitFor(!coordinator.alertShown.isEmpty)
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
+        authRepository.convertNewUserToKeyConnectorKeyResult = .failure(error)
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert,
+                       Alert.keyConnectorConfirmation(keyConnectorUrl: URL(string: "https://example.com")!) {})
+
+        try await alert?.tapAction(title: Localizations.yes)
+
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
+        XCTAssertTrue(authRepository.convertNewUserToKeyConnectorKeyCalled)
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorOrgIdentifier, "BestOrganization")
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorKeyConnectorURL, URL(string: "https://example.com")!)
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [error])
+        XCTAssertNotEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertNotEqual(coordinator.routes, [.dismiss])
+    }
+
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
     @MainActor
     func test_singleSignOnCompleted_vaultUnlockedTDE() {
@@ -330,7 +470,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!errorReporter.errors.isEmpty)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
-}
+} // swiftlint:disable:this file_length

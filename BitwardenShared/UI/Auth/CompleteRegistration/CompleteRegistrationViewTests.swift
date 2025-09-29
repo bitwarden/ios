@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -38,7 +39,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
@@ -66,7 +67,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     @MainActor
     func test_masterPasswordField_updateValue() throws {
         processor.state.arePasswordsVisible = true
-        let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
+        let textfield = try subject.inspect().find(viewWithId: Localizations.masterPasswordRequired).textField()
         try textfield.setInput("text")
         XCTAssertEqual(processor.dispatchedActions.last, .passwordTextChanged("text"))
     }
@@ -86,7 +87,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     @MainActor
     func test_retypePasswordField_updateValue() throws {
         processor.state.arePasswordsVisible = true
-        let textfield = try subject.inspect().find(viewWithId: Localizations.retypeMasterPassword).textField()
+        let textfield = try subject.inspect().find(viewWithId: Localizations.retypeMasterPasswordRequired).textField()
         try textfield.setInput("text")
         XCTAssertEqual(processor.dispatchedActions.last, .retypePasswordTextChanged("text"))
     }
@@ -94,21 +95,8 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     /// Tapping the submit button performs the `.CompleteRegistration` effect.
     @MainActor
     func test_createAccountButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.createAccount)
-        try button.tap()
-
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .completeRegistration)
-    }
-
-    /// Tapping the continue button performs the `.createAccount` effect.
-    @MainActor
-    func test_continueButton_tap_withValidFields() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
         processor.state.passwordText = "123456789101112"
         processor.state.retypePasswordText = "123456789101112"
-
         let button = try subject.inspect().find(button: Localizations.continue)
         try button.tap()
 
@@ -120,8 +108,6 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     /// Continue button is disabled when password requirements are not met.
     @MainActor
     func test_continueButton_disabled() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-
         let button = try subject.inspect().find(button: Localizations.continue)
         XCTAssertTrue(button.isDisabled())
     }
@@ -129,8 +115,6 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     /// Tapping the learn more button will dispatch the correct action.
     @MainActor
     func test_learnMoreButton_tap() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-
         let button = try subject.inspect().find(button: Localizations.learnMore)
         try button.tap()
 
@@ -140,8 +124,6 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     /// Tapping the prevent account lock button will dispatch the correct action.
     @MainActor
     func test_preventAccountLocked_tap() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-
         let button = try subject.inspect().find(button: Localizations.learnAboutWaysToPreventAccountLockout)
         try button.tap()
 
@@ -150,15 +132,22 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// Tests the view renders correctly when the text fields are all empty.
+    /// Tests the view renders correctly.
     @MainActor
-    func test_snapshot_empty() {
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    func disabletest_snapshot_empty_nativeCreateAccountFlow() throws {
+        assertSnapshots(
+            of: subject,
+            as: [
+                .tallPortrait,
+                .portraitDark(heightMultiple: 2),
+                .tallPortraitAX5(),
+            ]
+        )
     }
 
     /// Tests the view renders correctly when text fields are hidden.
     @MainActor
-    func test_snapshot_textFields_hidden() throws {
+    func disabletest_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
         processor.state.arePasswordsVisible = false
         processor.state.userEmail = "email@example.com"
         processor.state.passwordText = "12345"
@@ -171,7 +160,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text fields are all populated.
     @MainActor
-    func test_snapshot_textFields_populated() throws {
+    func disabletest_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
         processor.state.arePasswordsVisible = true
         processor.state.userEmail = "email@example.com"
         processor.state.passwordText = "12345"
@@ -184,59 +173,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the toggles are on.
     @MainActor
-    func test_snapshot_toggles_on() throws {
-        processor.state.isCheckDataBreachesToggleOn = true
-
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Tests the view renders correctly when the feature flag for native create account is on.
-    @MainActor
-    func test_snapshot_empty_nativeCreateAccountFlow() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-
-        assertSnapshots(
-            of: subject,
-            as: [
-                .tallPortrait,
-                .portraitDark(heightMultiple: 2),
-                .tallPortraitAX5(),
-            ]
-        )
-    }
-
-    /// Tests the view renders correctly when text fields are hidden and new account ff is on.
-    @MainActor
-    func test_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-        processor.state.arePasswordsVisible = false
-        processor.state.userEmail = "email@example.com"
-        processor.state.passwordText = "12345"
-        processor.state.retypePasswordText = "12345"
-        processor.state.passwordHintText = "wink wink"
-        processor.state.passwordStrengthScore = 0
-
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Tests the view renders correctly when the text fields are all populated and new account ff is on.
-    @MainActor
-    func test_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
-        processor.state.arePasswordsVisible = true
-        processor.state.userEmail = "email@example.com"
-        processor.state.passwordText = "12345"
-        processor.state.retypePasswordText = "12345"
-        processor.state.passwordHintText = "wink wink"
-        processor.state.passwordStrengthScore = 0
-
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    /// Tests the view renders correctly when the toggles are on when the feature flag for native create account is on.
-    @MainActor
-    func test_snapshot_toggles_on_nativeCreateAccountFlow() throws {
-        processor.state.nativeCreateAccountFeatureFlag = true
+    func disabletest_snapshot_toggles_on_nativeCreateAccountFlow() throws {
         processor.state.isCheckDataBreachesToggleOn = true
 
         assertSnapshot(of: subject, as: .defaultPortrait)

@@ -1,4 +1,7 @@
+import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +10,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var application: MockApplication!
     var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
     var errorReporter: MockErrorReporter!
@@ -20,6 +24,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        application = MockApplication()
         authRepository = MockAuthRepository()
         biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator()
@@ -30,6 +35,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                application: application,
                 authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
@@ -43,6 +49,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.tearDown()
 
         appExtensionDelegate = nil
+        application = nil
         authRepository = nil
         biometricsRepository = nil
         coordinator = nil
@@ -88,6 +95,83 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             subject.state.profileSwitcherState,
             ProfileSwitcherState.empty()
         )
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't attempt to unlock the vault with biometrics if the
+    /// app is in the background.
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_background() async throws {
+        application.applicationState = .background
+        stateService.activeAccount = .fixture()
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `perform(.appeared)` with no master password but with a biometrics status enabled,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_false() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        authRepository.hasMasterPasswordResult = .success(false)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertFalse(subject.state.shouldShowPasswordOrPinFields)
+    }
+
+    /// `perform(.appeared)` with no master password but with PIN enabled,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_true_pin() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.notAvailable
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.hasMasterPasswordResult = .success(false)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertTrue(subject.state.shouldShowPasswordOrPinFields)
+    }
+
+    /// `perform(.appeared)` with no PIN or biometric status enabled, but with a master password,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPassword() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.notAvailable
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        authRepository.hasMasterPasswordResult = .success(true)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertTrue(subject.state.shouldShowPasswordOrPinFields)
+    }
+
+    /// `perform(.appeared)` with no PIN or biometric status enabled, but with a master password error,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPasswordError() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.notAvailable
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertTrue(subject.state.shouldShowPasswordOrPinFields)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
@@ -201,7 +285,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
     @MainActor
-    func test_perform_requestedProfileSwitcherVisible_false() async {
+    func test_perform_requestedProfileSwitcherVisible_false() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -219,7 +308,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
     @MainActor
-    func test_perform_requestedProfileSwitcherVisible_true() async {
+    func test_perform_requestedProfileSwitcherVisible_true() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -723,6 +817,29 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
+    /// `receive(_:)` with `.logOut` shows a logout confirmation alert and allows the user to logout.
+    @MainActor
+    func test_receive_logOut() async throws {
+        subject.receive(.logOut)
+
+        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
+        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
+        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
+
+        try await logoutConfirmationAlert.tapCancel()
+        XCTAssertTrue(coordinator.events.isEmpty)
+
+        try await logoutConfirmationAlert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(.logout(userId: nil, userInitiated: true))
+        )
+    }
+
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
     @MainActor
     func test_receive_masterPasswordChanged() {
@@ -730,79 +847,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.receive(.masterPasswordChanged("password"))
         XCTAssertEqual(subject.state.masterPassword, "password")
-    }
-
-    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
-    /// to logout.
-    @MainActor
-    func test_receive_morePressed_logout() async throws {
-        subject.receive(.morePressed)
-
-        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(optionsAlert.title, Localizations.options)
-        XCTAssertNil(optionsAlert.message)
-        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
-        XCTAssertEqual(optionsAlert.alertActions.count, 2)
-        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
-        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
-
-        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
-        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
-
-        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        XCTAssertEqual(
-            coordinator.events.last,
-            .action(
-                .logout(userId: nil, userInitiated: true)
-            )
-        )
-    }
-
-    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
-    /// to logout.
-    @MainActor
-    func test_receive_morePressed_logout_nextAccount() async throws {
-        stateService.accounts = [
-            .fixture(),
-            .fixtureAccountLogin(),
-        ]
-        stateService.activeAccount = .fixture()
-        subject.receive(.morePressed)
-
-        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(optionsAlert.title, Localizations.options)
-        XCTAssertNil(optionsAlert.message)
-        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
-        XCTAssertEqual(optionsAlert.alertActions.count, 2)
-        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
-        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
-
-        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
-        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
-
-        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
-
-        XCTAssertEqual(
-            coordinator.events.last,
-            .action(
-                .logout(userId: nil, userInitiated: true)
-            )
-        )
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
@@ -820,6 +864,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// lock the selected account.
     @MainActor
     func test_receive_accountLongPressed_lock() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture(userId: "1")
         let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
@@ -854,6 +903,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
     @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
@@ -880,6 +934,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// log out of the selected account, which navigates back to the landing page for the active account.
     @MainActor
     func test_receive_accountLongPressed_logout_activeAccount() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -915,6 +974,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// log out of the selected account, which triggers an account switch.
     @MainActor
     func test_receive_accountLongPressed_logout_activeAccount_withAlternate() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -957,6 +1021,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// log out of the selected account, which displays a toast.
     @MainActor
     func test_receive_accountLongPressed_logout_otherAccount() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -996,6 +1065,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// account.
     @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
         let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
@@ -1024,7 +1098,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_active_unlocked() {
+    func test_receive_accountPressed_active_unlocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
@@ -1053,7 +1132,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_active_locked() {
+    func test_receive_accountPressed_active_locked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let account = Account.fixture(profile: .fixture(
             userId: profile.userId
@@ -1085,7 +1169,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_alternateUnlocked() {
+    func test_receive_accountPressed_alternateUnlocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture(isUnlocked: true)
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(profile: .fixture(
@@ -1119,7 +1208,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_alternateLocked() {
+    func test_receive_accountPressed_alternateLocked() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(profile: .fixture(
@@ -1152,7 +1246,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_accountPressed_noMatch() {
+    func test_receive_accountPressed_noMatch() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -1181,7 +1280,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_addAccountPressed() {
+    func test_receive_addAccountPressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -1203,7 +1307,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
     @MainActor
-    func test_receive_backgroundPressed() {
+    func test_receive_backgroundPressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
@@ -1213,7 +1322,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
 
         let task = Task {
-            subject.receive(.profileSwitcher(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundTapped))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -1240,5 +1349,23 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 } // swiftlint:disable:this file_length

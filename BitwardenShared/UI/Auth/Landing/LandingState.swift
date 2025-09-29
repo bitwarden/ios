@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - LandingState
 
 /// An object that defines the current state of a `LandingView`.
@@ -24,9 +26,6 @@ struct LandingState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// Flag to use email verification or not
-    var emailVerificationFeatureFlag: Bool = true
 
     // MARK: Initialization
 

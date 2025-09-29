@@ -1,4 +1,6 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 import CryptoKit
 import Foundation
 
@@ -18,7 +20,6 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     typealias Services = HasAuthRepository
         & HasAuthService
-        & HasCaptchaService
         & HasEnvironmentService
         & HasErrorReporter
         & HasNFCReaderService
@@ -61,6 +62,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     override func perform(_ effect: TwoFactorAuthEffect) async {
         switch effect {
+        case .appeared:
+            guard state.authMethod == .email, !state.deviceVerificationRequired else { return }
+            await sendVerificationCodeEmail()
         case .beginDuoAuth:
             authenticateWithDuo()
         case .beginWebAuthn:
@@ -73,7 +77,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.verificationCode = duoToken
             await login()
         case .resendEmailTapped:
-            await resendEmail()
+            await sendVerificationCodeEmail()
         case .tryAgainTapped:
             services.nfcReaderService.startReading()
         }
@@ -93,7 +97,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.toast = newValue
         case let .verificationCodeChanged(newValue):
             state.verificationCode = newValue
-            state.continueEnabled = (newValue.count >= 6)
+            state.continueEnabled = !newValue.isEmpty
         }
     }
 
@@ -105,31 +109,10 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         case .recoveryCode:
             state.url = services.environmentService.recoveryCodeURL
         case .email:
-            Task { await resendEmail() }
+            Task { await sendVerificationCodeEmail() }
             state.authMethod = authMethod
         default:
             state.authMethod = authMethod
-        }
-    }
-
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) {
-        do {
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: services.captchaService.callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
         }
     }
 
@@ -145,12 +128,12 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             }
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
     /// Attempt to login.
-    private func login(captchaToken: String? = nil) async {
+    private func login() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -170,15 +153,14 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 email: state.email,
                 code: code,
                 method: state.authMethod,
-                remember: state.isRememberMeOn,
-                captchaToken: captchaToken
+                remember: state.isRememberMeOn
             )
 
             try await tryToUnlockVault(unlockMethod)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
-        } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
-            launchCaptchaFlow(with: hCaptchaSiteCode)
+        } catch IdentityTokenRequestError.newDeviceNotVerified {
+            coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {
@@ -192,18 +174,22 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
 
-    /// Resend the verification code email.
-    private func resendEmail() async {
+    /// Sends the verification code email.
+    private func sendVerificationCodeEmail() async {
         guard state.authMethod == .email else { return }
         do {
             coordinator.showLoadingOverlay(title: Localizations.submitting)
 
-            try await services.authService.resendVerificationCodeEmail()
+            if state.deviceVerificationRequired {
+                try await services.authService.resendNewDeviceOtp()
+            } else {
+                try await services.authService.resendVerificationCodeEmail()
+            }
 
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.verificationEmailSent)
@@ -292,28 +278,6 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 }
 
-// MARK: CaptchaFlowDelegate
-
-extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
-    func captchaCompleted(token: String) {
-        Task {
-            await login(captchaToken: token)
-        }
-    }
-
-    func captchaErrored(error: Error) {
-        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
-
-        services.errorReporter.log(error: error)
-
-        // Show the alert after a delay to ensure it doesn't try to display over the
-        // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
-        }
-    }
-}
-
 // MARK: - DuoAuthenticationFlowDelegate
 
 /// An object that is signaled when specific circumstances in the web authentication on flow have been encountered.
@@ -342,8 +306,9 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
 
     func duoErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.handleError(error) {
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error) {
                 self.authenticateWithDuo()
             }
         }
@@ -381,7 +346,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
     }
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
         // First, hide the loading overlay.
         coordinator.hideLoadingOverlay()
 
@@ -389,7 +354,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
         if case ASWebAuthenticationSessionError.canceledLogin = error { return }
 
         // Otherwise, show the alert and log the error.
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
         services.errorReporter.log(error: error)
     }
 }
@@ -450,8 +415,9 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
 
     func webAuthnErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuthn view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.handleError(error) {
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error) {
                 self.authenticateWithWebAuthn()
             }
         }
@@ -472,7 +438,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                     try coordinator.navigate(
                         to: .webAuthnSelfHosted(
                             webAuthnUrl(
-                                baseUrl: services.environmentService.webVaultURL,
+                                baseURL: services.environmentService.webVaultURL,
                                 data: webAuthnProvider,
                                 headerText: Localizations.fido2Title,
                                 buttonText: Localizations.fido2AuthenticateWebAuthn,
@@ -512,7 +478,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
     /// Generates a URL to display a WebAuthn challenge for Self-Hosted vault authentication.
     ///
     private func webAuthnUrl(
-        baseUrl: URL,
+        baseURL: URL,
         data: WebAuthn,
         headerText: String,
         buttonText: String,
@@ -532,7 +498,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()
 
-        guard let url = baseUrl
+        guard let url = baseURL
             .appendingPathComponent("/webauthn-mobile-connector.html")
             .appending(queryItems: [
                 URLQueryItem(name: "data", value: base64string),

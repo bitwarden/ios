@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Networking
 
@@ -20,14 +21,17 @@ struct IdentityTokenRequestModel {
     /// The type of authentication method used.
     let authenticationMethod: AuthenticationMethod
 
-    /// The response token returned from the captcha provider.
-    var captchaToken: String?
-
     /// The device's details.
     let deviceInfo: DeviceInfo
 
     /// The id of the associated login with device request, if applicable.
     let loginRequestId: String?
+
+    /// whether the device needs to be verified
+    var deviceVerificationRequired: Bool = false
+
+    /// The otp to verify a new device
+    var newDeviceOtp: String?
 
     /// The two-factor authentication code.
     var twoFactorCode: String?
@@ -68,10 +72,6 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
             ])
         }
 
-        if let captchaToken {
-            queryItems.append(URLQueryItem(name: "captchaResponse", value: captchaToken))
-        }
-
         if let loginRequestId {
             queryItems.append(URLQueryItem(name: "authRequest", value: loginRequestId))
         }
@@ -82,6 +82,10 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
                 URLQueryItem(name: "twoFactorProvider", value: "\(twoFactorMethod.rawValue)"),
                 URLQueryItem(name: "twoFactorRemember", value: twoFactorRemember ? "1" : "0"),
             ])
+        }
+
+        if let newDeviceOtp {
+            queryItems.append(URLQueryItem(name: "newdeviceotp", value: newDeviceOtp))
         }
 
         return queryItems

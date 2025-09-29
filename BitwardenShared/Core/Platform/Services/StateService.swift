@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -40,7 +42,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: Whether the active account has access to premium features.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Gets the account for an id.
     ///
@@ -119,6 +121,13 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Gets the Universal Clipboard setting for a user account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -159,7 +168,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType
 
     /// Gets the disable auto-copy TOTP value for an account.
     ///
@@ -180,7 +189,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the environment URLs.
     /// - Returns: The user's environment URLs.
     ///
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData?
 
     /// Gets the events stored to disk to be uploaded in the future.
     ///
@@ -189,6 +198,20 @@ protocol StateService: AnyObject {
     /// - Returns: The events for the user
     ///
     func getEvents(userId: String?) async throws -> [EventData]
+
+    /// Gets the data for the flight recorder.
+    ///
+    /// - Returns: The flight recorder data.
+    ///
+    func getFlightRecorderData() async -> FlightRecorderData?
+
+    /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameter userId: The user ID associated with the sync after login.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool
 
     /// Gets whether the intro carousel screen has been shown.
     ///
@@ -217,6 +240,12 @@ protocol StateService: AnyObject {
     /// - Returns: The last known value of the `connectToWatch` setting.
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
+
+    /// Gets the status of Learn Generator Action Card.
+    ///
+    /// - Returns: The status of Learn generator Action Card.
+    ///
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress?
 
     /// Get any pending login request data.
     ///
@@ -250,29 +279,28 @@ protocol StateService: AnyObject {
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
+    /// Gets the pending actions from `AppIntent`s.
+    /// - Returns: The pending actions to execute.
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]?
+
     /// Gets the environment URLs used by the app prior to the user authenticating.
     ///
     /// - Returns: The environment URLs used prior to user authentication.
     ///
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData?
 
-    /// Gets the server config used by the app prior to the user authenticating.
-    /// - Returns: The server config used prior to user authentication.
-    func getPreAuthServerConfig() async -> ServerConfig?
-
-    /// Gets the server config for a user ID, as set by the server.
+    /// Gets the App Review Prompt data.
     ///
-    /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
-    /// - Returns: The user's server config.
+    /// - Returns: The App Review Prompt data.
     ///
-    func getServerConfig(userId: String?) async throws -> ServerConfig?
+    func getReviewPromptData() async -> ReviewPromptData?
 
     /// Get whether the device should be trusted.
     ///
@@ -280,11 +308,22 @@ protocol StateService: AnyObject {
     ///
     func getShouldTrustDevice(userId: String) async -> Bool?
 
+    /// Gets the status of Learn New Login Action Card.
+    ///
+    /// - Returns: The status of Learn New Login Action Card.
+    ///
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress?
+
     /// Get whether to show the website icons.
     ///
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets whether Siri & Shortcuts access is enabled.
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool
 
     /// Gets the sync to Authenticator value for an account.
     ///
@@ -368,10 +407,27 @@ protocol StateService: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The user's pin protected user key.
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key envelope.
+    /// - Returns: The user's pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String?
+
+    /// Whether pin unlock requires the user to enter their master password or use biometrics after
+    /// an app restart.
+    ///
+    /// - Returns: Whether pin unlock the user to enter their master password or use biometrics
+    ///     after an app restart.
+    ///
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool
 
     /// Sets the account encryption keys for an account.
     ///
@@ -386,6 +442,17 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
+
+    /// Sets the master password unlock data for an account.
+    ///
+    /// - Parameters:
+    ///   - masterPasswordUnlock: The account master password unlock data.
+    ///   - userId: The user ID of the account to associate with the master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async
 
     /// Sets the user's progress for setting up autofill.
     ///
@@ -430,6 +497,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
+
+    /// Sets the Universal Clipboard setting for a user account.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws
 
     /// Sets the app theme.
     ///
@@ -493,11 +568,35 @@ protocol StateService: AnyObject {
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
 
+    /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    ///   - userId: The user ID associated with the sync after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws
+
+    /// Sets the data for the flight recorder.
+    ///
+    func setFlightRecorderData(_ data: FlightRecorderData?) async
+
     /// Sets whether the intro carousel screen has been shown.
     ///
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
+
+    /// Sets the status of Learn generator Action Card.
+    ///
+    /// - Parameter status: The status of Learn generator Action Card.
+    ///
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async
+
+    /// Sets the status of Learn New Login Action Card.
+    ///
+    /// - Parameter status: The status of Learn New Login Action Card.
+    ///
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
 
     /// Sets the last active time within the app.
     ///
@@ -552,16 +651,18 @@ protocol StateService: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
 
+    /// Sets the pending actions from `AppIntent`s.
+    /// - Parameter actions: Actions pending to be executed.
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async
+
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - encryptedPin: The user's encrypted pin.
-    ///   - pinProtectedUserKey: The user's pin protected user key.
+    ///   - enrollPinResponse: The user's pin keys from enrolling a pin.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
+        enrollPinResponse: EnrollPinResponse,
         requirePasswordAfterRestart: Bool
     ) async throws
 
@@ -575,18 +676,14 @@ protocol StateService: AnyObject {
     ///
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async
 
     /// Sets the environment URLs for a given email during account creation.
     /// - Parameters:
     ///   - urls: The environment urls used to start the account creation.
     ///   - email: The email used to start the account creation.
     ///
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
-
-    /// Sets the server config used prior to user authentication
-    /// - Parameter config: The server config to use prior to user authentication.
-    func setPreAuthServerConfig(config: ServerConfig) async
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async
 
     /// Sets the app rehydration state for the active account.
     /// - Parameters:
@@ -594,13 +691,11 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the rehydration state.
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
 
-    /// Sets the server configuration as provided by a server for a user ID.
+    /// Sets the App Review Prompt data.
     ///
-    /// - Parameters:
-    ///   - configModel: The config values to set as provided by the server.
-    ///   - userId: The user ID associated with the server config.
+    /// - Parameter data: The App Review Prompt data.
     ///
-    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
+    func setReviewPromptData(_ data: ReviewPromptData) async
 
     /// Set whether to trust the device.
     ///
@@ -613,6 +708,13 @@ protocol StateService: AnyObject {
     /// - Parameter showWebIcons: Whether to show the website icons.
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
+
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent`.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws
 
     /// Sets the sync to authenticator value for an account.
     ///
@@ -709,6 +811,12 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for the pending App Intent actions.
+    ///
+    /// - Returns: A publisher for the pending App Intent actions.
+    ///
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never>
+
     /// A publisher for showing badges in the settings tab.
     ///
     /// - Returns: A publisher for showing badges in the settings tab.
@@ -729,6 +837,16 @@ protocol StateService: AnyObject {
 }
 
 extension StateService {
+    /// Appends the `action` to the current pending `AppIntent` actions.
+    func addPendingAppIntentAction(_ action: PendingAppIntentAction) async {
+        var actions = await getPendingAppIntentActions() ?? []
+        guard !actions.contains(action) else {
+            return
+        }
+        actions.append(action)
+        await setPendingAppIntentActions(actions: actions)
+    }
+
     /// Gets the account encryptions keys for the active account.
     ///
     /// - Returns: The account encryption keys.
@@ -805,6 +923,14 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
+    /// Gets the Universal Clipboard setting for the active account.
+    ///
+    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///
+    func getAllowUniversalClipboard() async throws -> Bool {
+        try await getAllowUniversalClipboard(userId: nil)
+    }
+
     /// Gets the app rehydration state for the active account.
     /// - Returns: The rehydration state.
     func getAppRehydrationState() async throws -> AppRehydrationState? {
@@ -831,8 +957,8 @@ extension StateService {
     ///
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await getDefaultUriMatchType(userId: nil)
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await getDefaultUriMatchType(userId: nil)
     }
 
     /// Gets the disable auto-copy TOTP value for the active account.
@@ -855,8 +981,18 @@ extension StateService {
     ///
     /// - Returns: The environment URLs for the active account.
     ///
-    func getEnvironmentUrls() async throws -> EnvironmentUrlData? {
-        try await getEnvironmentUrls(userId: nil)
+    func getEnvironmentURLs() async throws -> EnvironmentURLData? {
+        try await getEnvironmentURLs(userId: nil)
+    }
+
+    /// Gets whether a sync has been done successfully after login for the current user.
+    /// This is particular useful to trigger logic that needs to be executed right after login in
+    /// and after the first successful sync.
+    ///
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func getHasPerformedSyncAfterLogin() async throws -> Bool {
+        try await getHasPerformedSyncAfterLogin(userId: nil)
     }
 
     /// Gets the user's last active time within the app.
@@ -901,12 +1037,10 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets the server config for the active account.
-    ///
-    /// - Returns: The server config sent by the server for the active account.
-    ///
-    func getServerConfig() async throws -> ServerConfig? {
-        try await getServerConfig(userId: nil)
+    /// Gets whether Siri & Shortcuts access is enabled for the active account.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await getSiriAndShortcutsAccess(userId: nil)
     }
 
     /// Gets the sync to authenticator value for the active account.
@@ -993,6 +1127,14 @@ extension StateService {
         try await pinProtectedUserKey(userId: nil)
     }
 
+    /// The pin protected user key envelope.
+    ///
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope() async throws -> String? {
+        try await pinProtectedUserKeyEnvelope(userId: nil)
+    }
+
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameter encryptionKeys: The account encryption keys.
@@ -1005,6 +1147,15 @@ extension StateService {
     /// - Parameter value: Whether the user has unlocked their account in the current session
     func setAccountHasBeenUnlockedInteractively(value: Bool) async throws {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
+    }
+
+    /// Sets the master password unlock data for the active account.
+    ///
+    /// - Parameter masterPasswordUnlock: The account master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel) async throws {
+        let userId = try await getActiveAccountId()
+        await setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
     }
 
     /// Sets the active user's progress for setting up autofill.
@@ -1037,6 +1188,14 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+
+    /// Sets the Universal Clipboard setting for the active account.
+    ///
+    /// - Parameter allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool) async throws {
+        try await setAllowUniversalClipboard(allowUniversalClipboard, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -1077,6 +1236,16 @@ extension StateService {
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?) async throws {
         try await setForcePasswordResetReason(reason, userId: nil)
+    }
+
+    /// Sets whether a sync has been done successfully after login for the current user.
+    /// This is particular useful to trigger logic that needs to be executed right after login in
+    /// and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool) async throws {
+        try await setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: nil)
     }
 
     /// Sets the last active time within the app.
@@ -1127,12 +1296,12 @@ extension StateService {
         try await setAppRehydrationState(rehydrationState, userId: nil)
     }
 
-    /// Sets the server config for the active account.
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent` for the active account.
     ///
-    /// - Parameter config: The server config.
-    ///
-    func setServerConfig(_ config: ServerConfig?) async throws {
-        try await setServerConfig(config, userId: nil)
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: nil)
     }
 
     /// Sets the sync to authenticator value for the active account.
@@ -1218,7 +1387,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
+actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -1250,11 +1419,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
+
+    /// A subject containing the pending App Intent actions.
+    private var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
 
     /// A subject containing the settings badge value mapped to user ID.
     private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: SettingsBadgeState], Never>([:])
@@ -1283,13 +1458,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
 
         Task {
-            for await activeUserId in self.appSettingsStore.activeAccountIdPublisher().values {
+            for await activeUserId in await self.appSettingsStore.activeAccountIdPublisher().values {
                 errorReporter.setUserId(activeUserId)
             }
         }
@@ -1310,6 +1486,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -1328,17 +1505,22 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        let account = try await getActiveAccount()
-        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-        guard !hasPremiumPersonally else {
-            return true
-        }
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+            guard !hasPremiumPersonally else {
+                return true
+            }
 
-        let organizations = try await dataStore
-            .fetchAllOrganizations(userId: account.profile.userId)
-            .filter { $0.enabled && $0.usersGetPremium }
-        return !organizations.isEmpty
+            let organizations = try await dataStore
+                .fetchAllOrganizations(userId: account.profile.userId)
+                .filter { $0.enabled && $0.usersGetPremium }
+            return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func getAccount(userId: String?) throws -> Account {
@@ -1359,6 +1541,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
+            accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
@@ -1404,6 +1587,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowUniversalClipboard(userId: userId)
+    }
+
     func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.appRehydrationState(userId: userId)
@@ -1423,9 +1611,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.connectToWatch(userId: userId)
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        do {
+            let userId = try userId ?? getActiveAccountUserId()
+            return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+        } catch {
+            errorReporter.log(error: error)
+            return .domain
+        }
     }
 
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
@@ -1438,7 +1631,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.encryptedPin(userId: userId)
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
@@ -1446,6 +1639,15 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getEvents(userId: String?) async throws -> [EventData] {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.events(userId: userId)
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        appSettingsStore.flightRecorderData
+    }
+
+    func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPerformedSyncAfterLogin(userId: userId)
     }
 
     func getIntroCarouselShown() async -> Bool {
@@ -1490,16 +1692,28 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
-        appSettingsStore.preAuthEnvironmentUrls
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
+        appSettingsStore.pendingAppIntentActions
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
-        appSettingsStore.accountCreationEnvironmentUrls(email: email)
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        appSettingsStore.preAuthEnvironmentURLs
+    }
+
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
+        appSettingsStore.accountCreationEnvironmentURLs(email: email)
+    }
+
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
+        appSettingsStore.learnGeneratorActionCardStatus
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
         appSettingsStore.preAuthServerConfig
+    }
+
+    func getReviewPromptData() async -> ReviewPromptData? {
+        appSettingsStore.reviewPromptData
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -1511,8 +1725,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
 
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
+        appSettingsStore.learnNewLoginActionCardStatus
+    }
+
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
+    }
+
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.siriAndShortcutsAccess(userId: userId)
     }
 
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
@@ -1576,11 +1799,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
-        let userId = try getAccount(userId: userId).profile.userId
-
         do {
+            let userId = try getAccount(userId: userId).profile.userId
             _ = try await keychainRepository.getAccessToken(userId: userId)
             return true
+        } catch StateServiceError.noActiveAccount {
+            return false
+        } catch StateServiceError.noAccounts {
+            return false
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return false
         }
@@ -1602,8 +1828,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
@@ -1616,8 +1844,22 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        let key = accountVolatileData[userId]?.pinProtectedUserKey
+            ?? appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+        return key
+    }
+
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId) == nil
+            && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
@@ -1628,6 +1870,27 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             userId,
             default: AccountVolatileData()
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async {
+        guard var state = appSettingsStore.state,
+              var profile = state.accounts[userId]?.profile
+        else {
+            return
+        }
+        var userDecryptionOptions = profile.userDecryptionOptions
+            ?? UserDecryptionOptions(
+                hasMasterPassword: true,
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil
+            )
+        userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+        profile.userDecryptionOptions = userDecryptionOptions
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
@@ -1667,6 +1930,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
     }
 
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
+    }
+
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
@@ -1702,6 +1970,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setEvents(events, userId: userId)
     }
 
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        appSettingsStore.flightRecorderData = data
+    }
+
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         guard var state = appSettingsStore.state else {
@@ -1711,8 +1983,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         state.accounts[userId]?.profile.forcePasswordResetReason = reason
     }
 
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: userId)
+    }
+
     func setIntroCarouselShown(_ shown: Bool) async {
         appSettingsStore.introCarouselShown = shown
+    }
+
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
+        appSettingsStore.learnNewLoginActionCardStatus = status
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
@@ -1724,6 +2005,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
+        appSettingsStore.learnGeneratorActionCardStatus = status
     }
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
@@ -1750,17 +2035,34 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
     }
 
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
+        guard !actions.isEmptyOrNil else {
+            appSettingsStore.pendingAppIntentActions = nil
+            pendingAppIntentActionsSubject.send(nil)
+            return
+        }
+
+        appSettingsStore.pendingAppIntentActions = actions
+        pendingAppIntentActionsSubject.send(actions)
+    }
+
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
+        enrollPinResponse: EnrollPinResponse,
         requirePasswordAfterRestart: Bool
     ) async throws {
+        let userId = try getActiveAccountUserId()
         if requirePasswordAfterRestart {
-            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+            try await setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
         } else {
-            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+            appSettingsStore.setPinProtectedUserKeyEnvelope(
+                key: enrollPinResponse.pinProtectedUserKeyEnvelope,
+                userId: userId
+            )
         }
-        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
+        appSettingsStore.setEncryptedPin(enrollPinResponse.userKeyEncryptedPin, userId: userId)
+
+        // Remove any legacy pin protected user keys.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
 
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
@@ -1770,13 +2072,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
-        appSettingsStore.preAuthEnvironmentUrls = urls
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
+        appSettingsStore.preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
-        appSettingsStore.setAccountCreationEnvironmentUrls(
-            environmentUrlData: urls,
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentURLs(
+            environmentURLData: urls,
             email: email
         )
     }
@@ -1788,6 +2090,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
+    }
+
+    func setReviewPromptData(_ data: ReviewPromptData) async {
+        appSettingsStore.reviewPromptData = data
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
@@ -1802,6 +2108,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setShowWebIcons(_ showWebIcons: Bool) async {
         appSettingsStore.disableWebIcons = !showWebIcons
         showWebIconsSubject.send(showWebIcons)
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: userId)
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
@@ -1857,10 +2168,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var profile = state.accounts[userId]?.profile else { return }
         profile.hasPremiumPersonally = response.premium
         profile.avatarColor = response.avatarColor
+        profile.creationDate = response.creationDate
         profile.email = response.email ?? profile.email
         profile.emailVerified = response.emailVerified
         profile.name = response.name
         profile.stamp = response.securityStamp
+        profile.twoFactorEnabled = response.twoFactorEnabled
 
         state.accounts[userId]?.profile = profile
     }
@@ -1897,6 +2210,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
         }
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        if pendingAppIntentActionsSubject.value == nil {
+            pendingAppIntentActionsSubject.value = appSettingsStore.pendingAppIntentActions
+        }
+        return pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

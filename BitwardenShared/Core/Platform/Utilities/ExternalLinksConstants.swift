@@ -22,6 +22,9 @@ enum ExternalLinksConstants {
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
+    /// A link the Bitwarden's help page for the flight recorder.
+    static let flightRecorderHelp = URL(string: "https://bitwarden.com/help/flight-recorder")!
+
     /// A link to Bitwarden's help page for generating username types.
     static let generatorUsernameTypes = URL(string: "https://bitwarden.com/help/generator/#username-types")!
 
@@ -30,6 +33,9 @@ enum ExternalLinksConstants {
 
     /// A link to the import logins help page.
     static let importHelp = URL(string: "https://bitwarden.com/help/import-data/")!
+
+    /// A link to the new device verification help page.
+    static let newDeviceVerification = URL(string: "https://bitwarden.com/help/new-device-verification/")!
 
     /// A link to the password options within the passwords section of the settings menu.
     static let passwordOptions = URL(string: "App-prefs:PASSWORDS&path=PASSWORD_OPTIONS")!
@@ -50,4 +56,10 @@ enum ExternalLinksConstants {
 
     /// A markdown link to Bitwarden's markting email preferences.
     static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
+
+    /// A link to Bitwarden's help page for showing website icons.
+    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
+
+    /// A link to Bitwarden's help page for URI match detection.
+    static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
 }

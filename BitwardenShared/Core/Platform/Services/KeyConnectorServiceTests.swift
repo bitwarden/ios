@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -67,7 +68,11 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/api/accounts/set-key-connector-key")!)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "private", encryptedUserKey: "encryptedUserKey")
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "encryptedUserKey"
+            )
         )
     }
 
@@ -153,6 +158,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = account
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
             encryptedUserKey: "encryptedUserKey"
         )
@@ -199,6 +205,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
             encryptedUserKey: nil
         )
@@ -218,6 +225,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
             encryptedUserKey: "encryptedUserKey"
         )
@@ -240,6 +248,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
             encryptedUserKey: "encryptedUserKey"
         )

@@ -26,9 +26,10 @@ struct AddCipherWithCollectionsRequest: Request {
 
     /// Initialize an `AddCipherWithCollectionsRequest` for a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` to add to the user's vault.
-    ///
-    init(cipher: Cipher) {
-        requestModel = CipherCreateRequestModel(cipher: cipher)
+    /// - Parameters:
+    ///   - cipher: The `Cipher` to add to the user's vault.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    init(cipher: Cipher, encryptedFor: String?) {
+        requestModel = CipherCreateRequestModel(cipher: cipher, encryptedFor: encryptedFor)
     }
 }

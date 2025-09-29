@@ -1,4 +1,6 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordAutoFillView
@@ -28,19 +30,12 @@ struct PasswordAutoFillView: View {
 
     var body: some View {
         Group {
-            if store.state.nativeCreateAccountFeatureFlag {
-                contentView
-            } else {
-                legacyContentView
-            }
+            contentView
         }
         .navigationBar(
             title: store.state.navigationBarTitle,
             titleDisplayMode: .inline
         )
-        .task {
-            await store.perform(.appeared)
-        }
         .task {
             await store.perform(.checkAutofillOnForeground)
         }
@@ -50,7 +45,7 @@ struct PasswordAutoFillView: View {
 
     /// The content view.
     private var contentView: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 24) {
             dynamicStackView {
                 ZStack {
                     gifViewPlaceholder
@@ -59,7 +54,7 @@ struct PasswordAutoFillView: View {
                 }
                 .frame(width: 230, height: 278)
 
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     Text(Localizations.turnOnAutoFill)
                         .styleGuide(.title2, weight: .bold)
 
@@ -68,11 +63,10 @@ struct PasswordAutoFillView: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            .padding(.top, 32)
-            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.horizontal, 12)
 
             autofillInstructions
-                .padding(.top, 32)
 
             Text(
                 LocalizedStringKey(
@@ -81,46 +75,27 @@ struct PasswordAutoFillView: View {
                 )
             )
             .styleGuide(.subheadline)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .padding(.top, 32)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
 
-            Button(Localizations.continue) {
-                if #available(iOS 17, *) {
-                    ASSettingsHelper.openVerificationCodeAppSettings()
-                } else {
-                    openURL(ExternalLinksConstants.passwordOptions)
+            VStack(spacing: 12) {
+                Button(Localizations.continue) {
+                    if #available(iOS 17, *) {
+                        ASSettingsHelper.openVerificationCodeAppSettings()
+                    } else {
+                        openURL(ExternalLinksConstants.passwordOptions)
+                    }
                 }
-            }
-            .buttonStyle(.primary())
-            .padding(.top, 32)
-            .padding(.bottom, 12)
+                .buttonStyle(.primary())
 
-            if store.state.mode == .onboarding {
-                AsyncButton(Localizations.turnOnLater) {
-                    await store.perform(.turnAutoFillOnLaterButtonTapped)
+                if store.state.mode == .onboarding {
+                    AsyncButton(Localizations.turnOnLater) {
+                        await store.perform(.turnAutoFillOnLaterButtonTapped)
+                    }
+                    .buttonStyle(.secondary())
                 }
-                .buttonStyle(.transparent)
             }
         }
         .scrollView(addVerticalPadding: false)
-    }
-
-    /// The legacy content view.
-    private var legacyContentView: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .center) {
-                instructionsContent
-
-                Spacer()
-
-                imageView
-
-                Spacer()
-            }
-            .padding(.vertical, 16)
-            .frame(minHeight: geometry.size.height)
-            .scrollView(addVerticalPadding: false)
-        }
     }
 
     /// The view used for displaying the gif content.
@@ -166,38 +141,18 @@ struct PasswordAutoFillView: View {
     private var instructions: some View {
         Text(Localizations.autofillTurnOn)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
 
     /// The current auto fill instructions to present in the list.
     private var autofillInstructions: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEachIndexed(store.state.autofillInstructions, id: \.self) { index, instruction in
-                Group {
-                    HStack(spacing: 0) {
-                        Text("\(index + 1)")
-                            .styleGuide(.title)
-                            .foregroundColor(Asset.Colors.textCodeBlue.swiftUIColor)
-                            .frame(width: 34, height: 60, alignment: .leading)
-
-                        Text(LocalizedStringKey(instruction))
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 16)
-
-                    if index < store.state.autofillInstructions.count - 1 {
-                        Divider()
-                            .padding(.leading, 48)
-                    }
-                }
+        NumberedList {
+            ForEach(store.state.autofillInstructions, id: \.self) { instruction in
+                NumberedListRow(title: instruction)
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// The list of step by step instructions.
@@ -212,7 +167,7 @@ struct PasswordAutoFillView: View {
 
         return Text(instructionsList)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -232,7 +187,7 @@ struct PasswordAutoFillView: View {
     private var title: some View {
         Text(Localizations.extensionInstantAccess)
             .styleGuide(.title)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
@@ -242,9 +197,9 @@ struct PasswordAutoFillView: View {
     @ViewBuilder
     private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
         if verticalSizeClass == .regular {
-            VStack(spacing: 32, content: content)
+            VStack(spacing: 24, content: content)
         } else {
-            HStack(spacing: 32, content: content)
+            HStack(spacing: 24, content: content)
                 .padding(.horizontal, 80)
         }
     }
@@ -258,8 +213,7 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .settings,
-                    nativeCreateAccountFeatureFlag: true
+                    mode: .settings
                 )
             )
         )
@@ -271,19 +225,8 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .onboarding,
-                    nativeCreateAccountFeatureFlag: true
+                    mode: .onboarding
                 )
-            )
-        )
-    )
-}
-
-#Preview("Settings w/ FF off") {
-    PasswordAutoFillView(
-        store: Store(
-            processor: StateProcessor(
-                state: .init(mode: .settings)
             )
         )
     )

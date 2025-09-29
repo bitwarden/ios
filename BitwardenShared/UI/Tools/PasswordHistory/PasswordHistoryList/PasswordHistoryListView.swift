@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -21,7 +23,7 @@ struct PasswordHistoryListView: View {
                 passwordHistoryList()
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
         .toast(store.binding(
             get: \.toast,
@@ -58,7 +60,7 @@ struct PasswordHistoryListView: View {
                     Spacer()
                     Text(Localizations.noPasswordsToList)
                         .font(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.center)
                         .padding(16)
                         .accessibilityIdentifier("NoPasswordsDisplayedLabel")
@@ -71,24 +73,16 @@ struct PasswordHistoryListView: View {
 
     /// Returns a view for displaying the list of password history items.
     private func passwordHistoryList() -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(store.state.passwordHistory) { passwordHistory in
-                    passwordHistoryRow(
-                        passwordHistory,
-                        hasDivider: passwordHistory != store.state.passwordHistory.last
-                    )
-                    .accessibilityIdentifier("GeneratedPasswordRow")
-                }
+        ContentBlock(dividerLeadingPadding: 16) {
+            ForEach(store.state.passwordHistory) { passwordHistory in
+                passwordHistoryRow(passwordHistory)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .cornerRadius(16)
-            .padding(16)
         }
+        .scrollView()
     }
 
     /// Return a view for a single row in the password history list.
-    private func passwordHistoryRow(_ passwordHistory: PasswordHistoryView, hasDivider: Bool) -> some View {
+    private func passwordHistoryRow(_ passwordHistory: PasswordHistoryView) -> some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 PasswordText(password: passwordHistory.password, isPasswordVisible: true)
@@ -96,7 +90,7 @@ struct PasswordHistoryListView: View {
 
                 FormattedDateTimeView(date: passwordHistory.lastUsedDate)
                     .styleGuide(.subheadline)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .accessibilityIdentifier("GeneratedPasswordDateLabel")
             }
             .padding(.vertical, 10)
@@ -112,24 +106,19 @@ struct PasswordHistoryListView: View {
             .accessibilityIdentifier("CopyPasswordValueButton")
         }
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("GeneratedPasswordRow")
         .accessibilityAction(named: Localizations.copyPassword) {
             store.send(.copyPassword(passwordHistory))
         }
         .padding(.horizontal, 16)
-        .background(alignment: .bottom) {
-            if hasDivider {
-                Divider()
-                    .padding(.leading, 16)
-            }
-        }
     }
 }
 
 // MARK: - PasswordHistoryView
 
 extension PasswordHistoryView: @retroactive Identifiable {
-    public var id: UUID {
-        UUID()
+    public var id: String {
+        password + lastUsedDate.description
     }
 }
 

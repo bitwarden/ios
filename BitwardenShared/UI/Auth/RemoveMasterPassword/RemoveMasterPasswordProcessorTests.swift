@@ -1,4 +1,7 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -27,7 +30,9 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter
             ),
             state: RemoveMasterPasswordState(
-                organizationName: "Example Org"
+                organizationName: "Example Org",
+                organizationId: "ORG_ID",
+                keyConnectorUrl: "https://example.com"
             )
         )
     }
@@ -101,8 +106,7 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
 
         await subject.perform(.continueFlow)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -124,5 +128,29 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
 
         subject.receive(.revealMasterPasswordFieldPressed(false))
         XCTAssertFalse(subject.state.isMasterPasswordRevealed)
+    }
+
+    /// `perform(_:)` with `.leaveOrganizationFlow` displays a confirmation prompt of user to leave organization
+    @MainActor
+    func test_perform_leaveOrganizationFlow() async throws {
+        authRepository.activeAccount = .fixture()
+
+        await subject.perform(.leaveOrganizationFlow)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            Alert.leaveOrganizationConfirmation(orgName: "Example Org") {}
+        )
+
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertTrue(authRepository.leaveOrganizationCalled)
+        XCTAssertEqual(authRepository.leaveOrganizationOrganizationId, subject.state.organizationId)
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, "1")
+        XCTAssertTrue(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events.last, .didLogout(userId: "1", userInitiated: true))
     }
 }

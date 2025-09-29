@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -17,19 +19,6 @@ struct AddEditSendItemState: Equatable, Sendable {
 
         /// A mode for adding a new send using the share extension.
         case shareExtension(ProfileSwitcherState)
-
-        /// The navigation title to use for this mode.
-        var navigationTitle: String {
-            switch self {
-            case .add,
-                 .shareExtension:
-                Localizations.newSend.capitalized(
-                    with: Locale(identifier: UI.initialLanguageCode ?? "")
-                )
-            case .edit:
-                Localizations.editSend
-            }
-        }
     }
 
     // MARK: Properties
@@ -43,14 +32,11 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The custom deletion date.
     var customDeletionDate = Date.midnightOneWeekFromToday() ?? Date()
 
-    /// The custom expiration date.
-    var customExpirationDate: Date?
-
     /// The deletion date for this item.
     var deletionDate: SendDeletionDateType = .sevenDays
 
     /// The expiration date for this item.
-    var expirationDate: SendExpirationDateType = .never
+    var expirationDate: Date?
 
     /// The data for the selected file.
     var fileData: Data?
@@ -60,9 +46,6 @@ struct AddEditSendItemState: Equatable, Sendable {
 
     /// A description of the size of the file attached to this send.
     var fileSize: String?
-
-    /// A flag indicating if the active account has access to premium features.
-    var hasPremium = false
 
     /// The id for this send.
     var id: String?
@@ -120,27 +103,56 @@ struct AddEditSendItemState: Equatable, Sendable {
 
     /// The type of this item.
     var type: SendType = .text
+
+    // MARK: Computed Properties
+
+    /// The deletion date options available in the menu.
+    var availableDeletionDateTypes: [SendDeletionDateType] {
+        switch mode {
+        case .add, .shareExtension:
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+        case .edit:
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
+        }
+    }
+
+    /// The navigation title to use for the view.
+    var navigationTitle: String {
+        switch mode {
+        case .add,
+             .shareExtension:
+            switch type {
+            case .file:
+                Localizations.newFileSend
+            case .text:
+                Localizations.newTextSend
+            }
+        case .edit:
+            switch type {
+            case .file:
+                Localizations.editFileSend
+            case .text:
+                Localizations.editTextSend
+            }
+        }
+    }
 }
 
 extension AddEditSendItemState {
     /// Creates a new `AddEditSendItemState`.
     ///
-    /// - Parameters:
-    ///   - sendView: The `SendView` to use to instantiate this state.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The `SendView` to use to instantiate this state.
     ///
-    init(sendView: SendView, hasPremium: Bool) {
+    init(sendView: SendView) {
         self.init(
             accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
-            customExpirationDate: sendView.expirationDate,
-            deletionDate: .custom,
-            expirationDate: .custom,
+            deletionDate: .custom(sendView.deletionDate),
+            expirationDate: sendView.expirationDate,
             fileData: nil,
             fileName: sendView.file?.fileName,
             fileSize: sendView.file?.sizeName,
-            hasPremium: hasPremium,
             id: sendView.id,
             isDeactivateThisSendOn: sendView.disabled,
             isHideMyEmailOn: sendView.hideEmail,
@@ -162,7 +174,8 @@ extension AddEditSendItemState {
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
     func newSendView() -> SendView {
-        SendView(
+        let deletionDate = deletionDate.calculateDate() ?? Date()
+        return SendView(
             id: id,
             accessId: accessId,
             name: name,
@@ -178,8 +191,10 @@ extension AddEditSendItemState {
             disabled: isDeactivateThisSendOn,
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),
-            deletionDate: deletionDate.calculateDate(customValue: customDeletionDate) ?? Date(),
-            expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
+            deletionDate: deletionDate,
+            // If the send has an expiration date, reset it to the deletion date to prevent a server
+            // error which disallows editing a send after it has expired.
+            expirationDate: expirationDate != nil ? deletionDate : nil
         )
     }
 

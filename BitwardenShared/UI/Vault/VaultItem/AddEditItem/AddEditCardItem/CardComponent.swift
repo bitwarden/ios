@@ -1,5 +1,6 @@
 // MARK: - CardComponent
 
+import BitwardenResources
 import Foundation
 
 /// An enumeration defining various components associated with credit and debit cards.
@@ -134,6 +135,34 @@ extension CardComponent.Brand: Menuable {
             return rawValue
         }
         return Localizations.other
+    }
+}
+
+extension CardComponent.Brand {
+    /// Gets the icon corresponding to each card brand.
+    var icon: ImageAsset {
+        switch self {
+        case .americanExpress:
+            Asset.Images.Cards.amex
+        case .visa:
+            Asset.Images.Cards.visa
+        case .mastercard:
+            Asset.Images.Cards.mastercard
+        case .discover:
+            Asset.Images.Cards.discover
+        case .dinersClub:
+            Asset.Images.Cards.dinersClub
+        case .jcb:
+            Asset.Images.Cards.jcb
+        case .maestro:
+            Asset.Images.Cards.maestro
+        case .unionPay:
+            Asset.Images.Cards.unionPay
+        case .ruPay:
+            Asset.Images.Cards.ruPay
+        case .other:
+            Asset.Images.card24
+        }
     }
 }
 

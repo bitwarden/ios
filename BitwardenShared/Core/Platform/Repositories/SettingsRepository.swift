@@ -5,14 +5,18 @@ import Foundation
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
+    /// Get or set whether Universal Clipboard is allowed.
+    var allowUniversalClipboard: Bool { get set }
+
     /// Get or set the clear clipboard raw value.
     var clearClipboardValue: ClearClipboardValue { get set }
 
     /// Add a new folder.
     ///
     /// - Parameter name: The name of the new folder.
+    /// - Returns: The added folder.
     ///
-    func addFolder(name: String) async throws
+    func addFolder(name: String) async throws -> FolderView
 
     /// Delete a folder.
     ///
@@ -30,7 +34,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Updates the user's vault by syncing it with the API.
     ///
-    func fetchSync() async throws
+    func fetchSync(forceSync: Bool) async throws
 
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
@@ -40,11 +44,14 @@ protocol SettingsRepository: AnyObject {
 
     /// Gets the default URI match type setting for the current user.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType
+    func getDefaultUriMatchType() async -> UriMatchType
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
+
+    /// Get the current value of the Siri & Shortcut access setting.
+    func getSiriAndShortcutsAccess() async throws -> Bool
 
     /// Get the current value of the sync to Authenticator setting.
     ///
@@ -80,6 +87,10 @@ protocol SettingsRepository: AnyObject {
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
 
+    /// Update the cached value of the Siri & Shortcuts setting.
+    /// - Parameter siriAndShortcutsAccess: Whether access is enabled.
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws
+
     /// Update the cached value of the sync to authenticator setting.
     ///
     /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
@@ -90,6 +101,12 @@ protocol SettingsRepository: AnyObject {
 
     /// The publisher to keep track of the list of the user's current folders.
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>>
+}
+
+extension SettingsRepository {
+    func fetchSync() async throws {
+        try await fetchSync(forceSync: true)
+    }
 }
 
 // MARK: - DefaultSettingsRepository
@@ -154,10 +171,16 @@ extension DefaultSettingsRepository: SettingsRepository {
         set { pasteboardService.updateClearClipboardValue(newValue) }
     }
 
-    func addFolder(name: String) async throws {
+    var allowUniversalClipboard: Bool {
+        get { pasteboardService.allowUniversalClipboard }
+        set { pasteboardService.updateAllowUniversalClipboard(newValue) }
+    }
+
+    func addFolder(name: String) async throws -> FolderView {
         let folderView = FolderView(id: nil, name: name, revisionDate: Date.now)
         let folder = try await clientService.vault().folders().encrypt(folder: folderView)
-        try await folderService.addFolderWithServer(name: folder.name)
+        let addedFolder = try await folderService.addFolderWithServer(name: folder.name)
+        return try await clientService.vault().folders().decrypt(folder: addedFolder)
     }
 
     func deleteFolder(id: String) async throws {
@@ -171,8 +194,8 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await folderService.editFolderWithServer(id: id, name: folder.name)
     }
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync(forceSync: true)
+    func fetchSync(forceSync: Bool) async throws {
+        try await syncService.fetchSync(forceSync: forceSync)
     }
 
     func getAllowSyncOnRefresh() async throws -> Bool {
@@ -183,12 +206,16 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getConnectToWatch()
     }
 
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await stateService.getDefaultUriMatchType()
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await stateService.getDefaultUriMatchType()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await stateService.getSiriAndShortcutsAccess()
     }
 
     func getSyncToAuthenticator() async throws -> Bool {
@@ -215,6 +242,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
     }
 
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await stateService.setSiriAndShortcutsAccess(siriAndShortcutsAccess)
+    }
+
     func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await stateService.setSyncToAuthenticator(syncToAuthenticator)
     }
@@ -224,7 +255,11 @@ extension DefaultSettingsRepository: SettingsRepository {
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
         try await folderService.foldersPublisher()
             .asyncTryMap { folders in
-                try await self.clientService.vault().folders().decryptList(folders: folders)
+                try await self.clientService
+                    .vault()
+                    .folders()
+                    .decryptList(folders: folders)
+                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             }
             .eraseToAnyPublisher()
             .values

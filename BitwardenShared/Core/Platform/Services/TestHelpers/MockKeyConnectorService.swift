@@ -6,6 +6,8 @@ class MockKeyConnectorService: KeyConnectorService {
     var convertNewUserToKeyConnectorCalled = false
     var convertNewUserToKeyConnectorHandler: (() -> Void)?
     var convertNewUserToKeyConnectorResult: Result<Void, Error> = .success(())
+    var convertNewUserToKeyConnectorKeyConnectorUrl: URL? // swiftlint:disable:this identifier_name
+    var convertNewUserToKeyConnectorOrganizationId: String? // swiftlint:disable:this identifier_name
 
     var getManagingOrganizationResult: Result<Organization?, Error> = .success(nil)
 
@@ -18,6 +20,8 @@ class MockKeyConnectorService: KeyConnectorService {
 
     func convertNewUserToKeyConnector(keyConnectorUrl: URL, orgIdentifier: String) async throws {
         convertNewUserToKeyConnectorCalled = true
+        convertNewUserToKeyConnectorKeyConnectorUrl = keyConnectorUrl
+        convertNewUserToKeyConnectorOrganizationId = orgIdentifier
         convertNewUserToKeyConnectorHandler?()
         return try convertNewUserToKeyConnectorResult.get()
     }

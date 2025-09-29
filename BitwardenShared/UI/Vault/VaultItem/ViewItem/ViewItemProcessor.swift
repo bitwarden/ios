@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -10,6 +12,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -54,6 +58,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
+    /// The task that streams cipher details.
+    private(set) var streamCipherDetailsTask: Task<Void, Never>?
+
     // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -77,7 +84,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
-
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -93,7 +99,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
-            await streamCipherDetails()
+            streamCipherDetailsTask?.cancel()
+            streamCipherDetailsTask = Task {
+                await streamCipherDetails()
+            }
         case .checkPasswordPressed:
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
@@ -104,31 +113,21 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
-            guard !state.isMasterPasswordRequired else {
-                presentMasterPasswordRepromptAlert { await self.perform(effect) }
-                return
-            }
             if cipherState.cipher.deletedDate == nil {
                 await showSoftDeleteConfirmation(cipherState.cipher)
             } else {
                 await showPermanentDeleteConfirmation(cipherState.cipher)
             }
         case .restorePressed:
-            guard !state.isMasterPasswordRequired else {
-                presentMasterPasswordRepromptAlert { await self.perform(effect) }
-                return
-            }
             await showRestoreItemConfirmation()
+        case .toggleDisplayMultipleCollections:
+            toggleDisplayMultipleCollections()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
     }
 
     override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
-        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
-            presentMasterPasswordRepromptAlert { self.receive(action) }
-            return
-        }
         switch action {
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
@@ -151,6 +150,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                     )
                 }
             }
+        case .disappeared:
+            streamCipherDetailsTask?.cancel()
+            streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
@@ -202,7 +204,7 @@ private extension ViewItemProcessor {
     /// - Parameter cipher: The cipher to clone.
     ///
     private func cloneItem(_ cipher: CipherView) async {
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+        let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
         if cipher.login?.fido2Credentials?.isEmpty == false {
             coordinator.showAlert(.confirmCloneExcludesFido2Credential {
                 self.coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
@@ -290,8 +292,8 @@ private extension ViewItemProcessor {
             return
         }
         Task {
-            let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
-            coordinator.navigate(to: .editItem(cipher, hasPremium ?? false), context: self)
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            coordinator.navigate(to: .editItem(cipher, hasPremium), context: self)
         }
     }
 
@@ -307,7 +309,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -324,7 +326,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -424,31 +426,6 @@ private extension ViewItemProcessor {
         }
     }
 
-    /// Presents the master password re-prompt alert for the specified action. This method will
-    /// process the action once the master password has been verified.
-    ///
-    /// - Parameter completion: A closure containing the action to perform once the password has
-    ///     been verified.
-    ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
-        let alert = Alert.masterPasswordPrompt { [weak self] password in
-            guard let self else { return }
-
-            do {
-                let isValid = try await services.authRepository.validatePassword(password)
-                guard isValid else {
-                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
-                    return
-                }
-                state.hasVerifiedMasterPassword = true
-                await completion()
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-        coordinator.showAlert(alert)
-    }
-
     /// Restores the item currently stored in `state`.
     ///
     private func restoreItem(_ cipher: CipherView) async {
@@ -461,7 +438,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemRestored()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -516,9 +493,19 @@ private extension ViewItemProcessor {
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
-                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-                let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+                var folder: FolderView?
+                if let folderId = cipher.folderId {
+                    folder = try await services.vaultRepository.fetchFolder(withId: folderId)
+                }
+                var organization: Organization?
+                if let orgId = cipher.organizationId {
+                    organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
+                }
+                let ownershipOptions = try await services.vaultRepository
+                    .fetchCipherOwnershipOptions(includePersonal: false)
+                let showWebIcons = await services.stateService.getShowWebIcons()
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -528,21 +515,36 @@ private extension ViewItemProcessor {
 
                 guard var newState = ViewItemState(
                     cipherView: cipher,
-                    hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    iconBaseURL: services.environmentService.iconsURL
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
-                    itemState.collections = collections
+                    itemState.allUserCollections = collections
+                    itemState.folderName = folder?.name
+                    itemState.organizationName = organization?.name
+                    itemState.ownershipOptions = ownershipOptions
+                    itemState.showWebIcons = showWebIcons
                     newState.loadingState = .data(itemState)
                 }
-                newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Toggles whether to show one or multiple collections the cipher belongs to, if any.
+    private func toggleDisplayMultipleCollections() {
+        guard case var .data(cipherState) = state.loadingState,
+              !cipherState.cipherCollections.isEmpty else {
+            return
+        }
+
+        cipherState.isShowingMultipleCollections.toggle()
+
+        state.loadingState = .data(cipherState)
     }
 }
 

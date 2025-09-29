@@ -4,8 +4,14 @@ import BitwardenSdk
 
 /// Actions that can be processed by a `VaultListProcessor`.
 enum VaultListAction: Equatable {
+    /// Navigate to add a new folder.
+    case addFolder
+
+    /// The app review prompt was attempted to be shown.
+    case appReviewPromptShown
+
     /// The add item button was pressed.
-    case addItemPressed
+    case addItemPressed(CipherType)
 
     /// The url has been opened so clear the value in the state.
     case clearURL
@@ -14,8 +20,14 @@ enum VaultListAction: Equatable {
     ///
     case copyTOTPCode(_ code: String)
 
+    /// The vault list disappeared from the screen.
+    case disappeared
+
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
+
+    /// The user tapped the go to settings button in the flight recorder banner.
+    case navigateToFlightRecorderSettings
 
     /// A forwarded profile switcher action
     case profileSwitcher(ProfileSwitcherAction)

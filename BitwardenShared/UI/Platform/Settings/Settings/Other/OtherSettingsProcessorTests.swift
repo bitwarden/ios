@@ -1,3 +1,6 @@
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -5,24 +8,30 @@ import XCTest
 class OtherSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var subject: OtherSettingsProcessor!
+    var watchService: MockWatchService!
 
     // MARK: Setup and Teardown
 
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
+        watchService = MockWatchService()
         subject = OtherSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
-                settingsRepository: settingsRepository
+                settingsRepository: settingsRepository,
+                watchService: watchService
             ),
             state: OtherSettingsState()
         )
@@ -31,10 +40,12 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
         subject = nil
+        watchService = nil
     }
 
     // MARK: Tests
@@ -55,12 +66,16 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
         settingsRepository.connectToWatch = true
+        settingsRepository.getSiriAndShortcutsAccessResult = .success(true)
+        watchService.isSupportedValue = true
 
         await subject.perform(.loadInitialValues)
 
         XCTAssertEqual(subject.state.clearClipboardValue, .thirtySeconds)
         XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
+        XCTAssertTrue(subject.state.isSiriAndShortcutsAccessToggleOn)
+        XCTAssertTrue(subject.state.shouldShowConnectToWatchToggle)
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.
@@ -104,7 +119,8 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// syncing fails.
     @MainActor
     func test_perform_syncNow_error() async throws {
-        settingsRepository.fetchSyncResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        settingsRepository.fetchSyncResult = .failure(error)
 
         await subject.perform(.syncNow)
 
@@ -112,13 +128,12 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncing)])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
 
         // Tapping the try again button the alert should attempt the call again.
         settingsRepository.fetchSyncCalled = false
-        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
-        await tryAgainAction.handler?(tryAgainAction, [])
+        await errorAlertWithRetry.retry()
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
     }
 
@@ -193,5 +208,33 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         task.cancel()
         XCTAssertTrue(settingsRepository.connectToWatch)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
+    }
+
+    /// `receive(_:)` with `toggleSiriAndShortcutsAccessToggleOn` updates the value in the state
+    /// and records an error if it failed to update the cached data.
+    @MainActor
+    func test_receive_toggleSiriAndShortcutsAccessToggleOn_error() {
+        settingsRepository.siriAndShortcutsAccessResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.toggleSiriAndShortcutsAccessToggleOn(true))
+
+        XCTAssertFalse(subject.state.isSiriAndShortcutsAccessToggleOn)
+        waitFor { self.errorReporter.errors.isEmpty == false }
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `toggleSiriAndShortcutsAccessToggleOn` updates the value in the state and the repository
+    @MainActor
+    func test_receive_toggleSiriAndShortcutsAccessToggleOn_success() {
+        XCTAssertFalse(subject.state.isSiriAndShortcutsAccessToggleOn)
+
+        let task = Task {
+            subject.receive(.toggleSiriAndShortcutsAccessToggleOn(true))
+        }
+
+        waitFor(subject.state.isSiriAndShortcutsAccessToggleOn)
+        task.cancel()
+        XCTAssertTrue(settingsRepository.siriAndShortcutsAccess)
+        XCTAssertTrue(subject.state.isSiriAndShortcutsAccessToggleOn)
     }
 }

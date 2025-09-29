@@ -1,6 +1,7 @@
 import UIKit
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
 class AppThemeTests: BitwardenTestCase {

@@ -13,6 +13,9 @@ enum SettingsAction: Equatable {
     /// The auto-fill button was pressed.
     case autoFillPressed
 
+    /// The close button was tapped.
+    case dismiss
+
     /// The other button was pressed.
     case otherPressed
 

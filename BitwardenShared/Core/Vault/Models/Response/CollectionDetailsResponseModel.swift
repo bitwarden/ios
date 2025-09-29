@@ -5,6 +5,9 @@ import Foundation
 struct CollectionDetailsResponseModel: Codable, Equatable {
     // MARK: Properties
 
+    /// The offboarded user's email address to be used as name for the collection.
+    let defaultUserCollectionEmail: String?
+
     /// An external identifier for the collection.
     let externalId: String?
 
@@ -25,4 +28,7 @@ struct CollectionDetailsResponseModel: Codable, Equatable {
 
     /// Whether the collection is read only.
     let readOnly: Bool
+
+    /// The collection's type.
+    @DefaultValue var type: CollectionType
 }

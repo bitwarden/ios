@@ -1,9 +1,10 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 
-class CipherServiceTests: BitwardenTestCase {
+class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherAPIService: CipherAPIService!
@@ -49,7 +50,7 @@ class CipherServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.addCipherWithServer(.fixture())
+        try await subject.addCipherWithServer(.fixture(), encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
@@ -62,7 +63,7 @@ class CipherServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = Cipher.fixture(collectionIds: ["1"])
-        try await subject.addCipherWithServer(cipher)
+        try await subject.addCipherWithServer(cipher, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
@@ -109,12 +110,13 @@ class CipherServiceTests: BitwardenTestCase {
     func test_deleteAttachmentWithServer() async throws {
         stateService.activeAccount = .fixture()
         cipherDataStore.fetchCipherResult = .fixture(attachments: [.fixture(id: "456")])
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .deleteAttachment)
 
         let updatedCipher = try await subject.deleteAttachmentWithServer(attachmentId: "456", cipherId: "123")
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture(attachments: []))
-        XCTAssertEqual(updatedCipher, .fixture(attachments: []))
+        let expectedCipher = Cipher.fixture(attachments: [], revisionDate: Date(year: 2025, month: 9, day: 17))
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, expectedCipher)
+        XCTAssertEqual(updatedCipher, expectedCipher)
     }
 
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
@@ -256,7 +258,7 @@ class CipherServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
 
         let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
-        try await subject.shareCipherWithServer(cipher)
+        try await subject.shareCipherWithServer(cipher, encryptedFor: "1")
 
         var cipherResponse = try CipherDetailsResponseModel(
             response: .success(body: APITestData.cipherResponse.data)
@@ -309,11 +311,40 @@ class CipherServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.updateCipherWithServer(.fixture(id: "123"))
+        try await subject.updateCipherWithServer(.fixture(id: "123"), encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+    }
+
+    /// `updateCipherWithServer(_:)` partial updates the read-only cipher in the backend and local storage.
+    func test_updateCipherWithServer_partial() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+        ]
+
+        // Test with non-editable cipher
+        try await subject.updateCipherWithServer(
+            .fixture(
+                edit: false,
+                favorite: true,
+                folderId: "folderId",
+                id: "123"
+            ),
+            encryptedFor: "1"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/123/partial"
+        )
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        let favorite = try XCTUnwrap(cipherDataStore.upsertCipherValue?.favorite)
+        XCTAssertTrue(favorite)
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.folderId, "folderId")
     }
 
     /// `updateCipherWithServer(_:)` updates the cipher with collections in the backend and local storage.
@@ -321,7 +352,7 @@ class CipherServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.updateCipherWithServer(.fixture(collectionIds: ["1", "2"], id: "123"))
+        try await subject.updateCipherWithServer(.fixture(collectionIds: ["1", "2"], id: "123"), encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")

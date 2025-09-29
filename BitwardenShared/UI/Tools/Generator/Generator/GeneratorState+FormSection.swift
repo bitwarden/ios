@@ -1,13 +1,44 @@
+import BitwardenResources
 import UIKit
 
 extension GeneratorState {
+    /// Data model containing the list of fields to display grouped together in a section of a form.
+    ///
+    struct FormSectionGroup<State>: Equatable, Identifiable {
+        // MARK: Properties
+
+        /// The list of fields to display grouped together in the section.
+        let fields: [FormField<State>]
+
+        /// The group's unique identifier.
+        let id: String
+
+        /// Whether the content in the group should be shown in a content block.
+        let showInContentBlock: Bool
+
+        // MARK: Initialization
+
+        /// Initialize a `FormSectionGroup`.
+        ///
+        /// - Parameters:
+        ///   - fields: The list of fields to display grouped together in the section.
+        ///   - id: The groups's unique identifier.
+        ///   - showInContentBlock: Whether the content in the group should be shown in a content block.
+        ///
+        init(fields: [FormField<State>], id: String, showInContentBlock: Bool = true) {
+            self.fields = fields
+            self.id = id
+            self.showInContentBlock = showInContentBlock
+        }
+    }
+
     /// Data model containing the data to display a section of fields in a form.
     ///
     struct FormSection<State>: Equatable, Identifiable {
         // MARK: Properties
 
-        /// The list of fields to display in the section.
-        let fields: [FormField<State>]
+        /// The groups of fields to display in the section.
+        let groups: [FormSectionGroup<State>]
 
         /// The section's unique identifier.
         let id: String
@@ -32,12 +63,6 @@ extension GeneratorState {
 
             /// A menu field for the email type.
             case menuEmailType(FormMenuField<State, UsernameEmailType>)
-
-            /// A menu field for the generator type.
-            case menuGeneratorType(FormMenuField<State, GeneratorType>)
-
-            /// A menu field for the password generator type.
-            case menuPasswordGeneratorType(FormMenuField<State, PasswordGeneratorType>)
 
             /// A menu field for the user generator type.
             case menuUsernameGeneratorType(FormMenuField<State, UsernameGeneratorType>)
@@ -66,10 +91,6 @@ extension GeneratorState {
                 case let .generatedValue(field):
                     return field.id
                 case let .menuEmailType(field):
-                    return field.id
-                case let .menuGeneratorType(field):
-                    return field.id
-                case let .menuPasswordGeneratorType(field):
                     return field.id
                 case let .menuUsernameGeneratorType(field):
                     return field.id
@@ -143,22 +164,6 @@ extension GeneratorState {
     func generatedValueField(keyPath: WritableKeyPath<GeneratorState, String>) -> FormField<Self> {
         FormField(fieldType: .generatedValue(
             GeneratedValueField(keyPath: keyPath, value: self[keyPath: keyPath])
-        ))
-    }
-
-    /// A helper method for creating a menu field for the password generator type.
-    ///
-    /// - Returns: A form field for the password generator type menu.
-    ///
-    func passwordGeneratorTypeField() -> FormField<Self> {
-        FormField(fieldType: .menuPasswordGeneratorType(
-            FormMenuField(
-                accessibilityIdentifier: "PasswordTypePicker",
-                keyPath: \.passwordState.passwordGeneratorType,
-                options: PasswordGeneratorType.allCases,
-                selection: passwordState.passwordGeneratorType,
-                title: Localizations.passwordType
-            )
         ))
     }
 

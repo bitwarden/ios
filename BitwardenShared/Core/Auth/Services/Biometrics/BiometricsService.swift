@@ -1,3 +1,4 @@
+import BitwardenResources
 import LocalAuthentication
 import OSLog
 
@@ -85,15 +86,16 @@ class DefaultBiometricsService: BiometricsService {
         }
 
         switch authContext.biometryType {
-        case .none,
-             .opticID:
-            return .none
-        case .touchID:
-            return .touchID
         case .faceID:
             return .faceID
-        @unknown default:
+        case .none:
             return .none
+        case .opticID:
+            return .opticID
+        case .touchID:
+            return .touchID
+        @unknown default:
+            return .unknown
         }
     }
 

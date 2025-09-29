@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
@@ -10,7 +11,7 @@ class VaultUnlockStateTests: BitwardenTestCase {
         let subject = VaultUnlockState(
             account: .fixture(
                 settings: .fixture(
-                    environmentUrls: .fixture(
+                    environmentURLs: .fixture(
                         webVault: URL(string: "https://test.bitwarden.com")
                     )
                 )
@@ -27,7 +28,7 @@ class VaultUnlockStateTests: BitwardenTestCase {
         let subject = VaultUnlockState(
             account: .fixture(
                 settings: .fixture(
-                    environmentUrls: .fixture(
+                    environmentURLs: .fixture(
                         base: nil,
                         webVault: nil
                     )

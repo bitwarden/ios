@@ -6,6 +6,9 @@ import Networking
 struct CipherDetailsResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
+    /// The date the cipher was archived.
+    let archivedDate: Date?
+
     /// The cipher's list of attachments.
     let attachments: [AttachmentResponseModel]?
 
@@ -59,6 +62,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
+
+    /// The permissions of the cipher.
+    let permissions: CipherPermissionsModel?
 
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.

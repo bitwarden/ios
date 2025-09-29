@@ -1,4 +1,5 @@
 /// A protocol to work with processors that have TOTP sections.
+@MainActor
 protocol HasTOTPCodesSections {
     /// The repository used by the application to manage vault data for the UI layer.
     var vaultRepository: VaultRepository { get }

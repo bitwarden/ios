@@ -19,6 +19,34 @@ on:
       skip_checkout:
         description: "Skip checking out the repository"
         type: boolean
+  workflow_call:
+    inputs:
+      base_version_number:
+        description: "Base Version Number - Will be added to the calculated version number"
+        type: number
+        default: 0
+      version_name:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      version_number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distinct_id:
+        description: "Unique ID for this dispatch, used by dispatch-and-download.yml"
+        type: string
+      skip_checkout:
+        description: "Skip checking out the repository"
+        type: boolean
+    outputs:
+      version_name:
+        description: "Version Name"
+        value: ${{ jobs.calculate-version.outputs.version_name }}
+      version_number:
+        description: "Version Number"
+        value: ${{ jobs.calculate-version.outputs.version_number }}
 
 env:
   BASE_VERSION_NUMBER: ${{ inputs.base_version_number || 0 }}
@@ -26,23 +54,24 @@ env:
 jobs:
   calculate-version:
     name: Calculate Version Name and Number
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    outputs:
+      version_name: ${{ steps.calc-version-name.outputs.version_name }}
+      version_number: ${{ steps.calc-version-number.outputs.version_number }}
     steps:
       - name: Log inputs to job summary
-        run: |
-          echo "<details><summary>Version Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
 
       - name: Echo distinct ID ${{ github.event.inputs.distinct_id }}
         run: echo ${{ github.event.inputs.distinct_id }}
 
       - name: Check out repository
         if: ${{ !inputs.skip_checkout || false }}
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           fetch-depth: 0
 
@@ -118,7 +147,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload version info artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: version-info
           path: version_info.json

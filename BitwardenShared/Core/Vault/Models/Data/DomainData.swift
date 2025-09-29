@@ -1,3 +1,4 @@
+import BitwardenKit
 import CoreData
 import Foundation
 
@@ -35,6 +36,16 @@ class DomainData: NSManagedObject, ManagedObject, CodableModelData {
 }
 
 extension DomainData {
+    /// A `NSBatchDeleteRequest` that deletes all objects for the specified user.
+    ///
+    /// - Parameter userId: The user associated with the objects to delete.
+    /// - Returns: A `NSBatchDeleteRequest` that deletes all objects for the user.
+    ///
+    static func deleteByUserIdRequest(userId: String) -> NSBatchDeleteRequest {
+        let fetchRequest = fetchResultRequest(predicate: userIdPredicate(userId: userId))
+        return NSBatchDeleteRequest(fetchRequest: fetchRequest)
+    }
+
     /// A `NSFetchRequest` that fetches all objects for the specified user.
     ///
     /// - Parameter userId: The user associated with the objects to delete.

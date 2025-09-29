@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - AuthRoute
@@ -6,9 +7,6 @@ import Foundation
 public enum AuthRoute: Equatable {
     /// A route to the autofill setup screen.
     case autofillSetup
-
-    /// A route to the captcha screen.
-    case captcha(url: URL, callbackUrlScheme: String)
 
     /// A route to show the check email screen.
     case checkEmail(email: String)
@@ -35,16 +33,13 @@ public enum AuthRoute: Equatable {
         fromEmail: Bool
     )
 
-    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
     /// Dismisses the auth flow.
     /// - Parameters:
     ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
     case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
-
-    /// A route to the create account screen.
-    case createAccount
 
     /// A route that dismisses a presented sheet.
     case dismiss
@@ -123,11 +118,14 @@ public enum AuthRoute: Equatable {
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
+    /// A route to the pre-login settings.
+    case preLoginSettings
+
     /// A route to the prevent account lock view.
     case preventAccountLock
 
     /// A route to the remove master password screen.
-    case removeMasterPassword(organizationName: String)
+    case removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String)
 
     /// A route to the self-hosted settings screen.
     ///
@@ -156,12 +154,14 @@ public enum AuthRoute: Equatable {
     ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data on the available auth methods.
     ///   - orgIdentifier: The identifier for the organization used in the SSO flow
+    ///   - deviceVerificationRequired: whether the flow is to verify the device or not
     ///
     case twoFactor(
         _ email: String,
         _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData,
-        _ orgIdentifier: String?
+        _ orgIdentifier: String?,
+        _ deviceVerificationRequired: Bool? = nil
     )
 
     /// A route to the update master password screen.
@@ -185,6 +185,10 @@ public enum AuthRoute: Equatable {
 
     /// A route to the vault unlock setup screen.
     case vaultUnlockSetup(AccountSetupFlow)
+
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
 
     /// A route to the WebAuthn two factor authentication.
     ///

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -14,6 +16,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -52,9 +55,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await syncVault()
-        case .logoutPressed:
+        case .logoutTapped:
             showLogoutConfirmation()
-        case .submitPressed:
+        case .saveTapped:
             await updateMasterPassword()
         }
     }
@@ -65,10 +68,13 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             state.currentMasterPassword = newValue
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
+            updatePasswordStrength()
         case let .masterPasswordHintChanged(newValue):
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .revealCurrentMasterPasswordFieldPressed(isOn):
             state.isCurrentMasterPasswordRevealed = isOn
         case let .revealMasterPasswordFieldPressed(isOn):
@@ -100,6 +106,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         do {
             try await services.settingsRepository.fetchSync()
             let account = try await services.authRepository.getAccount()
+            state.userEmail = account.profile.email
             state.forcePasswordResetReason = account.profile.forcePasswordResetReason
 
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
@@ -112,9 +119,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 await coordinator.handleEvent(.didCompleteAuth)
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.syncVault()
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }
@@ -134,6 +141,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             if state.masterPasswordPolicy?.isInEffect == true {
                 let isInvalid = try await services.authService.requirePasswordChange(
                     email: services.authRepository.getAccount().profile.email,
+                    isPreAuth: false,
                     masterPassword: state.masterPassword,
                     policy: state.masterPasswordPolicy
                 )
@@ -169,8 +177,28 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates state's password strength score based on the user's entered password.
+    ///
+    private func updatePasswordStrength() {
+        guard !state.masterPassword.isEmpty else {
+            state.passwordStrengthScore = nil
+            return
+        }
+        Task {
+            do {
+                state.passwordStrengthScore = try await services.authRepository.passwordStrength(
+                    email: state.userEmail,
+                    password: state.masterPassword,
+                    isPreAuth: false
+                )
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 }

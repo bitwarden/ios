@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - MasterPasswordGeneratorView
@@ -50,7 +52,7 @@ struct MasterPasswordGeneratorView: View {
         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -70,20 +72,19 @@ struct MasterPasswordGeneratorView: View {
 
     /// The password instructions and prevent account lockout button.
     private var instructionsPreventAccountLockView: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text(Localizations.writeThisPasswordDownAndKeepItSomewhereSafe)
                 .styleGuide(.footnote)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .multilineTextAlignment(.center)
 
             Button {
                 store.send(.preventAccountLock)
             } label: {
                 Text(Localizations.learnAboutOtherWaysToPreventAccountLockout)
                     .styleGuide(.footnote, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

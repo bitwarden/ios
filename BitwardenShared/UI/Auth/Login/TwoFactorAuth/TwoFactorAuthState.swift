@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - TwoFactorAuthState
@@ -18,8 +19,16 @@ struct TwoFactorAuthState: Equatable, Sendable {
     /// Whether the continue button is enabled.
     var continueEnabled = false
 
+    /// Whether the flow is to verify the device or not
+    var deviceVerificationRequired: Bool = false
+
     /// The text to display in the detailed instructions.
-    var detailsText: String { authMethod.details(displayEmail) }
+    var detailsText: String {
+        if deviceVerificationRequired {
+            return Localizations.weDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong
+        }
+        return authMethod.details(displayEmail)
+    }
 
     /// The email address that should be displayed in the instructions of the email method.
     var displayEmail = ""
@@ -32,6 +41,14 @@ struct TwoFactorAuthState: Equatable, Sendable {
 
     /// User organization idenfier if came from SSO flow
     var orgIdentifier: String?
+
+    /// The text to display in the detailed instructions.
+    var titleText: String {
+        if deviceVerificationRequired {
+            return Localizations.verifyYourIdentity
+        }
+        return authMethod.title
+    }
 
     /// A toast message to show in the view.
     var toast: Toast?
@@ -46,6 +63,18 @@ struct TwoFactorAuthState: Equatable, Sendable {
     var verificationCode = ""
 
     // MARK: Computed Properties
+
+    /// The image asset to display for the selected authentication method.
+    var authMethodImageAsset: ImageAsset? {
+        switch authMethod {
+        case .email:
+            Asset.Images.Illustrations.emailOtp
+        case .authenticatorApp:
+            Asset.Images.Illustrations.authenticatorApp
+        default:
+            nil
+        }
+    }
 
     /// The image asset to display for the auth method.
     var detailImageAsset: ImageAsset? {

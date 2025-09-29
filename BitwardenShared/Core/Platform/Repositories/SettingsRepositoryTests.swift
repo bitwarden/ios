@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -53,9 +54,44 @@ class SettingsRepositoryTests: BitwardenTestCase {
     /// `addFolder(name:)` encrypts the folder name and makes the request to add the folder.
     func test_addFolder() async throws {
         let folderName = "Test folder name"
-        try await subject.addFolder(name: folderName)
+        let folder = Folder.fixture(name: folderName)
+        folderService.addFolderWithServerResult = .success(folder)
+        let folderView = FolderView(folder: folder)
+        clientService.mockVault.clientFolders.decryptFolderResult = .success(folderView)
+
+        let addedFolder = try await subject.addFolder(name: folderName)
+
+        XCTAssertEqual(addedFolder, folderView)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.count, 1)
+        XCTAssertNil(clientService.mockVault.clientFolders.encryptedFolders.first?.id)
         XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptFolderValueToDecrypt, folder)
         XCTAssertEqual(folderService.addedFolderName, folderName)
+    }
+
+    /// `addFolder(name:)` throws an error if it's unable to decrypt the folder returned from the server.
+    func test_addFolder_errorDecrypt() async throws {
+        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.addFolder(name: "Test folder")
+        }
+    }
+
+    /// `addFolder(name:)` throws an error if the server returns an error.
+    func test_addFolder_errorServer() async throws {
+        folderService.addFolderWithServerResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.addFolder(name: "Test folder")
+        }
+    }
+
+    /// `allowUniversalClipboard` gets and sets the value from the `PasteboardService`.
+    func test_allowUniversalClipboard() {
+        pasteboardService.allowUniversalClipboard = true
+        XCTAssertTrue(subject.allowUniversalClipboard)
+
+        subject.allowUniversalClipboard = false
+        XCTAssertFalse(subject.allowUniversalClipboard)
     }
 
     /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
@@ -117,11 +153,11 @@ class SettingsRepositoryTests: BitwardenTestCase {
     func test_getDefaultUriMatchType() async throws {
         stateService.activeAccount = .fixture()
 
-        let initialValue = try await subject.getDefaultUriMatchType()
+        let initialValue = await subject.getDefaultUriMatchType()
         XCTAssertEqual(initialValue, .domain)
 
         stateService.defaultUriMatchTypeByUserId["1"] = .never
-        let value = try await subject.getDefaultUriMatchType()
+        let value = await subject.getDefaultUriMatchType()
         XCTAssertEqual(value, .never)
     }
 
@@ -134,6 +170,18 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         stateService.disableAutoTotpCopyByUserId["1"] = true
         let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
+    }
+
+    /// `getSiriAndShortcutsAccess()` returns the Siri & Shortcuts access value.
+    func test_getSiriAndShortcutsAccess() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getSiriAndShortcutsAccess()
+        XCTAssertFalse(initialValue)
+
+        stateService.siriAndShortcutsAccess["1"] = true
+        let value = try await subject.getSiriAndShortcutsAccess()
         XCTAssertTrue(value)
     }
 
@@ -159,7 +207,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `foldersListPublisher()` returns a decrypted flow of the user's folders.
+    /// `foldersListPublisher()` returns a decrypted flow of the user's folders in ascending alphabetically order.
     func test_foldersListPublisher_emitsDecryptedList() async throws {
         // Prepare the publisher.
         var iterator = try await subject.foldersListPublisher().makeAsyncIterator()
@@ -167,17 +215,20 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         // Prepare the sample data.
         let date = Date(year: 2023, month: 12, day: 25)
-        let folder = Folder.fixture(revisionDate: date)
-        let folderView = FolderView.fixture(revisionDate: date)
+        let folder = Folder.fixture(name: "ZZ", revisionDate: date)
+        let folderView = FolderView.fixture(name: "ZZ", revisionDate: date)
+
+        let folder2 = Folder.fixture(name: "AA", revisionDate: date)
+        let folderView2 = FolderView.fixture(name: "AA", revisionDate: date)
 
         // Ensure the list of folders is updated as expected.
-        folderService.foldersSubject.value = [folder]
+        folderService.foldersSubject.value = [folder, folder2]
         let publisherValue = try await iterator.next()
         try XCTAssertNotNil(XCTUnwrap(publisherValue))
-        try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView])
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView2, folderView])
 
         // Ensure the folders were decrypted by the client vault.
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder])
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder, folder2])
     }
 
     /// `lastSyncTimePublisher` returns a publisher of the user's last sync time.
@@ -241,6 +292,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateDisableAutoTotpCopy(true)
 
         try XCTAssertTrue(XCTUnwrap(stateService.disableAutoTotpCopyByUserId["1"]))
+    }
+
+    /// `updateSiriAndShortcutsAccess(_:)` updates the state service's Siri & Shortcuts access value
+    func test_updateSiriAndShortcutsAccess() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateSiriAndShortcutsAccess(true)
+
+        try XCTAssertTrue(XCTUnwrap(stateService.siriAndShortcutsAccess["1"]))
     }
 
     /// `updateSyncToAuthenticator()` updates the value in the state service.

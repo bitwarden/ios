@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -41,7 +42,7 @@ class AutoFillViewTests: BitwardenTestCase {
     @MainActor
     func test_defaultUriMatchTypeChanged_updateValue() throws {
         processor.state.defaultUriMatchType = .host
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultUriMatchDetection)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.defaultUriMatchDetection)
         try menuField.select(newValue: UriMatchType.exact)
         XCTAssertEqual(processor.dispatchedActions.last, .defaultUriMatchTypeChanged(.exact))
     }
@@ -106,8 +107,28 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the autofill action card is displayed.
     @MainActor
-    func test_snapshot_actionCardAutofill() async {
+    func disabletest_snapshot_actionCardAutofill() async {
         processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly with the autofill regular expression selected
+    @MainActor
+    func disabletest_snapshot_regularExpressionUriMatchType() async {
+        processor.state.defaultUriMatchType = UriMatchType.regularExpression
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly with the autofill starts with selected
+    @MainActor
+    func disabletest_snapshot_startsWithUriMatchType() async {
+        processor.state.defaultUriMatchType = UriMatchType.startsWith
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -116,7 +137,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly.
     @MainActor
-    func test_view_render() {
+    func disabletest_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

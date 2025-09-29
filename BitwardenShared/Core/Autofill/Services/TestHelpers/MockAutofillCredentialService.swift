@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenSdk
+import TestHelpers
 
 @testable import BitwardenShared
 
@@ -10,6 +11,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideCredentialPasswordCredential: ASPasswordCredential?
     var provideCredentialError: Error?
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
+    var provideOTPCredentialResult: Result<OneTimeCodeCredential, Error> = .failure(BitwardenTestError.example)
 
     func isAutofillCredentialsEnabled() async -> Bool {
         isAutofillCredentialsEnabled
@@ -50,6 +52,19 @@ class MockAutofillCredentialService: AutofillCredentialService {
         }
         return credential
     }
+
+    @available(iOS 18.0, *)
+    func provideOTPCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: any BitwardenShared.AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASOneTimeCodeCredential {
+        let result = try provideOTPCredentialResult.get()
+        guard let credential = result as? ASOneTimeCodeCredential else {
+            throw Fido2Error.invalidOperationError
+        }
+        return credential
+    }
 }
 
 // MARK: - PasskeyAssertionCredential
@@ -63,3 +78,15 @@ extension ASPasskeyAssertionCredential: PasskeyAssertionCredential {}
 // MARK: - MockPasskeyAssertionCredential
 
 class MockPasskeyAssertionCredential: PasskeyAssertionCredential {}
+
+// MARK: - OneTimeCodeCredential
+
+/// Protocol to bypass using @available for one time code credential.
+public protocol OneTimeCodeCredential {}
+
+@available(iOS 18.0, *)
+extension ASOneTimeCodeCredential: OneTimeCodeCredential {}
+
+// MARK: - MockOneTimeCodeCredential
+
+class MockOneTimeCodeCredential: OneTimeCodeCredential {}

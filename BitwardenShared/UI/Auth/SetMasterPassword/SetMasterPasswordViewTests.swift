@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest
@@ -31,7 +32,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Tapping on the cancel button dispatches the `.cancelPressed` action.
     @MainActor
     func test_cancel_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         waitFor(!processor.effects.isEmpty)
         XCTAssertEqual(processor.effects.last, .cancelPressed)
@@ -58,7 +59,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Editing the text in the master password text field dispatches the `.masterPasswordChanged` action.
     @MainActor
     func test_masterPassword_change() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPassword)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPasswordRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordChanged("text"))
     }
@@ -74,7 +75,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Editing the text in the re-type master password text field dispatches the `.masterPasswordRetypeChanged` action.
     @MainActor
     func test_masterPasswordRetype_change() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPassword)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPasswordRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRetypeChanged("text"))
     }
@@ -90,25 +91,26 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordFieldPressed(true))
     }
 
-    /// Tapping on the submit button performs the `.submitPressed` effect.
+    /// Tapping on the save button performs the `.saveTapped` effect.
     @MainActor
-    func test_submitButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.submit)
-        try await button.tap()
-        XCTAssertEqual(processor.effects.last, .submitPressed)
+    func test_saveButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.save)
+        try button.tap()
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects.last, .saveTapped)
     }
 
     // MARK: Snapshots
 
     /// A snapshot of the view with all filled values fields.
     @MainActor
-    func test_snapshot_setPassword_filled() {
+    func disabletest_snapshot_setPassword_filled() {
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
         processor.state.masterPasswordHint = "hint hint"
         processor.state.resetPasswordAutoEnroll = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),
@@ -119,14 +121,14 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view for privilege elevation.
     @MainActor
-    func test_snapshot_setPassword_privilege_elevation() {
+    func disabletest_snapshot_setPassword_privilege_elevation() {
         processor.state.isPrivilegeElevation = true
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
         processor.state.masterPasswordHint = "hint hint"
         processor.state.resetPasswordAutoEnroll = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),

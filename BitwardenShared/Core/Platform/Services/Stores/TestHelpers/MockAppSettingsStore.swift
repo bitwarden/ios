@@ -1,29 +1,37 @@
+import BitwardenKit
 import Combine
 import Foundation
 
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
+    var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
+    var allowUniversalClipboardByUserId = [String: Bool]()
     var appId: String?
     var appLocale: String?
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var cachedActiveUserId: String?
     var disableWebIcons = false
+    var flightRecorderData: FlightRecorderData?
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
+    var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
+    var learnNewLoginActionCardStatus: AccountSetupProgress = .incomplete
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var preAuthServerConfig: BitwardenShared.ServerConfig?
+    var pendingAppIntentActions: [PendingAppIntentAction]?
+    var preAuthEnvironmentURLs: EnvironmentURLData?
+    var preAuthServerConfig: ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: BitwardenShared.ReviewPromptData?
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -35,6 +43,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
+    var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var manuallyLockedAccounts = [String: Bool]()
@@ -42,9 +51,11 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
-    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
+    var pinProtectedUserKeyEnvelope = [String: String]()
+    var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
+    var siriAndShortcutsAccess = [String: Bool]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
@@ -59,7 +70,11 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
-    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
+    var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        accountKeys[userId]
+    }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]
@@ -75,6 +90,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func allowUniversalClipboard(userId: String) -> Bool {
+        allowUniversalClipboardByUserId[userId] ?? false
     }
 
     func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
@@ -117,6 +136,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         eventsByUserId[userId] ?? []
     }
 
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool {
+        hasPerformedSyncAfterLogin[userId] ?? false
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         lastActiveTime[userId]
     }
@@ -150,8 +173,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> BitwardenShared.EnvironmentUrlData? {
-        accountCreationEnvironmentUrls[email]
+    func pinProtectedUserKeyEnvelope(userId: String) -> String? {
+        pinProtectedUserKeyEnvelope[userId]
+    }
+
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
+        accountCreationEnvironmentURLs[email]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -160,6 +187,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
+        accountKeys[userId] = keys
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -176,6 +207,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
     }
 
     func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
@@ -226,6 +261,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         eventsByUserId[userId] = events
     }
 
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
+        guard let hasBeenPerformed else {
+            hasPerformedSyncAfterLogin.removeValue(forKey: userId)
+            return
+        }
+        hasPerformedSyncAfterLogin[userId] = hasBeenPerformed
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String) {
         lastActiveTime[userId] = date
     }
@@ -258,8 +301,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
-        accountCreationEnvironmentUrls[email] = environmentUrlData
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
+        pinProtectedUserKeyEnvelope[userId] = key
+    }
+
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+        accountCreationEnvironmentURLs[email] = environmentURLData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
@@ -268,6 +315,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         self.shouldTrustDevice[userId] = shouldTrustDevice
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
+        self.siriAndShortcutsAccess[userId] = siriAndShortcutsAccess
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
@@ -304,6 +355,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func shouldTrustDevice(userId: String) -> Bool? {
         shouldTrustDevice[userId] ?? false
+    }
+
+    func siriAndShortcutsAccess(userId: String) -> Bool {
+        siriAndShortcutsAccess[userId] ?? false
     }
 
     func syncToAuthenticator(userId: String) -> Bool {

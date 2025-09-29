@@ -46,6 +46,7 @@ excluded:
   - BitwardenWatchShared
   - build
   - vendor/bundle
+  - '**/Generated'
 
 attributes:
   always_on_same_line:
@@ -78,6 +79,9 @@ type_contents_order:
     - other_method
     - subscript
 
+type_name:
+  max_length: 50
+
 identifier_name:
   excluded:
     - id
@@ -97,7 +101,7 @@ custom_rules:
     severity: warning
   todo_without_jira:
     name: "TODO without JIRA"
-    regex: "(TODO|TO DO|FIX|FIXME|FIX ME|todo)(?!: (BIT|PM)-[0-9]{1,})" # "TODO: BIT-123"
+    regex: "(TODO|TO DO|FIX|FIXME|FIX ME|todo)(?!: (BIT|PM|BWA)-[0-9]{1,})" # "TODO: BIT-123"
     message: "All TODOs must be followed by a JIRA reference, for example: \"TODO: BIT-123\""
     match_kinds:
       - comment

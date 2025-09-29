@@ -4,11 +4,11 @@
 #
 # Usage:
 #
-#   $ ./select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
+#   $ ./Scripts/select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
 # Example:
-#  $ ./select_variant.sh Production
-#  $ ./select_variant.sh Beta DEBUG_MENU
-#  $ ./select_variant.sh Beta "FEATURE1 FEATURE2"
+#  $ ./Scripts/select_variant.sh Production
+#  $ ./Scripts/select_variant.sh Beta DEBUG_MENU
+#  $ ./Scripts/select_variant.sh Beta "FEATURE1 FEATURE2"
 
 set -euo pipefail
 
@@ -26,7 +26,7 @@ compiler_flags=${2:-''}
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
-local_xcconfig_file="Configs/Local.xcconfig"
+local_xcconfig_file="Configs/Local-bwpm.xcconfig"
 export_options_file="Configs/export_options.plist"
 
 case $variant in

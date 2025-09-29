@@ -8,21 +8,29 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the add account flow.
     case addAccount
 
+    /// A route to the add folder screen.
+    case addFolder
+
     /// A route to the add item screen.
     ///
-    /// - Parameters
-    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    /// - Parameters:
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
+    ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///
     case addItem(
-        allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
-        newCipherOptions: NewCipherOptions? = nil
+        newCipherOptions: NewCipherOptions? = nil,
+        organizationId: String? = nil,
+        type: CipherType
     )
 
     /// A route to the autofill list screen.
     case autofillList
+
+    /// A route to the autofill list screen with a specified group.
+    case autofillListForGroup(_ group: VaultListGroup)
 
     /// A route to edit an item.
     ///
@@ -39,8 +47,14 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 
+    /// A route to the flight recorder settings in the settings tab.
+    case flightRecorderSettings
+
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
+
+    /// A route to the Credential Exchange import flow with the CXF specific route as a parameter.
+    case importCXF(ImportCXFRoute)
 
     /// A route to the import logins screen.
     case importLogins
@@ -65,7 +79,14 @@ public enum VaultRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
+    ///     already been completed.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
+
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
 }

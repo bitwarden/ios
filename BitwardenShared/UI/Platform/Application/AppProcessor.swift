@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -32,6 +33,9 @@ public class AppProcessor {
     /// A delegate used to communicate with the app extension.
     private(set) weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// The mediator to handle `AppIntent` actions.
+    private let appIntentMediator: AppIntentMediator?
+
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
@@ -53,6 +57,7 @@ public class AppProcessor {
     ///
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
+    ///   - appIntentMediator: The mediator to handle `AppIntent` actions.
     ///   - appModule: The root module to use to create sub-coordinators.
     ///   - debugDidEnterBackground: A closure that is called in debug builds for testing after the
     ///     processor finishes its work when the app enters the background.
@@ -62,17 +67,24 @@ public class AppProcessor {
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
+        appIntentMediator: AppIntentMediator? = nil,
         appModule: AppModule,
         debugDidEnterBackground: (() -> Void)? = nil,
         debugWillEnterForeground: (() -> Void)? = nil,
         services: ServiceContainer
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        self.appIntentMediator = appIntentMediator
         self.appModule = appModule
         self.services = services
 
         self.services.notificationService.setDelegate(self)
+        self.services.pendingAppIntentActionMediator.setDelegate(self)
         self.services.syncService.delegate = self
+
+        Task {
+            await services.apiService.setAccountTokenProviderDelegate(delegate: self)
+        }
 
         startEventTimer()
 
@@ -83,7 +95,12 @@ public class AppProcessor {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
-                await checkAccountsForTimeout()
+                await services.authRepository.checkSessionTimeouts { [weak self] activeUserId in
+                    // Allow the AuthCoordinator to handle the timeout for the active user
+                    // so any necessary routing can occur.
+                    await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                }
+                await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -107,6 +124,14 @@ public class AppProcessor {
                 #endif
             }
         }
+
+        // PM-19400: We need to listen to the changes on pending app intent actions
+        // so they get executed and update the navigation/UI accordingly.
+        Task {
+            for await _ in await services.stateService.pendingAppIntentActionsPublisher().values {
+                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
+            }
+        }
     }
 
     // MARK: Methods
@@ -121,14 +146,7 @@ public class AppProcessor {
             route = await getOtpAuthUrlRoute(url: url)
         }
         guard let route else { return }
-
-        if let userId = try? await services.stateService.getActiveAccountId(),
-           !services.vaultTimeoutService.isLocked(userId: userId),
-           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
-            coordinator?.navigate(to: route)
-        } else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
-        }
+        await checkIfLockedAndPerformNavigation(route: route)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -160,9 +178,12 @@ public class AppProcessor {
             }
         }
 
+        await services.flightRecorder.log(
+            "App launched, context: \(appContext), version: \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))"
+        )
+
         await services.migrationService.performMigrations()
-        await services.environmentService.loadURLsForActiveAccount()
-        _ = await services.configService.getConfig()
+        await prepareEnvironmentConfig()
         await completeAutofillAccountSetupIfEnabled()
 
         if let initialRoute {
@@ -211,6 +232,23 @@ public class AppProcessor {
             )))
     }
 
+    /// Handles importing credentials using Credential Exchange Protocol.
+    /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
+    @available(iOSApplicationExtension 26.0, *)
+    public func handleImportCredentials(credentialImportToken: UUID) async {
+        let route = AppRoute.tab(.vault(.importCXF(
+            .importCredentials(credentialImportToken: credentialImportToken)
+        )))
+        await checkIfLockedAndPerformNavigation(route: route)
+    }
+
+    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// and getting the current server config.
+    public func prepareEnvironmentConfig() async {
+        await services.environmentService.loadURLsForActiveAccount()
+        _ = await services.configService.getConfig()
+    }
+
     // MARK: Autofill Methods
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
@@ -228,6 +266,25 @@ public class AppProcessor {
         repromptPasswordValidated: Bool = false
     ) async throws -> ASPasswordCredential {
         try await services.autofillCredentialService.provideCredential(
+            for: id,
+            autofillCredentialServiceDelegate: self,
+            repromptPasswordValidated: repromptPasswordValidated
+        )
+    }
+
+    /// Provides an OTP credential for the identity
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return
+    ///   - repromptPasswordValidated: true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    /// - Returns: An `ASOneTimeCodeCredential` that matches the user-requested credential which can be
+    ///     used for autofill..
+    @available(iOSApplicationExtension 18.0, *)
+    public func provideOTPCredential(
+        for id: String,
+        repromptPasswordValidated: Bool = false
+    ) async throws -> ASOneTimeCodeCredential {
+        try await services.autofillCredentialService.provideOTPCredential(
             for: id,
             autofillCredentialServiceDelegate: self,
             repromptPasswordValidated: repromptPasswordValidated
@@ -322,36 +379,36 @@ public class AppProcessor {
 extension AppProcessor {
     // MARK: Private Methods
 
-    /// Checks if any accounts have timed out.
-    ///
-    private func checkAccountsForTimeout() async {
-        do {
-            let accounts = try await services.stateService.getAccounts()
-            let activeUserId = try await services.stateService.getActiveAccountId()
-            for account in accounts {
-                let userId = account.profile.userId
-                let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                if shouldTimeout {
-                    if userId == activeUserId {
-                        // Allow the AuthCoordinator to handle the timeout for the active user
-                        // so any necessary routing can occur.
-                        await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
-                    } else {
-                        let timeoutAction = try? await services.authRepository.sessionTimeoutAction(userId: userId)
-                        switch timeoutAction {
-                        case .lock:
-                            await services.vaultTimeoutService.lockVault(userId: userId)
-                        case .logout, .none:
-                            try await services.authRepository.logout(userId: userId, userInitiated: false)
-                        }
-                    }
-                }
-            }
-        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
-            // No-op: nothing to do if there's no accounts or an active account.
-        } catch {
-            services.errorReporter.log(error: error)
+    /// Whether there are pending `AppIntent` lock actions.
+    private func hasLockPendingAppIntentAction() async -> Bool {
+        guard let actions = await services.stateService.getPendingAppIntentActions(),
+              !actions.isEmpty else {
+            return false
         }
+
+        return actions.contains(where: { $0 == .lockAll })
+    }
+
+    /// Handles unlocking the vault for a manually locked account that uses never lock
+    /// and was previously unlocked in an extension.
+    ///
+    private func handleNeverTimeOutAccountBecameActive() async {
+        guard
+            appExtensionDelegate?.isInAppExtension != true,
+            await (try? services.authRepository.isLocked()) == true,
+            await (try? services.authRepository.sessionTimeoutValue()) == .never,
+            await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            await !hasLockPendingAppIntentAction(),
+            let account = try? await services.stateService.getActiveAccount()
+        else { return }
+
+        await coordinator?.handleEvent(
+            .accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
     }
 
     /// Checks if the active account was switched while in the extension. If this occurs, the app
@@ -370,6 +427,19 @@ extension AppProcessor {
         }
     }
 
+    /// Checks if the vault is locked and performs the navigation to the `AppRoute`
+    /// or sets it as the auth completion route.
+    /// - Parameter route: The `AppRoute` to go to.
+    private func checkIfLockedAndPerformNavigation(route: AppRoute) async {
+        if let userId = try? await services.stateService.getActiveAccountId(),
+           !services.vaultTimeoutService.isLocked(userId: userId),
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+            coordinator?.navigate(to: route)
+        } else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
+        }
+    }
+
     /// If the native create account feature flag and the autofill extension are enabled, this marks
     /// any user's autofill account setup completed. This should be called on app startup.
     ///
@@ -377,7 +447,6 @@ extension AppProcessor {
         // Don't mark the user's progress as complete in the extension, otherwise the app may not
         // see that the user's progress needs to be updated to publish new values to subscribers.
         guard appExtensionDelegate?.isInAppExtension != true,
-              await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
               await services.autofillCredentialService.isAutofillCredentialsEnabled()
         else { return }
         do {
@@ -389,6 +458,8 @@ extension AppProcessor {
                 else { continue }
                 try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
             }
+        } catch StateServiceError.noAccounts {
+            // No-op: nothing to do if there's no accounts.
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -435,6 +506,18 @@ extension AppProcessor {
         }
 
         return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
+    }
+
+    /// Logs out the user automatically, if `nil` is passed as `userId` then it will act on the current user.
+    /// - Parameter userId: The ID of the user to logout, current if `nil`.
+    private func logOutAutomatically(userId: String? = nil) async {
+        coordinator?.hideLoadingOverlay()
+        do {
+            try await services.authRepository.logout(userId: userId, userInitiated: false)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
 
     /// Starts timer to send organization events regularly
@@ -501,52 +584,69 @@ extension AppProcessor: NotificationServiceDelegate {
     ///
     /// - Parameters:
     ///   - account: The account associated with the login request.
-    ///   - loginRequest: The login request to show.
     ///   - showAlert: Whether to show the alert or simply switch the account.
     ///
-    func switchAccounts(to account: Account, for loginRequest: LoginRequest, showAlert: Bool) {
-        DispatchQueue.main.async {
-            if showAlert {
-                self.coordinator?.showAlert(.confirmation(
-                    title: Localizations.logInRequested,
-                    message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
-                ) {
-                    self.switchAccounts(to: account.profile.userId, for: loginRequest)
-                })
-            } else {
-                self.switchAccounts(to: account.profile.userId, for: loginRequest)
-            }
+    func switchAccountsForLoginRequest(to account: Account, showAlert: Bool) async {
+        if showAlert {
+            coordinator?.showAlert(.confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
+            ) {
+                await self.switchAccountsForLoginRequest(to: account.profile.userId)
+            })
+        } else {
+            await switchAccountsForLoginRequest(to: account.profile.userId)
         }
     }
 
-    /// Switch to the specified account and show the login request.
+    /// Switch to the specified account so they can see the login request.
     ///
-    /// - Parameters:
-    ///   - userId: The userId of the account to switch to.
-    ///   - loginRequest: The login request to show.
+    /// - Parameter userId: The user ID of the account to switch to.
     ///
-    private func switchAccounts(to userId: String, for loginRequest: LoginRequest) {
-        (coordinator as? VaultCoordinatorDelegate)?.didTapAccount(userId: userId)
-        coordinator?.navigate(to: .loginRequest(loginRequest))
+    private func switchAccountsForLoginRequest(to userId: String) async {
+        // Switch to the account, the login request will be shown when their vault loads (either
+        // immediately or after vault unlock).
+        await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
     }
 }
 
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
-    func removeMasterPassword(organizationName: String) {
+    func onFetchSyncSucceeded(userId: String) async {
+        do {
+            let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
+                userId: userId
+            )
+            // Check so the next gets executed only once after login.
+            guard !hasPerformedSyncAfterLogin else {
+                return
+            }
+            try await services.stateService.setHasPerformedSyncAfterLogin(true, userId: userId)
+
+            if await services.policyService.policyAppliesToUser(.removeUnlockWithPin) {
+                try await services.stateService.clearPins()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    func removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String) {
         // Don't show the remove master password screen if running in an app extension.
         guard appExtensionDelegate?.isInAppExtension != true else { return }
 
         coordinator?.hideLoadingOverlay()
-        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+        coordinator?.navigate(to: .auth(.removeMasterPassword(
+            organizationName: organizationName,
+            organizationId: organizationId,
+            keyConnectorUrl: keyConnectorUrl
+        )))
     }
 
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
-        coordinator?.hideLoadingOverlay()
-        try? await services.authRepository.logout(userId: userId, userInitiated: false)
-        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+        await logOutAutomatically(userId: userId)
     }
 
     func setMasterPassword(orgIdentifier: String) async {
@@ -575,6 +675,16 @@ public extension AppProcessor {
     }
 }
 
+// MARK: - AccountTokenProviderDelegate
+
+extension AppProcessor: AccountTokenProviderDelegate {
+    func onRefreshTokenError(error: any Error) async throws {
+        if case IdentityTokenRefreshRequestError.invalidGrant = error {
+            await logOutAutomatically()
+        }
+    }
+}
+
 // MARK: - AutofillCredentialServiceDelegate
 
 extension AppProcessor: AutofillCredentialServiceDelegate {
@@ -586,12 +696,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 // MARK: - Fido2UserVerificationMediatorDelegate
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
+    // MARK: Properties
+
     var isAutofillingFromList: Bool {
         guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
               autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
+    }
+
+    // MARK: Methods
+
+    func informExcludedCredentialFound(cipherView: BitwardenSdk.CipherView) async {
+        // No-op
     }
 
     func onNeedsUserInteraction() async throws {
@@ -620,6 +738,33 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
 
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator?.showAlert(alert, onDismissed: onDismissed)
+    }
+}
+
+// MARK: - PendingAppIntentActionMediatorDelegate
+
+extension AppProcessor: PendingAppIntentActionMediatorDelegate {
+    func onPendingAppIntentActionSuccess(
+        _ pendingAppIntentAction: PendingAppIntentAction,
+        data: Any?
+    ) async {
+        switch pendingAppIntentAction {
+        case .lockAll:
+            guard let account = data as? Account else {
+                return
+            }
+            await coordinator?.handleEvent(
+                .accountBecameActive(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                )
+            )
+        case .logOutAll:
+            await coordinator?.handleEvent(.didLogout(userId: nil, userInitiated: true))
+        case .openGenerator:
+            await checkIfLockedAndPerformNavigation(route: .tab(.generator(.generator())))
+        }
     }
 }
 

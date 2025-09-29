@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -8,7 +10,8 @@ import Foundation
 class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, AttachmentsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -91,24 +94,19 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             state.cipher = updatedCipher
             state.toast = Toast(title: Localizations.attachmentDeleted)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
 
     /// Load the user's premium status and display an alert if they do not have access to premium features.
     private func loadPremiumStatus() async {
-        do {
-            // Fetch the user's premium status.
-            state.hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
+        // Fetch the user's premium status.
+        state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
-            // If the user does not have access to premium features, show an alert.
-            if !state.hasPremium {
-                coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
-            }
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+        // If the user does not have access to premium features, show an alert.
+        if !state.hasPremium {
+            coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
         }
     }
 
@@ -163,7 +161,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

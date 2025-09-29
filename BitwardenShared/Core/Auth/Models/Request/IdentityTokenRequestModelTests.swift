@@ -19,7 +19,6 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 codeVerifier: "codeVerifier",
                 redirectUri: "redirectUri"
             ),
-            captchaToken: "captchaToken",
             deviceInfo: .fixture(),
             loginRequestId: nil
         )
@@ -29,7 +28,6 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 username: "ramen@delicious.com",
                 password: "password"
             ),
-            captchaToken: "captchaToken",
             deviceInfo: .fixture(),
             loginRequestId: nil
         )
@@ -48,7 +46,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_authorizationCode() {
         let valuesByKey = valuesByKey(subjectAuthorizationCode.values)
 
-        XCTAssertEqual(valuesByKey.count, 10)
+        XCTAssertEqual(valuesByKey.count, 9)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
@@ -67,7 +65,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_password() {
         let valuesByKey = valuesByKey(subjectPassword.values)
 
-        XCTAssertEqual(valuesByKey.count, 9)
+        XCTAssertEqual(valuesByKey.count, 8)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
@@ -79,21 +77,6 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertEqual(valuesByKey["grant_type"], "password")
         XCTAssertEqual(valuesByKey["username"], "ramen@delicious.com")
         XCTAssertEqual(valuesByKey["password"], "password")
-
-        XCTAssertEqual(valuesByKey["captchaResponse"], "captchaToken")
-    }
-
-    /// `values` doesn't contain the captcha token if it's `nil`.
-    func test_values_withoutCaptcha() {
-        let subject = IdentityTokenRequestModel(
-            authenticationMethod: .password(username: "user@example.com", password: "password"),
-            captchaToken: nil,
-            deviceInfo: .fixture(),
-            loginRequestId: nil
-        )
-        let valuesByKey = valuesByKey(subject.values)
-
-        XCTAssertNil(valuesByKey["captchaResponse"])
     }
 
     /// `values` contains the two-factor information if it's provided.
@@ -103,7 +86,6 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 username: "user@example.com",
                 password: "password"
             ),
-            captchaToken: nil,
             deviceInfo: .fixture(),
             loginRequestId: nil,
             twoFactorCode: "hi_im_a_lil_code",
@@ -115,6 +97,22 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertEqual(valuesByKey["twoFactorToken"], "hi_im_a_lil_code")
         XCTAssertEqual(valuesByKey["twoFactorProvider"], "1")
         XCTAssertEqual(valuesByKey["twoFactorRemember"], "1")
+    }
+
+    /// `values` contains the new device verification information if it's provided.
+    func test_values_withNewDeviceVerificationInformation() {
+        let subject = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "user@example.com",
+                password: "password"
+            ),
+            deviceInfo: .fixture(),
+            loginRequestId: nil,
+            newDeviceOtp: "onetimepass"
+        )
+        let valuesByKey = valuesByKey(subject.values)
+
+        XCTAssertEqual(valuesByKey["newdeviceotp"], "onetimepass")
     }
 
     // MARK: Private

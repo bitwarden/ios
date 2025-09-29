@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ViewCardItemView
@@ -9,16 +11,20 @@ struct ViewCardItemView: View {
     @ObservedObject var store: Store<any ViewCardItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
-            cardholderNameItem
+        if !store.state.isCardDetailsSectionEmpty {
+            SectionView(Localizations.cardDetails, contentSpacing: 8) {
+                ContentBlock {
+                    cardholderNameItem
 
-            cardNumberItem
+                    cardNumberItem
 
-            brandItem
+                    brandItem
 
-            expirationItems
+                    expirationItems
 
-            securityCodeItem
+                    securityCodeItem
+                }
+            }
         }
     }
 
@@ -38,9 +44,9 @@ struct ViewCardItemView: View {
         let isVisible: Bool = store.state.isNumberVisible
         if !number.isEmpty {
             BitwardenField(title: Localizations.number) {
-                PasswordText(password: number, isPasswordVisible: isVisible)
+                PasswordText(password: store.state.formattedCardNumber, isPasswordVisible: isVisible)
                     .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("CardNumberEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
@@ -57,8 +63,8 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: number, field: .cardNumber))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CardCopyNumberButton")
@@ -79,17 +85,7 @@ struct ViewCardItemView: View {
     }
 
     @ViewBuilder private var expirationItems: some View {
-        let expirationString: String = {
-            var strings = [String]()
-            if case let .custom(month) = store.state.expirationMonth {
-                strings.append("\(month.rawValue)")
-            }
-            if !store.state.expirationYear.isEmpty {
-                strings.append(store.state.expirationYear)
-            }
-            return strings
-                .joined(separator: "/")
-        }()
+        let expirationString = store.state.expirationString
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,
@@ -107,7 +103,7 @@ struct ViewCardItemView: View {
             BitwardenField(title: Localizations.securityCode) {
                 PasswordText(password: code, isPasswordVisible: isVisible)
                     .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("CardSecurityCodeEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
@@ -124,8 +120,8 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: code, field: .securityCode))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CardCopySecurityNumberButton")
@@ -161,7 +157,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Empty View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Empty View State")
@@ -190,7 +186,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Visible View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Visible Add Edit State")
@@ -217,7 +213,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Hidden View State")
@@ -244,7 +240,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("No Expiration")
@@ -271,7 +267,7 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 )
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Year But Not Month")

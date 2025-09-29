@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -12,6 +13,7 @@ final class VaultGroupProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -26,6 +28,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// The `Coordinator` for this processor.
     private var coordinator: any Coordinator<VaultRoute, AuthAction>
+
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
     /// The services for this processor.
     private var services: Services
@@ -49,17 +54,20 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` for this processor.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services for this processor.
     ///   - state: The initial state of this processor.
     ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: any Coordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultGroupState,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
@@ -95,6 +103,7 @@ final class VaultGroupProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await checkPersonalOwnershipPolicy()
+            await loadItemTypesUserCanCreate()
             await streamVaultList()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
@@ -123,8 +132,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     override func receive(_ action: VaultGroupAction) {
         switch action {
-        case .addItemPressed:
-            coordinator.navigate(to: .addItem(group: state.group))
+        case let .addItemPressed(type):
+            let type = type ?? CipherType(group: state.group) ?? .login
+            coordinator.navigate(to: .addItem(group: state.group, type: type))
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
@@ -132,12 +142,18 @@ final class VaultGroupProcessor: StateProcessor<
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
             switch item.itemType {
-            case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id), context: self)
+            case let .cipher(cipherListView, _):
+                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                        self.services.pasteboardService.copy(stringToCopy)
+                    })
+                } else {
+                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
+                }
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
-                coordinator.navigate(to: .viewItem(id: model.id))
+                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
         case let .searchStateChanged(isSearching):
             if !isSearching {
@@ -163,6 +179,27 @@ final class VaultGroupProcessor: StateProcessor<
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Checks available item types user can create.
+    ///
+    private func loadItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+    }
+
+    /// Navigates to the view item view for the specified cipher. If the cipher requires master
+    /// password reprompt, this will prompt the user before navigation.
+    ///
+    /// - Parameters:
+    ///     - cipherListView: The cipher list view item for the cipher that will be shown in the view item view.
+    ///     - id: The cipher's identifier.
+    ///
+    private func navigateToViewItem(cipherListView: CipherListView, id: String) {
+        Task {
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+            }
+        }
     }
 
     /// Refreshes the vault group's TOTP Codes.
@@ -203,9 +240,13 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(isManualRefresh: true, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(
+                forceSync: true,
+                filter: state.vaultFilterType,
+                isPeriodic: false
+            )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -223,7 +264,7 @@ final class VaultGroupProcessor: StateProcessor<
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: state.group,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -249,11 +290,10 @@ final class VaultGroupProcessor: StateProcessor<
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
-                group: state.group,
-                filter: state.vaultFilterType
+                filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
             ) {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
-                state.loadingState = .data(vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.sections.flatMap(\.items))
+                state.loadingState = .data(vaultList.sections)
             }
         } catch {
             services.errorReporter.log(error: error)

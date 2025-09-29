@@ -1,15 +1,18 @@
+import BitwardenKitMocks
 import SwiftUI
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 
 // MARK: - VaultCoordinatorTests
 
-class VaultCoordinatorTests: BitwardenTestCase {
+class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
     var errorReporter: MockErrorReporter!
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
@@ -22,14 +25,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         errorReporter = MockErrorReporter()
         delegate = MockVaultCoordinatorDelegate()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             module: module,
-            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -39,6 +47,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         delegate = nil
         errorReporter = nil
+        masterPasswordRepromptHelper = nil
         module = nil
         stackNavigator = nil
         subject = nil
@@ -73,6 +82,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.switchAccountUserId, "1")
     }
 
+    /// `navigate(to:)` with `.addFolder` starts the add/edit folder coordinator and navigates
+    /// to the add/edit folder view.
+    @MainActor
+    func test_navigateTo_addFolder() throws {
+        subject.navigate(to: .addFolder)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+    }
+
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
     @MainActor
     func test_navigateTo_autofillList() throws {
@@ -96,14 +115,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_addItem() throws {
         let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
-        subject.navigate(to: .addItem())
+        subject.navigate(to: .addItem(type: .login))
 
         waitFor(!stackNavigator.actions.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true, type: .login))
     }
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
@@ -165,6 +184,27 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    }
+
+    /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
+    /// onto the stack navigator filtered by a group.
+    @MainActor
+    func test_navigateTo_autofillListForGroup() throws {
+        subject.navigate(to: .autofillListForGroup(.identity))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
+    }
+
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     @MainActor
     func test_navigateTo_group() throws {
@@ -190,6 +230,33 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
+    /// `navigate(to:)` with `.importCXF` presents the import view for Credential Exchange onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importCXF() throws {
+        subject.navigate(
+            to: .importCXF(
+                .importCredentials(
+                    credentialImportToken: UUID(
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    )!
+                )
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importCXFCoordinator.isStarted)
+        XCTAssertEqual(
+            module.importCXFCoordinator.routes.last,
+            .importCredentials(
+                credentialImportToken: UUID(
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                )!
+            )
+        )
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
     @MainActor
     func test_navigateTo_list_withoutPresented() throws {
@@ -199,6 +266,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is VaultListView)
+        XCTAssertEqual(errorReporter.errors.last as? WindowSceneError, WindowSceneError.nullWindowScene)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -271,8 +339,8 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<VaultItemSelectionView>)
+        XCTAssertTrue(action.view is VaultItemSelectionView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
@@ -280,10 +348,48 @@ class VaultCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
 
+        waitFor { !stackNavigator.actions.isEmpty }
+
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
+
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherId, "id")
+    }
+
+    /// `.navigate(to:)` with `.viewItem` presents the view item screen.
+    @MainActor
+    func test_navigateTo_viewItem_masterPasswordRepromptCheckCompleted() throws {
+        subject.navigate(to: .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+
+        waitFor { !stackNavigator.actions.isEmpty }
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
+
+        // If the reprompt check has already been done before navigating, it doesn't need to be done again.
+        XCTAssertNil(masterPasswordRepromptHelper.repromptForMasterPasswordCipherId)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` opens the profile switcher.
+    @MainActor
+    func test_navigate_viewProfileSwitcher() throws {
+        let handler = MockProfileSwitcherHandler()
+        subject.navigate(to: .viewProfileSwitcher, context: handler)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` does not open the profile switcher if there isn't a handler.
+    @MainActor
+    func test_navigate_viewProfileSwitcher_noHandler() throws {
+        subject.navigate(to: .viewProfileSwitcher, context: nil)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -323,6 +429,7 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchAccountIsAutomatic = false
     var switchAccountUserId: String?
     var switchedAccounts = false
+    var switchToSettingsTabRoute: SettingsRoute?
     var userInitiated: Bool?
 
     func lockVault(userId: String?, isManuallyLocking: Bool) {
@@ -354,4 +461,8 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountUserId = userId
         switchedAccounts = true
     }
-}
+
+    func switchToSettingsTab(route: SettingsRoute) {
+        switchToSettingsTabRoute = route
+    }
+} // swiftlint:disable:this file_length

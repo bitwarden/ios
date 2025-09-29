@@ -1,5 +1,7 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -15,7 +17,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientService: MockClientService!
     var environmentService: MockEnvironmentService!
     var organizationService: MockOrganizationService!
-    var clientSends: MockClientSends!
+    var sendClient: MockSendClient!
     var sendService: MockSendService!
     var stateService: MockStateService!
     var syncService: MockSyncService!
@@ -26,11 +28,11 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func setUp() {
         super.setUp()
         client = MockHTTPClient()
-        clientSends = MockClientSends()
+        sendClient = MockSendClient()
         clientService = MockClientService()
         environmentService = MockEnvironmentService()
         organizationService = MockOrganizationService()
-        clientService.mockSends = clientSends
+        clientService.mockSends = sendClient
         sendService = MockSendService()
         stateService = MockStateService()
         syncService = MockSyncService()
@@ -47,7 +49,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func tearDown() {
         super.tearDown()
         client = nil
-        clientSends = nil
+        sendClient = nil
         clientService = nil
         organizationService = nil
         sendService = nil
@@ -68,7 +70,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let result = try await subject.addFileSend(sendView, data: data)
 
         XCTAssertEqual(result, SendView(send: sendResult))
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
         XCTAssertEqual(sendService.addFileSendSend, Send(sendView: sendView))
     }
 
@@ -82,7 +84,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             _ = try await subject.addFileSend(sendView, data: data)
         }
 
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
     }
 
     /// `addTextSend()` successfully encrypts the send view and uses the send service to add it.
@@ -93,7 +95,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let result = try await subject.addTextSend(sendView)
 
         XCTAssertEqual(result, SendView(send: sendResult))
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
         XCTAssertEqual(sendService.addTextSendSend, Send(sendView: sendView))
     }
 
@@ -106,7 +108,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             _ = try await subject.addTextSend(sendView)
         }
 
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
     }
 
     /// `deleteSend()` successfully encrypts the send view and uses the send service to delete it.
@@ -115,7 +117,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let sendView = SendView.fixture()
         try await subject.deleteSend(sendView)
 
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
         XCTAssertEqual(sendService.deleteSendSend, Send(sendView: sendView))
     }
 
@@ -128,17 +130,17 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.deleteSend(sendView)
         }
 
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
     }
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
-    func test_doesActiveAccountHavePremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
-        var hasPremium = try await subject.doesActiveAccountHavePremium()
+    func test_doesActiveAccountHavePremium() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+        var hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
 
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = false
+        hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }
 
@@ -163,37 +165,52 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(isVerified)
     }
 
-    /// `fetchSync(isManualRefresh:)` while manual refresh is allowed does perform a sync.
+    /// `fetchSync(forceSync:)` while manual refresh is allowed does perform a sync.
     func test_fetchSync_manualRefreshAllowed_success() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(isManualRefresh: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
-    /// `fetchSync(isManualRefresh:)` while manual refresh is not allowed does not perform a sync.
+    /// `fetchSync(forceSync:)` while not periodic, manual refresh is allowed does perform a sync
+    /// without periodic behavior.
+    func test_fetchSync_manualRefreshAllowed_successNotPeriodic() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
+        syncService.fetchSyncResult = .success(())
+
+        try await subject.fetchSync(forceSync: true, isPeriodic: false)
+
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
+    }
+
+    /// `fetchSync(forceSync:)` while manual refresh is not allowed does not perform a sync.
     func test_fetchSync_manualRefreshNotAllowed_success() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = [:]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(isManualRefresh: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertFalse(syncService.didFetchSync)
     }
 
-    /// `fetchSync(isManualRefresh:)` and a failure performs a sync and throws the error.
+    /// `fetchSync(forceSync:)` and a failure performs a sync and throws the error.
     func test_fetchSync_failure() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync(isManualRefresh: true)
+            try await subject.fetchSync(forceSync: true, isPeriodic: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
     /// `removePassword(from:)` successfully encrypts the send view and uses the send service to
@@ -205,8 +222,8 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let response = try await subject.removePassword(from: sendView)
 
         XCTAssertEqual(response.id, "SEND_ID")
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
-        XCTAssertEqual(clientSends.decryptedSends, [.fixture(id: "SEND_ID")])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.decryptedSends, [.fixture(id: "SEND_ID")])
         XCTAssertEqual(sendService.removePasswordFromSendSend, Send(sendView: sendView))
     }
 
@@ -219,8 +236,8 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             _ = try await subject.removePassword(from: sendView)
         }
 
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
-        XCTAssertTrue(clientSends.decryptedSends.isEmpty)
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
+        XCTAssertTrue(sendClient.decryptedSends.isEmpty)
     }
 
     /// `searchSendPublisher(searchText:)` returns search matching send name.
@@ -343,6 +360,49 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `sendListPublisher()` returns a publisher for a single send.
+    func test_sendPublisher() async throws {
+        let send1 = Send.fixture(name: "Initial")
+        sendService.sendSubject.send(send1)
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+
+        var sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send1))
+        XCTAssertEqual(clientService.mockSends.decryptedSends, [send1])
+
+        let send2 = Send.fixture(name: "Updated")
+        sendService.sendSubject.send(send2)
+        sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send2))
+        XCTAssertEqual(clientService.mockSends.decryptedSends, [send1, send2])
+    }
+
+    /// `sendListPublisher()` throws an error if underlying publisher returns an error.
+    func test_sendPublisher_error() async throws {
+        sendService.sendSubject.send(completion: .failure(BitwardenTestError.example))
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await iterator.next()
+        }
+    }
+
+    /// `sendListPublisher()` passes along a `nil` send.
+    func test_sendPublisher_nilSend() async throws {
+        sendService.sendSubject.send(nil)
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+
+        var sendView = try await iterator.next()
+        XCTAssertEqual(sendView, Optional(Optional(nil)))
+
+        let send = Send.fixture()
+        sendService.sendSubject.send(send)
+        sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send))
+    }
+
     /// `shareURL()` successfully generates a share url for the send view.
     func test_shareURL() async throws {
         let sendView = SendView.fixture(accessId: "ACCESS_ID", key: "KEY")
@@ -368,7 +428,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let result = try await subject.updateSend(sendView)
 
         XCTAssertEqual(result, SendView(send: sendResult))
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendClient.encryptedSendViews, [sendView])
         XCTAssertEqual(sendService.updateSendSend, Send(sendView: sendView))
     }
 

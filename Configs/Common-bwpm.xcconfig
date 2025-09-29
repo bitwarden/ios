@@ -1,0 +1,28 @@
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = LTZ2PFU5D6
+ORGANIZATION_IDENTIFIER = com.8bit
+SHARED_APP_GROUP_IDENTIFIER = group.com.bitwarden.bitwarden-authenticator
+BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).bitwarden
+APPICON_NAME = AppIcon
+BMPW_BUNDLE_DISPLAY_NAME = Bitwarden
+
+// The above code signing settings can be overriden by adding a Local-bwpm.xcconfig
+// file in the Configs directory.
+//
+// As an example, add the file Local-bwpm.xcconfig with the following contents:
+//
+//    DEVELOPMENT_TEAM = <Your team ID>
+//    ORGANIZATION_IDENTIFIER = <Your reversed domain name>
+//    SHARED_APP_GROUP_IDENTIFIER = <Group identifier for your reversed domain name>
+//    BASE_BUNDLE_ID = <Your bundle ID>
+//    APPICON_NAME = <Your App Icon's Name in the asset catalogue>
+//    PROVISIONING_PROFILE_SPECIFIER = <Optional provisioning profile specifier for the main app>
+//    PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = <Optional provisioning profile specifier for the action extension>
+//    PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = <Optional provisioning profile specifier for the autofill extension>
+//    PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = <Optional provisioning profile specifier for the share extension>
+//    PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = <Optional provisioning profile specifier for the watch app>
+//    PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION = <Optional provisioning profile specifier for the watch widget extension>
+//
+// This should allow Xcode to build the application based on these settings without
+// code signing errors or having to modify the project itself.
+//

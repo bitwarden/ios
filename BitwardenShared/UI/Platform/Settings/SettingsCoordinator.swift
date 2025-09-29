@@ -1,3 +1,6 @@
+import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -49,20 +52,28 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = AuthModule
+    typealias Module = AddEditFolderModule
+        & AuthModule
+        & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
+        & NavigatorBuilderModule
         & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
+        & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasEventService
+        & HasExportCXFCiphersRepository
         & HasExportVaultService
+        & HasFlightRecorder
         & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
@@ -73,6 +84,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasTwoStepLoginService
         & HasVaultRepository
         & HasVaultTimeoutService
+        & HasWatchService
 
     // MARK: Private Properties
 
@@ -101,7 +113,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
-        delegate: SettingsCoordinatorDelegate,
+        delegate: SettingsCoordinatorDelegate?,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
@@ -132,7 +144,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -140,6 +152,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
+        case .enableFlightRecorder:
+            showEnableFlightRecorder()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -153,7 +167,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
-            showExportVault()
+            Task {
+                await showExportVault()
+            }
+        case .exportVaultToApp:
+            showExportVaultToApp()
+        case .exportVaultToFile:
+            showExportVaultToFile()
+        case .flightRecorderLogs:
+            showFlightRecorderLogs()
         case .folders:
             showFolders()
         case .importLogins:
@@ -168,10 +190,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
-        case .settings:
-            showSettings()
-        case let .shareExportedVault(fileURL):
-            showExportedVaultURL(fileURL)
+        case let .settings(presentationMode):
+            showSettings(presentationMode: presentationMode)
+        case let .shareURL(url):
+            showShareSheet([url])
+        case let .shareURLs(urls):
+            showShareSheet(urls)
         case .vault:
             showVault()
         case .vaultUnlockSetup:
@@ -180,7 +204,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     }
 
     func start() {
-        navigate(to: .settings)
+        navigate(to: .settings(.tab))
     }
 
     // MARK: Private Methods
@@ -189,7 +213,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     private func showAbout() {
         let processor = AboutProcessor(
-            aboutAdditionalInfo: DefaultAboutAdditionalInfo(),
             coordinator: asAnyCoordinator(),
             services: services,
             state: AboutState()
@@ -222,16 +245,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// - Parameter folder: The existing folder to edit, if applicable.
     ///
     private func showAddEditFolder(_ folder: FolderView?, delegate: AddEditFolderDelegate?) {
-        let mode: AddEditFolderState.Mode = if let folder { .edit(folder) } else { .add }
-        let processor = AddEditFolderProcessor(
-            coordinator: asAnyCoordinator(),
-            delegate: delegate,
-            services: services,
-            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
-        )
-        let view = AddEditFolderView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: folder), context: delegate)
+
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the appearance screen.
@@ -321,28 +340,76 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: DeleteAccountState()
         )
-        let view = DeleteAccountView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
-    /// Presents an activity controller for an exported vault file URL.
+    /// Shows the enable flight recorder screen.
     ///
-    private func showExportedVaultURL(_ fileURL: URL) {
-        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+    private func showEnableFlightRecorder() {
+        let processor = EnableFlightRecorderProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: EnableFlightRecorderState()
+        )
+        stackNavigator?.present(EnableFlightRecorderView(store: Store(processor: processor)))
+    }
+
+    /// Shows the share sheet to share one or more items.
+    ///
+    /// - Parameter items: The items to share.
+    ///
+    private func showShareSheet(_ items: [Any]) {
+        let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
         stackNavigator?.present(activityVC)
     }
 
     /// Shows the export vault screen.
     ///
-    private func showExportVault() {
+    @MainActor
+    private func showExportVault() async {
+        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
+            navigate(to: .exportVaultToFile)
+            return
+        }
+
+        let processor = ExportSettingsProcessor(coordinator: asAnyCoordinator())
+        let view = ExportSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: Localizations.exportVault)
+    }
+
+    /// Shows the export vault to file screen.
+    ///
+    private func showExportVaultToFile() {
         let processor = ExportVaultProcessor(
             coordinator: asAnyCoordinator(),
             services: services
         )
-        let view = ExportVaultView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(ExportVaultView(store: Store(processor: processor)))
+    }
+
+    /// Shows the export vault to another app screen (Credential Exchange flow).
+    ///
+    private func showExportVaultToApp() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeExportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the flight recorder logs screen.
+    ///
+    private func showFlightRecorderLogs() {
+        let processor = FlightRecorderLogsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: FlightRecorderLogsState()
+        )
+        let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        stackNavigator?.present(view)
     }
 
     /// Shows the folders screen.
@@ -362,7 +429,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         navigationController.modalPresentationStyle = .overFullScreen
         let coordinator = module.makeImportLoginsCoordinator(
             delegate: self,
@@ -381,7 +448,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///   - delegate: The delegate.
     ///
     private func showLoginRequest(_ loginRequest: LoginRequest, delegate: LoginRequestDelegate?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeLoginRequestCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .loginRequest(loginRequest), context: delegate)
@@ -422,9 +489,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: PendingRequestsState()
         )
-        let view = PendingRequestsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
     /// Shows the select language screen.
@@ -436,22 +501,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: SelectLanguageState(currentLanguage: currentLanguage)
         )
-        let view = SelectLanguageView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
     }
 
     /// Shows the settings screen.
     ///
-    private func showSettings() {
+    private func showSettings(presentationMode: SettingsPresentationMode) {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: SettingsState()
+            state: SettingsState(presentationMode: presentationMode)
         )
         let view = SettingsView(store: Store(processor: processor))
-        stackNavigator?.push(view)
+        stackNavigator?.replace(view, animated: false)
     }
 
     /// Shows the vault screen.
@@ -467,6 +530,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - ImportLoginsCoordinatorDelegate

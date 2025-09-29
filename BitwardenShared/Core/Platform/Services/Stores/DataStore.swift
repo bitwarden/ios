@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import CoreData
 
@@ -19,6 +20,17 @@ enum StoreType {
 /// A data store that manages persisting data across app launches in Core Data.
 ///
 class DataStore {
+    // MARK: Type Properties
+
+    /// The managed object model representing the entities in the database schema. CoreData throws
+    /// warnings if this is instantiated multiple times (e.g. in tests), which is fixed by making
+    /// it static.
+    private static let managedObjectModel: NSManagedObjectModel = {
+        let modelURL = Bundle(for: DataStore.self).url(forResource: "Bitwarden", withExtension: "momd")!
+        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
+        return managedObjectModel
+    }()
+
     // MARK: Properties
 
     /// A managed object context which executes on a background queue.
@@ -45,9 +57,7 @@ class DataStore {
     init(errorReporter: ErrorReporter, storeType: StoreType = .persisted) {
         self.errorReporter = errorReporter
 
-        let modelURL = Bundle(for: type(of: self)).url(forResource: "Bitwarden", withExtension: "momd")!
-        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
-        persistentContainer = NSPersistentContainer(name: "Bitwarden", managedObjectModel: managedObjectModel)
+        persistentContainer = NSPersistentContainer(name: "Bitwarden", managedObjectModel: Self.managedObjectModel)
         let storeDescription: NSPersistentStoreDescription
         switch storeType {
         case .memory:
@@ -75,14 +85,22 @@ class DataStore {
     /// - Parameter userId: The ID of the user associated with the data to delete.
     ///
     func deleteDataForUser(userId: String) async throws {
-        try await deleteAllCiphers(userId: userId)
-        try await deleteAllCollections(userId: userId)
-        try await deleteAllFolders(userId: userId)
-        try await deleteAllOrganizations(userId: userId)
-        try await deleteAllPasswordHistory(userId: userId)
-        try await deleteAllPolicies(userId: userId)
-        try await deleteAllSends(userId: userId)
-        try await deleteEquivalentDomains(userId: userId)
+        try await backgroundContext.perform {
+            // Batch delete all data and perform a single merge of those changes back into the
+            // view context.
+            try self.backgroundContext.executeAndMergeChanges(
+                batchDeleteRequests: [
+                    CipherData.deleteByUserIdRequest(userId: userId),
+                    CollectionData.deleteByUserIdRequest(userId: userId),
+                    FolderData.deleteByUserIdRequest(userId: userId),
+                    OrganizationData.deleteByUserIdRequest(userId: userId),
+                    PasswordHistoryData.deleteByUserIdRequest(userId: userId),
+                    PolicyData.deleteByUserIdRequest(userId: userId),
+                    SendData.deleteByUserIdRequest(userId: userId),
+                    DomainData.deleteByUserIdRequest(userId: userId),
+                ]
+            )
+        }
     }
 
     /// Executes a batch delete request and merges the changes into the background and view contexts.
@@ -90,9 +108,17 @@ class DataStore {
     /// - Parameter request: The batch delete request to perform.
     ///
     func executeBatchDelete(_ request: NSBatchDeleteRequest) async throws {
+        try await executeBatchDelete([request])
+    }
+
+    /// Executes multiple batch delete requests and merges the changes into the background and view contexts.
+    ///
+    /// - Parameter requests: The batch delete requests to perform.
+    ///
+    func executeBatchDelete(_ requests: [NSBatchDeleteRequest]) async throws {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
-                batchDeleteRequest: request,
+                batchDeleteRequests: requests,
                 additionalContexts: [self.persistentContainer.viewContext]
             )
         }

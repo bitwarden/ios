@@ -17,6 +17,7 @@ class AddItemStateTests: XCTestCase {
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
             """
             ▿ CipherView
+              - archivedDate: Optional<Date>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements
@@ -44,6 +45,7 @@ class AddItemStateTests: XCTestCase {
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
+              - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.none
               - revisionDate: 2023-10-20T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none
@@ -69,6 +71,7 @@ class AddItemStateTests: XCTestCase {
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
             """
             ▿ CipherView
+              - archivedDate: Optional<Date>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements
@@ -105,6 +108,7 @@ class AddItemStateTests: XCTestCase {
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
+              - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.password
               - revisionDate: 2023-09-01T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none
@@ -122,7 +126,7 @@ class AddItemStateTests: XCTestCase {
         let collectionOrg2 = CollectionView.fixture(id: "2", name: "Collection 2", organizationId: "2")
 
         var subject = CipherItemState(hasPremium: true)
-        subject.collections = [collectionOrg1, collectionOrg2]
+        subject.allUserCollections = [collectionOrg1, collectionOrg2]
         subject.ownershipOptions = [
             .personal(email: "user@bitwarden.com"),
             .organization(id: "1", name: "Organization 1"),
@@ -138,7 +142,7 @@ class AddItemStateTests: XCTestCase {
     /// `toggleCollection(newValue:collectionId:)` toggles whether the cipher is included in the collection.
     func test_toggleCollection() {
         var subject = CipherItemState(hasPremium: true)
-        subject.collections = [
+        subject.allUserCollections = [
             .fixture(id: "1", name: "Collection 1"),
             .fixture(id: "2", name: "Collection 2"),
         ]

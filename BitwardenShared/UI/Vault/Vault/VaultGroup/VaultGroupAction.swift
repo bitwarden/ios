@@ -4,7 +4,10 @@
 enum VaultGroupAction: Equatable, Sendable {
     /// The add item button was pressed.
     ///
-    case addItemPressed
+    /// - Parameter type: The type of item to add. If `nil` this will default to a type based on the
+    ///     vault group being shown or `login` as a fallback.
+    ///
+    case addItemPressed(_ type: CipherType?)
 
     /// The url has been opened so clear the value in the state.
     case clearURL

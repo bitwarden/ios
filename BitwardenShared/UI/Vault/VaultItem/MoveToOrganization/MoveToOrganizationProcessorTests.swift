@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -106,12 +108,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
 
         await subject.perform(.moveCipher)
 
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsShown as? [ShareCipherError], [ShareCipherError()])
         XCTAssertEqual(errorReporter.errors.last as? ShareCipherError, ShareCipherError())
     }
 

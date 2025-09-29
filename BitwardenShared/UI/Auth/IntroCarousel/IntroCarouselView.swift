@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - IntroCarouselView
@@ -40,15 +42,15 @@ struct IntroCarouselView: View {
                 Button(Localizations.logIn) {
                     store.send(.logIn)
                 }
-                .buttonStyle(.transparent)
+                .buttonStyle(.secondary())
             }
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
     }
 
@@ -87,7 +89,7 @@ struct IntroCarouselView: View {
         }
         .scrollView(
             addVerticalPadding: false,
-            backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor
+            backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor
         )
     }
 

@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - Alert
 
 extension Alert {
@@ -71,6 +74,39 @@ extension Alert {
         )
     }
 
+    /// A destructive confirmation alert that allows the user to confirm or cancel the action that was
+    /// triggered.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - message: The message of the alert.
+    ///   - confirmationHandler: The block that is executed when the the action is confirmed.
+    ///
+    static func confirmationDestructive(
+        title: String,
+        message: String? = nil,
+        destructiveTitle: String? = nil,
+        confirmationHandler: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: title,
+            message: message,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.cancel,
+                    style: .cancel
+                ),
+                AlertAction(
+                    title: destructiveTitle ?? Localizations.delete,
+                    style: .destructive,
+                    handler: { _, _ in
+                        await confirmationHandler()
+                    }
+                ),
+            ]
+        )
+    }
+
     /// An alert to allow the user to add or edit the name of a custom field.
     ///
     /// - Parameters:
@@ -91,6 +127,10 @@ extension Alert {
                     handler: { _, alertTextFields in
                         guard let name = alertTextFields.first(where: { $0.id == "name" })?.text else { return }
                         await completion(name)
+                    },
+                    shouldEnableAction: { textFields in
+                        guard let text = textFields.first(where: { $0.id == "name" })?.text else { return false }
+                        return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     }
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -161,7 +201,8 @@ extension Alert {
         completion: @MainActor @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: isSoftDelete ? Localizations.doYouReallyWantToSoftDeleteCipher
+            title: isSoftDelete
+                ? Localizations.doYouReallyWantToSoftDeleteCipher
                 : Localizations.doYouReallyWantToPermanentlyDeleteCipher,
             message: nil,
             alertActions: [

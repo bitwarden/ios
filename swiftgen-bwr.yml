@@ -1,0 +1,28 @@
+output_dir: BitwardenResources/Generated/
+fonts:
+  inputs: BitwardenResources/Fonts
+  outputs:
+    templateName: swift5
+    output: Fonts.swift
+    params:
+      publicAccess: true
+strings:
+  inputs:
+    - BitwardenResources/Localizations/en.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Localizations.swift
+      params:
+        enumName: Localizations
+        publicAccess: true
+        lookupFunction: Resources.localizationFunction(key:table:fallbackValue:)
+xcassets:
+  inputs:
+    - BitwardenResources/Colors.xcassets
+  outputs:
+    - templateName: swift5
+      output: SharedAssets.swift
+      params:
+        enumName: SharedAsset
+        forceFileNameEnum: true
+        publicAccess: true

@@ -1,9 +1,77 @@
+import BitwardenResources
 import BitwardenSdk
 import UIKit
 
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert notifying the user that one or more items in their vault were unable to be
+    /// decrypted.
+    ///
+    /// - Parameters:
+    ///   - cipherIds: The identifiers of any ciphers that were unable to be decrypted.
+    ///   - isFromCipherTap: Whether the alert is being shown in response to a user tapping on a
+    ///     cipher which failed to decrypt or a general alert that is displayed when the vault loads.
+    ///   - copyAction: A closure that is called in response to tapping the copy button.
+    /// - Returns: An alert notifying the user that one or more items in their vault were unable to
+    ///     be decrypted.
+    ///
+    static func cipherDecryptionFailure(
+        cipherIds: [String],
+        isFromCipherTap: Bool = true,
+        copyAction: @escaping (String) -> Void
+    ) -> Alert {
+        let message = if isFromCipherTap {
+            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
+        } else {
+            cipherIds.count == 1
+                ? Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong
+                : Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(cipherIds.count)
+        }
+
+        return Alert(
+            title: Localizations.decryptionError,
+            message: message,
+            alertActions: [
+                AlertAction(title: Localizations.copyErrorReport, style: .default, handler: { _ in
+                    let stringToCopy = Localizations.decryptionError
+                        + "\n" + message
+                        + "\n\n" + cipherIds.joined(separator: "\n")
+                    copyAction(stringToCopy)
+                }),
+                AlertAction(title: Localizations.close, style: .cancel),
+            ]
+        )
+    }
+
+    /// Returns an alert confirming cancelling the Credential Exchange export process.
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming cancelling the Credential Exchange export process.
+    static func confirmCancelCXFExport(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.cancel,
+            message: Localizations.areYouSureYouWantToCancelTheExportProcessQuestionMark,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
+    /// Returns an alert confirming cancelling the Credential Exchange import process.
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming cancelling the Credential Exchange import process.
+    static func confirmCancelCXFImport(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.cancel,
+            message: Localizations.areYouSureYouWantToCancelTheImportProcessQuestionMark,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// Returns an alert confirming whether to clone an item without the FIDO2 credential.
     ///
     /// - Parameter action: The action to perform if the user confirms.
@@ -154,33 +222,30 @@ extension Alert {
     ///   - canCopyTotp: Whether the user can copy the TOTP code (because they have premium or the
     ///     organization uses TOTP).
     ///   - cipherView: The cipher view to show.
-    ///   - hasMasterPassword: Whether the user has a master password.
     ///   - id: The id of the item.
     ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
     ///   - action: The action to perform after selecting an option.
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
+    static func moreOptions( // swiftlint:disable:this function_body_length
         canCopyTotp: Bool,
         cipherView: CipherView,
-        hasMasterPassword: Bool,
         id: String,
         showEdit: Bool,
         action: @escaping (_ action: MoreOptionsAction) async -> Void
     ) -> Alert {
         // All the cipher types have the option to view the cipher.
         var alertActions = [
-            AlertAction(title: Localizations.view, style: .default) { _, _ in await action(.view(id: id)) },
+            AlertAction(title: Localizations.view, style: .default) { _, _ in
+                await action(.view(id: id))
+            },
         ]
 
         // Add the option to edit the cipher if desired.
         if showEdit {
             alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-                await action(.edit(
-                    cipherView: cipherView,
-                    requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
-                ))
+                await action(.edit(cipherView: cipherView))
             })
         }
 
@@ -192,7 +257,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.number,
                         value: number,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: nil
                     ))
@@ -203,7 +268,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedCardCode,
                         cipherId: cipherView.id
                     ))
@@ -227,7 +292,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.password,
                         value: password,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedPassword,
                         cipherId: cipherView.id
                     ))
@@ -235,10 +300,7 @@ extension Alert {
             }
             if canCopyTotp, let totp = cipherView.login?.totp {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
-                    await action(.copyTotp(
-                        totpKey: TOTPKeyModel(authenticatorKey: totp),
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
-                    ))
+                    await action(.copyTotp(totpKey: TOTPKeyModel(authenticatorKey: totp)))
                 })
             }
             if let uri = cipherView.login?.uris?.first?.uri,
@@ -257,7 +319,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.notes,
                         value: notes,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: nil
                     ))
@@ -269,7 +331,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.publicKey,
                         value: sshKey.publicKey,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: cipherView.id
                     ))
@@ -279,7 +341,7 @@ extension Alert {
                         await action(.copy(
                             toast: Localizations.privateKey,
                             value: sshKey.privateKey,
-                            requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                            requiresMasterPasswordReprompt: true,
                             logEvent: nil,
                             cipherId: cipherView.id
                         ))
@@ -289,7 +351,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.fingerprint,
                         value: sshKey.fingerprint,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: cipherView.id
                     ))

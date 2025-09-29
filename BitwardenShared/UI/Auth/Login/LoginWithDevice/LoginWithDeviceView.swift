@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginWithDeviceView
@@ -14,16 +16,22 @@ struct LoginWithDeviceView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            titleText
+            VStack(alignment: .center, spacing: 12) {
+                titleText
 
-            explanationText
+                explanationText
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .multilineTextAlignment(.center)
 
             fingerprintView
 
             resendNotificationButton
 
             allLoginOptionsView
+                .frame(maxWidth: .infinity, alignment: .center)
         }
+        .padding(.top, 12)
         .scrollView()
         .navigationBar(title: store.state.navBarText, titleDisplayMode: .inline)
         .toolbar {
@@ -43,13 +51,13 @@ struct LoginWithDeviceView: View {
         HStack(spacing: 8) {
             Text(Localizations.needAnotherOption)
                 .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Button(Localizations.viewAllLoginOptions) {
                 store.send(.dismiss)
             }
-            .styleGuide(.subheadline)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .styleGuide(.subheadlineSemibold)
+            .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
             .accessibilityIdentifier("ViewAllLoginOptionsButton")
         }
     }
@@ -58,23 +66,26 @@ struct LoginWithDeviceView: View {
     private var explanationText: some View {
         Text(store.state.explanationText)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .multilineTextAlignment(.leading)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
     }
 
     /// The fingerprint phrase title and display.
     private var fingerprintView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.fingerprintPhrase)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier("FingerprintValueLabel")
+        ContentBlock {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Localizations.fingerprintPhrase)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("FingerprintValueLabel")
 
-            Text(store.state.fingerprintPhrase ?? "")
-                .styleGuide(.bodyMonospaced)
-                .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
-                .multilineTextAlignment(.leading)
-                .accessibilityIdentifier("FingerprintPhraseValue")
+                Text(store.state.fingerprintPhrase ?? "")
+                    .styleGuide(.bodyMonospaced)
+                    .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .accessibilityIdentifier("FingerprintPhraseValue")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
     }
 
@@ -84,8 +95,7 @@ struct LoginWithDeviceView: View {
             AsyncButton(Localizations.resendNotification) {
                 await store.perform(.resendNotification)
             }
-            .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("ResendNotificationButton")
         }
     }
@@ -93,9 +103,8 @@ struct LoginWithDeviceView: View {
     /// The title text.
     private var titleText: some View {
         Text(store.state.titleText)
-            .styleGuide(.title, weight: .bold)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .styleGuide(.title2, weight: .semibold)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
     }
 }
 

@@ -10,7 +10,7 @@ class AccountTests: BitwardenTestCase {
         let subject = Account.fixture(
             profile: .fixture(kdfIterations: nil, kdfMemory: nil, kdfParallelism: nil, kdfType: nil)
         )
-        XCTAssertEqual(subject.kdf, KdfConfig(kdf: .pbkdf2sha256, kdfIterations: 600_000))
+        XCTAssertEqual(subject.kdf, KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000))
     }
 
     /// `kdfConfig` returns the KDF config for the account using the accounts KDF values.
@@ -20,7 +20,7 @@ class AccountTests: BitwardenTestCase {
         )
         XCTAssertEqual(
             subject.kdf,
-            KdfConfig(kdf: .argon2id, kdfIterations: 1_000_000, kdfMemory: 64, kdfParallelism: 4)
+            KdfConfig(kdfType: .argon2id, iterations: 1_000_000, memory: 64, parallelism: 4)
         )
     }
 
@@ -30,7 +30,7 @@ class AccountTests: BitwardenTestCase {
         let accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM"
         let subject = try Account(
             identityTokenResponseModel: .fixture(accessToken: accessToken),
-            environmentUrls: nil
+            environmentURLs: nil
         )
 
         XCTAssertEqual(

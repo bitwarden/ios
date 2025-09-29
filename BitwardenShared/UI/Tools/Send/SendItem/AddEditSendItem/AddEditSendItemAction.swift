@@ -8,26 +8,11 @@ enum AddEditSendItemAction: Equatable {
     /// The choose file button was pressed.
     case chooseFilePressed
 
-    /// The clear expiration date button was pressed.
-    case clearExpirationDatePressed
-
-    /// The custom deletion date was changed.
-    case customDeletionDateChanged(Date)
-
-    /// The custom expiration date was changed.
-    case customExpirationDateChanged(Date?)
-
-    /// The deactivate this send toggle was changed.
-    case deactivateThisSendChanged(Bool)
-
     /// The deletion date was changed.
     case deletionDateChanged(SendDeletionDateType)
 
     /// The dismiss button was pressed.
     case dismissPressed
-
-    /// The expiration date was changed.
-    case expirationDateChanged(SendExpirationDateType)
 
     /// The hide my email toggle was changed.
     case hideMyEmailChanged(Bool)
@@ -40,9 +25,6 @@ enum AddEditSendItemAction: Equatable {
 
     /// maximum access count was changed via the stepper.
     case maximumAccessCountStepperChanged(Int)
-
-    /// maximum access count was changed via the TextField.
-    case maximumAccessCountTextFieldChanged(String)
 
     /// The name text field was changed.
     case nameChanged(String)
@@ -64,7 +46,4 @@ enum AddEditSendItemAction: Equatable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
-
-    /// The type picker was changed.
-    case typeChanged(SendType)
 }

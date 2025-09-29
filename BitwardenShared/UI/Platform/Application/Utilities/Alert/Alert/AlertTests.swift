@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -15,18 +16,9 @@ class AlertTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
-            .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default))
-            .add(AlertTextField(
-                id: "field",
-                autocapitalizationType: .allCharacters,
-                autocorrectionType: .no,
-                isSecureTextEntry: true,
-                keyboardType: .numberPad,
-                placeholder: "placeholder",
-                text: "value"
-            ))
+        subject = Alert.fixture(alertActions: [AlertAction.cancel()],
+                                alertTextFields: [AlertTextField.fixture(autocorrectionType: .no)])
+            .addPreferred(AlertAction.ok())
     }
 
     override func tearDown() {
@@ -87,50 +79,19 @@ class AlertTests: BitwardenTestCase {
 
     /// Alert conforms to `Equatable`.
     func test_equatable() {
-        XCTAssertEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
-            .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default))
-            .add(AlertTextField(
-                id: "field",
-                autocapitalizationType: .allCharacters,
-                autocorrectionType: .yes,
-                isSecureTextEntry: true,
-                keyboardType: .numberPad,
-                placeholder: "placeholder",
-                text: "value"
-            )))
-        XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
-            .add(AlertAction(title: "Cancel", style: .destructive))
-            .addPreferred(AlertAction(title: "OK", style: .default))
-            .add(AlertTextField(
-                id: "field",
-                autocapitalizationType: .allCharacters,
-                autocorrectionType: .yes,
-                isSecureTextEntry: true,
-                keyboardType: .numberPad,
-                placeholder: "placeholder",
-                text: "value"
-            )))
+        XCTAssertEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel()])
+            .addPreferred(AlertAction.ok()))
+        XCTAssertNotEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel(style: .destructive)])
+            .addPreferred(AlertAction.ok()))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
-        XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
-            .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default) { _ in })
-            .add(AlertTextField(
-                id: "field",
-                autocapitalizationType: .allCharacters,
-                autocorrectionType: .yes,
-                isSecureTextEntry: true,
-                keyboardType: .numberPad,
-                placeholder: "placeholder",
-                text: "value"
-            )))
-        XCTAssertEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
-            .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default)))
+        XCTAssertNotEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel()])
+            .addPreferred(AlertAction.ok { _, _ in }))
+        XCTAssertEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel()])
+            .addPreferred(AlertAction.ok()))
     }
 
     @MainActor
-    func test_vault_moreOptions_login_canViewPassowrd() async throws { // swiftlint:disable:this function_body_length
+    func test_vault_moreOptions_login_canViewPassword() async throws { // swiftlint:disable:this function_body_length
         var capturedAction: MoreOptionsAction?
         let action: (MoreOptionsAction) -> Void = { action in
             capturedAction = action
@@ -149,7 +110,6 @@ class AlertTests: BitwardenTestCase {
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
-            hasMasterPassword: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -171,7 +131,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+            .edit(cipherView: cipher)
         )
         capturedAction = nil
 
@@ -200,7 +160,7 @@ class AlertTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.password,
                 value: "password",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: .cipherClientCopiedPassword,
                 cipherId: "123"
             )
@@ -234,7 +194,6 @@ class AlertTests: BitwardenTestCase {
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
-            hasMasterPassword: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -256,7 +215,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+            .edit(cipherView: cipher)
         )
         capturedAction = nil
 

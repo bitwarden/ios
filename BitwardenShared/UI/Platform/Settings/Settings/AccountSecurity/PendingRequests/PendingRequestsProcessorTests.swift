@@ -1,3 +1,6 @@
+import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -72,7 +75,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(authService.getPendingLoginRequestCalled)
         XCTAssertEqual(subject.state.loadingState, .data([]))
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -110,7 +113,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
         // Verify the results.
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

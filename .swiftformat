@@ -6,6 +6,7 @@
 --funcattributes prev-line
 --typeattributes prev-line
 --varattributes preserve
+--wrapternary before-operators
 
 # file options
 --exclude **/Generated,build,vendor/bundle

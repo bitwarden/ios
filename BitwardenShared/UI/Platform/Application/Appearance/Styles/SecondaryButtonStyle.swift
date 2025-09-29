@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SecondaryButtonStyle
@@ -5,18 +6,67 @@ import SwiftUI
 /// The style for all secondary buttons in this application.
 ///
 struct SecondaryButtonStyle: ButtonStyle {
+    // MARK: Properties
+
+    @Environment(\.isEnabled) var isEnabled: Bool
+
+    /// Whether the button is destructive.
+    var isDestructive = false
+
+    /// Whether the button's colors are reversed.
+    var isReversed = false
+
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
+    /// The size of the button.
+    var size: ButtonStyleSize
+
+    // MARK: Computed Properties
+
+    /// The border stroke color.
+    var borderColor: Color {
+        if isDestructive {
+            SharedAsset.Colors.error.swiftUIColor
+        } else if isReversed {
+            SharedAsset.Colors.buttonOutlinedBorderReversed.swiftUIColor
+        } else {
+            isEnabled
+                ? SharedAsset.Colors.buttonOutlinedBorder.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
+        }
+    }
+
+    /// The color of the foreground elements in this button, including text and template
+    /// images.
+    var foregroundColor: Color {
+        if isDestructive {
+            SharedAsset.Colors.error.swiftUIColor
+        } else if isReversed {
+            SharedAsset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
+        } else {
+            isEnabled
+                ? SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor
+                : SharedAsset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+        }
+    }
+
+    // MARK: ButtonStyle
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
-            .styleGuide(.bodyBold)
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: shouldFillWidth ? .infinity : nil)
-            .background(Asset.Colors.buttonFilledBackground.swiftUIColor.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .foregroundColor(foregroundColor)
+            .multilineTextAlignment(.center)
+            .styleGuide(size.fontStyle, includeLinePadding: false, includeLineSpacing: false)
+            .padding(.vertical, size.verticalPadding)
+            .padding(.horizontal, size.horizontalPadding)
+            .frame(maxWidth: shouldFillWidth ? .infinity : nil, minHeight: size.minimumHeight)
+            .background {
+                Capsule()
+                    .strokeBorder(borderColor, lineWidth: 1.5)
+            }
+            .contentShape(Capsule())
+            .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
@@ -26,22 +76,62 @@ struct SecondaryButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == SecondaryButtonStyle {
     /// The style for all secondary buttons in this application.
     ///
-    /// - Parameter shouldFillWidth: A flag indicating if this button should fill all available space.
+    /// - Parameters:
+    ///   - isDestructive: Whether the button is destructive.
+    ///   - isReversed: Whether the button's colors are reversed.
+    ///   - shouldFillWidth: A flag indicating if this button should fill all available space.
+    ///   - size: The size of the button. Defaults to `large`.
     ///
-    static func secondary(shouldFillWidth: Bool = true) -> SecondaryButtonStyle {
-        SecondaryButtonStyle(shouldFillWidth: shouldFillWidth)
+    static func secondary(
+        isDestructive: Bool = false,
+        isReversed: Bool = false,
+        shouldFillWidth: Bool = true,
+        size: ButtonStyleSize = .large
+    ) -> SecondaryButtonStyle {
+        SecondaryButtonStyle(
+            isDestructive: isDestructive,
+            isReversed: isReversed,
+            shouldFillWidth: shouldFillWidth,
+            size: size
+        )
     }
 }
 
 #if DEBUG
-#Preview {
+#Preview("States") {
     VStack {
-        Button("Hello World!") {}
+        Group {
+            Button("Hello World!") {}
+
+            Button("Hello World!") {}
+                .disabled(true)
+        }
+        .buttonStyle(.secondary())
 
         Button("Hello World!") {}
-            .disabled(true)
+            .buttonStyle(.secondary(isDestructive: true))
     }
-    .buttonStyle(.secondary())
+    .padding()
+
+    VStack {
+        Button("Hello World!") {}
+            .buttonStyle(.secondary(isReversed: true))
+    }
+    .padding()
+    .background(SharedAsset.Colors.backgroundAlert.swiftUIColor)
+}
+
+#Preview("Sizes") {
+    VStack {
+        Button("Small") {}
+            .buttonStyle(.secondary(size: .small))
+
+        Button("Medium") {}
+            .buttonStyle(.secondary(size: .medium))
+
+        Button("Large") {}
+            .buttonStyle(.secondary(size: .large))
+    }
     .padding()
 }
 #endif

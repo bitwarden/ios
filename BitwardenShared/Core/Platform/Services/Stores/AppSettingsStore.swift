@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 import OSLog
@@ -29,6 +30,9 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The data used by the flight recorder for the active and any inactive logs.
+    var flightRecorderData: FlightRecorderData? { get set }
+
     /// Whether the intro carousel screen has been shown.
     var introCarouselShown: Bool { get set }
 
@@ -36,14 +40,23 @@ protocol AppSettingsStore: AnyObject {
     /// sending the status to the watch if the user is logged out.
     var lastUserShouldConnectToWatch: Bool { get set }
 
+    /// The status of the learn generator action card.
+    var learnGeneratorActionCardStatus: AccountSetupProgress { get set }
+
+    /// The status of the learn new login action card.
+    var learnNewLoginActionCardStatus: AccountSetupProgress { get set }
+
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
 
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The pending actions to be executed after triggering an `AppIntent`.
+    var pendingAppIntentActions: [PendingAppIntentAction]? { get set }
+
     /// The environment URLs used prior to user authentication.
-    var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
+    var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
 
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
@@ -54,8 +67,18 @@ protocol AppSettingsStore: AnyObject {
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
+    /// The review prompt data.
+    var reviewPromptData: ReviewPromptData? { get set }
+
     /// The app's account state.
     var state: State? { get set }
+
+    /// The user's v2 account keys.
+    ///
+    /// - Parameter userId: The user ID associated with the stored account keys.
+    /// - Returns: The user's account keys.
+    ///
+    func accountKeys(userId: String) -> PrivateKeysResponseModel?
 
     /// The user's progress for setting up autofill.
     ///
@@ -86,6 +109,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Indicates whether the vault content should be copied to the Universal Clipboard.
+    ///
+    /// - Parameter userId: The user ID associated with the Universal Clipboard setting.
+    /// - Returns: A Boolean value indicating whether the vault content should be copied to the Universal Clipboard.
+    ///
+    func allowUniversalClipboard(userId: String) -> Bool
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -106,18 +136,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to connect to the watch app.
     ///
     func connectToWatch(userId: String) -> Bool
-
-    /// Retrieves a feature flag value from the app's settings store.
-    ///
-    /// This method fetches the value for a specified feature flag from the app's settings store.
-    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
-    /// the method returns `nil`.
-    ///
-    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
-    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
-    ///     or cannot be decoded.
-    ///
-    func debugFeatureFlag(name: String) -> Bool?
 
     /// Gets the default URI match type.
     ///
@@ -158,6 +176,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the encrypted user key.
     ///
     func encryptedUserKey(userId: String) -> String?
+
+    /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameter userId: The user ID associated with the sync after login.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
@@ -202,19 +228,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
 
-    /// Sets a feature flag value in the app's settings store.
-    ///
-    /// This method updates or removes the value for a specified feature flag in the app's settings store.
-    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
-    /// is set to the provided boolean value.
-    ///
-    /// - Parameters:
-    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
-    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
-    ///    from the settings store.
-    ///
-    func overrideDebugFeatureFlag(name: String, value: Bool?)
-
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -224,10 +237,19 @@ protocol AppSettingsStore: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The pin protected user key.
     ///
     func pinProtectedUserKey(userId: String) -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -235,13 +257,21 @@ protocol AppSettingsStore: AnyObject {
     ///  - email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData?
 
     /// The server configuration.
     ///
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the account v2 keys for a user ID.
+    ///
+    /// - Parameters:
+    ///   - keys: The user's account keys.
+    ///   - userId: The user ID associated with the encrypted private key.
+    ///
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String)
 
     /// Sets the user's progress for autofill setup.
     ///
@@ -280,6 +310,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the vault content should be copied to the Universal Clipboard when copying.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A value indicating whether the content should be copied to the Universal Clipboard.
+    ///   - userId: The user ID associated with the Universal Clipboard setting.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String)
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -357,6 +395,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEvents(_ events: [EventData], userId: String)
 
+    /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    ///   - userId: The user ID associated with the sync after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
+
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
@@ -405,19 +451,29 @@ protocol AppSettingsStore: AnyObject {
 
     /// Sets the pin protected user key.
     ///
+    /// - Note: This is being replaced by ``setPinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameters:
     ///  - key: A pin protected user key derived from the user's pin.
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
 
+    /// Sets the pin protected user key envelope.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key envelope derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
+
     /// Sets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
     ///  - email: The user's email address.
-    ///  - environmentUrlData: The environment data to be saved.
+    ///  - environmentURLData: The environment data to be saved.
     ///
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String)
 
     /// Sets the server config.
     ///
@@ -432,6 +488,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter shouldTrustDevice: Whether to trust the device.
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
+
+    /// Sets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether the Siri & Shortcuts access is enabled.
+    ///   - userId: The user ID.
+    ///
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String)
 
     /// Sets the sync to Authenticator setting for the user.
     ///
@@ -460,7 +524,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameters:
-    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  attempts: The number of unsuccessful unlock attempts.
     ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
@@ -494,6 +558,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    ///
+    func siriAndShortcutsAccess(userId: String) -> Bool
 
     /// Gets the sync to Authenticator setting for the user.
     ///
@@ -665,15 +736,17 @@ class DefaultAppSettingsStore {
     }
 }
 
-extension DefaultAppSettingsStore: AppSettingsStore {
+extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
+        case allowUniversalClipboard(userId: String)
         case appId
         case appLocale
         case appRehydrationState(userId: String)
@@ -689,24 +762,32 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case flightRecorderData
+        case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
+        case learnNewLoginActionCardStatus
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
+        case learnGeneratorActionCardStatus
         case loginRequest
         case manuallyLockedAccount(userId: String)
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
-        case pinProtectedUserKey(userId: String)
-        case preAuthEnvironmentUrls
-        case accountCreationEnvironmentUrls(email: String)
+        case pendingAppIntentActions
+        case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
+        case pinProtectedUserKeyEnvelope(userId: String)
+        case preAuthEnvironmentURLs
+        case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
+        case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
+        case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -720,6 +801,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .accountKeys(userId):
+                key = "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
             case let .accountSetupImportLogins(userId):
@@ -730,6 +813,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
+            case let .allowUniversalClipboard(userId):
+                key = "allowUniversalClipboard_\(userId)"
             case .appId:
                 key = "appId"
             case .appLocale:
@@ -760,12 +845,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case .flightRecorderData:
+                key = "flightRecorderData"
+            case let .hasPerformedSyncAfterLogin(userId):
+                key = "hasPerformedSyncAfterLogin_\(userId)"
             case .introCarouselShown:
                 key = "introCarouselShown"
+            case .learnNewLoginActionCardStatus:
+                key = "learnNewLoginActionCardStatus"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .learnGeneratorActionCardStatus:
+                key = "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
                 key = "lastUserShouldConnectToWatch"
             case .loginRequest:
@@ -780,11 +873,15 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case .pendingAppIntentActions:
+                key = "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
-            case .preAuthEnvironmentUrls:
+            case let .pinProtectedUserKeyEnvelope(userId):
+                key = "pinProtectedUserKeyEnvelope_\(userId)"
+            case .preAuthEnvironmentURLs:
                 key = "preAuthEnvironmentUrls"
-            case let .accountCreationEnvironmentUrls(email):
+            case let .accountCreationEnvironmentURLs(email):
                 key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
@@ -792,12 +889,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case .reviewPromptData:
+                key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .siriAndShortcutsAccess(userId):
+                key = "siriAndShortcutsAccess_\(userId)"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
@@ -846,14 +947,29 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .disableWebIcons) }
     }
 
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
+    }
+
     var introCarouselShown: Bool {
         get { fetch(for: .introCarouselShown) }
         set { store(newValue, for: .introCarouselShown) }
     }
 
+    var learnNewLoginActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnNewLoginActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnNewLoginActionCardStatus) }
+    }
+
     var lastUserShouldConnectToWatch: Bool {
         get { fetch(for: .lastUserShouldConnectToWatch) }
         set { store(newValue, for: .lastUserShouldConnectToWatch) }
+    }
+
+    var learnGeneratorActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnGeneratorActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnGeneratorActionCardStatus) }
     }
 
     var loginRequest: LoginRequestNotification? {
@@ -866,9 +982,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .migrationVersion) }
     }
 
-    var preAuthEnvironmentUrls: EnvironmentUrlData? {
-        get { fetch(for: .preAuthEnvironmentUrls) }
-        set { store(newValue, for: .preAuthEnvironmentUrls) }
+    var pendingAppIntentActions: [PendingAppIntentAction]? {
+        get { fetch(for: .pendingAppIntentActions) }
+        set { store(newValue, for: .pendingAppIntentActions) }
+    }
+
+    var preAuthEnvironmentURLs: EnvironmentURLData? {
+        get { fetch(for: .preAuthEnvironmentURLs) }
+        set { store(newValue, for: .preAuthEnvironmentURLs) }
     }
 
     var preAuthServerConfig: ServerConfig? {
@@ -886,12 +1007,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .rememberedOrgIdentifier) }
     }
 
+    var reviewPromptData: ReviewPromptData? {
+        get { fetch(for: .reviewPromptData) }
+        set { store(newValue, for: .reviewPromptData) }
+    }
+
     var state: State? {
         get { fetch(for: .state) }
         set {
             activeAccountIdSubject.send(newValue?.activeUserId)
             return store(newValue, for: .state)
         }
+    }
+
+    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
+        fetch(for: .accountKeys(userId: userId))
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -908,6 +1038,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func allowUniversalClipboard(userId: String) -> Bool {
+        fetch(for: .allowUniversalClipboard(userId: userId))
     }
 
     func appRehydrationState(userId: String) -> AppRehydrationState? {
@@ -954,6 +1088,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool {
+        fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -990,14 +1128,22 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+    func pinProtectedUserKeyEnvelope(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
-            for: .accountCreationEnvironmentUrls(email: email)
+            for: .accountCreationEnvironmentURLs(email: email)
         )
     }
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
+        store(keys, for: .accountKeys(userId: userId))
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -1014,6 +1160,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        store(allowUniversalClipboard, for: .allowUniversalClipboard(userId: userId))
     }
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
@@ -1056,6 +1206,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(events, for: .events(userId: userId))
     }
 
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
+        store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
     }
@@ -1084,8 +1238,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
-        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+        store(environmentURLData, for: .accountCreationEnvironmentURLs(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
@@ -1118,6 +1276,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
+        store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
+    }
+
+    func siriAndShortcutsAccess(userId: String) -> Bool {
+        fetch(for: .siriAndShortcutsAccess(userId: userId))
     }
 
     func syncToAuthenticator(userId: String) -> Bool {

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginDecryptionOptionsView
@@ -15,10 +17,12 @@ struct LoginDecryptionOptionsView: View {
         LoginDecryptionOptionsEffect
     >
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .center, spacing: 24) {
             rememberThisDeviceToggle
 
-            decryptMethodButtons
+            VStack(spacing: 12) {
+                decryptMethodButtons
+            }
 
             loggedInAs
         }
@@ -34,21 +38,19 @@ struct LoginDecryptionOptionsView: View {
 
     /// Toggle to remember the device
     private var rememberThisDeviceToggle: some View {
-        Toggle(isOn: store.binding(
-            get: \.isRememberDeviceToggleOn,
-            send: LoginDecryptionOptionsAction.toggleRememberDevice
-        )) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text(Localizations.rememberThisDevice)
-                    .styleGuide(.subheadline)
-                Text(Localizations.turnOffUsingPublicDevice)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                    .styleGuide(.footnote)
-            }
+        BitwardenToggle(
+            Localizations.rememberThisDevice,
+            isOn: store.binding(
+                get: \.isRememberDeviceToggleOn,
+                send: LoginDecryptionOptionsAction.toggleRememberDevice
+            )
+        ) {
+            Text(Localizations.turnOffUsingPublicDevice)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                .styleGuide(.footnote)
         }
-        .padding(.bottom, 24)
         .accessibilityIdentifier("RememberThisDeviceToggle")
-        .toggleStyle(.bitwarden)
+        .contentBlock()
     }
 
     /// Continue button that will create a JIT user
@@ -108,21 +110,21 @@ struct LoginDecryptionOptionsView: View {
 
     /// The "logged in as..." text along with the not you button.
     @ViewBuilder var loggedInAs: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggingInAsX(
                 store.state.email
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+            .multilineTextAlignment(.center)
 
             AsyncButton(Localizations.notYou) {
                 await store.perform(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouButton")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
-        .padding(.top, 24)
     }
 }
 
@@ -134,7 +136,8 @@ struct LoginDecryptionOptionsView: View {
         LoginDecryptionOptionsView(store: Store(processor: StateProcessor(
             state: LoginDecryptionOptionsState(
                 shouldShowContinueButton: true,
-                email: "user@example.com"
+                email: "user@example.com",
+                shouldShowAdminApprovalButton: true
             )
         )))
     }

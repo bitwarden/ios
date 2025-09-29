@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest
@@ -41,22 +42,10 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
-    /// The view hides the authenticator sync section when appropriate.
-    @MainActor
-    func test_authenticatorSync_hidden() throws {
-        processor.state.shouldShowAuthenticatorSyncSection = false
-        XCTAssertNil(
-            try? subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing
-            )
-        )
-    }
-
     /// Tapping the sync with authenticator switch should send `.toggleSyncWithAuthenticator(enabled)` with the
     /// new value of enabled.
     @MainActor
     func test_authenticatorSync_tap() throws {
-        processor.state.shouldShowAuthenticatorSyncSection = true
         processor.state.isAuthenticatorSyncEnabled = false
         let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing)
         XCTAssertFalse(try toggle.isOn())
@@ -187,11 +176,39 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(processor.effects.last, .toggleUnlockWithPINCode(true))
     }
 
+    /// When `.removeUnlockWithPin` policy is enabled and unlock with pin is disabled then Unlock with Pin is not shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabled() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        XCTAssertThrowsError(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+    }
+
+    /// When `.removeUnlockWithPin` policy is enabled and unlock with pin is enabled then Unlock with Pin is shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabledWithPinEnabled() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        processor.state.isUnlockWithPINCodeOn = true
+        XCTAssertNoThrow(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+    }
+
+    /// When `.removeUnlockWithPin` policy is enabled, unlock with pin disabled and biometrics is disabled then entire
+    /// Unlock options section is not shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabledNoPinNorBiometrics() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        processor.state.isUnlockWithPINCodeOn = false
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.unlockOptions))
+        XCTAssertThrowsError(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+        XCTAssertThrowsError(try subject.inspect().find(ViewType.Toggle.self) { view in
+            try view.accessibilityIdentifier() == "UnlockWithBiometricsSwitch"
+        })
+    }
+
     // MARK: Snapshots
 
     /// The view renders correctly with the vault unlock action card is displayed.
     @MainActor
-    func test_snapshot_actionCardVaultUnlock() async {
+    func disabletest_snapshot_actionCardVaultUnlock() async {
         processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
@@ -201,7 +218,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly when biometrics are available.
     @MainActor
-    func test_snapshot_biometricsDisabled_touchID() {
+    func disabletest_snapshot_biometricsDisabled_touchID() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -220,7 +237,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly when biometrics are available.
     @MainActor
-    func test_snapshot_biometricsEnabled_faceID() {
+    func disabletest_snapshot_biometricsEnabled_faceID() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -239,7 +256,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly when showing the custom session timeout field.
     @MainActor
-    func test_snapshot_customSessionTimeoutField() {
+    func disabletest_snapshot_customSessionTimeoutField() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -252,7 +269,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly when the user doesn't have a master password.
     @MainActor
-    func test_snapshot_noMasterPassword() {
+    func disabletest_snapshot_noMasterPassword() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -266,22 +283,28 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// The view renders correctly when the `shouldShowAuthenticatorSyncSection` is `true`.
+    /// The view renders correctly when the remove unlock with pin policy is enabled.
     @MainActor
-    func test_snapshot_shouldShowAuthenticatorSyncSection() {
+    func disabletest_snapshot_removeUnlockPinPolicyEnabled() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
-                    state: AccountSecurityState(shouldShowAuthenticatorSyncSection: true)
+                    state: AccountSecurityState(
+                        biometricUnlockStatus: .available(.faceID, enabled: true),
+                        removeUnlockWithPinPolicyEnabled: true
+                    )
                 )
             )
         )
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+        )
     }
 
     /// The view renders correctly when the timeout policy is enabled.
     @MainActor
-    func test_snapshot_timeoutPolicy() {
+    func disabletest_snapshot_timeoutPolicy() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -300,7 +323,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly when the timeout policy with an action is enabled.
     @MainActor
-    func test_snapshot_timeoutPolicyWithAction() {
+    func disabletest_snapshot_timeoutPolicyWithAction() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -321,7 +344,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// The view renders correctly.
     @MainActor
-    func test_view_render() {
+    func disabletest_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordHintView
@@ -11,32 +12,31 @@ struct PasswordHintView: View {
     @ObservedObject var store: Store<PasswordHintState, PasswordHintAction, PasswordHintEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                BitwardenTextField(
-                    title: Localizations.emailAddress,
-                    text: store.binding(
-                        get: \.emailAddress,
-                        send: PasswordHintAction.emailAddressChanged
-                    ),
-                    footer: Localizations.enterEmailForHint
-                )
-                .textFieldConfiguration(.email)
-
-                AsyncButton(Localizations.submit) {
-                    await store.perform(.submitPressed)
-                }
-                .accessibilityIdentifier("SubmitButton")
-                .buttonStyle(.primary())
-                .disabled(!store.state.isSubmitButtonEnabled)
-            }
-            .padding(16)
+        VStack(spacing: 24) {
+            BitwardenTextField(
+                title: Localizations.emailAddress,
+                text: store.binding(
+                    get: \.emailAddress,
+                    send: PasswordHintAction.emailAddressChanged
+                ),
+                footer: Localizations.enterEmailForHint
+            )
+            .textFieldConfiguration(.email)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .navigationTitle(Localizations.passwordHint)
+        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: Localizations.passwordHint, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissPressed)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                primaryActionToolbarButton(Localizations.submit) {
+                    await store.perform(.submitPressed)
+                }
+                .accessibilityIdentifier("SubmitButton")
+                .disabled(!store.state.isSubmitButtonEnabled)
             }
         }
     }

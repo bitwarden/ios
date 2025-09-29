@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - DeleteAccountProcessor
@@ -9,6 +11,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -45,6 +48,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         switch effect {
         case .deleteAccount:
             await showAccountVerification()
+        case .loadData:
+            await loadData()
         }
     }
 
@@ -72,18 +77,39 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         do {
             try await services.authRepository.deleteAccount(otp: otp, passwordText: passwordText)
             navigatePostDeletion()
-        } catch ServerError.error {
-            coordinator.showAlert(
-                .defaultAlert(
-                    title: otp != nil
-                        ? Localizations.invalidVerificationCode
-                        : Localizations.invalidMasterPassword
+        } catch let ServerError.error(errorModel) {
+            // The only way we know what the actual error was is by looking at the validation errors.
+            // We have to compare by string for lack of any other way of identifying the errors.
+            // This allows us to localize the error message from the server as appropriately as we can.
+            switch errorModel.singleMessage() {
+            case "User verification failed.":
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: otp != nil
+                            ? Localizations.invalidVerificationCode
+                            : Localizations.invalidMasterPassword
+                    )
                 )
-            )
+            // swiftlint:disable:next line_length
+            case "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.":
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong
+                    )
+                )
+            default:
+                services.errorReporter.log(error: ServerError.error(errorResponse: errorModel))
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: Localizations.anErrorHasOccurred
+                    )
+                )
+            }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error) {
                 await self.deleteAccount(otp: otp, passwordText: passwordText)
-            })
+            }
         }
     }
 
@@ -120,7 +146,20 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                 })
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Load any initial data for the view.
+    private func loadData() async {
+        do {
+            state.shouldPreventUserFromDeletingAccount =
+                try await services.authRepository.isUserManagedByOrganization()
+        } catch {
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.coordinator.navigate(to: .dismiss)
+            })
             services.errorReporter.log(error: error)
         }
     }

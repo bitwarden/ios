@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ActionCard
@@ -60,7 +62,7 @@ struct ActionCard<LeadingContent: View>: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .styleGuide(.title2, weight: .bold, includeLinePadding: false, includeLineSpacing: false)
+                        .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
 
                     if let message {
                         Text(message)
@@ -73,7 +75,7 @@ struct ActionCard<LeadingContent: View>: View {
                 if let dismissButtonState {
                     AsyncButton(action: dismissButtonState.action) {
                         Image(asset: Asset.Images.close16, label: Text(dismissButtonState.title))
-                            .imageStyle(.accessoryIcon(color: Asset.Colors.iconPrimary.swiftUIColor))
+                            .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }
                     .padding(-16) // ...but remove it to not affect layout.
@@ -85,14 +87,14 @@ struct ActionCard<LeadingContent: View>: View {
                     .buttonStyle(.primary(size: .medium))
             }
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Asset.Colors.strokeBorder.swiftUIColor)
+                .strokeBorder(SharedAsset.Colors.strokeBorder.swiftUIColor)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Asset.Colors.backgroundTertiary.swiftUIColor)
+                        .fill(SharedAsset.Colors.backgroundTertiary.swiftUIColor)
                 )
         )
     }
@@ -132,7 +134,7 @@ struct ActionCard<LeadingContent: View>: View {
     ///
     init(
         title: String,
-        message: String?,
+        message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil
     ) where LeadingContent == EmptyView {

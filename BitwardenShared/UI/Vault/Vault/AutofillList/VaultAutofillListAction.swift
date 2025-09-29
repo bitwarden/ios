@@ -6,7 +6,7 @@ import BitwardenSdk
 ///
 enum VaultAutofillListAction: Equatable {
     /// The add button was tapped.
-    case addTapped(fromToolbar: Bool)
+    case addTapped(fromFAB: Bool)
 
     /// The cancel button was tapped.
     case cancelTapped

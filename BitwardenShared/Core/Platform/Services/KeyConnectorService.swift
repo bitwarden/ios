@@ -131,6 +131,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: keyConnectorResponse.keys.private,
                 encryptedUserKey: keyConnectorResponse.encryptedUserKey
             )
@@ -177,9 +178,12 @@ extension DefaultKeyConnectorService: KeyConnectorService {
     }
 
     func userNeedsMigration() async throws -> Bool {
-        let isExternal = try await tokenService.getIsExternal()
-        let usesKeyConnector = try await stateService.getUsesKeyConnector()
-        let organization = try await getManagingOrganization()
-        return isExternal && !usesKeyConnector && organization != nil
+        guard try await tokenService.getIsExternal() else {
+            return false
+        }
+        guard try await stateService.getUsesKeyConnector() == false else {
+            return false
+        }
+        return try await getManagingOrganization() != nil
     }
 }

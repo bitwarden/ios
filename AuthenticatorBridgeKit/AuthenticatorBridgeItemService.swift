@@ -1,4 +1,6 @@
+import BitwardenKit
 import Combine
+import CoreData
 import Foundation
 
 // MARK: - AuthenticatorBridgeItemService
@@ -7,6 +9,10 @@ import Foundation
 /// `AuthenticatorBridgeItemData` objects.
 ///
 public protocol AuthenticatorBridgeItemService {
+    /// Removes all items and deletes the authenticator key.
+    ///
+    func deleteAll() async throws
+
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -36,9 +42,9 @@ public protocol AuthenticatorBridgeItemService {
                      forUserId userId: String) async throws
 
     /// Inserts a temporary item into the store. This method is for an item that originate in the Authenticator app that
-    /// need to move to the PM app (e.g. the user chooses Move to BW, or manually creates an item and selects
+    /// need to move to the BWPM app (e.g. the user chooses Move to BW, or manually creates an item and selects
     /// Save in BW). When the item originates from the Authenticator, we don't yet know what account it will be stored
-    /// in, so we save it to a temporary account and retrieve it for processing in the PM app.
+    /// in, so we save it to a temporary account and retrieve it for processing in the BWPM app.
     ///
     /// The expectation is that only *one* temporary item will be stored at a time. Each time this method is called, it
     /// will replace the one temporary item. When `fetchTemporaryItem()`is called, it will retrieve only
@@ -92,6 +98,9 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// The keychain repository for working with the shared key.
     let sharedKeychainRepository: SharedKeychainRepository
 
+    /// A service that manages account timeout between apps.
+    let sharedTimeoutService: SharedTimeoutService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultAuthenticatorBridgeItemService`
@@ -100,16 +109,27 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - cryptoService: Cryptography service for encrypting/decrypting items.
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
+    ///   - sharedTimeoutService: The shared timeout service for managing session timeouts.
     ///
     public init(cryptoService: SharedCryptographyService,
                 dataStore: AuthenticatorBridgeDataStore,
-                sharedKeychainRepository: SharedKeychainRepository) {
+                sharedKeychainRepository: SharedKeychainRepository,
+                sharedTimeoutService: SharedTimeoutService) {
         self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository
+        self.sharedTimeoutService = sharedTimeoutService
     }
 
     // MARK: Methods
+
+    public func deleteAll() async throws {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: AuthenticatorBridgeItemData.entityName)
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        try await dataStore.executeBatchDelete(deleteRequest)
+        try await sharedKeychainRepository.deleteAuthenticatorKey()
+    }
 
     /// Removes all items that are owned by the specific userId
     ///
@@ -191,6 +211,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     public func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
+        try await checkForLogout()
         let fetchRequest = AuthenticatorBridgeItemData.fetchRequest(
             predicate: NSPredicate(
                 format: "userId != %@", DefaultAuthenticatorBridgeItemService.temporaryUserId
@@ -208,5 +229,26 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
         .eraseToAnyPublisher()
+    }
+
+    // MARK: Private Functions
+
+    /// Iterates through all of the users with shared items and determines if they've passed their
+    /// logout timeout. If so, then their shared items are deleted.
+    ///
+    private func checkForLogout() async throws {
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
+        fetchRequest.propertiesToFetch = ["userId"]
+        fetchRequest.returnsDistinctResults = true
+        fetchRequest.resultType = .dictionaryResultType
+
+        let results = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
+        let userIds = results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
+
+        try await userIds.asyncForEach { userId in
+            if try await sharedTimeoutService.hasPassedTimeout(userId: userId) {
+                try await deleteAllForUserId(userId)
+            }
+        }
     }
 }

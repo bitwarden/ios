@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 import UIKit
@@ -15,6 +16,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & ExtensionSetupModule
         & FileSelectionModule
         & LoginRequestModule
+        & NavigatorBuilderModule
         & SendItemModule
         & TabModule
         & VaultModule
@@ -32,6 +34,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
+
+    /// Whether the debug menu is currently being shown.
+    private(set) var isShowingDebugMenu = false
 
     // MARK: Properties
 
@@ -73,6 +78,19 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
+        case let .accountBecameActive(
+            account,
+            attemptAutomaticBiometricUnlock,
+            didSwitchAccountAutomatically
+        ):
+            await handleAuthEvent(
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                )
+            )
         case let .didLogout(userId, userInitiated):
             await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
         case .didStart:
@@ -156,7 +174,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -177,7 +195,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<ExtensionSetupRoute, Void> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeExtensionSetupCoordinator(
                 stackNavigator: stackNavigator
             )
@@ -196,7 +214,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute, Void> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeSendItemCoordinator(
                 delegate: self,
                 stackNavigator: stackNavigator
@@ -244,7 +262,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             guard !(currentView is UIHostingController<LoginRequestView>) else { return }
 
             // Create the login request view.
-            let navigationController = UINavigationController()
+            let navigationController = self.module.makeNavigationController()
             let coordinator = self.module.makeLoginRequestCoordinator(stackNavigator: navigationController)
             coordinator.start()
             coordinator.navigate(to: .loginRequest(loginRequest), context: self)
@@ -276,7 +294,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute, AuthAction> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeVaultCoordinator(
                 delegate: self,
                 stackNavigator: stackNavigator
@@ -295,12 +313,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Presents the navigation controller and triggers haptic feedback upon completion.
     ///
     private func showDebugMenu() {
+        guard !isShowingDebugMenu else { return }
+
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         feedbackGenerator.prepare()
         let stackNavigator = UINavigationController()
         stackNavigator.navigationBar.prefersLargeTitles = true
         stackNavigator.modalPresentationStyle = .fullScreen
-        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(delegate: self, stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
 
         rootNavigator?.rootViewController?.topmostViewController().present(
@@ -308,6 +328,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             animated: true,
             completion: { feedbackGenerator.impactOccurred() }
         )
+        isShowingDebugMenu = true
     }
 }
 
@@ -347,6 +368,20 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             }
         }
     }
+}
+
+// MARK: - DebugMenuCoordinatorDelegate
+
+extension AppCoordinator: DebugMenuCoordinatorDelegate {
+    func didDismissDebugMenu() {
+        isShowingDebugMenu = false
+    }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - LoginRequestDelegate
@@ -472,5 +507,9 @@ extension AppCoordinator: VaultCoordinatorDelegate {
 
     func presentLoginRequest(_ loginRequest: LoginRequest) {
         showLoginRequest(loginRequest)
+    }
+
+    func switchToSettingsTab(route: SettingsRoute) {
+        navigate(to: .tab(.settings(route)))
     }
 } // swiftlint:disable:this file_length

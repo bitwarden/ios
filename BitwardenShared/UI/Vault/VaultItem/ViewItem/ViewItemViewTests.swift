@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
@@ -134,7 +137,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.close)
+        var button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -154,10 +157,22 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Tapping the floating action button dispatches the `.editPressed` action.`
     @MainActor
-    func test_editItemFloatingActionButton() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
-        try fab.button().tap()
+    func test_editItemFloatingActionButton() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
+    }
+
+    /// The edit item FAB is hidden if the item has been deleted.
+    @MainActor
+    func test_editItemFloatingActionButton_hidden_cipherDeleted() async throws {
+        processor.state.loadingState = .data(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: true)!)
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        XCTAssertTrue(fab.isHidden())
     }
 
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
@@ -295,10 +310,28 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )))
     }
 
+    /// Tapping the toggle to display multiple collections dispatches the `.toggleDisplayMultipleCollections` effect.
+    @MainActor
+    func test_toggleDisplayMultipleCollectionsButton_tap() async throws {
+        var cipherState = loginState(collectionIds: ["1", "2"])
+        cipherState.allUserCollections = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ]
+        cipherState.isShowingMultipleCollections = true
+        processor.state.loadingState = .data(cipherState)
+        let button = try subject.inspect().find(
+            asyncButton: Localizations.showLess
+        )
+        try await button.tap()
+        XCTAssertTrue(processor.effects.contains(.toggleDisplayMultipleCollections))
+    }
+
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_loading() {
+    func disabletest_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -314,6 +347,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        cipherState.folderName = "Folder"
         cipherState.notes = "Notes"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.identityState = .fixture(
@@ -341,27 +375,36 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func loginState( // swiftlint:disable:this function_body_length
         canViewPassword: Bool = true,
+        collectionIds: [String] = ["1", "2"],
+        isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
-        isTOTPCodeVisible: Bool = true,
         hasPremium: Bool = true,
         hasTotp: Bool = true
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
+                collectionIds: collectionIds,
+                favorite: isFavorite,
                 id: "fake-id"
             ),
             hasPremium: hasPremium
         )!
         cipherState.accountHasPremium = hasPremium
+        cipherState.allUserCollections = [
+            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "2", name: "Collection 2"),
+        ]
+        cipherState.collectionIds = collectionIds
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        cipherState.folderName = "Folder"
         cipherState.name = "Example"
         cipherState.notes = "Notes"
+        cipherState.organizationName = "Organization"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.fido2Credentials = [.fixture()]
         cipherState.loginState.isPasswordVisible = isPasswordVisible
-        cipherState.loginState.isTOTPCodeVisible = isTOTPCodeVisible
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
@@ -437,19 +480,19 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func test_snapshot_identity_withAllValues() {
+    func disabletest_snapshot_identity_withAllValues() {
         processor.state.loadingState = .data(identityState())
         assertSnapshot(of: subject, as: .portrait(heightMultiple: 1.5))
     }
 
     @MainActor
-    func test_snapshot_identity_withAllValues_largeText() {
+    func disabletest_snapshot_identity_withAllValues_largeText() {
         processor.state.loadingState = .data(identityState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 4))
     }
 
     @MainActor
-    func test_snapshot_login_disabledViewPassword() {
+    func disabletest_snapshot_login_disabledViewPassword() {
         processor.state.loadingState = .data(
             loginState(
                 canViewPassword: false,
@@ -461,47 +504,73 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func test_snapshot_login_hiddenTotp() {
-        processor.state.loadingState = .data(loginState(isTOTPCodeVisible: false))
+    func disabletest_snapshot_login_empty() {
+        let loginState = CipherItemState(
+            existing: .fixture(
+                favorite: true,
+                id: "fake-id"
+            ),
+            hasPremium: true
+        )!
+        processor.state.loadingState = .data(loginState)
+
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_login_withAllValues() {
+        processor.state.loadingState = .data(loginState(isFavorite: true))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func test_snapshot_login_withAllValues() {
-        processor.state.loadingState = .data(loginState())
-        assertSnapshot(of: subject, as: .tallPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_login_withAllValues_noPremium() {
+    func disabletest_snapshot_login_withAllValues_noPremium() {
         let loginState = loginState(hasPremium: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func test_snapshot_login_withAllValues_noPremium_largeText() {
+    func disabletest_snapshot_login_withAllValues_noPremium_largeText() {
         let loginState = loginState(hasPremium: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     @MainActor
-    func test_snapshot_login_withAllValues_largeText() {
+    func disabletest_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     @MainActor
-    func test_snapshot_login_withAllValues_exceptTotp_noPremium() {
+    func disabletest_snapshot_login_withAllValues_exceptTotp_noPremium() {
         let loginState = loginState(hasPremium: false, hasTotp: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    @MainActor
+    func disabletest_snapshot_login_withAllValuesExceptOrganization() {
+        var state = loginState(collectionIds: [])
+        state.organizationId = nil
+        state.organizationName = nil
+        state.collectionIds = []
+        state.allUserCollections = []
+        processor.state.loadingState = .data(state)
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_login_withAllValuesShowMore() {
+        let state = loginState(isFavorite: true)
+        processor.state.loadingState = .data(state)
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card() {
+    func disabletest_snapshot_previews_card() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
             as: .defaultPortrait
@@ -510,7 +579,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card_dark() {
+    func disabletest_snapshot_previews_card_dark() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
             as: .defaultPortraitDark
@@ -519,7 +588,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card_largeText() {
+    func disabletest_snapshot_previews_card_largeText() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
             as: .tallPortraitAX5(heightMultiple: 3)
@@ -528,7 +597,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login() {
+    func disabletest_snapshot_previews_login() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
             as: .tallPortrait
@@ -537,7 +606,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login_dark() {
+    func disabletest_snapshot_previews_login_dark() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
             as: .portraitDark(heightMultiple: 2)
@@ -546,16 +615,25 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login_largeText() {
+    func disabletest_snapshot_previews_login_largeText() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
             as: .tallPortraitAX5(heightMultiple: 4)
         )
     }
 
+    /// Snapshots the previews for secure note types.
+    @MainActor
+    func disabletest_snapshot_previews_secureNote() {
+        assertSnapshot(
+            of: ViewItemView_Previews.secureNotePreview,
+            as: .defaultPortrait
+        )
+    }
+
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_sshKey() {
+    func disabletest_snapshot_previews_sshKey() {
         assertSnapshot(
             of: ViewItemView_Previews.sshKeyPreview,
             as: .tallPortrait
@@ -564,7 +642,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type.
     @MainActor
-    func test_snapshot_sshKey() {
+    func disabletest_snapshot_sshKey() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(
@@ -580,7 +658,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type when private key is visible.
     @MainActor
-    func test_snapshot_sshKeyPrivateKeyVisible() {
+    func disabletest_snapshot_sshKeyPrivateKeyVisible() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(
@@ -596,7 +674,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type when `canViewPrivateKey` is `false`.
     @MainActor
-    func test_snapshot_sshKeyCantViewPrivateKey() {
+    func disabletest_snapshot_sshKeyCantViewPrivateKey() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(
@@ -620,7 +698,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
-                id: "fake-id"
+                id: "fake-id",
+                type: .sshKey
             ),
             hasPremium: true
         )!

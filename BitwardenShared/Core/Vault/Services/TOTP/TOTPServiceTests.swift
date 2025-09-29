@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -65,7 +66,7 @@ final class TOTPServiceTests: BitwardenTestCase {
             organizationUseTotp: true
         )
         stateService.activeAccount = .fixture()
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
@@ -122,7 +123,7 @@ final class TOTPServiceTests: BitwardenTestCase {
             )
         )
         stateService.activeAccount = .fixture()
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
@@ -138,23 +139,6 @@ final class TOTPServiceTests: BitwardenTestCase {
         )
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.copyTotpIfPossible(cipher: cipher)
-        }
-
-        XCTAssertNil(pasteboardService.copiedString)
-    }
-
-    /// `copyTotpIfPossible(cipher:)` throws when getting if current account has premium.
-    func test_copyTotpIfPossible_throwsAccountPremium() async throws {
-        let cipher = CipherView.fixture(
-            login: .fixture(
-                totp: "totp"
-            )
-        )
-        stateService.activeAccount = .fixture()
-        stateService.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.copyTotpIfPossible(cipher: cipher)
         }
 

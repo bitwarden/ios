@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import ViewInspector
+import XCTest
+
+// swiftlint:disable file_length
 
 /// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
 /// `ActionCard` without needing to know the details of it's implementation.
@@ -20,7 +23,29 @@ struct AsyncButtonType: BaseViewType {
     static var typePrefix: String = "AsyncButton"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.AsyncButton",
+        "BitwardenKit.AsyncButton",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
+/// without needing to know the details of it's implementation.
+///
+struct BitwardenSliderType: BaseViewType {
+    static var typePrefix: String = "BitwardenSlider"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenSlider",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenStepper` to allow `ViewInspector` to find instances of
+/// `BitwardenStepper` without needing to know the details of it's implementation.
+///
+struct BitwardenStepperType: BaseViewType {
+    static var typePrefix: String = "BitwardenStepper"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenStepper",
     ]
 }
 
@@ -55,6 +80,28 @@ struct BitwardenUITextViewType: BaseViewType {
 
     static var namespacedPrefixes: [String] = [
         "BitwardenShared.BitwardenUITextView",
+    ]
+}
+
+/// A generic type wrapper around `FloatingActionButton` to allow `ViewInspector` to find instances
+/// of `FloatingActionButton` without needing to know the details of it's implementation.
+///
+struct FloatingActionButtonType: BaseViewType {
+    static var typePrefix: String = "FloatingActionButton"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.FloatingActionButton",
+    ]
+}
+
+/// A generic type wrapper around `LoadingView` to allow `ViewInspector` to find instances of
+/// `LoadingView` without needing to know the details of it's implementation.
+///
+struct LoadingViewType: BaseViewType {
+    static var typePrefix: String = "LoadingView"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.LoadingView",
     ]
 }
 
@@ -146,6 +193,21 @@ extension InspectableView {
         locale: Locale = .testsDefault
     ) throws -> InspectableView<BitwardenTextFieldType> {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
+    }
+
+    /// Attempts to locate an floating action button with the provided accessibility identifier.
+    ///
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to use while searching for
+    ///     a floating action button.
+    /// - Returns: A floating action button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        floatingActionButtonWithAccessibilityIdentifier accessibilityIdentifier: String
+    ) throws -> InspectableView<FloatingActionButtonType> {
+        try find(FloatingActionButtonType.self) { view in
+            try view.accessibilityIdentifier() == accessibilityIdentifier
+        }
     }
 
     /// Attempts to locate a generic view with the provided accessibility label.
@@ -250,8 +312,8 @@ extension InspectableView {
     func find(
         sliderWithAccessibilityLabel accessibilityLabel: String,
         locale: Locale = .testsDefault
-    ) throws -> InspectableView<ViewType.Slider> {
-        try find(ViewType.Slider.self) { view in
+    ) throws -> InspectableView<BitwardenSliderType> {
+        try find(BitwardenSliderType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
@@ -270,56 +332,39 @@ extension InspectableView {
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
-}
 
-extension InspectableView where View: SingleViewContent {
-    /// Overrides the default `button` method in order to find a text field
-    /// that might be buried beneath added `AnyView` objects.
-    func button() throws -> InspectableView<ViewType.Button> {
-        try find(ViewType.Button.self)
-    }
+    // MARK: Toolbar
 
-    /// Overrides the default `secureField` method in order to find a text field
-    /// that might be buried beneath added `AnyView` objects.
-    func secureField() throws -> InspectableView<ViewType.SecureField> {
-        try find(ViewType.SecureField.self)
-    }
-
-    /// Overrides the default `text` method in order to find a text field
-    /// that might be buried beneath added `AnyView` objects.
-    func text() throws -> InspectableView<ViewType.Text> {
-        try find(ViewType.Text.self)
-    }
-
-    /// Overrides the default `textField` method in order to find a text field
-    /// that might be buried beneath added `AnyView` objects.
-    func textField() throws -> InspectableView<ViewType.TextField> {
-        try find(ViewType.TextField.self)
-    }
-}
-
-extension InspectableView where View: SingleViewContent {
-    /// Recursively traverses a child view hierarchy of `AnyView` objects until
-    /// it finds one that will take a long press gesture, and performs the gesture.
-    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
-    /// debug mode.
-    func recursiveCallOnLongPressGesture() throws {
-        do {
-            try callOnLongPressGesture()
-        } catch {
-            try implicitAnyView().recursiveCallOnLongPressGesture()
+    /// Attempts to locate the toolbar cancel default button.
+    ///
+    /// - Returns: A cancel toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCancelToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CancelButton"
         }
     }
 
-    /// Recursively traverses a child view hierarchy of `AnyView` objects until
-    /// it finds one that will take a tap gesture, and performs the gesture.
-    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
-    /// debug mode.
-    func recursiveCallOnTapGesture() throws {
-        do {
-            try callOnTapGesture()
-        } catch {
-            try implicitAnyView().recursiveCallOnTapGesture()
+    /// Attempts to locate the toolbar close default button.
+    ///
+    /// - Returns: A close toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCloseToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CloseButton"
+        }
+    }
+
+    /// Attempts to locate the toolbar save default button.
+    ///
+    /// - Returns: A save toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findSaveToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "SaveButton"
         }
     }
 }
@@ -358,6 +403,28 @@ extension InspectableView where View == BitwardenTextFieldType {
     }
 }
 
+extension InspectableView where View == BitwardenSliderType {
+    /// Simulates a drag gesture on the slider to set a new value.
+    ///
+    func setValue(_ value: Double) throws {
+        let mirror = Mirror(reflecting: self)
+        if let valueBinding = mirror.descendant("content", "view", "_value") as? Binding<Double>,
+           let range = mirror.descendant("content", "view", "range") as? ClosedRange<Double>,
+           let step = mirror.descendant("content", "view", "step") as? Double {
+            // Calculate the new value based on the fraction
+            let newValue = (range.upperBound - range.lowerBound + step) * value + range.lowerBound
+
+            // Set the new value
+            valueBinding.wrappedValue = newValue
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_value",
+                type: String(describing: BitwardenSliderType.self)
+            )
+        }
+    }
+}
+
 extension InspectableView where View == BitwardenUITextViewType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
@@ -389,5 +456,32 @@ extension InspectableView where View == SettingsMenuFieldType {
     func select(newValue: any Hashable) throws {
         let picker = try find(ViewType.Picker.self)
         try picker.select(value: newValue)
+    }
+}
+
+extension InspectableView where View == BitwardenStepperType {
+    /// Decrements the stepper.
+    ///
+    func decrement() throws {
+        let button = try find(buttonWithId: "decrement")
+        try button.tap()
+    }
+
+    /// Increments the stepper.
+    ///
+    func increment() throws {
+        let button = try find(buttonWithId: "increment")
+        try button.tap()
+    }
+}
+
+extension InspectableView where View == FloatingActionButtonType {
+    /// Simulates a tap on an `AsyncButton` within a `FloatingActionButton`. This method is
+    /// asynchronous and allows the entire `async` `action` on the button to run before returning.
+    ///
+    @MainActor
+    func tap() async throws {
+        let button = try find(AsyncButtonType.self)
+        try await button.tap()
     }
 }

@@ -17,7 +17,8 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Module = ImportLoginsModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
+        & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
         & HasVaultRepository
@@ -100,9 +101,12 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showImportLoginsSuccess() {
         let processor = ImportLoginsSuccessProcessor(coordinator: asAnyCoordinator())
         let view = ImportLoginsSuccessView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.isModalInPresentation = true
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view, isModalInPresentation: true)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ImportLoginsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - RegionHelper
@@ -35,7 +37,7 @@ class RegionHelper {
     ///
     func presentRegionSelectorAlert(title: String, currentRegion: RegionType?) async {
         let actions = RegionType.allCases.map { region in
-            AlertAction(title: region.baseUrlDescription, style: .default) { _ in
+            AlertAction(title: region.baseURLDescription, style: .default) { _ in
                 if let urls = region.defaultURLs {
                     await self.delegate?.setRegion(region, urls)
                 } else {
@@ -59,14 +61,14 @@ class RegionHelper {
     /// Sets the region to the last used region.
     ///
     func loadRegion() async {
-        guard let urls = await stateService.getPreAuthEnvironmentUrls() else {
+        guard let urls = await stateService.getPreAuthEnvironmentURLs() else {
             await delegate?.setRegion(.unitedStates, .defaultUS)
             return
         }
 
-        if urls.base == EnvironmentUrlData.defaultUS.base {
+        if urls.base == EnvironmentURLData.defaultUS.base {
             await delegate?.setRegion(.unitedStates, urls)
-        } else if urls.base == EnvironmentUrlData.defaultEU.base {
+        } else if urls.base == EnvironmentURLData.defaultEU.base {
             await delegate?.setRegion(.europe, urls)
         } else {
             await delegate?.setRegion(.selfHosted, urls)
@@ -85,5 +87,5 @@ protocol RegionDelegate: AnyObject {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async
 }

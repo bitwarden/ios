@@ -1,9 +1,13 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -19,6 +23,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
+    var timeProvider: MockTimeProvider!
     var totpService: MockTOTPService!
     var subject: DefaultAutofillCredentialService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -40,6 +45,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
+        timeProvider = MockTimeProvider(.currentTime)
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -54,6 +60,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            timeProvider: timeProvider,
             totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -65,8 +72,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore.removeAllCredentialIdentitiesCalled = false
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         autofillCredentialServiceDelegate = nil
         cipherService = nil
@@ -80,6 +87,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore = nil
         pasteboardService = nil
         stateService = nil
+        timeProvider = nil
         totpService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -659,6 +667,187 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         }
     }
 
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// returns the credential containing the TOTP code for the specified ID.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential() async throws {
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey"))
+        )
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        clientService.mockVault.generateTOTPCodeResult = .success("123456")
+
+        let credential = try await subject.provideOTPCredential(
+            for: "1",
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            repromptPasswordValidated: false
+        )
+
+        XCTAssertEqual(credential.code, "123456")
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// throws an error if the cipher with the specified ID doesn't have a totp.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_cipherMissingTOTP() async {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+
+        cipherService.fetchCipherResult = .success(.fixture(type: .identity))
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+
+        cipherService.fetchCipherResult = .success(.fixture(login: .fixture(totp: nil)))
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+
+        cipherService.fetchCipherResult = .success(.fixture(login: nil))
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// throws an error if a cipher with the specified ID doesn't exist.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_cipherNotFound() async {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    ///  unlocks the user's vault if they use never lock.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_neverLock() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey"))
+        )
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = true
+        vaultTimeoutService.vaultTimeout["1"] = .never
+        clientService.mockVault.generateTOTPCodeResult = .success("123456")
+
+        let credential = try await subject.provideOTPCredential(
+            for: "1",
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            repromptPasswordValidated: false
+        )
+
+        XCTAssertEqual(credential.code, "123456")
+        XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// doesn't unlock the user's vault if they use never lock but it has been manually locked.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_neverLockManuallyLocked() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey"))
+        )
+        stateService.activeAccount = .fixture()
+        stateService.manuallyLockedAccounts["1"] = true
+        vaultTimeoutService.isClientLocked["1"] = true
+        vaultTimeoutService.vaultTimeout["1"] = .never
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+        XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// throws an error if reprompt is required.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_repromptRequired() async throws {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+
+        cipherService.fetchCipherResult = .success(
+            .fixture(
+                login: .fixture(
+                    totp: "totpKey"
+                ),
+                reprompt: .password
+            )
+        )
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// throws an error if the user's vault is locked.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_vaultLocked() async {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = true
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    ///  throws when generating TOTP code.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_throwsGeneratingTOTPCode() async throws {
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey"))
+        )
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+    }
+
     /// `syncIdentities(vaultLockStatus:)` updates the credential identity store with the identities
     /// from the user's vault.
     func test_syncIdentities() { // swiftlint:disable:this function_body_length
@@ -770,7 +959,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false
                     ),
                 ]
             )
@@ -863,7 +1053,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false
                     ),
                 ]
             )

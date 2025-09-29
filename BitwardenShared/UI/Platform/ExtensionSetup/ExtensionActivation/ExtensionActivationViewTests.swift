@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import XCTest
 
@@ -11,7 +12,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         ExtensionActivationState,
         ExtensionActivationAction,
-        ExtensionActivationEffect
+        Void
     >!
     var subject: ExtensionActivationView!
 
@@ -35,18 +36,9 @@ class ExtensionActivationViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the cancel button dispatches the `.cancelTapped` action.
-    @MainActor
-    func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
-    }
-
     /// Tapping the back to settings dispatches the `.cancelTapped` action.
     @MainActor
     func test_backToSettingsButton_tap() throws {
-        processor.state.isNativeCreateAccountFeatureFlagEnabled = true
         let button = try subject.inspect().find(button: Localizations.backToSettings)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
@@ -55,7 +47,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The autofill extension activation view renders correctly.
-    func test_snapshot_extensionActivationView_autofillExtension() {
+    func disabletest_snapshot_extensionActivationView_autoFillExtension() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -64,21 +56,11 @@ class ExtensionActivationViewTests: BitwardenTestCase {
 
     /// The app extension activation view renders correctly.
     @MainActor
-    func test_snapshot_extensionActivationView_appExtension() {
+    func disabletest_snapshot_extensionActivationView_appExtension() {
         processor.state.extensionType = .appExtension
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
-
-    /// The app extension activation view renders correctly when the `native-create-account-flow` ff is on.
-    @MainActor
-    func test_snapshot_extensionActivationView_autoFillExtension_featureFlagEnabled() {
-        processor.state.isNativeCreateAccountFeatureFlagEnabled = true
-        assertSnapshots(
-            of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
 }

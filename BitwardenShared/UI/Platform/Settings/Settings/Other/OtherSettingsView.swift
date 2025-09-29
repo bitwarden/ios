@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - OtherSettingsView
@@ -21,9 +23,17 @@ struct OtherSettingsView: View {
 
             syncNow
 
-            clearClipboard
+            VStack(alignment: .leading, spacing: 8) {
+                clearClipboard
 
-            connectToWatch
+                allowUniversalClipboard
+
+                if store.state.shouldShowConnectToWatchToggle {
+                    connectToWatch
+                }
+
+                siriAndShortcutsAccess
+            }
         }
         .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
@@ -43,58 +53,79 @@ struct OtherSettingsView: View {
 
     /// The allow sync on refresh toggle and description.
     private var allowSyncOnRefresh: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle(isOn: store.binding(
+        BitwardenToggle(
+            Localizations.enableSyncOnRefresh,
+            isOn: store.binding(
                 get: \.isAllowSyncOnRefreshToggleOn,
                 send: OtherSettingsAction.toggleAllowSyncOnRefresh
-            )) {
-                Text(Localizations.enableSyncOnRefresh)
-            }
-            .toggleStyle(.bitwarden)
-            .styleGuide(.body)
-            .accessibilityIdentifier("SyncOnRefreshSwitch")
-
+            ),
+            accessibilityIdentifier: "SyncOnRefreshSwitch"
+        ) {
             Text(Localizations.enableSyncOnRefreshDescription)
                 .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .multilineTextAlignment(.leading)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
+        .contentBlock()
+    }
+
+    /// The Universal Clipboard toggle button and its description.
+    private var allowUniversalClipboard: some View {
+        BitwardenToggle(
+            Localizations.allowUniversalClipboard,
+            isOn: store.binding(
+                get: \.isAllowUniversalClipboardToggleOn,
+                send: OtherSettingsAction.toggleAllowUniversalClipboard
+            ),
+            accessibilityIdentifier: "UniversalClipboardChooser"
+        ) {
+            Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+        }
+        .contentBlock()
     }
 
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            SettingsMenuField(
-                title: Localizations.clearClipboard,
-                options: ClearClipboardValue.allCases,
-                hasDivider: false,
-                selectionAccessibilityID: "ClearClipboardAfterLabel",
-                selection: store.binding(
-                    get: \.clearClipboardValue,
-                    send: OtherSettingsAction.clearClipboardValueChanged
-                )
+        BitwardenMenuField(
+            title: Localizations.clearClipboard,
+            footer: Localizations.clearClipboardDescription,
+            accessibilityIdentifier: "ClearClipboardChooser",
+            options: ClearClipboardValue.allCases,
+            selection: store.binding(
+                get: \.clearClipboardValue,
+                send: OtherSettingsAction.clearClipboardValueChanged
             )
-            .cornerRadius(10)
-            .accessibilityIdentifier("ClearClipboardChooser")
-
-            Text(Localizations.clearClipboardDescription)
-                .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .multilineTextAlignment(.leading)
-        }
+        )
     }
 
     /// The connect to watch toggle.
     private var connectToWatch: some View {
-        Toggle(isOn: store.binding(
-            get: \.isConnectToWatchToggleOn,
-            send: OtherSettingsAction.toggleConnectToWatch
-        )) {
-            Text(Localizations.connectToWatch)
+        BitwardenToggle(
+            Localizations.connectToWatch,
+            isOn: store.binding(
+                get: \.isConnectToWatchToggleOn,
+                send: OtherSettingsAction.toggleConnectToWatch
+            )
+        )
+        .contentBlock()
+    }
+
+    /// Whether to allow access to Siri & Shortcuts using `AppIntent`s.
+    private var siriAndShortcutsAccess: some View {
+        BitwardenToggle(
+            Localizations.siriAndShortcutsAccess,
+            isOn: store.binding(
+                get: \.isSiriAndShortcutsAccessToggleOn,
+                send: OtherSettingsAction.toggleSiriAndShortcutsAccessToggleOn
+            ),
+            accessibilityIdentifier: "SiriAndShortcutsAccessSwitch"
+        ) {
+            Text(Localizations.enableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents)
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
         }
-        .toggleStyle(.bitwarden)
-        .styleGuide(.body)
-        .padding(.top, 8)
+        .contentBlock()
     }
 
     /// The sync now button and last synced description.
@@ -105,7 +136,7 @@ struct OtherSettingsView: View {
             } label: {
                 Text(Localizations.syncNow)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("SyncNowButton")
 
             Group {
@@ -117,8 +148,9 @@ struct OtherSettingsView: View {
                         .accessibilityIdentifier("LastSyncLabel")
                 }
             }
+            .padding(.leading, 16)
             .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .multilineTextAlignment(.leading)
         }
     }

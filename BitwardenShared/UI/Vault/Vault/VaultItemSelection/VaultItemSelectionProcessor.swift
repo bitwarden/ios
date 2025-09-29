@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - VaultItemSelectionProcessor
 
 /// The processor used to manage state and handle actions for the vault item selection screen.
@@ -92,12 +94,12 @@ class VaultItemSelectionProcessor: StateProcessor<
             state.profileSwitcherState.setIsVisible(false)
             coordinator.navigate(
                 to: .addItem(
-                    allowTypeSelection: false,
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
                         totpKey: state.totpKeyModel.rawAuthenticatorKey
-                    )
+                    ),
+                    type: .login
                 ),
                 context: self
             )
@@ -115,6 +117,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 return
             }
             state.profileSwitcherState.isVisible = false
+            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -132,8 +135,8 @@ class VaultItemSelectionProcessor: StateProcessor<
         switch profileSwitcherAction {
         case let .accessibility(accessibilityAction):
             switch accessibilityAction {
-            case .logout:
-                // No-op: account logout not supported in the extension.
+            case .logout, .remove:
+                // No-op: account logout and remove are not supported in this view.
                 break
             }
         default:
@@ -172,7 +175,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             for try await items in searchPublisher {
                 state.searchResults = items
@@ -192,18 +195,24 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///     to add the OTP key to.
     ///
     private func showEditForNewOtpKey(vaultListItem: VaultListItem) async {
-        guard case let .cipher(cipherView, _) = vaultListItem.itemType,
-              cipherView.type == .login,
-              let login = cipherView.login else {
+        guard case let .cipher(cipher, _) = vaultListItem.itemType,
+              cipher.type.isLogin else {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }
 
         do {
-            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipherView.reprompt) {
+            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipher.reprompt) {
                 guard try await userVerificationHelper.verifyMasterPassword() == .verified else {
                     return
                 }
+            }
+
+            guard let cipherId = cipher.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId),
+                  let login = cipherView.login else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                return
             }
 
             let updatedCipherView = cipherView.update(login: login.update(totp: state.totpKeyModel.rawAuthenticatorKey))
@@ -224,7 +233,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             for try await items in try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchName,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             ) {
                 guard !items.isEmpty else {
                     state.vaultListSections = []
@@ -299,6 +308,10 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -310,5 +323,9 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
 
     func showAlert(_ alert: Alert) {
         // No-Op for the VaultItemSelectionProcessor.
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

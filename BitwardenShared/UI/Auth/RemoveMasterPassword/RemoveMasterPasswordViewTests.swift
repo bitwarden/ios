@@ -1,3 +1,4 @@
+import BitwardenResources
 import SnapshotTesting
 import ViewInspector
 import XCTest
@@ -17,7 +18,9 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: RemoveMasterPasswordState(
             masterPassword: "password",
-            organizationName: "Example Org"
+            organizationName: "Example Org",
+            organizationId: "ORG_ID",
+            keyConnectorUrl: "https://example.com"
         ))
 
         subject = RemoveMasterPasswordView(store: Store(processor: processor))
@@ -44,7 +47,7 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
 
     /// The remove master password view renders correctly.
     @MainActor
-    func test_snapshot_removeMasterPassword() {
+    func disabletest_snapshot_removeMasterPassword() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.5)]

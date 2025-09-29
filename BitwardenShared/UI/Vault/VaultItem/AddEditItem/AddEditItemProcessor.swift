@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 import UIKit
@@ -57,12 +58,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
         & HasRehydrationHelper
+        & HasReviewPromptService
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -110,7 +114,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
-
         super.init(state: state)
 
         if !state.configuration.isAdding {
@@ -127,12 +130,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .appeared:
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
+            await checkLearnNewLoginActionCardEligibility()
+            await loadDefaultUriMatchType()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
-            guard let key = state.loginState.authenticatorKey else { return }
-            services.pasteboardService.copy(key)
-            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            services.pasteboardService.copy(state.loginState.authenticatorKey)
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKey))
+        case .dismissNewLoginActionCard:
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -141,15 +148,28 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await setupTotp()
         case .deletePressed:
             await showSoftDeleteConfirmation()
+        case .showLearnNewLoginGuidedTour:
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+            state.guidedTourViewState.currentIndex = 0
+            state.guidedTourViewState.showGuidedTour = true
+        case .streamCipherDetails:
+            await streamCipherDetails()
+        case .streamFolders:
+            await streamFolders()
         }
     }
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case .addFolder:
+            coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
+        case .clearUrl:
+            state.url = nil
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case let .customField(action):
@@ -173,6 +193,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         case let .identityFieldChanged(action):
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
@@ -213,19 +235,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .toggleAdditionalOptionsExpanded(newValue):
+            state.isAdditionalOptionsExpanded = newValue
         case .totpFieldLeftFocus:
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
             state.loginState.totpState = LoginTOTPState(newValue)
-        case let .typeChanged(newValue):
-            state.type = newValue
-            state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
             state.loginState.uris[index].uri = newValue
         case let .uriTypeChanged(newValue, index):
             guard index < state.loginState.uris.count else { return }
-            state.loginState.uris[index].matchType = newValue
+            Task {
+                await confirmAndUpdateDefaultUriMatchType(newValue, index)
+            }
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
         }
@@ -261,10 +284,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             let ownershipOptions = try await services.vaultRepository
                 .fetchCipherOwnershipOptions(includePersonal: !isPersonalOwnershipDisabled)
 
-            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-            // Filter out any collection IDs that aren't included in the fetched collections.
+            // We need read-only collections so that we can include them in the state
+            // to correctly calculate if the item can be deleted
+            state.allUserCollections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+            // Filter out any collection IDs that aren't included in the fetched collections and aren't read-only.
             state.collectionIds = state.collectionIds.filter { collectionId in
-                state.collections.contains(where: { $0.id == collectionId })
+                state.allUserCollections.contains(where: { $0.id == collectionId && !$0.readOnly })
             }
 
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
@@ -276,11 +301,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 state.owner = ownershipOptions.first
             }
 
-            let folders = try await services.vaultRepository.fetchFolders()
-                .map { DefaultableType<FolderView>.custom($0) }
-            state.folders = [.default] + folders
-
-            if !state.configuration.isAdding {
+            if state.configuration.isAdding {
+                let defaultCollection = state.collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
+                if let defaultCollectionId = defaultCollection?.id, state.collectionIds.isEmpty {
+                    state.collectionIds.append(defaultCollectionId)
+                }
+            } else {
                 await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
             }
         } catch {
@@ -467,6 +493,21 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Checks the eligibility of the Learn New Login action card.
+    ///
+    private func checkLearnNewLoginActionCardEligibility() async {
+        if appExtensionDelegate == nil {
+            state.isLearnNewLoginActionCardEligible = await services.stateService
+                .getLearnNewLoginActionCardStatus() == .incomplete
+        }
+    }
+
+    /// Load the saved value in autofill settings for the default URI match type.
+    ///
+    private func loadDefaultUriMatchType() async {
+        state.loginState.defaultUriMatchTypeSettingsValue = await services.stateService.getDefaultUriMatchType()
+    }
+
     /// Checks the password currently stored in `state`.
     ///
     private func checkPassword() async {
@@ -540,12 +581,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// - Parameter type: The `GeneratorType` that is being overwritten.
     ///
     private func presentReplacementAlert(for type: GeneratorType) {
-        let title: String
-        switch type {
-        case .password:
-            title = Localizations.passwordOverrideAlert
+        let title = switch type {
+        case .passphrase, .password:
+            Localizations.passwordOverrideAlert
         case .username:
-            title = Localizations.areYouSureYouWantToOverwriteTheCurrentUsername
+            Localizations.areYouSureYouWantToOverwriteTheCurrentUsername
         }
 
         let alert = Alert(
@@ -599,7 +639,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         } catch UserVerificationError.cancelled {
             return
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -623,6 +663,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         handleDismiss(didAddItem: true)
+        await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 
     /// Checks user verification if needed on Fido2 flows.
@@ -652,7 +693,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -669,6 +710,32 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         coordinator.showAlert(.passwordAutofillInformation())
         await services.stateService.setAddSitePromptShown(true)
+    }
+
+    /// Stream the cipher details.
+    private func streamCipherDetails() async {
+        guard let cipherId = state.cipher.id else { return }
+        do {
+            for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
+                guard let cipherView else { continue }
+                state.update(from: cipherView)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
+
+    /// Stream the list of folders.
+    ///
+    private func streamFolders() async {
+        do {
+            for try await folders in try await services.settingsRepository.foldersListPublisher() {
+                state.folders = [.default] + folders.map { DefaultableType.custom($0) }
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Check if the user has a master password and set showMasterPasswordReprompt accordingly
@@ -691,6 +758,63 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         coordinator.showAlert(alert)
     }
 
+    /// Displays a warning for user to confirm if wants to update the ciphers's UriMatchType if necessary
+    ///
+    /// - Parameter newUriMatchType: The default URI match type.
+    ///
+    private func confirmAndUpdateDefaultUriMatchType(
+        _ newUriMatchType: DefaultableType<UriMatchType>,
+        _ index: Int
+    ) async {
+        switch newUriMatchType.customValue {
+        case .regularExpression:
+            coordinator.showAlert(
+                .confirmRegularExpressionMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.regEx
+                    )
+                }
+            )
+        case .startsWith:
+            coordinator.showAlert(
+                .confirmStartsWithMatchDetectionAlert {
+                    await self.updateUriMatchType(
+                        newUriMatchType: newUriMatchType,
+                        index: index,
+                        learnMoreLocalizedMatchType: Localizations.startsWith
+                    )
+                }
+            )
+        default:
+            await updateUriMatchType(
+                newUriMatchType: newUriMatchType,
+                index: index,
+                learnMoreLocalizedMatchType: nil
+            )
+        }
+    }
+
+    /// Updates the URI match type value for the uri.
+    ///
+    /// - Parameters:
+    ///   - updateUriMatchType: The new selected URI match type.
+    ///   - index: The index of the uri to update the URI Match type.
+    ///   - learnMoreLocalizedMatchType: The localized text to display on the learn more dialog.
+    ///
+    private func updateUriMatchType(
+        newUriMatchType: DefaultableType<UriMatchType>,
+        index: Int,
+        learnMoreLocalizedMatchType: String?
+    ) async {
+        state.loginState.uris[index].matchType = newUriMatchType
+
+        if let learnMoreText = learnMoreLocalizedMatchType, !learnMoreText.isEmpty {
+            showLearnMoreAlert(learnMoreText)
+        }
+    }
+
     /// Updates the item currently in `state`.
     ///
     private func updateItem(cipherView: CipherView) async throws {
@@ -705,7 +829,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
-        guard services.cameraService.deviceSupportsCamera() else {
+        guard services.cameraService.deviceSupportsCamera(),
+              appExtensionDelegate?.isInAppExtension != true // Extensions don't allow camera access.
+        else {
             coordinator.navigate(to: .setupTotpManual, context: self)
             return
         }
@@ -716,6 +842,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
     }
+
+    /// Shows an alert asking the user if he wants to know more about Uri Matching
+    private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
+        coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
+            self.state.url = ExternalLinksConstants.uriMatchDetections
+        })
+    }
 }
 
 extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
@@ -725,12 +858,29 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
-        case .password:
+        case .passphrase,
+             .password:
             state.loginState.password = value
         case .username:
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss())
+    }
+}
+
+// MARK: - AddEditFolderDelegate
+
+extension AddEditItemProcessor: AddEditFolderDelegate {
+    func folderAdded(_ folderView: FolderView) {
+        state.folder = .custom(folderView)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the add folder flow.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the add folder flow.
     }
 }
 

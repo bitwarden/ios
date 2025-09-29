@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginView
@@ -13,19 +15,15 @@ struct LoginView: View {
     @ObservedObject var store: Store<LoginState, LoginAction, LoginEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                textField
+        VStack(spacing: 24) {
+            textField
 
-                loginButtons
+            loginButtons
 
-                loggedInAs
-            }
-            .padding(.horizontal)
-            .padding(.top, 16)
-            .frame(maxWidth: .infinity)
+            loggedInAs
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -50,13 +48,21 @@ struct LoginView: View {
                     get: \.masterPassword,
                     send: LoginAction.masterPasswordChanged
                 ),
-                accessibilityIdentifier: "MasterPasswordEntry",
+                accessibilityIdentifier: "LoginMasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
-                )
+                ),
+                footerContent: {
+                    Button(Localizations.getMasterPasswordwordHint) {
+                        store.send(.getMasterPasswordHintPressed)
+                    }
+                    .buttonStyle(.bitwardenBorderless)
+                    .padding(.vertical, 14)
+                    .accessibilityIdentifier("GetMasterPasswordHintLabel")
+                }
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -65,23 +71,14 @@ struct LoginView: View {
                     await store.perform(.loginWithMasterPasswordPressed)
                 }
             }
-
-            Button(Localizations.getMasterPasswordwordHint) {
-                store.send(.getMasterPasswordHintPressed)
-            }
-            .styleGuide(.subheadline)
-            .accessibilityIdentifier("GetMasterPasswordHintLabel")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
     }
 
     /// The set of login option buttons.
     @ViewBuilder var loginButtons: some View {
         VStack(alignment: .center, spacing: 12) {
-            Button(Localizations.logInWithMasterPassword) {
-                Task {
-                    await store.perform(.loginWithMasterPasswordPressed)
-                }
+            AsyncButton(Localizations.logInWithMasterPassword) {
+                await store.perform(.loginWithMasterPasswordPressed)
             }
             .accessibilityIdentifier("LogInWithMasterPasswordButton")
             .buttonStyle(.primary())
@@ -92,7 +89,7 @@ struct LoginView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(decorative: Asset.Images.mobile16)
-                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
                 }
@@ -105,7 +102,7 @@ struct LoginView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(decorative: Asset.Images.provider16)
-                        .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }
             }
@@ -116,20 +113,22 @@ struct LoginView: View {
 
     /// The "logged in as..." text along with the not you button.
     @ViewBuilder var loggedInAs: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggedInAsOn(
                 store.state.username,
                 store.state.serverURLString
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+            .multilineTextAlignment(.center)
 
             Button(Localizations.notYou) {
                 store.send(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouLabel")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .styleGuide(.footnote)
     }
 }

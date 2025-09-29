@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExtensionActivationView
@@ -11,7 +12,7 @@ struct ExtensionActivationView: View {
     @ObservedObject var store: Store<
         ExtensionActivationState,
         ExtensionActivationAction,
-        ExtensionActivationEffect
+        Void
     >
 
     /// An action that opens URLs.
@@ -30,9 +31,6 @@ struct ExtensionActivationView: View {
         .scrollView()
         .navigationTitle(store.state.navigationBarTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await store.perform(.appeared)
-        }
     }
 
     // MARK: Private Views
@@ -40,7 +38,7 @@ struct ExtensionActivationView: View {
     /// The main content of the view.
     @ViewBuilder private var content: some View {
         VStack(spacing: 0) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.autofill,
                 title: Localizations.youreAllSet,
                 message: Localizations.autoFillActivatedDescriptionLong
@@ -56,7 +54,7 @@ struct ExtensionActivationView: View {
             Button(Localizations.backToSettings) {
                 store.send(.cancelTapped)
             }
-            .buttonStyle(.transparent)
+            .buttonStyle(.secondary())
             .padding(.top, 12)
         }
     }
@@ -66,11 +64,11 @@ struct ExtensionActivationView: View {
         VStack(spacing: 64) {
             VStack(spacing: 20) {
                 Text(store.state.title)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.title3)
 
                 Text(store.state.message)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
             }
             .multilineTextAlignment(.center)
@@ -94,7 +92,7 @@ struct ExtensionActivationView: View {
                 .padding(16)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Asset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
+                        .strokeBorder(SharedAsset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
                 }
         case .autofillExtension:
             Image(decorative: Asset.Images.check24)
@@ -114,8 +112,7 @@ struct ExtensionActivationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ExtensionActivationState(
-                        extensionType: .autofillExtension,
-                        isNativeCreateAccountFeatureFlagEnabled: true
+                        extensionType: .autofillExtension
                     )
                 )
             )

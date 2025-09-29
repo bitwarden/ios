@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordVisibilityButton
@@ -19,14 +20,14 @@ struct PasswordVisibilityButton: View {
     var isPasswordVisible: Bool
 
     /// The size of the icon displayed in this button.
-    var size: CGFloat = 16
+    var size: CGFloat = 24
 
     var body: some View {
         Button(action: action) {
             (
                 isPasswordVisible
-                    ? Asset.Images.eyeSlash16.swiftUIImage
-                    : Asset.Images.eye16.swiftUIImage
+                    ? Asset.Images.eyeSlash24.swiftUIImage
+                    : Asset.Images.eye24.swiftUIImage
             )
             .resizable()
             .frame(width: size, height: size)
@@ -48,7 +49,7 @@ struct PasswordVisibilityButton: View {
         accessibilityIdentifier: String = "",
         accessibilityLabel: String = Localizations.toggleVisibility,
         isPasswordVisible: Bool,
-        size: CGFloat = 16,
+        size: CGFloat = 24,
         action: @escaping () -> Void
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier

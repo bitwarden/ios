@@ -38,13 +38,11 @@ class MockAuthService: AuthService {
 
     var loginWithDeviceRequest: LoginRequest?
     var loginWithDeviceEmail: String?
-    var loginWithDeviceCaptchaToken: String?
     var loginWithDeviceIsAuthenticated: Bool?
     var loginWithDeviceResult: Result<(String, String), Error> = .success(("", ""))
 
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
-    var loginWithMasterPasswordCaptchaToken: String?
     var loginWithMasterPasswordIsNewAccount = false
     var loginWithMasterPasswordResult: Result<Void, Error> = .success(())
 
@@ -55,12 +53,13 @@ class MockAuthService: AuthService {
     var loginWithTwoFactorCodeCode: String?
     var loginWithTwoFactorCodeMethod: TwoFactorAuthMethod?
     var loginWithTwoFactorCodeRemember: Bool?
-    var loginWithTwoFactorCodeCaptchaToken: String?
     var loginWithTwoFactorCodeResult: Result<LoginUnlockMethod, Error> = .success(.masterPassword(.fixture()))
     var publicKey: String = ""
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
     var sentVerificationEmail = false
+    var resendNewDeviceOtpResult: Result<Void, Error> = .success(())
+    var sentNewDeviceOtp = false
 
     var setPendingAdminLoginRequest: PendingAdminLoginRequest?
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
@@ -116,25 +115,21 @@ class MockAuthService: AuthService {
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool,
-        captchaToken: String?
+        isAuthenticated: Bool
     ) async throws -> (String, String) {
         loginWithDeviceRequest = loginRequest
         loginWithDeviceEmail = email
         loginWithDeviceIsAuthenticated = isAuthenticated
-        loginWithDeviceCaptchaToken = captchaToken
         return try loginWithDeviceResult.get()
     }
 
     func loginWithMasterPassword(
         _ password: String,
         username: String,
-        captchaToken: String?,
         isNewAccount: Bool
     ) async throws {
         loginWithMasterPasswordPassword = password
         loginWithMasterPasswordUsername = username
-        loginWithMasterPasswordCaptchaToken = captchaToken
         loginWithMasterPasswordIsNewAccount = isNewAccount
         try loginWithMasterPasswordResult.get()
     }
@@ -149,22 +144,26 @@ class MockAuthService: AuthService {
         code: String,
         method: TwoFactorAuthMethod,
         remember: Bool,
-        captchaToken: String?
     ) async throws -> LoginUnlockMethod {
         loginWithTwoFactorCodeEmail = email
         loginWithTwoFactorCodeCode = code
         loginWithTwoFactorCodeMethod = method
         loginWithTwoFactorCodeRemember = remember
-        loginWithTwoFactorCodeCaptchaToken = captchaToken
         return try loginWithTwoFactorCodeResult.get()
     }
 
     func requirePasswordChange(
         email: String,
+        isPreAuth: Bool,
         masterPassword: String,
         policy: BitwardenSdk.MasterPasswordPolicyOptions?
     ) async throws -> Bool {
         try requirePasswordChangeResult.get()
+    }
+
+    func resendNewDeviceOtp() async throws {
+        sentNewDeviceOtp = true
+        try resendNewDeviceOtpResult.get()
     }
 
     func resendVerificationCodeEmail() async throws {

@@ -15,7 +15,8 @@ class AddCipherWithCollectionsRequestTests: BitwardenTestCase {
             cipher: .fixture(
                 collectionIds: ["1", "2", "3"],
                 revisionDate: Date(year: 2023, month: 10, day: 31)
-            )
+            ),
+            encryptedFor: "1"
         )
     }
 
@@ -33,6 +34,7 @@ class AddCipherWithCollectionsRequestTests: BitwardenTestCase {
             """
             {
               "cipher" : {
+                "encryptedFor" : "1",
                 "favorite" : false,
                 "lastKnownRevisionDate" : 720403200,
                 "name" : "Bitwarden",

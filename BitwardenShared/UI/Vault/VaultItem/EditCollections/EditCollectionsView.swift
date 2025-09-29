@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -36,21 +38,22 @@ struct EditCollectionsView: View {
         if store.state.collections.isEmpty {
             Text(Localizations.noCollectionsToList)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
                 .padding(16)
                 .frame(maxWidth: .infinity)
         } else {
-            VStack(spacing: 16) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 ForEach(store.state.collections, id: \.id) { collection in
                     if let collectionId = collection.id {
-                        Toggle(isOn: store.binding(
-                            get: { _ in store.state.collectionIds.contains(collectionId) },
-                            send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                        )) {
-                            Text(collection.name)
-                        }
-                        .toggleStyle(.bitwarden)
+                        BitwardenToggle(
+                            collection.name,
+                            isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collectionId) },
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                            ),
+                            accessibilityIdentifier: "CollectionItemSwitch"
+                        )
                     }
                 }
             }

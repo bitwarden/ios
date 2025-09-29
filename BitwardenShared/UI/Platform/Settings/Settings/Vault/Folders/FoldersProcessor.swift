@@ -1,3 +1,6 @@
+import BitwardenResources
+import BitwardenSdk
+
 // MARK: - FoldersProcessor
 
 /// The processor used to manage state and handle actions for the `FoldersView`.
@@ -71,11 +74,11 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     }
 }
 
-// MARK: - CaptchaFlowDelegate
+// MARK: - AddEditFolderDelegate
 
 extension FoldersProcessor: AddEditFolderDelegate {
     /// Show the toast that the folder was successfully added.
-    func folderAdded() {
+    func folderAdded(_: FolderView) {
         state.toast = Toast(title: Localizations.folderCreated)
     }
 

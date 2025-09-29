@@ -1,4 +1,8 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -130,7 +134,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
     @MainActor
-    func test_perform_profileSwitcher_accountPressed() async {
+    func test_perform_profileSwitcher_accountPressed() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = true
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
         authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
@@ -164,7 +173,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
     /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))` updates the state correctly.
     @MainActor
-    func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
+    func test_perform_profileSwitcher_toggleProfilesViewVisibility() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
@@ -175,9 +189,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_search() throws {
         let vaultItems: [VaultListItem] = try [
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "1"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "2"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "3"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "1"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
         vaultRepository.searchVaultListSubject.value = vaultItems
 
@@ -234,9 +248,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_streamVaultItems() throws {
         let vaultItems: [VaultListItem] = try [
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "1"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "2"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "3"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "1"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
         vaultRepository.searchVaultListSubject.value = vaultItems
 
@@ -297,8 +311,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// with the OTP key added.
     @MainActor
     func test_perform_vaultListItemTapped() async throws {
-        let cipher = CipherView.loginFixture()
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let rawCipher = Cipher.fixture(
+            id: "8675",
+            login: .fixture(),
+            type: .login
+        )
+        let cipher = CipherListView(cipher: rawCipher)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: rawCipher))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 
@@ -311,8 +331,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` displays an alert and logs an error if one occurs.
     @MainActor
     func test_perform_vaultListItemTapped_error() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -324,8 +347,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` doesn't show an alert if user verification was cancelled.
     @MainActor
     func test_perform_vaultListItemTapped_errorCancellation() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -338,8 +364,15 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// necessary before navigating to the edit item screen.
     @MainActor
     func test_perform_vaultListItemTapped_masterPasswordReprompt() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let rawCipher = Cipher.fixture(
+            id: "8675",
+            login: .fixture(),
+            reprompt: .password,
+            type: .login
+        )
+        let cipher = CipherListView(cipher: rawCipher)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: rawCipher))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 
@@ -354,8 +387,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// user's master password couldn't be verified.
     @MainActor
     func test_perform_vaultListItemTapped_masterPasswordRepromptInvalid() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -366,7 +402,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` shows an alert if the vault list item doesn't contain a login.
     @MainActor
     func test_perform_vaultListItemTapped_notLogin() async throws {
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: .cardFixture()))
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .card(.init(brand: nil))
+        )))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 
@@ -381,12 +419,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(
             coordinator.routes.last,
             .addItem(
-                allowTypeSelection: false,
                 group: .login,
                 newCipherOptions: NewCipherOptions(
                     name: "Example",
                     totpKey: .otpAuthUriKeyComplete
-                )
+                ),
+                type: .login
             )
         )
         XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)
@@ -420,9 +458,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
     @MainActor
-    func test_receive_profileSwitcher_backgroundPressed() {
+    func test_receive_profileSwitcher_backgroundPressed() throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-25906 - Backfill tests for new account switcher
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
+
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcher(.backgroundPressed))
+        subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -459,6 +502,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         subject.receive(.searchStateChanged(isSearching: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
@@ -480,5 +524,23 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: ProfileSwitcherHandler
+
+    /// `dismissProfileSwitcher` calls the coordinator to dismiss the profile switcher.
+    @MainActor
+    func test_dismissProfileSwitcher() {
+        subject.dismissProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
+    @MainActor
+    func test_showProfileSwitcher() {
+        subject.showProfileSwitcher()
+
+        XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
     }
 }
