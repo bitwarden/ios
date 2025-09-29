@@ -252,12 +252,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and does
     /// nothing if they already meet the minimums.
+    @MainActor
     func test_perform_appeared_checkIfForceKdfUpdateRequired_false() async {
+        notificationService.authorizationStatus = .denied
         stateService.activeAccount = .fixture()
 
         await subject.perform(.appeared)
 
         XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
 
     /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and
