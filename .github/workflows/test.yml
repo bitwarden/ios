@@ -118,6 +118,12 @@ jobs:
 
       - name: Output processes
         run: |
+          echo "Disabling spotlight"
+          sudo mdutil -a -i off
+          echo "Spotlight disabled!"
+          echo "--------------------------------"
+
+
           echo "Sorted by memory usage"
           ps -em -o pid,pcpu,pmem,comm | head -n40
           echo "--------------------------------"

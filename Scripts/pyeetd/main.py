@@ -56,13 +56,11 @@ def get_processes():
 def main():
     while True:
         output = []
-        output.append("\n\n")
-        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Scanning for processes ...")
+        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning for processes ...")
         processes = get_processes()
         output.append("PID\tCPU%\tMemory%\tName")
         for p in processes[:40]:
             output.append(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
-        output.append("\n\n")
 
         print("\n".join(output))
         # for p in processes:
