@@ -335,7 +335,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                     .fixture(cipherListView: .fixture(
                         login: .fixture(username: "email@example.com"),
                         name: "Example",
-                        subtitle: "email@example.com",
+                        subtitle: "email@example.com"
                     )),
                     .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
                     .fixture(cipherListView: .fixture(

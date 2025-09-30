@@ -22,7 +22,7 @@ public protocol AppIntentMediator {
 }
 
 /// The default implementation of the `AppIntentMediator`.
-struct DefaultAppIntentMediator: AppIntentMediator {
+class DefaultAppIntentMediator: AppIntentMediator {
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
     /// The service to get server-specified configuration.

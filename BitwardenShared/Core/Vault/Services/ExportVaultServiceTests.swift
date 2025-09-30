@@ -183,7 +183,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
             folderService: folderService,
             policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider,
+            timeProvider: timeProvider
         )
     }
 

@@ -324,7 +324,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .startsWith)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
-        
+
         XCTAssertEqual(alertLearnMore, Alert(
             title: Localizations.keepYourCredentialsSecure,
             message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.startsWith),
@@ -333,7 +333,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in },
             ]
         ))
-        
+
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }

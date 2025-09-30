@@ -475,7 +475,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_init_logLifecycleTimer_activeLogExpires() async throws {
         timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 2, day: 1))
         stateService.flightRecorderData = FlightRecorderData(
-            activeLog: activeLog,
+            activeLog: activeLog
         )
         subject = makeSubject(disableLogLifecycleTimer: false)
 

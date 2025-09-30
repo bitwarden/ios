@@ -201,7 +201,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
-        // swiftlint:disable:previous function_body_length
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -314,7 +313,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 VaultListItem(
                     id: "Types.Cards",
                     itemType: .group(.card, cardCount)
-                ),
+                )
             )
         }
 

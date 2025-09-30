@@ -138,7 +138,7 @@ extension Alert {
     /// - Returns: An alert notifying the user that they need to migrate their encryption key.
     ///
     static func encryptionKeyMigrationRequiredAlert(
-        environmentUrl: String,
+        environmentUrl: String
     ) -> Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,

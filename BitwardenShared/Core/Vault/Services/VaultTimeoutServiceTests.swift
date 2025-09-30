@@ -365,7 +365,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(
             stateService.lastActiveTime[account.profile.userId]!,
-            timeProvider.presentTime,
+            timeProvider.presentTime
         )
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }

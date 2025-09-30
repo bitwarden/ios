@@ -155,7 +155,7 @@ class DefultExportVaultService: ExportVaultService {
         folderService: FolderService,
         policyService: PolicyService,
         stateService: StateService,
-        timeProvider: TimeProvider,
+        timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
         self.clientService = clientService

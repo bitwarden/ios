@@ -43,7 +43,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                 .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
                 .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
                 .fixture(cipherListView: .fixture(id: "4", name: "Password-2")),
-            ],
+            ]
         ))
 
         let vaultListData = subject.addAutofillCombinedSingleSection().build()
@@ -337,7 +337,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .login: 15,
                     .secureNote: 2,
                 ],
-                restrictedOrganizationIds: ["org1", "org2"],
+                restrictedOrganizationIds: ["org1", "org2"]
             )
         )
 
@@ -366,7 +366,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .login: 15,
                     .secureNote: 2,
                 ],
-                restrictedOrganizationIds: ["org1", "org2"],
+                restrictedOrganizationIds: ["org1", "org2"]
             )
         )
 

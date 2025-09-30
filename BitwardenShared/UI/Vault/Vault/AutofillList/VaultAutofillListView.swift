@@ -374,7 +374,7 @@ private struct VaultAutofillListSearchableView: View {
                                             fido2Credentials: [.fixture()],
                                             username: "user@test.com"
                                         ),
-                                        name: "Testing something really long to see how it looks",
+                                        name: "Testing something really long to see how it looks"
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "someApp",
                                         userNameForUi: "user"
@@ -397,7 +397,7 @@ private struct VaultAutofillListSearchableView: View {
                                         login: .fixture(
                                             username: "user@bitwarden.com"
                                         ),
-                                        name: "Bitwarden",
+                                        name: "Bitwarden"
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "3",

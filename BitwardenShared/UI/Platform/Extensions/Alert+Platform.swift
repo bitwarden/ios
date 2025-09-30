@@ -3,9 +3,8 @@
 import BitwardenResources
 
 extension Alert {
-
     // MARK: Methods
-    
+
     /// Creates an alert asking if the user wants to use an advanced matching detection option.
     ///
     /// - Parameters:

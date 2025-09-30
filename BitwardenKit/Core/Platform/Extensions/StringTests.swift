@@ -146,7 +146,6 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(expected, subject.whitespaceRemoved())
     }
 
-
     /// `withoutAutomaticEmailLinks()` returns the string with email addresses appropriately modified.
     func test_withoutAutomaticEmailLinks() {
         let subject = "person@example.com"
@@ -154,6 +153,4 @@ class StringTests: BitwardenTestCase {
 
         XCTAssertEqual(modified, "person\u{2060}@example.com")
     }
-
-
 }

@@ -204,7 +204,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(
             subject.message,
-            Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden("bitwarden.com"),
+            Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden("bitwarden.com")
         )
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)

@@ -95,7 +95,8 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.favorites.isEmpty)
     }
 
-     /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds and Fido2 credentials exist.
+    /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds
+    /// and Fido2 credentials exist.
     func test_addFido2Item_succeeds() async {
         let cipher = CipherListView.fixture(id: "1")
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))

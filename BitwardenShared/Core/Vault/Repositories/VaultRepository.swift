@@ -337,7 +337,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
-    
+
     /// The helper functions for collections.
     private let collectionHelper: CollectionHelper
 
@@ -1340,7 +1340,7 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func ciphersAutofillPublisher(
+    func ciphersAutofillPublisher( // swiftlint:disable:this function_body_length
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
         group: VaultListGroup? = nil,
@@ -1357,7 +1357,7 @@ extension DefaultVaultRepository: VaultRepository {
                     group: group
                 )
             )
-        case .passwords, .combinedSingleSection:
+        case .combinedSingleSection, .passwords:
             try await vaultListPublisher(
                 filter: VaultListFilter(
                     addTOTPGroup: false,

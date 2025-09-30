@@ -52,7 +52,8 @@ extension Backport where Content: View {
 
     /// On iOS 16+, handles geometry changes.
     ///
-    @preconcurrency nonisolated public func onGeometryChange<T>(
+    @preconcurrency
+    public nonisolated func onGeometryChange<T>(
         for type: T.Type,
         of transform: @escaping @Sendable (GeometryProxy) -> T,
         action: @escaping (_ newValue: T) -> Void

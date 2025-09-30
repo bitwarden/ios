@@ -129,7 +129,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
 
     /// `getExportVaultDataForCXF()` gets the vault data prepared for export on CXF.
     @MainActor
-    func test_getExportVaultDataForCXF() async throws { // swiftlint:disable:this function_body_length
+    func test_getExportVaultDataForCXF() async throws {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }

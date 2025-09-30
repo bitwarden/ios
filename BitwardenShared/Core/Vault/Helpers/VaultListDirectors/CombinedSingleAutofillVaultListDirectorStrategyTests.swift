@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - CombinedSingleAutofillVaultListDirectorStrategyTests
 
-class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
+class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase { // swiftlint:disable:this type_name
     // MARK: Properties
 
     var cipherService: MockCipherService!

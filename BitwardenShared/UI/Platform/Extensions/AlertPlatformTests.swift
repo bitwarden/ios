@@ -8,10 +8,13 @@ class AlertPlatformTests: BitwardenTestCase {
     /// with the correct title, message, and Cancel and Yes buttons.
     func test_confirmRegularExpressionMatchDetectionAlert() {
         let subject = Alert.confirmRegularExpressionMatchDetectionAlert {}
-        
+
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.regEx))
-        XCTAssertEqual(subject.message, Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+        )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions.first?.style, .cancel)
@@ -23,7 +26,7 @@ class AlertPlatformTests: BitwardenTestCase {
     /// with the correct title, message, and Cancel and Yes buttons.
     func test_confirmStartsWithMatchDetectionAlert() {
         let subject = Alert.confirmStartsWithMatchDetectionAlert {}
-        
+
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.startsWith))
         XCTAssertEqual(
