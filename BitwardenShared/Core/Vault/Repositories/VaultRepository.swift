@@ -1357,6 +1357,16 @@ extension DefaultVaultRepository: VaultRepository {
                     group: group
                 )
             )
+        case .passwords, .combinedSingleSection:
+            try await vaultListPublisher(
+                filter: VaultListFilter(
+                    addTOTPGroup: false,
+                    addTrashGroup: false,
+                    filterType: .allVaults,
+                    mode: mode,
+                    uri: uri
+                )
+            )
         case .totp:
             try await vaultListPublisher(
                 filter: VaultListFilter(

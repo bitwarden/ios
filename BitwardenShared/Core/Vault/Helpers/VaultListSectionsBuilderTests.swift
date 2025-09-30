@@ -32,6 +32,49 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
+    /// `addAutofillCombinedSingleSection()` adds a vault section combinining passwords and Fido2 items.
+    func test_addAutofillCombinedSingleSection() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+                .fixture(cipherListView: .fixture(id: "6", name: "zFido2-2"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Password-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedSingleSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Choose a login to save this passkey to]: Choose a login to save this passkey to
+              - Cipher: Fido2-1
+              - Cipher: Password-1
+              - Cipher: Password-2
+              - Cipher: Password-3
+              - Cipher: zFido2-2
+            """
+        }
+    }
+
+    /// `addAutofillCombinedSingleSection()` doesn't add a vault section when no passwords no Fido2 items available.
+    func test_addAutofillCombinedSingleSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [],
+            groupItems: []
+        ))
+
+        let vaultListData = subject.addAutofillCombinedSingleSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            """
+        }
+    }
+
     /// `addAutofillPasswordsSection()` adds a vault section combinining exact and fuzzy match items.
     func test_addAutofillPasswordsSection() {
         setUpSubject(withData: VaultListPreparedData(

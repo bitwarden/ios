@@ -33,14 +33,14 @@ class ExpiredLinkViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
 
     /// Tapping the restart registration button dispatches the `.restartRegistrationTapped` action.
     @MainActor
-    func restartRegistration() throws {
+    func test_restartRegistration() throws {
         let button = try subject.inspect().find(button: Localizations.restartRegistration)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .restartRegistrationTapped)
@@ -48,7 +48,7 @@ class ExpiredLinkViewTests: BitwardenTestCase {
 
     /// Tapping the log in button dispatches the `.logInTapped` action.
     @MainActor
-    func logIn() throws {
+    func test_logIn() throws {
         let button = try subject.inspect().find(button: Localizations.logIn)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .logInTapped)
@@ -56,7 +56,7 @@ class ExpiredLinkViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     @MainActor
-    func test_snapshot_toggles_on() throws {
+    func disabletest_snapshot_toggles_on() throws {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

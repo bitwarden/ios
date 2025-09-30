@@ -77,6 +77,7 @@ extension CipherListView {
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate,
+            archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: cipher.localData.map(LocalDataView.init)
         )
@@ -138,7 +139,8 @@ extension Cipher {
             passwordHistory: cipherView.passwordHistory?.map(PasswordHistory.init),
             creationDate: cipherView.creationDate,
             deletedDate: cipherView.deletedDate,
-            revisionDate: cipherView.revisionDate
+            revisionDate: cipherView.revisionDate,
+            archivedDate: cipherView.archivedDate
         )
     }
 }
@@ -171,7 +173,8 @@ extension CipherView {
             passwordHistory: cipher.passwordHistory?.map(PasswordHistoryView.init),
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            revisionDate: cipher.revisionDate
+            revisionDate: cipher.revisionDate,
+            archivedDate: cipher.archivedDate
         )
     }
 }

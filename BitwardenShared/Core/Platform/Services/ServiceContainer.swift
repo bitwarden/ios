@@ -722,6 +722,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 policyService: policyService,
                 stateService: stateService,
                 vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
+                    cipherService: cipherService,
                     clientService: clientService,
                     errorReporter: errorReporter,
                     stateService: stateService,

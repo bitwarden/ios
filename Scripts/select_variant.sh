@@ -88,7 +88,3 @@ cat << EOF > ${export_options_file}
 </dict>
 </plist>
 EOF
-
-if [[ $compiler_flags == *"SUPPORTS_CXP"* ]]; then
-  ./Scripts/alpha_update_cxp_infoplist.sh
-fi

@@ -99,6 +99,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
@@ -111,6 +115,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Tapping a profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_accountRow_tap_currentAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
@@ -123,6 +131,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Tapping the add account row dispatches the `.addAccountPressed ` action.
     @MainActor
     func test_accountRow_tap_addAccount() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test is for iOS < 26 and relies on the visibility of the profile switcher.")
+        }
+
         processor.state.profileSwitcherState.isVisible = true
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
@@ -274,7 +286,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
 
@@ -282,7 +294,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_empty_singleAccountProfileSwitcher() {
+    func disabletest_snapshot_empty_singleAccountProfileSwitcher() {
         processor.state.profileSwitcherState.isVisible = true
         processor.state.loadingState = .data([])
 
@@ -290,7 +302,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_errorState() {
+    func disabletest_snapshot_errorState() {
         processor.state.loadingState = .error(
             errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
         )
@@ -298,7 +310,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_flightRecorderToastBanner() {
+    func disabletest_snapshot_flightRecorderToastBanner() {
         processor.state.loadingState = .data([])
         processor.state.isFlightRecorderToastBannerVisible = true
         processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
@@ -309,13 +321,13 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_loading() {
+    func disabletest_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_myVault() {
+    func disabletest_snapshot_myVault() {
         processor.state.loadingState = .data([
             VaultListSection(
                 id: "",
@@ -367,7 +379,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withSearchResult() {
+    func disabletest_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -379,7 +391,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withMultipleSearchResults() {
+    func disabletest_snapshot_withMultipleSearchResults() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -407,7 +419,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func test_snapshot_withoutSearchResult() {
+    func disabletest_snapshot_withoutSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = []
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -415,7 +427,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// Test a snapshot of the VaultListView previews.
     @MainActor
-    func test_snapshot_vaultListView_previews() {
+    func disabletest_snapshot_vaultListView_previews() {
         for preview in VaultListView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

@@ -260,6 +260,19 @@ extension InspectableView {
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
+
+    // MARK: Toolbar
+
+    /// Attempts to locate the toolbar cancel default button.
+    ///
+    /// - Returns: A cancel toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCancelToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CancelButton"
+        }
+    }
 }
 
 extension InspectableView where View == AsyncButtonType {

@@ -1,0 +1,22 @@
+{
+  "profile": null,
+  "folders": [],
+  "collections": [],
+  "ciphers": [],
+  "domains": null,
+  "policies": [],
+  "sends": [],
+  "userDecryption": {
+    "masterPasswordUnlock": {
+      "kdf": {
+        "kdfType": 0,
+        "iterations": 600000,
+        "memory": null,
+        "parallelism": null
+      },
+      "masterKeyEncryptedUserKey": "MASTER_KEY_ENCRYPTED_USER_KEY",
+      "salt": "user@bitwarden.com"
+    }
+  },
+  "object": "sync"
+}

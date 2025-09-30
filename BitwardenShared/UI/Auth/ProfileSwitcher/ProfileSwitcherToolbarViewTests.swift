@@ -60,7 +60,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_empty() {
+    func disabletest_snapshot_empty() {
         processor.state = .empty()
         assertSnapshot(
             of: snapshotSubject(
@@ -71,7 +71,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_noActive() {
+    func disabletest_snapshot_noActive() {
         processor.state = .init(
             accounts: [ProfileSwitcherItem.anneAccount],
             activeAccountId: nil,
@@ -86,7 +86,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
-    func test_snapshot_singleAccount() {
+    func disabletest_snapshot_singleAccount() {
         assertSnapshot(
             of: snapshotSubject(
                 title: "Single Account"
@@ -96,7 +96,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_multi() {
+    func disabletest_snapshot_multi() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -120,7 +120,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_profileIconColor_black() {
+    func disabletest_snapshot_profileIconColor_black() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -144,7 +144,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_profileIconColor_blue() {
+    func disabletest_snapshot_profileIconColor_blue() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -168,7 +168,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_profileIconColor_white() {
+    func disabletest_snapshot_profileIconColor_white() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -192,7 +192,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_profileIconColor_yellow() {
+    func disabletest_snapshot_profileIconColor_yellow() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,

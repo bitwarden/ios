@@ -19,6 +19,17 @@ extension View {
 /// Adapted from https://davedelong.com/blog/2021/10/09/simplifying-backwards-compatibility-in-swift/
 ///
 extension Backport where Content: View {
+    /// On iOS 26+, configures the button style to use `glassProminent`.
+    ///
+    @available(iOS, deprecated: 26.0, message: "Use `buttonStyle(.glassProminent)` instead.")
+    func buttonStyleGlassProminent() -> some View {
+        if #available(iOS 26, *) {
+            return content.buttonStyle(.glassProminent)
+        } else {
+            return content
+        }
+    }
+
     /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
     ///
     func dismissKeyboardImmediately() -> some View {

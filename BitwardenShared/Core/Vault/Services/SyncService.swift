@@ -315,6 +315,9 @@ extension DefaultSyncService {
         if let profile = response.profile {
             try await onProfileSynced(profile, userId: userId)
         }
+        if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
+            await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
+        }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)

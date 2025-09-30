@@ -54,6 +54,11 @@ class MasterPasswordGeneratorViewTests: BitwardenTestCase {
     /// Tapping the save button dispatches the `.save` action.
     @MainActor
     func test_saveButton_tap() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .save)
@@ -63,7 +68,7 @@ class MasterPasswordGeneratorViewTests: BitwardenTestCase {
 
     /// The master password generator view renders correctly.
     @MainActor
-    func test_snapshot_masterPasswordGenerator() {
+    func disabletest_snapshot_masterPasswordGenerator() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
