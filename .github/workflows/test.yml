@@ -120,12 +120,47 @@ jobs:
         run: |
           echo "Disabling spotlight"
           sudo mdutil -a -i off
+
+          echo "Disabling com.apple.metadata.mds"
+          sudo launchctl disable system/com.apple.metadata.mds
+          echo "Disabling com.apple.metadata.mds.index"
+          sudo launchctl disable system/com.apple.metadata.mds.index
+          echo "Disabling com.apple.metadata.mds.scan"
+          sudo launchctl disable system/com.apple.metadata.mds.scan
+
+          echo "Unloading com.apple.metadata.mds.plist"
           sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist || true
+          echo "Unloading com.apple.metadata.mds.index.plist"
           sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.index.plist || true
+          echo "Unloading com.apple.metadata.mds.scan.plist"
           sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.scan.plist || true
-          sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.metadata.mdwrite.plist || true
-          sudo killall Spotlight
+          echo "Unloading com.apple.metadata.mdwrite.plist"
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mdwrite.plist || true
+
+          echo "Killing all mds processes"
+          sudo pkill -SIGKILL -f "Metadata.framework/Versions/A/Support/mds" || true
+
+          echo "Killing Spotlight"
+          sudo pkill -SIGKILL Spotlight || true
           echo "Spotlight disabled!"
+
+          echo "Disabling ReportCrash"
+          echo "Unloading com.apple.ReportCrash.plist"
+          sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.ReportCrash.plist || true
+          echo "Unloading com.apple.ReportCrash.Root.plist"
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.plist || true
+
+          echo "Disabling com.apple.ReportCrash"
+          sudo launchctl disable system/com.apple.ReportCrash || true
+          sudo launchctl disable system/com.apple.ReportCrash.Root || true
+
+          echo "ReportCrash disabled!"
+
+          echo "Disabling com.apple.ecosystemd.plist"
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ecosystemd.plist || true
+          echo "Killing ecosystemd"
+          sudo pkill -SIGKILL -f "ecosystemd" || true
+          echo "com.apple.ecosystemd.plist disabled!"
           echo "--------------------------------"
 
 
