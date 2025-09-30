@@ -9,7 +9,7 @@ import SwiftUI
 /// the pressed state.
 ///
 @available(iOS, deprecated: 17, message: "Prefer using CircleButtonStyle to style Menu buttons on iOS 17+")
-struct CircleMenuStyle: MenuStyle {
+public struct CircleMenuStyle: MenuStyle {
     // MARK: Properties
 
     /// A Boolean value indicating whether the button is currently enabled or disabled.
@@ -32,7 +32,15 @@ struct CircleMenuStyle: MenuStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    func makeBody(configuration: Configuration) -> some View {
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - diameter: The diameter of the button.
+    public init(diameter: CGFloat) {
+        self.diameter = diameter
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
         Menu(configuration)
             .foregroundColor(foregroundColor)
             .frame(width: diameter, height: diameter)

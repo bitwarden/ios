@@ -52,7 +52,7 @@ struct ScaledFrame: ViewModifier {
 
 // MARK: View
 
-extension View {
+public extension View {
     /// Sets the frame of a `View` to width/height values that can optionally be scaled with
     /// dynamic font size.
     ///
@@ -83,7 +83,7 @@ extension View {
 
 // MARK: Image + ScaledFrame
 
-extension Image {
+public extension Image {
     /// Set the frame of an `Image` to width/height values that will scale with dynamic font size.
     ///
     /// - Parameters:

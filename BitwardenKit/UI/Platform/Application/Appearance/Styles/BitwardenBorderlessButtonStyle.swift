@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for a borderless button in this application.
 ///
-struct BitwardenBorderlessButtonStyle: ButtonStyle {
+public struct BitwardenBorderlessButtonStyle: ButtonStyle {
     // MARK: Properties
 
     /// A value indicating whether the button is currently enabled or disabled.
@@ -20,7 +20,7 @@ struct BitwardenBorderlessButtonStyle: ButtonStyle {
 
     // MARK: ButtonStyle
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(foregroundColor)
             .styleGuide(.subheadlineSemibold)
@@ -30,7 +30,7 @@ struct BitwardenBorderlessButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == BitwardenBorderlessButtonStyle {
+public extension ButtonStyle where Self == BitwardenBorderlessButtonStyle {
     /// The style for a borderless button in this application.
     ///
     static var bitwardenBorderless: BitwardenBorderlessButtonStyle {

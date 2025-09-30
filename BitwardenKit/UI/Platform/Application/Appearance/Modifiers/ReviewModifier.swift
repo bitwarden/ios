@@ -47,7 +47,7 @@ struct RequestReviewLegacyModifier: ViewModifier {
 }
 
 /// A view extension that requests a review when the view appears.
-extension View {
+public extension View {
     func requestReview(windowScene: UIWindowScene?, isEligible: Bool, afterClosure: @escaping () -> Void) -> some View {
         apply { view in
             if #available(iOS 16.0, *) {

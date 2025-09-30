@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A modifier for the footer on BitwardenMenu
 ///
-struct BitwardenMenuFooterTextModifier: ViewModifier {
+public struct BitwardenMenuFooterTextModifier: ViewModifier {
     /// The bottom padding of the modifier.
     var topPadding: CGFloat
 
@@ -14,7 +14,7 @@ struct BitwardenMenuFooterTextModifier: ViewModifier {
 
     // MARK: View
 
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
@@ -24,7 +24,7 @@ struct BitwardenMenuFooterTextModifier: ViewModifier {
     }
 }
 
-extension View {
+public extension View {
     func bitwardenMenuFooterText(topPadding: CGFloat = 0, bottomPadding: CGFloat = 12) -> some View {
         modifier(BitwardenMenuFooterTextModifier(topPadding: topPadding, bottomPadding: bottomPadding))
     }

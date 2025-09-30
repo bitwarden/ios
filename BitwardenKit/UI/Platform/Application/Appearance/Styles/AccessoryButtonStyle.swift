@@ -5,11 +5,11 @@ import SwiftUI
 
 /// The style for an accessory button.
 ///
-struct AccessoryButtonStyle: ButtonStyle {
+public struct AccessoryButtonStyle: ButtonStyle {
     /// A value indicating whether the button is currently enabled or disabled.
     @Environment(\.isEnabled) var isEnabled
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(width: 24, height: 24)
             .foregroundColor(
@@ -24,7 +24,7 @@ struct AccessoryButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == AccessoryButtonStyle {
+public extension ButtonStyle where Self == AccessoryButtonStyle {
     /// The style for an accessory buttons in this application.
     ///
     static var accessory: AccessoryButtonStyle {

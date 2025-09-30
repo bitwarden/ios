@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Label {
+public extension Label {
     /// Initialize a label with a title and image.
     ///
     /// - Parameters:

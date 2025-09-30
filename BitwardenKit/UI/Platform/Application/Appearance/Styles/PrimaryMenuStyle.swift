@@ -9,7 +9,7 @@ import SwiftUI
 /// the pressed state.
 ///
 @available(iOS, deprecated: 17, message: "Prefer using PrimaryButtonStyle to style Menu buttons on iOS 17+")
-struct PrimaryMenuStyle: MenuStyle {
+public struct PrimaryMenuStyle: MenuStyle {
     // MARK: Properties
 
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -35,7 +35,7 @@ struct PrimaryMenuStyle: MenuStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         Menu(configuration)
             .foregroundColor(foregroundColor)
             .multilineTextAlignment(.center)
@@ -50,7 +50,7 @@ struct PrimaryMenuStyle: MenuStyle {
 
 // MARK: - MenuStyle
 
-extension MenuStyle where Self == PrimaryMenuStyle {
+public extension MenuStyle where Self == PrimaryMenuStyle {
     /// The style for all primary menus in this application.
     ///
     /// - Parameters:
