@@ -53,27 +53,36 @@ def get_processes():
 
     return processes
 
+def print_processes(processes):
+    print("PID\tCPU%\tMemory%\tName")
+    for p in processes:
+        print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
+
+def find_unwanted(processes):
+    yeeting = []
+    for p in processes:
+        for k in DEFAULT_PROCESSES:
+            if k in p.name:
+                yeeting.append(p)
+    return yeeting
+
+def yeet(processes):
+    output = []
+    for p in processes:
+        output.append(f"pyeetd: Stopping - {p.pid} {p.cpu_percent}% {p.memory_percent}% {p.name}")
+        os.killpg(p.pid, signal.SIGKILL)
+    return output
+
 def main():
     while True:
         output = []
-        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning for processes ...")
+        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning...")
         processes = get_processes()
-        output.append("PID\tCPU%\tMemory%\tName")
-        for p in processes[:40]:
-            output.append(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
-
+        #print_processes(processes)
+        processes_to_yeet = find_unwanted(processes)
+        output.extend(yeet(processes_to_yeet))
+        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes!")
         print("\n".join(output))
-        # for p in processes:
-        #     try:
-        #         if p.name in DEFAULT_PROCESSES:
-        #             if SIMULATOR_PATH_SEARCH_KEY in p.name:
-        #                 print(f"Stopping process: {p.name}, PID: {p.pid}, CPU: {p.cpu_percent}%")
-        #                 os.kill(p.pid, signal.SIGSTOP)
-
-        #     except OSError:
-        #         # Process may have disappeared or we don't have permission
-        #         continue
-
         time.sleep(SLEEP_DELAY)
 
 if __name__ == '__main__':
