@@ -27,7 +27,7 @@ DEFAULT_PROCESSES = {
 SIMULATOR_PATH_SEARCH_KEY = "simruntime/Contents/Resources/RuntimeRoot"
 
 # How long to sleep between checks in seconds
-SLEEP_DELAY = 5
+SLEEP_DELAY = 10
 
 @dataclass
 class ProcessInfo:
@@ -55,13 +55,16 @@ def get_processes():
 
 def main():
     while True:
-        print("\n\n")
-        print("Scanning for processes ...")
+        output = []
+        output.append("\n\n")
+        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Scanning for processes ...")
         processes = get_processes()
-        print("PID\tCPU%\tMemory%\tName")
-        for p in processes[:20]:
-            print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
-        print("\n\n")
+        output.append("PID\tCPU%\tMemory%\tName")
+        for p in processes[:40]:
+            output.append(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
+        output.append("\n\n")
+
+        print("\n".join(output))
         # for p in processes:
         #     try:
         #         if p.name in DEFAULT_PROCESSES:
