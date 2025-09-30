@@ -120,6 +120,10 @@ jobs:
         run: |
           echo "Disabling spotlight"
           sudo mdutil -a -i off
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist 2>/dev/null || true
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.index.plist 2>/dev/null || true
+          sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.scan.plist 2>/dev/null || true
+          launchctl unload -w /System/Library/LaunchAgents/com.apple.metadata.mdwrite.plist 2>/dev/null || true
           echo "Spotlight disabled!"
           echo "--------------------------------"
 
