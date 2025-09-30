@@ -34,3 +34,9 @@
 # Vault
 # BitwardenShared/Core/Vault @bitwarden/team-vault-dev
 # BitwardenShared/UI/Vault @bitwarden/team-vault-dev
+
+# Docker-related files
+**/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
+**/*.dockerignore @bitwarden/team-appsec @bitwarden/dept-bre
+**/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
+**/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
