@@ -116,8 +116,18 @@ jobs:
           brew bundle
           ./Scripts/bootstrap.sh
 
+      - name: Output processes
+        run: |
+          echo "Sorted by memory usage"
+          ps -em -o pid,pcpu,pmem,comm | head -n40
+          echo "--------------------------------"
+          echo "Sorted by CPU usage"
+          ps -er -o pid,pcpu,pmem,comm | head -n40
+
       - name: Build and test
         run: |
+            python Scripts/pyeetd/main.py & PYEETD_PID=$!
+
             xcrun xcodebuild test \
             -workspace Bitwarden.xcworkspace \
             -scheme Bitwarden \
@@ -130,6 +140,16 @@ jobs:
             -retry-tests-on-failure \
             -test-repetition-relaunch-enabled YES \
             -showBuildTimingSummary
+
+            kill $PYEETD_PID
+
+      - name: Output processes
+        run: |
+          echo "Sorted by memory usage"
+          ps -em -o pid,pcpu,pmem,comm | head -n40
+          echo "--------------------------------"
+          echo "Sorted by CPU usage"
+          ps -er -o pid,pcpu,pmem,comm | head -n40
 
       - name: Print Logs Summary
         if: always()

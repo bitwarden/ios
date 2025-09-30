@@ -1,0 +1,10 @@
+[project]
+name = "pyeetd"
+version = "0.1.0"
+description = "A minimal daemon implementation in Python"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+pyeetd = "main:main"
