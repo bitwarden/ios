@@ -28,10 +28,10 @@ final class SessionTimeoutValueTests: BitwardenTestCase {
     /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(SessionTimeoutValue.immediately.localizedName, Localizations.immediately)
-        XCTAssertEqual(SessionTimeoutValue.oneMinute.localizedName, Localizations.xMinutes(1))
-        XCTAssertEqual(SessionTimeoutValue.fiveMinutes.localizedName, Localizations.xMinutes(5))
-        XCTAssertEqual(SessionTimeoutValue.fifteenMinutes.localizedName, Localizations.xMinutes(15))
-        XCTAssertEqual(SessionTimeoutValue.thirtyMinutes.localizedName, Localizations.xMinutes(30))
+        XCTAssertEqual(SessionTimeoutValue.oneMinute.localizedName, Localizations.XMinutes(1))
+        XCTAssertEqual(SessionTimeoutValue.fiveMinutes.localizedName, Localizations.XMinutes(5))
+        XCTAssertEqual(SessionTimeoutValue.fifteenMinutes.localizedName, Localizations.XMinutes(15))
+        XCTAssertEqual(SessionTimeoutValue.thirtyMinutes.localizedName, Localizations.XMinutes(30))
         XCTAssertEqual(SessionTimeoutValue.oneHour.localizedName, Localizations.XHours(1))
         XCTAssertEqual(SessionTimeoutValue.fourHours.localizedName, Localizations.XHours(4))
         XCTAssertEqual(SessionTimeoutValue.onAppRestart.localizedName, Localizations.onRestart)

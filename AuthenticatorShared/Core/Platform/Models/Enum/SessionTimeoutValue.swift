@@ -26,13 +26,13 @@ extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
         case .immediately:
             Localizations.immediately
         case .oneMinute:
-            Localizations.xMinutes(1)
+            Localizations.XMinutes(1)
         case .fiveMinutes:
-            Localizations.xMinutes(5)
+            Localizations.XMinutes(5)
         case .fifteenMinutes:
-            Localizations.xMinutes(15)
+            Localizations.XMinutes(15)
         case .thirtyMinutes:
-            Localizations.xMinutes(30)
+            Localizations.XMinutes(30)
         case .oneHour:
             Localizations.XHours(1)
         case .fourHours:
