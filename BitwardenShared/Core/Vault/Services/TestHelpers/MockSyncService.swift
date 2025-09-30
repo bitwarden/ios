@@ -6,6 +6,7 @@ class MockSyncService: SyncService {
     weak var delegate: SyncServiceDelegate?
     var didFetchSync = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncHandler: (() -> Void)?
     var fetchSyncIsPeriodic: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
@@ -34,6 +35,7 @@ class MockSyncService: SyncService {
         didFetchSync = true
         fetchSyncForceSync = forceSync
         fetchSyncIsPeriodic = isPeriodic
+        fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 

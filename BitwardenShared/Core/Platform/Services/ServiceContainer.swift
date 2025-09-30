@@ -476,15 +476,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService
         )
 
-        let changeKdfService = DefaultChangeKdfService(
-            accountAPIService: apiService,
-            clientService: clientService,
-            configService: configService,
-            errorReporter: errorReporter,
-            flightRecorder: flightRecorder,
-            stateService: stateService
-        )
-
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -641,6 +632,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             systemDevice: UIDevice.current,
             trustDeviceService: trustDeviceService
+        )
+
+        let changeKdfService = DefaultChangeKdfService(
+            accountAPIService: apiService,
+            clientService: clientService,
+            configService: configService,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let authRepository = DefaultAuthRepository(

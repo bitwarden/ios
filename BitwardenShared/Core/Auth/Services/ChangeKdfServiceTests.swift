@@ -17,6 +17,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     var flightRecorder: MockFlightRecorder!
     var stateService: MockStateService!
     var subject: ChangeKdfService!
+    var syncService: MockSyncService!
 
     let accountIterationsBelowMin = Account.fixture(profile: .fixture(kdfIterations: 599_999, kdfType: .pbkdf2sha256))
     let accountIterationsAtMin = Account.fixture(profile: .fixture(kdfIterations: 600_000, kdfType: .pbkdf2sha256))
@@ -34,6 +35,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
         stateService = MockStateService()
+        syncService = MockSyncService()
 
         subject = DefaultChangeKdfService(
             accountAPIService: accountAPIService,
@@ -41,7 +43,8 @@ class ChangeKdfServiceTests: BitwardenTestCase {
             configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
-            stateService: stateService
+            stateService: stateService,
+            syncService: syncService
         )
     }
 
@@ -56,9 +59,26 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         flightRecorder = nil
         stateService = nil
         subject = nil
+        syncService = nil
     }
 
     // MARK: Tests
+
+    /// `needsKdfUpdateToMinimums()` returns false if the account needs an update, but after syncing
+    /// the account has already been updated.
+    func test_needsKdfUpdateToMinimums_false_afterSync() async {
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
+        stateService.activeAccount = accountIterationsBelowMin
+        syncService.fetchSyncHandler = { [weak self] in
+            guard let self else { return }
+            stateService.activeAccount = accountIterationsAboveMin
+        }
+
+        let needsUpdate = await subject.needsKdfUpdateToMinimums()
+        XCTAssertFalse(needsUpdate)
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertEqual(syncService.fetchSyncForceSync, false)
+    }
 
     /// `needsKdfUpdateToMinimums()` returns false and logs an error if one occurs.
     func test_needsKdfUpdateToMinimums_false_error() async {
@@ -125,6 +145,8 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
         XCTAssertTrue(needsUpdate)
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertEqual(syncService.fetchSyncForceSync, false)
     }
 
     /// `updateKdfToMinimums(password:)` updates the user's KDF settings.

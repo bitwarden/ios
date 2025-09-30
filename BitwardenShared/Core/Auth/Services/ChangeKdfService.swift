@@ -54,6 +54,9 @@ class DefaultChangeKdfService: ChangeKdfService {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    /// The service used to handle syncing vault data with the API.
+    private let syncService: SyncService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultChangeKdfService`.
@@ -65,6 +68,7 @@ class DefaultChangeKdfService: ChangeKdfService {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         accountAPIService: AccountAPIService,
@@ -72,7 +76,8 @@ class DefaultChangeKdfService: ChangeKdfService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
-        stateService: StateService
+        stateService: StateService,
+        syncService: SyncService
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
@@ -80,6 +85,7 @@ class DefaultChangeKdfService: ChangeKdfService {
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
         self.stateService = stateService
+        self.syncService = syncService
     }
 
     // MARK: Methods
@@ -88,14 +94,12 @@ class DefaultChangeKdfService: ChangeKdfService {
         guard await configService.getFeatureFlag(.forceUpdateKdfSettings) else { return false }
 
         do {
-            let account = try await stateService.getActiveAccount()
-            guard account.kdf.kdfType == .pbkdf2sha256,
-                  account.kdf.kdfIterations < Constants.minimumPbkdf2IterationsForUpgrade,
-                  try await stateService.getUserHasMasterPassword(userId: account.profile.userId)
-            else {
-                return false
-            }
-            return true
+            guard try await accountNeedsKdfUpdate() else { return false }
+
+            // If the account needs a KDF update, sync the user's account and check again before
+            // proceeding to ensure the local data is up-to-date.
+            try await syncService.fetchSync(forceSync: false)
+            return try await accountNeedsKdfUpdate()
         } catch {
             errorReporter.log(error: error)
             return false
@@ -126,5 +130,22 @@ class DefaultChangeKdfService: ChangeKdfService {
             ))
             throw error
         }
+    }
+
+    // MARK: Private
+
+    /// Returns whether the active account needs to update their KDF to meet the minimum requirements.
+    ///
+    /// - Returns: Whether the active account needs a KDF update.
+    ///
+    private func accountNeedsKdfUpdate() async throws -> Bool {
+        let account = try await stateService.getActiveAccount()
+        guard account.kdf.kdfType == .pbkdf2sha256,
+              account.kdf.kdfIterations < Constants.minimumPbkdf2IterationsForUpgrade,
+              try await stateService.getUserHasMasterPassword(userId: account.profile.userId)
+        else {
+            return false
+        }
+        return true
     }
 }
