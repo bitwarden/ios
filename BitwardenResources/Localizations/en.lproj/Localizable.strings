@@ -528,11 +528,9 @@
 "DeviceType" = "Device type";
 "IpAddress" = "IP address";
 "Time" = "Time";
-"Near" = "Near";
 "ConfirmLogIn" = "Confirm login";
 "DenyLogIn" = "Deny login";
 "JustNow" = "Just now";
-"XMinutesAgo" = "%1$@ minutes ago";
 "LogInDenied" = "Login denied";
 "ApproveLoginRequests" = "Approve login requests";
 "ConfimLogInAttempForX" = "Confirm login attempt for %1$@";
