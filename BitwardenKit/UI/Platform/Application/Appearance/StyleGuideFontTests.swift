@@ -1,7 +1,7 @@
 import SnapshotTesting
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 final class StyleGuideFontTests: BitwardenTestCase {
     // MARK: Tests

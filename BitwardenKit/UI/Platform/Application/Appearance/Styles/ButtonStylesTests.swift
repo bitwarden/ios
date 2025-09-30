@@ -3,7 +3,7 @@ import SnapshotTesting
 import SwiftUI
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 final class ButtonStylesTests: BitwardenTestCase {
     // MARK: Types
