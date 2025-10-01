@@ -209,7 +209,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
-
         subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 

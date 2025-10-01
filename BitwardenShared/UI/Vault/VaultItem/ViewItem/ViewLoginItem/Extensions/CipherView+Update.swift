@@ -139,7 +139,10 @@ extension CipherView {
     ///   - addEditState: The `AddEditItemState` containing the updated state information.
     ///   - timeProvider: The `TimeProvider` to use to get current time.
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
-    func updatedView(with addEditState: AddEditItemState, timeProvider: TimeProvider = CurrentTime()) -> CipherView {
+    func updatedView( // swiftlint:disable:this function_body_length
+        with addEditState: AddEditItemState,
+        timeProvider: TimeProvider = CurrentTime()
+    ) -> CipherView {
         var loginState = addEditState.loginState
 
         // Update the password updated date and the password history if the password has changed.

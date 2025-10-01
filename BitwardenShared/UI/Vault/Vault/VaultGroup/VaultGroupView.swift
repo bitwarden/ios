@@ -131,7 +131,7 @@ struct VaultGroupView: View {
                     }
                 case .menu:
                     addVaultItemFloatingActionMenu(
-                        availableItemTypes: store.state.itemTypesUserCanCreate,
+                        availableItemTypes: store.state.itemTypesUserCanCreate
                     ) { type in
                         store.send(.addItemPressed(type))
                     }

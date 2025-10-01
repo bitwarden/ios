@@ -102,7 +102,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     }
 
     // MARK: Private
-    
+
     /// Waits for the `DefaultPasteboardService.init` task to initialize the correct value to avoid race conditions.
     func waitForInitialization() async throws {
         // Wait for the `DefaultPasteboardService.init` task to set the initial clear clipboard

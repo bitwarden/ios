@@ -85,7 +85,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns `nil` when filter passed doesn't have the URI to filter.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns `nil` when filter passed doesn't
+    /// have the URI to filter.
     func test_prepareAutofillCombinedSingleData_noFilterUri() async throws {
         let result = try await subject.prepareAutofillCombinedSingleData(
             from: [.fixture()],
@@ -94,7 +95,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher with login and no Fido2.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher
+    /// with login and no Fido2.
     func test_prepareAutofillCombinedSingleData_returnsPreparedDataForLoginNoFido2() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             login: .fixture(
@@ -117,7 +119,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "addItemForGroup"
+            "addItemForGroup",
         ])
         XCTAssertNotNil(result)
     }
@@ -145,12 +147,13 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "addFido2Item"
+            "addFido2Item",
         ])
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass restrict item type policy.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out
+    /// cipher as it doesn't pass restrict item type policy.
     @MainActor
     func test_prepareAutofillCombinedSingleData_doesNotPassRestrictItemPolicy() async throws {
         configService.featureFlagsBool[.removeCardPolicy] = true
@@ -172,12 +175,13 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations"
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out cipher as it's deleted.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out
+    /// cipher as it's deleted.
     @MainActor
     func test_prepareAutofillCombinedSingleData_deletedCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(

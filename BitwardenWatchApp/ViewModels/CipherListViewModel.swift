@@ -15,7 +15,7 @@ class CipherListViewModel: ObservableObject {
 
     @Published var searchTerm: String = ""
 
-    var debugText: String? = nil
+    var debugText: String?
 
     private var subscriber: AnyCancellable?
 

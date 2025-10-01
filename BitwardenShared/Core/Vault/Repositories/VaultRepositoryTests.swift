@@ -366,6 +366,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedSingleSection` mode.
     func test_ciphersAutofillPublisher_mode_combinedSingle() async throws {
+        // swiftlint:disable:previous function_body_length
         let expectedSections = [
             VaultListSection(
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
@@ -870,14 +871,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 enabled: true,
                 id: "restrict_item_type",
                 organizationId: "org1",
-                type: .restrictItemTypes,
+                type: .restrictItemTypes
             ),
         ]
 
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(
             result,
-            [.secureNote, .identity, .login],
+            [.secureNote, .identity, .login]
         )
     }
 
@@ -892,7 +893,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 enabled: true,
                 id: "restrict_item_type",
                 organizationId: "org1",
-                type: .restrictItemTypes,
+                type: .restrictItemTypes
             ),
         ]
 

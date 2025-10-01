@@ -4,6 +4,8 @@ import Foundation
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()

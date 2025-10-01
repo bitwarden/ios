@@ -323,7 +323,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             organizationId: organizationId,
             showWebIcons: false,
-            type: type,
+            type: type
         )
     }
 
@@ -333,7 +333,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration: .add,
             iconBaseURL: nil,
             showWebIcons: false,
-            type: .init(type: cipherView.type),
+            type: .init(type: cipherView.type)
         )
         apply(
             cipherView: cipherView,
@@ -354,7 +354,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration: .existing(cipherView: cipherView),
             iconBaseURL: iconBaseURL,
             showWebIcons: showWebIcons,
-            type: .init(type: cipherView.type),
+            type: .init(type: cipherView.type)
         )
         apply(cipherView: cipherView)
     }

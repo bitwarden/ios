@@ -38,7 +38,7 @@ struct TrackableWithHeaderListView<HeaderContent: View, Content: View>: View {
 }
 
 private struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGPoint? = nil
+    static var defaultValue: CGPoint?
     static func reduce(value: inout CGPoint?, nextValue: () -> CGPoint?) {
         if let nextValue = nextValue() {
             value = nextValue

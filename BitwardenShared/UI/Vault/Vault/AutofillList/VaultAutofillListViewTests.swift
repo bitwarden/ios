@@ -380,7 +380,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                                 username: "email@example.com"
                             ),
                             name: "Example",
-                            subtitle: "email@example.com",
+                            subtitle: "email@example.com"
                         )
                     ),
                     .fixture(cipherListView: .fixture(
@@ -389,7 +389,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                             username: "An equally long subtitle that should also take up more than one line"
                         ),
                         name: "An extra long name that should take up more than one line",
-                        subtitle: "An equally long subtitle that should also take up more than one line",
+                        subtitle: "An equally long subtitle that should also take up more than one line"
                     )),
                     .fixture(cipherListView: .fixture(
                         id: "3",
@@ -437,7 +437,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         ),
                         name: "Bitwarden",
                         subtitle: "user@bitwarden.com",
-                        attachments: 1,
+                        attachments: 1
                     ), fido2CredentialAutofillView: .fixture()),
                 ],
                 name: Localizations.aPasskeyAlreadyExistsForThisApplication

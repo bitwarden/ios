@@ -143,7 +143,7 @@ class MockAuthService: AuthService {
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool,
+        remember: Bool
     ) async throws -> LoginUnlockMethod {
         loginWithTwoFactorCodeEmail = email
         loginWithTwoFactorCodeCode = code

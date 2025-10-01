@@ -713,7 +713,7 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             )
                                         ),
                                     ],
-                                    name: "example.com",
+                                    name: "example.com"
                                 ),
                             ])
                         )
