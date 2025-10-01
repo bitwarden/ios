@@ -46,7 +46,7 @@ struct ViewSendItemView: View {
         AsyncButton {
             await store.perform(.deleteSend)
         } label: {
-            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+            Label(Localizations.deleteSend, image: SharedAsset.Icons.trash16.swiftUIImage, scaleImageDimension: 16)
         }
         .buttonStyle(.secondary(isDestructive: true, size: .medium))
         .accessibilityIdentifier("ViewSendDeleteButton")
@@ -125,7 +125,7 @@ struct ViewSendItemView: View {
                 Button {
                     store.send(.copyShareURL)
                 } label: {
-                    Label(Localizations.copy, image: Asset.Images.copy16.swiftUIImage, scaleImageDimension: 16)
+                    Label(Localizations.copy, image: SharedAsset.Icons.copy16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.primary(size: .medium))
                 .accessibilityIdentifier("ViewSendCopyButton")
@@ -133,7 +133,7 @@ struct ViewSendItemView: View {
                 Button {
                     store.send(.shareSend)
                 } label: {
-                    Label(Localizations.share, image: Asset.Images.share16.swiftUIImage, scaleImageDimension: 16)
+                    Label(Localizations.share, image: SharedAsset.Icons.share16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.secondary(size: .medium))
                 .accessibilityIdentifier("ViewSendShareButton")

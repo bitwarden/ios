@@ -48,7 +48,7 @@ struct ExpandableContent<Content: View>: View {
                 Text(title)
                     .styleGuide(.callout, weight: .semibold)
 
-                Asset.Images.chevronDown16.swiftUIImage
+                SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             }

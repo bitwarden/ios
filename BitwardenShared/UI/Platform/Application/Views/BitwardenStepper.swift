@@ -139,7 +139,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
             Button {
                 value -= 1
             } label: {
-                Asset.Images.minus16.swiftUIImage
+                SharedAsset.Icons.minus16.swiftUIImage
             }
             .buttonStyle(CircleButtonStyle(diameter: 30))
             .disabled(value <= range.lowerBound)
@@ -159,7 +159,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
             Button {
                 value += 1
             } label: {
-                Asset.Images.plus16.swiftUIImage
+                SharedAsset.Icons.plus16.swiftUIImage
             }
             .buttonStyle(CircleButtonStyle(diameter: 30))
             .disabled(value >= range.upperBound)

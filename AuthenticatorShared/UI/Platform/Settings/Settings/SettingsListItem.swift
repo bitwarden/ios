@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsListItem
@@ -101,7 +102,7 @@ struct SettingsListItem<Content: View>: View {
             }
 
             SettingsListItem("Account Security") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink)
+                Image(asset: SharedAsset.Icons.externalLink16)
             }
 
             SettingsListItem("Account Security") {}
