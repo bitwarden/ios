@@ -34,7 +34,7 @@ on:
       dry-run:
         description: "Dry-Run, Run the workflow without publishing to the store"
         type: boolean
-        default: true
+        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
