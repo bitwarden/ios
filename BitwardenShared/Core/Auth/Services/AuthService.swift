@@ -707,7 +707,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     
     /// Create device passkey with PRF encryption key.
     func createDevicePasskey(masterPasswordHash: String) async throws {
-        try await devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash)
+        try await devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash, overwrite: true)
     }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod {

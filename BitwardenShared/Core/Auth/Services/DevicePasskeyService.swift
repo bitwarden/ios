@@ -13,7 +13,7 @@ protocol DevicePasskeyService {
     /// Before calling, vault must be unlocked to wrap user encryption key.
     ///  - Parameters:
     ///      - masterPasswordHash: Master password hash suitable for server authentication
-    func createDevicePasskey(masterPasswordHash: String) async throws
+    func createDevicePasskey(masterPasswordHash: String, overwrite: Bool) async throws
     
     /// Use device passkey to assert a credential, outputting PRF output.
     func useDevicePasskey(for request: GetAssertionRequest) async throws -> (GetAssertionResult, Data?)?
@@ -55,7 +55,13 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
     /// Create device passkey with PRF encryption key.
     ///
     /// Before calling, vault must be unlocked to wrap user encryption key.
-    func createDevicePasskey(masterPasswordHash: String) async throws {
+    func createDevicePasskey(masterPasswordHash: String, overwrite: Bool) async throws {
+        if !overwrite {
+            let existing = try? await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId())
+            if existing != nil {
+                return
+            }
+        }
         let response = try await authAPIService.getCredentialCreationOptions(SecretVerificationRequestModel(passwordHash: masterPasswordHash))
         let options = response.options
         let token = response.token
@@ -120,7 +126,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         // TODO: This only returns generic names like `iPhone`.
         // If there is a more specific name available (e.g., user-chosen),
         // that would be helpful to disambiguate in the menu.
-        let clientName = "Bitwarden App on \(await UIKit.UIDevice.current.name)"
+        let clientName = await "Bitwarden App on \(UIKit.UIDevice.current.name)"
         let request = WebAuthnLoginSaveCredentialRequestModel(
             deviceResponse: WebAuthnLoginAttestationResponseRequest(
                 id: createdCredential.credentialId.base64UrlEncodedString(trimPadding: false),
@@ -128,7 +134,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
                 type: "public-key",
                 response: WebAuthnLoginAttestationResponseRequestInner(
                     attestationObject: createdCredential.attestationObject.base64UrlEncodedString(trimPadding: false),
-                    clientDataJson: clientDataJson.data(using: .utf8)!.base64UrlEncodedString(trimPadding: false),
+                    clientDataJson: clientDataJson.data(using: .utf8)!.base64UrlEncodedString(trimPadding: false)
                 ),
             ),
             name: clientName,
@@ -136,7 +142,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
             supportsPrf: true,
             encryptedUserKey: prfKeyResponse.encapsulatedUserKey,
             encryptedPublicKey: prfKeyResponse.encryptedEncapsulationKey,
-            encryptedPrivateKey: prfKeyResponse.wrappedDecapsulationKey,
+            encryptedPrivateKey: prfKeyResponse.wrappedDecapsulationKey
         )
         try await authAPIService.saveCredential(request)
     }
@@ -191,7 +197,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
     func useDevicePasskey(for request: GetAssertionRequest) async throws -> (GetAssertionResult, Data?)? {
         let webVaultRpId = deriveRpId()
         guard webVaultRpId == request.rpId else { return nil }
-        guard let json = try await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId()) else {
+        guard let json = try? await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId()) else {
             Logger.application.warning("Matched Bitwarden Web Vault rpID, but no device passkey found.")
             return nil
         }
