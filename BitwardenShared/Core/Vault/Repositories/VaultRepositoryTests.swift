@@ -861,11 +861,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
-    /// when feature flag is true and true are policies enabled.
+    /// when policies are enabled.
     @MainActor
     func test_getItemTypesUserCanCreate() async throws {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [
             .fixture(
                 enabled: true,
@@ -883,30 +882,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
-    /// when feature flag is false.
-    @MainActor
-    func test_getItemTypesUserCanCreate_flag_false() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                id: "restrict_item_type",
-                organizationId: "org1",
-                type: .restrictItemTypes,
-            ),
-        ]
-
-        let result = await subject.getItemTypesUserCanCreate()
-        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
-    }
-
-    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
-    /// when feature flag is true and no policies apply to the user.
+    /// when no policies apply to the user.
     @MainActor
     func test_getItemTypesUserCanCreate_no_policies() async throws {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = []
 
         let result = await subject.getItemTypesUserCanCreate()

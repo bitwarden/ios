@@ -20,11 +20,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
 
-    /// A feature flag to enable the removal of card item types.
-    static let removeCardPolicy = FeatureFlag(
-        rawValue: "pm-16442-remove-card-item-type-policy",
-    )
-
     public static var allCases: [FeatureFlag] {
         [
             .cxpExportMobile,
@@ -32,7 +27,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cipherKeyEncryption,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
-            .removeCardPolicy,
         ]
     }
 }

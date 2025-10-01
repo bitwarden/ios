@@ -210,10 +210,7 @@ class DefultExportVaultService: ExportVaultService {
     }
 
     func fetchAllCiphersToExport() async throws -> [Cipher] {
-        var restrictedTypes: [CipherType] = []
-        if await configService.getFeatureFlag(.removeCardPolicy) {
-            restrictedTypes = await policyService.getRestrictedItemCipherTypes()
-        }
+        let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
 
         return try await cipherService.fetchAllCiphers().filter { cipher in
             cipher.deletedDate == nil
