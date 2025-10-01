@@ -78,11 +78,11 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         let credParams = options.pubKeyCredParams.map {
             PublicKeyCredentialParameters(ty: $0.type, alg: Int64($0.alg))
         }
-        
+
         let origin = deriveWebOrigin()
         let clientDataJson = #"{"type":"webauthn.create","challenge":"\#(options.challenge)","origin":"\#(origin)"}"#
         let clientDataHash = Data(SHA256.hash(data: clientDataJson.data(using: .utf8)!))
-        
+
         let credRequest = MakeCredentialRequest(
             clientDataHash: clientDataHash,
             rp: PublicKeyCredentialRpEntity(id: options.rp.id, name: options.rp.name),
@@ -146,7 +146,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         )
         try await authAPIService.saveCredential(request)
     }
-    
+
     /// Emulates a FIDO2 authenticator.
     private func makeWebAuthnCredential(request: MakeCredentialRequest, prfInput: Data) throws -> DevicePasskeyResult {
         // attested credential data
@@ -272,6 +272,8 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
     }
     
     private func getPrfInput(extensionsInput extInputs: AuthenticationExtensionsClientInputs?) throws -> (salt1: Data, salt2: Data?) {
+        return (defaultLoginWithPrfSalt, nil)
+        /*
         if let prfInputs = extInputs?.prf?.eval {
             let input1 = Data(base64UrlEncoded: prfInputs.first)!
             let input2: Data? = if let second = prfInputs.second {
@@ -282,6 +284,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         else {
             return (defaultLoginWithPrfSalt, nil)
         }
+         */
     }
 
     struct DevicePasskeyResult {
