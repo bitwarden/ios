@@ -47,7 +47,7 @@ struct AppearanceView: View {
                     .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
                     .multilineTextAlignment(.leading)
             } accessoryContent: {
-                Asset.Images.chevronDown24.swiftUIImage
+                SharedAsset.Icons.chevronDown24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -83,7 +83,7 @@ struct AppearanceView: View {
                 Button {
                     openURL(ExternalLinksConstants.websiteIconsHelp)
                 } label: {
-                    Asset.Images.questionCircle16.swiftUIImage
+                    SharedAsset.Icons.questionCircle16.swiftUIImage
                         .scaledFrame(width: 16, height: 16)
                         .accessibilityLabel(Localizations.learnMore)
                 }

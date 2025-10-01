@@ -126,10 +126,10 @@ struct AddEditCustomFieldsView: View {
         } label: {
             Group {
                 if isInFieldLabel {
-                    Asset.Images.cog16.swiftUIImage
+                    SharedAsset.Icons.cog16.swiftUIImage
                         .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.textInteraction.swiftUIColor))
                 } else {
-                    Asset.Images.cog24.swiftUIImage
+                    SharedAsset.Icons.cog24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
             }

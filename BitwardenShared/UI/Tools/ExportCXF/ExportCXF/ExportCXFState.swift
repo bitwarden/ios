@@ -33,12 +33,12 @@ struct ExportCXFState: Equatable, Sendable {
     }
 
     /// The main icon to be displayed.
-    var mainIcon: ImageAsset {
+    var mainIcon: SharedImageAsset {
         return switch status {
         case .prepared, .start:
-            Asset.Images.fileUpload24
+            SharedAsset.Icons.fileUpload24
         case .failure:
-            Asset.Images.circleX16
+            SharedAsset.Icons.circleX16
         }
     }
 
