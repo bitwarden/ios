@@ -19,10 +19,12 @@ strings:
 xcassets:
   inputs:
     - BitwardenResources/Colors.xcassets
+    - BitwardenResources/Icons.xcassets
   outputs:
     - templateName: swift5
       output: SharedAssets.swift
       params:
         enumName: SharedAsset
         forceFileNameEnum: true
+        imageTypeName: SharedImageAsset
         publicAccess: true

@@ -107,16 +107,16 @@ extension Account {
         var hasPremiumPersonally: Bool?
 
         /// The number of iterations to use when calculating a password hash.
-        let kdfIterations: Int?
+        var kdfIterations: Int?
 
         /// The amount of memory to use when calculating a password hash.
-        let kdfMemory: Int?
+        var kdfMemory: Int?
 
         /// The number of threads to use when calculating a password hash.
-        let kdfParallelism: Int?
+        var kdfParallelism: Int?
 
         /// The type of KDF algorithm to use.
-        let kdfType: KdfType?
+        var kdfType: KdfType?
 
         /// The account's name.
         var name: String?

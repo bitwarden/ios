@@ -63,6 +63,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage camera use.
     let cameraService: CameraService
 
+    /// The service used to change the user's KDF settings.
+    let changeKdfService: ChangeKdfService
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -211,6 +214,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - cameraService: The service used by the application to manage camera use.
+    ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -271,6 +275,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
+        changeKdfService: ChangeKdfService,
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -327,6 +332,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.cameraService = cameraService
+        self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
@@ -628,11 +634,22 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
+        let changeKdfService = DefaultChangeKdfService(
+            accountAPIService: apiService,
+            clientService: clientService,
+            configService: configService,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            stateService: stateService,
+            syncService: syncService
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -722,6 +739,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 policyService: policyService,
                 stateService: stateService,
                 vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
+                    cipherService: cipherService,
                     clientService: clientService,
                     errorReporter: errorReporter,
                     stateService: stateService,
@@ -892,6 +910,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,

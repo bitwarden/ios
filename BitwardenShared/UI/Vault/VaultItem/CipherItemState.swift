@@ -477,21 +477,21 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
             guard case let .custom(brand) = cardItemState.brand else {
-                return Asset.Images.card24
+                return SharedAsset.Icons.card24
             }
             return brand.icon
         case .identity:
-            return Asset.Images.idCard24
+            return SharedAsset.Icons.idCard24
         case .login:
-            return Asset.Images.globe24
+            return SharedAsset.Icons.globe24
         case .secureNote:
-            return Asset.Images.stickyNote24
+            return SharedAsset.Icons.stickyNote24
         case .sshKey:
-            return Asset.Images.key24
+            return SharedAsset.Icons.key24
         }
     }
 

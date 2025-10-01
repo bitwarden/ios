@@ -17,6 +17,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// Flag to enable/disable forced KDF updates.
+    static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
+
     /// A feature flag to enable the removal of card item types.
     static let removeCardPolicy = FeatureFlag(
         rawValue: "pm-16442-remove-card-item-type-policy"
@@ -28,6 +31,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cxpImportMobile,
             .cipherKeyEncryption,
             .enableCipherKeyEncryption,
+            .forceUpdateKdfSettings,
             .removeCardPolicy,
         ]
     }

@@ -57,10 +57,10 @@ final class ButtonStylesTests: BitwardenTestCase {
                     titleView("Field Label Icon")
 
                     Button {} label: {
-                        Label("Options", image: Asset.Images.cog16.swiftUIImage)
+                        Label("Options", image: SharedAsset.Icons.cog16.swiftUIImage)
                     }
                     Button {} label: {
-                        Label("Options", image: Asset.Images.cog16.swiftUIImage)
+                        Label("Options", image: SharedAsset.Icons.cog16.swiftUIImage)
                     }
                     .disabled(true)
                 }
@@ -70,10 +70,10 @@ final class ButtonStylesTests: BitwardenTestCase {
                     titleView("Circle (FAB)")
 
                     Button {} label: {
-                        Asset.Images.cog24.swiftUIImage
+                        SharedAsset.Icons.cog24.swiftUIImage
                     }
                     Button {} label: {
-                        Asset.Images.cog24.swiftUIImage
+                        SharedAsset.Icons.cog24.swiftUIImage
                     }
                     .disabled(true)
                 }

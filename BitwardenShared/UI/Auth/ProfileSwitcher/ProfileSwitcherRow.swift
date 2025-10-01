@@ -114,7 +114,7 @@ struct ProfileSwitcherRow: View {
             )
             .accessibilityLabel(Localizations.account)
         case .addAccount:
-            Asset.Images.plus16.swiftUIImage
+            SharedAsset.Icons.plus16.swiftUIImage
                 .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
@@ -169,12 +169,12 @@ struct ProfileSwitcherRow: View {
     private var trailingIcon: Image? {
         switch store.state.rowType {
         case .active:
-            return Asset.Images.checkCircle24.swiftUIImage
+            return SharedAsset.Icons.checkCircle24.swiftUIImage
         case let .alternate(account):
             if account.isUnlocked {
-                return Asset.Images.unlocked24.swiftUIImage
+                return SharedAsset.Icons.unlocked24.swiftUIImage
             } else {
-                return Asset.Images.locked24.swiftUIImage
+                return SharedAsset.Icons.locked24.swiftUIImage
             }
         case .addAccount:
             return nil
