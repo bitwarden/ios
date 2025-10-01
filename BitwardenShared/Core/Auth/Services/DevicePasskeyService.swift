@@ -367,6 +367,11 @@ private func createAttestationObject(
 private func generatePrf(using prfInput: Data, from seed: SymmetricKey) -> Data {
     let saltPrefix = "WebAuthn PRF\0".data(using: .utf8)!
     let salt1 = saltPrefix + prfInput
+    let logger = Logger()
+    seed.withUnsafeBytes{
+        let seedBytes = Data(Array($0))
+        logger.debug("PRF Input: \(salt1.base64EncodedString())\nPRF Seed: \(seedBytes.base64UrlEncodedString())")
+    }
     // CTAP2 uses HMAC to expand salt into a PRF, so we're doing the same.
     return Data(HMAC<SHA256>.authenticationCode(for: salt1, using: seed))
 }
