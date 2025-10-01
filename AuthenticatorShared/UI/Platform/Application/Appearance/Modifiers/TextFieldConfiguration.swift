@@ -30,27 +30,11 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
-    /// A `TextFieldConfiguration` for applying common properties to password text fields.
-    static let password = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .default,
-        textContentType: .password,
-        textInputAutocapitalization: .never
-    )
-
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
     static let url = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
         keyboardType: .URL,
         textContentType: .URL,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to username text fields.
-    static let username = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .default,
-        textContentType: .username,
         textInputAutocapitalization: .never
     )
 
