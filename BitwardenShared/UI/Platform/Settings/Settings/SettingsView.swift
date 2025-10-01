@@ -25,7 +25,7 @@ struct SettingsView: View {
 
                 largeNavigationTitleToolbarItem(
                     Localizations.settings,
-                    hidden: store.state.presentationMode != .tab
+                    hidden: store.state.presentationMode != .tab,
                 )
             }
     }
@@ -61,7 +61,7 @@ struct SettingsView: View {
     private var aboutRow: some View {
         SettingsListItem(
             Localizations.about,
-            icon: Asset.Images.informationCircle24
+            icon: Asset.Images.informationCircle24,
         ) {
             store.send(.aboutPressed)
         } trailingContent: {
@@ -75,7 +75,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.accountSecurity,
             badgeValue: store.state.accountSecurityBadgeValue,
-            icon: Asset.Images.locked24
+            icon: Asset.Images.locked24,
         ) {
             store.send(.accountSecurityPressed)
         } trailingContent: {
@@ -99,7 +99,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.autofill,
             badgeValue: store.state.autofillBadgeValue,
-            icon: Asset.Images.checkCircle24
+            icon: Asset.Images.checkCircle24,
         ) {
             store.send(.autoFillPressed)
         } trailingContent: {
@@ -123,7 +123,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.vault,
             badgeValue: store.state.vaultBadgeValue,
-            icon: Asset.Images.vaultSettings
+            icon: Asset.Images.vaultSettings,
         ) {
             store.send(.vaultPressed)
         } trailingContent: {

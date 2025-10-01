@@ -46,7 +46,7 @@ class AnyCodableTests: BitwardenTestCase {
                 "enforceOnLogin": AnyCodable.bool(false),
                 "type": AnyCodable.string("password"),
                 "minutes": AnyCodable.double(1.5),
-            ]
+            ],
         )
     }
 
@@ -105,7 +105,7 @@ class AnyCodableTests: BitwardenTestCase {
               "requireUpper" : false,
               "type" : "password"
             }
-            """
+            """,
         )
     }
 

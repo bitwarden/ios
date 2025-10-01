@@ -32,7 +32,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: AutoFillState
+        state: AutoFillState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -87,7 +87,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                 .confirmRegularExpressionMatchDetectionAlert {
                     await self.updateDefaultUriMatchType(
                         defaultUriMatchType,
-                        learnMoreLocalizedMatchType: Localizations.regEx
+                        learnMoreLocalizedMatchType: Localizations.regEx,
                     )
                 })
         case .startsWith:
@@ -95,13 +95,13 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                 .confirmStartsWithMatchDetectionAlert {
                     await self.updateDefaultUriMatchType(
                         defaultUriMatchType,
-                        learnMoreLocalizedMatchType: Localizations.startsWith
+                        learnMoreLocalizedMatchType: Localizations.startsWith,
                     )
                 })
         default:
             await updateDefaultUriMatchType(
                 defaultUriMatchType,
-                learnMoreLocalizedMatchType: nil
+                learnMoreLocalizedMatchType: nil,
             )
         }
     }
@@ -148,7 +148,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     private func updateDefaultUriMatchType(
         _ defaultUriMatchType: UriMatchType,
-        learnMoreLocalizedMatchType: String?
+        learnMoreLocalizedMatchType: String?,
     ) async {
         do {
             state.defaultUriMatchType = defaultUriMatchType

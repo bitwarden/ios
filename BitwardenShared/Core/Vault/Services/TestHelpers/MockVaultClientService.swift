@@ -36,20 +36,20 @@ class MockVaultClientService: VaultClientService {
         return TOTPCodeModel(
             code: code,
             codeGenerationDate: date ?? timeProvider.presentTime,
-            period: totpPeriod
+            period: totpPeriod,
         )
     }
 
     func generateTOTPCode(
         for cipherListView: BitwardenSdk.CipherListView,
-        date: Date?
+        date: Date?,
     ) throws -> BitwardenShared.TOTPCodeModel {
         generateTOTPCodeCipherParam = cipherListView
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
             code: code,
             codeGenerationDate: date ?? timeProvider.presentTime,
-            period: totpPeriod
+            period: totpPeriod,
         )
     }
 
@@ -74,7 +74,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
         cipher _: Cipher,
         attachment _: AttachmentView,
         encryptedFilePath: String,
-        decryptedFilePath _: String
+        decryptedFilePath _: String,
     ) throws {
         encryptedFilePaths.append(encryptedFilePath)
     }
@@ -82,7 +82,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
     func encryptBuffer(
         cipher _: Cipher,
         attachment: AttachmentView,
-        buffer: Data
+        buffer: Data,
     ) throws -> AttachmentEncryptResult {
         encryptedBuffers.append(buffer)
         return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
@@ -92,7 +92,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
         cipher _: Cipher,
         attachment: AttachmentView,
         decryptedFilePath _: String,
-        encryptedFilePath _: String
+        encryptedFilePath _: String,
     ) throws -> Attachment {
         Attachment(attachmentView: attachment)
     }
@@ -149,7 +149,7 @@ class MockClientCiphers: CiphersClientProtocol {
         }
         return decryptListWithFailuresResult ?? DecryptCipherListResult(
             successes: ciphers.map { CipherListView(cipher: $0) },
-            failures: []
+            failures: [],
         )
     }
 
@@ -160,13 +160,13 @@ class MockClientCiphers: CiphersClientProtocol {
         }
         return try encryptCipherResult?.get() ?? EncryptionContext(
             encryptedFor: "1",
-            cipher: Cipher(cipherView: cipherView)
+            cipher: Cipher(cipherView: cipherView),
         )
     }
 
     func moveToOrganization(
         cipher: CipherView,
-        organizationId: Uuid
+        organizationId: Uuid,
     ) throws -> CipherView {
         moveToOrganizationCipher = cipher
         moveToOrganizationOrganizationId = organizationId

@@ -99,7 +99,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
     func disabletest_snapshot_add_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -109,7 +109,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
         processor.state.folderName = "Super cool folder name"
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -120,7 +120,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
         processor.state.folderName = "Super cool folder name"
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

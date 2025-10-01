@@ -26,21 +26,21 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let account = ProfileSwitcherItem.fixture(
             email: "anne.account@bitwarden.com",
-            userInitials: "AA"
+            userInitials: "AA",
         )
         let state = VaultListState(
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
                 allowLockAndLogout: true,
-                isVisible: false
-            )
+                isVisible: false,
+            ),
         )
         processor = MockProcessor(state: state)
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = VaultListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -200,7 +200,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         try await buttonUnselected.tap()
         XCTAssertEqual(
             processor.effects.last,
-            .profileSwitcher(.requestedProfileSwitcher(visible: true))
+            .profileSwitcher(.requestedProfileSwitcher(visible: true)),
         )
     }
 
@@ -213,7 +213,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(
             processor.effects.last,
-            .profileSwitcher(.requestedProfileSwitcher(visible: false))
+            .profileSwitcher(.requestedProfileSwitcher(visible: false)),
         )
     }
 
@@ -241,7 +241,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func test_tryAgainButton_tap() async throws {
         processor.state.loadingState = .error(
-            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
         )
         let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
         try await button.tap()
@@ -304,7 +304,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func disabletest_snapshot_errorState() {
         processor.state.loadingState = .error(
-            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -315,7 +315,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.isFlightRecorderToastBannerVisible = true
         processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
             duration: .twentyFourHours,
-            startDate: Date(year: 2025, month: 4, day: 3)
+            startDate: Date(year: 2025, month: 4, day: 3),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -335,7 +335,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                     .fixture(cipherListView: .fixture(
                         login: .fixture(username: "email@example.com"),
                         name: "Example",
-                        subtitle: "email@example.com"
+                        subtitle: "email@example.com",
                     )),
                     .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
                     .fixture(cipherListView: .fixture(
@@ -344,37 +344,37 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                         login: .fixture(username: "user@bitwarden.com"),
                         name: "Bitwarden",
                         subtitle: "user@bitwarden.com",
-                        attachments: 1
+                        attachments: 1,
                     )),
                 ],
-                name: "Favorites"
+                name: "Favorites",
             ),
             VaultListSection(
                 id: "2",
                 items: [
                     VaultListItem(
                         id: "21",
-                        itemType: .group(.login, 123)
+                        itemType: .group(.login, 123),
                     ),
                     VaultListItem(
                         id: "22",
-                        itemType: .group(.card, 25)
+                        itemType: .group(.card, 25),
                     ),
                     VaultListItem(
                         id: "23",
-                        itemType: .group(.identity, 1)
+                        itemType: .group(.identity, 1),
                     ),
                     VaultListItem(
                         id: "24",
-                        itemType: .group(.secureNote, 0)
+                        itemType: .group(.secureNote, 0),
                     ),
                 ],
-                name: "Types"
+                name: "Types",
             ),
         ])
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -384,7 +384,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -397,22 +397,22 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(cipherListView: .fixture(
                 id: "1",
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
             .fixture(cipherListView: .fixture(
                 id: "2",
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
             .fixture(cipherListView: .fixture(
                 id: "3",
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
             .fixture(cipherListView: .fixture(
                 id: "4",
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -431,7 +431,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         for preview in VaultListView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait]
+                as: [.defaultPortrait],
             )
         }
     }

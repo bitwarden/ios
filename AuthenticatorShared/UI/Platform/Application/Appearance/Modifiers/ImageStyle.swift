@@ -46,7 +46,7 @@ extension ImageStyle {
         color: Asset.Colors.primaryBitwarden.swiftUIColor,
         scaleWithFont: false,
         width: 19,
-        height: 19
+        height: 19,
     )
 
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
@@ -60,7 +60,7 @@ extension ImageStyle {
     ///
     static func accessoryIcon(
         color: Color = Asset.Colors.primaryBitwarden.swiftUIColor,
-        scaleWithFont: Bool = false
+        scaleWithFont: Bool = false,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
     }
@@ -76,7 +76,7 @@ extension ImageStyle {
     ///
     static func rowIcon(
         color: Color = Asset.Colors.textSecondary.swiftUIColor,
-        scaleWithFont: Bool = true
+        scaleWithFont: Bool = true,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 22, height: 22)
     }

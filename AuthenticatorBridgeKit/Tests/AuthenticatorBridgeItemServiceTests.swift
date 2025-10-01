@@ -28,7 +28,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         dataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
             groupIdentifier: accessGroup,
-            storeType: .memory
+            storeType: .memory,
         )
         keychainRepository = MockSharedKeychainRepository()
         sharedTimeoutService = MockSharedTimeoutService()
@@ -36,7 +36,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: keychainRepository,
-            sharedTimeoutService: sharedTimeoutService
+            sharedTimeoutService: sharedTimeoutService,
         )
     }
 
@@ -58,12 +58,12 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     func test_deleteAll_success() async throws {
         try await subject.insertItems(
             AuthenticatorBridgeItemDataView.fixtures(),
-            forUserId: "userID 1"
+            forUserId: "userID 1",
         )
 
         try await subject.insertItems(
             AuthenticatorBridgeItemDataView.fixtures(),
-            forUserId: "userID 2"
+            forUserId: "userID 2",
         )
 
         keychainRepository.authenticatorKey = keychainRepository.generateMockKeyData()
@@ -87,12 +87,12 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     func test_deleteAll_error() async throws {
         try await subject.insertItems(
             AuthenticatorBridgeItemDataView.fixtures(),
-            forUserId: "userID 1"
+            forUserId: "userID 1",
         )
 
         try await subject.insertItems(
             AuthenticatorBridgeItemDataView.fixtures(),
-            forUserId: "userID 2"
+            forUserId: "userID 2",
         )
 
         keychainRepository.errorToThrow = BitwardenTestError.example
@@ -297,7 +297,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -319,7 +319,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -341,7 +341,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -361,7 +361,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -384,7 +384,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -415,7 +415,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     results.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -447,7 +447,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                     receiveCompletion: { _ in },
                     receiveValue: { value in
                         results.append(value)
-                    }
+                    },
                 )
             publisher.cancel()
         }

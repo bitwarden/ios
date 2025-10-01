@@ -70,8 +70,8 @@ struct VaultItemManagementMenuView: View {
         isMoveToOrganizationEnabled: true,
         store: Store(
             processor: StateProcessor(
-                state: ()
-            )
-        )
+                state: (),
+            ),
+        ),
     )
 }

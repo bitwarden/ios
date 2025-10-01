@@ -130,7 +130,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         _masterPasswordRepromptHelper ?? DefaultMasterPasswordRepromptHelper(
             coordinator: asAnyCoordinator(),
             services: services,
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
         )
     }
 
@@ -139,7 +139,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         let userVerificationHelper = DefaultUserVerificationHelper(
             authRepository: services.authRepository,
             errorReporter: services.errorReporter,
-            localAuthService: services.localAuthService
+            localAuthService: services.localAuthService,
         )
         userVerificationHelper.userVerificationDelegate = self
         return userVerificationHelper
@@ -165,7 +165,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper? = nil,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         _masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -187,7 +187,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             delegate?.switchAccount(
                 userId: userId,
                 isAutomatic: isAutomatic,
-                authCompletionRoute: authCompletionRoute
+                authCompletionRoute: authCompletionRoute,
             )
         }
     }
@@ -207,9 +207,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                         hasPremium: hasPremium,
                         newCipherOptions: newCipherOptions,
                         organizationId: organizationId,
-                        type: type
+                        type: type,
                     ),
-                    delegate: context as? CipherItemOperationDelegate
+                    delegate: context as? CipherItemOperationDelegate,
                 )
             }
         case .autofillList:
@@ -221,7 +221,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
                     route: .editItem(cipher, hasPremium),
-                    delegate: context as? CipherItemOperationDelegate
+                    delegate: context as? CipherItemOperationDelegate,
                 )
             }
         case let .editItemFrom(id):
@@ -255,7 +255,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showViewItem(
                 cipherId: id,
                 delegate: context as? CipherItemOperationDelegate,
-                masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted
+                masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted,
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
@@ -263,7 +263,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             guard let handler = context as? ProfileSwitcherHandler else { return }
             showProfileSwitcher(
                 handler: handler,
-                module: module
+                module: module,
             )
         }
     }
@@ -291,8 +291,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultAutofillListState(
-                iconBaseURL: services.environmentService.iconsURL
-            )
+                iconBaseURL: services.environmentService.iconsURL,
+            ),
         )
         let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
         stackNavigator?.replace(view)
@@ -307,15 +307,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             services: services,
             state: VaultAutofillListState(
                 group: group,
-                iconBaseURL: services.environmentService.iconsURL
-            )
+                iconBaseURL: services.environmentService.iconsURL,
+            ),
         )
         let store = Store(processor: processor)
         let searchHandler = VaultAutofillSearchHandler(store: store)
         let view = VaultAutofillListView(
             searchHandler: searchHandler,
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         let viewController = UIHostingController(rootView: view)
         let searchController = UISearchController()
@@ -325,7 +325,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.push(
             viewController,
             navigationTitle: group.navigationTitle,
-            searchController: searchController
+            searchController: searchController,
         )
     }
 
@@ -343,20 +343,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             state: VaultGroupState(
                 group: group,
                 iconBaseURL: services.environmentService.iconsURL,
-                vaultFilterType: filter
+                vaultFilterType: filter,
             ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 masterPasswordRepromptHelper: masterPasswordRepromptHelper,
-                services: services
-            )
+                services: services,
+            ),
         )
         let store = Store(processor: processor)
         let searchHandler = VaultGroupSearchHandler(store: store)
         let view = VaultGroupView(
             searchHandler: searchHandler,
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         let viewController = UIHostingController(rootView: view)
         let searchController = UISearchController()
@@ -366,7 +366,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.push(
             viewController,
             navigationTitle: group.navigationTitle,
-            searchController: searchController
+            searchController: searchController,
         )
     }
 
@@ -378,7 +378,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private func showImportCXF(route: ImportCXFRoute) {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeImportCXFCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -392,7 +392,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         navigationController.modalPresentationStyle = .fullScreen
         let coordinator = module.makeImportLoginsCoordinator(
             delegate: self,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: .importLogins(.vault))
@@ -407,20 +407,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(
-                iconBaseURL: services.environmentService.iconsURL
+                iconBaseURL: services.environmentService.iconsURL,
             ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 masterPasswordRepromptHelper: masterPasswordRepromptHelper,
-                services: services
-            )
+                services: services,
+            ),
         )
         let store = Store(processor: processor)
         let windowScene = stackNavigator?.rootViewController?.view.window?.windowScene
         let view = VaultListView(
             store: store,
             timeProvider: services.timeProvider,
-            windowScene: windowScene
+            windowScene: windowScene,
         )
         if windowScene == nil {
             services.errorReporter.log(error: WindowSceneError.nullWindowScene)
@@ -451,14 +451,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             services: services,
             state: VaultItemSelectionState(
                 iconBaseURL: services.environmentService.iconsURL,
-                totpKeyModel: totpKeyModel
+                totpKeyModel: totpKeyModel,
             ),
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 masterPasswordRepromptHelper: masterPasswordRepromptHelper,
-                services: services
-            )
+                services: services,
+            ),
         )
 
         stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
@@ -476,7 +476,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private func showViewItem(
         cipherId: String,
         delegate: CipherItemOperationDelegate?,
-        masterPasswordRepromptCheckCompleted: Bool
+        masterPasswordRepromptCheckCompleted: Bool,
     ) {
         let navigate = { self.showVaultItem(route: .viewItem(id: cipherId), delegate: delegate) }
 
@@ -508,7 +508,7 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
             self.showToast(
                 Localizations.loginsImported,
                 subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
-                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
         }
     }

@@ -17,9 +17,9 @@ struct PasswordHintView: View {
                 title: Localizations.emailAddress,
                 text: store.binding(
                     get: \.emailAddress,
-                    send: PasswordHintAction.emailAddressChanged
+                    send: PasswordHintAction.emailAddressChanged,
                 ),
-                footer: Localizations.enterEmailForHint
+                footer: Localizations.enterEmailForHint,
             )
             .textFieldConfiguration(.email)
         }
@@ -51,10 +51,10 @@ struct PasswordHintView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PasswordHintState(
-                        emailAddress: "email@example.com"
-                    )
-                )
-            )
+                        emailAddress: "email@example.com",
+                    ),
+                ),
+            ),
         )
     }
 }

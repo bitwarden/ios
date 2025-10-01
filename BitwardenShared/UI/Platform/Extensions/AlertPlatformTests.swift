@@ -13,7 +13,7 @@ class AlertPlatformTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.regEx))
         XCTAssertEqual(
             subject.message,
-            Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+            Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
@@ -31,7 +31,7 @@ class AlertPlatformTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToUseX(Localizations.startsWith))
         XCTAssertEqual(
             subject.message,
-            Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials
+            Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
@@ -50,8 +50,8 @@ class AlertPlatformTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.message,
             Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(
-                UriMatchType.regularExpression.localizedName
-            )
+                UriMatchType.regularExpression.localizedName,
+            ),
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.close)

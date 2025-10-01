@@ -459,7 +459,7 @@ protocol StateService: AnyObject {
     ///
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async
 
     /// Sets the user's progress for setting up autofill.
@@ -671,7 +671,7 @@ protocol StateService: AnyObject {
     ///
     func setPinKeys(
         enrollPinResponse: EnrollPinResponse,
-        requirePasswordAfterRestart: Bool
+        requirePasswordAfterRestart: Bool,
     ) async throws
 
     /// Sets the pin protected user key to memory.
@@ -1473,7 +1473,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
-        keychainRepository: KeychainRepository
+        keychainRepository: KeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
@@ -1562,7 +1562,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return AccountEncryptionKeys(
             accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
+            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
 
@@ -1896,13 +1896,13 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].hasBeenUnlockedInteractively = value
     }
 
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async {
         guard var state = appSettingsStore.state,
               var profile = state.accounts[userId]?.profile
@@ -1913,7 +1913,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             ?? UserDecryptionOptions(
                 hasMasterPassword: true,
                 keyConnectorOption: nil,
-                trustedDeviceOption: nil
+                trustedDeviceOption: nil,
             )
         userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
         profile.userDecryptionOptions = userDecryptionOptions
@@ -2076,7 +2076,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
 
     func setPinKeys(
         enrollPinResponse: EnrollPinResponse,
-        requirePasswordAfterRestart: Bool
+        requirePasswordAfterRestart: Bool,
     ) async throws {
         let userId = try getActiveAccountUserId()
         if requirePasswordAfterRestart {
@@ -2084,7 +2084,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         } else {
             appSettingsStore.setPinProtectedUserKeyEnvelope(
                 key: enrollPinResponse.pinProtectedUserKeyEnvelope,
-                userId: userId
+                userId: userId,
             )
         }
         appSettingsStore.setEncryptedPin(enrollPinResponse.userKeyEncryptedPin, userId: userId)
@@ -2096,7 +2096,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
         try accountVolatileData[
             getActiveAccountUserId(),
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
@@ -2107,7 +2107,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentURLs(
             environmentURLData: urls,
-            email: email
+            email: email,
         )
     }
 
@@ -2307,9 +2307,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
-            .compactMap { $0 }
-            .filter { $0 != .complete }
-            .count
+            .compactMap(\.self)
+            .count(where: { $0 != .complete })
+
         if importLoginsSetupProgress == .setUpLater {
             badgeCount += 1
         }
@@ -2317,7 +2317,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
             importLoginsSetupProgress: importLoginsSetupProgress,
-            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress,
         )
     }
 }

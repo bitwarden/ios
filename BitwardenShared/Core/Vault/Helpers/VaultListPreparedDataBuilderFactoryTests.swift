@@ -30,7 +30,7 @@ class VaultListPreparedDataBuilderFactoryTests: BitwardenTestCase {
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 

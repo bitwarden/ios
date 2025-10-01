@@ -33,7 +33,7 @@ struct ViewCardItemView: View {
             BitwardenTextValueField(
                 title: Localizations.cardholderName,
                 value: store.state.cardholderName,
-                valueAccessibilityIdentifier: "CardholderNameEntry"
+                valueAccessibilityIdentifier: "CardholderNameEntry",
             )
             .accessibilityElement(children: .contain)
         }
@@ -51,12 +51,12 @@ struct ViewCardItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowCardNumberButton",
-                    isPasswordVisible: isVisible
+                    isPasswordVisible: isVisible,
                 ) {
                     store.send(
                         .cardItemAction(
-                            .toggleNumberVisibilityChanged(!isVisible)
-                        )
+                            .toggleNumberVisibilityChanged(!isVisible),
+                        ),
                     )
                 }
 
@@ -77,7 +77,7 @@ struct ViewCardItemView: View {
         if case .custom = store.state.brand {
             BitwardenTextValueField(
                 title: Localizations.brand,
-                value: store.state.brandName
+                value: store.state.brandName,
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")
@@ -90,7 +90,7 @@ struct ViewCardItemView: View {
             BitwardenTextValueField(
                 title: Localizations.expiration,
                 value: expirationString,
-                valueAccessibilityIdentifier: "CardExpirationYearEntry"
+                valueAccessibilityIdentifier: "CardExpirationYearEntry",
             )
             .accessibilityElement(children: .contain)
         }
@@ -108,12 +108,12 @@ struct ViewCardItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "CardShowSecurityCodeButton",
-                    isPasswordVisible: isVisible
+                    isPasswordVisible: isVisible,
                 ) {
                     store.send(
                         .cardItemAction(
-                            .toggleCodeVisibilityChanged(!isVisible)
-                        )
+                            .toggleCodeVisibilityChanged(!isVisible),
+                        ),
                     )
                 }
 
@@ -151,9 +151,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
                 ViewCardItemView(
                     store: Store(
                         processor: StateProcessor(
-                            state: CardItemState() as (any ViewCardItemState)
-                        )
-                    )
+                            state: CardItemState() as (any ViewCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -180,9 +180,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
                                 state.isCodeVisible = true
                                 state.isNumberVisible = true
                                 return state
-                            }() as (any ViewCardItemState)
-                        )
-                    )
+                            }() as (any ViewCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -207,9 +207,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
                                 state.expirationMonth = .custom(.aug)
                                 state.expirationYear = "1989"
                                 return state
-                            }() as (any ViewCardItemState)
-                        )
-                    )
+                            }() as (any ViewCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -234,9 +234,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
                                 state.expirationMonth = .default
                                 state.expirationYear = ""
                                 return state
-                            }() as (any ViewCardItemState)
-                        )
-                    )
+                            }() as (any ViewCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -261,9 +261,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
                                 state.expirationMonth = .default
                                 state.expirationYear = "1989"
                                 return state
-                            }() as (any ViewCardItemState)
-                        )
-                    )
+                            }() as (any ViewCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }

@@ -16,7 +16,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     ///
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     )
 
     /// Called when the manual key entry flow has been completed.
@@ -32,7 +32,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     )
 
     /// Called when the scan flow requests the scan code screen.
@@ -40,7 +40,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     )
 
     /// Called when the scan flow requests the manual entry screen.
@@ -48,7 +48,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     )
 }
 
@@ -94,7 +94,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         delegate: AuthenticatorKeyCaptureDelegate?,
         services: Services,
         showManualEntry: Bool = true,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.services = services
@@ -115,13 +115,13 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         to route: AuthenticatorKeyCaptureRoute,
-        context: AnyObject?
+        context: AnyObject?,
     ) {
         switch route {
         case let .complete(value):
             delegate?.didCompleteAutomaticCapture(
                 asAnyCoordinator(),
-                key: value.content
+                key: value.content,
             )
         case let .dismiss(onDismiss):
             stackNavigator?.dismiss(completion: {
@@ -132,7 +132,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                 asAnyCoordinator(),
                 key: authKey,
                 name: name,
-                sendToBitwarden: sendToBitwarden
+                sendToBitwarden: sendToBitwarden,
             )
         case .manualKeyEntry:
             guard let stackNavigator else { return }
@@ -181,12 +181,12 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let processor = ScanCodeProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ScanCodeState(showManualEntry: showManualEntry)
+            state: ScanCodeState(showManualEntry: showManualEntry),
         )
         let store = Store(processor: processor)
         let view = ScanCodeView(
             cameraSession: session,
-            store: store
+            store: store,
         )
         stackNavigator?.replace(view)
     }
@@ -200,11 +200,11 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: DefaultEntryState(
                 deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
-                    && services.cameraService.checkStatus() == .authorized
-            )
+                    && services.cameraService.checkStatus() == .authorized,
+            ),
         )
         let view = ManualEntryView(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
         stackNavigator?.replace(view)
     }

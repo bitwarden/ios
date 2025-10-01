@@ -24,7 +24,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: generatorDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -53,15 +53,15 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await subject.addPasswordHistory(passwordHistory3)
 
         let results = try generatorDataStore.backgroundContext.fetch(
-            PasswordHistoryData.fetchByUserIdRequest(userId: "1")
+            PasswordHistoryData.fetchByUserIdRequest(userId: "1"),
         )
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
-            [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init)
+            [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init),
         )
         XCTAssertEqual(
             clientService.mockVault.clientPasswordHistory.encryptedPasswordHistory,
-            [passwordHistory1, passwordHistory2, passwordHistory3]
+            [passwordHistory1, passwordHistory2, passwordHistory3],
         )
     }
 
@@ -75,7 +75,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
             // getting out of order when sorting by the date.
             PasswordHistoryView.fixture(
                 password: index.description,
-                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+                lastUsedDate: Date(timeIntervalSince1970: Double(index)),
             )
         }
 
@@ -86,7 +86,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             try generatorDataStore.backgroundContext
                 .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
-            100
+            100,
         )
 
         let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
@@ -94,7 +94,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
-            passwords.suffix(100).reversed().map(PasswordHistory.init)
+            passwords.suffix(100).reversed().map(PasswordHistory.init),
         )
     }
 
@@ -105,15 +105,15 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let passwordHistory = PasswordHistoryView.fixture(
             password: "PASSWORD",
-            lastUsedDate: Date(timeIntervalSince1970: 1)
+            lastUsedDate: Date(timeIntervalSince1970: 1),
         )
         let passwordHistoryDuplicate = PasswordHistoryView.fixture(
             password: "PASSWORD",
-            lastUsedDate: Date(timeIntervalSince1970: 2)
+            lastUsedDate: Date(timeIntervalSince1970: 2),
         )
         let passwordHistoryOther = PasswordHistoryView.fixture(
             password: "PASSWORD_OTHER",
-            lastUsedDate: Date(timeIntervalSince1970: 3)
+            lastUsedDate: Date(timeIntervalSince1970: 3),
         )
 
         try await subject.addPasswordHistory(passwordHistory)
@@ -125,7 +125,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
-            [passwordHistoryOther, passwordHistory].map(PasswordHistory.init)
+            [passwordHistoryOther, passwordHistory].map(PasswordHistory.init),
         )
     }
 
@@ -143,7 +143,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             try generatorDataStore.backgroundContext
                 .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
-            0
+            0,
         )
     }
 
@@ -160,8 +160,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
                 numWords: 3,
                 wordSeparator: "-",
                 capitalize: false,
-                includeNumber: false
-            )
+                includeNumber: false,
+            ),
         )
 
         XCTAssertEqual(passphrase, "PASSPHRASE")
@@ -179,8 +179,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
                     numWords: 3,
                     wordSeparator: "-",
                     capitalize: false,
-                    includeNumber: false
-                )
+                    includeNumber: false,
+                ),
             )
         }
     }
@@ -198,8 +198,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
                 minLowercase: nil,
                 minUppercase: nil,
                 minNumber: nil,
-                minSpecial: nil
-            )
+                minSpecial: nil,
+            ),
         )
 
         XCTAssertEqual(password, "PASSWORD")
@@ -223,8 +223,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
                     minLowercase: nil,
                     minUppercase: nil,
                     minNumber: nil,
-                    minSpecial: nil
-                )
+                    minSpecial: nil,
+                ),
             )
         }
     }
@@ -232,7 +232,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `generateUsername()` returns the generated username.
     func test_generateUsername() async throws {
         let username = try await subject.generateUsername(
-            settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+            settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
         )
 
         XCTAssertEqual(username, "USERNAME")
@@ -246,7 +246,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         await assertAsyncThrows(error: GenerateUsernameError()) {
             _ = try await subject.generateUsername(
-                settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+                settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
             )
         }
     }

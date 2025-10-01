@@ -27,15 +27,15 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [account],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         subject = MockProfileSwitcherHandlerProcessor(
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: state
+            state: state,
         )
     }
 
@@ -57,7 +57,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [.fixtureLoggedOut],
             activeAccountId: ProfileSwitcherItem.fixtureLoggedOut.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.handleProfileSwitcherEffect(.accountLongPressed(.fixtureLoggedOut))
@@ -69,8 +69,8 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
                 .fixtureLoggedOut,
                 lockAction: {},
                 logoutAction: {},
-                removeAccountAction: {}
-            )
+                removeAccountAction: {},
+            ),
         )
         try await optionsAlert.tapAction(title: Localizations.removeAccount)
 
@@ -91,7 +91,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [.fixtureLoggedOut],
             activeAccountId: ProfileSwitcherItem.fixtureLoggedOut.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.handleProfileSwitcherEffect(.accountLongPressed(.fixtureLoggedOut))
@@ -103,8 +103,8 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
                 .fixtureLoggedOut,
                 lockAction: {},
                 logoutAction: {},
-                removeAccountAction: {}
-            )
+                removeAccountAction: {},
+            ),
         )
         try await optionsAlert.tapAction(title: Localizations.removeAccount)
 
@@ -125,7 +125,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [loggedOutAccount],
             activeAccountId: loggedOutAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.handleProfileSwitcherEffect(.accountLongPressed(loggedOutAccount))
@@ -137,8 +137,8 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
                 loggedOutAccount,
                 lockAction: {},
                 logoutAction: {},
-                removeAccountAction: {}
-            )
+                removeAccountAction: {},
+            ),
         )
         try await optionsAlert.tapAction(title: Localizations.removeAccount)
 
@@ -151,7 +151,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             subject.handleAuthEvents,
             [
                 .action(.logout(userId: loggedOutAccount.userId, userInitiated: true)),
-            ]
+            ],
         )
     }
 
@@ -164,13 +164,13 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [loggedOutAccount, .anneAccount],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         let removedAccountState = ProfileSwitcherState(
             accounts: [.anneAccount],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         authRepository.activeAccount = .fixture(profile: .fixture(userId: ProfileSwitcherItem.anneAccount.userId))
@@ -186,8 +186,8 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
                 loggedOutAccount,
                 lockAction: {},
                 logoutAction: {},
-                removeAccountAction: {}
-            )
+                removeAccountAction: {},
+            ),
         )
         try await optionsAlert.tapAction(title: Localizations.removeAccount)
 
@@ -212,7 +212,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [loggedOutAccount],
             activeAccountId: loggedOutAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         subject.handleProfileSwitcherAction(.accessibility(.remove(loggedOutAccount)))
@@ -226,7 +226,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             subject.handleAuthEvents,
             [
                 .action(.logout(userId: loggedOutAccount.userId, userInitiated: true)),
-            ]
+            ],
         )
     }
 
@@ -237,7 +237,7 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
             accounts: [ProfileSwitcherItem.fixtureUnlocked],
             activeAccountId: nil,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         authRepository.profileSwitcherState = state
         subject.profileSwitcherState = .empty()

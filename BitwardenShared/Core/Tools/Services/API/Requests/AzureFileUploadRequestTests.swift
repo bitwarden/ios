@@ -15,7 +15,7 @@ class AzureFileUploadRequestTests: BitwardenTestCase {
         let subject = AzureFileUploadRequest(
             data: data,
             date: date,
-            url: url
+            url: url,
         )
 
         XCTAssertEqual(
@@ -25,7 +25,7 @@ class AzureFileUploadRequestTests: BitwardenTestCase {
                 "x-ms-version": "2023-11-04",
                 "x-ms-blob-type": "BlockBlob",
                 "Content-Length": "\(data.count)",
-            ]
+            ],
         )
         XCTAssertEqual(subject.url, url)
         XCTAssertEqual(subject.body, data)

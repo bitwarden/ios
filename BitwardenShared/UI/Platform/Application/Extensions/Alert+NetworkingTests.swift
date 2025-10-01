@@ -56,7 +56,7 @@ class AlertNetworkingTests: BitwardenTestCase {
         var shareErrorDetailsCalled = false
         let subject = Alert.networkResponseError(
             BitwardenTestError.example,
-            shareErrorDetails: { shareErrorDetailsCalled = true }
+            shareErrorDetails: { shareErrorDetailsCalled = true },
         )
 
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
@@ -122,8 +122,8 @@ class AlertNetworkingTests: BitwardenTestCase {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.responseValidationError.data)
         let error = try ServerError.validationError(
             validationErrorResponse: ResponseValidationErrorModel(
-                response: response
-            )
+                response: response,
+            ),
         )
         let subject = Alert.networkResponseError(error)
 

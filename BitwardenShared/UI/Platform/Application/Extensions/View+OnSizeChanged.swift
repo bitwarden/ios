@@ -11,7 +11,7 @@ extension View {
             GeometryReader { geometry in
                 Color.clear
                     .preference(key: ViewSizeKey.self, value: geometry.size)
-            }
+            },
         )
         .onPreferenceChange(ViewSizeKey.self, perform: perform)
     }
@@ -35,11 +35,11 @@ extension View {
                         value: [
                             id: CGRect(
                                 origin: geometry.frame(in: .global).origin,
-                                size: geometry.size
+                                size: geometry.size,
                             ),
-                        ]
+                        ],
                     )
-            }
+            },
         )
         .onPreferenceChange(ViewFrameKey.self) { value in
             if let frame = value[id] {

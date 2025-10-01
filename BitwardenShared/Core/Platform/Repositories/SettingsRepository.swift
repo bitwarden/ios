@@ -152,7 +152,7 @@ class DefaultSettingsRepository {
         pasteboardService: PasteboardService,
         stateService: StateService,
         syncService: SyncService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.clientService = clientService
         self.folderService = folderService

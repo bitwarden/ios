@@ -22,13 +22,13 @@ class JSONEncoderBitwardenTests: BitwardenTestCase {
             credentialId: "credential",
             date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
             otherKey: "other",
-            rpId: "rp"
+            rpId: "rp",
         )
         let encodedData = try subject.encode(body)
         let encodedString = String(data: encodedData, encoding: .utf8)
         XCTAssertEqual(
             encodedString,
-            #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
+            #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#,
         )
     }
 
@@ -43,7 +43,7 @@ class JSONEncoderBitwardenTests: BitwardenTestCase {
         let encodedData = try subject.encode(JSONBody(date: Date(year: 2023, month: 10, day: 31)))
         XCTAssertEqual(
             String(data: encodedData, encoding: .utf8),
-            #"{"date":"2023-10-31T00:00:00.000Z"}"#
+            #"{"date":"2023-10-31T00:00:00.000Z"}"#,
         )
     }
 
@@ -56,12 +56,12 @@ class JSONEncoderBitwardenTests: BitwardenTestCase {
         }
 
         let body = JSONBody(
-            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54, nanosecond: 482_000_000)
+            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54, nanosecond: 482_000_000),
         )
         let encodedData = try subject.encode(body)
         XCTAssertEqual(
             String(data: encodedData, encoding: .utf8),
-            #"{"date":"2023-10-20T08:26:54.482Z"}"#
+            #"{"date":"2023-10-20T08:26:54.482Z"}"#,
         )
     }
 }

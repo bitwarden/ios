@@ -40,7 +40,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             }
             .toast(store.binding(
                 get: \.toast,
-                send: GeneratorAction.toastShown
+                send: GeneratorAction.toastShown,
             ))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -53,7 +53,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
 
                 largeNavigationTitleToolbarItem(
                     Localizations.generator,
-                    hidden: store.state.presentationMode != .tab
+                    hidden: store.state.presentationMode != .tab,
                 )
 
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -89,7 +89,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             BitwardenSegmentedControl(
                 isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
                 selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
-                selections: store.state.availableGeneratorTypes
+                selections: store.state.availableGeneratorTypes,
             )
             .backport.onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { size in
                 referenceViewHeight = size.height
@@ -100,8 +100,8 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                     store.send(
                         .guidedTourViewAction(.didRenderViewToSpotlight(
                             frame: frame,
-                            step: step
-                        ))
+                            step: step,
+                        )),
                     )
                 }
             })
@@ -124,8 +124,8 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             store: store.child(
                 state: \.guidedTourViewState,
                 mapAction: GeneratorAction.guidedTourViewAction,
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         ) {
             VStack(alignment: .leading, spacing: 24) {
                 if store.state.isLearnGeneratorActionCardEligible,
@@ -138,7 +138,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                         },
                         dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                             await store.perform(.dismissLearnGeneratorActionCard)
-                        }
+                        },
                     )
                 }
 
@@ -164,7 +164,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder
     func sectionView(
         _ section: GeneratorState.FormSection<GeneratorState>,
-        geometryProxy: GeometryProxy
+        geometryProxy: GeometryProxy,
     ) -> some View {
         VStack(spacing: 8) {
             ForEach(section.groups) { group in
@@ -189,10 +189,10 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                             store.send(
                                 .guidedTourViewAction(.didRenderViewToSpotlight(
                                     frame: visibleFrame,
-                                    step: .step4
-                                ))
+                                    step: .step4,
+                                )),
                             )
-                        }
+                        },
                     )
                 } else {
                     groupView(group)
@@ -217,9 +217,9 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                             .guidedTourViewAction(
                                 .didRenderViewToSpotlight(
                                     frame: frame,
-                                    step: .step6
-                                )
-                            )
+                                    step: .step6,
+                                ),
+                            ),
                         )
                     }
             case let .menuEmailType(menuField):
@@ -283,7 +283,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             AccessoryButton(
                 asset: Asset.Images.generate24,
                 accessibilityLabel: Localizations.generatePassword,
-                accessibilityIdentifier: "RegenerateValueButton"
+                accessibilityIdentifier: "RegenerateValueButton",
             ) {
                 store.send(.refreshGeneratedValue)
             }
@@ -291,8 +291,8 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                 store.send(
                     .guidedTourViewAction(.didRenderViewToSpotlight(
                         frame: frame.enlarged(by: 8),
-                        step: .step5
-                    ))
+                        step: .step5,
+                    )),
                 )
             }
         }
@@ -310,7 +310,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
     /// - Parameter field: The data for displaying the menu field.
     ///
     func menuUsernameGeneratorTypeView(
-        field: FormMenuField<GeneratorState, UsernameGeneratorType>
+        field: FormMenuField<GeneratorState, UsernameGeneratorType>,
     ) -> some View {
         FormMenuFieldView(field: field) { newValue in
             store.send(.usernameGeneratorTypeChanged(newValue))

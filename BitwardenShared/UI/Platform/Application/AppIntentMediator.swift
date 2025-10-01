@@ -45,7 +45,7 @@ class DefaultAppIntentMediator: AppIntentMediator {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.authRepository = authRepository
         self.configService = configService
@@ -69,7 +69,7 @@ class DefaultAppIntentMediator: AppIntentMediator {
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
         try await generatorRepository.generatePassphrase(
             settings: settings,
-            isPreAuth: true
+            isPreAuth: true,
         )
     }
 

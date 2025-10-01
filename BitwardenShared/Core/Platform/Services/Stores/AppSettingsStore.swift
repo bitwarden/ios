@@ -730,7 +730,7 @@ class DefaultAppSettingsStore {
             userDefaults.set(String(data: data, encoding: .utf8), forKey: key.storageKey)
         } catch {
             Logger.application.error(
-                "Error storing \(key.storageKey): \(String(describing: value)) to UserDefaults: \(error)"
+                "Error storing \(key.storageKey): \(String(describing: value)) to UserDefaults: \(error)",
             )
         }
     }
@@ -799,120 +799,119 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
-            let key: String
-            switch self {
+            let key = switch self {
             case let .accountKeys(userId):
-                key = "accountKeys_\(userId)"
+                "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
-                key = "accountSetupAutofill_\(userId)"
+                "accountSetupAutofill_\(userId)"
             case let .accountSetupImportLogins(userId):
-                key = "accountSetupImportLogins_\(userId)"
+                "accountSetupImportLogins_\(userId)"
             case let .accountSetupVaultUnlock(userId):
-                key = "accountSetupVaultUnlock_\(userId)"
+                "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
-                key = "addSitePromptShown"
+                "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
-                key = "syncOnRefresh_\(userId)"
+                "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
-                key = "allowUniversalClipboard_\(userId)"
+                "allowUniversalClipboard_\(userId)"
             case .appId:
-                key = "appId"
+                "appId"
             case .appLocale:
-                key = "appLocale"
+                "appLocale"
             case let .appRehydrationState(userId):
-                key = "appRehydrationState_\(userId)"
+                "appRehydrationState_\(userId)"
             case .appTheme:
-                key = "theme"
+                "theme"
             case let .biometricAuthEnabled(userId):
-                key = "biometricUnlock_\(userId)"
+                "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
-                key = "clearClipboard_\(userId)"
+                "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
-                key = "shouldConnectToWatch_\(userId)"
+                "shouldConnectToWatch_\(userId)"
             case let .debugFeatureFlag(name):
-                key = "debugFeatureFlag_\(name)"
+                "debugFeatureFlag_\(name)"
             case let .defaultUriMatch(userId):
-                key = "defaultUriMatch_\(userId)"
+                "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
-                key = "disableAutoTotpCopy_\(userId)"
+                "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
-                key = "disableFavicon"
+                "disableFavicon"
             case let .encryptedUserKey(userId):
-                key = "masterKeyEncryptedUserKey_\(userId)"
+                "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPin(userId):
-                key = "protectedPin_\(userId)"
+                "protectedPin_\(userId)"
             case let .encryptedPrivateKey(userId):
-                key = "encPrivateKey_\(userId)"
+                "encPrivateKey_\(userId)"
             case let .events(userId):
-                key = "events_\(userId)"
+                "events_\(userId)"
             case .flightRecorderData:
-                key = "flightRecorderData"
+                "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
-                key = "hasPerformedSyncAfterLogin_\(userId)"
+                "hasPerformedSyncAfterLogin_\(userId)"
             case .introCarouselShown:
-                key = "introCarouselShown"
+                "introCarouselShown"
             case .learnNewLoginActionCardStatus:
-                key = "learnNewLoginActionCardStatus"
+                "learnNewLoginActionCardStatus"
             case let .lastActiveTime(userId):
-                key = "lastActiveTime_\(userId)"
+                "lastActiveTime_\(userId)"
             case let .lastSync(userId):
-                key = "lastSync_\(userId)"
+                "lastSync_\(userId)"
             case .learnGeneratorActionCardStatus:
-                key = "learnGeneratorActionCardStatus"
+                "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
-                key = "lastUserShouldConnectToWatch"
+                "lastUserShouldConnectToWatch"
             case .loginRequest:
-                key = "passwordlessLoginNotificationKey"
+                "passwordlessLoginNotificationKey"
             case let .manuallyLockedAccount(userId):
-                key = "manuallyLockedAccount_\(userId)"
+                "manuallyLockedAccount_\(userId)"
             case let .masterPasswordHash(userId):
-                key = "keyHash_\(userId)"
+                "keyHash_\(userId)"
             case .migrationVersion:
-                key = "migrationVersion"
+                "migrationVersion"
             case let .notificationsLastRegistrationDate(userId):
-                key = "pushLastRegistrationDate_\(userId)"
+                "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
-                key = "passwordGenerationOptions_\(userId)"
+                "passwordGenerationOptions_\(userId)"
             case .pendingAppIntentActions:
-                key = "pendingAppIntentActions"
+                "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
-                key = "pinKeyEncryptedUserKey_\(userId)"
+                "pinKeyEncryptedUserKey_\(userId)"
             case let .pinProtectedUserKeyEnvelope(userId):
-                key = "pinProtectedUserKeyEnvelope_\(userId)"
+                "pinProtectedUserKeyEnvelope_\(userId)"
             case .preAuthEnvironmentURLs:
-                key = "preAuthEnvironmentUrls"
+                "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
-                key = "accountCreationEnvironmentUrls_\(email)"
+                "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
-                key = "preAuthServerConfig"
+                "preAuthServerConfig"
             case .rememberedEmail:
-                key = "rememberedEmail"
+                "rememberedEmail"
             case .rememberedOrgIdentifier:
-                key = "rememberedOrgIdentifier"
+                "rememberedOrgIdentifier"
             case .reviewPromptData:
-                key = "reviewPromptData"
+                "reviewPromptData"
             case let .serverConfig(userId):
-                key = "serverConfig_\(userId)"
+                "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
-                key = "shouldTrustDevice_\(userId)"
+                "shouldTrustDevice_\(userId)"
             case .state:
-                key = "state"
+                "state"
             case let .siriAndShortcutsAccess(userId):
-                key = "siriAndShortcutsAccess_\(userId)"
+                "siriAndShortcutsAccess_\(userId)"
             case let .syncToAuthenticator(userId):
-                key = "shouldSyncToAuthenticator_\(userId)"
+                "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
-                key = "twoFactorToken_\(email)"
+                "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
-                key = "invalidUnlockAttempts_\(userId)"
+                "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
-                key = "usernameGenerationOptions_\(userId)"
+                "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
-                key = "usesKeyConnector_\(userId)"
+                "usesKeyConnector_\(userId)"
             case let .vaultTimeout(userId):
-                key = "vaultTimeout_\(userId)"
+                "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
-                key = "vaultTimeoutAction_\(userId)"
+                "vaultTimeoutAction_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -1134,7 +1133,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
-            for: .accountCreationEnvironmentURLs(email: email)
+            for: .accountCreationEnvironmentURLs(email: email),
         )
     }
 

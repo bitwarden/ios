@@ -56,7 +56,7 @@ extension Backport where Content: View {
     public nonisolated func onGeometryChange<T>(
         for type: T.Type,
         of transform: @escaping @Sendable (GeometryProxy) -> T,
-        action: @escaping (_ newValue: T) -> Void
+        action: @escaping (_ newValue: T) -> Void,
     ) -> some View where T: Equatable, T: Sendable {
         if #available(iOS 16, *) {
             return content.onGeometryChange(for: type, of: transform, action: action)

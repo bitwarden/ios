@@ -40,9 +40,9 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
                 authService: authService,
                 errorReporter: errorReporter,
                 stateService: stateService,
-                trustDeviceService: trustDeviceService
+                trustDeviceService: trustDeviceService,
             ),
-            state: LoginDecryptionOptionsState()
+            state: LoginDecryptionOptionsState(),
         )
     }
 
@@ -71,7 +71,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
             .fixture(),
             animated: true,
             attemptAutomaticBiometricUnlock: false,
-            didSwitchAccountAutomatically: false
+            didSwitchAccountAutomatically: false,
         ))
     }
 
@@ -87,7 +87,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .loginWithDevice(
             email: subject.state.email,
             authRequestType: AuthRequestType.authenticateAndUnlock,
-            isAuthenticated: true
+            isAuthenticated: true,
         ))
     }
 
@@ -152,7 +152,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .loginWithDevice(
             email: subject.state.email,
             authRequestType: AuthRequestType.adminApproval,
-            isAuthenticated: true
+            isAuthenticated: true,
         ))
     }
 

@@ -27,7 +27,7 @@ extension MasterPasswordUnlockDataRequestModel {
         self.init(
             kdf: KdfConfig(kdf: unlockData.kdf),
             masterKeyWrappedUserKey: unlockData.masterKeyWrappedUserKey,
-            salt: unlockData.salt
+            salt: unlockData.salt,
         )
     }
 }

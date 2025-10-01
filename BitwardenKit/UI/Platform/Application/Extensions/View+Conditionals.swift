@@ -15,7 +15,7 @@ public extension View {
     ///
     func accessibility(
         if condition: Bool = true,
-        addTraits traits: AccessibilityTraits
+        addTraits traits: AccessibilityTraits,
     ) -> some View {
         accessibility(addTraits: condition ? traits : [])
     }
@@ -34,7 +34,7 @@ public extension View {
     func conditionalAccessibilityAction<S>(
         if condition: Bool = true,
         named name: S,
-        _ handler: @escaping () -> Void
+        _ handler: @escaping () -> Void,
     ) -> some View where S: StringProtocol {
         if condition {
             accessibilityAction(named: name, handler)
@@ -57,11 +57,11 @@ public extension View {
     func conditionalAccessibilityAsyncAction<S>(
         if condition: Bool = true,
         named name: S,
-        _ asyncHandler: @escaping () async -> Void
+        _ asyncHandler: @escaping () async -> Void,
     ) -> some View where S: StringProtocol {
         if condition {
             accessibilityAsyncAction(
-                named: name
+                named: name,
             ) {
                 await asyncHandler()
             }
@@ -124,14 +124,14 @@ public extension View {
         minimumDuration: Double = 0.5,
         maximumDistance: CGFloat = 10,
         perform action: @escaping () -> Void,
-        onPressingChanged: ((Bool) -> Void)? = nil
+        onPressingChanged: ((Bool) -> Void)? = nil,
     ) -> some View {
         if condition {
             onLongPressGesture(
                 minimumDuration: minimumDuration,
                 maximumDistance: maximumDistance,
                 perform: action,
-                onPressingChanged: onPressingChanged
+                onPressingChanged: onPressingChanged,
             )
         } else {
             self
@@ -160,14 +160,14 @@ public extension View {
         minimumDuration: Double = 0.5,
         maximumDistance: CGFloat = 10,
         perform asyncAction: @escaping () async -> Void,
-        onPressingChanged: ((Bool) -> Void)? = nil
+        onPressingChanged: ((Bool) -> Void)? = nil,
     ) -> some View {
         if condition {
             onLongPressGesture(
                 minimumDuration: minimumDuration,
                 maximumDistance: maximumDistance,
                 perform: { Task { await asyncAction() } },
-                onPressingChanged: onPressingChanged
+                onPressingChanged: onPressingChanged,
             )
         } else {
             self

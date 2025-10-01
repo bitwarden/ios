@@ -22,7 +22,7 @@ struct ExportCXFState: Equatable, Sendable {
 
     /// The title of the main button.
     var mainButtonTitle: String {
-        return switch status {
+        switch status {
         case .start:
             ""
         case .prepared:
@@ -34,7 +34,7 @@ struct ExportCXFState: Equatable, Sendable {
 
     /// The main icon to be displayed.
     var mainIcon: ImageAsset {
-        return switch status {
+        switch status {
         case .prepared, .start:
             Asset.Images.fileUpload24
         case .failure:
@@ -44,7 +44,7 @@ struct ExportCXFState: Equatable, Sendable {
 
     /// The message to display on the page header.
     var message: String {
-        return switch status {
+        switch status {
         case .prepared, .start:
             Localizations.exportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation
         case let .failure(message):
@@ -68,7 +68,7 @@ struct ExportCXFState: Equatable, Sendable {
 
     /// The title to display on the page header.
     var title: String {
-        return switch status {
+        switch status {
         case .prepared, .start:
             Localizations.exportItems
         case .failure:

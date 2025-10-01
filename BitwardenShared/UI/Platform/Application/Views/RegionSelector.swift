@@ -49,7 +49,7 @@ struct RegionSelector: View {
     init(
         selectorLabel: String,
         regionName: String,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) {
         self.action = action
         self.regionName = regionName

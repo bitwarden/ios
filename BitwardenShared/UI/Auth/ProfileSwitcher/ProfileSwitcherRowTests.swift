@@ -21,8 +21,8 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             state: ProfileSwitcherRowState(
                 shouldTakeAccessibilityFocus: false,
                 showDivider: false,
-                rowType: .addAccount
-            )
+                rowType: .addAccount,
+            ),
         )
         let store = Store(processor: processor)
         subject = ProfileSwitcherRow(store: store)
@@ -45,7 +45,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: true,
-            rowType: .active(.fixtureUnlocked)
+            rowType: .active(.fixtureUnlocked),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -56,7 +56,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: false,
-            rowType: .active(.fixtureUnlocked)
+            rowType: .active(.fixtureUnlocked),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -66,7 +66,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     func disabletest_snapshot_alternate_unlocked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
-            rowType: .alternate(.fixtureUnlocked)
+            rowType: .alternate(.fixtureUnlocked),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -76,7 +76,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     func disabletest_snapshot_alternate_locked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
-            rowType: .alternate(.fixtureLocked)
+            rowType: .alternate(.fixtureLocked),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -86,7 +86,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     func disabletest_snapshot_alternate_loggedOut() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
-            rowType: .alternate(.fixtureLoggedOut)
+            rowType: .alternate(.fixtureLoggedOut),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

@@ -20,7 +20,7 @@ extension [VaultListItem] {
     ///
     func updated(
         with updatedValues: [VaultListItem],
-        includeNewValues: Bool = false
+        includeNewValues: Bool = false,
     ) -> [VaultListItem] {
         var result = byId()
         updatedValues.forEach { new in
@@ -43,7 +43,7 @@ extension [VaultListSection] {
     ///
     func updated(
         with updatedValues: [VaultListItem],
-        includeNewValues: Bool = false
+        includeNewValues: Bool = false,
     ) -> [VaultListSection] {
         map { section in
             let updatedItems = section.items.updated(with: updatedValues, includeNewValues: includeNewValues)

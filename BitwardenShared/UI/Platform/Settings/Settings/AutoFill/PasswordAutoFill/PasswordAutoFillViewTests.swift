@@ -17,8 +17,8 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
     override func setUp() {
         processor = MockProcessor(
             state: PasswordAutoFillState(
-                mode: .settings
-            )
+                mode: .settings,
+            ),
         )
         subject = PasswordAutoFillView(store: Store(processor: processor))
     }
@@ -55,7 +55,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -71,7 +71,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
                 .portraitDark(heightMultiple: 1.2),
                 .tallPortraitAX5(heightMultiple: 2.2),
                 .defaultLandscape,
-            ]
+            ],
         )
     }
 
@@ -87,7 +87,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
                 .portraitDark(heightMultiple: 1.2),
                 .tallPortraitAX5(heightMultiple: 3),
                 .defaultLandscape,
-            ]
+            ],
         )
     }
 }

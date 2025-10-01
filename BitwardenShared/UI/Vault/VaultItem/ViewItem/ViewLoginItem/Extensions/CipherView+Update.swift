@@ -45,7 +45,7 @@ extension CipherView {
                 result = .custom(value)
                 return result
             }(),
-            expirationYear: card.expYear ?? ""
+            expirationYear: card.expYear ?? "",
         )
     }
 
@@ -80,7 +80,7 @@ extension CipherView {
             cityOrTown: identity?.city ?? "",
             state: identity?.state ?? "",
             postalCode: identity?.postalCode ?? "",
-            country: identity?.country ?? ""
+            country: identity?.country ?? "",
         )
     }
 
@@ -99,7 +99,7 @@ extension CipherView {
     func loginItemState(
         excludeFido2Credentials: Bool = false,
         showPassword: Bool = false,
-        showTOTP: Bool
+        showTOTP: Bool,
     ) -> LoginItemState {
         LoginItemState(
             canViewPassword: viewPassword,
@@ -112,7 +112,7 @@ extension CipherView {
             passwordUpdatedDate: login?.passwordRevisionDate,
             totpState: .init(login?.totp),
             uris: login?.uris?.map(UriState.init) ?? [],
-            username: login?.username ?? ""
+            username: login?.username ?? "",
         )
     }
 
@@ -130,7 +130,7 @@ extension CipherView {
             isPrivateKeyVisible: false,
             privateKey: sshKey.privateKey,
             publicKey: sshKey.publicKey,
-            keyFingerprint: sshKey.fingerprint
+            keyFingerprint: sshKey.fingerprint,
         )
     }
 
@@ -141,7 +141,7 @@ extension CipherView {
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
     func updatedView( // swiftlint:disable:this function_body_length
         with addEditState: AddEditItemState,
-        timeProvider: TimeProvider = CurrentTime()
+        timeProvider: TimeProvider = CurrentTime(),
     ) -> CipherView {
         var loginState = addEditState.loginState
 
@@ -169,7 +169,7 @@ extension CipherView {
             passwordHistory: passwordHistory,
             oldFields: fields,
             newFields: newFields,
-            lastUsedDate: lastUsedDate
+            lastUsedDate: lastUsedDate,
         )
 
         // Cap the size of the password history list to 5.
@@ -203,7 +203,7 @@ extension CipherView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
-            archivedDate: archivedDate
+            archivedDate: archivedDate,
         )
     }
 
@@ -211,7 +211,7 @@ extension CipherView {
         passwordHistory: [PasswordHistoryView]?,
         oldFields: [FieldView]?,
         newFields: [FieldView]?,
-        lastUsedDate: Date
+        lastUsedDate: Date,
     ) -> [PasswordHistoryView]? {
         guard let oldFields else {
             return passwordHistory
@@ -225,7 +225,7 @@ extension CipherView {
             }.compactMap { hiddenField in
                 PasswordHistoryView(
                     password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
-                    lastUsedDate: lastUsedDate
+                    lastUsedDate: lastUsedDate,
                 )
             }
         guard !newPasswordHistoryFields.isEmpty else {
@@ -259,7 +259,7 @@ extension CipherView {
             deletedDate: deletedDate,
             folderId: folderId,
             login: login,
-            organizationId: organizationId
+            organizationId: organizationId,
         )
     }
 
@@ -274,7 +274,7 @@ extension CipherView {
             deletedDate: deletedDate,
             folderId: folderId,
             login: login,
-            organizationId: organizationId
+            organizationId: organizationId,
         )
     }
 
@@ -289,7 +289,7 @@ extension CipherView {
             deletedDate: deletedDate,
             folderId: folderId,
             login: login,
-            organizationId: organizationId
+            organizationId: organizationId,
         )
     }
 
@@ -304,7 +304,7 @@ extension CipherView {
             deletedDate: deletedDate,
             folderId: folderId,
             login: login,
-            organizationId: organizationId
+            organizationId: organizationId,
         )
     }
 
@@ -325,7 +325,7 @@ extension CipherView {
         deletedDate: Date?,
         folderId: String?,
         login: BitwardenSdk.LoginView?,
-        organizationId: String?
+        organizationId: String?,
     ) -> CipherView {
         CipherView(
             id: id,
@@ -354,7 +354,7 @@ extension CipherView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
-            archivedDate: archivedDate
+            archivedDate: archivedDate,
         )
     }
 }
@@ -373,7 +373,7 @@ extension BitwardenSdk.LoginView {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
-            fido2Credentials: fido2Credentials
+            fido2Credentials: fido2Credentials,
         )
     }
 }

@@ -41,7 +41,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             errorReporter: errorReporter,
             exportVaultService: exportVaultService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -141,8 +141,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             profile: .fixture(
                 email: "example@example.com",
                 name: "Test",
-                userId: "1"
-            )
+                userId: "1",
+            ),
         )
 
         clientService.mockExporters.exportCxfResult = .success(
@@ -223,8 +223,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             profile: .fixture(
                 email: "example@example.com",
                 name: "Test",
-                userId: "1"
-            )
+                userId: "1",
+            ),
         )
         clientService.mockExporters.exportCxfResult = .failure(BitwardenTestError.example)
 

@@ -75,7 +75,7 @@ public protocol StackNavigator: Navigator {
         embedInNavigationController: Bool,
         isModalInPresentation: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     )
 
     /// Replaces the stack with the specified view.
@@ -135,7 +135,7 @@ extension StackNavigator {
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         navigationTitle: String? = nil,
-        searchController: UISearchController? = nil
+        searchController: UISearchController? = nil,
     ) {
         if let navigationTitle {
             // Preset some navigation item values so that the navigation bar does not flash oddly once
@@ -198,7 +198,7 @@ extension StackNavigator {
         embedInNavigationController: Bool = true,
         isModalInPresentation: Bool = false,
         overFullscreen: Bool = false,
-        onCompletion _: (() -> Void)? = nil
+        onCompletion _: (() -> Void)? = nil,
     ) {
         present(
             view,
@@ -206,7 +206,7 @@ extension StackNavigator {
             embedInNavigationController: embedInNavigationController,
             isModalInPresentation: isModalInPresentation,
             overFullscreen: overFullscreen,
-            onCompletion: nil
+            onCompletion: nil,
         )
     }
 
@@ -262,7 +262,7 @@ extension UINavigationController: StackNavigator {
         embedInNavigationController: Bool,
         isModalInPresentation: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         let controller: UIViewController
         if embedInNavigationController {

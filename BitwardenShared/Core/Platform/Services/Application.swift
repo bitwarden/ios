@@ -12,7 +12,7 @@ public protocol Application {
     ///
     nonisolated func startBackgroundTask(
         withName: String?,
-        expirationHandler: (() -> Void)?
+        expirationHandler: (() -> Void)?,
     ) -> UIBackgroundTaskIdentifier
 
     /// Marks the end of a specific long-running background task.

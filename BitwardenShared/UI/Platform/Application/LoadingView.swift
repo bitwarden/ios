@@ -33,7 +33,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
     ///
     init(
         state: LoadingState<T>,
-        @ViewBuilder contents: @escaping (T) -> Contents
+        @ViewBuilder contents: @escaping (T) -> Contents,
     ) where ErrorView == EmptyView {
         self.state = state
         self.contents = contents
@@ -50,7 +50,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
     init(
         state: LoadingState<T>,
         @ViewBuilder contents: @escaping (T) -> Contents,
-        @ViewBuilder errorView: @escaping (String) -> ErrorView
+        @ViewBuilder errorView: @escaping (String) -> ErrorView,
     ) {
         self.state = state
         self.contents = contents

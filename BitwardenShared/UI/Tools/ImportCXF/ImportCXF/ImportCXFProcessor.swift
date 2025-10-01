@@ -35,7 +35,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
     init(
         coordinator: AnyCoordinator<ImportCXFRoute, Void>,
         services: Services,
-        state: ImportCXFState
+        state: ImportCXFState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -82,8 +82,8 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.importError,
-                    message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice
-                )
+                    message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice,
+                ),
             )
             return
         }
@@ -93,12 +93,12 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
         do {
             let results = try await services.importCiphersRepository.importCiphers(
                 credentialImportToken: credentialImportToken,
-                onProgress: { progress in state.progress = progress }
+                onProgress: { progress in state.progress = progress },
             )
 
             state.status = .success(
                 totalImportedCredentials: results.map(\.count).reduce(0, +),
-                importedResults: results
+                importedResults: results,
             )
         } catch ImportCiphersRepositoryError.noDataFound {
             state.status = .failure(message: "No data found to import.")

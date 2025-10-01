@@ -20,8 +20,8 @@ struct AddEditCustomFieldsView: View {
                         title: field.name,
                         text: store.binding(
                             get: { _ in field.value ?? "" },
-                            send: { .customFieldChanged($0, index: index) }
-                        )
+                            send: { .customFieldChanged($0, index: index) },
+                        ),
                     ) {
                         menuOptions(index: index)
                     }
@@ -30,7 +30,7 @@ struct AddEditCustomFieldsView: View {
                         title: field.name,
                         text: store.binding(
                             get: { _ in field.value ?? "" },
-                            send: { .customFieldChanged($0, index: index) }
+                            send: { .customFieldChanged($0, index: index) },
                         ),
                         passwordVisibilityAccessibilityId: "HiddenCustomFieldShowValueButton",
                         canViewPassword: true,
@@ -38,8 +38,8 @@ struct AddEditCustomFieldsView: View {
                             get: { _ in field.isPasswordVisible },
                             send: { flag in
                                 AddEditCustomFieldsAction.togglePasswordVisibilityChanged(flag, index)
-                            }
-                        )
+                            },
+                        ),
                     ) {
                         menuOptions(index: index)
                     }
@@ -49,7 +49,7 @@ struct AddEditCustomFieldsView: View {
                         get: { _ in field.booleanValue },
                         send: { flag in
                             AddEditCustomFieldsAction.booleanFieldChanged(flag, index)
-                        }
+                        },
                     )) {
                         HStack(spacing: 8) {
                             Text(field.name ?? "")
@@ -62,8 +62,8 @@ struct AddEditCustomFieldsView: View {
                 case .linked:
                     BitwardenField(title: field.name ?? "") {
                         Menu {
-                            Picker(selection:
-                                store.binding(
+                            Picker(
+                                selection: store.binding(
                                     get: { state in
                                         if let idType = field.linkedIdType ??
                                             LinkedIdType.getLinkedIdType(for: state.cipherType).first {
@@ -76,8 +76,8 @@ struct AddEditCustomFieldsView: View {
                                     },
                                     send: { idType in
                                         AddEditCustomFieldsAction.selectedLinkedIdType(index, idType)
-                                    }
-                                )
+                                    },
+                                ),
                             ) {
                                 ForEach(LinkedIdType.getLinkedIdType(for: store.state.cipherType)) { idType in
                                     Text(idType.localizedName)
@@ -151,33 +151,33 @@ struct AddEditCustomFieldsView_Previews: PreviewProvider {
                                 linkedIdType: nil,
                                 name: "Custom text",
                                 type: .text,
-                                value: "value goes here"
+                                value: "value goes here",
                             ),
                             CustomFieldState(
                                 linkedIdType: nil,
                                 name: "Custom text",
                                 type: .hidden,
-                                value: "value goes here"
+                                value: "value goes here",
                             ),
                             CustomFieldState(
                                 linkedIdType: nil,
                                 name: "Custom boolean",
-                                type: .boolean
+                                type: .boolean,
                             ),
                             CustomFieldState(
                                 linkedIdType: .identityFirstName,
                                 name: "Custom linked field",
-                                type: .linked
+                                type: .linked,
                             ),
-                        ]
-                    )
-                )
-            )
+                        ],
+                    ),
+                ),
+            ),
         )
         .padding(16)
         .background(
             SharedAsset.Colors.backgroundPrimary.swiftUIColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(),
         )
     }
 }

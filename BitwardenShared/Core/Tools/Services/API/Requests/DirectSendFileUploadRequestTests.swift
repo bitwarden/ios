@@ -14,7 +14,7 @@ class DirectSendFileUploadRequestTests: BitwardenTestCase {
             data: data,
             fileName: "file_name",
             fileId: "file_id",
-            sendId: "send_id"
+            sendId: "send_id",
         )
 
         XCTAssertEqual(subject.fileId, "file_id")

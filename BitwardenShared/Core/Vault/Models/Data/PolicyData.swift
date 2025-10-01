@@ -31,7 +31,7 @@ class PolicyData: NSManagedObject, ManagedUserObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        policy: PolicyResponseModel
+        policy: PolicyResponseModel,
     ) {
         self.init(context: context)
         id = policy.id
@@ -65,7 +65,7 @@ extension PolicyData {
             #keyPath(PolicyData.userId),
             userId,
             #keyPath(PolicyData.id),
-            id
+            id,
         )
     }
 }

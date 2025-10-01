@@ -50,8 +50,8 @@ struct ExportItemsView: View {
             options: ExportFormatType.allCases,
             selection: store.binding(
                 get: \.fileFormat,
-                send: ExportItemsAction.fileFormatTypeChanged
-            )
+                send: ExportItemsAction.fileFormatTypeChanged,
+            ),
         )
     }
 }

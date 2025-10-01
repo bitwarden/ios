@@ -16,7 +16,7 @@ class ImportLoginsSuccessProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
 
         subject = ImportLoginsSuccessProcessor(
-            coordinator: coordinator.asAnyCoordinator()
+            coordinator: coordinator.asAnyCoordinator(),
         )
     }
 

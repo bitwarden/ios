@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(
         _: UIApplication,
-        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil,
     ) -> Bool {
         // Exit early if testing to avoid running any app functionality.
         guard !isTesting else { return true }
@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let services = ServiceContainer.shared(
             application: UIApplication.shared,
             errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
-            nfcReaderService: { DefaultNFCReaderService() }
+            nfcReaderService: { DefaultNFCReaderService() },
         )
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
@@ -60,7 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any]
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     ) async -> UIBackgroundFetchResult {
         await appProcessor?.messageReceived(userInfo)
         return .newData
@@ -69,19 +69,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// Received a response to a push notification alert.
     func userNotificationCenter(
         _: UNUserNotificationCenter,
-        didReceive response: UNNotificationResponse
+        didReceive response: UNNotificationResponse,
     ) async {
         await appProcessor?.messageReceived(
             response.notification.request.content.userInfo,
             notificationDismissed: response.actionIdentifier == UNNotificationDismissActionIdentifier,
-            notificationTapped: response.actionIdentifier == UNNotificationDefaultActionIdentifier
+            notificationTapped: response.actionIdentifier == UNNotificationDefaultActionIdentifier,
         )
     }
 
     /// Received a message in the foreground of the app.
     func userNotificationCenter(
         _: UNUserNotificationCenter,
-        willPresent notification: UNNotification
+        willPresent notification: UNNotification,
     ) async -> UNNotificationPresentationOptions {
         await appProcessor?.messageReceived(notification.request.content.userInfo)
         return .banner

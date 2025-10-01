@@ -12,7 +12,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void
+        Void,
     >!
     var subject: ExtensionActivationView!
 
@@ -50,7 +50,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     func disabletest_snapshot_extensionActivationView_autoFillExtension() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -60,7 +60,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
         processor.state.extensionType = .appExtension
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

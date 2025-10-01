@@ -38,7 +38,7 @@ struct PendingRequestsView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: PendingRequestsAction.toastShown
+            send: PendingRequestsAction.toastShown,
         ))
     }
 
@@ -149,7 +149,7 @@ struct PendingRequestsView: View {
 #if DEBUG
 #Preview("Empty") {
     PendingRequestsView(store: Store(processor: StateProcessor(state: PendingRequestsState(
-        loadingState: .data([])
+        loadingState: .data([]),
     ))))
 }
 
@@ -160,15 +160,15 @@ struct PendingRequestsView: View {
                 .fixture(
                     creationDate: .now,
                     fingerprintPhrase: "pineapple-on-pizza-is-the-best",
-                    id: "1"
+                    id: "1",
                 ),
                 .fixture(
                     creationDate: .now,
                     fingerprintPhrase: "coconuts-are-underrated",
-                    id: "2"
+                    id: "2",
                 ),
-            ]
-        )
+            ],
+        ),
     ))))
 }
 #endif

@@ -21,7 +21,7 @@ struct VaultListItemRowView: View {
                 VaultItemDecorativeImageView(
                     item: store.state.item,
                     iconBaseURL: store.state.iconBaseURL,
-                    showWebIcons: store.state.showWebIcons
+                    showWebIcons: store.state.showWebIcons,
                 )
                 .imageStyle(.rowIcon)
                 .padding(.vertical, 19)
@@ -41,7 +41,7 @@ struct VaultListItemRowView: View {
                                     Asset.Images.collections16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.shared)
                                         .accessibilityIdentifier("CipherInCollectionIcon")
@@ -51,7 +51,7 @@ struct VaultListItemRowView: View {
                                     Asset.Images.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.attachments)
                                         .accessibilityIdentifier("CipherWithAttachmentsIcon")
@@ -125,7 +125,7 @@ struct VaultListItemRowView: View {
     @ViewBuilder
     private func totpCodeRow(
         _ name: String,
-        _ model: VaultListTOTP
+        _ model: VaultListTOTP,
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(name)
@@ -144,7 +144,7 @@ struct VaultListItemRowView: View {
             TOTPCountdownTimerView(
                 timeProvider: timeProvider,
                 totpCode: model.totpCode,
-                onExpiration: nil
+                onExpiration: nil,
             )
         }
         if !model.requiresMasterPassword {

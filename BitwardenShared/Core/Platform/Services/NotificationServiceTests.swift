@@ -40,7 +40,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
         subject.setDelegate(delegate)
     }
@@ -477,7 +477,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.loginRequest = LoginRequestNotification(id: "1", userId: "2")
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: "2"
+            userId: "2",
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [
@@ -501,7 +501,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         authService.getPendingLoginRequestResult = .success([.fixture(id: "requestId")])
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: Account.fixture().profile.userId
+            userId: Account.fixture().profile.userId,
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [
@@ -522,7 +522,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: Account.fixture().profile.userId
+            userId: Account.fixture().profile.userId,
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [

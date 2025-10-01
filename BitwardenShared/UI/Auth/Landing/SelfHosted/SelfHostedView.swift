@@ -41,8 +41,8 @@ struct SelfHostedView: View {
                 title: Localizations.webVaultUrl,
                 text: store.binding(
                     get: \.webVaultServerUrl,
-                    send: SelfHostedAction.webVaultUrlChanged
-                )
+                    send: SelfHostedAction.webVaultUrlChanged,
+                ),
             )
             .accessibilityIdentifier("WebVaultUrlEntry")
 
@@ -50,8 +50,8 @@ struct SelfHostedView: View {
                 title: Localizations.apiUrl,
                 text: store.binding(
                     get: \.apiServerUrl,
-                    send: SelfHostedAction.apiUrlChanged
-                )
+                    send: SelfHostedAction.apiUrlChanged,
+                ),
             )
             .accessibilityIdentifier("ApiUrlEntry")
 
@@ -59,8 +59,8 @@ struct SelfHostedView: View {
                 title: Localizations.identityUrl,
                 text: store.binding(
                     get: \.identityServerUrl,
-                    send: SelfHostedAction.identityUrlChanged
-                )
+                    send: SelfHostedAction.identityUrlChanged,
+                ),
             )
             .accessibilityIdentifier("IdentityUrlEntry")
 
@@ -68,9 +68,9 @@ struct SelfHostedView: View {
                 title: Localizations.iconsUrl,
                 text: store.binding(
                     get: \.iconsServerUrl,
-                    send: SelfHostedAction.iconsUrlChanged
+                    send: SelfHostedAction.iconsUrlChanged,
                 ),
-                footer: Localizations.customEnvironmentFooter
+                footer: Localizations.customEnvironmentFooter,
             )
             .accessibilityIdentifier("IconsUrlEntry")
         }
@@ -83,9 +83,9 @@ struct SelfHostedView: View {
                 title: Localizations.serverUrl,
                 text: store.binding(
                     get: \.serverUrl,
-                    send: SelfHostedAction.serverUrlChanged
+                    send: SelfHostedAction.serverUrlChanged,
                 ),
-                footer: Localizations.selfHostedEnvironmentFooter
+                footer: Localizations.selfHostedEnvironmentFooter,
             )
             .accessibilityIdentifier("ServerUrlEntry")
             .autocorrectionDisabled()

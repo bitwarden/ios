@@ -46,7 +46,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
 extension VaultListItem {
     /// What's used to sort `VaultListItem`s depending on its item type.
     var sortValue: String {
-        return switch itemType {
+        switch itemType {
         case let .cipher(cipherListView, _):
             cipherListView.name
         case .group:
@@ -143,18 +143,18 @@ extension VaultListItem {
         case let .cipher(cipherItem, _):
             switch cipherItem.type {
             case .card:
-                return "CardCipherIcon"
+                "CardCipherIcon"
             case .identity:
-                return "IdentityCipherIcon"
+                "IdentityCipherIcon"
             case .login:
-                return "LoginCipherIcon"
+                "LoginCipherIcon"
             case .secureNote:
-                return "SecureNoteCipherIcon"
+                "SecureNoteCipherIcon"
             case .sshKey:
-                return "SSHKeyCipherIcon"
+                "SSHKeyCipherIcon"
             }
         default:
-            return ""
+            ""
         }
     }
 
@@ -180,11 +180,11 @@ extension VaultListItem {
     var loginListView: BitwardenSdk.LoginListView? {
         switch itemType {
         case let .cipher(cipherView, _):
-            return cipherView.type.loginListView
+            cipherView.type.loginListView
         case .group:
-            return nil
+            nil
         case let .totp(_, totpModel):
-            return totpModel.cipherListView.type.loginListView
+            totpModel.cipherListView.type.loginListView
         }
     }
 

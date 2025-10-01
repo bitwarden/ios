@@ -55,7 +55,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: SingleSignOnState
+        state: SingleSignOnState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -99,7 +99,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             rememberOrgIdentifierAndNavigate(to: .updateMasterPassword)
         case AuthError.requireDecryptionOptions:
             rememberOrgIdentifierAndNavigate(to: .showLoginDecryptionOptions(
-                organizationIdentifier: state.identifierText
+                organizationIdentifier: state.identifierText,
             ))
         default:
             await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
@@ -120,9 +120,9 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
                 to: .singleSignOn(
                     callbackUrlScheme: services.authService.callbackUrlScheme,
                     state: result.state,
-                    url: result.url
+                    url: result.url,
                 ),
-                context: self
+                context: self,
             )
         } catch let error as InputValidationError {
             coordinator.hideLoadingOverlay()
@@ -177,12 +177,12 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         do {
             try await services.authRepository.convertNewUserToKeyConnector(
                 keyConnectorURL: keyConnectorUrl,
-                orgIdentifier: state.identifierText
+                orgIdentifier: state.identifierText,
             )
 
             try await services.authRepository.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: keyConnectorUrl,
-                orgIdentifier: state.identifierText
+                orgIdentifier: state.identifierText,
             )
 
             await coordinator.handleEvent(.didCompleteAuth)
@@ -204,7 +204,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 // Use the code to authenticate the user with Bitwarden.
                 let unlockMethod = try await self.services.authService.loginWithSingleSignOn(
                     code: code,
-                    email: state.email
+                    email: state.email,
                 )
 
                 // Remember the organization identifier after successfully logging on.
@@ -226,15 +226,15 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             account,
                             animated: false,
                             attemptAutomaticBiometricUnlock: true,
-                            didSwitchAccountAutomatically: false
-                        )
+                            didSwitchAccountAutomatically: false,
+                        ),
                     )
                     coordinator.navigate(to: .dismiss)
                 case let .keyConnector(keyConnectorUrl):
                     do {
                         try await services.authRepository.unlockVaultWithKeyConnectorKey(
                             keyConnectorURL: keyConnectorUrl,
-                            orgIdentifier: state.identifierText
+                            orgIdentifier: state.identifierText,
                         )
                         await coordinator.handleEvent(.didCompleteAuth)
                         coordinator.navigate(to: .dismiss)

@@ -15,7 +15,7 @@ struct AccessoryButtonStyle: ButtonStyle {
             .foregroundColor(
                 isEnabled
                     ? SharedAsset.Colors.iconPrimary.swiftUIColor
-                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
             )
             .opacity(configuration.isPressed ? 0.5 : 1)
             .contentShape(Rectangle())

@@ -29,7 +29,7 @@ struct OffsetObservingScrollView<Content: View>: View {
             PositionObservingView(
                 coordinateSpace: .named(coordinateSpaceName),
                 position: offset,
-                content: content
+                content: content,
             )
         }
         .coordinateSpace(name: coordinateSpaceName)
@@ -49,7 +49,7 @@ struct OffsetObservingScrollView<Content: View>: View {
         axes: Axis.Set = [.vertical],
         offset: Binding<CGPoint>,
         showsIndicators: Bool = true,
-        content: @escaping () -> Content
+        content: @escaping () -> Content,
     ) {
         self.axes = axes
         self.content = content
@@ -58,7 +58,7 @@ struct OffsetObservingScrollView<Content: View>: View {
         }, set: { newOffset in
             offset.wrappedValue = CGPoint(
                 x: -newOffset.x,
-                y: -newOffset.y
+                y: -newOffset.y,
             )
         })
         self.showsIndicators = showsIndicators

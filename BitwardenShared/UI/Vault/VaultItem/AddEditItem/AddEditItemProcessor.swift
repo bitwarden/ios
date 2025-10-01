@@ -51,7 +51,7 @@ extension CipherItemOperationDelegate {
 final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     AddEditItemState,
     AddEditItemAction,
-    AddEditItemEffect
+    AddEditItemEffect,
 >, Rehydratable {
     // MARK: Types
 
@@ -108,7 +108,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         services: Services,
-        state: AddEditItemState
+        state: AddEditItemState,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
@@ -227,7 +227,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledPasswordVisible,
-                        cipherId: state.cipher.id
+                        cipherId: state.cipher.id,
                     )
                 }
             }
@@ -364,7 +364,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: state.cipher.id
+                        cipherId: state.cipher.id,
                     )
                 }
             }
@@ -428,7 +428,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardCodeVisible,
-                        cipherId: cipherId
+                        cipherId: cipherId,
                     )
                 }
             }
@@ -439,7 +439,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardNumberVisible,
-                        cipherId: cipherId
+                        cipherId: cipherId,
                     )
                 }
             }
@@ -530,8 +530,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 guard let self else { return }
                 receive(
                     .customField(
-                        .selectedCustomFieldType(type)
-                    )
+                        .selectedCustomFieldType(type),
+                    ),
                 )
             }
         }
@@ -542,7 +542,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             title: Localizations.selectTypeField,
             message: nil,
             preferredStyle: .actionSheet,
-            alertActions: alertActions
+            alertActions: alertActions,
         )
         coordinator.showAlert(alert)
     }
@@ -557,9 +557,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 .customField(
                     .customFieldNameChanged(
                         index: index,
-                        newValue: name
-                    )
-                )
+                        newValue: name,
+                    ),
+                ),
             )
         }
         coordinator.showAlert(alert)
@@ -599,9 +599,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     handler: { [weak self] _ in
                         let emailWebsite = self?.state.loginState.generatorEmailWebsite
                         self?.coordinator.navigate(to: .generator(type, emailWebsite: emailWebsite), context: self)
-                    }
+                    },
                 ),
-            ]
+            ],
         )
         coordinator.showAlert(alert)
     }
@@ -613,8 +613,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection
-                )
+                    message: Localizations.selectOneCollection,
+                ),
             )
             return
         }
@@ -653,9 +653,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
                         cipher: CipherViewWrapper(cipher: state.cipher),
-                        checkUserResult: CheckUserResult(userPresent: true, userVerified: fido2UserVerified)
-                    )
-                )
+                        checkUserResult: CheckUserResult(userPresent: true, userVerified: fido2UserVerified),
+                    ),
+                ),
             )
             return
         }
@@ -677,7 +677,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         let result = try await services.fido2UserInterfaceHelper.checkUser(
             userVerificationPreference: fido2CreationOptions.requireVerification,
             credential: state.cipher,
-            shouldThrowEnforcingRequiredVerification: true
+            shouldThrowEnforcingRequiredVerification: true,
         )
         return result.userVerified
     }
@@ -764,7 +764,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func confirmAndUpdateDefaultUriMatchType(
         _ newUriMatchType: DefaultableType<UriMatchType>,
-        _ index: Int
+        _ index: Int,
     ) async {
         switch newUriMatchType.customValue {
         case .regularExpression:
@@ -773,9 +773,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     await self.updateUriMatchType(
                         newUriMatchType: newUriMatchType,
                         index: index,
-                        learnMoreLocalizedMatchType: Localizations.regEx
+                        learnMoreLocalizedMatchType: Localizations.regEx,
                     )
-                }
+                },
             )
         case .startsWith:
             coordinator.showAlert(
@@ -783,15 +783,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     await self.updateUriMatchType(
                         newUriMatchType: newUriMatchType,
                         index: index,
-                        learnMoreLocalizedMatchType: Localizations.startsWith
+                        learnMoreLocalizedMatchType: Localizations.startsWith,
                     )
-                }
+                },
             )
         default:
             await updateUriMatchType(
                 newUriMatchType: newUriMatchType,
                 index: index,
-                learnMoreLocalizedMatchType: nil
+                learnMoreLocalizedMatchType: nil,
             )
         }
     }
@@ -806,7 +806,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateUriMatchType(
         newUriMatchType: DefaultableType<UriMatchType>,
         index: Int,
-        learnMoreLocalizedMatchType: String?
+        learnMoreLocalizedMatchType: String?,
     ) async {
         state.loginState.uris[index].matchType = newUriMatchType
 
@@ -887,7 +887,7 @@ extension AddEditItemProcessor: AddEditFolderDelegate {
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        with value: String,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.parseAndValidateCapturedAuthenticatorKey(value)
@@ -913,7 +913,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
@@ -926,7 +926,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)

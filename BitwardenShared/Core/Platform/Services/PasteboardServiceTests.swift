@@ -26,7 +26,7 @@ class PasteboardServiceTests: BitwardenTestCase {
         subject = DefaultPasteboardService(
             errorReporter: errorReporter,
             pasteboard: pasteboard,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 

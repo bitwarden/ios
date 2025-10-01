@@ -80,7 +80,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             syncService: syncService,
             timeProvider: timeProvider,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
     }
 
@@ -191,11 +191,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
                             creationDate: Date(year: 2024, month: 1, day: 1),
-                            revisionDate: Date(year: 2024, month: 1, day: 1)
-                        )
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
+                        ),
                     )!,
                 ],
-                name: ""
+                name: "",
             ),
         ]
 
@@ -210,7 +210,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .passwords,
             rpID: nil,
-            uri: "https://example.com"
+            uri: "https://example.com",
         ).makeAsyncIterator()
         let publishedSections = try await iterator.next()?.sections
 
@@ -230,7 +230,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             VaultListSection(
                 id: "1",
                 items: [VaultListItem(cipherListView: .fixture())!],
-                name: "TestingSection"
+                name: "TestingSection",
             ),
         ]
         let publisher = Just(VaultListData(sections: expectedSections))
@@ -244,7 +244,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .all,
             rpID: nil,
-            uri: nil
+            uri: nil,
         ).makeAsyncIterator()
 
         let vaultListData = try await iterator.next()
@@ -266,7 +266,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let expectedCipher = Cipher.fixture(
             id: "1",
             login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
-            name: "Bitwarden"
+            name: "Bitwarden",
         )
 
         let cipherFixtures: [Cipher] = [
@@ -276,7 +276,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: "2",
                 login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                 name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1)
+                revisionDate: Date(year: 2024, month: 1, day: 1),
             ),
             .fixture(id: "3", login: .fixture(), name: "Café", type: .login),
             .fixture(id: "4"),
@@ -297,7 +297,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherListView(cipher: cipherFixtures[3]),
         ]
         cipherService.fetchCipherByIdResult = { cipherId in
-            return switch cipherId {
+            switch cipherId {
             case "1":
                 .success(expectedCipher)
             case "3":
@@ -321,7 +321,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .combinedMultipleSections,
             rpID: expectedRpID,
-            uri: "https://example.com"
+            uri: "https://example.com",
         ).makeAsyncIterator()
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
@@ -336,12 +336,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipherView.id ?? "",
-                            rpId: expectedRpID
-                        )
+                            rpId: expectedRpID,
+                        ),
                     )!
                 },
-                name: Localizations.passkeysForX(expectedRpID)
-            )
+                name: Localizations.passkeysForX(expectedRpID),
+            ),
         )
         XCTAssertEqual(
             sections[1],
@@ -354,12 +354,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
                             creationDate: Date(year: 2024, month: 1, day: 1),
-                            revisionDate: Date(year: 2024, month: 1, day: 1)
-                        )
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
+                        ),
                     )!,
                 ],
-                name: Localizations.passwordsForX(expectedRpID)
-            )
+                name: Localizations.passwordsForX(expectedRpID),
+            ),
         )
     }
 
@@ -377,28 +377,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
                             creationDate: Date(year: 2024, month: 1, day: 1),
-                            revisionDate: Date(year: 2024, month: 1, day: 1)
-                        )
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
+                        ),
                     )!,
                     VaultListItem(
                         cipherListView: .fixture(
                             id: "3",
                             login: .fixture(
                                 fido2Credentials: [.fixture()],
-                                uris: [.fixture(uri: "https://example.com", match: .exact)]
+                                uris: [.fixture(uri: "https://example.com", match: .exact)],
                             ),
                             name: "Example 3",
                             creationDate: Date(year: 2024, month: 1, day: 1),
-                            revisionDate: Date(year: 2024, month: 1, day: 1)
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
                         ),
                         fido2CredentialAutofillView: .fixture(
                             credentialId: Data(repeating: 123, count: 16),
                             cipherId: "3",
-                            rpId: "myApp.com"
-                        )
+                            rpId: "myApp.com",
+                        ),
                     )!,
                 ],
-                name: Localizations.chooseALoginToSaveThisPasskeyTo
+                name: Localizations.chooseALoginToSaveThisPasskeyTo,
             ),
         ]
 
@@ -413,7 +413,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .combinedSingleSection,
             rpID: "myApp.com",
-            uri: "https://example.com"
+            uri: "https://example.com",
         ).makeAsyncIterator()
         let publishedSections = try await iterator.next()?.sections
 
@@ -444,13 +444,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                                 totpCode: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: .now,
-                                    period: 30
-                                )
-                            )
-                        )
+                                    period: 30,
+                                ),
+                            ),
+                        ),
                     ),
                 ],
-                name: ""
+                name: "",
             ),
         ]
         let publisher = Just(VaultListData(sections: expectedSections))
@@ -464,7 +464,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .availableCredentialsForAuthenticationPublisher(),
             mode: .totp,
             rpID: nil,
-            uri: "https://example.com"
+            uri: "https://example.com",
         ).makeAsyncIterator()
         let publishedSections = try await iterator.next()?.sections
 
@@ -487,7 +487,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: .totp,
                 rpID: nil,
-                uri: "https://example.com"
+                uri: "https://example.com",
             )
         }
     }
@@ -577,12 +577,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
         let cipherView = CipherView.fixture(
             attachments: [attachment],
-            id: "2"
+            id: "2",
         )
         let cipher = Cipher.fixture(
             attachments: [Attachment(attachmentView: attachment)],
             id: "2",
-            key: "new key"
+            key: "new key",
         )
         cipherService.fetchCipherResult = .success(cipher)
         // Test.
@@ -611,7 +611,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
             let cipherView = CipherView.fixture(
                 attachments: [attachment],
-                id: "2"
+                id: "2",
             )
             _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
         }
@@ -652,7 +652,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .personal(email: "user@bitwarden.com"),
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
-            ]
+            ],
         )
     }
 
@@ -675,7 +675,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             [
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
-            ]
+            ],
         )
     }
 
@@ -708,7 +708,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 "Collection 2",
                 "Collection 1",
                 "Collection 3",
-            ]
+            ],
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
     }
@@ -761,7 +761,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             [
                 .fixture(id: "2", name: "Folder", revisionDate: Date(year: 2023, month: 12, day: 2)),
                 .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
-            ]
+            ],
         )
         XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
     }
@@ -807,7 +807,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.fetchSync(
             forceSync: false,
             filter: .allVaults,
-            isPeriodic: true
+            isPeriodic: true,
         )
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
@@ -818,7 +818,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.fetchSync(
             forceSync: false,
             filter: .allVaults,
-            isPeriodic: false
+            isPeriodic: false,
         )
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
@@ -830,7 +830,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.fetchSync(
             forceSync: true,
             filter: .myVault,
-            isPeriodic: true
+            isPeriodic: true,
         )
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncIsPeriodic == true)
@@ -842,7 +842,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.fetchSync(
             forceSync: true,
             filter: .allVaults,
-            isPeriodic: true
+            isPeriodic: true,
         )
         XCTAssertFalse(syncService.didFetchSync)
     }
@@ -871,14 +871,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 enabled: true,
                 id: "restrict_item_type",
                 organizationId: "org1",
-                type: .restrictItemTypes
+                type: .restrictItemTypes,
             ),
         ]
 
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(
             result,
-            [.secureNote, .identity, .login]
+            [.secureNote, .identity, .login],
         )
     }
 
@@ -893,7 +893,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 enabled: true,
                 id: "restrict_item_type",
                 organizationId: "org1",
-                type: .restrictItemTypes
+                type: .restrictItemTypes,
             ),
         ]
 
@@ -920,7 +920,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.disableAutoTotpCopyByUserId["1"] = false
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
-            organizationUseTotp: true
+            organizationUseTotp: true,
         ))
         XCTAssertEqual(totpKey, "123")
     }
@@ -934,7 +934,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.doesActiveAccountHavePremiumResult = true
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
-            organizationUseTotp: false
+            organizationUseTotp: false,
         ))
         XCTAssertEqual(totpKey, "123")
     }
@@ -948,7 +948,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.doesActiveAccountHavePremiumResult = true
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
-            organizationUseTotp: true
+            organizationUseTotp: true,
         ))
         XCTAssertEqual(totpKey, "123")
     }
@@ -958,7 +958,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: nil),
-            organizationUseTotp: true
+            organizationUseTotp: true,
         ))
         XCTAssertNil(totpKey)
     }
@@ -970,7 +970,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.disableAutoTotpCopyByUserId["1"] = true
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
-            organizationUseTotp: false
+            organizationUseTotp: false,
         ))
         XCTAssertNil(totpKey)
     }
@@ -984,7 +984,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.doesActiveAccountHavePremiumResult = false
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
-            organizationUseTotp: false
+            organizationUseTotp: false,
         ))
         XCTAssertNil(totpKey)
     }
@@ -995,7 +995,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
                 login: .fixture(totp: "123"),
-                organizationUseTotp: false
+                organizationUseTotp: false,
             ))
         }
     }
@@ -1071,9 +1071,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 codeModel: .init(
                     code: newCode,
                     codeGenerationDate: timeProvider.presentTime,
-                    period: UInt32(keyModel.period)
-                )
-            )
+                    period: UInt32(keyModel.period),
+                ),
+            ),
         )
     }
 
@@ -1088,8 +1088,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(),
-                period: 30
-            )
+                period: 30,
+            ),
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
         let newItems = try await subject.refreshTOTPCodes(for: [item])
@@ -1118,8 +1118,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(),
-                period: 30
-            )
+                period: 30,
+            ),
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
         let newItems = try await subject.refreshTOTPCodes(for: [item])
@@ -1154,7 +1154,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1165,12 +1165,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherListView: cipherListView
+                            cipherListView: cipherListView,
                         )!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1192,7 +1192,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1204,9 +1204,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     items: [
                         VaultListItem(cipherListView: cipherListView)!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1227,7 +1227,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "312321312"
+                searchText: "312321312",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1238,12 +1238,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherListView: cipherListView
+                            cipherListView: cipherListView,
                         )!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1265,7 +1265,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1276,12 +1276,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherListView: cipherListView
+                            cipherListView: cipherListView,
                         )!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1301,9 +1301,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
-                    fido2Credentials: nil
+                    fido2Credentials: nil,
                 ),
-                name: "Café"
+                name: "Café",
             ),
         ]
         let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
@@ -1314,7 +1314,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "domain"
+                searchText: "domain",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1325,12 +1325,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherListView: cipherListView
+                            cipherListView: cipherListView,
                         )!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1350,7 +1350,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
         cipherService.fetchCipherByIdResult = { cipherId in
-            return switch cipherId {
+            switch cipherId {
             case "1":
                 .success(ciphers[0])
             case "2":
@@ -1374,7 +1374,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedMultipleSections,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1390,20 +1390,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipher.id ?? "",
-                            rpId: "myApp.com"
-                        )
+                            rpId: "myApp.com",
+                        ),
                     )
                 },
-                name: Localizations.passkeysForX("cafe")
-            )
+                name: Localizations.passkeysForX("cafe"),
+            ),
         )
         XCTAssertEqual(
             sections[1],
             VaultListSection(
                 id: Localizations.passwordsForX("cafe"),
                 items: [VaultListItem(cipherListView: cipherListView)!],
-                name: Localizations.passwordsForX("cafe")
-            )
+                name: Localizations.passwordsForX("cafe"),
+            ),
         )
     }
 
@@ -1427,7 +1427,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedMultipleSections,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1458,7 +1458,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedMultipleSections,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1469,8 +1469,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             VaultListSection(
                 id: Localizations.passwordsForX("cafe"),
                 items: [VaultListItem(cipherListView: cipherListView)!],
-                name: Localizations.passwordsForX("cafe")
-            )
+                name: Localizations.passwordsForX("cafe"),
+            ),
         )
     }
 
@@ -1491,7 +1491,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.value = ciphers
 
         cipherService.fetchCipherByIdResult = { cipherId in
-            return switch cipherId {
+            switch cipherId {
             case "1":
                 .success(ciphers[0])
             case "2":
@@ -1515,7 +1515,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedMultipleSections,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -1537,10 +1537,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(
                 id: "4",
                 login: .fixture(
-                    fido2Credentials: [.fixture()]
+                    fido2Credentials: [.fixture()],
                 ),
                 name: "Cafffffffe",
-                type: .login
+                type: .login,
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
@@ -1559,7 +1559,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedSingleSection,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "caf"
+                searchText: "caf",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1571,19 +1571,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     VaultListItem(
-                        cipherListView: CipherListView(cipher: ciphers[2])
+                        cipherListView: CipherListView(cipher: ciphers[2]),
                     )!,
                     VaultListItem(
                         cipherListView: CipherListView(cipher: ciphers[3]),
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: ciphers[3].id ?? "",
-                            rpId: "myApp.com"
-                        )
+                            rpId: "myApp.com",
+                        ),
                     )!,
                 ],
-                name: Localizations.chooseALoginToSaveThisPasskeyTo
-            )
+                name: Localizations.chooseALoginToSaveThisPasskeyTo,
+            ),
         )
     }
 
@@ -1602,7 +1602,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedSingleSection,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1626,10 +1626,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(
                 id: "4",
                 login: .fixture(
-                    fido2Credentials: [.fixture()]
+                    fido2Credentials: [.fixture()],
                 ),
                 name: "Cafffffffe",
-                type: .login
+                type: .login,
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
@@ -1648,7 +1648,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .combinedSingleSection,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: "myApp.com",
-                searchText: "caf"
+                searchText: "caf",
             )
             .makeAsyncIterator()
 
@@ -1674,7 +1674,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .passwords,
                 filter: VaultListFilter(filterType: .organization(.fixture(id: "testOrg"))),
                 rpID: nil,
-                searchText: "bcd"
+                searchText: "bcd",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1685,12 +1685,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     id: "",
                     items: [
                         VaultListItem(
-                            cipherListView: cipherListView
+                            cipherListView: cipherListView,
                         )!,
                     ],
-                    name: ""
+                    name: "",
                 ),
-            ]
+            ],
         )
     }
 
@@ -1705,10 +1705,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(
                 id: "4",
                 login: .fixture(
-                    totp: "123"
+                    totp: "123",
                 ),
                 name: "Cafffffffe",
-                type: .login
+                type: .login,
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
@@ -1720,7 +1720,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .totp,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "caf"
+                searchText: "caf",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1745,10 +1745,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Cipher.fixture(
                 id: "4",
                 login: .fixture(
-                    totp: "123"
+                    totp: "123",
                 ),
                 name: "Cafffffffe",
-                type: .login
+                type: .login,
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
@@ -1761,7 +1761,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .totp,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "caf"
+                searchText: "caf",
             )
             .makeAsyncIterator()
         let vaultListData = try await iterator.next()
@@ -1770,7 +1770,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for cipher id 4")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 4")],
         )
     }
 
@@ -1793,7 +1793,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 mode: .all,
                 filter: VaultListFilter(filterType: .allVaults),
                 rpID: nil,
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1825,7 +1825,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 filter: VaultListFilter(filterType: .allVaults),
                 group: .identity,
                 rpID: nil,
-                searchText: "cafe"
+                searchText: "cafe",
             )
             .makeAsyncIterator()
         let sections = try await iterator.next()?.sections
@@ -1887,7 +1887,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .trash,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1908,7 +1908,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: "5",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
@@ -1918,7 +1918,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .card,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1937,7 +1937,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(id: "4", name: "Café Friend", type: .identity),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
@@ -1945,7 +1945,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: "5",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
@@ -1955,7 +1955,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .folder(id: "coffee", name: "Caff-fiend"),
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -1974,20 +1974,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(
                 collectionIds: ["123", "meep"],
                 id: "4",
                 name: "Café Friend",
-                type: .identity
+                type: .identity,
             ),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
@@ -1999,9 +1999,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 group: .collection(
                     id: "123",
                     name: "The beans",
-                    organizationId: "Giv-em-da-beanz"
+                    organizationId: "Giv-em-da-beanz",
                 ),
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2020,20 +2020,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(
                 collectionIds: ["123", "meep"],
                 id: "4",
                 name: "Café Friend",
-                type: .identity
+                type: .identity,
             ),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
@@ -2043,7 +2043,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .identity,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2062,40 +2062,40 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(
                 collectionIds: ["123", "meep"],
                 id: "4",
                 name: "Café Friend",
-                type: .identity
+                type: .identity,
             ),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "6",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
-                )
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1])),
+                ),
             ),
             XCTUnwrap(
                 VaultListItem(
-                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[6]))
-                )
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[6])),
+                ),
             ),
         ]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .login,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2114,40 +2114,40 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(
                 collectionIds: ["123", "meep"],
                 id: "4",
                 name: "Café Friend",
-                type: .identity
+                type: .identity,
             ),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "6",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
-                )
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3])),
+                ),
             ),
             XCTUnwrap(
                 VaultListItem(
-                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[5]))
-                )
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[5])),
+                ),
             ),
         ]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .secureNote,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2167,35 +2167,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 folderId: "coffee",
                 id: "0",
                 name: "Best Cafes",
-                type: .secureNote
+                type: .secureNote,
             ),
             .fixture(
                 collectionIds: ["123", "meep"],
                 id: "4",
                 name: "Café Friend",
-                type: .identity
+                type: .identity,
             ),
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "6",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
             .fixture(id: "7", name: "cafe", type: .sshKey),
         ]
         let expectedSearchResult = try [
             XCTUnwrap(
                 VaultListItem(
-                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[7]))
-                )
+                    cipherListView: CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[7])),
+                ),
             ),
         ]
         var iterator = try await subject
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .sshKey,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2214,7 +2214,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: "6",
                 login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
-                type: .login
+                type: .login,
             ),
         ]
         let totpCipher = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
@@ -2235,10 +2235,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                         totpCode: .init(
                             code: "123456",
                             codeGenerationDate: timeProvider.presentTime,
-                            period: 30
-                        )
-                    )
-                )
+                            period: 30,
+                        ),
+                    ),
+                ),
             ),
         ]
 
@@ -2246,7 +2246,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .searchVaultListPublisher(
                 searchText: "cafe",
                 group: .totp,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2285,9 +2285,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
-                    fido2Credentials: nil
+                    fido2Credentials: nil,
                 ),
-                name: "Café"
+                name: "Café",
             ),
         ]
         let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
@@ -2316,10 +2316,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 filter: VaultListFilter(
                     filterType: .organization(
                         .fixture(
-                            id: "testOrg"
-                        )
-                    )
-                )
+                            id: "testOrg",
+                        ),
+                    ),
+                ),
             )
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
@@ -2355,7 +2355,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(fileName: "file.txt", id: "1", key: nil),
                 .fixture(fileName: "existing-attachment-key.txt", id: "2", key: "abc"),
             ],
-            id: "1"
+            id: "1",
         )
 
         // The cipher after saving the new attachment, encrypted with an attachment key.
@@ -2365,7 +2365,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
                 .fixture(id: "3", fileName: "file.txt", key: "def"),
             ],
-            id: "1"
+            id: "1",
         )
         cipherService.saveAttachmentWithServerResult = .success(cipherAfterAttachmentSave)
 
@@ -2375,12 +2375,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
                 .fixture(id: "3", fileName: "file.txt", key: "def"),
             ],
-            id: "1"
+            id: "1",
         )
         cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
         cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)
         clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
-            CipherView(cipher: cipherAfterAttachmentDelete)
+            CipherView(cipher: cipherAfterAttachmentDelete),
         )
 
         // Temporary download file (would normally be created by the network layer).
@@ -2479,7 +2479,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             [
                 Organization.fixture(id: "ORG_1", name: "ORG_NAME"),
                 Organization.fixture(id: "ORG_2", name: "ORG_NAME"),
-            ]
+            ],
         )
     }
 
@@ -2562,7 +2562,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
             fileData: Data(),
-            fileName: "Pineapple on pizza"
+            fileName: "Pineapple on pizza",
         )
 
         // Ensure all the steps completed as expected.
@@ -2581,7 +2581,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
             fileData: Data(),
-            fileName: "Pineapple on pizza"
+            fileName: "Pineapple on pizza",
         )
 
         XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
@@ -2633,7 +2633,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             VaultListSection(
                 id: "1",
                 items: [VaultListItem(cipherListView: .fixture())!],
-                name: "TestingSection"
+                name: "TestingSection",
             ),
         ]
         let publisher = Just(VaultListData(sections: expectedSections))
@@ -2691,7 +2691,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     private func setupDefaultDecryptFido2AutofillCredentialsMocker(
         expectedCredentialId: Data,
-        cipherIdToReturnEmptyFido2Credentials: String? = nil
+        cipherIdToReturnEmptyFido2Credentials: String? = nil,
     ) {
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
             .withResult { cipherView in
@@ -2703,7 +2703,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixture(
                         credentialId: expectedCredentialId,
                         cipherId: cipherId,
-                        rpId: "myApp.com"
+                        rpId: "myApp.com",
                     ),
                 ]
             }

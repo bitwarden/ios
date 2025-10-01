@@ -47,7 +47,7 @@ struct StepperFieldView<State>: View {
         VStack(spacing: 16) {
             Stepper(
                 value: Binding(get: { field.value }, set: action),
-                in: field.range
+                in: field.range,
             ) {
                 HStack {
                     Text(field.title)

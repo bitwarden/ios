@@ -20,7 +20,7 @@ protocol MoveToOrganizationProcessorDelegate: AnyObject {
 class MoveToOrganizationProcessor: StateProcessor<
     MoveToOrganizationState,
     MoveToOrganizationAction,
-    MoveToOrganizationEffect
+    MoveToOrganizationEffect,
 > {
     // MARK: Types
 
@@ -52,7 +52,7 @@ class MoveToOrganizationProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: MoveToOrganizationProcessorDelegate?,
         services: Services,
-        state: MoveToOrganizationState
+        state: MoveToOrganizationState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -104,8 +104,8 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection
-                )
+                    message: Localizations.selectOneCollection,
+                ),
             )
             return
         }
@@ -117,7 +117,7 @@ class MoveToOrganizationProcessor: StateProcessor<
             try await services.vaultRepository.shareCipher(
                 state.cipher,
                 newOrganizationId: organizationId,
-                newCollectionIds: state.collectionIds
+                newCollectionIds: state.collectionIds,
             )
 
             coordinator.navigate(to: .dismiss(DismissAction {

@@ -18,7 +18,7 @@ class LoginRequestViewTests: BitwardenTestCase {
         super.setUp()
 
         processor = MockProcessor(state: LoginRequestState(request: .fixture(
-            fingerprintPhrase: "i-asked-chat-gpt-but-it-said-no"
+            fingerprintPhrase: "i-asked-chat-gpt-but-it-said-no",
         )))
         let store = Store(processor: processor)
 
@@ -68,7 +68,7 @@ class LoginRequestViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .tallPortraitAX5(heightMultiple: 2),
-            ]
+            ],
         )
     }
 }

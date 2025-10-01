@@ -13,7 +13,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
 
         ToastDisplayHelper.show(
             in: parentViewController,
-            toast: Toast(text: "With Butter")
+            toast: Toast(text: "With Butter"),
         )
 
         let overlayView = try XCTUnwrap(window.viewWithTag(ToastDisplayHelper.toastTag))
@@ -34,7 +34,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
         ToastDisplayHelper.show(
             in: parentViewController,
             toast: Toast(text: "With Butter"),
-            duration: 0.1
+            duration: 0.1,
         )
         let overlayView = try XCTUnwrap(window.viewWithTag(ToastDisplayHelper.toastTag))
 

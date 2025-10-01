@@ -30,7 +30,7 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .keyConnectorUserKey)
 
         let key = try await subject.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: URL(string: "https://example.com")!
+            keyConnectorUrl: URL(string: "https://example.com")!,
         )
         XCTAssertEqual(key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
 
@@ -45,7 +45,7 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.getMasterKeyFromKeyConnector(
-                keyConnectorUrl: URL(string: "https://example.com")!
+                keyConnectorUrl: URL(string: "https://example.com")!,
             )
         }
     }
@@ -57,7 +57,7 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
         await assertAsyncDoesNotThrow {
             try await subject.postMasterKeyToKeyConnector(
                 key: "🔑",
-                keyConnectorUrl: URL(string: "https://example.com")!
+                keyConnectorUrl: URL(string: "https://example.com")!,
             )
         }
 
@@ -74,7 +74,7 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.postMasterKeyToKeyConnector(
                 key: "🔑",
-                keyConnectorUrl: URL(string: "https://example.com")!
+                keyConnectorUrl: URL(string: "https://example.com")!,
             )
         }
     }

@@ -15,7 +15,7 @@ class MockUserVerificationRunner: UserVerificationRunner {
     var verifyWithAttemptsTimesCalled: Int = 0
 
     func verifyWithAttempts(
-        verifyFunction: () async throws -> BitwardenShared.UserVerificationResult
+        verifyFunction: () async throws -> BitwardenShared.UserVerificationResult,
     ) async throws -> BitwardenShared.UserVerificationResult {
         verifyWithAttemptsTimesCalled += 1
 
@@ -26,7 +26,7 @@ class MockUserVerificationRunner: UserVerificationRunner {
     }
 
     func verifyInQueue(
-        verifyFunctions: [() async throws -> BitwardenShared.UserVerificationResult]
+        verifyFunctions: [() async throws -> BitwardenShared.UserVerificationResult],
     ) async throws -> BitwardenShared.UserVerificationResult {
         for (index, verifyFunction) in verifyFunctions.enumerated() {
             _ = try await verifyFunction()

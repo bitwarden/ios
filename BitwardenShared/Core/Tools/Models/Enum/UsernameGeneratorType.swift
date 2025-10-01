@@ -21,13 +21,13 @@ enum UsernameGeneratorType: Int, CaseIterable, Codable, Equatable, Menuable {
     var localizedName: String {
         switch self {
         case .catchAllEmail:
-            return Localizations.catchAllEmail
+            Localizations.catchAllEmail
         case .forwardedEmail:
-            return Localizations.forwardedEmailAlias
+            Localizations.forwardedEmailAlias
         case .plusAddressedEmail:
-            return Localizations.plusAddressedEmail
+            Localizations.plusAddressedEmail
         case .randomWord:
-            return Localizations.randomWord
+            Localizations.randomWord
         }
     }
 
@@ -35,13 +35,13 @@ enum UsernameGeneratorType: Int, CaseIterable, Codable, Equatable, Menuable {
     var localizedDescription: String? {
         switch self {
         case .catchAllEmail:
-            return Localizations.catchAllEmailDescription
+            Localizations.catchAllEmailDescription
         case .forwardedEmail:
-            return Localizations.forwardedEmailDescription
+            Localizations.forwardedEmailDescription
         case .plusAddressedEmail:
-            return Localizations.plusAddressedEmailDescription
+            Localizations.plusAddressedEmailDescription
         case .randomWord:
-            return nil
+            nil
         }
     }
 }

@@ -78,7 +78,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         .background(
             isEnabled
                 ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
-                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
@@ -100,7 +100,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         BitwardenFloatingTextLabel(
             title: title,
             isTextFieldDisabled: isTextFieldDisabled,
-            showPlaceholder: showPlaceholder
+            showPlaceholder: showPlaceholder,
         ) {
             textField
         } trailingContent: {
@@ -112,7 +112,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                             : Asset.Images.eye24,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
-                            : Localizations.passwordIsNotVisibleTapToShow
+                            : Localizations.passwordIsNotVisibleTapToShow,
                     ) {
                         isPasswordVisible.wrappedValue.toggle()
                     }
@@ -174,7 +174,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
-                            : SharedAsset.Colors.textDisabled.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .disabled(isTextFieldDisabled)
                 if isPassword, !isPasswordVisible {
@@ -187,7 +187,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         .foregroundStyle(
                             isEnabled && !isTextFieldDisabled
                                 ? SharedAsset.Colors.textPrimary.swiftUIColor
-                                : SharedAsset.Colors.textDisabled.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor,
                         )
                 }
             }
@@ -225,7 +225,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
-        @ViewBuilder trailingContent: () -> TrailingContent
+        @ViewBuilder trailingContent: () -> TrailingContent,
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.isPasswordAutoFocused = isPasswordAutoFocused
@@ -264,7 +264,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
-        @ViewBuilder footerContent: () -> FooterContent
+        @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.isPasswordAutoFocused = isPasswordAutoFocused
@@ -305,7 +305,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
-        @ViewBuilder footerContent: () -> FooterContent
+        @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -344,7 +344,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
-        isTextFieldDisabled: Bool = false
+        isTextFieldDisabled: Bool = false,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -367,7 +367,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
     VStack {
         BitwardenTextField(
             title: "Title",
-            text: .constant("Text field text")
+            text: .constant("Text field text"),
         )
         .textContentType(.emailAddress)
         .padding()
@@ -380,7 +380,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         BitwardenTextField(
             title: "Title",
             text: .constant("Text field text"),
-            isPasswordVisible: .constant(false)
+            isPasswordVisible: .constant(false),
         )
         .textContentType(.password)
         .padding()
@@ -393,7 +393,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         BitwardenTextField(
             title: "Title",
             text: .constant("Password"),
-            isPasswordVisible: .constant(true)
+            isPasswordVisible: .constant(true),
         )
         .textContentType(.password)
         .padding()
@@ -405,7 +405,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
     VStack {
         BitwardenTextField(
             title: "Title",
-            text: .constant("Text field text")
+            text: .constant("Text field text"),
         ) {
             AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
         }
@@ -420,7 +420,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
             title: "Title",
             text: .constant("Text field text"),
             footer: Localizations.vaultLockedMasterPassword,
-            isPasswordVisible: .constant(false)
+            isPasswordVisible: .constant(false),
         ) {
             AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
         }
@@ -434,7 +434,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         BitwardenTextField(
             title: "Title",
             text: .constant("Text field text"),
-            isPasswordVisible: .constant(false)
+            isPasswordVisible: .constant(false),
         ) {
             AccessoryButton(asset: Asset.Images.cog24, accessibilityLabel: "") {}
         } footerContent: {

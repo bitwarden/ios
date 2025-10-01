@@ -13,7 +13,7 @@ struct MasterPasswordGeneratorView: View {
     @ObservedObject var store: Store<
         MasterPasswordGeneratorState,
         MasterPasswordGeneratorAction,
-        MasterPasswordGeneratorEffect
+        MasterPasswordGeneratorEffect,
     >
 
     // MARK: View
@@ -29,7 +29,7 @@ struct MasterPasswordGeneratorView: View {
         .scrollView()
         .navigationBar(
             title: Localizations.generateMasterPassword,
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .toolbar {
             saveToolbarItem {
@@ -47,7 +47,7 @@ struct MasterPasswordGeneratorView: View {
     private var passwordText: some View {
         PasswordText(
             password: store.state.generatedPassword,
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
         .padding(.horizontal, 16)
@@ -97,9 +97,9 @@ struct MasterPasswordGeneratorView: View {
     MasterPasswordGeneratorView(
         store: Store(
             processor: StateProcessor(
-                state: MasterPasswordGeneratorState(generatedPassword: "Imma-Little-Teapot2")
-            )
-        )
+                state: MasterPasswordGeneratorState(generatedPassword: "Imma-Little-Teapot2"),
+            ),
+        ),
     )
 }
 #endif

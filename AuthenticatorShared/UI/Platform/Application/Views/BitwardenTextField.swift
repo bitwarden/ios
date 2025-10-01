@@ -63,7 +63,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                             : Asset.Images.visible,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
-                            : Localizations.passwordIsNotVisibleTapToShow
+                            : Localizations.passwordIsNotVisibleTapToShow,
                     ) {
                         isPasswordVisible.wrappedValue.toggle()
                     }
@@ -143,7 +143,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
         canViewPassword: Bool = true,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
-        @ViewBuilder trailingContent: () -> TrailingContent
+        @ViewBuilder trailingContent: () -> TrailingContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.isPasswordVisible = isPasswordVisible
@@ -178,7 +178,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
         isPasswordVisible: Binding<Bool>? = nil,
-        placeholder: String? = nil
+        placeholder: String? = nil,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -199,7 +199,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     VStack {
         BitwardenTextField(
             title: "Title",
-            text: .constant("Text field text")
+            text: .constant("Text field text"),
         )
         .textContentType(.emailAddress)
         .padding()
@@ -212,7 +212,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         BitwardenTextField(
             title: "Title",
             text: .constant("Text field text"),
-            isPasswordVisible: .constant(false)
+            isPasswordVisible: .constant(false),
         )
         .textContentType(.password)
         .padding()
@@ -225,7 +225,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         BitwardenTextField(
             title: "Title",
             text: .constant("Password"),
-            isPasswordVisible: .constant(true)
+            isPasswordVisible: .constant(true),
         )
         .textContentType(.password)
         .padding()
@@ -237,7 +237,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     VStack {
         BitwardenTextField(
             title: "Title",
-            text: .constant("Text field text")
+            text: .constant("Text field text"),
         ) {
             AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
         }
@@ -252,7 +252,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
             title: "Title",
             text: .constant("Text field text"),
             footer: "Text field footer",
-            isPasswordVisible: .constant(false)
+            isPasswordVisible: .constant(false),
         ) {
             AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
         }

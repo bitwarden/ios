@@ -8,7 +8,7 @@ import Foundation
 final class PendingRequestsProcessor: StateProcessor<
     PendingRequestsState,
     PendingRequestsAction,
-    PendingRequestsEffect
+    PendingRequestsEffect,
 > {
     // MARK: Types
 
@@ -39,7 +39,7 @@ final class PendingRequestsProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: PendingRequestsState
+        state: PendingRequestsState,
     ) {
         self.coordinator = coordinator
         self.services = services

@@ -44,7 +44,7 @@ struct BitwardenSlider: View {
                             .fill(filledTrackColor)
                             .frame(width: thumbPosition, height: 4)
                             .cornerRadius(2),
-                        alignment: .leading
+                        alignment: .leading,
                     )
 
                 Circle()
@@ -52,7 +52,7 @@ struct BitwardenSlider: View {
                     .frame(width: 18, height: 18)
                     .overlay(
                         Circle()
-                            .stroke(SharedAsset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2),
                     )
                     .onSizeChanged { size in
                         thumbSize = size
@@ -66,7 +66,7 @@ struct BitwardenSlider: View {
                             }
                             .onEnded { _ in
                                 onEditingChanged(false)
-                            }
+                            },
                     )
             }
         }
@@ -109,7 +109,7 @@ struct BitwardenSlider: View {
         step: Double,
         onEditingChanged: @escaping (Bool) -> Void,
         trackColor: Color = SharedAsset.Colors.sliderTrack.swiftUIColor,
-        filledTrackColor: Color = SharedAsset.Colors.sliderFilled.swiftUIColor
+        filledTrackColor: Color = SharedAsset.Colors.sliderFilled.swiftUIColor,
     ) {
         _value = value
         self.range = range

@@ -46,9 +46,9 @@ struct SingleSignOnView: View {
             title: Localizations.orgIdentifier,
             text: store.binding(
                 get: \.identifierText,
-                send: SingleSignOnAction.identifierTextChanged
+                send: SingleSignOnAction.identifierTextChanged,
             ),
-            accessibilityIdentifier: "SSOOrgIdField"
+            accessibilityIdentifier: "SSOOrgIdField",
         )
         .textFieldConfiguration(.organizationIdentifier)
     }
@@ -66,6 +66,6 @@ struct SingleSignOnView: View {
 
 #Preview {
     SingleSignOnView(store: Store(processor: StateProcessor(
-        state: SingleSignOnState()
+        state: SingleSignOnState(),
     ))).navStackWrapped
 }

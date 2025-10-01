@@ -24,7 +24,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
                 .loginStep1,
                 .loginStep2,
                 .loginStep3,
-            ])
+            ]),
         )
         let store = Store(processor: processor)
         subject = GuidedTourView(store: store)
@@ -82,7 +82,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[0].spotlightRegion = CGRect(x: 320, y: 470, width: 40, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -93,7 +93,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[0].spotlightRegion = CGRect(x: 650, y: 150, width: 40, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultLandscape]
+            as: [.defaultLandscape],
         )
     }
 
@@ -104,7 +104,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[1].spotlightRegion = CGRect(x: 40, y: 470, width: 320, height: 95)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -115,7 +115,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[1].spotlightRegion = CGRect(x: 40, y: 60, width: 460, height: 95)
         assertSnapshots(
             of: subject,
-            as: [.defaultLandscape]
+            as: [.defaultLandscape],
         )
     }
 
@@ -126,7 +126,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[2].spotlightRegion = CGRect(x: 40, y: 500, width: 320, height: 90)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -137,7 +137,7 @@ class GuidedTourViewLoginTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[2].spotlightRegion = CGRect(x: 40, y: 60, width: 460, height: 90)
         assertSnapshots(
             of: subject,
-            as: [.defaultLandscape]
+            as: [.defaultLandscape],
         )
     }
 }

@@ -137,7 +137,7 @@ protocol AuthService {
     ///
     func initiateLoginWithDevice(
         email: String,
-        type: AuthRequestType
+        type: AuthRequestType,
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String)
 
     /// Login with the response received from a login with device request.
@@ -151,7 +151,7 @@ protocol AuthService {
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool
+        isAuthenticated: Bool,
     ) async throws -> (String, String)
 
     /// Login with the master password.
@@ -164,7 +164,7 @@ protocol AuthService {
     func loginWithMasterPassword(
         _ password: String,
         username: String,
-        isNewAccount: Bool
+        isNewAccount: Bool,
     ) async throws
 
     /// Login with the single sign on code.
@@ -191,7 +191,7 @@ protocol AuthService {
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool
+        remember: Bool,
     ) async throws -> LoginUnlockMethod
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
@@ -207,7 +207,7 @@ protocol AuthService {
         email: String,
         isPreAuth: Bool,
         masterPassword: String,
-        policy: MasterPasswordPolicyOptions?
+        policy: MasterPasswordPolicyOptions?,
     ) async throws -> Bool
 
     /// Resend the email with the user's verification code.
@@ -229,7 +229,7 @@ protocol AuthService {
     ///
     func webAuthenticationSession(
         url: URL,
-        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession
 }
 
@@ -347,7 +347,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         policyService: PolicyService,
         stateService: StateService,
         systemDevice: SystemDevice,
-        trustDeviceService: TrustDeviceService
+        trustDeviceService: TrustDeviceService,
     ) {
         self.accountAPIService = accountAPIService
         self.appIdService = appIdService
@@ -378,7 +378,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             deviceIdentifier: appID,
             key: encodedKey,
             masterPasswordHash: nil,
-            requestApproved: approve
+            requestApproved: approve,
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
     }
@@ -388,7 +388,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         return try await authAPIService.checkPendingLoginRequest(
             withId: id,
-            accessCode: loginWithDeviceData.accessCode
+            accessCode: loginWithDeviceData.accessCode,
         )
     }
 
@@ -401,7 +401,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
         // First pre-validate the organization identifier and get the resulting token.
         let response = try await authAPIService.preValidateSingleSignOn(
-            organizationIdentifier: organizationIdentifier
+            organizationIdentifier: organizationIdentifier,
         )
 
         // Generate a password to send to the single sign on view.
@@ -415,7 +415,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             minLowercase: 0,
             minUppercase: 0,
             minNumber: 1,
-            minSpecial: 0
+            minSpecial: 0,
         )
         codeVerifier = try await clientService.generators(isPreAuth: true).password(settings: passwordSettings)
         let codeChallenge = Data(codeVerifier.utf8)
@@ -481,13 +481,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: account.profile.email,
             password: password,
             kdfParams: account.kdf.sdkKdf,
-            purpose: purpose
+            purpose: purpose,
         )
     }
 
     func initiateLoginWithDevice(
         email: String,
-        type: AuthRequestType
+        type: AuthRequestType,
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         // Check for a valid pending admin login request
         if type == AuthRequestType.adminApproval {
@@ -499,7 +499,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     privateKey: savedRequest.privateKey,
                     publicKey: savedRequest.publicKey,
                     fingerprint: savedRequest.fingerprint,
-                    accessCode: savedRequest.accessCode
+                    accessCode: savedRequest.accessCode,
                 )
 
                 self.loginWithDeviceData = loginData
@@ -521,7 +521,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             deviceIdentifier: appId,
             accessCode: loginWithDeviceData.accessCode,
             type: type,
-            fingerprintPhrase: loginWithDeviceData.fingerprint
+            fingerprintPhrase: loginWithDeviceData.fingerprint,
         ))
 
         self.loginWithDeviceData = loginWithDeviceData
@@ -530,21 +530,21 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if type == AuthRequestType.adminApproval {
             try await setPendingAdminLoginRequest(PendingAdminLoginRequest(
                 id: loginRequest.id,
-                authRequestResponse: loginWithDeviceData
+                authRequestResponse: loginWithDeviceData,
             ), userId: nil)
         }
 
         // Return the auth request response and the request id.
         return (
             authRequestResponse: loginWithDeviceData,
-            requestId: loginRequest.id
+            requestId: loginRequest.id,
         )
     }
 
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool = false
+        isAuthenticated: Bool = false,
     ) async throws -> (String, String) {
         guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
         guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
@@ -554,10 +554,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             _ = try await getIdentityTokenResponse(
                 authenticationMethod: .password(
                     username: email,
-                    password: loginWithDeviceData.accessCode
+                    password: loginWithDeviceData.accessCode,
                 ),
                 email: email,
-                loginRequestId: loginRequest.id
+                loginRequestId: loginRequest.id,
             )
         }
 
@@ -568,7 +568,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithMasterPassword(
         _ masterPassword: String,
         username: String,
-        isNewAccount: Bool
+        isNewAccount: Bool,
     ) async throws {
         // Clean any stored value in case the user changes account
         preAuthForcePasswordResetReason = nil
@@ -581,13 +581,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             password: masterPassword,
             kdfParams: response.sdkKdf,
-            purpose: .serverAuthorization
+            purpose: .serverAuthorization,
         )
 
         let token = try await getIdentityTokenResponse(
             authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
-            masterPassword: masterPassword
+            masterPassword: masterPassword,
         )
 
         // Save the master password hash.
@@ -597,7 +597,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             isPreAuth: false,
             masterPassword: masterPassword,
             masterPasswordPolicy: token.masterPasswordPolicy,
-            username: username
+            username: username,
         )
 
         if isNewAccount {
@@ -624,7 +624,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         isPreAuth: Bool,
         masterPassword: String,
         masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
-        username: String
+        username: String,
     ) async throws {
         let policy = MasterPasswordPolicyOptions(responseModel: masterPasswordPolicy)
 
@@ -632,7 +632,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             isPreAuth: isPreAuth,
             masterPassword: masterPassword,
-            policy: policy
+            policy: policy,
         ) {
             if isPreAuth {
                 // Since this is pre authentication we use a local var to cache this info.
@@ -687,9 +687,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             authenticationMethod: .authorizationCode(
                 code: code,
                 codeVerifier: codeVerifier,
-                redirectUri: singleSignOnCallbackUrl
+                redirectUri: singleSignOnCallbackUrl,
             ),
-            email: email
+            email: email,
         )
 
         return try await unlockMethod(for: response)
@@ -699,7 +699,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool
+        remember: Bool,
     ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
         // Add the two factor information to the request.
@@ -737,7 +737,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         isPreAuth: Bool,
         masterPassword: String,
-        policy: MasterPasswordPolicyOptions?
+        policy: MasterPasswordPolicyOptions?,
     ) async throws -> Bool {
         // Check if we need to change password on login
         guard let masterPasswordPolicy = try await policyService.getMasterPasswordPolicyOptions() ?? policy,
@@ -749,14 +749,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let strength = try await clientService.auth(isPreAuth: isPreAuth).passwordStrength(
             password: masterPassword,
             email: email,
-            additionalInputs: []
+            additionalInputs: [],
         )
 
         // Check if master password meets the master password policy.
         let satisfyPolicy = try await clientService.auth(isPreAuth: isPreAuth).satisfiesPolicy(
             password: masterPassword,
             strength: strength,
-            policy: masterPasswordPolicy
+            policy: masterPasswordPolicy,
         )
 
         return satisfyPolicy == false
@@ -789,12 +789,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func webAuthenticationSession(
         url: URL,
-        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession {
         ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: callbackUrlScheme,
-            completionHandler: completionHandler
+            completionHandler: completionHandler,
         )
     }
 
@@ -830,7 +830,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
         try await clientService.platform().fingerprint(request: .init(
             fingerprintMaterial: email,
-            publicKey: publicKey.urlDecoded()
+            publicKey: publicKey.urlDecoded(),
         ))
     }
 
@@ -846,7 +846,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         loginRequestId: String? = nil,
         masterPassword: String? = nil,
-        request: IdentityTokenRequestModel? = nil
+        request: IdentityTokenRequestModel? = nil,
     ) async throws -> IdentityTokenResponseModel {
         // Get the app's id.
         let appID = await appIdService.getOrCreateAppId()
@@ -863,12 +863,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 authenticationMethod: authenticationMethod,
                 deviceInfo: DeviceInfo(
                     identifier: appID,
-                    name: systemDevice.modelIdentifier
+                    name: systemDevice.modelIdentifier,
                 ),
                 loginRequestId: loginRequestId,
                 twoFactorCode: savedTwoFactorToken,
                 twoFactorMethod: method,
-                twoFactorRemember: remember
+                twoFactorRemember: remember,
             )
         }
         do {
@@ -904,7 +904,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     guard let masterPassword else {
                         errorReporter.log(error: BitwardenError.generalError(
                             type: "AuthService: Get Identity Token Failed.",
-                            message: "Master password is nil for 2FA after authenticating with username and password."
+                            message: "Master password is nil for 2FA after authenticating with username and password.",
                         ))
                         throw error
                     }
@@ -914,7 +914,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                         isPreAuth: true,
                         masterPassword: masterPassword,
                         masterPasswordPolicy: masterPasswordPolicyResponseModel,
-                        username: email
+                        username: email,
                     )
                 }
 
@@ -923,7 +923,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     deviceIdentifier: appID,
                     email: email,
                     masterPasswordHash: passwordHash,
-                    ssoEmail2FaSessionToken: ssoToken
+                    ssoEmail2FaSessionToken: ssoToken,
                 )
 
                 // If this error was thrown, it also means any cached two-factor token is not valid.
@@ -979,11 +979,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Save the account tokens.
         try await keychainRepository.setAccessToken(
             identityTokenResponse.accessToken,
-            userId: account.profile.userId
+            userId: account.profile.userId,
         )
         try await keychainRepository.setRefreshToken(
             identityTokenResponse.refreshToken,
-            userId: account.profile.userId
+            userId: account.profile.userId,
         )
     }
 
@@ -994,7 +994,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private func saveMasterPasswordHash(password: String) async throws {
         try await stateService.setMasterPasswordHash(hashPassword(
             password: password,
-            purpose: .localAuthorization
+            purpose: .localAuthorization,
         ))
     }
 } // swiftlint:disable:this file_length

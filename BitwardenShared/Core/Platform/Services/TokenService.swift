@@ -51,7 +51,7 @@ actor DefaultTokenService: TokenService {
     ///
     init(
         keychainRepository: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.keychainRepository = keychainRepository
         self.stateService = stateService

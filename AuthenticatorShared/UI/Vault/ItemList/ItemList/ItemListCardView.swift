@@ -110,7 +110,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                     },
                     titleText: Localizations.syncWithTheBitwardenApp,
                     actionTapped: {},
-                    closeTapped: {}
+                    closeTapped: {},
                 )
 
                 ItemListCardView(
@@ -126,7 +126,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                     titleText: Localizations.syncWithTheBitwardenApp,
                     actionTapped: {},
                     closeTapped: {},
-                    secondaryActionTapped: {}
+                    secondaryActionTapped: {},
                 )
             }
             .padding(16)

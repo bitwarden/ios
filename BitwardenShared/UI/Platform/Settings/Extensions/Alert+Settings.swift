@@ -19,7 +19,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -36,7 +36,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -56,7 +56,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -73,7 +73,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
-            ]
+            ],
         )
     }
 
@@ -92,7 +92,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -111,7 +111,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.close, style: .cancel),
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in await action() },
-            ]
+            ],
         )
     }
 
@@ -129,7 +129,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -149,7 +149,7 @@ extension Alert {
                 AlertAction(title: Localizations.ok, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -167,7 +167,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -184,7 +184,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -201,7 +201,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -219,7 +219,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -233,7 +233,7 @@ extension Alert {
             message: Localizations.vaultTimeoutToLarge,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -253,7 +253,7 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -266,7 +266,7 @@ extension Alert {
     /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
     static func unlockWithPINCodeAlert(
         biometricType: BiometricAuthenticationType?,
-        action: @escaping (Bool) async -> Void
+        action: @escaping (Bool) async -> Void,
     ) -> Alert {
         let message = switch biometricType {
         case .faceID:
@@ -290,7 +290,7 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action(true)
                 },
-            ]
+            ],
         )
     }
 
@@ -306,7 +306,7 @@ extension Alert {
             alertActions: [
                 AlertAction(
                     title: Localizations.submit,
-                    style: .default
+                    style: .default,
                 ) { _, alertTextFields in
                     guard let password = alertTextFields.first(where: { $0.id == "otp" })?.text else { return }
                     await completion(password)
@@ -319,9 +319,9 @@ extension Alert {
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
                     isSecureTextEntry: true,
-                    keyboardType: .numberPad
+                    keyboardType: .numberPad,
                 ),
-            ]
+            ],
         )
     }
 
@@ -339,7 +339,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 }

@@ -20,7 +20,7 @@ extension Alert {
                     action()
                 },
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -37,7 +37,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -54,7 +54,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.exportItems, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -76,7 +76,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -96,7 +96,7 @@ extension Alert {
                 AlertAction(title: Localizations.ok, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -114,7 +114,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -136,7 +136,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 
@@ -151,7 +151,7 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -173,7 +173,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
-            ]
+            ],
         )
     }
 }

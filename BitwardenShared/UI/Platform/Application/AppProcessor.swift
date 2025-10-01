@@ -71,7 +71,7 @@ public class AppProcessor {
         appModule: AppModule,
         debugDidEnterBackground: (() -> Void)? = nil,
         debugWillEnterForeground: (() -> Void)? = nil,
-        services: ServiceContainer
+        services: ServiceContainer,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.appIntentMediator = appIntentMediator
@@ -164,7 +164,7 @@ public class AppProcessor {
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
         splashWindow: UIWindow? = nil,
-        window: UIWindow?
+        window: UIWindow?,
     ) async {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
@@ -179,7 +179,7 @@ public class AppProcessor {
         }
 
         await services.flightRecorder.log(
-            "App launched, context: \(appContext), version: \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))"
+            "App launched, context: \(appContext), version: \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))",
         )
 
         await services.migrationService.performMigrations()
@@ -199,7 +199,7 @@ public class AppProcessor {
     ///
     public func handleAppLinks(incomingURL: URL) {
         guard let sanitizedUrl = URL(
-            string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/")
+            string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/"),
         ),
             let components = URLComponents(url: sanitizedUrl, resolvingAgainstBaseURL: true) else {
             return
@@ -228,7 +228,7 @@ public class AppProcessor {
             AuthRoute.completeRegistrationFromAppLink(
                 emailVerificationToken: verificationToken,
                 userEmail: email,
-                fromEmail: Bool(fromEmail) ?? true
+                fromEmail: Bool(fromEmail) ?? true,
             )))
     }
 
@@ -237,7 +237,7 @@ public class AppProcessor {
     @available(iOSApplicationExtension 26.0, *)
     public func handleImportCredentials(credentialImportToken: UUID) async {
         let route = AppRoute.tab(.vault(.importCXF(
-            .importCredentials(credentialImportToken: credentialImportToken)
+            .importCredentials(credentialImportToken: credentialImportToken),
         )))
         await checkIfLockedAndPerformNavigation(route: route)
     }
@@ -263,12 +263,12 @@ public class AppProcessor {
     ///
     public func provideCredential(
         for id: String,
-        repromptPasswordValidated: Bool = false
+        repromptPasswordValidated: Bool = false,
     ) async throws -> ASPasswordCredential {
         try await services.autofillCredentialService.provideCredential(
             for: id,
             autofillCredentialServiceDelegate: self,
-            repromptPasswordValidated: repromptPasswordValidated
+            repromptPasswordValidated: repromptPasswordValidated,
         )
     }
 
@@ -282,12 +282,12 @@ public class AppProcessor {
     @available(iOSApplicationExtension 18.0, *)
     public func provideOTPCredential(
         for id: String,
-        repromptPasswordValidated: Bool = false
+        repromptPasswordValidated: Bool = false,
     ) async throws -> ASOneTimeCodeCredential {
         try await services.autofillCredentialService.provideOTPCredential(
             for: id,
             autofillCredentialServiceDelegate: self,
-            repromptPasswordValidated: repromptPasswordValidated
+            repromptPasswordValidated: repromptPasswordValidated,
         )
     }
 
@@ -304,7 +304,7 @@ public class AppProcessor {
     ///
     public func repromptForCredentialIfNecessary(
         for id: String,
-        completion: @escaping (Bool) async -> Void
+        completion: @escaping (Bool) async -> Void,
     ) async throws {
         guard try await services.vaultRepository.repromptRequiredForCipher(id: id) else {
             await completion(false)
@@ -366,12 +366,12 @@ public class AppProcessor {
     public func messageReceived(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool? = nil,
-        notificationTapped: Bool? = nil
+        notificationTapped: Bool? = nil,
     ) async {
         await services.notificationService.messageReceived(
             message,
             notificationDismissed: notificationDismissed,
-            notificationTapped: notificationTapped
+            notificationTapped: notificationTapped,
         )
     }
 }
@@ -406,8 +406,8 @@ extension AppProcessor {
             .accountBecameActive(
                 account,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -553,7 +553,7 @@ extension AppProcessor {
                     self?.services.application?.endBackgroundTask(backgroundTaskId)
                     self?.backgroundTaskId = nil
                 }
-            }
+            },
         )
         await services.eventService.upload()
         if let taskId = backgroundTaskId {
@@ -590,7 +590,7 @@ extension AppProcessor: NotificationServiceDelegate {
         if showAlert {
             coordinator?.showAlert(.confirmation(
                 title: Localizations.logInRequested,
-                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email),
             ) {
                 await self.switchAccountsForLoginRequest(to: account.profile.userId)
             })
@@ -616,7 +616,7 @@ extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
-                userId: userId
+                userId: userId,
             )
             // Check so the next gets executed only once after login.
             guard !hasPerformedSyncAfterLogin else {
@@ -640,7 +640,7 @@ extension AppProcessor: SyncServiceDelegate {
         coordinator?.navigate(to: .auth(.removeMasterPassword(
             organizationName: organizationName,
             organizationId: organizationId,
-            keyConnectorUrl: keyConnectorUrl
+            keyConnectorUrl: keyConnectorUrl,
         )))
     }
 
@@ -665,12 +665,12 @@ public extension AppProcessor {
     /// - Returns: The passkey credential for assertion.
     @available(iOS 17.0, *)
     func provideFido2Credential(
-        for passkeyRequest: ASPasskeyCredentialRequest
+        for passkeyRequest: ASPasskeyCredentialRequest,
     ) async throws -> ASPasskeyAssertionCredential {
         try await services.autofillCredentialService.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: self,
-            fido2UserInterfaceHelperDelegate: self
+            fido2UserInterfaceHelperDelegate: self,
         )
     }
 }
@@ -746,7 +746,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
 extension AppProcessor: PendingAppIntentActionMediatorDelegate {
     func onPendingAppIntentActionSuccess(
         _ pendingAppIntentAction: PendingAppIntentAction,
-        data: Any?
+        data: Any?,
     ) async {
         switch pendingAppIntentAction {
         case .lockAll:
@@ -757,8 +757,8 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
                 .accountBecameActive(
                     account,
                     attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
+                    didSwitchAccountAutomatically: false,
+                ),
             )
         case .logOutAll:
             await coordinator?.handleEvent(.didLogout(userId: nil, userInitiated: true))

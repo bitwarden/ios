@@ -28,7 +28,7 @@ public extension JSONDecoder {
             } else {
                 throw DecodingError.dataCorruptedError(
                     in: container,
-                    debugDescription: "Unable to decode date with value '\(stringValue)'"
+                    debugDescription: "Unable to decode date with value '\(stringValue)'",
                 )
             }
         }

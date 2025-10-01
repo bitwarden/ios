@@ -49,7 +49,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
     @MainActor
     func test_editItemFloatingActionButton_tap() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editItem)
@@ -65,13 +65,13 @@ class ViewSendItemViewTests: BitwardenTestCase {
                 name: "My text send",
                 notes: "Private notes for the send",
                 type: .file,
-                file: .fixture(fileName: "photo_123.jpg", sizeName: "3.25 MB")
+                file: .fixture(fileName: "photo_123.jpg", sizeName: "3.25 MB"),
             ),
-            shareURL: URL(string: "send.bitwarden.com/39ngaol3")
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
         )
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
         )
     }
 
@@ -82,13 +82,13 @@ class ViewSendItemViewTests: BitwardenTestCase {
             sendView: .fixture(
                 name: "My text send",
                 notes: "Private notes for the send",
-                text: .fixture(text: "Some text to send")
+                text: .fixture(text: "Some text to send"),
             ),
-            shareURL: URL(string: "send.bitwarden.com/39ngaol3")
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
         )
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
         )
     }
 
@@ -101,13 +101,13 @@ class ViewSendItemViewTests: BitwardenTestCase {
                 name: "My text send",
                 notes: "Private notes for the send",
                 text: .fixture(text: "Some text to send"),
-                maxAccessCount: 3
+                maxAccessCount: 3,
             ),
-            shareURL: URL(string: "send.bitwarden.com/39ngaol3")
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
         )
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
         )
     }
 }

@@ -84,7 +84,7 @@ struct AppExtensionView: View {
         Button(
             store.state.extensionEnabled
                 ? Localizations.reactivateAppExtension
-                : Localizations.extensionEnable
+                : Localizations.extensionEnable,
         ) {
             store.send(.activateButtonTapped)
         }
@@ -134,9 +134,9 @@ struct AppExtensionView: View {
     AppExtensionView(
         store: Store(
             processor: StateProcessor(
-                state: AppExtensionState(extensionActivated: false, extensionEnabled: false)
-            )
-        )
+                state: AppExtensionState(extensionActivated: false, extensionEnabled: false),
+            ),
+        ),
     )
 }
 
@@ -144,9 +144,9 @@ struct AppExtensionView: View {
     AppExtensionView(
         store: Store(
             processor: StateProcessor(
-                state: AppExtensionState(extensionActivated: true, extensionEnabled: false)
-            )
-        )
+                state: AppExtensionState(extensionActivated: true, extensionEnabled: false),
+            ),
+        ),
     )
 }
 
@@ -154,8 +154,8 @@ struct AppExtensionView: View {
     AppExtensionView(
         store: Store(
             processor: StateProcessor(
-                state: AppExtensionState(extensionActivated: true, extensionEnabled: true)
-            )
-        )
+                state: AppExtensionState(extensionActivated: true, extensionEnabled: true),
+            ),
+        ),
     )
 }

@@ -39,7 +39,7 @@ struct KdfConfig: Codable, Equatable, Hashable {
         kdfType: KdfType = .pbkdf2sha256,
         iterations: Int = Constants.pbkdf2Iterations,
         memory: Int? = nil,
-        parallelism: Int? = nil
+        parallelism: Int? = nil,
     ) {
         self.kdfType = kdfType
         self.iterations = iterations
@@ -58,7 +58,7 @@ struct KdfConfig: Codable, Equatable, Hashable {
                 kdfType: .argon2id,
                 iterations: Int(iterations),
                 memory: Int(memory),
-                parallelism: Int(parallelism)
+                parallelism: Int(parallelism),
             )
         case let .pbkdf2(iterations):
             self.init(kdfType: .pbkdf2sha256, iterations: Int(iterations))

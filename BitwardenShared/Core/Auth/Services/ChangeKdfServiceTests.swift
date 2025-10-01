@@ -44,7 +44,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
     }
 
@@ -192,7 +192,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
             Unable to update KDF settings \
             (KdfConfig(kdfType: BitwardenShared.KdfType.pbkdf2sha256, iterations: 599999, \
             memory: nil, parallelism: nil)
-            """
+            """,
         )
         XCTAssertTrue(client.requests.isEmpty)
     }

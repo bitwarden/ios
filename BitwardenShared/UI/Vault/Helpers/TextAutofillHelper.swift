@@ -83,7 +83,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
         errorReporter: ErrorReporter,
         eventService: EventService,
         textAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
     ) {
         self.errorReporter = errorReporter
         self.eventService = eventService
@@ -99,12 +99,12 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
             errorReporter.log(
                 error: BitwardenError.generalError(
                     type: "TextAutofill: Handle Cipher For Autofill",
-                    message: "Cipher Id was not set or cipher could not be fetched"
-                )
+                    message: "Cipher Id was not set or cipher could not be fetched",
+                ),
             )
             await textAutofillHelperDelegate?.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.genericErrorMessage
+                message: Localizations.genericErrorMessage,
             ))
             return
         }
@@ -116,12 +116,12 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
         var alertActions = options.map { option in
             AlertAction(
                 title: option.localizedOption,
-                style: .default
+                style: .default,
             ) { [weak self] _, _ in
                 guard let self else { return }
                 await completeTextAutofill(
                     localizedOption: option.localizedOption,
-                    textToInsert: option.textToInsert
+                    textToInsert: option.textToInsert,
                 )
             }
         }
@@ -132,7 +132,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
         guard !alertActions.isEmpty else {
             await textAutofillHelperDelegate?.showAlert(.defaultAlert(
                 title: cipherView.name,
-                message: Localizations.nothingAvailableToAutofill
+                message: Localizations.nothingAvailableToAutofill,
             ))
             return
         }
@@ -142,8 +142,8 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
                 title: Localizations.autofill,
                 message: nil,
                 preferredStyle: .actionSheet,
-                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
-            )
+                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)],
+            ),
         )
     }
 
@@ -172,8 +172,8 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
             await textAutofillHelperDelegate?.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.failedToGenerateVerificationCode
-                )
+                    message: Localizations.failedToGenerateVerificationCode,
+                ),
             )
             errorReporter.log(error: error)
         }
@@ -192,7 +192,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
 
         return AlertAction(
             title: Localizations.customFields,
-            style: .default
+            style: .default,
         ) { [weak self] _, _ in
             guard let self else { return }
             await showCustomFieldsOptionsForAutofill(availableCustomFields)
@@ -210,12 +210,12 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
 
             return AlertAction(
                 title: name,
-                style: .default
+                style: .default,
             ) { [weak self] _, _ in
                 guard let self else { return }
                 await completeTextAutofill(
                     localizedOption: name,
-                    textToInsert: value
+                    textToInsert: value,
                 )
             }
         }
@@ -224,8 +224,8 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
                 title: Localizations.autofill,
                 message: nil,
                 preferredStyle: .actionSheet,
-                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
-            )
+                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)],
+            ),
         )
     }
 }

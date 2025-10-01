@@ -33,7 +33,7 @@ class MockAuthService: AuthService {
     var initiateLoginWithDeviceEmail: String?
     var initiateLoginWithDeviceType: AuthRequestType?
     var initiateLoginWithDeviceResult: Result<
-        (authRequestResponse: AuthRequestResponse, requestId: String), Error
+        (authRequestResponse: AuthRequestResponse, requestId: String), Error,
     > = .success((.fixture(), ""))
 
     var loginWithDeviceRequest: LoginRequest?
@@ -105,7 +105,7 @@ class MockAuthService: AuthService {
 
     func initiateLoginWithDevice(
         email: String,
-        type: AuthRequestType
+        type: AuthRequestType,
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         initiateLoginWithDeviceEmail = email
         initiateLoginWithDeviceType = type
@@ -115,7 +115,7 @@ class MockAuthService: AuthService {
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool
+        isAuthenticated: Bool,
     ) async throws -> (String, String) {
         loginWithDeviceRequest = loginRequest
         loginWithDeviceEmail = email
@@ -126,7 +126,7 @@ class MockAuthService: AuthService {
     func loginWithMasterPassword(
         _ password: String,
         username: String,
-        isNewAccount: Bool
+        isNewAccount: Bool,
     ) async throws {
         loginWithMasterPasswordPassword = password
         loginWithMasterPasswordUsername = username
@@ -143,7 +143,7 @@ class MockAuthService: AuthService {
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool
+        remember: Bool,
     ) async throws -> LoginUnlockMethod {
         loginWithTwoFactorCodeEmail = email
         loginWithTwoFactorCodeCode = code
@@ -156,7 +156,7 @@ class MockAuthService: AuthService {
         email: String,
         isPreAuth: Bool,
         masterPassword: String,
-        policy: BitwardenSdk.MasterPasswordPolicyOptions?
+        policy: BitwardenSdk.MasterPasswordPolicyOptions?,
     ) async throws -> Bool {
         try requirePasswordChangeResult.get()
     }
@@ -178,12 +178,12 @@ class MockAuthService: AuthService {
 
     func webAuthenticationSession(
         url: URL,
-        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession {
         let mockSession = MockWebAuthenticationSession(
             url: url,
             callbackURLScheme: callbackUrlScheme,
-            completionHandler: completionHandler
+            completionHandler: completionHandler,
         )
         webAuthenticationSession = mockSession
         return mockSession
@@ -203,7 +203,7 @@ class MockWebAuthenticationSession: ASWebAuthenticationSession {
     override init(
         url URL: URL,
         callbackURLScheme: String?,
-        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) {
         initUrl = URL
         initCallbackURLScheme = callbackURLScheme

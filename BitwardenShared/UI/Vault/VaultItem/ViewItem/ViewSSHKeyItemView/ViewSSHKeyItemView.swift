@@ -37,7 +37,7 @@ struct ViewSSHKeyItemView: View {
             if store.state.canViewPrivateKey {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "PrivateKeyVisibilityToggle",
-                    isPasswordVisible: store.state.isPrivateKeyVisible
+                    isPasswordVisible: store.state.isPrivateKeyVisible,
                 ) {
                     store.send(.privateKeyVisibilityPressed)
                 }
@@ -64,7 +64,7 @@ struct ViewSSHKeyItemView: View {
         BitwardenTextValueField(
             title: Localizations.publicKey,
             value: publicKey,
-            valueAccessibilityIdentifier: "SSHKeyPublicKeyEntry"
+            valueAccessibilityIdentifier: "SSHKeyPublicKeyEntry",
         ) {
             if showCopyButtons {
                 Button {
@@ -87,7 +87,7 @@ struct ViewSSHKeyItemView: View {
         BitwardenTextValueField(
             title: Localizations.fingerprint,
             value: keyFingerprint,
-            valueAccessibilityIdentifier: "FingerprintEntry"
+            valueAccessibilityIdentifier: "FingerprintEntry",
         ) {
             if showCopyButtons {
                 Button {
@@ -116,10 +116,10 @@ struct ViewSSHKeyItemView: View {
                                 isPrivateKeyVisible: false,
                                 privateKey: "ajsdfopij1ZXCVZXC12312QW",
                                 publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
-                                keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
-                            )
-                        )
-                    )
+                                keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw",
+                            ),
+                        ),
+                    ),
                 )
             }
             .padding(16)

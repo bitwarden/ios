@@ -54,8 +54,8 @@ extension View {
                 view.modifier(
                     ReviewModifier(
                         isEligible: isEligible,
-                        afterClosure: afterClosure
-                    )
+                        afterClosure: afterClosure,
+                    ),
                 )
             } else {
                 if let windowScene {
@@ -63,8 +63,8 @@ extension View {
                         RequestReviewLegacyModifier(
                             isEligible: isEligible,
                             windowScene: windowScene,
-                            afterClosure: afterClosure
-                        )
+                            afterClosure: afterClosure,
+                        ),
                     )
                 }
             }

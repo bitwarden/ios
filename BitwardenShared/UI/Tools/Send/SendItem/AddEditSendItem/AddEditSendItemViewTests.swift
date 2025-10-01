@@ -60,7 +60,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.maximumAccessCount = 42
         let stepper = try subject.inspect().find(
             BitwardenStepperType.self,
-            containing: Localizations.maximumAccessCount
+            containing: Localizations.maximumAccessCount,
         )
 
         try stepper.increment()
@@ -93,7 +93,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.privateNote
+            accessibilityLabel: Localizations.privateNote,
         )
         try textField.inputBinding().wrappedValue = "Notes"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
@@ -161,7 +161,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.textToShare
+            accessibilityLabel: Localizations.textToShare,
         )
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
@@ -174,7 +174,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.type = .file
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)],
         )
     }
 
@@ -259,7 +259,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func disabletest_snapshot_text_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 

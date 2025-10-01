@@ -104,7 +104,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
         options: [T],
-        selection: Binding<T>
+        selection: Binding<T>,
     ) where TrailingContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
@@ -130,7 +130,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
-        trailingContent: () -> TrailingContent
+        trailingContent: () -> TrailingContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
@@ -149,9 +149,9 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
 
     var localizedName: String {
         switch self {
-        case .bear: return "🧸"
-        case .bird: return "🪿"
-        case .dog: return "🐕"
+        case .bear: "🧸"
+        case .bird: "🪿"
+        case .dog: "🐕"
         }
     }
 }
@@ -161,7 +161,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         BitwardenMenuField(
             title: "Animals",
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         )
         .padding()
     }
@@ -173,7 +173,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         BitwardenMenuField(
             title: "Animals",
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         ) {
             Button {} label: {
                 Asset.Images.camera.swiftUIImage
@@ -191,7 +191,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             title: "Animals",
             footer: "Select your favorite animal",
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         )
         .padding()
     }

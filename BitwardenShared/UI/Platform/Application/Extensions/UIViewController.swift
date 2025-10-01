@@ -13,7 +13,7 @@ extension UIViewController {
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
@@ -32,14 +32,14 @@ extension UIViewController {
             // already specified. This prevents a crash when presenting popovers on iPadOS.
             popoverPresentationController.sourceView = parentView
             popoverPresentationController.sourceRect = CGRect(
-                x: parentView.bounds.midX, y: parentView.bounds.midY, width: 0, height: 0
+                x: parentView.bounds.midX, y: parentView.bounds.midY, width: 0, height: 0,
             )
             popoverPresentationController.permittedArrowDirections = []
         }
         availablePresenter?.present(
             viewController,
             animated: animated,
-            completion: onCompletion
+            completion: onCompletion,
         )
     }
 
@@ -49,15 +49,15 @@ extension UIViewController {
     ///
     func topmostViewController() -> UIViewController {
         if let presentedViewController {
-            return presentedViewController.topmostViewController()
+            presentedViewController.topmostViewController()
         } else {
             switch self {
             case let navigationController as UINavigationController:
-                return navigationController.topViewController?.topmostViewController() ?? navigationController
+                navigationController.topViewController?.topmostViewController() ?? navigationController
             case let tabBarController as UITabBarController:
-                return tabBarController.selectedViewController?.topmostViewController() ?? tabBarController
+                tabBarController.selectedViewController?.topmostViewController() ?? tabBarController
             default:
-                return self
+                self
             }
         }
     }

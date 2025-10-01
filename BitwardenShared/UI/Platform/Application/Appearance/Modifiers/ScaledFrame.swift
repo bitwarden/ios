@@ -36,7 +36,7 @@ struct ScaledFrame: ViewModifier {
     ///
     init(
         width: CGFloat,
-        height: CGFloat
+        height: CGFloat,
     ) {
         self.width = width
         self.height = height

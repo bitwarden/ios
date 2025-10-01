@@ -65,7 +65,7 @@ class ShareViewController: UIViewController {
                 appContext: .appExtension,
                 initialRoute: nil,
                 navigator: self,
-                window: nil
+                window: nil,
             )
         }
     }

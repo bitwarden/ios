@@ -31,7 +31,7 @@ class SendData: NSManagedObject, ManagedUserObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        send: Send
+        send: Send,
     ) throws {
         self.init(context: context)
         id = send.id
@@ -65,7 +65,7 @@ extension SendData {
             #keyPath(SendData.userId),
             userId,
             #keyPath(SendData.id),
-            id
+            id,
         )
     }
 }

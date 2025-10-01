@@ -20,7 +20,7 @@ class ItemListCardViewTests: BitwardenTestCase {
                     "\(name)-portrait": .defaultPortrait,
                     "\(name)-portraitDark": .defaultPortraitDark,
                     "\(name)-portraitAX5": .tallPortraitAX5(heightMultiple: 3),
-                ]
+                ],
             )
         }
     }
@@ -40,7 +40,7 @@ class ItemListCardViewTests: BitwardenTestCase {
             },
             closeTapped: {
                 expectationClose.fulfill()
-            }
+            },
         )
 
         try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()

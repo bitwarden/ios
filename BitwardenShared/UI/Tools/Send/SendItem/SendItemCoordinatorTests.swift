@@ -31,9 +31,9 @@ class SendItemCoordinatorTests: BitwardenTestCase {
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -67,9 +67,9 @@ class SendItemCoordinatorTests: BitwardenTestCase {
             to: .add(
                 content: .file(
                     fileName: "test file",
-                    fileData: Data("test data".utf8)
-                )
-            )
+                    fileData: Data("test data".utf8),
+                ),
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -92,7 +92,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
         XCTAssertEqual(
             view.store.state.mode,
-            .shareExtension(.empty())
+            .shareExtension(.empty()),
         )
         XCTAssertEqual(view.store.state.type, .text)
         XCTAssertEqual(view.store.state.text, "test")

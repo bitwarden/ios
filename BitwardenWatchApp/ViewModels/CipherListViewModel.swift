@@ -44,10 +44,10 @@ class CipherListViewModel: ObservableObject {
                             login: LoginDTO(
                                 totp: "",
                                 uris: nil,
-                                username: ""
+                                username: "",
                             ),
-                            name: "NoItemsFound"
-                        )
+                            name: "NoItemsFound",
+                        ),
                     )
                 }
 

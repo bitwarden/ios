@@ -18,7 +18,7 @@ class ClientBuilderTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         mockPlatform = MockPlatformClientService()
         subject = DefaultClientBuilder(
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
         )
     }
 

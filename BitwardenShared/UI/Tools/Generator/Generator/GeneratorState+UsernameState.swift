@@ -186,7 +186,7 @@ extension GeneratorState.UsernameState {
             serviceType: forwardedEmailService,
             simpleLoginApiKey: simpleLoginAPIKey.nilIfEmpty,
             simpleLoginBaseUrl: simpleLoginSelfHostServerUrl.nilIfEmpty,
-            type: usernameGeneratorType
+            type: usernameGeneratorType,
         )
     }
 
@@ -232,7 +232,7 @@ extension GeneratorState.UsernameState {
             ForwarderServiceType.addyIo(
                 apiToken: addyIOAPIAccessToken,
                 domain: addyIODomainName,
-                baseUrl: addyIOSelfHostServerUrl.nilIfEmpty ?? ForwardedEmailServiceType.defaultAddyIOBaseUrl
+                baseUrl: addyIOSelfHostServerUrl.nilIfEmpty ?? ForwardedEmailServiceType.defaultAddyIOBaseUrl,
             )
         case .duckDuckGo:
             ForwarderServiceType.duckDuckGo(token: duckDuckGoAPIKey)
@@ -243,13 +243,13 @@ extension GeneratorState.UsernameState {
         case .forwardEmail:
             ForwarderServiceType.forwardEmail(
                 apiToken: forwardEmailAPIToken,
-                domain: forwardEmailDomainName
+                domain: forwardEmailDomainName,
             )
         case .simpleLogin:
             ForwarderServiceType.simpleLogin(
                 apiKey: simpleLoginAPIKey,
                 baseUrl: simpleLoginSelfHostServerUrl.nilIfEmpty
-                    ?? ForwardedEmailServiceType.defaultSimpleLoginBaseUrl
+                    ?? ForwardedEmailServiceType.defaultSimpleLoginBaseUrl,
             )
         }
 

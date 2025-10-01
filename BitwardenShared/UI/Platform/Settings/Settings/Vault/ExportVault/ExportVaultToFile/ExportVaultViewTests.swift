@@ -89,7 +89,7 @@ class ExportVaultViewTests: BitwardenTestCase {
         processor.state.fileFormat = .jsonEncrypted
         processor.state.isFilePasswordVisible = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "FilePasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "FilePasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .toggleFilePasswordVisibility(true))
@@ -120,7 +120,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordOrOtpVisible = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow
+            viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow,
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .toggleMasterPasswordOrOtpVisibility(true))

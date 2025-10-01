@@ -26,7 +26,7 @@ class ItemListViewTests: BitwardenTestCase {
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -50,7 +50,7 @@ class ItemListViewTests: BitwardenTestCase {
                     "\(name)-portrait": .defaultPortrait,
                     "\(name)-portraitDark": .defaultPortraitDark,
                     "\(name)-portraitAX5": .defaultPortraitAX5,
-                ]
+                ],
             )
         }
     }
@@ -60,12 +60,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_ItemListView_card_download_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
-            loadingState: .data([])
+            loadingState: .data([]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
@@ -76,12 +76,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_ItemListView_card_download_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
-            loadingState: .data([ItemListSection.fixture()])
+            loadingState: .data([ItemListSection.fixture()]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
@@ -92,12 +92,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_ItemListView_card_sync_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
-            loadingState: .data([])
+            loadingState: .data([]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
@@ -108,12 +108,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_ItemListView_card_sync_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
-            loadingState: .data([ItemListSection.fixture()])
+            loadingState: .data([ItemListSection.fixture()]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
@@ -124,12 +124,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_itemListCardView_close_download() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
-            loadingState: .data([ItemListSection.fixture()])
+            loadingState: .data([ItemListSection.fixture()]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
@@ -144,12 +144,12 @@ class ItemListViewTests: BitwardenTestCase {
     func disabletest_snapshot_itemListCardView_close_sync() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
-            loadingState: .data([])
+            loadingState: .data([]),
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()

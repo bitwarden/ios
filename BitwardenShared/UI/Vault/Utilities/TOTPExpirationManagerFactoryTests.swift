@@ -16,7 +16,7 @@ class TOTPExpirationManagerFactoryTests: BitwardenTestCase {
 
         timeProvider = MockTimeProvider(.currentTime)
         subject = DefaultTOTPExpirationManagerFactory(
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 

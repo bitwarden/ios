@@ -44,14 +44,14 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     var body: some View {
         BitwardenField(
             title: title,
-            titleAccessibilityIdentifier: titleAccessibilityIdentifier
+            titleAccessibilityIdentifier: titleAccessibilityIdentifier,
         ) {
             if useUIKitTextView {
                 BitwardenUITextView(
                     text: .constant(value),
                     calculatedHeight: $textViewDynamicHeight,
                     isEditable: false,
-                    isFocused: .constant(false)
+                    isFocused: .constant(false),
                 )
                 .frame(minHeight: textViewDynamicHeight)
             } else {
@@ -61,7 +61,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
                     .foregroundColor(
                         isEnabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
-                            : SharedAsset.Colors.textDisabled.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
                     .if(textSelectionEnabled) { textView in
@@ -96,7 +96,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
         useUIKitTextView: Bool = false,
-        @ViewBuilder accessoryContent: () -> AccessoryContent
+        @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.textSelectionEnabled = textSelectionEnabled
         self.title = title
@@ -128,7 +128,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
-        useUIKitTextView: Bool = false
+        useUIKitTextView: Bool = false,
     ) {
         self.init(
             title: title,
@@ -136,7 +136,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
             value: value,
             valueAccessibilityIdentifier: valueAccessibilityIdentifier,
             textSelectionEnabled: textSelectionEnabled,
-            useUIKitTextView: useUIKitTextView
+            useUIKitTextView: useUIKitTextView,
         ) {
             EmptyView()
         }
@@ -166,7 +166,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
         textSelectionEnabled: Bool = true,
         useUIKitTextView: Bool = false,
         copyButtonAccessibilityIdentifier: String,
-        copyButtonAction: @escaping () -> Void
+        copyButtonAction: @escaping () -> Void,
     ) {
         // Initialize the BitwardenTextValueField with the button as the accessory content
         self.init(
@@ -181,9 +181,9 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
                     asset: Asset.Images.copy24,
                     accessibilityLabel: Localizations.copy,
                     accessibilityIdentifier: copyButtonAccessibilityIdentifier,
-                    action: copyButtonAction
+                    action: copyButtonAction,
                 )
-            }
+            },
         )
     }
 }
@@ -195,7 +195,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
     VStack {
         BitwardenTextValueField(
             title: "Title",
-            value: "Text field text"
+            value: "Text field text",
         )
         .padding()
     }
@@ -207,7 +207,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
         BitwardenTextValueField(
             title: "Title",
             value: "Text field text",
-            useUIKitTextView: true
+            useUIKitTextView: true,
         )
         .padding()
     }

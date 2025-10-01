@@ -23,7 +23,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             accounts: [account],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherView(store: Store(processor: processor))
@@ -84,7 +84,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_alternateAccountRow_longPress_alternateAccount() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
-            userInitials: "NA"
+            userInitials: "NA",
         )
         let current = processor.state.activeAccountProfile!
         processor.state = ProfileSwitcherState(
@@ -94,7 +94,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             activeAccountId: current.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         try alternateRow.labelView().callOnLongPressGesture()
@@ -109,7 +109,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let alternate = ProfileSwitcherItem.fixture(
             canBeLocked: false,
             email: "alternate@bitwarden.com",
-            userInitials: "NA"
+            userInitials: "NA",
         )
         let current = processor.state.activeAccountProfile!
         processor.state = ProfileSwitcherState(
@@ -119,7 +119,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             activeAccountId: current.userId,
             allowLockAndLogout: false,
-            isVisible: true
+            isVisible: true,
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         _ = try subject.inspect().find(button: "anne.account@bitwarden.com")
@@ -131,7 +131,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_alternateAccountRow_tap_alternateAccount() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
-            userInitials: "NA"
+            userInitials: "NA",
         )
         let current = processor.state.activeAccountProfile!
         processor.state = ProfileSwitcherState(
@@ -141,7 +141,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             ],
             activeAccountId: current.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         try alternateRow.labelView().callOnTapGesture()
@@ -156,7 +156,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let alternate = ProfileSwitcherItem.fixture(
             email: "locked@bitwarden.com",
             isUnlocked: false,
-            userInitials: "LA"
+            userInitials: "LA",
         )
         let secondAlternate = ProfileSwitcherItem.fixture()
         let alternateAccounts = [
@@ -168,7 +168,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             accounts: alternateAccounts + [current],
             activeAccountId: current.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         let secondAlternateRow = try subject.inspect().find(button: "")
         try secondAlternateRow.labelView().callOnTapGesture()
@@ -204,25 +204,25 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: true,
-                    userInitials: "BB"
+                    userInitials: "BB",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: true,
-                    userInitials: "CC"
+                    userInitials: "CC",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: true,
-                    userInitials: "DD"
+                    userInitials: "DD",
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: true
+            shouldAlwaysHideAddAccount: true,
         )
         processor.state = state
         XCTAssertFalse(subject.store.state.showsAddAccount)
@@ -250,24 +250,24 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: true,
-                    userInitials: "BB"
+                    userInitials: "BB",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: true,
-                    userInitials: "CC"
+                    userInitials: "CC",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: true,
-                    userInitials: "DD"
+                    userInitials: "DD",
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -292,25 +292,25 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: false,
-                    userInitials: "BB"
+                    userInitials: "BB",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: false,
-                    userInitials: "CC"
+                    userInitials: "CC",
                 ),
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: false,
-                    userInitials: "DD"
+                    userInitials: "DD",
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -323,31 +323,31 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: false,
-                    userInitials: "BB"
+                    userInitials: "BB",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: false,
-                    userInitials: "CC"
+                    userInitials: "CC",
                 ),
                 .anneAccount,
                 ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: false,
-                    userInitials: "DD"
+                    userInitials: "DD",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .green,
                     email: "extra.edition@bitwarden.com",
                     isUnlocked: false,
-                    userInitials: "EE"
+                    userInitials: "EE",
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -357,7 +357,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         for preview in ProfileSwitcherView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait]
+                as: [.defaultPortrait],
             )
         }
     }

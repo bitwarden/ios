@@ -45,7 +45,7 @@ struct SelectLanguageView: View {
     private func languageOptionRow(_ languageOption: LanguageOption) -> some View {
         SettingsListItem(
             languageOption.title,
-            hasDivider: !languageOption.isLast
+            hasDivider: !languageOption.isLast,
         ) {
             store.send(.languageTapped(languageOption))
         } trailingContent: {

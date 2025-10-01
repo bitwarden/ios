@@ -76,18 +76,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 customFields: [
                     CustomFieldState(
                         name: "fieldName1",
                         type: .hidden,
-                        value: "old"
+                        value: "old",
                     ),
                 ],
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
     }
 
@@ -121,7 +121,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .boolean,
-                value: "true"
+                value: "true",
             ),
         ]
         XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
@@ -154,7 +154,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
         XCTAssertEqual(
             subject.state.customFieldsState.customFields[1].linkedIdType,
-            LinkedIdType.getLinkedIdType(for: subject.state.customFieldsState.cipherType).first
+            LinkedIdType.getLinkedIdType(for: subject.state.customFieldsState.cipherType).first,
         )
     }
 
@@ -204,12 +204,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -232,12 +232,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -266,12 +266,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -294,12 +294,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -376,12 +376,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -406,12 +406,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             CustomFieldState(
                 name: "fieldName1",
                 type: .hidden,
-                value: "value1"
+                value: "value1",
             ),
             CustomFieldState(
                 name: "fieldName2",
                 type: .text,
-                value: "value2"
+                value: "value2",
             ),
         ]
 
@@ -459,7 +459,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 linkedIdType: .loginPassword,
                 name: "fieldName1",
                 type: .linked,
-                value: nil
+                value: nil,
             ),
         ]
         subject.state.customFieldsState.customFields = originalCustomFields
@@ -549,8 +549,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
-            )
+                ],
+            ),
         )
         XCTAssertEqual(subject.state.loginState.authenticatorKey, "")
         XCTAssertNil(subject.state.toast)
@@ -585,7 +585,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization")),
         )
     }
 
@@ -630,12 +630,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 policyService: policyService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 addItem: .login,
-                hasPremium: false
-            )
+                hasPremium: false,
+            ),
         )
         XCTAssertTrue(rehydrationHelper.rehydratableTargets.isEmpty)
     }
@@ -661,16 +661,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 existing: CipherView.fixture(),
-                hasPremium: false
-            )!
+                hasPremium: false,
+            )!,
         )
         waitFor(
             !rehydrationHelper.rehydratableTargets.isEmpty
-                && rehydrationHelper.rehydratableTargets[0] is AddEditItemProcessor
+                && rehydrationHelper.rehydratableTargets[0] is AddEditItemProcessor,
         )
     }
 
@@ -728,18 +728,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 customFields: [
                     CustomFieldState(
                         name: "fieldName1",
                         type: .hidden,
-                        value: "old"
+                        value: "old",
                     ),
                 ],
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isLearnNewLoginActionCardEligible)
@@ -767,18 +767,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 customFields: [
                     CustomFieldState(
                         name: "fieldName1",
                         type: .hidden,
-                        value: "old"
+                        value: "old",
                     ),
                 ],
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
@@ -815,7 +815,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         ))
     }
 
@@ -834,7 +834,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         ))
     }
 
@@ -846,7 +846,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
             subject.state.loginState.authenticatorKey,
-            pasteboardService.copiedString
+            pasteboardService.copiedString,
         )
     }
 
@@ -877,7 +877,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_perform_deletePressed_success() async throws {
         subject.state = CipherItemState(
             existing: .fixture(id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
         vaultRepository.softDeleteCipherResult = .success(())
         await subject.perform(.deletePressed)
@@ -894,11 +894,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let deletedCipher: CipherView = .fixture(id: "123")
         XCTAssertEqual(
             vaultRepository.softDeletedCipher.last?.id,
-            deletedCipher.id
+            deletedCipher.id,
         )
         XCTAssertEqual(
             vaultRepository.softDeletedCipher.last,
-            deletedCipher
+            deletedCipher,
         )
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {
@@ -973,12 +973,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 policyService: policyService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 existing: CipherView.fixture(id: "100"),
-                hasPremium: true
-            )!
+                hasPremium: true,
+            )!,
         )
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
@@ -1006,7 +1006,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = CipherItemState(
             collectionIds: ["1", "2"],
             hasPremium: false,
-            organizationId: owner.organizationId
+            organizationId: owner.organizationId,
         )
         vaultRepository.fetchCipherOwnershipOptions = [owner]
         vaultRepository.fetchCollectionsResult = .success([
@@ -1027,7 +1027,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = CipherItemState(
             collectionIds: ["1", "2"],
             hasPremium: false,
-            organizationId: owner.organizationId
+            organizationId: owner.organizationId,
         )
         vaultRepository.fetchCipherOwnershipOptions = [owner]
         vaultRepository.fetchCollectionsResult = .success([
@@ -1080,7 +1080,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = CipherItemState(
             collectionIds: ["1"],
             hasPremium: false,
-            organizationId: owner.organizationId
+            organizationId: owner.organizationId,
         )
 
         vaultRepository.fetchCipherOwnershipOptions = [
@@ -1108,7 +1108,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = CipherItemState(
             collectionIds: ["1"],
             hasPremium: false,
-            organizationId: owner.organizationId
+            organizationId: owner.organizationId,
         )
 
         vaultRepository.fetchCipherOwnershipOptions = [
@@ -1237,7 +1237,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_perform_fetchCipherOptions_defaultUserCollectionEditing() async throws {
         subject.state = try XCTUnwrap(CipherItemState(
             existing: CipherView.fixture(),
-            hasPremium: false
+            hasPremium: false,
         ))
 
         let collections: [CollectionView] = [
@@ -1269,8 +1269,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.validationFieldRequired(Localizations.name),
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)],
+            ),
         )
     }
 
@@ -1299,8 +1299,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection
-            )
+                message: Localizations.selectOneCollection,
+            ),
         )
     }
 
@@ -1340,12 +1340,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
-            .secureNote
+            .secureNote,
         )
 
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
-            "secureNote"
+            "secureNote",
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
@@ -1362,7 +1362,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             cardNumber: "12345",
             cardSecurityCode: "123",
             expirationMonth: .custom(.apr),
-            expirationYear: "1234"
+            expirationYear: "1234",
         )
         subject.state.cardItemState = expectedCardState
         await subject.perform(.savePressed)
@@ -1370,12 +1370,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
 
         let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
@@ -1390,8 +1390,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             added,
             unwrappedState
                 .newCipherView(
-                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
-                )
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate,
+                ),
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
@@ -1406,12 +1406,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
 
         XCTAssertEqual(
@@ -1419,7 +1419,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [
                 (subject.state as? CipherItemState)?
                     .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
@@ -1435,7 +1435,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             isPrivateKeyVisible: false,
             privateKey: "privateKey",
             publicKey: "publicKey",
-            keyFingerprint: "fingerprint"
+            keyFingerprint: "fingerprint",
         )
         subject.state.sshKeyState = expectedSSHKeyItemState
         await subject.perform(.savePressed)
@@ -1443,12 +1443,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
             Date().timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
 
         let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
@@ -1463,8 +1463,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             added,
             unwrappedState
                 .newCipherView(
-                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
-                )
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate,
+                ),
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
@@ -1533,7 +1533,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
             existing: cipher,
-            hasPremium: true
+            hasPremium: true,
         )
         let cipherState = try XCTUnwrap(maybeCipherState)
         struct EncryptError: Error, Equatable {}
@@ -1566,7 +1566,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
             existing: cipher,
-            hasPremium: true
+            hasPremium: true,
         )
         let cipherState = try XCTUnwrap(maybeCipherState)
         vaultRepository.updateCipherResult = .success(())
@@ -1578,19 +1578,19 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.updateCipherCiphers.first).creationDate.timeIntervalSince1970,
             cipher.creationDate.timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
         try XCTAssertEqual(
             XCTUnwrap(vaultRepository.updateCipherCiphers.first).revisionDate.timeIntervalSince1970,
             cipher.revisionDate.timeIntervalSince1970,
-            accuracy: 1
+            accuracy: 1,
         )
 
         XCTAssertEqual(
             vaultRepository.updateCipherCiphers,
             [
                 cipher.updatedView(with: subject.state),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertTrue(reviewPromptService.userActions.isEmpty)
@@ -1664,7 +1664,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             subject.state.folders,
-            [.default] + folders.map { .custom($0) }
+            [.default] + folders.map { .custom($0) },
         )
     }
 
@@ -1789,13 +1789,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_receive_didRenderViewToSpotlight() {
         subject.receive(
             .guidedTourViewAction(
-                .didRenderViewToSpotlight(frame: step1Spotlight, step: .step1)
-            )
+                .didRenderViewToSpotlight(frame: step1Spotlight, step: .step1),
+            ),
         )
 
         XCTAssertEqual(
             subject.state.guidedTourViewState.guidedTourStepStates[0].spotlightRegion,
-            step1Spotlight
+            step1Spotlight,
         )
     }
 
@@ -1989,8 +1989,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = try XCTUnwrap(
             CipherItemState(
                 existing: cipher,
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         subject.receive(.morePressed(.attachments))
         XCTAssertEqual(coordinator.routes.last, .attachments(cipher))
@@ -2004,8 +2004,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = try XCTUnwrap(
             CipherItemState(
                 existing: cipher,
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
 
         subject.receive(.morePressed(.editCollections))
@@ -2022,8 +2022,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = try XCTUnwrap(
             CipherItemState(
                 existing: cipher,
-                hasPremium: false
-            )
+                hasPremium: false,
+            ),
         )
 
         subject.receive(.morePressed(.moveToOrganization))
@@ -2205,12 +2205,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 policyService: policyService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 existing: CipherView.fixture(id: "100"),
-                hasPremium: true
-            )!
+                hasPremium: true,
+            )!,
         )
         subject.state.loginState.isPasswordVisible = false
 
@@ -2243,16 +2243,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             subject.state.loginState.totpState.authKeyModel?.rawAuthenticatorKey,
-            keyWithSpaces
+            keyWithSpaces,
         )
         XCTAssertEqual(
             keyWithSpaces,
-            subject.state.loginState.totpState.rawAuthenticatorKeyString
+            subject.state.loginState.totpState.rawAuthenticatorKeyString,
         )
         XCTAssertTrue(coordinator.alertShown.isEmpty)
         XCTAssertEqual(
             subject.state.loginState.totpState.authKeyModel?.totpKey,
-            .standard(key: keyWithSpaces)
+            .standard(key: keyWithSpaces),
         )
     }
 
@@ -2278,7 +2278,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: ""
+                uri: "",
             ),
         ]
         subject.receive(.uriChanged("uri", index: 0))
@@ -2293,7 +2293,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
         subject.receive(.uriChanged("new value", index: 5))
@@ -2308,7 +2308,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 0))
@@ -2323,7 +2323,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 5))
@@ -2781,7 +2781,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.regularExpression))
@@ -2802,7 +2802,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.cancel)
 
@@ -2827,7 +2827,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.close, style: .cancel),
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in },
-            ]
+            ],
         ))
 
         try await alertLearnMore.tapAction(title: Localizations.learnMore)

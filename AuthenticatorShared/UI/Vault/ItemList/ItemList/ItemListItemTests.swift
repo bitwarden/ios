@@ -49,7 +49,7 @@ class ItemListItemTests: BitwardenTestCase {
         let newModel = TOTPCodeModel(
             code: "098765",
             codeGenerationDate: Date(),
-            period: 30
+            period: 30,
         )
 
         let newItem = subject.with(newTotpModel: newModel)
@@ -62,7 +62,7 @@ class ItemListItemTests: BitwardenTestCase {
         let newModel = TOTPCodeModel(
             code: "098765",
             codeGenerationDate: Date(),
-            period: 30
+            period: 30,
         )
 
         let newItem = subject.with(newTotpModel: newModel)
@@ -75,7 +75,7 @@ class ItemListItemTests: BitwardenTestCase {
         let newModel = TOTPCodeModel(
             code: "098765",
             codeGenerationDate: Date(),
-            period: 30
+            period: 30,
         )
 
         let newItem = subject.with(newTotpModel: newModel)

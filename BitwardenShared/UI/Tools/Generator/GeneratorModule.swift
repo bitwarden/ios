@@ -13,20 +13,20 @@ protocol GeneratorModule {
     ///
     func makeGeneratorCoordinator(
         delegate: GeneratorCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void>
 }
 
 extension DefaultAppModule: GeneratorModule {
     func makeGeneratorCoordinator(
         delegate: GeneratorCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         GeneratorCoordinator(
             delegate: delegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

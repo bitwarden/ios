@@ -12,7 +12,7 @@ final class IconImageHelperTests: BitwardenTestCase {
 
     func test_getIconImage_emptyURIs() {
         let loginView = BitwardenSdk.LoginView.fixture(
-            uris: []
+            uris: [],
         )
         let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
         XCTAssertNil(result)
@@ -28,7 +28,7 @@ final class IconImageHelperTests: BitwardenTestCase {
         let loginView = BitwardenSdk.LoginView.fixture(
             uris: [
                 .fixture(uri: "bitwarden.com", match: nil),
-            ]
+            ],
         )
         let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
         XCTAssertNotNil(result)
@@ -42,7 +42,7 @@ final class IconImageHelperTests: BitwardenTestCase {
                 .fixture(uri: "://peanuts", match: nil),
                 .fixture(uri: "://peanuts.yum", match: nil),
                 .fixture(uri: "bitwarden.com", match: nil),
-            ]
+            ],
         )
         let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
         XCTAssertNotNil(result)

@@ -13,7 +13,7 @@ class EditAuthenticatorItemViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         EditAuthenticatorItemState,
         EditAuthenticatorItemAction,
-        EditAuthenticatorItemEffect
+        EditAuthenticatorItemEffect,
     >!
     var subject: EditAuthenticatorItemView!
 
@@ -23,12 +23,12 @@ class EditAuthenticatorItemViewTests: BitwardenTestCase {
         super.setUp()
 
         let state = AuthenticatorItemState(
-            existing: AuthenticatorItemView.fixture()
+            existing: AuthenticatorItemView.fixture(),
         )!
 
         processor = MockProcessor(state: state)
         subject = EditAuthenticatorItemView(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
     }
 
@@ -46,7 +46,7 @@ class EditAuthenticatorItemViewTests: BitwardenTestCase {
         for preview in EditAuthenticatorItemView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: ["\(preview.displayName ?? "")": .portrait(heightMultiple: 1.25)]
+                as: ["\(preview.displayName ?? "")": .portrait(heightMultiple: 1.25)],
             )
         }
     }

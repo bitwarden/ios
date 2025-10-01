@@ -55,7 +55,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         errorReporter: ErrorReporter,
         module: Module,
         rootNavigator: RootNavigator,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
     ) {
         self.errorReporter = errorReporter
         self.module = module
@@ -88,13 +88,13 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         let itemListNavigator = UINavigationController()
         itemListNavigator.navigationBar.prefersLargeTitles = true
         itemListCoordinator = module.makeItemListCoordinator(
-            stackNavigator: itemListNavigator
+            stackNavigator: itemListNavigator,
         )
 
         let settingsNavigator = UINavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
         let settingsCoordinator = module.makeSettingsCoordinator(
-            stackNavigator: settingsNavigator
+            stackNavigator: settingsNavigator,
         )
         settingsCoordinator.start()
         self.settingsCoordinator = settingsCoordinator

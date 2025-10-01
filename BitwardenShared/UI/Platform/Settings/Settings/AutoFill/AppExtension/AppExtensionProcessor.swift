@@ -32,7 +32,7 @@ final class AppExtensionProcessor: StateProcessor<AppExtensionState, AppExtensio
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
-        state: AppExtensionState
+        state: AppExtensionState,
     ) {
         self.coordinator = coordinator
 

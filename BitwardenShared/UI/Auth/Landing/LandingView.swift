@@ -31,7 +31,7 @@ struct LandingView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: LandingAction.toastShown
+            send: LandingAction.toastShown,
         ))
     }
 
@@ -49,8 +49,8 @@ struct LandingView: View {
                 },
                 mapEffect: { effect in
                     .profileSwitcher(effect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -66,8 +66,8 @@ struct LandingView: View {
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -108,18 +108,18 @@ struct LandingView: View {
                     title: Localizations.emailAddress,
                     text: store.binding(
                         get: \.email,
-                        send: LandingAction.emailChanged
+                        send: LandingAction.emailChanged,
                     ),
                     accessibilityIdentifier: "LoginEmailAddressEntry",
                     footerContent: {
                         RegionSelector(
                             selectorLabel: Localizations.loggingInOn,
-                            regionName: store.state.region.baseURLDescription
+                            regionName: store.state.region.baseURLDescription,
                         ) {
                             await store.perform(.regionPressed)
                         }
                         .padding(.vertical, 14)
-                    }
+                    },
                 )
                 .textFieldConfiguration(.email)
                 .onSubmit {
@@ -129,7 +129,7 @@ struct LandingView: View {
 
                 BitwardenToggle(Localizations.rememberMe, isOn: store.binding(
                     get: { $0.isRememberMeOn },
-                    send: { .rememberMeChanged($0) }
+                    send: { .rememberMeChanged($0) },
                 ))
                 .accessibilityIdentifier("RememberMeSwitch")
                 .contentBlock()
@@ -176,10 +176,10 @@ struct LandingView: View {
                 processor: StateProcessor(
                     state: LandingState(
                         email: "",
-                        isRememberMeOn: false
-                    )
-                )
-            )
+                        isRememberMeOn: false,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -191,10 +191,10 @@ struct LandingView: View {
                 processor: StateProcessor(
                     state: LandingState(
                         email: "email@example.com",
-                        isRememberMeOn: true
-                    )
-                )
-            )
+                        isRememberMeOn: true,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -207,10 +207,10 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState.singleAccountHidden
-                    )
-                )
-            )
+                        profileSwitcherState: ProfileSwitcherState.singleAccountHidden,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -223,10 +223,10 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState.singleAccount
-                    )
-                )
-            )
+                        profileSwitcherState: ProfileSwitcherState.singleAccount,
+                    ),
+                ),
+            ),
         )
     }
 }
