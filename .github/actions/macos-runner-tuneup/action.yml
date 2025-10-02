@@ -45,10 +45,10 @@ runs:
         echo "📊 Process Information After Tuning"
         echo "=================================="
         echo "🧠 Sorted by memory usage:"
-        ps -em -o pid,pcpu,pmem,comm | head -n20
+        head -n20 < <(ps -emo pid,pcpu,pmem,comm)
         echo ""
-        echo "⚡️ Sorted by CPU usage:"
-        ps -er -o pid,pcpu,pmem,comm | head -n20
+        echo "🔥  Sorted by CPU usage:"
+        head -n20 < <(ps -ero pid,pcpu,pmem,comm)
         echo ""
         echo "🎉 macOS Runner Tuneup Complete!"
 
