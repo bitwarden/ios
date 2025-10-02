@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 /// The type of data stored in a cipher custom field.

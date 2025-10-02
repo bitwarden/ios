@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportFormatType
 
 /// An enum describing the format of the imported items file by provider.

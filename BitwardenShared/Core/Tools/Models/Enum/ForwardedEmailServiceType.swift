@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 /// The service used to generate a forwarded email alias.

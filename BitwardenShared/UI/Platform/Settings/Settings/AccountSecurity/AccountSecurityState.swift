@@ -21,7 +21,7 @@ public enum UnlockMethod {
 
 /// An enumeration of session timeout values to choose from.
 ///
-extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
+extension SessionTimeoutValue: @retroactive CaseIterable, @retroactive Menuable {
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
         .immediately,
@@ -37,7 +37,7 @@ extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
     ]
 
     /// The localized string representation of a `SessionTimeoutValue`.
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .immediately:
             Localizations.immediately
@@ -77,7 +77,7 @@ public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuabl
     /// All of the cases to show in the menu.
     public static let allCases: [SessionTimeoutAction] = [.lock, .logout]
 
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .lock:
             Localizations.lock

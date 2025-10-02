@@ -737,11 +737,11 @@ extension BitwardenSdk.Folder {
 }
 
 extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
-    static var defaultValueLocalizedName: String {
+    public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         name
     }
 }

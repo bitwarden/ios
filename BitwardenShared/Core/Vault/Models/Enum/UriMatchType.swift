@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 /// An enum that describes how a URI should be matched for autofill to occur.

@@ -1,5 +1,6 @@
 // MARK: - CardComponent
 
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
