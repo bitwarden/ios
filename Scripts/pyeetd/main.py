@@ -35,7 +35,14 @@ SIMULATOR_PROCESSES = {
     "PhotosPosterProvider",
     "AvatarPosterExtension",
     "GradientPosterExtension",
-    "MonogramPosterExtension"
+    "MonogramPosterExtension",
+    "System/Library/PrivateFrameworks/SessionCore.framework/Support/liveactivitiesd",
+    "System/Library/CoreServices/SpringBoard.app/SpringBoard",
+    "Applications/News.app",
+    "usr/libexec/icloudmailagent",
+    "Applications/Family.app",
+    "Applications/PosterBoard.app",
+    "Applications/PassbookStub.app",
 }
 
 SIMULATOR_PATH_SEARCH_KEY = "simruntime/Contents/Resources/RuntimeRoot"
