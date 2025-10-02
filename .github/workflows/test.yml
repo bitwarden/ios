@@ -122,7 +122,6 @@ jobs:
       - name: Build and test
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
-
             xcrun xcodebuild test \
             -workspace Bitwarden.xcworkspace \
             -scheme Bitwarden \
@@ -134,8 +133,7 @@ jobs:
             -maximum-test-execution-time-allowance 1 \
             -retry-tests-on-failure \
             -test-repetition-relaunch-enabled YES \
-            -showBuildTimingSummary
-
+            -quiet
             kill $PYEETD_PID
 
       - name: Output processes

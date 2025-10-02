@@ -73,6 +73,9 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
+      - name: Optimize macOS Runner
+        uses: ./.github/actions/macos-runner-tuneup
+
       - name: Read Xcode version and simulator configuration from file if not provided
         run: |
           if [ -z "$_XCODE_VERSION" ]; then
@@ -123,6 +126,7 @@ jobs:
 
       - name: Build and test
         run: |
+          python Scripts/pyeetd/main.py & PYEETD_PID=$!
           xcrun xcodebuild test \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
@@ -134,7 +138,8 @@ jobs:
             -maximum-test-execution-time-allowance 1 \
             -retry-tests-on-failure \
             -test-repetition-relaunch-enabled YES \
-            -showBuildTimingSummary
+            -quiet
+          kill $PYEETD_PID
 
       - name: Print Logs Summary
         if: always()
