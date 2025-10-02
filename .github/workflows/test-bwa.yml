@@ -60,7 +60,7 @@ jobs:
   test:
     name: Test
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 50
     permissions:
       contents: read
 
@@ -72,6 +72,9 @@ jobs:
 
       - name: Check out repo
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Optimize macOS Runner
+        uses: ./.github/actions/macos-runner-tuneup
 
       - name: Read Xcode version and simulator configuration from file if not provided
         run: |
@@ -123,6 +126,7 @@ jobs:
 
       - name: Build and test
         run: |
+          python Scripts/pyeetd/main.py & PYEETD_PID=$!
           xcrun xcodebuild test \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
@@ -132,7 +136,10 @@ jobs:
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
+            -retry-tests-on-failure \
+            -test-repetition-relaunch-enabled YES \
             -quiet
+          kill $PYEETD_PID
 
       - name: Print Logs Summary
         if: always()
