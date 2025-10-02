@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
@@ -83,7 +84,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.itemDeleted)
     }
 
     /// `perform(_:)` with `.addItemPressed` and authorized camera
@@ -250,7 +251,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
+            subject.state.toast?.title,
             Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
@@ -293,7 +294,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
+            subject.state.toast?.title,
             Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
@@ -565,7 +566,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountsSyncedFromBitwardenApp)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.accountsSyncedFromBitwardenApp)
         XCTAssertTrue(appSettingsStore.hasSyncedAccount(name: accountName))
     }
 
