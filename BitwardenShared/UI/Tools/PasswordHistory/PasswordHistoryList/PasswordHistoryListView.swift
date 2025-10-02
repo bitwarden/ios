@@ -99,7 +99,7 @@ struct PasswordHistoryListView: View {
             Button {
                 store.send(.copyPassword(passwordHistory))
             } label: {
-                Image(asset: Asset.Images.copy24)
+                Image(asset: SharedAsset.Icons.copy24)
                     .imageStyle(.rowIcon)
             }
             .accessibilityLabel(Localizations.copyPassword)

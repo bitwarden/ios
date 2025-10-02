@@ -2,6 +2,8 @@ import BitwardenResources
 import BitwardenSdk
 import UIKit
 
+// swiftlint:disable file_length
+
 // MARK: - Alert+Vault
 
 extension Alert {
@@ -388,6 +390,40 @@ extension Alert {
             message: Localizations.pushNotificationAlert,
             alertActions: [
                 AlertAction(title: Localizations.okGotIt, style: .default) { _, _ in await action() },
+            ]
+        )
+    }
+
+    /// An alert notifying the user to update their encryption settings.
+    ///
+    /// - Parameter completion: A closure that's executed when the user has entered their password.
+    /// - Returns: An alert that prompts the user to enter their master password to update their
+    ///     encryption settings.
+    ///
+    static func updateEncryptionSettings(
+        completion: @MainActor @escaping (String) async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.updateYourEncryptionSettings,
+            message: Localizations.theNewRecommendedEncryptionSettingsDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default
+                ) { _, alertTextFields in
+                    guard let password = alertTextFields.first(where: { $0.id == "password" })?.text else { return }
+                    await completion(password)
+                },
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "password",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    isSecureTextEntry: true,
+                    keyboardType: .default
+                ),
             ]
         )
     }

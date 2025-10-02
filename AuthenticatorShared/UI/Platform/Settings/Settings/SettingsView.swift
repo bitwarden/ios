@@ -76,7 +76,7 @@ struct SettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.rightAngle)
+        Image(asset: SharedAsset.Icons.chevronRight16)
             .resizable()
             .scaledFrame(width: 12, height: 12)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
@@ -164,7 +164,7 @@ struct SettingsView: View {
                     SettingsListItem(store.state.version, hasDivider: false) {
                         store.send(.versionTapped)
                     } trailingContent: {
-                        Asset.Images.copy.swiftUIImage
+                        SharedAsset.Icons.copy16.swiftUIImage
                             .imageStyle(.rowIcon)
                     }
                 }
@@ -253,7 +253,7 @@ struct SettingsView: View {
         SettingsListItem(name, hasDivider: hasDivider) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink2.swiftUIImage
+            SharedAsset.Icons.externalLink16.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }
@@ -282,7 +282,7 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
 
-                    Asset.Images.externalLink2.swiftUIImage
+                    SharedAsset.Icons.externalLink16.swiftUIImage
                         .imageStyle(.rowIcon)
                 }
                 .padding(16)

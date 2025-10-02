@@ -84,6 +84,13 @@ protocol AccountAPIService {
     ///
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws
 
+    /// Performs the API request to update the user's KDF settings.
+    ///
+    /// - Parameter requestModel: The request model containing the details needed to update the
+    ///     user's KDF settings.
+    ///
+    func updateKdf(_ requestModel: UpdateKdfRequestModel) async throws
+
     /// Performs the API request to update the user's password.
     ///
     /// - Parameter requestModel: The request model used to send the request.
@@ -178,6 +185,10 @@ extension APIService: AccountAPIService {
 
     func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel {
         try await identityService.send(StartRegistrationRequest(body: requestModel))
+    }
+
+    func updateKdf(_ requestModel: UpdateKdfRequestModel) async throws {
+        _ = try await apiService.send(UpdateKdfRequest(requestModel: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {

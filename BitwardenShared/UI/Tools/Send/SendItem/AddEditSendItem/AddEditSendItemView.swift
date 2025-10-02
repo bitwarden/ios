@@ -170,7 +170,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         AsyncButton {
             await store.perform(.deletePressed)
         } label: {
-            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+            Label(Localizations.deleteSend, image: SharedAsset.Icons.trash16.swiftUIImage, scaleImageDimension: 16)
         }
         .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }

@@ -62,7 +62,7 @@ struct MasterPasswordGeneratorView: View {
             await store.perform(.generate)
         } label: {
             HStack(spacing: 8) {
-                Image(decorative: Asset.Images.generate16)
+                Image(decorative: SharedAsset.Icons.generate16)
 
                 Text(Localizations.generate)
             }

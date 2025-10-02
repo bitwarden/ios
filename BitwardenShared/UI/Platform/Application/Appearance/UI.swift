@@ -129,10 +129,10 @@ public enum UI {
 
         UISearchBar.appearance().tintColor = SharedAsset.Colors.textInteraction.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
-        let image = Asset.Images.circleX16.image
+        let image = SharedAsset.Icons.circleX16.image
         let tintedImage = image.withTintColor(SharedAsset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
-        UISearchBar.appearance().setImage(Asset.Images.search16.image, for: .search, state: .normal)
+        UISearchBar.appearance().setImage(SharedAsset.Icons.search16.image, for: .search, state: .normal)
 
         // Adjust the appearance of `UITextView` for `BitwardenUITextField` instances on iOS 15.
         UITextView.appearance().isScrollEnabled = false
