@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// Defines the hash algorithms supported for TOTP.
 ///
 enum TOTPCryptoHashAlgorithm: String, Menuable, CaseIterable {
