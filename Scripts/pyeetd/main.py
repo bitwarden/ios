@@ -72,9 +72,10 @@ def get_processes(sort_by=ProcessSort.CPU):
 
     return processes
 
-def print_processes(processes):
+def print_processes(processes, limit=-1):
     print("PID\tCPU%\tMemory%\tName")
-    for p in processes:
+    limit = len(processes) if limit == -1 else limit
+    for p in processes[:limit]:
         print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}\t{p.environment}")
 
 def find_unwanted(processes):
@@ -94,6 +95,8 @@ def yeet(processes):
     return output
 
 def main():
+    # processes = get_processes(ProcessSort.CPU)
+    # print_processes(processes, 20)
     while True:
         output = []
         output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning...")
