@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-pyeetd - https://github.com/biscuitehh/yeetd but python
+pyeetd - based on https://github.com/biscuitehh/yeetd
+
+how to use:
+python Scripts/pyeetd/main.py & PYEETD_PID=$!
+...
+kill $PYEETD_PID
 """
 
 import os
