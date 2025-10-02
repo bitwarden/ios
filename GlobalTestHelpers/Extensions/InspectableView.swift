@@ -67,7 +67,7 @@ struct BitwardenMenuFieldType: BaseViewType {
     static var typePrefix: String = "BitwardenMenuField"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenMenuField",
+        "BitwardenKit.BitwardenMenuField",
     ]
 }
 

@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A protocol that defines an object that can be represented and selected in
 /// a `BitwardenMenuField`.
-protocol Menuable: Equatable, Hashable {
+public protocol Menuable: Equatable, Hashable {
     ///  The custom localizable title value for this default case, defaults to  `Default`.
     static var defaultValueLocalizedName: String { get }
 
@@ -17,7 +17,7 @@ protocol Menuable: Equatable, Hashable {
     var localizedName: String { get }
 }
 
-extension Menuable {
+public extension Menuable {
     static var defaultValueLocalizedName: String {
         Localizations.default
     }
@@ -33,7 +33,7 @@ extension Menuable {
 /// options. This view is identical to `BitwardenTextField`, but uses a `Menu`
 /// instead of a `TextField` as the input mechanism.
 ///
-struct BitwardenMenuField<
+public struct BitwardenMenuField<
     T,
     AdditionalMenu: View,
     TitleAccessory: View,
@@ -74,7 +74,7 @@ struct BitwardenMenuField<
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             menu
 
@@ -175,7 +175,7 @@ struct BitwardenMenuField<
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
-    init(
+    public init(
         title: String? = nil,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
@@ -205,7 +205,7 @@ struct BitwardenMenuField<
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
-    init(
+    public init(
         title: String,
         accessibilityIdentifier: String? = nil,
         options: [T],
@@ -233,7 +233,7 @@ struct BitwardenMenuField<
     ///   - titleAccessoryContent: Optional title accessory view that is displayed on the trailing edge of the title.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
     ///
-    init(
+    public init(
         title: String? = nil,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
@@ -262,7 +262,7 @@ struct BitwardenMenuField<
     ///   - selection: A `Binding` for the currently selected option.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
     ///
-    init(
+    public init(
         title: String? = nil,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
@@ -290,7 +290,7 @@ struct BitwardenMenuField<
     ///   - selection: A `Binding` for the currently selected option.
     ///   - titleAccessoryContent: Optional title accessory view that is displayed on the trailing edge of the title.
     ///
-    init(
+    public init(
         title: String? = nil,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
@@ -319,7 +319,7 @@ struct BitwardenMenuField<
     ///   - additionalMenu: Additional menu options to display at the bottom of the menu.
     ///
     @_disfavoredOverload
-    init(
+    public init(
         title: String? = nil,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
