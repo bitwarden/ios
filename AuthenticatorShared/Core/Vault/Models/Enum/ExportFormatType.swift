@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExportFormatType
 
 /// An enum describing the format of the items export.
