@@ -26,7 +26,7 @@ public struct Toast: Equatable, Identifiable, Sendable {
     let mode: ToastMode
 
     /// The title text displayed in the toast.
-    let title: String
+    public let title: String
 
     /// The subtitle text displayed in the toast.
     let subtitle: String?
