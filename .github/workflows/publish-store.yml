@@ -109,6 +109,7 @@ jobs:
             EOF
 
         - name: Upload app to with Fastlane
+          id: publish
           if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
@@ -141,6 +142,7 @@ jobs:
               submit_release:"$SUBMIT_RELEASE"
 
         - name: Enable Publish Github Release Workflow
+          if: ${{ steps.publish.conclusion == 'success' }}
           env:
             PRODUCT: ${{ inputs.product }}
           run: |
@@ -152,7 +154,4 @@ jobs:
               gh workflow enable publish-github-release-pwm.yml
             elif $PRODUCT == "Authenticator" ; then
               gh workflow enable publish-github-release-bwa.yml
-            else
-              echo "Unsupported product: $PRODUCT"
-              exit 1
             fi
