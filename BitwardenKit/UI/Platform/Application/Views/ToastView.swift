@@ -5,11 +5,11 @@ import SwiftUI
 
 /// A data model for a toast.
 ///
-public struct Toast: Equatable, Identifiable {
+public struct Toast: Equatable, Identifiable, Sendable {
     // MARK: Types
 
     /// A mode that captures what sort of toast this is.
-    public enum ToastMode {
+    public enum ToastMode: Sendable {
         /// The toast should dismiss itself after a few seconds.
         case automaticDismiss
 
@@ -112,13 +112,13 @@ public struct ToastView: View {
 
     /// Public version of synthesized initializer.
     public init(toast: Binding<Toast?>) {
-        self._toast = toast
+        _toast = toast
     }
 }
 
 // MARK: - View
 
-extension View {
+public extension View {
     /// Adds a toast view in an overlay at the bottom of the view.
     ///
     /// - Parameters:
