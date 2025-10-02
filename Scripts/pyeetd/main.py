@@ -14,6 +14,7 @@ from enum import Enum
 OS_PROCESSES = {
     "Spotlight",
     "ReportCrash",
+    "ecosystemanalyticsd"
     "com.apple.ecosystemd",
     "com.apple.metadata.mds",
 }

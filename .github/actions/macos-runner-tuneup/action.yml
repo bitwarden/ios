@@ -12,7 +12,15 @@ runs:
         echo "=================================="
 
         echo "🔍 Disabling Spotlight..."
-        sudo mdutil -a -i off
+        sudo mdutil -a -i off # disables indexing on all volumes
+        sudo mdutil -a -d # disables spotlight activity on all volumes
+        sudo mdutil -E / # deletes existing index
+        sudo defaults write /System/Library/LaunchAgents/com.apple.Spotlight.plist Disabled -bool true || true
+
+        echo "🔍 Disabling Spotlight Knowledge Daemon..."
+        sudo launchctl disable system/com.apple.spotlightknowledged
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.spotlightknowledged.plist || true
+        sudo pkill -SIGKILL spotlightknowledged || true
 
         echo "🛑 Disabling metadata services..."
         sudo launchctl disable system/com.apple.metadata.mds || true
@@ -35,12 +43,34 @@ runs:
         sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.plist || true
         sudo launchctl disable system/com.apple.ReportCrash || true
         sudo launchctl disable system/com.apple.ReportCrash.Root || true
+        defaults write com.apple.CrashReporter DialogType none
         echo "✅ ReportCrash disabled!"
 
         echo "🌱 Disabling EcosystemD..."
         sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ecosystemd.plist || true
         sudo pkill -SIGKILL -f "ecosystemd" || true
         echo "✅ EcosystemD disabled!"
+
+        echo "🌱 Disabling EcosystemAnalyticsD..."
+        sudo launchctl bootout system/com.apple.ecosystemanalyticsd || true
+        echo "✅ EcosystemAnalyticsD disabled!"
+
+        echo "🌱 Disabling SubmitDiagInfo..."
+        defaults write /Library/Preferences/com.apple.SubmitDiagInfo AutoSubmit -bool false
+
+        echo "🌍 Disabling location services..."
+        defaults write /Library/Preferences/com.apple.locationd.plist LocationServicesEnabled -int 0
+
+        echo "🔍 Disabling Siri..."
+        defaults write com.apple.assistant.support Assistant\ Enabled -bool false
+        defaults write com.apple.Siri StatusMenuVisible -bool false
+
+        echo "🔒 Disabling iCloud analytics and usage tracking..."
+        defaults write com.apple.UsageTracking CoreDonationsEnabled -bool false
+        defaults write com.apple.UsageTracking UDCAutomationEnabled -bool false
+
+        echo "🔍 Disabling Spotlight suggestions..."
+        defaults write com.apple.lookup.shared LookupSuggestionsDisabled -bool true
 
         echo "📊 Process Information After Tuning"
         echo "=================================="
