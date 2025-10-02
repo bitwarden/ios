@@ -49,6 +49,10 @@ class ProcessInfo:
     def environment(self) -> str:
         return "Simulator" if self.is_simulator else "OS"
 
+    @property
+    def output_string(self) -> str:
+        return f"{self.pid}\t{self.cpu_percent}%\t{self.memory_percent}%\t{self.name}\t{self.environment}"
+
 class ProcessSort(Enum):
     CPU = "cpu"
     MEMORY = "memory"
@@ -76,7 +80,7 @@ def print_processes(processes, limit=-1):
     print("PID\tCPU%\tMemory%\tName")
     limit = len(processes) if limit == -1 else limit
     for p in processes[:limit]:
-        print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}\t{p.environment}")
+        output.append(p.output_string)
 
 def find_unwanted(processes):
     yeeting = []
@@ -90,7 +94,7 @@ def find_unwanted(processes):
 def yeet(processes):
     output = []
     for p in processes:
-        output.append(f"pyeetd: Stopping - {p.pid} {p.cpu_percent}% {p.memory_percent}% {p.name} {p.environment}")
+        output.append(f"pyeetd: Stopping - {p.output_string}")
         os.killpg(p.pid, signal.SIGKILL)
     return output
 
