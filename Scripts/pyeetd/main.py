@@ -99,11 +99,10 @@ def main():
     # print_processes(processes, 20)
     while True:
         output = []
-        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning...")
         processes = get_processes(ProcessSort.CPU)
         processes_to_yeet = find_unwanted(processes)
         output.extend(yeet(processes_to_yeet))
-        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes!")
+        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes.")
         print("\n".join(output))
         time.sleep(SLEEP_DELAY)
 
