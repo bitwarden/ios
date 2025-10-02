@@ -92,7 +92,7 @@ struct ToastBannerView<ButtonContent: View>: View {
 
 // MARK: - View
 
-extension View {
+public extension View {
     /// Displays a toast banner view in an overlay at the bottom of the view.
     ///
     /// - Parameters:

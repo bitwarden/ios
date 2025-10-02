@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - CompleteRegistrationAction
 
 /// Actions that can be processed by a `CompleteRegistrationProcessor`.

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - LoginDecryptionOptionsState
 
 /// An object that defines the current state of a `LoginDecryptionOptionsView`.
