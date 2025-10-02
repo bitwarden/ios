@@ -11,7 +11,7 @@ import SwiftUIIntrospect
 /// displaying additional content on the trailing edge of the text field.
 ///
 @MainActor
-struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
+public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     // MARK: Private Properties
 
     /// A value indicating whether the textfield is currently enabled or disabled.
@@ -68,7 +68,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             contentView
 
@@ -215,7 +215,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     ///   - isTextFieldDisabled: Whether the text field is disabled.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///
-    init(
+    public init(
         title: String? = nil,
         text: Binding<String>,
         footer: String? = nil,
@@ -254,7 +254,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
-    init(
+    public init(
         title: String? = nil,
         text: Binding<String>,
         accessibilityIdentifier: String? = nil,
@@ -280,7 +280,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     }
 }
 
-extension BitwardenTextField where TrailingContent == EmptyView {
+public extension BitwardenTextField where TrailingContent == EmptyView {
     /// Initializes a new `BitwardenTextField`.
     ///
     /// - Parameters:
@@ -321,7 +321,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     }
 }
 
-extension BitwardenTextField where FooterContent == EmptyView, TrailingContent == EmptyView {
+public extension BitwardenTextField where FooterContent == EmptyView, TrailingContent == EmptyView {
     /// Initializes a new `BitwardenTextField`.
     ///
     /// - Parameters:

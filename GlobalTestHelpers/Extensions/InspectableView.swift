@@ -56,7 +56,7 @@ struct BitwardenTextFieldType: BaseViewType {
     static var typePrefix: String = "BitwardenTextField"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenTextField",
+        "BitwardenKit.BitwardenTextField",
     ]
 }
 

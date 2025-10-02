@@ -8,7 +8,7 @@ import SwiftUI
 /// contains a value. At that point, the text label will float up above the input field. This is
 /// primarily meant to wrap a text field or view.
 ///
-struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
+public struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     // MARK: Properties
 
     /// The primary content containing the text input field for the label.
@@ -31,7 +31,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 8) {
             ZStack(alignment: showPlaceholder ? .leading : .topLeading) {
                 // The placeholder and title text which is vertically centered in the view when the
@@ -77,7 +77,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     ///   - trailingContent: Optional trailing content to display on the trailing edge of the label
     ///     and text input field.
     ///
-    init(
+    public init(
         title: String?,
         isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,
@@ -100,7 +100,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     ///     the field.
     ///   - content: The primary content containing the text input field for the label.
     ///
-    init(
+    public init(
         title: String?,
         isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,

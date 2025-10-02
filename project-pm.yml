@@ -14,10 +14,6 @@ options:
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
-packages:
-  SwiftUIIntrospect:
-    url: https://github.com/siteline/SwiftUI-Introspect
-    exactVersion: 1.3.0
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -350,7 +346,6 @@ targets:
         buildPhase: none
     dependencies:
       - package: BitwardenSdk
-      - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources

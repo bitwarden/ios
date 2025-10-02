@@ -1,10 +1,9 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 /// A view that displays a button for use as an accessory to a field.
 ///
-struct AccessoryButton: View {
+public struct AccessoryButton: View {
     // MARK: Types
 
     /// A type that wraps a synchrounous or asynchrounous block that is executed by this button.
@@ -31,7 +30,7 @@ struct AccessoryButton: View {
     /// The image to display in the button.
     var asset: SharedImageAsset
 
-    var body: some View {
+    public var body: some View {
         switch action {
         case let .async(action):
             AsyncButton(action: action) {
@@ -64,7 +63,7 @@ struct AccessoryButton: View {
     ///   - accessibilityLabel: The accessibility label of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: SharedImageAsset,
+    public init(asset: SharedImageAsset,
          accessibilityLabel: String,
          accessibilityIdentifier: String = "",
          action: @escaping () -> Void) {
@@ -83,7 +82,7 @@ struct AccessoryButton: View {
     ///   - accessibilityIdentifier: The accessibility identifier of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: SharedImageAsset,
+    public init(asset: SharedImageAsset,
          accessibilityLabel: String,
          accessibilityIdentifier: String = "",
          action: @escaping () async -> Void) {
