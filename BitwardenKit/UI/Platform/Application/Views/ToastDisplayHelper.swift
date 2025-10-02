@@ -1,8 +1,7 @@
-import BitwardenKit
 import SwiftUI
 import UIKit
 
-enum ToastDisplayHelper {
+public enum ToastDisplayHelper {
     // MARK: Type Properties
 
     /// The duration in seconds of the show and hide transitions.
@@ -10,7 +9,7 @@ enum ToastDisplayHelper {
 
     /// A value that is used to identify the toast within the view hierarchy in
     /// order to remove it.
-    static let toastTag = 2000
+    public static let toastTag = 2000
 
     // MARK: Type Methods
 
@@ -22,7 +21,7 @@ enum ToastDisplayHelper {
     ///   - additionalBottomPadding: Additional padding to apply to the bottom of the toast.
     ///   - duration: The number of seconds the toast should display for.
     ///
-    static func show(
+    public static func show(
         in parentViewController: UIViewController,
         toast: Toast,
         additionalBottomPadding: CGFloat = 0,
