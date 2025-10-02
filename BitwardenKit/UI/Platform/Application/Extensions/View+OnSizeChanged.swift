@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension View {
+public extension View {
     /// A view modifier that calculates the size of the containing view.
     ///
     /// - Parameter perform: A closure called when the size of the view changes.

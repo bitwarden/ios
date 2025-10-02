@@ -1,8 +1,7 @@
+import BitwardenKit
 import SwiftUI
 import ViewInspector
 import XCTest
-
-@testable import BitwardenShared
 
 class BitwardenMenuFieldTests: BitwardenTestCase {
     // MARK: Types

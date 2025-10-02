@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - CipherOwner
 
 /// A type to describe the owner of a cipher.
@@ -15,7 +17,7 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
         return true
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case let .organization(_, name):
             name
