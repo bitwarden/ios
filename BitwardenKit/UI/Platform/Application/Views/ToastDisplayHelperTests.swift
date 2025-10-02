@@ -1,8 +1,7 @@
+import BitwardenKit
 import SwiftUI
 import TestHelpers
 import XCTest
-
-@testable import BitwardenShared
 
 class ToastDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the toast in the parent view controller.
