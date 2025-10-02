@@ -47,7 +47,7 @@ runs:
         echo "🧠 Sorted by memory usage:"
         ps -em -o pid,pcpu,pmem,comm | head -n20
         echo ""
-        echo "⚡ Sorted by CPU usage:"
+        echo "⚡️ Sorted by CPU usage:"
         ps -er -o pid,pcpu,pmem,comm | head -n20
         echo ""
         echo "🎉 macOS Runner Tuneup Complete!"
