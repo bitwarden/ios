@@ -9,6 +9,7 @@ import time
 import subprocess
 import re
 from dataclasses import dataclass
+from enum import Enum
 
 OS_PROCESSES = {
     "Spotlight",
@@ -48,9 +49,14 @@ class ProcessInfo:
     def environment(self) -> str:
         return "Simulator" if self.is_simulator else "OS"
 
-def get_processes():
+class ProcessSort(Enum):
+    CPU = "cpu"
+    MEMORY = "memory"
+
+def get_processes(sort_by=ProcessSort.CPU):
     """Get all processes using ps command - equivalent to Swift's proc_listallpids"""
-    result = subprocess.run(['ps', '-ero', 'pid,pcpu,pmem,comm'],
+    sorty_by = "-ero" if sort_by == ProcessSort.CPU else "-emo"
+    result = subprocess.run(['ps', sorty_by, 'pid,pcpu,pmem,comm'],
                             capture_output=True, text=True, check=True)
     processes = []
 
@@ -91,8 +97,7 @@ def main():
     while True:
         output = []
         output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd scanning...")
-        processes = get_processes()
-        #print_processes(processes)
+        processes = get_processes(ProcessSort.CPU)
         processes_to_yeet = find_unwanted(processes)
         output.extend(yeet(processes_to_yeet))
         output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes!")
