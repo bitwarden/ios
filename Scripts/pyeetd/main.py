@@ -36,7 +36,7 @@ SIMULATOR_PROCESSES = {
 SIMULATOR_PATH_SEARCH_KEY = "simruntime/Contents/Resources/RuntimeRoot"
 
 # How long to sleep between checks in seconds
-SLEEP_DELAY = 10
+SLEEP_DELAY = 5
 
 # How often to print process info (in seconds)
 PRINT_PROCESSES_INTERVAL = 60
@@ -82,19 +82,21 @@ def get_processes(sort_by=ProcessSort.CPU):
 
 def print_processes(processes, limit=-1):
     output = []
-    output.append("🧠 Processes sorted by memory usage:")
+    output.append("================================")
+    output.append("⚡️ Processes sorted by CPU usage:")
     output.append("PID\tCPU%\tMemory%\tName\tEnvironment")
     limit = len(processes) if limit == -1 else limit
     for p in processes[:limit]:
         output.append(p.output_string)
 
     output.append("--------------------------------")
-    output.append("⚡️ Processes sorted by CPU usage:")
+    output.append("🧠 Processes sorted by memory usage:")
     output.append("PID\tCPU%\tMemory%\tName\tEnvironment")
-
     processes_sorted_by_memory = sorted(processes, key=lambda x: x.memory_percent, reverse=True)
     for p in processes_sorted_by_memory[:limit]:
         output.append(p.output_string)
+
+    output.append("================================")
     print("\n".join(output))
 
 def find_unwanted(processes):
@@ -109,13 +111,11 @@ def find_unwanted(processes):
 def yeet(processes):
     output = []
     for p in processes:
-        output.append(f"pyeetd: Stopping - {p.output_string}")
+        output.append(f"🤠 pyeetd: Stopping - {p.output_string}")
         os.killpg(p.pid, signal.SIGKILL)
     return output
 
 def main():
-    # processes = get_processes(ProcessSort.CPU)
-    # print_processes(processes, 20)
     print_cycles = PRINT_PROCESSES_INTERVAL // SLEEP_DELAY
     i = 0
     while True:
@@ -123,13 +123,10 @@ def main():
         processes = get_processes(ProcessSort.CPU)
         processes_to_yeet = find_unwanted(processes)
         output.extend(yeet(processes_to_yeet))
-        output.append(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes.")
+        output.append(f"🤠 {time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes.")
         print("\n".join(output))
-
         if i % print_cycles == 0:
-            output.append("--------------------------------")
-            print_processes(processes, 20)
-
+            print_processes(processes, 10)
         i += 1
         time.sleep(SLEEP_DELAY)
 
