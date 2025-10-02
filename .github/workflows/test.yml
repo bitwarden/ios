@@ -136,14 +136,6 @@ jobs:
             -quiet
             kill $PYEETD_PID
 
-      - name: Output processes
-        run: |
-          echo "Sorted by memory usage"
-          ps -em -o pid,pcpu,pmem,comm | head -n40
-          echo "--------------------------------"
-          echo "Sorted by CPU usage"
-          ps -er -o pid,pcpu,pmem,comm | head -n40
-
       - name: Print Logs Summary
         if: always()
         run: |
