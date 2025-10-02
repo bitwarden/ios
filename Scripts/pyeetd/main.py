@@ -10,7 +10,14 @@ import subprocess
 import re
 from dataclasses import dataclass
 
-DEFAULT_PROCESSES = {
+OS_PROCESSES = {
+    "Spotlight",
+    "ReportCrash",
+    "com.apple.ecosystemd",
+    "com.apple.metadata.mds",
+}
+
+SIMULATOR_PROCESSES = {
     "AegirPoster",
     "InfographPoster",
     "CollectionsPoster",
@@ -35,6 +42,11 @@ class ProcessInfo:
     cpu_percent: float
     memory_percent: float
     name: str
+    is_simulator: bool
+
+    @property
+    def environment(self) -> str:
+        return "Simulator" if self.is_simulator else "OS"
 
 def get_processes():
     """Get all processes using ps command - equivalent to Swift's proc_listallpids"""
@@ -49,19 +61,21 @@ def get_processes():
             cpu_percent = float(parts[1])
             memory_percent = float(parts[2])
             name = parts[3]
-            processes.append(ProcessInfo(pid, cpu_percent, memory_percent, name))
+            is_simulator = SIMULATOR_PATH_SEARCH_KEY in name
+            processes.append(ProcessInfo(pid, cpu_percent, memory_percent, name, is_simulator))
 
     return processes
 
 def print_processes(processes):
     print("PID\tCPU%\tMemory%\tName")
     for p in processes:
-        print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}")
+        print(f"{p.pid}\t{p.cpu_percent}%\t{p.memory_percent}%\t{p.name}\t{p.environment}")
 
 def find_unwanted(processes):
     yeeting = []
     for p in processes:
-        for k in DEFAULT_PROCESSES:
+        process_target_list = SIMULATOR_PROCESSES if p.is_simulator else OS_PROCESSES
+        for k in process_target_list:
             if k in p.name:
                 yeeting.append(p)
     return yeeting
@@ -69,7 +83,7 @@ def find_unwanted(processes):
 def yeet(processes):
     output = []
     for p in processes:
-        output.append(f"pyeetd: Stopping - {p.pid} {p.cpu_percent}% {p.memory_percent}% {p.name}")
+        output.append(f"pyeetd: Stopping - {p.pid} {p.cpu_percent}% {p.memory_percent}% {p.name} {p.environment}")
         os.killpg(p.pid, signal.SIGKILL)
     return output
 
