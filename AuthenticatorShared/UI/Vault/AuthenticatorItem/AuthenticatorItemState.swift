@@ -161,11 +161,11 @@ enum TotpPeriodOptions: Int, Menuable, CaseIterable {
     var localizedName: String {
         switch self {
         case .thirty:
-            Localizations.XSeconds(30)
+            Localizations.xSeconds(30)
         case .sixty:
-            Localizations.XSeconds(60)
+            Localizations.xSeconds(60)
         case .ninety:
-            Localizations.XSeconds(90)
+            Localizations.xSeconds(90)
         }
     }
 }

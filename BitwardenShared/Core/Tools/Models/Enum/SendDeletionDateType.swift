@@ -31,12 +31,12 @@ enum SendDeletionDateType: Menuable {
 
     var localizedName: String {
         switch self {
-        case .oneHour: Localizations.XHours(1)
-        case .oneDay: Localizations.XDays(1)
-        case .twoDays: Localizations.XDays(2)
-        case .threeDays: Localizations.XDays(3)
-        case .sevenDays: Localizations.XDays(7)
-        case .thirtyDays: Localizations.XDays(30)
+        case .oneHour: Localizations.xHours(1)
+        case .oneDay: Localizations.xDays(1)
+        case .twoDays: Localizations.xDays(2)
+        case .threeDays: Localizations.xDays(3)
+        case .sevenDays: Localizations.xDays(7)
+        case .thirtyDays: Localizations.xDays(30)
         case let .custom(customDate): customDate.dateTimeDisplay
         }
     }
