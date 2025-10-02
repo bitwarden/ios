@@ -1,0 +1,54 @@
+name: 'macOS Runner Tuneup'
+description: 'Optimizes macOS GitHub runners by disabling resource-heavy background processes'
+author: 'Bitwarden'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Optimize macOS Runner
+      shell: bash
+      run: |
+        echo "🚀 Starting macOS Runner Tuneup..."
+        echo "=================================="
+
+        echo "🔍 Disabling Spotlight..."
+        sudo mdutil -a -i off
+
+        echo "🛑 Disabling metadata services..."
+        sudo launchctl disable system/com.apple.metadata.mds || true
+        sudo launchctl disable system/com.apple.metadata.mds.index || true
+        sudo launchctl disable system/com.apple.metadata.mds.scan || true
+
+        echo "📦 Unloading metadata plists..."
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist || true
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.index.plist || true
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.scan.plist || true
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mdwrite.plist || true
+
+        echo "⚡ Killing metadata processes..."
+        sudo pkill -SIGKILL -f "Metadata.framework/Versions/A/Support/mds" || true
+        sudo pkill -SIGKILL Spotlight || true
+        echo "✅ Spotlight disabled!"
+
+        echo "💥 Disabling ReportCrash..."
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ReportCrash.plist || true
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.plist || true
+        sudo launchctl disable system/com.apple.ReportCrash || true
+        sudo launchctl disable system/com.apple.ReportCrash.Root || true
+        echo "✅ ReportCrash disabled!"
+
+        echo "🌱 Disabling EcosystemD..."
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ecosystemd.plist || true
+        sudo pkill -SIGKILL -f "ecosystemd" || true
+        echo "✅ EcosystemD disabled!"
+
+        echo "📊 Process Information After Tuning"
+        echo "=================================="
+        echo "🧠 Sorted by memory usage:"
+        ps -em -o pid,pcpu,pmem,comm | head -n20
+        echo ""
+        echo "⚡ Sorted by CPU usage:"
+        ps -er -o pid,pcpu,pmem,comm | head -n20
+        echo ""
+        echo "🎉 macOS Runner Tuneup Complete!"
+
