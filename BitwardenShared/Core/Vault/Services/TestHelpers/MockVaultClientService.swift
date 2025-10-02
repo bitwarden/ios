@@ -199,7 +199,7 @@ class MockClientCollections: CollectionsClientProtocol {
 
     func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
         getCollectionTreeReceivedCollection = collections
-        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noPointer: .init())
+        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noHandle: .init())
     }
 }
 
