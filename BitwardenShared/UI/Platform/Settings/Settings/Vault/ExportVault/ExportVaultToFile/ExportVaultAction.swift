@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExportVaultAction
 
 /// Actions handled by the `ExportVaultProcessor`.

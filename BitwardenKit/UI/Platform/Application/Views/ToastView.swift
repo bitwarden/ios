@@ -5,11 +5,11 @@ import SwiftUI
 
 /// A data model for a toast.
 ///
-struct Toast: Equatable, Identifiable {
+public struct Toast: Equatable, Identifiable, Sendable {
     // MARK: Types
 
     /// A mode that captures what sort of toast this is.
-    enum ToastMode {
+    public enum ToastMode: Sendable {
         /// The toast should dismiss itself after a few seconds.
         case automaticDismiss
 
@@ -20,13 +20,13 @@ struct Toast: Equatable, Identifiable {
     // MARK: Properties
 
     /// A unique identifier of the toast.
-    let id = UUID()
+    public let id = UUID()
 
     /// The mode of the toast.
     let mode: ToastMode
 
     /// The title text displayed in the toast.
-    let title: String
+    public let title: String
 
     /// The subtitle text displayed in the toast.
     let subtitle: String?
@@ -40,13 +40,13 @@ struct Toast: Equatable, Identifiable {
     ///   - subtitle: The subtitle text displayed in the toast.
     ///   - mode: The mode for the toast
     ///
-    init(title: String, subtitle: String? = nil, mode: ToastMode = .automaticDismiss) {
+    public init(title: String, subtitle: String? = nil, mode: ToastMode = .automaticDismiss) {
         self.title = title
         self.subtitle = subtitle
         self.mode = mode
     }
 
-    static func == (lhs: Toast, rhs: Toast) -> Bool {
+    public static func == (lhs: Toast, rhs: Toast) -> Bool {
         // Exclude `id` from `Equatable`, it's only used by the view to handle animations between toasts.
         lhs.title == rhs.title
             && lhs.subtitle == rhs.subtitle
@@ -58,13 +58,13 @@ struct Toast: Equatable, Identifiable {
 /// A view that displays a toast message which is shown when the binding has a value and is hidden
 /// after a delay.
 ///
-struct ToastView: View {
+public struct ToastView: View {
     // MARK: Properties
 
     /// A binding to the toast to show.
     @Binding var toast: Toast?
 
-    var body: some View {
+    public var body: some View {
         if let toast {
             VStack(alignment: .leading, spacing: 4) {
                 Text(toast.title)
@@ -109,11 +109,16 @@ struct ToastView: View {
             }
         }
     }
+
+    /// Public version of synthesized initializer.
+    public init(toast: Binding<Toast?>) {
+        _toast = toast
+    }
 }
 
 // MARK: - View
 
-extension View {
+public extension View {
     /// Adds a toast view in an overlay at the bottom of the view.
     ///
     /// - Parameters:

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - FoldersAction
 
 /// Actions handled by the `FoldersProcessor`.

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AboutAction
 
 /// Actions handled by the `AboutProcessor`.

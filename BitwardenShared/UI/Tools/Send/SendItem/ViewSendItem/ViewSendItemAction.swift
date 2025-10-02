@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ViewSendItemAction
 
 /// Actions that can be processed by a `ViewSendItemProcessor`.

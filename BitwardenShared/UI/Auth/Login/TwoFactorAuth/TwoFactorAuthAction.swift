@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - TwoFactorAuthAction
 
 /// Actions that can be processed by a `TwoFactorAuthProcessor`.

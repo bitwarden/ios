@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ItemListAction
 
 /// Actions that can be processed by a `ItemListProcessor`.

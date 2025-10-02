@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: SendListAction
 
 /// Actions that can be processed by a `SendListProcessor`.

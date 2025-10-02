@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - FlightRecorderLogsState
 
 /// An object that defines the current state of the `FlightRecorderLogsView`.

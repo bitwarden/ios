@@ -118,7 +118,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
         services.pasteboardService.copy(services.appInfoService.appInfoString)
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
     /// Loads the state of the user's biometric unlock preferences.

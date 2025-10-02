@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PendingRequestsState
 
 /// The state used to present the `PendingRequestsView`.

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - VaultUnlockAction
 
 /// Synchronous actions that can be handled by a `VaultUnlockProcessor`.

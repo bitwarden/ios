@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A protocol for an object that performs navigation via routes.
 @MainActor
 public protocol Coordinator<Route, Event>: AnyObject {
@@ -156,7 +158,7 @@ extension Coordinator where Self: HasNavigator {
     /// - Parameter text: The text of the toast to display.
     ///
     func showToast(_ text: String) {
-        navigator?.showToast(Toast(text: text))
+        navigator?.showToast(Toast(title: text))
     }
 }
 
