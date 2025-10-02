@@ -124,10 +124,22 @@ jobs:
           brew bundle
           ./Scripts/bootstrap.sh
 
-      - name: Build and test
+      - name: Build
         run: |
           python Scripts/pyeetd/main.py & PYEETD_PID=$!
-          xcrun xcodebuild test \
+          xcrun xcodebuild build-for-testing \
+            -workspace Bitwarden.xcworkspace \
+            -scheme Authenticator \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -derivedDataPath build/DerivedData \
+            -quiet
+          kill $PYEETD_PID
+
+      - name: Test
+        run: |
+          python Scripts/pyeetd/main.py & PYEETD_PID=$!
+          xcrun xcodebuild test-without-building \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
