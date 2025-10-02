@@ -141,9 +141,18 @@ jobs:
               submit_release:"$SUBMIT_RELEASE"
 
         - name: Enable Publish Github Release Workflow
+          env:
+            PRODUCT: ${{ inputs.product }}
           run: |
             if ${{ inputs.dry-run }} ; then
               gh workflow view publish-github-release.yml
               exit 0
             fi
-            gh workflow enable publish-github-release.yml
+            if $PRODUCT == "Password Manager" ; then
+              gh workflow enable publish-github-release-pwm.yml
+            elif $PRODUCT == "Authenticator" ; then
+              gh workflow enable publish-github-release-bwa.yml
+            else
+              echo "Unsupported product: $PRODUCT"
+              exit 1
+            fi
