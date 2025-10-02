@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// Synchronous actions that can be processed by an `EditItemProcessor`.

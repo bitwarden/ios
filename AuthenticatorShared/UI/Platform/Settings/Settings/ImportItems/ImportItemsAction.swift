@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportItemsAction
 
 /// Synchronous actions handled by an `ImportItemsProcessor`.
