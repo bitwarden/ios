@@ -17,8 +17,8 @@
 "Edit" = "Editar";
 "EditFolder" = "Editar pasta";
 "Email" = "E-Mail";
-"EmailAddress" = "Endereço de E-mail";
-"EmailUs" = "Envie-nos um E-mail";
+"EmailAddress" = "Endereço de email";
+"EmailUs" = "Envie-nos um email";
 "EmailUsDescription" = "Envie-nos um e-mail diretamente para obter ajuda ou deixar feedback.";
 "EnterPIN" = "Digite o seu código PIN.";
 "Favorites" = "Favoritos";
@@ -80,7 +80,7 @@
 "ValidationFieldRequired" = "O campo %1$@ é necessário.";
 "ValueHasBeenCopied" = "%1$@ foi copiado";
 "VerifyFingerprint" = "Verificar impressão digital";
-"VerifyMasterPassword" = "Verificar a Senha Mestra";
+"VerifyMasterPassword" = "Verificar a senha mestra";
 "VerifyPIN" = "Verificar PIN";
 "Version" = "Versão";
 "View" = "Visualizar";
@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Starts with” is an advanced option with increased risk of exposing credentials.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
 "DefaultX" = "Default (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";
