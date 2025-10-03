@@ -63,7 +63,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         pmSyncEnabled
     }
 
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
         refreshedTotpTime = timeProvider.presentTime
         refreshedTotpCodes = items
         return try refreshTotpCodesResult.get()

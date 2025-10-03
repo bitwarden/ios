@@ -8,7 +8,7 @@ import Foundation
 // MARK: - ItemListProcessor
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
-final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
+final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect>, HasTOTPCodesSections {
     // swiftlint:disable:previous type_body_length
 
     // MARK: Types
@@ -25,6 +25,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasTimeProvider
 
     // MARK: Private Properties
+    
+    var authenticatorItemRepository: AuthenticatorItemRepository {
+        services.authenticatorItemRepository
+    }
 
     /// The set to hold Combine cancellables.
     private var cancellables = Set<AnyCancellable>()
@@ -37,6 +41,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
     private var groupTotpExpirationManager: TOTPExpirationManager?
+
+    /// An object to manage TOTP code expirations and batch refresh calls for search results.
+    private var searchTotpExpirationManager: TOTPExpirationManager?
 
     // MARK: Initialization
 
@@ -62,6 +69,15 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
+                }
+            }
+        )
+        searchTotpExpirationManager = TOTPExpirationManager(
+            timeProvider: services.timeProvider,
+            onExpiration: { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
             }
         )
@@ -107,7 +123,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await determineItemListCardState()
             await streamItemList()
         case let .search(text):
-            state.searchResults = await searchItems(for: text)
+            await searchItems(for: text)
         case .streamItemList:
             await streamItemList()
         }
@@ -154,9 +170,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
-            if !state.searchText.isEmpty {
-                state.searchResults = await searchItems(for: state.searchText)
-            }
             state.toast = Toast(text: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
@@ -201,16 +214,34 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
-        guard case let .data(currentSections) = state.loadingState else { return }
+        guard case let .data(currentSections) = state.loadingState
+        else {
+            return
+        }
         do {
-            let refreshedItems = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
-            let updatedSections = currentSections.updated(with: refreshedItems)
-            let allItems = updatedSections.flatMap(\.items)
-            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-            state.loadingState = .data(updatedSections)
-            if !state.searchResults.isEmpty {
-                state.searchResults = await searchItems(for: state.searchText)
-            }
+            let refreshedItems = try await refreshTOTPCodes(
+                for: items,
+                in: currentSections,
+                using: groupTotpExpirationManager
+            )
+            state.loadingState = .data(refreshedItems)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Refreshes TOTP Codes for the search results.
+    ///
+    private func refreshTOTPCodes(searchItems: [ItemListItem]) async {
+        do {
+            let refreshedItems = try await refreshTOTPCodes(
+                for: searchItems,
+                in: [
+                    ItemListSection(id: "", items: state.searchResults, name: ""),
+                ],
+                using: searchTotpExpirationManager
+            )
+            state.searchResults = refreshedItems[0].items
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -246,29 +277,27 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
-    /// Searches items using the provided string, and returns any matching results.
+    /// Searches items using the provided string and sets to state any matching results.
     ///
     /// - Parameters:
     ///   - searchText: The string to use when searching items.
-    /// - Returns: An array of `ItemListItem` objects. If no results can be found, an empty array will be returned.
     ///
-    private func searchItems(for searchText: String) async -> [ItemListItem] {
+    private func searchItems(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
         do {
             let result = try await services.authenticatorItemRepository.searchItemListPublisher(
                 searchText: searchText
             )
             for try await items in result {
-                let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
-                return itemList
+                state.searchResults = try await services.authenticatorItemRepository.refreshTotpCodes(for: items)
+                searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
             }
         } catch {
             services.errorReporter.log(error: error)
         }
-        return []
     }
 
     /// Subscribe to receive foreground notifications so that we can refresh the item list when the app is relaunched.
@@ -319,7 +348,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     if shouldShowAccountSyncToast(name: section.name) {
                         showToast = true
                     }
-                    let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
+                    let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(for: section.items)
                     let sortedList = itemList.sorted(by: ItemListItem.localizedNameComparator)
                     return ItemListSection(id: section.id, items: sortedList, name: section.name)
                 }
@@ -328,9 +357,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 state.loadingState = .data(sectionList)
                 if showToast {
                     state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
-                }
-                if !state.searchText.isEmpty {
-                    state.searchResults = await searchItems(for: state.searchText)
                 }
             }
         } catch {
@@ -358,96 +384,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         } else {
             state.itemListCardState = .none
         }
-    }
-}
-
-/// A class to manage TOTP code expirations for the ItemListProcessor and batch refresh calls.
-///
-private class TOTPExpirationManager {
-    // MARK: Properties
-
-    /// A closure to call on expiration
-    ///
-    var onExpiration: (([ItemListItem]) -> Void)?
-
-    // MARK: Private Properties
-
-    /// All items managed by the object, grouped by TOTP period.
-    ///
-    private(set) var itemsByInterval = [UInt32: [ItemListItem]]()
-
-    /// A model to provide time to calculate the countdown.
-    ///
-    private var timeProvider: any TimeProvider
-
-    /// A timer that triggers `checkForExpirations` to manage code expirations.
-    ///
-    private var updateTimer: Timer?
-
-    /// Initializes a new countdown timer
-    ///
-    /// - Parameters
-    ///   - timeProvider: A protocol providing the present time as a `Date`.
-    ///         Used to calculate time remaining for a present TOTP code.
-    ///   - onExpiration: A closure to call on code expiration for a list of vault items.
-    ///
-    init(
-        timeProvider: any TimeProvider,
-        onExpiration: (([ItemListItem]) -> Void)?
-    ) {
-        self.timeProvider = timeProvider
-        self.onExpiration = onExpiration
-        updateTimer = Timer.scheduledTimer(
-            withTimeInterval: 0.25,
-            repeats: true,
-            block: { _ in
-                self.checkForExpirations()
-            }
-        )
-    }
-
-    /// Clear out any timers tracking TOTP code expiration
-    deinit {
-        cleanup()
-    }
-
-    // MARK: Methods
-
-    /// Configures TOTP code refresh scheduling
-    ///
-    /// - Parameter items: The vault list items that may require code expiration tracking.
-    ///
-    func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
-        var newItemsByInterval = [UInt32: [ItemListItem]]()
-        items.forEach { item in
-            if let totpCodeModel = item.totpCodeModel {
-                newItemsByInterval[totpCodeModel.period, default: []].append(item)
-            }
-        }
-        itemsByInterval = newItemsByInterval
-    }
-
-    /// A function to remove any outstanding timers
-    ///
-    func cleanup() {
-        updateTimer?.invalidate()
-        updateTimer = nil
-    }
-
-    private func checkForExpirations() {
-        var expired = [ItemListItem]()
-        var notExpired = [UInt32: [ItemListItem]]()
-        itemsByInterval.forEach { period, items in
-            let sortedItems: [Bool: [ItemListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
-                items,
-                timeProvider: timeProvider
-            )
-            expired.append(contentsOf: sortedItems[true] ?? [])
-            notExpired[period] = sortedItems[false]
-        }
-        itemsByInterval = notExpired
-        guard !expired.isEmpty else { return }
-        onExpiration?(expired)
     }
 }
 
