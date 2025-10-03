@@ -50,9 +50,9 @@ extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
         case .thirtyMinutes:
             Localizations.xMinutes(30)
         case .oneHour:
-            Localizations.oneHour
+            Localizations.xHours(1)
         case .fourHours:
-            Localizations.fourHours
+            Localizations.xHours(4)
         case .onAppRestart:
             Localizations.onRestart
         case .never:
