@@ -8,6 +8,7 @@ import BitwardenKit
 class MockAccountTokenProvider: AccountTokenProvider {
     var delegate: AccountTokenProviderDelegate?
     var getTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
+    var refreshTokenCalled = false
     var refreshTokenResult: Result<Void, Error> = .success(())
 
     func getToken() async throws -> String {
@@ -15,6 +16,7 @@ class MockAccountTokenProvider: AccountTokenProvider {
     }
 
     func refreshToken() async throws {
+        refreshTokenCalled = true
         try refreshTokenResult.get()
     }
 

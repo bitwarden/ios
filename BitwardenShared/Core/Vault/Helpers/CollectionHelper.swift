@@ -9,7 +9,7 @@ protocol CollectionHelper { // sourcery: AutoMockable
 }
 
 /// Default implementation of `CollectionHelper`.
-struct DefaultCollectionHelper : CollectionHelper {
+struct DefaultCollectionHelper: CollectionHelper {
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's organizations.
