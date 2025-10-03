@@ -73,20 +73,21 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Switch to branch
         id: switch-branch
         run: |
           BRANCH_NAME="sdlc/sdk-update"
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-          if git switch $BRANCH_NAME; then
+          if git switch "$BRANCH_NAME"; then
             echo "✅ Switched to existing branch: $BRANCH_NAME"
-            echo "updating_existing_branch=true" >> $GITHUB_OUTPUT
+            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
           else
             echo "📝 Creating new branch: $BRANCH_NAME"
-            git switch -c $BRANCH_NAME
-            echo "updating_existing_branch=false" >> $GITHUB_OUTPUT
+            git switch -c "$BRANCH_NAME"
+            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Prevent updating the branch when the last committer isn't the bot
@@ -95,7 +96,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
-          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' $_BRANCH_NAME)
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
 
           echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
           echo "Expected bot email: $_BOT_EMAIL"
@@ -105,14 +106,14 @@ jobs:
               "This indicates manual changes have been made to the branch," \
               "PR has to be merged or closed before running this workflow again."
             echo "👀 Fetching existing PR..."
-            gh pr list --head $_BRANCH_NAME --base main --state open --json number --jq '.[0].number // empty'
-            EXISTING_PR=$(gh pr list --head $_BRANCH_NAME --base main --state open --json number --jq '.[0].number // empty')
+            gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty'
+            EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')
             if [ -z "$EXISTING_PR" ]; then
               echo "::error::Couldn't find an existing PR for branch $_BRANCH_NAME."
               exit 1
             fi
             PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
-            echo "## ❌ Merge or close: $PR_URL" >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ Merge or close: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -143,8 +144,8 @@ jobs:
           echo ""
           echo "📋 Current sdk-swift ref (from main): $SDK_SWIFT_REF"
           echo "📋 Current sdk-internal ref (parsed from commit): $SDK_INTERNAL_REF"
-          echo "sdk-swift-ref=$SDK_SWIFT_REF" >> $GITHUB_OUTPUT
-          echo "sdk-internal-ref=$SDK_INTERNAL_REF" >> $GITHUB_OUTPUT
+          echo "sdk-swift-ref=$SDK_SWIFT_REF" >> "$GITHUB_OUTPUT"
+          echo "sdk-internal-ref=$SDK_INTERNAL_REF" >> "$GITHUB_OUTPUT"
 
       - name: Detect downgrade and prevent updating to the current version
         id: detect-downgrade
@@ -162,10 +163,10 @@ jobs:
 
           if [ "$COMPARE_RESULT" = "behind" ]; then
             echo "::warning::The new SDK version ($_NEW_SDK_SWIFT_REF) is older than the current version ($_CURRENT_SDK_SWIFT_REF)"
-            echo "downgrading=true" >> $GITHUB_OUTPUT
+            echo "downgrading=true" >> "$GITHUB_OUTPUT"
           else
             echo "✅ New SDK version is newer - proceeding with update"
-            echo "downgrading=false" >> $GITHUB_OUTPUT
+            echo "downgrading=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Update SDK Version
@@ -190,7 +191,7 @@ jobs:
           git add project-common.yml
           git add Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved
           git commit -m "SDK Update - $_SDK_SWIFT_REF_SHORT ($_SDK_VERSION)"
-          git push origin $_BRANCH_NAME
+          git push origin "$_BRANCH_NAME"
 
       - name: Create or Update Pull Request
         env:
@@ -214,24 +215,24 @@ jobs:
             PR_TITLE_ACTION="Updating"
           fi
 
-          EXISTING_PR=$(gh pr list --head $_BRANCH_NAME --base main --state open --json number --jq '.[0].number // empty')
+          EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')
           _NEW_SDK_SWIFT_REF_SHORT="${_NEW_SDK_SWIFT_REF:0:7}"
 
           if [ -n "$EXISTING_PR" ]; then
             echo "🔄 Updating existing PR #$EXISTING_PR..."
-            echo -e "$PR_BODY" | gh pr edit $EXISTING_PR \
+            echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" \
               --title "$PR_TITLE_ACTION SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
               --body-file -
             PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
-            echo "## ✅ Updated PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
+            echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
             PR_URL=$(echo -e "$PR_BODY" | gh pr create \
               --title "$PR_TITLE_ACTION SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
               --body-file - \
               --base main \
-              --head $_BRANCH_NAME \
+              --head "$_BRANCH_NAME" \
               --label "automated-pr" \
               --label "t:ci")
-            echo "## 🚀 Created PR: $PR_URL" >> $GITHUB_STEP_SUMMARY
+            echo "## 🚀 Created PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           fi
