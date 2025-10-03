@@ -11,6 +11,7 @@ import XCTest
 class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -22,11 +23,13 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
         subject = DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -37,6 +40,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         clientService = nil
         errorReporter = nil
         stateService = nil

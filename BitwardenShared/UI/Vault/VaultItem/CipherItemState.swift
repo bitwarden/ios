@@ -107,6 +107,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The name of the organization the cipher belongs to, if any.
     var organizationName: String?
 
+    /// The organization IDs that have `.personalOwnership` policy applied.
+    var organizationsWithPersonalOwnershipPolicy: [String] = []
+
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
 
@@ -248,6 +251,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         set {
             organizationId = newValue?.organizationId
             collectionIds = []
+            selectDefaultCollectionIfNeeded()
         }
     }
 
@@ -425,6 +429,8 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 }
 
 extension CipherItemState: AddEditItemState {
+    // MARK: Properties
+
     var navigationTitle: String {
         switch configuration {
         case .add:
@@ -444,6 +450,25 @@ extension CipherItemState: AddEditItemState {
             case .sshKey: Localizations.editSSHKey
             }
         }
+    }
+
+    // MARK: Methods
+
+    mutating func selectDefaultCollectionIfNeeded() {
+        guard configuration.isAdding else {
+            return
+        }
+
+        let defaultCollectionForOwner = collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
+
+        guard let defaultCollectionId = defaultCollectionForOwner?.id,
+              collectionIds.isEmpty,
+              let ownerOrganizationId = owner?.organizationId,
+              organizationsWithPersonalOwnershipPolicy.contains(ownerOrganizationId) else {
+            return
+        }
+
+        collectionIds.append(defaultCollectionId)
     }
 
     mutating func update(from cipherView: CipherView) {
@@ -477,21 +502,21 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
             guard case let .custom(brand) = cardItemState.brand else {
-                return Asset.Images.card24
+                return SharedAsset.Icons.card24
             }
             return brand.icon
         case .identity:
-            return Asset.Images.idCard24
+            return SharedAsset.Icons.idCard24
         case .login:
-            return Asset.Images.globe24
+            return SharedAsset.Icons.globe24
         case .secureNote:
-            return Asset.Images.stickyNote24
+            return SharedAsset.Icons.stickyNote24
         case .sshKey:
-            return Asset.Images.key24
+            return SharedAsset.Icons.key24
         }
     }
 

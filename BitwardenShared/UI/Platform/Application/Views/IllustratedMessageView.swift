@@ -109,6 +109,29 @@ struct IllustratedMessageView<Accessory: View>: View {
         self.title = title
     }
 
+    /// Initialize a `IllustratedMessageView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image asset to display.
+    ///   - style: The style of the message view.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
+    ///   - accessory: An optional accessory view to display.
+    ///
+    init(
+        image: SharedImageAsset,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
+        message: String,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.accessory = accessory()
+        self.image = image.swiftUIImage
+        self.message = message
+        self.style = style
+        self.title = title
+    }
+
     // MARK: Private
 
     /// A dynamic stack view that lays out content vertically when in a regular vertical size class
@@ -166,6 +189,27 @@ extension IllustratedMessageView where Accessory == EmptyView {
         self.style = style
         self.title = title
     }
+
+    /// Initialize a `IllustratedMessageView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image asset to display.
+    ///   - style: The style of the message view.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
+    ///
+    init(
+        image: SharedImageAsset,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
+        message: String
+    ) {
+        accessory = nil
+        self.image = image.swiftUIImage
+        self.message = message
+        self.style = style
+        self.title = title
+    }
 }
 
 // MARK: - Previews
@@ -206,7 +250,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 
 #Preview("LargeTextTintedIcon") {
     IllustratedMessageView(
-        image: Asset.Images.plus24,
+        image: SharedAsset.Icons.plus24,
         style: .largeTextTintedIcon,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins

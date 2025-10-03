@@ -151,7 +151,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
         BitwardenFloatingTextLabel(title: "Title", showPlaceholder: false) {
             TextField("", text: .constant("Value"))
         } trailingContent: {
-            Asset.Images.cog24.swiftUIImage
+            SharedAsset.Icons.cog24.swiftUIImage
                 .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
         }
     }

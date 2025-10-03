@@ -158,7 +158,7 @@ struct LandingView: View {
             Button {
                 store.send(.showPreLoginSettings)
             } label: {
-                Label(Localizations.appSettings, image: Asset.Images.cog16.swiftUIImage)
+                Label(Localizations.appSettings, image: SharedAsset.Icons.cog16.swiftUIImage)
             }
             .buttonStyle(.bitwardenBorderless)
             .frame(maxWidth: .infinity, alignment: .center)

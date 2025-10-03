@@ -19,7 +19,7 @@ struct SettingsListItem<Content: View>: View {
     let badgeValue: String?
 
     /// The optional icon to display on the leading edge of the list item.
-    let icon: ImageAsset?
+    let icon: SharedImageAsset?
 
     /// The name of the list item.
     let name: String
@@ -87,7 +87,7 @@ struct SettingsListItem<Content: View>: View {
         _ name: String,
         accessibilityIdentifier: String? = nil,
         badgeValue: String? = nil,
-        icon: ImageAsset? = nil,
+        icon: SharedImageAsset? = nil,
         nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
@@ -108,12 +108,12 @@ struct SettingsListItem<Content: View>: View {
 #Preview {
     ScrollView {
         ContentBlock(dividerLeadingPadding: 16) {
-            SettingsListItem("Account Security", icon: Asset.Images.locked24) {} trailingContent: {
+            SettingsListItem("Account Security", icon: SharedAsset.Icons.locked24) {} trailingContent: {
                 Text("Trailing content")
             }
 
             SettingsListItem("Account Security") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink24)
+                Image(asset: SharedAsset.Icons.externalLink24)
             }
 
             SettingsListItem("Account Security") {}
@@ -121,7 +121,7 @@ struct SettingsListItem<Content: View>: View {
             SettingsListItem("Account Security with Badge!", badgeValue: "3") {}
 
             SettingsListItem("Account Security with Badge!", badgeValue: "4") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink24)
+                Image(asset: SharedAsset.Icons.externalLink24)
             }
         }
     }

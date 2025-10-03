@@ -104,7 +104,7 @@ private struct SearchableVaultListView: View {
                     store.send(.addItemPressed(.login))
                 } label: {
                     HStack {
-                        Image(decorative: Asset.Images.plus16)
+                        Image(decorative: SharedAsset.Icons.plus16)
                             .resizable()
                             .frame(width: 16, height: 16)
                         Text(Localizations.newLogin)

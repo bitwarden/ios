@@ -76,7 +76,7 @@ extension MenuStyle where Self == PrimaryMenuStyle {
         Button("First") {}
         Button("Second") {}
     } label: {
-        Asset.Images.plus32.swiftUIImage
+        SharedAsset.Icons.plus32.swiftUIImage
     }
     .menuStyle(.primary())
 }

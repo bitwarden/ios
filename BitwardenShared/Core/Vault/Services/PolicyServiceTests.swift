@@ -415,6 +415,22 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNil(policyValues?.action)
     }
 
+    /// `organizationsApplyingPolicyToUser(_:)` returns the organization IDs which apply the policy.
+    func test_organizationsApplyingPolicyToUser() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
+            .fixture(enabled: true, organizationId: "org-2", type: .twoFactorAuthentication),
+        ])
+
+        let organizations = await subject.organizationsApplyingPolicyToUser(.twoFactorAuthentication)
+        XCTAssertEqual(organizations, ["org-2"])
+    }
+
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user.
     func test_policyAppliesToUser() async {
         stateService.activeAccount = .fixture()

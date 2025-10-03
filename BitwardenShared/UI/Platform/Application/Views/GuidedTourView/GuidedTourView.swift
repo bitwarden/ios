@@ -86,7 +86,7 @@ struct GuidedTourView: View {
     @ViewBuilder private var arrowView: some View {
         let coachMarkVerticalPosition = calculateCoachMarkPosition()
         let shouldRotateArrow = coachMarkVerticalPosition == .top
-        Image(asset: Asset.Images.arrowUp)
+        Image(asset: SharedAsset.Icons.arrowUp)
             .opacity(isArrowVisible ? 1 : 0)
             .rotationEffect(.degrees(shouldRotateArrow ? 180 : 0))
             .animation(.smooth(duration: animationDuration), value: shouldRotateArrow)
@@ -136,7 +136,7 @@ struct GuidedTourView: View {
                 Button {
                     store.send(.dismissTapped)
                 } label: {
-                    Image(asset: Asset.Images.close16, label: Text(Localizations.dismiss))
+                    Image(asset: SharedAsset.Icons.close16, label: Text(Localizations.dismiss))
                         .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                 }
             }
