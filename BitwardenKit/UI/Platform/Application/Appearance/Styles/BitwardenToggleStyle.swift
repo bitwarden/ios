@@ -5,11 +5,11 @@ import SwiftUI
 
 /// A tinted toggle style.
 ///
-struct BitwardenToggleStyle: ToggleStyle {
+public struct BitwardenToggleStyle: ToggleStyle {
     /// A value indicating whether the toggle is currently enabled or disabled.
     @Environment(\.isEnabled) var isEnabled
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         Toggle(configuration)
             .styleGuide(.body)
             .foregroundColor(
@@ -23,7 +23,7 @@ struct BitwardenToggleStyle: ToggleStyle {
 
 // MARK: ToggleStyle
 
-extension ToggleStyle where Self == BitwardenToggleStyle {
+public extension ToggleStyle where Self == BitwardenToggleStyle {
     /// The style for toggles used in this application.
     static var bitwarden: BitwardenToggleStyle { BitwardenToggleStyle() }
 }

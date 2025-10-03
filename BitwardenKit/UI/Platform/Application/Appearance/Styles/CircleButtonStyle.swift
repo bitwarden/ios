@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for all circle buttons in this application.
 ///
-struct CircleButtonStyle: ButtonStyle {
+public struct CircleButtonStyle: ButtonStyle {
     // MARK: Properties
 
     /// A Boolean value indicating whether the button is currently enabled or disabled.
@@ -28,7 +28,16 @@ struct CircleButtonStyle: ButtonStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    func makeBody(configuration: Configuration) -> some View {
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - diameter: The diameter of the button.
+    ///
+    public init(diameter: CGFloat) {
+        self.diameter = diameter
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
             .frame(width: diameter, height: diameter)

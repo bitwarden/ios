@@ -5,7 +5,7 @@ import SwiftUI
 /// A struct containing several `TextField` configuration properties that are commonly set on text
 /// fields in the app.
 ///
-struct TextFieldConfiguration {
+public struct TextFieldConfiguration {
     // MARK: Properties
 
     /// Whether autocorrect is disabled in the text field.
@@ -21,7 +21,7 @@ struct TextFieldConfiguration {
     let textInputAutocapitalization: TextInputAutocapitalization?
 }
 
-extension TextFieldConfiguration {
+public extension TextFieldConfiguration {
     /// A `TextFieldConfiguration` for applying common properties to email text fields.
     static let email = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
@@ -83,7 +83,7 @@ extension TextFieldConfiguration {
     }
 }
 
-extension UITextContentType {
+public extension UITextContentType {
     /// A `.creditCardExpirationYear` value that falls back to `.dateTime`.
     static var creditCardExpirationYearOrDateTime: UITextContentType {
         if #available(iOSApplicationExtension 17.0, *) {
@@ -114,7 +114,7 @@ extension UITextContentType {
 
 // MARK: - View
 
-extension View {
+public extension View {
     /// A view extension that applies common text field properties based on a configuration.
     ///
     /// - Parameter configuration: The configuration used to set common text field properties.

@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for all toolbar buttons in this application.
 ///
-struct ToolbarButtonStyle: ButtonStyle {
+public struct ToolbarButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) var isEnabled: Bool
 
     /// The color of the foreground elements in this button, including text and template
@@ -16,7 +16,7 @@ struct ToolbarButtonStyle: ButtonStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
             .styleGuide(.body)
@@ -27,7 +27,7 @@ struct ToolbarButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == ToolbarButtonStyle {
+public extension ButtonStyle where Self == ToolbarButtonStyle {
     /// The style for all toolbar buttons in this application.
     ///
     static var toolbar: ToolbarButtonStyle {

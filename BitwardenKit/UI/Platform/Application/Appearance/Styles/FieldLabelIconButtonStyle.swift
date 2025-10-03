@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for a button containing an icon displayed next to a label in a form field.
 ///
-struct FieldLabelIconButtonStyle: ButtonStyle {
+public struct FieldLabelIconButtonStyle: ButtonStyle {
     // MARK: Properties
 
     /// A value indicating whether the button is currently enabled or disabled.
@@ -20,7 +20,7 @@ struct FieldLabelIconButtonStyle: ButtonStyle {
 
     // MARK: ButtonStyle
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(width: 16, height: 16)
             .foregroundColor(foregroundColor)
@@ -31,7 +31,7 @@ struct FieldLabelIconButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == FieldLabelIconButtonStyle {
+public extension ButtonStyle where Self == FieldLabelIconButtonStyle {
     /// The style for a field label icon button in this application.
     ///
     static var fieldLabelIcon: FieldLabelIconButtonStyle {

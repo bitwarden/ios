@@ -7,7 +7,7 @@ import SwiftUI
 /// A struct containing configuration properties for applying common properties to images across
 /// the app.
 ///
-struct ImageStyle {
+public struct ImageStyle {
     // MARK: Properties
 
     /// The foreground color of the image.
@@ -23,7 +23,7 @@ struct ImageStyle {
     let height: CGFloat
 }
 
-extension ImageStyle {
+public extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
@@ -134,7 +134,7 @@ extension ImageStyle {
 
 // MARK: - Image
 
-extension Image {
+public extension Image {
     /// A view extension that applies common image properties based on a style.
     ///
     /// - Parameter style: The configuration used to set common image properties.
@@ -149,7 +149,7 @@ extension Image {
 
 // MARK: - View
 
-extension View {
+public extension View {
     /// A view extension that applies common image properties based on a style.
     ///
     /// Note: Since this is an extension on `View`, this can't mark the image as resizable, so that

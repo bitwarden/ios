@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A `StyleGuideFont` contains the font to use for a specific style.
 ///
-struct StyleGuideFont {
+public struct StyleGuideFont {
     // MARK: Properties
 
     /// The font to use for the style.
@@ -15,7 +15,7 @@ struct StyleGuideFont {
     let lineHeight: CGFloat
 
     /// The default font size for this style, in px
-    let size: CGFloat
+    public let size: CGFloat
 
     /// The text style for the font, used to determine how the font scales with dynamic type.
     let textStyle: SwiftUI.Font.TextStyle
@@ -84,7 +84,7 @@ extension StyleGuideFont {
 
 // MARK: - StyleGuideFont Constants
 
-extension StyleGuideFont {
+public extension StyleGuideFont {
     /// The font for the huge title style.
     static let hugeTitle = StyleGuideFont.dmSans(lineHeight: 41, size: 34, textStyle: .largeTitle)
 
@@ -157,7 +157,7 @@ private extension SwiftUI.Font {
 }
 
 /// An extension to simplify adding font & line height to a View.
-extension View {
+public extension View {
     /// Sets the font and line height for the view.
     ///
     /// - Parameters:
@@ -210,7 +210,7 @@ extension View {
 }
 
 /// An extension to simplify adding font & line height to Text.
-extension Text {
+public extension Text {
     /// Sets the font and line height for the text.
     ///
     /// - Parameters:

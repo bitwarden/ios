@@ -4,7 +4,7 @@ import Foundation
 
 /// The different size buttons which can be supported by button styles.
 ///
-enum ButtonStyleSize {
+public enum ButtonStyleSize {
     case small
     case medium
     case large
