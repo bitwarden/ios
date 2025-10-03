@@ -39,7 +39,7 @@ struct ExportSettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.chevronRight16)
+        Image(asset: SharedAsset.Icons.chevronRight16)
             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
     }
 }

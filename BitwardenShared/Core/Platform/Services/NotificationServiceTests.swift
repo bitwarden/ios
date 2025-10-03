@@ -8,6 +8,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var refreshableApiService: MockRefreshableAPIService!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
@@ -30,6 +31,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         delegate = MockNotificationServiceDelegate()
         errorReporter = MockErrorReporter()
         notificationAPIService = APIService(client: client)
+        refreshableApiService = MockRefreshableAPIService()
         stateService = MockStateService()
         syncService = MockSyncService()
 
@@ -39,6 +41,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             authService: authService,
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
+            refreshableApiService: refreshableApiService,
             stateService: stateService,
             syncService: syncService
         )
@@ -54,6 +57,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         delegate = nil
         errorReporter = nil
         notificationAPIService = nil
+        refreshableApiService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -349,7 +353,31 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
 
         // Confirm the results.
+        XCTAssertTrue(refreshableApiService.refreshAccessTokenCalled)
         XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` doesn't sync on
+    ///  `.syncOrgKeys` when refreshing the token fails.
+    func test_messageReceived_syncOrgKeysRefreshThrows() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.syncOrgKeys.rawValue,
+                "payload": "anything",
+            ],
+        ]
+        refreshableApiService.refreshAccessTokenThrowableError = BitwardenTestError.example
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertTrue(refreshableApiService.refreshAccessTokenCalled)
+        XCTAssertFalse(syncService.didFetchSync)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.

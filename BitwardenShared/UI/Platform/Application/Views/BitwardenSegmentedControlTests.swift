@@ -25,6 +25,9 @@ class BitwardenSegmentedControlTests: BitwardenTestCase {
 
     /// Tapping on a segment changes the selection.
     func test_selectionChanged() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
         var selection = Segment.one
         let subject = BitwardenSegmentedControl(
             selection: Binding(get: { selection }, set: { selection = $0 }),
@@ -42,6 +45,9 @@ class BitwardenSegmentedControlTests: BitwardenTestCase {
 
     /// Tapping on the selected segment doesn't update the selection binding.
     func test_selectionCurrentTapped() throws {
+        guard #unavailable(iOS 26) else {
+            throw XCTSkip("This test requires iOS 18.6 or earlier")
+        }
         var selection = Segment.one
         var selectionChangedHistory = [Segment]()
         let subject = BitwardenSegmentedControl(

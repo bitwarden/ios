@@ -1283,3 +1283,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Starts with” is an advanced option with increased risk of exposing credentials.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
 "DefaultX" = "Default (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";

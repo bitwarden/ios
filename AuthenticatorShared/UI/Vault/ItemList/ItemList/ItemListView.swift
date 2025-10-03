@@ -135,7 +135,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             bodyText: Localizations.storeAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp,
             buttonText: Localizations.downloadTheBitwardenApp,
             leftImage: {
-                Image(decorative: Asset.Images.bwLogo)
+                Image(decorative: SharedAsset.Icons.shield24)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
@@ -159,7 +159,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
-                Image(decorative: Asset.Images.syncArrow)
+                Image(decorative: SharedAsset.Icons.arrowSync24)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
@@ -216,7 +216,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 HStack(spacing: 4) {
                     Text(Localizations.copy)
                     Spacer()
-                    Image(decorative: Asset.Images.copy)
+                    Image(decorative: SharedAsset.Icons.copy16)
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                 }
             }
@@ -228,7 +228,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     HStack(spacing: 4) {
                         Text(Localizations.edit)
                         Spacer()
-                        Image(decorative: Asset.Images.pencil)
+                        Image(decorative: SharedAsset.Icons.pencil24)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
@@ -240,7 +240,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         HStack(spacing: 4) {
                             Text(Localizations.copyToBitwardenVault)
                             Spacer()
-                            Image(decorative: Asset.Images.rightArrow)
+                            Image(decorative: SharedAsset.Icons.arrowRight16)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
                         }
                     }
@@ -254,7 +254,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     HStack(spacing: 4) {
                         Text(Localizations.delete)
                         Spacer()
-                        Image(decorative: Asset.Images.trash)
+                        Image(decorative: SharedAsset.Icons.trash16)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }

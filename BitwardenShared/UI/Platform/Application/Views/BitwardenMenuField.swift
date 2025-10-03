@@ -135,7 +135,7 @@ struct BitwardenMenuField<
                 if let trailingContent {
                     trailingContent
                 } else {
-                    Asset.Images.chevronDown24.swiftUIImage
+                    SharedAsset.Icons.chevronDown24.swiftUIImage
                         .imageStyle(.rowIcon)
                 }
             }
@@ -400,7 +400,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             selection: .constant(.dog),
             trailingContent: {
                 Button {} label: {
-                    Asset.Images.camera16.swiftUIImage
+                    SharedAsset.Icons.camera16.swiftUIImage
                 }
                 .buttonStyle(.accessory)
             }

@@ -15,7 +15,7 @@ extension View {
     /// - Returns: A `Button` configured for adding an item.
     ///
     func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
+        toolbarButton(asset: SharedAsset.Icons.plus16, label: Localizations.add, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("AddItemButton")
     }
@@ -26,7 +26,7 @@ extension View {
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
     func cancelToolbarButton(action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
+        toolbarButton(asset: SharedAsset.Icons.close16, label: Localizations.cancel, action: action)
             .accessibilityIdentifier("CancelButton")
     }
 
@@ -36,7 +36,7 @@ extension View {
     /// - Returns: A `Button` configured for closing a view.
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.cancel, label: Localizations.close, action: action)
+        toolbarButton(asset: SharedAsset.Icons.close16, label: Localizations.close, action: action)
             .accessibilityIdentifier("CloseButton")
     }
 
@@ -58,7 +58,7 @@ extension View {
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `Button` for displaying an image in a toolbar.
     ///
-    func toolbarButton(asset: ImageAsset, label: String, action: @escaping () -> Void) -> some View {
+    func toolbarButton(asset: SharedImageAsset, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(asset: asset, label: Text(label))
                 .imageStyle(.toolbarIcon)
@@ -96,7 +96,7 @@ extension View {
         Menu {
             content()
         } label: {
-            Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }

@@ -97,9 +97,9 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         subject.receive(.generateErrorReport)
         XCTAssertEqual(
             errorReporter.errors[0] as? BitwardenSdk.BitwardenError,
-            BitwardenSdk.BitwardenError.E(
+            BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
                 message: "Generated error report from debug view."
-            )
+            ))
         )
         XCTAssertEqual(
             errorReporter.errors[1] as? KeychainServiceError,

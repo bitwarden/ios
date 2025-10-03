@@ -175,7 +175,7 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     /// Performs an API request to create the user's account.
     private func createAccount() async throws {
-        let kdfConfig = KdfConfig()
+        let kdfConfig = KdfConfig.defaultKdfConfig
 
         let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
             email: state.userEmail,

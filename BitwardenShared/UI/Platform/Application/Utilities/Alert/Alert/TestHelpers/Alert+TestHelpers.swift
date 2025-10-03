@@ -63,6 +63,7 @@ extension Alert {
     ///   - text: The text to set in the alert text field.
     ///   - id: The identifier of the alert text field to set the text for.
     /// - Throws: Throws an `AlertError` if the alert text field cannot be found.
+    @MainActor
     func setText(
         _ text: String,
         forTextFieldWithId id: String

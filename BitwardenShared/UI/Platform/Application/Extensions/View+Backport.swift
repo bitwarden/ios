@@ -50,6 +50,20 @@ extension Backport where Content: View {
         }
     }
 
+    /// On iOS 16+, handles geometry changes.
+    ///
+    @preconcurrency nonisolated public func onGeometryChange<T>(
+        for type: T.Type,
+        of transform: @escaping @Sendable (GeometryProxy) -> T,
+        action: @escaping (_ newValue: T) -> Void
+    ) -> some View where T: Equatable, T: Sendable {
+        if #available(iOS 16, *) {
+            return content.onGeometryChange(for: type, of: transform, action: action)
+        } else {
+            return content
+        }
+    }
+
     //// Configures the content margin for scroll content of a specific view.
     ///
     /// Use this modifier to customize the content margins of different

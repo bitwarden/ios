@@ -59,8 +59,8 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
-                            ? Asset.Images.hidden
-                            : Asset.Images.visible,
+                            ? SharedAsset.Icons.eyeSlash24
+                            : SharedAsset.Icons.eye24,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
                             : Localizations.passwordIsNotVisibleTapToShow
@@ -110,7 +110,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
             Button {
                 text = ""
             } label: {
-                Asset.Images.cancelRound.swiftUIImage
+                SharedAsset.Icons.circleX16.swiftUIImage
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .frame(width: 14, height: 14)
             }
@@ -239,7 +239,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
             title: "Title",
             text: .constant("Text field text")
         ) {
-            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            AccessoryButton(asset: SharedAsset.Icons.cog16, accessibilityLabel: "") {}
         }
         .padding()
     }
@@ -254,7 +254,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
             footer: "Text field footer",
             isPasswordVisible: .constant(false)
         ) {
-            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            AccessoryButton(asset: SharedAsset.Icons.cog16, accessibilityLabel: "") {}
         }
         .padding()
     }
