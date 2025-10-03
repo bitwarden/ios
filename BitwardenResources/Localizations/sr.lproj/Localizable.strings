@@ -12,7 +12,7 @@
 "Credits" = "Заслуге";
 "Delete" = "Обриши";
 "DeleteAll" = "Избриши све";
-"Deleting" = "Deleting…";
+"Deleting" = "Брисање…";
 "DoYouReallyWantToDelete" = "Да ли сигурно желите да избришете? Ово се не може поништити.";
 "Edit" = "Уреди";
 "EditFolder" = "Уреди фасциклу";
@@ -55,11 +55,11 @@
 "Name" = "Име";
 "No" = "Не";
 "Notes" = "Белешке";
-"OK" = "OK";
+"OK" = "У реду";
 "Password" = "Лозинка";
 "Save" = "Сачувај";
 "Move" = "Премести";
-"Saving" = "Saving…";
+"Saving" = "Чување…";
 "Settings" = "Подешавања";
 "Show" = "Прикажи";
 "ItemDeleted" = "Ставка је избрисана.";
@@ -69,7 +69,7 @@
 "Tools" = "Алатке";
 "UseFingerprintToUnlock" = "Користите отисак прста за откључавање";
 "UseThisButtonToGenerateANewUniquePassword" = "Користите ово дугме да би сте генерисали нову јединствену лозинку.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You’ll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Морате подесити само кључ аутентификатора за пријављивања која захтевају двофакторску аутентификацију са кодом. Кључ ће непрестано генерисати шестоцифрене кодове које можете користити за пријављивање.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Користите генератор да би сте направили сигурне лозинке, фразе и корисничка имена.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Лозинке-фразе су често лакше за памћење и уношење од случајних лозинки. Могу бити корисне када морате да се пријавите на налоге где аутоматско попуњавање није доступно, као што је сервис за стриминг на вашем ТВ-у.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Јединствена корисничка имена чине додатни слој заштите и помажу у спречавању хакера од проналажења ваших налога.";
@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Поставити Bitwarden као добављача приступног кључа у подешавањима уређаја.";
 "AvoidAmbiguousCharacters" = "Избегавај двосмислене карактере";
 "BitwardenAppExtension" = "Bitwarden додатак";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "Најлакши начин за додавање нових пријава у свој сеф је из додатка Bitwarden. Сазнајте више о коришћењу додатка Bitwarden преко екрана „Подешавања“.";
 "BitwardenAppExtensionDescription" = "Користи Bitwarden у Safari-ју и другим апликацијама за аутоматско попуњавање твојих пријава.";
 "BitwardenAutofillService" = "Bitwarden услуга Аутоматског попуњавања";
 "BitwardenAutofillAccessibilityServiceDescription" = "Користи услугу приступачности Bitwarden-а за аутоматско попуњавање твојих пријава.";
@@ -107,7 +107,7 @@
 "Close" = "Затвори";
 "Continue" = "Настави";
 "CreateAccount" = "Креирај налог";
-"CreatingAccount" = "Creating account…";
+"CreatingAccount" = "Креирање налога…";
 "EditItem" = "Уреди ставку";
 "EnableAutomaticSyncing" = "Активирај аутоматску синхронизацију";
 "EnterEmailForHint" = "Унеси адресу Е-поште да би добио савет за твоју Главну Лозинку.";
@@ -116,7 +116,7 @@
 "ExtensionEnable" = "Омогући додатак апликације";
 "ExtensionInSafari" = "У Safari, нађите Bitwarden помоћу иконе за дељење (савет: померите се удесно у доњем реду менија).";
 "ExtensionInstantAccess" = "Имајте инстантни приступ Вашим лозинкама!";
-"ExtensionReady" = "You’re ready to log in!";
+"ExtensionReady" = "Спремни сте за пријављивање!";
 "ExtensionSetup" = "Вашим пријавама је сада лако доступити преко Safari, Chrome и других подржаних апликација.";
 "ExtensionSetup2" = "У Safari и Chrome, нађите Bitwarden помоћу иконе за дељење (савет: померите се удесно у доњем реду менија дељења).";
 "ExtensionTapIcon" = "Додирните икону Bitwarden у менију да бисте покренули додатак.";
@@ -767,7 +767,7 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Идентификована је слаба лозинка и пронађена у упаду података. Користите јаку и јединствену лозинку да заштитите свој налог. Да ли сте сигурни да желите да користите ову лозинку?";
 "OrganizationSsoIdentifierRequired" = "Потребан је SSO идентификатор организације.";
 "AddTheKeyToAnExistingOrNewItem" = "Додајте кључ постојећој или новој ставци";
-"ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match “%1$@”";
+"ThereAreNoItemsInYourVaultThatMatchX" = "У вашем сефу нема ставке за \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Потражите ставку или додајте нову";
 "ThereAreNoItemsThatMatchTheSearch" = "Нема ставки које одговарају претрази";
 "ThereAreNoLoginsInYourVault" = "У вашем сефу нема пријаве";
@@ -884,15 +884,15 @@
 "ErrorReadingPasskey" = "Грешка у читању приступног кључа";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "Дошло је до проблема при креирању приступачког кључа за %1$@. Покушајте поново касније.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "Дошло је до проблема при читању приступачког кључа за %1$@. Покушајте поново касније.";
-"VerifyingIdentityEllipsis" = "Verifying identity…";
+"VerifyingIdentityEllipsis" = "Верификација идентитета…";
 "Passwords" = "Лозинке";
 "UnknownAccount" = "Непознат налог";
 "SetUpAutofill" = "Подесити ауто-пуњење";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Имајте инстантни приступ Вашим лозинкама и приступним кључевима!";
 "SetUpAutoFillDescriptionLong" = "Да бисте подесили ауто-пуњење лозинки и управљање приступним кључевима, подесите Bitwarden као ваш омиљени провајдер у подешавањима iOS-а.";
-"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device’s Settings > Passwords > Password Options";
+"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Идите на подешавања уређаја > Лозинке > Опције лозинке";
 "SecondDotTurnOnAutoFill" = "2. Омогућите ауто-пуњење";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Одабрати \"Bitwarden\" за употребу за лозинке";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Ваш приступни кључ ће бити сачуван у вашем Bitwarden сефу";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Ваш приступни кључ ће бити сачуван у вашем Bitwarden сефу за %1$@";
 "PasskeysNotSupportedForThisApp" = "Приступни кључеви нису подржани за ову апликацију";
@@ -1002,7 +1002,7 @@
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "Можете се вратити да бисте завршили овај корак у било ком тренутку у подешавањима.";
 "ContinueToBitwarden" = "Настави на Bitwarden";
 "BackToSettings" = "Натраг на подешавања";
-"YoureAllSet" = "You’re all set!";
+"YoureAllSet" = "Спремни сте!";
 "AutoFillActivatedDescriptionLong" = "Сада можете да користите аутоматско попуњавање за пријављивање у апликације и веб локације помоћу сачуваних лозинки. Сада можете истражити све остало што Bitwarden може да понуди.";
 "GetStarted" = "Почните";
 "Dismiss" = "Одбаци";
@@ -1087,7 +1087,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можда ћете морати да омогућите шифру или биометрију уређаја.";
 "StartImportCXFDescriptionLong" = "Увезите лозинке, фразе, кредитне картице и сваки други вид идентификације из другог менаџера лозинки.\n\nВаши подаци **неће** бити обрисани из вашег ранијег провајдера.";
 "ImportPasswords" = "Увези лозинке";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Увоз…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
 "ItemsSuccessfullyImported" = "%1$@ ставки је успешно увежено";
@@ -1199,7 +1199,7 @@
 "LoggingEndsOnDateAtTime" = "Пријављен завршено на %1$@ у %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Морате приложити датотеку да бисте сачували овај Send";
 "SendUpdated" = "Send ажурирано";
-"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don’t recognize this device. Enter the code sent to your email to verify your identity.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет.";
 "Created" = "Креирано: %1$@";
 "LastEdited" = "Задња промена: %1$@";
 "PasswordLastUpdated" = "Задње ажурирање лозинке: %1$@";
@@ -1288,3 +1288,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Пажња:** „Почиње са“ је напредна опција са повећаним ризиком од откривања акредитива.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Пажња:** „Регуларни израз“ је напредна опција са повећаним ризиком од откривања акредитива ако се неправилно користе.";
 "DefaultX" = "Подразумевано (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";

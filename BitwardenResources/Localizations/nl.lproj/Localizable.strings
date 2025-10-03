@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Waarschuwing:** \"Begint met\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Waarschuwing:** \"Reguliere expressie\\\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens als je het verkeerd gebruikt.";
 "DefaultX" = "Standaard (%1$@)";
+"UpdateYourEncryptionSettings" = "Je versleutelingsinstellingen bijwerken";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken.";
+"Updating" = "Bijwerken...";
+"EncryptionSettingsUpdated" = "Versleutelingsinstellingen bijgewerkt";

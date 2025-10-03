@@ -155,7 +155,7 @@
 "NoItems" = "您的密码库中没有项目。";
 "NoItemsTap" = "您的密码库中没有适用于此网站/App 的项目。点击添加一个。";
 "NoUsernamePasswordConfigured" = "此登录没有已配置的用户名或者密码。";
-"OKGotIt" = "好的，知道了！";
+"OKGotIt" = "好的，明白了！";
 "OptionDefaults" = "选项默认值是通过主 Bitwarden App 的密码生成器工具设置的。";
 "Options" = "选项";
 "Other" = "其他";
@@ -890,7 +890,7 @@
 "GetInstantAccessToYourPasswordsAndPasskeys" = "即时访问您的密码和通行密钥！";
 "SetUpAutoFillDescriptionLong" = "要设置密码自动填充和通行密钥管理，请在 iOS 设置中将 Bitwarden 设置为您的首选提供程序。";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. 前往您设备的设置 > 密码 > 密码选项";
-"SecondDotTurnOnAutoFill" = "2. 打开自动填充";
+"SecondDotTurnOnAutoFill" = "2. 启用自动填充";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. 选择「Bitwarden」以用于密码和通行密钥";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "您的通行密钥将保存在您的 Bitwarden 密码库中";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "您的通行密钥将保存在您的 %1$@ Bitwarden 密码库中";
@@ -993,11 +993,11 @@
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "在您的设备设置中，**打开自动填充密码和通行密钥**。";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串**使 Bitwarden 成为默认的自动填充源。";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**打开 Bitwarden** 使用已保存的密码登录您的账户。";
-"TurnOnAutoFill" = "打开自动填充";
+"TurnOnAutoFill" = "启用自动填充";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "使用自动填充功能，只需点击一次即可登录您的账户。";
 "NeedHelpCheckOutAutofillHelp" = "需要帮助吗？查看**[自动填充帮助](%1$@)**";
-"TurnOnLater" = "稍后开启";
-"TurnOnAutoFillLaterQuestion" = "稍后打开自动填充吗？";
+"TurnOnLater" = "稍后启用";
+"TurnOnAutoFillLaterQuestion" = "稍后启用自动填充吗？";
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "您可以随时回到「设置」中完成此步骤。";
 "ContinueToBitwarden" = "前往 Bitwarden";
 "BackToSettings" = "返回设置";
@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**警告：**「开始于」是一种高级选项，会增加暴露凭据的风险。";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**警告：** 「正则表达方式」是一种高级选项，若使用不当，会增加暴露凭据的风险。";
 "DefaultX" = "默认 (%1$@)";
+"UpdateYourEncryptionSettings" = "更新您的加密设置";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的推荐加密设置将提高您的账户安全性。输入您的主密码以立即更新。";
+"Updating" = "正在更新...";
+"EncryptionSettingsUpdated" = "加密设置已更新";

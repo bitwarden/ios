@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** “Começa com” é uma opção avançada com um risco acrescido de exposição de credenciais.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** A “Expressão regular” é uma opção avançada com um risco acrescido de expor credenciais se for utilizada incorretamente.";
 "DefaultX" = "Predefinido (%1$@)";
+"UpdateYourEncryptionSettings" = "Atualize as suas definições de encriptação";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora.";
+"Updating" = "A atualizar...";
+"EncryptionSettingsUpdated" = "Definições de encriptação atualizadas";
