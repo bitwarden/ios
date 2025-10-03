@@ -580,6 +580,7 @@
 "NewSend" = "New send";
 "AreYouSureDeleteSend" = "Are you sure you want to delete this Send?";
 "SendDeleted" = "Send deleted";
+"SendUpdated" = "Send Updated";
 "NewSendCreated" = "Send created";
 "OneDay" = "1 day";
 "TwoDays" = "2 days";
@@ -1193,7 +1194,6 @@
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
-"SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don’t recognize this device. Enter the code sent to your email to verify your identity.";
 "Created" = "Created: %1$@";
 "LastEdited" = "Last edited: %1$@";
