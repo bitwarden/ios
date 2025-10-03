@@ -15,6 +15,10 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+    
+    private let keychainRepository: KeychainRepository
+    
+    private let stateService: StateService
 
     /// The service used to handle syncing vault data with the API
     private let syncService: SyncService
@@ -31,11 +35,15 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        keychainRepository: KeychainRepository,
+        stateService: StateService,
         syncService: SyncService
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.keychainRepository = keychainRepository
+        self.stateService = stateService
         self.syncService = syncService
     }
 

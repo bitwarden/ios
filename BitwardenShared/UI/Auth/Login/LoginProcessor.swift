@@ -15,6 +15,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthService
         & HasConfigService
         & HasDeviceAPIService
+        & HasDevicePasskeyService
         & HasErrorReporter
         & HasPolicyService
 
@@ -105,6 +106,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
+            let masterPasswordHash = try await services.authService.hashPassword(password: state.masterPassword, purpose: .serverAuthorization)
+            try await services.devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash, overwrite: false)
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
