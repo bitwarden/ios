@@ -99,6 +99,9 @@ class DefaultNotificationService: NotificationService {
     /// The API service used to make notification requests.
     private let notificationAPIService: NotificationAPIService
 
+    /// The API service used to refresh tokens.
+    private let refreshableApiService: RefreshableAPIService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -115,6 +118,7 @@ class DefaultNotificationService: NotificationService {
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - notificationAPIService: The API service used to make notification requests.
+    ///   - refreshableApiService: The API service used to refresh tokens.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
@@ -123,6 +127,7 @@ class DefaultNotificationService: NotificationService {
         authService: AuthService,
         errorReporter: ErrorReporter,
         notificationAPIService: NotificationAPIService,
+        refreshableApiService: RefreshableAPIService,
         stateService: StateService,
         syncService: SyncService
     ) {
@@ -131,6 +136,7 @@ class DefaultNotificationService: NotificationService {
         self.authService = authService
         self.errorReporter = errorReporter
         self.notificationAPIService = notificationAPIService
+        self.refreshableApiService = refreshableApiService
         self.stateService = stateService
         self.syncService = syncService
     }
@@ -208,6 +214,7 @@ class DefaultNotificationService: NotificationService {
                  .syncVault:
                 try await syncService.fetchSync(forceSync: false)
             case .syncOrgKeys:
+                try await refreshableApiService.refreshAccessToken()
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
                 guard let data: UserNotification = notificationData.data() else { return }
