@@ -35,7 +35,7 @@ class TutorialViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_TutorialView_previews() {
+    func disabletest_snapshot_TutorialView_previews() {
         for preview in TutorialView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

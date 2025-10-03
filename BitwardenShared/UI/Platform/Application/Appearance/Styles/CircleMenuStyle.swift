@@ -49,7 +49,7 @@ struct CircleMenuStyle: MenuStyle {
         Button("First") {}
         Button("Second") {}
     } label: {
-        Asset.Images.plus32.swiftUIImage
+        SharedAsset.Icons.plus32.swiftUIImage
     }
     .menuStyle(CircleMenuStyle(diameter: 50))
 }

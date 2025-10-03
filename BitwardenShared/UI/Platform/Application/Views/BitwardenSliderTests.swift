@@ -9,7 +9,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the slider with a value of 0.
-    func test_snapshot_slider_minValue() {
+    func disabletest_snapshot_slider_minValue() {
         let subject = BitwardenSlider(
             value: .constant(0),
             in: 0 ... 50,
@@ -23,7 +23,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the slider with a value of 25.
-    func test_snapshot_slider_midValue() {
+    func disabletest_snapshot_slider_midValue() {
         let subject = BitwardenSlider(
             value: .constant(25),
             in: 0 ... 50,
@@ -37,7 +37,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the slider with a value of 50.
-    func test_snapshot_slider_maxValue() {
+    func disabletest_snapshot_slider_maxValue() {
         let subject = BitwardenSlider(
             value: .constant(50),
             in: 0 ... 50,

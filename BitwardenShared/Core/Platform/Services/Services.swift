@@ -18,6 +18,7 @@ typealias Services = HasAPIService
     & HasAutofillCredentialService
     & HasBiometricsRepository
     & HasCameraService
+    & HasChangeKdfService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -88,13 +89,6 @@ protocol HasAppIdService {
     var appIdService: AppIdService { get }
 }
 
-/// Protocol for an object that provides an `AppInfoService`.
-///
-protocol HasAppInfoService {
-    /// The service used by the application to get info about the app and device it's running on.
-    var appInfoService: AppInfoService { get }
-}
-
 /// Protocol for an object that provides an `AppSettingsStore`.
 ///
 protocol HasAppSettingsStore {
@@ -149,6 +143,13 @@ protocol HasBiometricsRepository {
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `ChangeKdfService`.
+///
+protocol HasChangeKdfService {
+    /// The service used to change the user's KDF settings.
+    var changeKdfService: ChangeKdfService { get }
 }
 
 /// Protocol for an object that provides a `ClientService`.

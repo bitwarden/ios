@@ -45,11 +45,11 @@ extension ButtonStyle where Self == FieldLabelIconButtonStyle {
 #Preview() {
     VStack {
         Button {} label: {
-            Asset.Images.cog16.swiftUIImage
+            SharedAsset.Icons.cog16.swiftUIImage
         }
 
         Button {} label: {
-            Asset.Images.cog16.swiftUIImage
+            SharedAsset.Icons.cog16.swiftUIImage
         }
         .disabled(true)
     }

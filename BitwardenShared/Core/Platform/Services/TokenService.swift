@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenSdk
+
 /// A protocol for a `TokenService` which manages accessing and updating the active account's tokens.
 ///
 protocol TokenService: AnyObject {
@@ -35,6 +38,9 @@ protocol TokenService: AnyObject {
 actor DefaultTokenService: TokenService {
     // MARK: Properties
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The repository used to manages keychain items.
     let keychainRepository: KeychainRepository
 
@@ -46,13 +52,16 @@ actor DefaultTokenService: TokenService {
     /// Initialize a `DefaultTokenService`.
     ///
     /// - Parameters
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The service that manages the account state.
     ///
     init(
+        errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
         stateService: StateService
     ) {
+        self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
         self.stateService = stateService
     }
@@ -65,7 +74,7 @@ actor DefaultTokenService: TokenService {
     }
 
     func getIsExternal() async throws -> Bool {
-        let accessToken = try await getAccessToken()
+        let accessToken: String = try await getAccessToken()
         let tokenPayload = try TokenParser.parseToken(accessToken)
         return tokenPayload.isExternal
     }
@@ -79,5 +88,16 @@ actor DefaultTokenService: TokenService {
         let userId = try await stateService.getActiveAccountId()
         try await keychainRepository.setAccessToken(accessToken, userId: userId)
         try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
+    }
+}
+
+// MARK: ClientManagedTokens (SDK)
+
+extension DefaultTokenService: ClientManagedTokens {
+    /// Gets the access token for the SDK, nil if any errors are thrown.
+    func getAccessToken() async -> String? {
+        // TODO: PM-21846 Returning `nil` temporarily until we add validation
+        // given that the SDK expects non-expired token.
+        return nil
     }
 }

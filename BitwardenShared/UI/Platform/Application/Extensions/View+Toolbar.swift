@@ -15,14 +15,12 @@ extension View {
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
     func cancelToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .cancel, action: action)
                 .hidden(hidden)
                 .accessibilityIdentifier("CancelButton")
                 .accessibilityLabel(Localizations.cancel)
         }
-        #endif
         return toolbarButton(Localizations.cancel, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
@@ -34,13 +32,11 @@ extension View {
     /// - Returns: A `Button` configured for closing a view.
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
-        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .close, action: action)
                 .accessibilityIdentifier("CloseButton")
                 .accessibilityLabel(Localizations.close)
         }
-        #endif
         return toolbarButton(Localizations.close, action: action)
             .accessibilityIdentifier("CloseButton")
     }
@@ -99,7 +95,6 @@ extension View {
     /// - Returns: A `Button` configured for saving an item.
     ///
     func saveToolbarButton(action: @escaping () async -> Void) -> some View {
-        #if compiler(>=6.2)
         if #available(iOS 26, *) {
             return Button(role: .confirm) {
                 Task {
@@ -109,7 +104,6 @@ extension View {
             .accessibilityIdentifier("SaveButton")
             .accessibilityLabel(Localizations.save)
         }
-        #endif
         return toolbarButton(Localizations.save, action: action)
             .accessibilityIdentifier("SaveButton")
     }
@@ -179,7 +173,7 @@ extension View {
         Menu {
             content()
         } label: {
-            Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }

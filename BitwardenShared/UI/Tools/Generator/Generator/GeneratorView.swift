@@ -1,9 +1,10 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 /// A view containing the generator used to generate new usernames and passwords.
 ///
-struct GeneratorView: View {
+struct GeneratorView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The key path of the currently focused text field.
@@ -15,65 +16,19 @@ struct GeneratorView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
+    @SwiftUI.State private var referenceViewHeight: CGFloat = 0
+
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                if store.state.availableGeneratorTypes.count > 1 {
-                    BitwardenSegmentedControl(
-                        isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
-                        selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
-                        selections: store.state.availableGeneratorTypes
-                    )
-                    .guidedTourStep(.step1, perform: { frame in
-                        let steps: [GuidedTourStep] = [.step1, .step2, .step3]
-                        for step in steps {
-                            store.send(
-                                .guidedTourViewAction(.didRenderViewToSpotlight(
-                                    frame: frame,
-                                    step: step
-                                ))
-                            )
-                        }
-                    })
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
-                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                }
-
-                Divider()
-
-                GuidedTourScrollView(
-                    store: store.child(
-                        state: \.guidedTourViewState,
-                        mapAction: GeneratorAction.guidedTourViewAction,
-                        mapEffect: nil
-                    )
-                ) {
-                    VStack(alignment: .leading, spacing: 24) {
-                        if store.state.isLearnGeneratorActionCardEligible,
-                           store.state.presentationMode == .tab {
-                            ActionCard(
-                                title: Localizations.exploreTheGenerator,
-                                message: Localizations.learnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour,
-                                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                                    await store.perform(.showLearnGeneratorGuidedTour)
-                                },
-                                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                                    await store.perform(.dismissLearnGeneratorActionCard)
-                                }
-                            )
-                        }
-
-                        if store.state.isPolicyInEffect {
-                            InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
-                                .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
-                        }
-
-                        ForEach(store.state.formSections) { section in
-                            sectionView(section, geometryProxy: geometry)
-                        }
+            Group {
+                if #available(iOS 26, *) {
+                    ZStack(alignment: .top) {
+                        internalView(geometry: geometry)
                     }
-                    .padding(12)
+                } else {
+                    VStack(spacing: 0) {
+                        internalView(geometry: geometry)
+                    }
                 }
             }
             .coordinateSpace(name: "generatorView")
@@ -118,6 +73,85 @@ struct GeneratorView: View {
                     }
                 }
             }
+            .apply { view in
+                if #available(iOS 26, *) {
+                    view.contentMargins(.top, referenceViewHeight)
+                } else {
+                    view
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func internalView(geometry: GeometryProxy) -> some View { // swiftlint:disable:this function_body_length
+        if store.state.availableGeneratorTypes.count > 1 {
+            BitwardenSegmentedControl(
+                isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
+                selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
+                selections: store.state.availableGeneratorTypes
+            )
+            .backport.onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { size in
+                referenceViewHeight = size.height
+            }
+            .guidedTourStep(.step1, perform: { frame in
+                let steps: [GuidedTourStep] = [.step1, .step2, .step3]
+                for step in steps {
+                    store.send(
+                        .guidedTourViewAction(.didRenderViewToSpotlight(
+                            frame: frame,
+                            step: step
+                        ))
+                    )
+                }
+            })
+            .padding(.horizontal, 12)
+            .padding(.bottom, 12)
+            .apply { view in
+                if #unavailable(iOS 26) {
+                    view.background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                } else {
+                    view.zIndex(1)
+                }
+            }
+        }
+
+        if #unavailable(iOS 26) {
+            Divider()
+        }
+
+        GuidedTourScrollView(
+            store: store.child(
+                state: \.guidedTourViewState,
+                mapAction: GeneratorAction.guidedTourViewAction,
+                mapEffect: nil
+            )
+        ) {
+            VStack(alignment: .leading, spacing: 24) {
+                if store.state.isLearnGeneratorActionCardEligible,
+                   store.state.presentationMode == .tab {
+                    ActionCard(
+                        title: Localizations.exploreTheGenerator,
+                        message: Localizations.learnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            await store.perform(.showLearnGeneratorGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissLearnGeneratorActionCard)
+                        }
+                    )
+                }
+
+                if store.state.isPolicyInEffect {
+                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
+                }
+
+                ForEach(store.state.formSections) { section in
+                    sectionView(section, geometryProxy: geometry)
+                }
+            }
+            .padding(12)
         }
     }
 
@@ -247,7 +281,7 @@ struct GeneratorView: View {
                 .accessibilityIdentifier("GeneratedPasswordLabel")
         } accessoryContent: {
             AccessoryButton(
-                asset: Asset.Images.generate24,
+                asset: SharedAsset.Icons.generate24,
                 accessibilityLabel: Localizations.generatePassword,
                 accessibilityIdentifier: "RegenerateValueButton"
             ) {
@@ -284,7 +318,7 @@ struct GeneratorView: View {
             Button {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
-                Asset.Images.questionCircle12.swiftUIImage
+                SharedAsset.Icons.questionCircle12.swiftUIImage
                     .scaledFrame(width: 12, height: 12)
             }
             .buttonStyle(.fieldLabelIcon)

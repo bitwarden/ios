@@ -443,6 +443,25 @@ protocol StateService: AnyObject {
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
 
+    /// Sets the KDF config for an account.
+    ///
+    /// - Parameters:
+    ///   - kdfConfig: The account's KDF config.
+    ///   - userId: The user ID of the account to set the KDF config for.
+    ///
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws
+
+    /// Sets the master password unlock data for an account.
+    ///
+    /// - Parameters:
+    ///   - masterPasswordUnlock: The account master password unlock data.
+    ///   - userId: The user ID of the account to associate with the master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async
+
     /// Sets the user's progress for setting up autofill.
     ///
     /// - Parameters:
@@ -1138,6 +1157,23 @@ extension StateService {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
     }
 
+    /// Sets the KDF config for the active account.
+    ///
+    /// - Parameter kdfConfig: The account's KDF config.
+    ///
+    func setAccountKdf(_ kdfConfig: KdfConfig) async throws {
+        try await setAccountKdf(kdfConfig, userId: getActiveAccountId())
+    }
+
+    /// Sets the master password unlock data for the active account.
+    ///
+    /// - Parameter masterPasswordUnlock: The account master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel) async throws {
+        let userId = try await getActiveAccountId()
+        await setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
+    }
+
     /// Sets the active user's progress for setting up autofill.
     ///
     /// - Parameter autofillSetup: The user's autofill setup progress.
@@ -1340,6 +1376,9 @@ extension StateService {
 enum StateServiceError: LocalizedError {
     /// There are no known accounts.
     case noAccounts
+
+    /// There isn't an account with the specified user ID.
+    case noAccountForUserId
 
     /// There isn't an active account.
     case noActiveAccount
@@ -1837,6 +1876,15 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
     }
 
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {
+        try updateAccountProfile(userId: userId) { profile in
+            profile.kdfType = kdfConfig.kdfType
+            profile.kdfIterations = kdfConfig.iterations
+            profile.kdfMemory = kdfConfig.memory
+            profile.kdfParallelism = kdfConfig.parallelism
+        }
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
@@ -1850,6 +1898,27 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             userId,
             default: AccountVolatileData()
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String
+    ) async {
+        guard var state = appSettingsStore.state,
+              var profile = state.accounts[userId]?.profile
+        else {
+            return
+        }
+        var userDecryptionOptions = profile.userDecryptionOptions
+            ?? UserDecryptionOptions(
+                hasMasterPassword: true,
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil
+            )
+        userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+        profile.userDecryptionOptions = userDecryptionOptions
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
@@ -2212,6 +2281,21 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+
+    /// Updates the account's profile.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to update.
+    ///   - updateProfile: A closure that allows making updates to the account's profile. Any
+    ///     updates made to the profile will be saved when the closure returns.
+    ///
+    private func updateAccountProfile(userId: String, updateProfile: (inout Account.AccountProfile) -> Void) throws {
+        guard var state = appSettingsStore.state else { throw StateServiceError.noAccounts }
+        guard var profile = state.accounts[userId]?.profile else { throw StateServiceError.noAccountForUserId }
+        updateProfile(&profile)
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
     }
 
     /// Updates the settings badge publisher by determining the settings badge count for the user.

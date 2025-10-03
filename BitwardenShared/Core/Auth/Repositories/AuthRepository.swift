@@ -420,6 +420,9 @@ class DefaultAuthRepository {
     /// The service to use system Biometrics for vault unlock.
     let biometricsRepository: BiometricsRepository
 
+    /// The service used to change the user's KDF settings.
+    private let changeKdfService: ChangeKdfService
+
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
@@ -431,6 +434,9 @@ class DefaultAuthRepository {
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
 
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
@@ -468,10 +474,12 @@ class DefaultAuthRepository {
     ///   - appContextHelper: The helper to know about the app context.
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
+    ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - keychainService: The keychain service used by the application.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
@@ -488,10 +496,12 @@ class DefaultAuthRepository {
         appContextHelper: AppContextHelper,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
+        changeKdfService: ChangeKdfService,
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         keychainService: KeychainRepository,
         keyConnectorService: KeyConnectorService,
         organizationAPIService: OrganizationAPIService,
@@ -506,10 +516,12 @@ class DefaultAuthRepository {
         self.appContextHelper = appContextHelper
         self.authService = authService
         self.biometricsRepository = biometricsRepository
+        self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.keychainService = keychainService
         self.keyConnectorService = keyConnectorService
         self.organizationAPIService = organizationAPIService
@@ -814,7 +826,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
-            let passwordResult = try await clientService.crypto().updatePassword(newPassword: password)
+            let passwordResult = try await clientService.crypto().makeUpdatePassword(newPassword: password)
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
@@ -1103,6 +1115,8 @@ extension DefaultAuthRepository: AuthRepository {
             method: method
         )
 
+        await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")
+
         switch method {
         case .authRequest:
             // Remove admin pending login request if exists
@@ -1113,6 +1127,7 @@ extension DefaultAuthRepository: AuthRepository {
                 purpose: .localAuthorization
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
+            await updateKdfToMinimumsIfNeeded(password: password)
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
@@ -1137,6 +1152,20 @@ extension DefaultAuthRepository: AuthRepository {
         }
     }
 
+    /// Updates the user's KDF settings to the minimums.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    private func updateKdfToMinimumsIfNeeded(password: String) async {
+        do {
+            try await changeKdfService.updateKdfToMinimumsIfNeeded(password: password)
+        } catch {
+            // If an error occurs, log the error. Don't throw since that would block the vault from
+            // unlocking.
+            errorReporter.log(error: error)
+        }
+    }
+
     func updateMasterPassword(
         currentPassword: String,
         newPassword: String,
@@ -1144,7 +1173,7 @@ extension DefaultAuthRepository: AuthRepository {
         reason: ForcePasswordResetReason
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let updatePasswordResponse = try await clientService.crypto().updatePassword(newPassword: newPassword)
+        let updatePasswordResponse = try await clientService.crypto().makeUpdatePassword(newPassword: newPassword)
 
         let masterPasswordHash = try await clientService.auth().hashPassword(
             email: account.profile.email,
@@ -1215,6 +1244,7 @@ extension DefaultAuthRepository: AuthRepository {
                 enrollPinResponse: enrollPinResponse,
                 requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
             )
+            await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
              .password:
             // If the user has a pin, but requires master password after restart, set the pin
@@ -1224,6 +1254,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPin: encryptedPin
             )
             try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
+            await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
         case .pinEnvelope:
             break
         }

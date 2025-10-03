@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -62,7 +63,7 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: number, field: .cardNumber))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -119,7 +120,7 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: code, field: .securityCode))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)

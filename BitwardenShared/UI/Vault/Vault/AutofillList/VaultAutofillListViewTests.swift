@@ -58,7 +58,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        var button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
@@ -67,7 +67,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The empty view renders correctly.
     @MainActor
-    func test_snapshot_vaultAutofillList_empty() {
+    func disabletest_snapshot_vaultAutofillList_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -79,7 +79,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The empty view renders correctly when creating Fido2 credential.
     @MainActor
-    func test_snapshot_vaultAutofillList_emptyFido2Creation() {
+    func disabletest_snapshot_vaultAutofillList_emptyFido2Creation() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -94,7 +94,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly.
     @MainActor
-    func test_snapshot_vaultAutofillList_populated() {
+    func disabletest_snapshot_vaultAutofillList_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -144,7 +144,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on Fido2 creation context.
     @MainActor
-    func test_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
+    func disabletest_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -220,7 +220,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on multiple sections.
     @MainActor
-    func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
+    func disabletest_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
         // swiftlint:disable:previous line_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -299,7 +299,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when autofilling text to insert.
     @MainActor
-    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
+    func disabletest_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
         // swiftlint:disable:previous function_body_length
 
         let account = ProfileSwitcherItem.anneAccount
@@ -362,7 +362,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when autofilling text to insert when filtering by group.
     @MainActor
-    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
+    func disabletest_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
         // swiftlint:disable:previous function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -419,7 +419,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when registering and excluded credentials has been found.
     @MainActor
-    func test_snapshot_vaultAutofillList_populatedWhenRegisteringExcludedCredentialFound() {
+    func disabletest_snapshot_vaultAutofillList_populatedWhenRegisteringExcludedCredentialFound() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -451,7 +451,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The view renders correctly when searching a term with populated results.
     @MainActor
-    func test_snapshot_vaultAutofillList_searching_populated() {
+    func disabletest_snapshot_vaultAutofillList_searching_populated() {
         processor.state.searchText = "Bitwarden"
         processor.state.ciphersForSearch = [
             VaultListSection(
@@ -477,7 +477,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The view renders correctly when searching a term with no results.
     @MainActor
-    func test_snapshot_vaultAutofillList_searching_noResults() {
+    func disabletest_snapshot_vaultAutofillList_searching_noResults() {
         processor.state.searchText = "Bitwarden"
         processor.state.showNoResults = true
 

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -77,7 +78,7 @@ struct AboutView: View {
                         Button {
                             openURL(ExternalLinksConstants.flightRecorderHelp)
                         } label: {
-                            Asset.Images.questionCircle16.swiftUIImage
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
                                 .scaledFrame(width: 16, height: 16)
                                 .accessibilityLabel(Localizations.learnMore)
                         }
@@ -112,7 +113,7 @@ struct AboutView: View {
             SettingsListItem(store.state.version) {
                 store.send(.versionTapped)
             } trailingContent: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -143,7 +144,7 @@ struct AboutView: View {
         SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink24.swiftUIImage
+            SharedAsset.Icons.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }

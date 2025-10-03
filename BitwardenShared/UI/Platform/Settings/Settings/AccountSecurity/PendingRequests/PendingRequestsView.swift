@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -51,7 +52,7 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(decorative: Asset.Images.trash16)
+                Image(decorative: SharedAsset.Icons.trash16)
                     .imageStyle(.accessoryIcon16(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)

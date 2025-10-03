@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
@@ -45,7 +46,7 @@ struct ViewSSHKeyItemView: View {
                     Button {
                         store.send(.copyPressed(value: privateKey, field: .sshPrivateKey))
                     } label: {
-                        Asset.Images.copy24.swiftUIImage
+                        SharedAsset.Icons.copy24.swiftUIImage
                             .imageStyle(.accessoryIcon24)
                     }
                     .accessibilityLabel(Localizations.copy)
@@ -69,7 +70,7 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: publicKey, field: .sshPublicKey))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -92,7 +93,7 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: keyFingerprint, field: .sshKeyFingerprint))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)

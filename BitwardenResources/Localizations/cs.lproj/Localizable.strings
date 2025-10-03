@@ -55,7 +55,7 @@
 "Name" = "Název";
 "No" = "Ne";
 "Notes" = "Poznámky";
-"Ok" = "OK";
+"OK" = "OK";
 "Password" = "Heslo";
 "Save" = "Uložit";
 "Move" = "Přesunout";
@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Nastaví Bitwarden jako poskytovatele přístupového hesla v nastavení zařízení.";
 "AvoidAmbiguousCharacters" = "Nepoužívat zaměnitelné znaky";
 "BitwardenAppExtension" = "Rozšíření aplikace Bitwarden";
-"BitwardenAppExtensionAlert2" = "Nejjednodušší způsob přidání nových přihlášení do trezoru je z rozšíření Bitwardenu. Další informace o používání rozšíření Bitwardenu získáte klepnutím na obrazovku Nastavení.";
+"BitwardenAppExtensionAlert2" = "Nejjednodušší způsob přidání nových přihlášení do trezoru je z rozšíření Bitwardenu. Další informace o používání rozšíření Bitwardenu získáte klepnutím na obrazovku \"Nastavení\".";
 "BitwardenAppExtensionDescription" = "Použije Bitwarden v Safari a ostatních prohlížečích pro automatické vyplnění přihlašovacích údajů.";
 "BitwardenAutofillService" = "Služba automatického vyplňování";
 "BitwardenAutofillAccessibilityServiceDescription" = "Použije službu přístupnosti pro automatické vyplňování přihlašovacích údajů.";
@@ -131,15 +131,13 @@
 "LastSync" = "Poslední synchronizace:";
 "Length" = "Délka";
 "Lock" = "Zamknout";
-"FifteenMinutes" = "15 minut";
 "OneHour" = "1 hodina";
-"OneMinute" = "1 minuta";
 "FourHours" = "4 hodiny";
 "Immediately" = "Okamžitě";
 "VaultTimeout" = "Časový limit trezoru";
 "VaultTimeoutAction" = "Akce při vypršení časového limitu trezoru";
 "VaultTimeoutLogOutConfirmation" = "Po vypršení časového limitu dojde k odhlášení. Přístup k trezoru bude odebrán a pro opětovné přihlášení bude vyžadováno online ověření. Opravdu chcete použít toto nastavení?";
-"LoggingIn" = "Přihlašování…";
+"LoggingIn" = "Přihlašování...";
 "LogInToBitwarden" = "Přihlásit se do Bitwardenu";
 "Manage" = "Správa";
 "MasterPasswordConfirmationValMessage" = "Potvrzení hesla se neshoduje.";
@@ -157,7 +155,7 @@
 "NoItems" = "Žádné položky.";
 "NoItemsTap" = "Pro tuto stránku neexistují žádné položky. Klepněte pro jejich přidání.";
 "NoUsernamePasswordConfigured" = "Tyto přihlašovací údaje nemají nastavené uživatelské jméno nebo heslo.";
-"OkGotIt" = "OK, rozumím!";
+"OKGotIt" = "OK, rozumím!";
 "OptionDefaults" = "Výchozí nastavení je převzato z nastavení generování hesel v aplikaci Bitwarden.";
 "Options" = "Volby";
 "Other" = "Ostatní";
@@ -178,7 +176,7 @@
 "ItemUpdated" = "Položka byla uložena";
 "Submitting" = "Odesílání...";
 "Syncing" = "Synchronizování...";
-"SyncingLogins" = "Synchronizování přihlášení...";
+"SyncingLogins" = "Synchronizování přihlašovacích údajů...";
 "SyncingComplete" = "Synchronizace byla dokončena";
 "SyncingFailed" = "Synchronizace selhala";
 "SyncVaultNow" = "Synchronizovat trezor nyní";
@@ -201,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "Když vyberete vstupní pole a uvidíte překrytí automatického vyplnění, můžete na něj klepnout a spustit službu automatického vyplnění.";
 "BitwardenAutofillServiceNotificationContent" = "Klepnutím na toto oznámení automaticky vyplníte přihlašovací údaje z trezoru.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Otevřít nastavení přístupnosti";
-"BitwardenAutofillServiceStep1" = "1. V nastavení Přístupnosti systému Android klepněte na \"Bitwarden\" v části \"Stažené služby\".";
+"BitwardenAutofillServiceStep1" = "1. V nastavení Přístupnosti systému Android klepněte na \"Bitwarden\" v části \"Služby\".";
 "BitwardenAutofillServiceStep2" = "2. Zapněte přepínač a potvrďte stisknutím tlačítka OK.";
 "Disabled" = "Zakázáno";
 "Enabled" = "Povoleno";
@@ -377,12 +375,12 @@
 "BitwardenAutofillDescription" = "Přistupujte k Vašemu trezoru přímo z Vaší klávesnice pro rychlejší automatické vyplnění hesel.";
 "AutofillTurnOn" = "Pokyny pro zapnutí automatického vyplňování hesel na Vašem zařízení:";
 "AutofillTurnOn1" = "1. Přejděte do aplikace \"Nastavení\" v iOS";
-"AutofillTurnOn2" = "2. Klepněte na \"Hesla\" > \"Volby hesla\"";
-"AutofillTurnOn3" = "3. Zapněte přepínač u položky \"Automatické vyplnění hesel\"";
+"AutofillTurnOn2" = "2. Klepněte na \"Hesla\"";
+"AutofillTurnOn3" = "3. Klepněte na \"Automatické vyplňování a hesla\"";
 "AutofillTurnOn4" = "4. Najděte sekci \"Povolit vyplňování z:\"";
 "AutofillTurnOn5" = "5. Zvolte \"Bitwarden\"";
 "PasswordAutofill" = "Automatické vyplňování hesel";
-"BitwardenAutofillAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do trezoru, je pomocí rozšíření automatického vyplňování Bitwardenu. Další informace o používání rozšíření automatického vyplňování Bitwardenu naleznete na obrazovce Nastavení.";
+"BitwardenAutofillAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do trezoru, je pomocí rozšíření automatického vyplňování Bitwardenu. Další informace o používání rozšíření automatického vyplňování Bitwardenu naleznete na obrazovce \"Nastavení\".";
 "InvalidEmail" = "Neplatná e-mailová adresa.";
 "Cards" = "Karty";
 "Identities" = "Identity";
@@ -433,18 +431,15 @@
 "PIN" = "PIN";
 "Unlock" = "Odemknout";
 "UnlockVault" = "Odemknout trezor";
-"ThirtyMinutes" = "30 minut";
 "LoggedInAsOn" = "Přihlášen jako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamčen. Pro pokračování musíte zadat hlavní heslo.";
 "VaultLockedPIN" = "Váš trezor je uzamčen. Pro pokračování musíte zadat PIN.";
 "VaultLockedIdentity" = "Váš trezor je uzamčen. Pro pokračování ověřte svou identitu.";
 "Dark" = "Tmavý";
 "Light" = "Světlý";
-"FiveMinutes" = "5 minut";
 "TenSeconds" = "10 sekund";
 "ThirtySeconds" = "30 sekund";
 "TwentySeconds" = "20 sekund";
-"TwoMinutes" = "2 minuty";
 "ClearClipboard" = "Vymazat schránku";
 "ClearClipboardDescription" = "Automaticky vymaže zkopírované hodnoty z Vaší schránky.";
 "DefaultUriMatchDetection" = "Výchozí zjišťování shody URI";
@@ -478,10 +473,10 @@
 "Biometrics" = "Biometrie";
 "UseBiometricsToUnlock" = "Použít biometrii k odemknutí";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden vyžaduje pozornost - zkontrolujte \"Službu automatického vyplňování\" v nastavení Bitwardenu";
-"BitwardenAutofillServiceOverlayPermission" = "3. V nastavení Android aplikace Bitwarden přejděte v části Rozšířená nastavení do \"Zobrazit přes ostatní aplikace\"  a povolte zobrazení přes jiné aplikace.";
+"BitwardenAutofillServiceOverlayPermission" = "3. V nastavení Android aplikace Bitwarden přejděte v části Rozšířená nastavení do \"Zobrazit přes ostatní aplikace\" a povolte zobrazení přes jiné aplikace.";
 "OverlayPermission" = "Oprávnění";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Otevřít nastavení oprávnění překrytí obrazovky";
-"BitwardenAutofillServiceStep3" = "3. V nastavení Android aplikace Bitwarden přejděte v části Rozšířená nastavení do \"Zobrazit přes ostatní aplikace\"  a povolte zobrazení přes jiné aplikace.";
+"BitwardenAutofillServiceStep3" = "3. V nastavení Android aplikace Bitwarden přejděte v části Rozšířená nastavení do \"Zobrazit přes ostatní aplikace\" a povolte zobrazení přes jiné aplikace.";
 "Denied" = "Zamítnuto";
 "Granted" = "Uděleno";
 "FileFormat" = "Formát souboru";
@@ -616,7 +611,7 @@
 "LeaveOrganization" = "Opustit organizaci";
 "LeaveOrganizationName" = "Opustit %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "Chcete-li pokračovat, mějte připravený bezpečnostní klíč kompatibilní s FIDO2 a postupujte podle pokynů po klepnutí na 'Ověření WebAuthn' na další obrazovce.";
+"Fido2Instruction" = "Chcete-li pokračovat, mějte připravený bezpečnostní klíč kompatibilní s FIDO2 a postupujte podle pokynů po klepnutí na \"Ověření WebAuthn\" na další obrazovce.";
 "Fido2Desc" = "Ověřování pomocí FIDO2 WebAuthn. Můžete se ověřit pomocí externího bezpečnostního klíče.";
 "Fido2AuthenticateWebAuthn" = "Ověření WebAuthn";
 "Fido2ReturnToApp" = "Zpět do aplikace";
@@ -725,7 +720,7 @@
 "WebsiteRequired" = "Webová stránka (vyžadovaná)";
 "UnknownXErrorMessage" = "Vyskytla se neznámá chyba: %1$@.";
 "PlusAddressedEmailDescription" = "Použijte funkce podadres Vašeho poskytovatele e-mailu";
-"CatchAllEmailDescription" = "Použijte nakonfigurovanou univerzální schránku své domény.";
+"CatchAllEmailDescription" = "Použije nastavenou univerzální schránku Vaší domény.";
 "ForwardedEmailDescription" = "Vygeneruje alias e-mailu pomocí externí přeposílací služby.";
 "Random" = "Náhodně";
 "ConnectToWatch" = "Propojit s hodinkami";
@@ -771,7 +766,7 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Slabé heslo bylo nalezeno mezi odhalenými hesly. K zabezpečení Vašeho účtu používejte silné a jedinečné heslo. Opravdu chcete používat toto heslo?";
 "OrganizationSsoIdentifierRequired" = "Je vyžadován SSO identifikátor organizace.";
 "AddTheKeyToAnExistingOrNewItem" = "Přidat klíč k existující nebo nové položce";
-"ThereAreNoItemsInYourVaultThatMatchX" = "Žádné položky se shodou s \"%1$@\"";
+"ThereAreNoItemsInYourVaultThatMatchX" = "Žádné položky ve Vašem trezoru se shodou s \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Hledat položku nebo přidat novou";
 "ThereAreNoItemsThatMatchTheSearch" = "Neexistují žádné položky, které by odpovídaly hledání";
 "ThereAreNoLoginsInYourVault" = "Žádné přihlašovací údaje ve Vašem trezoru";
@@ -1278,6 +1273,9 @@
 "WhenUsingTwoStepVerification" = "Používáte-li dvoufázové ověření, zadejte své uživatelské jméno a heslo a kód vygenerovaný v této aplikaci.";
 "YesSetDefault" = "Ano, nastavit jako výchozí";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Výchozí nastavení můžete kdykoli změnit v Nastavení.";
+"SelectAccount" = "Vybrat účet";
+/* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
+"Accounts" = "Účty";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Detekce shody URI ovládá způsob, jakým Bitwarden identifikuje návrhy automatického vyplňování.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Začíná na\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Regulární výraz\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.";
@@ -1289,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Varování:** \"Začíná na\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Varování:** \"Regulární výraz\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.";
 "DefaultX" = "Výchozí (%1$@)";
+"UpdateYourEncryptionSettings" = "Aktualizujte nastavení šifrování";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo.";
+"Updating" = "Aktualizování...";
+"EncryptionSettingsUpdated" = "Nastavení šifrování bylo aktualizováno";

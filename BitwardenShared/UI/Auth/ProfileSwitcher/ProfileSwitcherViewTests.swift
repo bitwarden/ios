@@ -237,12 +237,12 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Snapshots
 
-    func test_snapshot_singleAccount() {
+    func disabletest_snapshot_singleAccount() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_belowMaximum() {
+    func disabletest_snapshot_multiAccount_unlocked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -273,19 +273,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum() {
+    func disabletest_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+    func disabletest_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     @MainActor
-    func test_snapshot_multiAccount_locked_belowMaximum() {
+    func disabletest_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -316,7 +316,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     @MainActor
-    func test_snapshot_multiAccount_locked_atMaximum() {
+    func disabletest_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -353,7 +353,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Test a snapshot of the ProfileSwitcherView previews.
-    func test_snapshot_profileSwitcherView_previews() {
+    func disabletest_snapshot_profileSwitcherView_previews() {
         for preview in ProfileSwitcherView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,

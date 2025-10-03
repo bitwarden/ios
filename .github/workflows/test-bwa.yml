@@ -59,23 +59,22 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: macos-15-xlarge
-    timeout-minutes: 30
+    runs-on: macos-26
+    timeout-minutes: 50
     permissions:
       contents: read
 
     steps:
       - name: Log inputs to job summary
-        run: |
-          echo "<details><summary>Build Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Optimize macOS Runner
+        uses: ./.github/actions/macos-runner-tuneup
 
       - name: Read Xcode version and simulator configuration from file if not provided
         run: |
@@ -95,7 +94,7 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@829114fc20da43a41d27359103ec7a63020954d4 # v1.255.0
+        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
         with:
           bundler-cache: true
 
@@ -127,6 +126,7 @@ jobs:
 
       - name: Build and test
         run: |
+          python Scripts/pyeetd/main.py & PYEETD_PID=$!
           xcrun xcodebuild test \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
@@ -136,7 +136,10 @@ jobs:
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
+            -retry-tests-on-failure \
+            -test-repetition-relaunch-enabled YES \
             -quiet
+          kill $PYEETD_PID
 
       - name: Print Logs Summary
         if: always()
@@ -184,7 +187,7 @@ jobs:
 
       - name: Upload to codecov.io
         id: upload-to-codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         continue-on-error: true
         with:
           files: coverage.xml

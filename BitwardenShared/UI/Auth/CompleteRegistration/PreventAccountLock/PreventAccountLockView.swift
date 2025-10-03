@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -19,13 +20,13 @@ struct PreventAccountLockView: View {
 
             ContentBlock(dividerLeadingPadding: 48) {
                 rowView(
-                    image: Asset.Images.lightbulb24,
+                    image: SharedAsset.Icons.lightbulb24,
                     title: Localizations.createAHint,
                     subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt
                 )
 
                 rowView(
-                    image: Asset.Images.pencil24,
+                    image: SharedAsset.Icons.pencil24,
                     title: Localizations.writeYourPasswordDown,
                     subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe
                 )
@@ -67,7 +68,7 @@ struct PreventAccountLockView: View {
     ///
     @ViewBuilder
     private func rowView(
-        image: ImageAsset,
+        image: SharedImageAsset,
         title: String,
         subtitle: String? = nil
     ) -> some View {

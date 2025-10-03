@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
@@ -131,7 +132,7 @@ struct AttachmentsView: View {
                 Button {
                     store.send(.deletePressed(attachment))
                 } label: {
-                    Image(asset: Asset.Images.trash24)
+                    Image(asset: SharedAsset.Icons.trash24)
                         .imageStyle(.rowIcon(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.delete)
