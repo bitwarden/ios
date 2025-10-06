@@ -37,7 +37,7 @@ SIMULATOR_PROCESSES = {
     "GradientPosterExtension",
     "MonogramPosterExtension",
     "System/Library/PrivateFrameworks/SessionCore.framework/Support/liveactivitiesd",
-    "System/Library/CoreServices/SpringBoard.app/SpringBoard",
+    #"System/Library/CoreServices/SpringBoard.app/SpringBoard",
     "Applications/News.app",
     "usr/libexec/icloudmailagent",
     "Applications/Family.app",
