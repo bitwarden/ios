@@ -17,8 +17,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 OS_PROCESSES = {
-    "Spotlight",
-    "ReportCrash",
     "ecosystemanalyticsd"
     "com.apple.ecosystemd",
     "com.apple.metadata.mds",
@@ -37,7 +35,6 @@ SIMULATOR_PROCESSES = {
     "GradientPosterExtension",
     "MonogramPosterExtension",
     "System/Library/PrivateFrameworks/SessionCore.framework/Support/liveactivitiesd",
-    #"System/Library/CoreServices/SpringBoard.app/SpringBoard",
     "Applications/News.app",
     "usr/libexec/icloudmailagent",
     "Applications/Family.app",
