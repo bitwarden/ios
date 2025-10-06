@@ -69,6 +69,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service to make and use the device passkey.
+    let devicePasskeyService: DevicePasskeyService
+
     /// The service to get server-specified configuration
     let configService: ConfigService
 
@@ -217,6 +220,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
+    ///   - devicePasskeyService: The service to make and use the device passkey.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
     ///     error that occurred.
@@ -278,6 +282,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         changeKdfService: ChangeKdfService,
         clientService: ClientService,
         configService: ConfigService,
+        devicePasskeyService: DevicePasskeyService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
@@ -335,6 +340,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.configService = configService
+        self.devicePasskeyService = devicePasskeyService
         self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
@@ -804,16 +810,26 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService
         )
         #endif
+        
+        let devicePasskeyService = DefaultDevicePasskeyService(
+            authAPIService: apiService,
+            clientService: clientService,
+            environmentService: environmentService,
+            keychainRepository: keychainRepository,
+            stateService: stateService
+        )
 
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
             cipherService: cipherService,
             clientService: clientService,
             credentialIdentityFactory: credentialIdentityFactory,
+            devicePasskeyService: devicePasskeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            keychainRepository: keychainRepository,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -920,6 +936,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
+            devicePasskeyService: devicePasskeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,

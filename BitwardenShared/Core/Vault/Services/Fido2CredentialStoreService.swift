@@ -85,6 +85,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
             result.append(cipherView)
         }
+        
         return result
     }
 
