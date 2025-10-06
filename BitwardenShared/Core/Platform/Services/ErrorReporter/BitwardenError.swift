@@ -36,7 +36,7 @@ enum BitwardenError {
             code: Code.dataError.rawValue,
             userInfo: [
                 "ErrorMessage": message,
-            ]
+            ],
         )
     }
 
@@ -55,7 +55,7 @@ enum BitwardenError {
         return NSError(
             domain: "General Error: \(type)",
             code: Code.generalError.rawValue,
-            userInfo: userInfo
+            userInfo: userInfo,
         )
     }
 
@@ -69,7 +69,7 @@ enum BitwardenError {
             code: Code.generatorOptionsError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 
@@ -83,7 +83,7 @@ enum BitwardenError {
             code: Code.logoutError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 }

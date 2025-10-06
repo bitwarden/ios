@@ -19,7 +19,7 @@ final class MockRootNavigator: RootNavigator {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     ) {}
 
     func show(child: Navigator) {

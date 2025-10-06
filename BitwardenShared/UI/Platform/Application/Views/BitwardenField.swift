@@ -39,7 +39,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
         .background(
             isEnabled
                 ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
-                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -62,7 +62,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
         titleAccessibilityIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent,
-        @ViewBuilder footerContent: () -> FooterContent
+        @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -84,12 +84,12 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                             .subheadline,
                             weight: .semibold,
                             includeLinePadding: false,
-                            includeLineSpacing: false
+                            includeLineSpacing: false,
                         )
                         .foregroundColor(
                             isEnabled
                                 ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.textDisabled.swiftUIColor
+                                : SharedAsset.Colors.textDisabled.swiftUIColor,
                         )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
                 }
@@ -153,7 +153,7 @@ extension BitwardenField where AccessoryContent == EmptyView {
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder footer footerContent: () -> FooterContent
+        @ViewBuilder footer footerContent: () -> FooterContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -178,7 +178,7 @@ extension BitwardenField where FooterContent == EmptyView {
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder accessoryContent: () -> AccessoryContent
+        @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -199,7 +199,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == E
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -226,7 +226,7 @@ extension BitwardenField where FooterContent == Text {
         titleAccessibilityIdentifier: String? = nil,
         footer: String,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder accessoryContent: () -> AccessoryContent
+        @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -250,7 +250,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         footer: String,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier

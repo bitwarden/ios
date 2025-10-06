@@ -63,9 +63,9 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 reviewPromptService: reviewPromptService,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: GeneratorState()
+            state: GeneratorState(),
         )
     }
 
@@ -92,8 +92,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 capitalize: false,
                 includeNumber: false,
                 numberOfWords: 3,
-                wordSeparator: "-"
-            )
+                wordSeparator: "-",
+            ),
         )
         XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
@@ -118,7 +118,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             special: true,
             type: .passphrase,
             uppercase: false,
-            wordSeparator: "*"
+            wordSeparator: "*",
         ))
 
         setUpSubject()
@@ -139,8 +139,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 capitalize: true,
                 includeNumber: true,
                 numberOfWords: 5,
-                wordSeparator: "*"
-            )
+                wordSeparator: "*",
+            ),
         )
         XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
@@ -156,7 +156,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             lowercase: false,
             minNumber: 5,
             minSpecial: 1,
-            uppercase: false
+            uppercase: false,
         ))
         policyService.applyPasswordGenerationOptionsResult = true
         policyService.applyPasswordGenerationOptionsTransform = { options in
@@ -189,8 +189,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 capitalize: true,
                 includeNumber: false,
                 numberOfWords: 3,
-                wordSeparator: "-"
-            )
+                wordSeparator: "-",
+            ),
         )
         XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertTrue(subject.state.isPolicyInEffect)
@@ -304,7 +304,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             [
                 StateServiceError.noActiveAccount,
                 StateServiceError.noActiveAccount,
-            ]
+            ],
         )
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(subject.state.generatedValue, "")
@@ -335,8 +335,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 email: "",
                 plusAddressedEmailType: .random,
                 capitalize: false,
-                includeNumber: false
-            )
+                includeNumber: false,
+            ),
         )
     }
 
@@ -360,7 +360,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             plusAddressedEmailType: .random,
             serviceType: .fastmail,
             simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
-            type: .randomWord
+            type: .randomWord,
         ))
 
         setUpSubject()
@@ -384,8 +384,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 email: "user@bitwarden.com",
                 plusAddressedEmailType: .random,
                 capitalize: true,
-                includeNumber: true
-            )
+                includeNumber: true,
+            ),
         )
     }
 
@@ -408,7 +408,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_appear_generatesValueAfterLoadingOptions() {
         generatorRepository.getPasswordGenerationOptionsResult = .success(
-            PasswordGenerationOptions(length: 50)
+            PasswordGenerationOptions(length: 50),
         )
         setUpSubject()
 
@@ -444,7 +444,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
         generatorRepository.getPasswordGenerationOptionsCalled = false
         generatorRepository.getPasswordGenerationOptionsResult = .failure(
-            BitwardenTestError.example
+            BitwardenTestError.example,
         )
         Task {
             await subject.perform(.appeared)
@@ -452,7 +452,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { !errorReporter.errors.isEmpty }
         XCTAssertEqual(
             errorReporter.errors[0] as? BitwardenTestError,
-            BitwardenTestError.example
+            BitwardenTestError.example,
         )
     }
 
@@ -656,8 +656,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 numWords: 3,
                 wordSeparator: "-",
                 capitalize: false,
-                includeNumber: false
-            )
+                includeNumber: false,
+            ),
         )
 
         XCTAssertEqual(subject.state.generatedValue, "PASSPHRASE")
@@ -688,8 +688,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 minLowercase: 1,
                 minUppercase: 1,
                 minNumber: 1,
-                minSpecial: nil
-            )
+                minSpecial: nil,
+            ),
         )
 
         XCTAssertEqual(subject.state.generatedValue, "PASSWORD")
@@ -712,7 +712,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(
             generatorRepository.usernameGeneratorRequest,
-            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
         )
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
@@ -745,7 +745,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let field = sliderField(
             keyPath: \.passwordState.lengthDouble,
             sliderAccessibilityId: "PasswordLengthSlider",
-            sliderValueAccessibilityId: "PasswordLengthLabel"
+            sliderValueAccessibilityId: "PasswordLengthLabel",
         )
 
         subject.receive(.sliderEditingChanged(field: field, isEditing: true))
@@ -769,7 +769,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Only the final password should be saved when the slider ends editing.
         XCTAssertEqual(
             generatorRepository.passwordHistorySubject.value.map(\.password),
-            ["PASSSSSSSSSSSSSSWORD"]
+            ["PASSSSSSSSSSSSSSWORD"],
         )
     }
 
@@ -779,7 +779,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let field = sliderField(
             keyPath: \.passwordState.lengthDouble,
             sliderAccessibilityId: "PasswordLengthSlider",
-            sliderValueAccessibilityId: "PasswordLengthLabel"
+            sliderValueAccessibilityId: "PasswordLengthLabel",
         )
 
         subject.receive(.sliderValueChanged(field: field, value: 10))
@@ -798,7 +798,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let field = sliderField(
             keyPath: \.passwordState.lengthDouble,
             sliderAccessibilityId: "PasswordLengthSlider",
-            sliderValueAccessibilityId: "PasswordLengthLabel"
+            sliderValueAccessibilityId: "PasswordLengthLabel",
         )
 
         subject.receive(.sliderValueChanged(field: field, value: 10))
@@ -820,7 +820,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_stepperValueChanged() {
         let field = stepperField(
             accessibilityId: "",
-            keyPath: \.passwordState.minimumNumber
+            keyPath: \.passwordState.minimumNumber,
         )
 
         subject.receive(.stepperValueChanged(field: field, value: 3))
@@ -837,7 +837,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let field = FormTextField<GeneratorState>(
             keyPath: \.usernameState.email,
             title: Localizations.email,
-            value: "user@"
+            value: "user@",
         )
 
         subject.state.generatorType = .username
@@ -851,7 +851,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { subject.state.generatedValue == "USERNAME" }
         XCTAssertEqual(
             generatorRepository.usernameGeneratorRequest,
-            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
         )
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
     }
@@ -865,7 +865,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
             keyPath: \.usernameState.addyIOAPIAccessToken,
             title: Localizations.apiAccessToken,
-            value: ""
+            value: "",
         )
 
         subject.state.generatorType = .username
@@ -896,7 +896,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let field = FormTextField<GeneratorState>(
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
-            value: "-"
+            value: "-",
         )
 
         subject.receive(.textValueChanged(field: field, value: "-*"))
@@ -975,14 +975,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 special: false,
                 type: .passphrase,
                 uppercase: true,
-                wordSeparator: "-"
-            )
+                wordSeparator: "-",
+            ),
         )
 
         let sliderField = sliderField(
             keyPath: \.passwordState.lengthDouble,
             sliderAccessibilityId: "PasswordLengthSlider",
-            sliderValueAccessibilityId: "PasswordLengthLabel"
+            sliderValueAccessibilityId: "PasswordLengthLabel",
         )
         subject.receive(.sliderValueChanged(field: sliderField, value: 30))
         waitFor { generatorRepository.passwordGenerationOptions.length == 30 }
@@ -991,8 +991,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(
             .stepperValueChanged(
                 field: stepperField(accessibilityId: "MinNumberValueLabel", keyPath: \.passwordState.minimumNumber),
-                value: 4
-            )
+                value: 4,
+            ),
         )
         waitFor { generatorRepository.passwordGenerationOptions.minNumber == 4 }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.minNumber, 4)
@@ -1003,7 +1003,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.toggleValueChanged(
             field: toggleField(accessibilityId: "LowercaseAtoZToggle", keyPath: \.passwordState.containsLowercase),
-            isOn: false
+            isOn: false,
         ))
         waitFor { generatorRepository.passwordGenerationOptions.lowercase == false }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.lowercase, false)
@@ -1019,7 +1019,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { !errorReporter.errors.isEmpty }
         XCTAssertEqual(
             errorReporter.errors[0] as NSError,
-            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount),
         )
     }
 
@@ -1041,8 +1041,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 includeNumberRandomWordUsername: false,
                 plusAddressedEmailType: .random,
                 serviceType: .addyIO,
-                type: .catchAllEmail
-            )
+                type: .catchAllEmail,
+            ),
         )
 
         subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
@@ -1051,7 +1051,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.textValueChanged(
             field: textField(keyPath: \.usernameState.duckDuckGoAPIKey),
-            value: "API_KEY"
+            value: "API_KEY",
         ))
         waitFor { generatorRepository.usernameGenerationOptions.duckDuckGoApiKey == "API_KEY" }
         XCTAssertEqual(generatorRepository.usernameGenerationOptions.duckDuckGoApiKey, "API_KEY")
@@ -1060,10 +1060,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             .toggleValueChanged(
                 field: toggleField(
                     accessibilityId: "CapitalizeRandomWordUsernameToggle",
-                    keyPath: \.usernameState.capitalize
+                    keyPath: \.usernameState.capitalize,
                 ),
-                isOn: true
-            )
+                isOn: true,
+            ),
         )
         waitFor { generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername == true }
         XCTAssertEqual(generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername, true)
@@ -1080,7 +1080,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { !errorReporter.errors.isEmpty }
         XCTAssertEqual(
             errorReporter.errors[0] as NSError,
-            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount),
         )
     }
 
@@ -1090,7 +1090,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_shouldGenerateNewValue_textFieldFocusChanged() {
         XCTAssertFalse(
             GeneratorAction.textFieldFocusChanged(keyPath: \.passwordState.wordSeparator)
-                .shouldGenerateNewValue
+                .shouldGenerateNewValue,
         )
 
         XCTAssertTrue(GeneratorAction.textFieldFocusChanged(keyPath: nil).shouldGenerateNewValue)
@@ -1102,7 +1102,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     private func sliderField(
         keyPath: WritableKeyPath<GeneratorState, Double>,
         sliderAccessibilityId: String,
-        sliderValueAccessibilityId: String
+        sliderValueAccessibilityId: String,
     ) -> SliderField<GeneratorState> {
         SliderField<GeneratorState>(
             keyPath: keyPath,
@@ -1111,21 +1111,21 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             sliderValueAccessibilityId: sliderValueAccessibilityId,
             step: 1,
             title: Localizations.length,
-            value: 14
+            value: 14,
         )
     }
 
     /// Creates a `StepperField` with the specified key path.
     private func stepperField(
         accessibilityId: String,
-        keyPath: WritableKeyPath<GeneratorState, Int>
+        keyPath: WritableKeyPath<GeneratorState, Int>,
     ) -> StepperField<GeneratorState> {
         StepperField<GeneratorState>(
             accessibilityId: accessibilityId,
             keyPath: keyPath,
             range: 0 ... 5,
             title: Localizations.minNumbers,
-            value: 1
+            value: 1,
         )
     }
 
@@ -1134,14 +1134,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         FormTextField<GeneratorState>(
             keyPath: keyPath,
             title: Localizations.wordSeparator,
-            value: "-"
+            value: "-",
         )
     }
 
     /// Creates a `ToggleField` with the specified key path.
     private func toggleField(
         accessibilityId: String,
-        keyPath: WritableKeyPath<GeneratorState, Bool>
+        keyPath: WritableKeyPath<GeneratorState, Bool>,
     ) -> ToggleField<GeneratorState> {
         ToggleField<GeneratorState>(
             accessibilityId: accessibilityId,
@@ -1149,7 +1149,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             isDisabled: false,
             isOn: true,
             keyPath: keyPath,
-            title: "a-z"
+            title: "a-z",
         )
     }
 }

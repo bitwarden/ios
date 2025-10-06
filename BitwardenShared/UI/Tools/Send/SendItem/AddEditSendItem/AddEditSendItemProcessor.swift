@@ -45,7 +45,7 @@ class AddEditSendItemProcessor:
     init(
         coordinator: AnyCoordinator<SendItemRoute, AuthAction>,
         services: Services,
-        state: AddEditSendItemState
+        state: AddEditSendItemState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -73,7 +73,7 @@ class AddEditSendItemProcessor:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmationDestructive(
                 title: Localizations.areYouSureRemoveSendPassword,
-                destructiveTitle: Localizations.remove
+                destructiveTitle: Localizations.remove,
             ) { [weak self] in
                 await self?.removePassword(sendView)
             }
@@ -300,7 +300,7 @@ class AddEditSendItemProcessor:
         let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         guard hasPremium else {
             let alert = Alert.defaultAlert(
-                message: Localizations.sendFilePremiumRequired
+                message: Localizations.sendFilePremiumRequired,
             )
             coordinator.showAlert(alert)
             return false
@@ -309,7 +309,7 @@ class AddEditSendItemProcessor:
         let isEmailVerified = try? await services.sendRepository.doesActiveAccountHaveVerifiedEmail()
         guard isEmailVerified ?? false else {
             let alert = Alert.defaultAlert(
-                message: Localizations.sendFileEmailVerificationRequired
+                message: Localizations.sendFileEmailVerificationRequired,
             )
             coordinator.showAlert(alert)
             return false
@@ -321,7 +321,7 @@ class AddEditSendItemProcessor:
         guard let fileData = state.fileData, state.fileName != nil else {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.youMustAttachAFileToSaveThisSend
+                message: Localizations.youMustAttachAFileToSaveThisSend,
             )
             coordinator.showAlert(alert)
             return false
@@ -330,7 +330,7 @@ class AddEditSendItemProcessor:
         guard fileData.count <= Constants.maxFileSizeBytes else {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.maxFileSize
+                message: Localizations.maxFileSize,
             )
             coordinator.showAlert(alert)
             return false

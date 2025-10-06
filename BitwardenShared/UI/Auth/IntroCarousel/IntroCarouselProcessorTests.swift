@@ -21,9 +21,9 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
         subject = IntroCarouselProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService
+                configService: configService,
             ),
-            state: IntroCarouselState()
+            state: IntroCarouselState(),
         )
     }
 

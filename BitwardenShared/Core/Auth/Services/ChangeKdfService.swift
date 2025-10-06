@@ -77,7 +77,7 @@ class DefaultChangeKdfService: ChangeKdfService {
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         stateService: StateService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
@@ -115,10 +115,10 @@ class DefaultChangeKdfService: ChangeKdfService {
             let kdfConfig = KdfConfig.defaultKdfConfig
             let updateKdfResponse = try await clientService.crypto().makeUpdateKdf(
                 password: password,
-                kdf: kdfConfig.sdkKdf
+                kdf: kdfConfig.sdkKdf,
             )
             try await accountAPIService.updateKdf(
-                UpdateKdfRequestModel(response: updateKdfResponse)
+                UpdateKdfRequestModel(response: updateKdfResponse),
             )
             try await stateService.setAccountKdf(kdfConfig, userId: account.profile.userId)
             await flightRecorder.log("[Auth] Upgraded user's KDF to minimums")
@@ -126,7 +126,7 @@ class DefaultChangeKdfService: ChangeKdfService {
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Force Update KDF Error",
                 message: "Unable to update KDF settings (\(account.kdf)",
-                error: error
+                error: error,
             ))
             throw error
         }

@@ -13,7 +13,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.emptyPreview,
             as: [
                 .defaultPortrait,
-            ]
+            ],
         )
     }
 
@@ -24,7 +24,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .defaultPortrait,
-            ]
+            ],
         )
     }
 
@@ -35,7 +35,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .defaultPortraitDark,
-            ]
+            ],
         )
     }
 
@@ -46,7 +46,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .tallPortraitAX5(heightMultiple: 1.75),
-            ]
+            ],
         )
     }
 
@@ -57,7 +57,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.hiddenCodePreview,
             as: [
                 .defaultPortrait,
-            ]
+            ],
         )
     }
 
@@ -68,7 +68,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.noExpiration,
             as: [
                 .defaultPortrait,
-            ]
+            ],
         )
     }
 
@@ -79,7 +79,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
             of: ViewCardItemView_Previews.yearOnlyExpiration,
             as: [
                 .defaultPortrait,
-            ]
+            ],
         )
     }
 }

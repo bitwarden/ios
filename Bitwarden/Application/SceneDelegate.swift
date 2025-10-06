@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
+        options connectionOptions: UIScene.ConnectionOptions,
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
         guard let appProcessor else {
@@ -63,7 +63,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 appContext: .mainApp,
                 navigator: rootViewController,
                 splashWindow: splashWindow,
-                window: appWindow
+                window: appWindow,
             )
             hideSplash()
             isStartingUp = false
@@ -85,7 +85,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(
         _ scene: UIScene,
-        continue userActivity: NSUserActivity
+        continue userActivity: NSUserActivity,
     ) {
         guard let appProcessor else {
             return
@@ -135,7 +135,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.isHidden = false
         window.rootViewController = UIStoryboard(
             name: "LaunchScreen",
-            bundle: .main
+            bundle: .main,
         ).instantiateInitialViewController()
         window.windowLevel = UIWindow.Level.alert + 1
         return window
@@ -166,7 +166,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func addTapGestureRecognizer(to window: UIWindow) {
         let tapGesture = UITapGestureRecognizer(
             target: self,
-            action: #selector(handleTapGesture)
+            action: #selector(handleTapGesture),
         )
         tapGesture.numberOfTapsRequired = 3
         tapGesture.numberOfTouchesRequired = 1
@@ -185,7 +185,7 @@ extension SceneDelegate {
     ///   - userActivity: The activity to handle.
     private func checkAndHandleCredentialExchangeActivity(
         appProcessor: AppProcessor,
-        userActivity: NSUserActivity
+        userActivity: NSUserActivity,
     ) async {
         guard userActivity.activityType == ASCredentialExchangeActivity,
               let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {

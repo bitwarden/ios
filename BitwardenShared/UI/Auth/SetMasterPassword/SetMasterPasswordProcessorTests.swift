@@ -40,13 +40,13 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
             httpClient: httpClient,
             policyService: policyService,
             settingsRepository: settingsRepository,
-            stateService: stateService
+            stateService: stateService,
         )
         let state = SetMasterPasswordState(organizationId: "1234", organizationIdentifier: "ORG_ID")
         subject = SetMasterPasswordProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
     }
 
@@ -109,7 +109,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
             requireLower: true,
             requireNumbers: true,
             requireSpecial: true,
-            enforceOnLogin: true
+            enforceOnLogin: true,
         )
         policyService.getMasterPasswordPolicyOptionsResult = .success(policy)
         XCTAssertNil(subject.state.masterPasswordPolicy)
@@ -164,8 +164,8 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             coordinator.alertShown.last,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
-            ))
+                message: Localizations.validationFieldRequired(Localizations.masterPassword),
+            )),
         )
     }
 
@@ -192,7 +192,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
             requireLower: false,
             requireNumbers: false,
             requireSpecial: false,
-            enforceOnLogin: true
+            enforceOnLogin: true,
         )
 
         subject.state.masterPassword = "INVALID"

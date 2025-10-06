@@ -21,14 +21,14 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
         delegate = MockSelectLanguageDelegate()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
-            stateService: stateService
+            stateService: stateService,
         )
 
         subject = SelectLanguageProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: SelectLanguageState()
+            state: SelectLanguageState(),
         )
     }
 

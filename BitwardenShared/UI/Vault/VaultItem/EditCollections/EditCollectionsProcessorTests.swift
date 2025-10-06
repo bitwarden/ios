@@ -29,9 +29,9 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: EditCollectionsState(cipher: .fixture(organizationId: "1"))
+            state: EditCollectionsState(cipher: .fixture(organizationId: "1")),
         )
     }
 
@@ -56,7 +56,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
         ]
 
         vaultRepository.fetchCollectionsResult = .success(
-            collections + [.fixture(id: "1", name: "Other Org Collection", organizationId: "555")]
+            collections + [.fixture(id: "1", name: "Other Org Collection", organizationId: "555")],
         )
 
         await subject.perform(.fetchCipherOptions)
@@ -118,8 +118,8 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection
-            )
+                message: Localizations.selectOneCollection,
+            ),
         )
     }
 

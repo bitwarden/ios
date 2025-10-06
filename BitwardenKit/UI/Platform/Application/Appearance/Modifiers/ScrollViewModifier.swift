@@ -69,14 +69,14 @@ public extension View {
         backgroundColor: Color = SharedAsset.Colors.backgroundPrimary.swiftUIColor,
         centerContentVertically: Bool = false,
         padding: CGFloat = 12,
-        showsIndicators: Bool = true
+        showsIndicators: Bool = true,
     ) -> some View {
         modifier(ScrollViewModifier(
             addVerticalPadding: addVerticalPadding,
             backgroundColor: backgroundColor,
             centerContentVertically: centerContentVertically,
             padding: padding,
-            showsIndicators: showsIndicators
+            showsIndicators: showsIndicators,
         ))
     }
 }

@@ -36,7 +36,7 @@ struct IllustratedMessageView<Accessory: View>: View {
                 .resizable()
                 .frame(
                     width: style.imageSize(verticalSizeClass ?? .regular),
-                    height: style.imageSize(verticalSizeClass ?? .regular)
+                    height: style.imageSize(verticalSizeClass ?? .regular),
                 )
                 .if(style.imageColor != nil) { view in
                     view.foregroundStyle(style.imageColor!)
@@ -78,7 +78,7 @@ struct IllustratedMessageView<Accessory: View>: View {
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
         message: String,
-        @ViewBuilder accessory: () -> Accessory
+        @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
         self.image = image
@@ -101,7 +101,7 @@ struct IllustratedMessageView<Accessory: View>: View {
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
         message: String,
-        @ViewBuilder accessory: () -> Accessory
+        @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
         self.image = image.swiftUIImage
@@ -124,7 +124,7 @@ struct IllustratedMessageView<Accessory: View>: View {
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
         message: String,
-        @ViewBuilder accessory: () -> Accessory
+        @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
         self.image = image.swiftUIImage
@@ -161,7 +161,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: Image,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String
+        message: String,
     ) {
         accessory = nil
         self.image = image
@@ -182,7 +182,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: ImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String
+        message: String,
     ) {
         accessory = nil
         self.image = image.swiftUIImage
@@ -203,7 +203,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: SharedImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String
+        message: String,
     ) {
         accessory = nil
         self.image = image.swiftUIImage
@@ -221,7 +221,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .smallImage,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
     )
 }
 
@@ -230,7 +230,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
     )
 }
 
@@ -239,7 +239,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
     ) {
         Button {} label: {
             Text(Localizations.learnMore)
@@ -254,7 +254,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: SharedAsset.Icons.plus24,
         style: .largeTextTintedIcon,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
     )
 }
 #endif
@@ -321,41 +321,41 @@ extension IllustratedMessageStyle {
     static let largeTextTintedIcon = IllustratedMessageStyle(
         imageColor: SharedAsset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
-            both: iconSquareImageDimension
+            both: iconSquareImageDimension,
         ),
         messageTextStyle: .title2,
         spaceBetweenImageAndText: OrientationBasedValue(
-            both: 32
+            both: 32,
         ),
         spaceBetweenTitleAndMessage: 16,
-        titleTextStyle: .hugeTitle
+        titleTextStyle: .hugeTitle,
     )
 
     static let mediumImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
             portrait: mediumSquareImageDimension,
-            landscape: smallSquareImageDimension
+            landscape: smallSquareImageDimension,
         ),
         messageTextStyle: .body,
         spaceBetweenImageAndText: OrientationBasedValue(
             portrait: 24,
-            landscape: 32
+            landscape: 32,
         ),
         spaceBetweenTitleAndMessage: 12,
-        titleTextStyle: .title2
+        titleTextStyle: .title2,
     )
 
     static let smallImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
-            both: smallSquareImageDimension
+            both: smallSquareImageDimension,
         ),
         messageTextStyle: .body,
         spaceBetweenImageAndText: OrientationBasedValue(
-            both: 32
+            both: 32,
         ),
         spaceBetweenTitleAndMessage: 16,
-        titleTextStyle: .title2
+        titleTextStyle: .title2,
     )
 }

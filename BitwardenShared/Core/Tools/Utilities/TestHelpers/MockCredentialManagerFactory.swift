@@ -29,7 +29,7 @@ class MockCredentialExportManager: CredentialExportManager {
     var exportCredentialsJSONData: String?
     var exportCredentialsError: Error?
     var requestExportResult: Result<CredentialExportManagerExportOptions, Error> = .success(
-        MockCredentialExportManagerExportOptions()
+        MockCredentialExportManagerExportOptions(),
     )
 
     @available(iOS 26.0, *)
@@ -85,7 +85,7 @@ class MockCredentialImportManager: CredentialImportManager {
         }
         return try JSONDecoder.cxfDecoder.decode(
             ASExportedCredentialData.self,
-            from: data
+            from: data,
         )
     }
 }

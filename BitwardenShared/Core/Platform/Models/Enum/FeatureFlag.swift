@@ -22,7 +22,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// A feature flag to enable the removal of card item types.
     static let removeCardPolicy = FeatureFlag(
-        rawValue: "pm-16442-remove-card-item-type-policy"
+        rawValue: "pm-16442-remove-card-item-type-policy",
     )
 
     public static var allCases: [FeatureFlag] {

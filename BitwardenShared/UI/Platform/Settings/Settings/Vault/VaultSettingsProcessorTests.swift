@@ -28,9 +28,9 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 environmentService: environmentService,
                 errorReporter: errorReporter,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: VaultSettingsState()
+            state: VaultSettingsState(),
         )
     }
 

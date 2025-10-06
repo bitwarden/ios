@@ -48,7 +48,7 @@ struct SectionView<Content: View>: View {
         _ title: String,
         titleSpacing: CGFloat = 8,
         contentSpacing: CGFloat = 16,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.title = title
         self.titleSpacing = titleSpacing

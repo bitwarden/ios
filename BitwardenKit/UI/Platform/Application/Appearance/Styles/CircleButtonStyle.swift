@@ -59,8 +59,8 @@ public struct CircleButtonStyle: ButtonStyle {
                         color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
                         width: 32,
-                        height: 32
-                    )
+                        height: 32,
+                    ),
                 )
         }
         .buttonStyle(CircleButtonStyle(diameter: 50))

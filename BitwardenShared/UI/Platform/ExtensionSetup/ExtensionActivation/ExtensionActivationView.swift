@@ -12,7 +12,7 @@ struct ExtensionActivationView: View {
     @ObservedObject var store: Store<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void
+        Void,
     >
 
     /// An action that opens URLs.
@@ -41,7 +41,7 @@ struct ExtensionActivationView: View {
             IllustratedMessageView(
                 image: Asset.Images.autofill,
                 title: Localizations.youreAllSet,
-                message: Localizations.autoFillActivatedDescriptionLong
+                message: Localizations.autoFillActivatedDescriptionLong,
             )
             .padding(.top, 40)
 
@@ -112,10 +112,10 @@ struct ExtensionActivationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ExtensionActivationState(
-                        extensionType: .autofillExtension
-                    )
-                )
-            )
+                        extensionType: .autofillExtension,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -126,10 +126,10 @@ struct ExtensionActivationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ExtensionActivationState(
-                        extensionType: .appExtension
-                    )
-                )
-            )
+                        extensionType: .appExtension,
+                    ),
+                ),
+            ),
         )
     }
 }

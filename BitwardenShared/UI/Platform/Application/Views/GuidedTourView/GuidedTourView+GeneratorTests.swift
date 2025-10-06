@@ -26,7 +26,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
                 .generatorStep4,
                 .generatorStep5,
                 .generatorStep6,
-            ])
+            ]),
         )
         let store = Store(processor: processor)
         subject = GuidedTourView(store: store)
@@ -47,7 +47,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[0].spotlightRegion = CGRect(x: 25, y: 80, width: 340, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -58,7 +58,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[1].spotlightRegion = CGRect(x: 25, y: 80, width: 340, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -69,7 +69,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[2].spotlightRegion = CGRect(x: 25, y: 80, width: 340, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -80,7 +80,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[3].spotlightRegion = CGRect(x: 25, y: 300, width: 340, height: 400)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -91,7 +91,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[4].spotlightRegion = CGRect(x: 300, y: 160, width: 40, height: 40)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -102,7 +102,7 @@ class GuidedTourViewGeneratorTests: BitwardenTestCase {
         processor.state.guidedTourStepStates[5].spotlightRegion = CGRect(x: 25, y: 160, width: 340, height: 60)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 }

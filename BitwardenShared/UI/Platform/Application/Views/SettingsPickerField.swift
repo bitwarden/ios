@@ -88,7 +88,7 @@ struct SettingsPickerField: View {
         customTimeoutValue: String,
         pickerValue: Binding<Int>,
         hasDivider: Bool = true,
-        customTimeoutAccessibilityLabel: String
+        customTimeoutAccessibilityLabel: String,
     ) {
         self.customTimeoutAccessibilityLabel = customTimeoutAccessibilityLabel
         self.customTimeoutValue = customTimeoutValue
@@ -105,6 +105,6 @@ struct SettingsPickerField: View {
         title: "Custom",
         customTimeoutValue: "1:00",
         pickerValue: .constant(1),
-        customTimeoutAccessibilityLabel: "one hour, zero minutes"
+        customTimeoutAccessibilityLabel: "one hour, zero minutes",
     )
 }

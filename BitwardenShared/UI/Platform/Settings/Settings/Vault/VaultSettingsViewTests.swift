@@ -106,7 +106,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
         processor.state.badgeState = .fixture(importLoginsSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 

@@ -11,7 +11,7 @@ class MockImportCiphersRepository: ImportCiphersRepository {
 
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (Double) -> Void
+        onProgress: @MainActor (Double) -> Void,
     ) async throws -> [CXFCredentialsResult] {
         await onProgress(progressReport)
         return try importCiphersResult.invoke(param: credentialImportToken)

@@ -24,7 +24,7 @@ struct ProfileSwitcherAccountsView: View {
         if let profile = store.state.activeAccountProfile {
             profileSwitcherRow(
                 accountProfile: profile,
-                showDivider: false
+                showDivider: false,
             )
         }
     }
@@ -40,7 +40,7 @@ struct ProfileSwitcherAccountsView: View {
     @ViewBuilder
     private func profileSwitcherRow(
         accountProfile: ProfileSwitcherItem,
-        showDivider: Bool = true
+        showDivider: Bool = true,
     ) -> some View {
         let isActive = accountProfile.userId == store.state.activeAccountId
         ProfileSwitcherRow(
@@ -56,7 +56,7 @@ struct ProfileSwitcherAccountsView: View {
                             : .alternate(accountProfile),
                         trailingIconAccessibilityID: isActive
                             ? "ActiveVaultIcon"
-                            : "InactiveVaultIcon"
+                            : "InactiveVaultIcon",
                     )
                 },
                 mapAction: { action in
@@ -84,8 +84,8 @@ struct ProfileSwitcherAccountsView: View {
                     case .pressed:
                         .accountPressed(accountProfile)
                     }
-                }
-            )
+                },
+            ),
         )
     }
 }

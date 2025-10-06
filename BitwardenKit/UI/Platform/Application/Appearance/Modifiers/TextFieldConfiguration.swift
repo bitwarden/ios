@@ -27,7 +27,7 @@ public extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .emailAddress,
         textContentType: .emailAddress,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to password text fields.
@@ -35,7 +35,7 @@ public extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .default,
         textContentType: .password,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to organization identifier text fields.
@@ -43,7 +43,7 @@ public extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .asciiCapable,
         textContentType: nil,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
@@ -51,7 +51,7 @@ public extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .URL,
         textContentType: .URL,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to username text fields.
@@ -59,7 +59,7 @@ public extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .emailAddress,
         textContentType: .username,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to numeric text fields.
@@ -68,7 +68,7 @@ public extension TextFieldConfiguration {
             isAutocorrectionDisabled: true,
             keyboardType: .numberPad,
             textContentType: textContentType,
-            textInputAutocapitalization: .never
+            textInputAutocapitalization: .never,
         )
     }
 
@@ -78,7 +78,7 @@ public extension TextFieldConfiguration {
             isAutocorrectionDisabled: true,
             keyboardType: keyboardType,
             textContentType: .oneTimeCode,
-            textInputAutocapitalization: .never
+            textInputAutocapitalization: .never,
         )
     }
 }

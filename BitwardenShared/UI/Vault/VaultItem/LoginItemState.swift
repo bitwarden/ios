@@ -100,7 +100,7 @@ struct LoginItemState: Equatable {
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
             totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
-            fido2Credentials: nil
+            fido2Credentials: nil,
         )
     }
 }

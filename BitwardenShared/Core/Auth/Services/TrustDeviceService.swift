@@ -84,7 +84,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
         authAPIService: AuthAPIService,
         clientService: ClientService,
         keychainRepository: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.appIdService = appIdService
         self.authAPIService = authAPIService
@@ -151,12 +151,12 @@ class DefaultTrustDeviceService: TrustDeviceService {
         let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(
             encryptedPrivateKey: trustDeviceDetails.protectedDevicePrivateKey,
             encryptedPublicKey: trustDeviceDetails.protectedDevicePublicKey,
-            encryptedUserKey: trustDeviceDetails.protectedUserKey
+            encryptedUserKey: trustDeviceDetails.protectedUserKey,
         )
 
         try await authAPIService.updateTrustedDeviceKeys(
             deviceIdentifier: appId,
-            model: trustedDeviceKeysRequestModel
+            model: trustedDeviceKeysRequestModel,
         )
 
         let activeUserId = try await stateService.getActiveAccountId()

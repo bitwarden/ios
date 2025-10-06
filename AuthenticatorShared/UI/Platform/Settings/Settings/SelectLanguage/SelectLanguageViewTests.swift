@@ -54,7 +54,7 @@ class SelectLanguageViewTests: BitwardenTestCase {
     func disabletest_viewRender() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()],
         )
     }
 }

@@ -27,7 +27,7 @@ struct PasswordHistoryListView: View {
         .navigationTitle(Localizations.passwordHistory)
         .toast(store.binding(
             get: \.toast,
-            send: PasswordHistoryListAction.toastShown
+            send: PasswordHistoryListAction.toastShown,
         ))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -133,8 +133,8 @@ extension PasswordHistoryView: @retroactive Identifiable {
                     PasswordHistoryView(password: "8gr6uY8CLYQwzr#", lastUsedDate: Date()),
                     PasswordHistoryView(password: "%w4&D*48&CD&j2", lastUsedDate: Date()),
                     PasswordHistoryView(password: "df@58^%8o7e@&@", lastUsedDate: Date()),
-                ]
-            )
+                ],
+            ),
         )))
     }
 }

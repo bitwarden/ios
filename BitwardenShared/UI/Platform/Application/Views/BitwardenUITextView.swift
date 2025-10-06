@@ -32,7 +32,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         init(
             _ parent: BitwardenUITextView,
             calculatedHeight: Binding<CGFloat>,
-            isFocused: Binding<Bool>
+            isFocused: Binding<Bool>,
         ) {
             self.parent = parent
             self.calculatedHeight = calculatedHeight
@@ -47,7 +47,7 @@ struct BitwardenUITextView: UIViewRepresentable {
             parent.text = uiView.text
             parent.recalculateHeight(
                 view: uiView,
-                result: calculatedHeight
+                result: calculatedHeight,
             )
         }
 
@@ -120,7 +120,7 @@ struct BitwardenUITextView: UIViewRepresentable {
     ///
     func updateUIView(
         _ uiView: UITextView,
-        context: Context
+        context: Context,
     ) {
         if uiView.text != text {
             uiView.text = text
@@ -142,7 +142,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         DispatchQueue.main.asyncAfter(deadline: UI.after(0.15)) {
             recalculateHeight(
                 view: uiView,
-                result: $calculatedHeight
+                result: $calculatedHeight,
             )
         }
     }
@@ -155,13 +155,13 @@ struct BitwardenUITextView: UIViewRepresentable {
     ///
     private func recalculateHeight(
         view: UIView,
-        result: Binding<CGFloat>
+        result: Binding<CGFloat>,
     ) {
         let newSize = view.sizeThatFits(
             CGSize(
                 width: view.frame.size.width,
-                height: CGFloat.greatestFiniteMagnitude
-            )
+                height: CGFloat.greatestFiniteMagnitude,
+            ),
         )
 
         if result.wrappedValue != newSize.height {

@@ -13,7 +13,7 @@ final class ActionCardTests: BitwardenTestCase {
         let subject = ActionCard(
             title: "Title",
             message: "Message",
-            actionButtonState: ActionCard.ButtonState(title: "Tap me!") { actionButtonTapped = true }
+            actionButtonState: ActionCard.ButtonState(title: "Tap me!") { actionButtonTapped = true },
         )
 
         let button = try subject.inspect().find(asyncButton: "Tap me!")
@@ -29,7 +29,7 @@ final class ActionCardTests: BitwardenTestCase {
         let subject = ActionCard(
             title: "Title",
             message: "Message",
-            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") { dismissButtonTapped = true }
+            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") { dismissButtonTapped = true },
         )
 
         let button = try subject.inspect().find(asyncButton: "Dismiss")

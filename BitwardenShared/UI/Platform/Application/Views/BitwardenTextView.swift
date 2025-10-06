@@ -74,7 +74,7 @@ struct BitwardenTextView: View {
             text: $text,
             calculatedHeight: $textViewHeight,
             isEditable: isEditable,
-            isFocused: $isFocused
+            isFocused: $isFocused,
         )
         .frame(minHeight: textViewHeight)
         .accessibilityLabel(title ?? "")
@@ -100,8 +100,8 @@ struct BitwardenTextView: View {
                 span
                 multiple
                 lines.
-                """
-            )
+                """,
+            ),
         )
     }
     .fixedSize(horizontal: false, vertical: true)

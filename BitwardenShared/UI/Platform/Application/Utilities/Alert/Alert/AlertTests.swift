@@ -73,7 +73,7 @@ class AlertTests: BitwardenTestCase {
         XCTAssertEqual(
             subject!.debugDescription,
             "Alert(title: 🍎, message: 🥝, alertActions: [BitwardenShared.AlertAction, BitwardenShared.AlertAction],"
-                + " alertTextFields: [BitwardenShared.AlertTextField])"
+                + " alertTextFields: [BitwardenShared.AlertTextField])",
         )
     }
 
@@ -101,18 +101,18 @@ class AlertTests: BitwardenTestCase {
             id: "123",
             login: .fixture(
                 password: "password",
-                username: "username"
+                username: "username",
             ),
             name: "Test Cipher",
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
             id: cipher.id!,
             showEdit: true,
-            action: action
+            action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
         XCTAssertEqual(alert.preferredStyle, .actionSheet)
@@ -131,7 +131,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher)
+            .edit(cipherView: cipher),
         )
         capturedAction = nil
 
@@ -146,8 +146,8 @@ class AlertTests: BitwardenTestCase {
                 value: "username",
                 requiresMasterPasswordReprompt: false,
                 logEvent: nil,
-                cipherId: nil
-            )
+                cipherId: nil,
+            ),
         )
         capturedAction = nil
 
@@ -162,8 +162,8 @@ class AlertTests: BitwardenTestCase {
                 value: "password",
                 requiresMasterPasswordReprompt: true,
                 logEvent: .cipherClientCopiedPassword,
-                cipherId: "123"
-            )
+                cipherId: "123",
+            ),
         )
         capturedAction = nil
 
@@ -185,18 +185,18 @@ class AlertTests: BitwardenTestCase {
             id: "123",
             login: .fixture(
                 password: "password",
-                username: nil
+                username: nil,
             ),
             name: "Test Cipher",
             type: .login,
-            viewPassword: false
+            viewPassword: false,
         )
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
             id: cipher.id!,
             showEdit: true,
-            action: action
+            action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
         XCTAssertEqual(alert.preferredStyle, .actionSheet)
@@ -215,7 +215,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher)
+            .edit(cipherView: cipher),
         )
         capturedAction = nil
 

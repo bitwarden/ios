@@ -15,7 +15,7 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
         subject = ManualEntryProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(),
-            state: DefaultEntryState(deviceSupportsCamera: true)
+            state: DefaultEntryState(deviceSupportsCamera: true),
         )
     }
 

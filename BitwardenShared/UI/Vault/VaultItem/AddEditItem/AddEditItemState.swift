@@ -143,20 +143,20 @@ extension GuidedTourStepState {
     static let loginStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .circle,
-        title: Localizations.useThisButtonToGenerateANewUniquePassword
+        title: Localizations.useThisButtonToGenerateANewUniquePassword,
     )
 
     /// The second step of the learn new login guided tour.
     static let loginStep2 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong,
     )
 
     /// The third step of the learn new login guided tour.
     static let loginStep3 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount,
     )
 }

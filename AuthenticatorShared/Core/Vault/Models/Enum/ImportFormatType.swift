@@ -41,11 +41,11 @@ enum ImportFormatType: Menuable {
         case .bitwardenJson,
              .lastpassJson,
              .raivoJson:
-            return .jsonFile
+            .jsonFile
         case .googleQr:
-            return nil
+            nil
         case .twoFasJason:
-            return .file
+            .file
         }
     }
 

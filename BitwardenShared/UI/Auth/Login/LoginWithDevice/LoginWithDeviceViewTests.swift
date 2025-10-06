@@ -17,8 +17,8 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
 
         processor = MockProcessor(
             state: LoginWithDeviceState(
-                fingerprintPhrase: "some-weird-long-text-thing-as-a-placeholder"
-            )
+                fingerprintPhrase: "some-weird-long-text-thing-as-a-placeholder",
+            ),
         )
         let store = Store(processor: processor)
 

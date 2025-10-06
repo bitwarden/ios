@@ -10,7 +10,7 @@ import Foundation
 class UpdateMasterPasswordProcessor: StateProcessor<
     UpdateMasterPasswordState,
     UpdateMasterPasswordAction,
-    UpdateMasterPasswordEffect
+    UpdateMasterPasswordEffect,
 > {
     // MARK: Types
 
@@ -42,7 +42,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: UpdateMasterPasswordState
+        state: UpdateMasterPasswordState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -143,7 +143,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                     email: services.authRepository.getAccount().profile.email,
                     isPreAuth: false,
                     masterPassword: state.masterPassword,
-                    policy: state.masterPasswordPolicy
+                    policy: state.masterPasswordPolicy,
                 )
                 guard !isInvalid else {
                     coordinator.showAlert(.masterPasswordInvalid())
@@ -168,7 +168,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 currentPassword: state.currentMasterPassword,
                 newPassword: state.masterPassword,
                 passwordHint: state.masterPasswordHint,
-                reason: forcePasswordResetReason
+                reason: forcePasswordResetReason,
             )
 
             coordinator.hideLoadingOverlay()
@@ -194,7 +194,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 state.passwordStrengthScore = try await services.authRepository.passwordStrength(
                     email: state.userEmail,
                     password: state.masterPassword,
-                    isPreAuth: false
+                    isPreAuth: false,
                 )
             } catch {
                 services.errorReporter.log(error: error)

@@ -37,10 +37,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     @available(iOSApplicationExtension 17.0, *)
     override func prepareCredentialList(
         for serviceIdentifiers: [ASCredentialServiceIdentifier],
-        requestParameters: ASPasskeyCredentialRequestParameters
+        requestParameters: ASPasskeyCredentialRequestParameters,
     ) {
         initializeApp(with: DefaultCredentialProviderContext(
-            .autofillFido2VaultList(serviceIdentifiers, requestParameters)
+            .autofillFido2VaultList(serviceIdentifiers, requestParameters),
         ))
     }
 
@@ -58,7 +58,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
         initializeApp(with: DefaultCredentialProviderContext(
-            .autofillCredential(credentialIdentity, userInteraction: true)
+            .autofillCredential(credentialIdentity, userInteraction: true),
         ))
     }
 
@@ -70,7 +70,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         Task {
             await initializeAppWithoutUserInteraction(
-                with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity, userInteraction: false))
+                with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity, userInteraction: false)),
             )
             provideCredential(for: recordIdentifier)
         }
@@ -87,8 +87,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             Task {
                 await initializeAppWithoutUserInteraction(
                     with: DefaultCredentialProviderContext(
-                        .autofillFido2Credential(passkeyRequest, userInteraction: false)
-                    )
+                        .autofillFido2Credential(passkeyRequest, userInteraction: false),
+                    ),
                 )
                 provideFido2Credential(for: passkeyRequest)
             }
@@ -111,15 +111,15 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         case let passkeyRequest as ASPasskeyCredentialRequest:
             initializeApp(
                 with: DefaultCredentialProviderContext(
-                    .autofillFido2Credential(passkeyRequest, userInteraction: true)
-                )
+                    .autofillFido2Credential(passkeyRequest, userInteraction: true),
+                ),
             )
         default:
             if #available(iOSApplicationExtension 18.0, *),
                let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
                let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
                 initializeApp(with: DefaultCredentialProviderContext(
-                    .autofillOTPCredential(otpIdentity, userInteraction: true)
+                    .autofillOTPCredential(otpIdentity, userInteraction: true),
                 ))
             }
         }
@@ -140,8 +140,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             extensionContext.cancelRequest(
                 withError: NSError(
                     domain: ASExtensionErrorDomain,
-                    code: ASExtensionError.userCanceled.rawValue
-                )
+                    code: ASExtensionError.userCanceled.rawValue,
+                ),
             )
         }
     }
@@ -170,7 +170,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// Sets up and initializes the app without user interaction.
     /// - Parameter context: The context that describes how the extension is being used.
     private func initializeAppWithoutUserInteraction(
-        with context: CredentialProviderContext
+        with context: CredentialProviderContext,
     ) async {
         initializeApp(with: context)
         await appProcessor?.prepareEnvironmentConfig()
@@ -186,7 +186,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     ///
     private func provideCredential(
         for id: String,
-        repromptPasswordValidated: Bool = false
+        repromptPasswordValidated: Bool = false,
     ) {
         guard let appProcessor else {
             cancel(error: ASExtensionError(.failed))
@@ -197,7 +197,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             do {
                 let credential = try await appProcessor.provideCredential(
                     for: id,
-                    repromptPasswordValidated: repromptPasswordValidated
+                    repromptPasswordValidated: repromptPasswordValidated,
                 )
                 extensionContext.completeRequest(withSelectedCredential: credential)
             } catch {
@@ -213,7 +213,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     ///   - withUserInteraction: Whether this is called in a flow with user interaction.
     @available(iOSApplicationExtension 17.0, *)
     private func provideFido2Credential(
-        for passkeyRequest: ASPasskeyCredentialRequest
+        for passkeyRequest: ASPasskeyCredentialRequest,
     ) {
         guard let appProcessor else {
             cancel(error: ASExtensionError(.failed))
@@ -223,7 +223,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         Task {
             do {
                 let credential = try await appProcessor.provideFido2Credential(
-                    for: passkeyRequest
+                    for: passkeyRequest,
                 )
                 await extensionContext.completeAssertionRequest(using: credential)
             } catch Fido2Error.userInteractionRequired {
@@ -249,7 +249,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
     private func provideOTPCredential(
         for id: String,
-        repromptPasswordValidated: Bool = false
+        repromptPasswordValidated: Bool = false,
     ) {
         guard let appProcessor else {
             cancel(error: ASExtensionError(.failed))
@@ -260,7 +260,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             do {
                 let credential = try await appProcessor.provideOTPCredential(
                     for: id,
-                    repromptPasswordValidated: repromptPasswordValidated
+                    repromptPasswordValidated: repromptPasswordValidated,
                 )
                 await extensionContext.completeOneTimeCodeRequest(using: credential)
             } catch {
@@ -279,7 +279,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         Task {
             await initializeAppWithoutUserInteraction(
-                with: DefaultCredentialProviderContext(.autofillOTPCredential(otpIdentity, userInteraction: false))
+                with: DefaultCredentialProviderContext(.autofillOTPCredential(otpIdentity, userInteraction: false)),
             )
             provideOTPCredential(for: recordIdentifier)
         }
@@ -379,11 +379,11 @@ extension CredentialProviderViewController: AppExtensionDelegate {
         Task {
             do {
                 try await appProcessor.repromptForCredentialIfNecessary(
-                    for: recordIdentifier
+                    for: recordIdentifier,
                 ) { repromptPasswordValidated in
                     self.provideCredential(
                         for: recordIdentifier,
-                        repromptPasswordValidated: repromptPasswordValidated
+                        repromptPasswordValidated: repromptPasswordValidated,
                     )
                 }
             } catch {
@@ -405,11 +405,11 @@ extension CredentialProviderViewController: AppExtensionDelegate {
         Task {
             do {
                 try await appProcessor.repromptForCredentialIfNecessary(
-                    for: recordIdentifier
+                    for: recordIdentifier,
                 ) { repromptPasswordValidated in
                     self.provideOTPCredential(
                         for: recordIdentifier,
-                        repromptPasswordValidated: repromptPasswordValidated
+                        repromptPasswordValidated: repromptPasswordValidated,
                     )
                 }
             } catch {

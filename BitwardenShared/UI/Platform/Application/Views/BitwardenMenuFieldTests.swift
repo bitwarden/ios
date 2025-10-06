@@ -33,7 +33,7 @@ class BitwardenMenuFieldTests: BitwardenTestCase {
         }
         subject = BitwardenMenuField(
             options: TestValue.allCases,
-            selection: binding
+            selection: binding,
         )
     }
 

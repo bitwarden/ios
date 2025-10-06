@@ -37,7 +37,7 @@ struct AttachmentsView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: AttachmentsAction.toastShown
+            send: AttachmentsAction.toastShown,
         ))
     }
 
@@ -155,8 +155,8 @@ struct AttachmentsView: View {
     NavigationView {
         AttachmentsView(store: Store(processor: StateProcessor(
             state: AttachmentsState(
-                fileName: "photo.jpg"
-            )
+                fileName: "photo.jpg",
+            ),
         )))
     }
 }
@@ -172,23 +172,23 @@ struct AttachmentsView: View {
                                 .fixture(
                                     fileName: "selfieWithACat.png",
                                     id: "1",
-                                    sizeName: "10 MB"
+                                    sizeName: "10 MB",
                                 ),
                                 .fixture(
                                     fileName: "selfieWithADog.png",
                                     id: "2",
-                                    sizeName: "11.2 MB"
+                                    sizeName: "11.2 MB",
                                 ),
                                 .fixture(
                                     fileName: "selfieWithAPotato.png",
                                     id: "3",
-                                    sizeName: "201.2 MB"
+                                    sizeName: "201.2 MB",
                                 ),
-                            ]
-                        )
-                    )
-                )
-            )
+                            ],
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 }

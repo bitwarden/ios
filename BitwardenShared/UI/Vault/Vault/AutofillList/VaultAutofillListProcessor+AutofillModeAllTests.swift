@@ -58,9 +58,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
                 stateService: stateService,
                 textAutofillHelperFactory: textAutofillHelperFactory,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: VaultAutofillListState()
+            state: VaultAutofillListState(),
         )
     }
 
@@ -106,24 +106,24 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .identity
-                    )
-                )
+                        type: .identity,
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
         vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
@@ -148,24 +148,24 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
         vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
@@ -191,24 +191,24 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .identity
-                    )
-                )
+                        type: .identity,
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
         vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
@@ -231,24 +231,24 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
         vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
@@ -271,9 +271,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
-                )
-            )
+                    username: "user@bitwarden.com",
+                ),
+            ),
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -287,10 +287,10 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
-                name: "Test"
-            )
+                name: "Test",
+            ),
         )!
         textAutofillHelper.handleCipherForAutofillError = BitwardenTestError.example
         await subject.perform(.vaultItemTapped(vaultListItem))

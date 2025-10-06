@@ -15,7 +15,7 @@ class MockMasterPasswordRepromptHelper: MasterPasswordRepromptHelper {
 
     func repromptForMasterPasswordIfNeeded(
         cipherId: String,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         repromptForMasterPasswordCipherId = cipherId
         if repromptForMasterPasswordAutoComplete {
@@ -27,7 +27,7 @@ class MockMasterPasswordRepromptHelper: MasterPasswordRepromptHelper {
 
     func repromptForMasterPasswordIfNeeded(
         cipherListView: CipherListView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         repromptForMasterPasswordCipherListView = cipherListView
         if repromptForMasterPasswordAutoComplete {
@@ -39,7 +39,7 @@ class MockMasterPasswordRepromptHelper: MasterPasswordRepromptHelper {
 
     func repromptForMasterPasswordIfNeeded(
         cipherView: CipherView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         repromptForMasterPasswordCipherView = cipherView
         if repromptForMasterPasswordAutoComplete {

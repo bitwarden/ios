@@ -47,12 +47,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginState = CipherItemState(
             existing: .loginFixture(
                 login: .fixture(
-                    password: "password"
+                    password: "password",
                 ),
                 name: "Name",
-                revisionDate: Date()
+                revisionDate: Date(),
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.checkPassword)
@@ -66,12 +66,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginState = CipherItemState(
             existing: .loginFixture(
                 login: .fixture(
-                    username: "username"
+                    username: "username",
                 ),
                 name: "Name",
-                revisionDate: Date()
+                revisionDate: Date(),
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -86,9 +86,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginState = CipherItemState(
             existing: .loginFixture(
                 login: .fixture(password: "password"),
-                revisionDate: Date()
+                revisionDate: Date(),
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -104,12 +104,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 login: .fixture(
                     uris: [
                         .fixture(uri: "www.example.com", match: nil),
-                    ]
+                    ],
                 ),
                 name: "Name",
-                revisionDate: Date()
+                revisionDate: Date(),
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -124,9 +124,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             existing: .loginFixture(
                 name: "Name",
                 notes: "Notes",
-                revisionDate: Date()
+                revisionDate: Date(),
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -147,7 +147,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_downloadAttachmentButton_tap() throws {
         let state = try XCTUnwrap(CipherItemState(
             existing: .fixture(attachments: [.fixture(id: "2")]),
-            hasPremium: true
+            hasPremium: true,
         ))
         processor.state.loadingState = .data(state)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.download)
@@ -159,7 +159,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_editItemFloatingActionButton() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
@@ -170,7 +170,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_editItemFloatingActionButton_hidden_cipherDeleted() async throws {
         processor.state.loadingState = .data(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: true)!)
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton",
         )
         XCTAssertTrue(fab.isHidden())
     }
@@ -189,12 +189,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyNameButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyNameButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyNameButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "Dr First Middle Last",
-            field: .identityName
+            field: .identityName,
         )))
     }
 
@@ -203,12 +203,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyIdentityUsernameButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyUsernameButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyUsernameButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "userName",
-            field: .username
+            field: .username,
         )))
     }
 
@@ -217,12 +217,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyCompanyButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyCompanyButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyCompanyButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "Company name",
-            field: .company
+            field: .company,
         )))
     }
 
@@ -231,12 +231,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copySsnButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopySsnButton"
+            viewWithAccessibilityIdentifier: "IdentityCopySsnButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "12-345-6789",
-            field: .socialSecurityNumber
+            field: .socialSecurityNumber,
         )))
     }
 
@@ -245,12 +245,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyPassportButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyPassportNumberButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyPassportNumberButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "passport #",
-            field: .passportNumber
+            field: .passportNumber,
         )))
     }
 
@@ -259,12 +259,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyLicenseNumberButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyLicenseNumberButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyLicenseNumberButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "license #",
-            field: .licenseNumber
+            field: .licenseNumber,
         )))
     }
 
@@ -273,12 +273,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyPhoneButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyPhoneButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyPhoneButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "(123) 456-7890",
-            field: .phone
+            field: .phone,
         )))
     }
 
@@ -287,12 +287,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyEmailButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyEmailButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyEmailButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "hello@email.com",
-            field: .email
+            field: .email,
         )))
     }
 
@@ -301,12 +301,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_copyAddressButton_tap() throws {
         processor.state.loadingState = .data(identityState())
         let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "IdentityCopyFullAddressButton"
+            viewWithAccessibilityIdentifier: "IdentityCopyFullAddressButton",
         ).button()
         try button.tap()
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
             value: "123 street\naddress2\naddress3\nCity, State, 1234\ncountry",
-            field: .fullAddress
+            field: .fullAddress,
         )))
     }
 
@@ -322,7 +322,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.isShowingMultipleCollections = true
         processor.state.loadingState = .data(cipherState)
         let button = try subject.inspect().find(
-            asyncButton: Localizations.showLess
+            asyncButton: Localizations.showLess,
         )
         try await button.tap()
         XCTAssertTrue(processor.effects.contains(.toggleDisplayMultipleCollections))
@@ -341,9 +341,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             existing: .fixture(
                 id: "1234",
                 name: "identity example",
-                type: .identity
+                type: .identity,
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
@@ -368,7 +368,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             cityOrTown: "City",
             state: "State",
             postalCode: "1234",
-            country: "country"
+            country: "country",
         )
         return cipherState
     }
@@ -379,15 +379,15 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
         hasPremium: Bool = true,
-        hasTotp: Bool = true
+        hasTotp: Bool = true,
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
                 collectionIds: collectionIds,
                 favorite: isFavorite,
-                id: "fake-id"
+                id: "fake-id",
             ),
-            hasPremium: hasPremium
+            hasPremium: hasPremium,
         )!
         cipherState.accountHasPremium = hasPremium
         cipherState.allUserCollections = [
@@ -415,18 +415,18 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 codeModel: .init(
                     code: "032823",
                     codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
-                    period: 30
-                )
+                    period: 30,
+                ),
             )
         }
         cipherState.loginState.uris = [
             UriState(
                 matchType: .custom(.startsWith),
-                uri: "https://www.example.com"
+                uri: "https://www.example.com",
             ),
             UriState(
                 matchType: .custom(.exact),
-                uri: "https://www.example.com/account/login"
+                uri: "https://www.example.com/account/login",
             ),
         ]
 
@@ -435,45 +435,45 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 linkedIdType: nil,
                 name: "Text",
                 type: .text,
-                value: "Value"
+                value: "Value",
             ),
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Text empty",
                 type: .text,
-                value: nil
+                value: nil,
             ),
             CustomFieldState(
                 isPasswordVisible: false,
                 linkedIdType: nil,
                 name: "Hidden Hidden",
                 type: .hidden,
-                value: "pa$$w0rd"
+                value: "pa$$w0rd",
             ),
             CustomFieldState(
                 isPasswordVisible: true,
                 linkedIdType: nil,
                 name: "Hidden Shown",
                 type: .hidden,
-                value: "pa$$w0rd"
+                value: "pa$$w0rd",
             ),
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Boolean True",
                 type: .boolean,
-                value: "true"
+                value: "true",
             ),
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Boolean False",
                 type: .boolean,
-                value: "false"
+                value: "false",
             ),
             CustomFieldState(
                 linkedIdType: .loginUsername,
                 name: "Linked",
                 type: .linked,
-                value: nil
+                value: nil,
             ),
         ]
         return cipherState
@@ -496,8 +496,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(
             loginState(
                 canViewPassword: false,
-                isPasswordVisible: false
-            )
+                isPasswordVisible: false,
+            ),
         )
 
         assertSnapshot(of: subject, as: .tallPortrait)
@@ -508,9 +508,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginState = CipherItemState(
             existing: .fixture(
                 favorite: true,
-                id: "fake-id"
+                id: "fake-id",
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loadingState = .data(loginState)
 
@@ -573,7 +573,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_card() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -582,7 +582,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_card_dark() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
-            as: .defaultPortraitDark
+            as: .defaultPortraitDark,
         )
     }
 
@@ -591,7 +591,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_card_largeText() {
         assertSnapshot(
             of: ViewItemView_Previews.cardPreview,
-            as: .tallPortraitAX5(heightMultiple: 3)
+            as: .tallPortraitAX5(heightMultiple: 3),
         )
     }
 
@@ -600,7 +600,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_login() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
-            as: .tallPortrait
+            as: .tallPortrait,
         )
     }
 
@@ -609,7 +609,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_login_dark() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
-            as: .portraitDark(heightMultiple: 2)
+            as: .portraitDark(heightMultiple: 2),
         )
     }
 
@@ -618,7 +618,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_login_largeText() {
         assertSnapshot(
             of: ViewItemView_Previews.loginPreview,
-            as: .tallPortraitAX5(heightMultiple: 4)
+            as: .tallPortraitAX5(heightMultiple: 4),
         )
     }
 
@@ -627,7 +627,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_secureNote() {
         assertSnapshot(
             of: ViewItemView_Previews.secureNotePreview,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -636,7 +636,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_previews_sshKey() {
         assertSnapshot(
             of: ViewItemView_Previews.sshKeyPreview,
-            as: .tallPortrait
+            as: .tallPortrait,
         )
     }
 
@@ -647,12 +647,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .data(
                 sshKeyCipherItemState(
                     canViewPrivateKey: true,
-                    isPrivateKeyVisible: false
-                )
+                    isPrivateKeyVisible: false,
+                ),
             )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -663,12 +663,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .data(
                 sshKeyCipherItemState(
                     canViewPrivateKey: true,
-                    isPrivateKeyVisible: true
-                )
+                    isPrivateKeyVisible: true,
+                ),
             )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -679,12 +679,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .data(
                 sshKeyCipherItemState(
                     canViewPrivateKey: false,
-                    isPrivateKeyVisible: false
-                )
+                    isPrivateKeyVisible: false,
+                ),
             )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -699,9 +699,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         var state = CipherItemState(
             existing: .fixture(
                 id: "fake-id",
-                type: .sshKey
+                type: .sshKey,
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.name = "Example"
         state.type = .sshKey
@@ -710,7 +710,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             isPrivateKeyVisible: isPrivateKeyVisible,
             privateKey: "ajsdfopij1ZXCVZXC12312QW",
             publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
-            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw",
         )
         return state
     }

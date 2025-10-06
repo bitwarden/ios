@@ -39,7 +39,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -81,7 +81,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -96,7 +96,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
@@ -109,12 +109,12 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         let processor = ItemListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ItemListState()
+            state: ItemListState(),
         )
         let store = Store(processor: processor)
         let view = ItemListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         stackNavigator?.replace(view, animated: false)
     }

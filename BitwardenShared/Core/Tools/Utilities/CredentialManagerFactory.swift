@@ -65,7 +65,7 @@ extension ASCredentialExportManager: CredentialExportManager {
         guard let exportOptions = options as? ASCredentialExportManager.ExportOptions else {
             throw BitwardenError.generalError(
                 type: "Wrong export options",
-                message: "The credential manager returned wrong export options type."
+                message: "The credential manager returned wrong export options type.",
             )
         }
 
@@ -75,8 +75,8 @@ extension ASCredentialExportManager: CredentialExportManager {
                 formatVersion: exportOptions.formatVersion,
                 exporterRelyingPartyIdentifier: Bundle.main.appIdentifier,
                 exporterDisplayName: "Bitwarden",
-                timestamp: Date.now
-            )
+                timestamp: Date.now,
+            ),
         )
     }
 

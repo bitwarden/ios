@@ -36,7 +36,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -46,7 +46,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         to route: ExportCXFRoute,
-        context: AnyObject?
+        context: AnyObject?,
     ) {
         switch route {
         case .dismiss:
@@ -65,7 +65,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: ExportCXFState()
+            state: ExportCXFState(),
         )
         let view = ExportCXFView(store: Store(processor: processor))
         stackNavigator?.replace(view)

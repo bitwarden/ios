@@ -167,7 +167,7 @@ protocol AuthRepository: AnyObject {
         allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool,
-        showPlaceholderToolbarIcon: Bool
+        showPlaceholderToolbarIcon: Bool,
     ) async -> ProfileSwitcherState
 
     /// Requests a one-time password to be sent to the user.
@@ -216,7 +216,7 @@ protocol AuthRepository: AnyObject {
         masterPasswordHint: String,
         organizationId: String,
         organizationIdentifier: String,
-        resetPasswordAutoEnroll: Bool
+        resetPasswordAutoEnroll: Bool,
     ) async throws
 
     /// Sets the SessionTimeoutValue.
@@ -280,7 +280,7 @@ protocol AuthRepository: AnyObject {
         currentPassword: String,
         newPassword: String,
         passwordHint: String,
-        reason: ForcePasswordResetReason
+        reason: ForcePasswordResetReason,
     ) async throws
 
     /// Validates the user's entered master password to determine if it matches the stored hash.
@@ -510,7 +510,7 @@ class DefaultAuthRepository {
         policyService: PolicyService,
         stateService: StateService,
         trustDeviceService: TrustDeviceService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
         self.appContextHelper = appContextHelper
@@ -539,7 +539,7 @@ class DefaultAuthRepository {
 extension DefaultAuthRepository: AuthRepository {
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
         try await biometricsRepository.setBiometricUnlockKey(
-            authKey: enabled ? clientService.crypto().getUserEncryptionKey() : nil
+            authKey: enabled ? clientService.crypto().getUserEncryptionKey() : nil,
         )
     }
 
@@ -594,7 +594,7 @@ extension DefaultAuthRepository: AuthRepository {
     func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
         try await keyConnectorService.convertNewUserToKeyConnector(
             keyConnectorUrl: keyConnectorURL,
-            orgIdentifier: orgIdentifier
+            orgIdentifier: orgIdentifier,
         )
     }
 
@@ -606,28 +606,28 @@ extension DefaultAuthRepository: AuthRepository {
         let registrationKeys = try await clientService.auth().makeRegisterTdeKeys(
             email: account.profile.email,
             orgPublicKey: organizationKeys.publicKey,
-            rememberDevice: rememberDevice
+            rememberDevice: rememberDevice,
         )
 
         try await accountAPIService.setAccountKeys(requestModel: KeysRequestModel(
             encryptedPrivateKey: registrationKeys.privateKey,
-            publicKey: registrationKeys.publicKey
+            publicKey: registrationKeys.publicKey,
         ))
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
                 accountKeys: nil,
                 encryptedPrivateKey: registrationKeys.privateKey,
-                encryptedUserKey: nil
-            )
+                encryptedUserKey: nil,
+            ),
         )
 
         try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
             organizationId: enrollStatus.id,
             requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
-                masterPasswordHash: nil, resetPasswordKey: registrationKeys.adminReset
+                masterPasswordHash: nil, resetPasswordKey: registrationKeys.adminReset,
             ),
-            userId: account.profile.userId
+            userId: account.profile.userId,
         )
 
         if rememberDevice,
@@ -650,8 +650,8 @@ extension DefaultAuthRepository: AuthRepository {
         _ = try await accountAPIService.deleteAccount(
             body: DeleteAccountRequestModel(
                 masterPasswordHash: hashedPassword,
-                otp: otp
-            )
+                otp: otp,
+            ),
         )
 
         let userId = try await stateService.getActiveAccountId()
@@ -693,7 +693,7 @@ extension DefaultAuthRepository: AuthRepository {
         allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool,
-        showPlaceholderToolbarIcon: Bool
+        showPlaceholderToolbarIcon: Bool,
     ) async -> ProfileSwitcherState {
         let accounts = await (try? getAccounts()) ?? []
         guard !accounts.isEmpty else { return .empty() }
@@ -704,7 +704,7 @@ extension DefaultAuthRepository: AuthRepository {
             allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
-            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon,
         )
     }
 
@@ -812,7 +812,7 @@ extension DefaultAuthRepository: AuthRepository {
         masterPasswordHint: String,
         organizationId: String,
         organizationIdentifier: String,
-        resetPasswordAutoEnroll: Bool
+        resetPasswordAutoEnroll: Bool,
     ) async throws {
         let account = try await stateService.getActiveAccount()
         let accountKeys = try await stateService.getAccountEncryptionKeys()
@@ -835,18 +835,18 @@ extension DefaultAuthRepository: AuthRepository {
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
                 password: password,
-                kdf: kdf.sdkKdf
+                kdf: kdf.sdkKdf,
             )
             requestPasswordHash = try await clientService.auth().hashPassword(
                 email: email,
                 password: password,
                 kdfParams: kdf.sdkKdf,
-                purpose: .serverAuthorization
+                purpose: .serverAuthorization,
             )
             requestUserKey = keys.encryptedUserKey
             requestKeys = KeysRequestModel(
                 encryptedPrivateKey: keys.keys.private,
-                publicKey: keys.keys.public
+                publicKey: keys.keys.public,
             )
             encryptedPrivateKey = keys.keys.private
         }
@@ -857,33 +857,33 @@ extension DefaultAuthRepository: AuthRepository {
             keys: requestKeys,
             masterPasswordHash: requestPasswordHash,
             masterPasswordHint: masterPasswordHint,
-            orgIdentifier: organizationIdentifier
+            orgIdentifier: organizationIdentifier,
         )
 
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
             accountKeys: accountPrivateKeys,
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: requestUserKey
+            encryptedUserKey: requestUserKey,
         ))
         try await stateService.setUserHasMasterPassword(true)
 
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
-                organizationId: organizationId
+                organizationId: organizationId,
             )
 
             let resetPasswordKey = try await clientService.crypto().enrollAdminPasswordReset(
-                publicKey: organizationKeys.publicKey
+                publicKey: organizationKeys.publicKey,
             )
 
             try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
                 organizationId: organizationId,
                 requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
                     masterPasswordHash: requestPasswordHash,
-                    resetPasswordKey: resetPasswordKey
+                    resetPasswordKey: resetPasswordKey,
                 ),
-                userId: account.profile.userId
+                userId: account.profile.userId,
             )
         }
 
@@ -894,7 +894,7 @@ extension DefaultAuthRepository: AuthRepository {
         let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
         try await stateService.setPinKeys(
             enrollPinResponse: enrollPinResponse,
-            requirePasswordAfterRestart: requirePasswordAfterRestart
+            requirePasswordAfterRestart: requirePasswordAfterRestart,
         )
     }
 
@@ -906,19 +906,19 @@ extension DefaultAuthRepository: AuthRepository {
         if case .never = newValue {
             try await keychainService.setUserAuthKey(
                 for: .neverLock(userId: id),
-                value: clientService.crypto().getUserEncryptionKey()
+                value: clientService.crypto().getUserEncryptionKey(),
             )
         } else if currentValue == .never {
             // If there is a key, delete. If not, no worries.
             try? await keychainService.deleteUserAuthKey(
-                for: .neverLock(userId: id)
+                for: .neverLock(userId: id),
             )
         }
 
         // Then configure the vault timeout service with the correct value.
         try await vaultTimeoutService.setVaultTimeout(
             value: newValue,
-            userId: id
+            userId: id,
         )
     }
 
@@ -934,8 +934,8 @@ extension DefaultAuthRepository: AuthRepository {
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
-                method: method
-            )
+                method: method,
+            ),
         )
     }
 
@@ -960,7 +960,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await unlockVault(method: .deviceKey(
             deviceKey: deviceKey,
             protectedDevicePrivateKey: protectedDevicePrivateKey,
-            deviceProtectedUserKey: deviceProtectedUserKey
+            deviceProtectedUserKey: deviceProtectedUserKey,
         ))
     }
 
@@ -972,7 +972,7 @@ extension DefaultAuthRepository: AuthRepository {
         guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
         let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: keyConnectorURL
+            keyConnectorUrl: keyConnectorURL,
         )
         try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
     }
@@ -996,8 +996,8 @@ extension DefaultAuthRepository: AuthRepository {
             try await unlockVault(
                 method: .pinEnvelope(
                     pin: pin,
-                    pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope
-                )
+                    pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+                ),
             )
         } else {
             // This is needed to support unlocking with a legacy pin protected user key. Once the
@@ -1019,7 +1019,7 @@ extension DefaultAuthRepository: AuthRepository {
             do {
                 let passwordHash = try await clientService.auth().validatePasswordUserKey(
                     password: password,
-                    encryptedUserKey: encUserKey
+                    encryptedUserKey: encUserKey,
                 )
                 try await stateService.setMasterPasswordHash(passwordHash)
                 return true
@@ -1074,7 +1074,7 @@ extension DefaultAuthRepository: AuthRepository {
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
         let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
         let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
-            userId: account.profile.userId
+            userId: account.profile.userId,
         )) == true
         let unlockedOnNeverLock = hasNeverLock && !isManuallyLocked
         let displayAsUnlocked = !isLocked || unlockedOnNeverLock
@@ -1095,7 +1095,7 @@ extension DefaultAuthRepository: AuthRepository {
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials(),
-            webVault: account.settings.environmentUrls?.webVaultHost ?? ""
+            webVault: account.settings.environmentUrls?.webVaultHost ?? "",
         )
     }
 
@@ -1112,7 +1112,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await clientService.crypto().initializeUserCrypto(
             account: account,
             encryptionKeys: encryptionKeys,
-            method: method
+            method: method,
         )
 
         await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")
@@ -1124,7 +1124,7 @@ extension DefaultAuthRepository: AuthRepository {
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
-                purpose: .localAuthorization
+                purpose: .localAuthorization,
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
             await updateKdfToMinimumsIfNeeded(password: password)
@@ -1142,7 +1142,7 @@ extension DefaultAuthRepository: AuthRepository {
         _ = try await trustDeviceService.trustDeviceIfNeeded()
         try await vaultTimeoutService.unlockVault(
             userId: account.profile.userId,
-            hadUserInteraction: hadUserInteraction
+            hadUserInteraction: hadUserInteraction,
         )
         try await organizationService.initializeOrganizationCrypto()
         do {
@@ -1170,7 +1170,7 @@ extension DefaultAuthRepository: AuthRepository {
         currentPassword: String,
         newPassword: String,
         passwordHint: String,
-        reason: ForcePasswordResetReason
+        reason: ForcePasswordResetReason,
     ) async throws {
         let account = try await stateService.getActiveAccount()
         let updatePasswordResponse = try await clientService.crypto().makeUpdatePassword(newPassword: newPassword)
@@ -1179,14 +1179,14 @@ extension DefaultAuthRepository: AuthRepository {
             email: account.profile.email,
             password: currentPassword,
             kdfParams: account.kdf.sdkKdf,
-            purpose: .serverAuthorization
+            purpose: .serverAuthorization,
         )
 
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let newEncryptionKeys = AccountEncryptionKeys(
             accountKeys: encryptionKeys.accountKeys,
             encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
-            encryptedUserKey: updatePasswordResponse.newKey
+            encryptedUserKey: updatePasswordResponse.newKey,
         )
 
         switch reason {
@@ -1195,8 +1195,8 @@ extension DefaultAuthRepository: AuthRepository {
                 UpdateTempPasswordRequestModel(
                     key: updatePasswordResponse.newKey,
                     masterPasswordHint: passwordHint,
-                    newMasterPasswordHash: updatePasswordResponse.passwordHash
-                )
+                    newMasterPasswordHash: updatePasswordResponse.passwordHash,
+                ),
             )
         case .weakMasterPasswordOnLogin:
             try await accountAPIService.updatePassword(
@@ -1204,8 +1204,8 @@ extension DefaultAuthRepository: AuthRepository {
                     key: updatePasswordResponse.newKey,
                     masterPasswordHash: masterPasswordHash,
                     masterPasswordHint: passwordHint,
-                    newMasterPasswordHash: updatePasswordResponse.passwordHash
-                )
+                    newMasterPasswordHash: updatePasswordResponse.passwordHash,
+                ),
             )
         }
 
@@ -1238,11 +1238,11 @@ extension DefaultAuthRepository: AuthRepository {
             // If the user has a legacy pin, migrate to a pin protected user key envelope.
             guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
             let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                encryptedPin: encryptedPin
+                encryptedPin: encryptedPin,
             )
             try await stateService.setPinKeys(
                 enrollPinResponse: enrollPinResponse,
-                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart()
+                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart(),
             )
             await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
@@ -1251,7 +1251,7 @@ extension DefaultAuthRepository: AuthRepository {
             // protected user key in memory for future unlocks prior to app restart.
             guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
             let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                encryptedPin: encryptedPin
+                encryptedPin: encryptedPin,
             )
             try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
             await flightRecorder.log("[Auth] Set PIN-protected user key in memory")

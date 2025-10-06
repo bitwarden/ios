@@ -13,7 +13,7 @@ class AddCipherRequestTests: BitwardenTestCase {
 
         subject = AddCipherRequest(
             cipher: .fixture(revisionDate: Date(year: 2023, month: 10, day: 31)),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
     }
 

@@ -11,7 +11,7 @@ final class ToastViewTests: BitwardenTestCase {
         for preview in ToastView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+                as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
             )
         }
     }

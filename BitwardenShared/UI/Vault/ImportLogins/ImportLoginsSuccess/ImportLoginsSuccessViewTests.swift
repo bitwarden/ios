@@ -54,7 +54,7 @@ class ImportLoginsSuccessViewTests: BitwardenTestCase {
     func disabletest_snapshot_importLoginsSuccess() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 3), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 3), .defaultLandscape],
         )
     }
 }

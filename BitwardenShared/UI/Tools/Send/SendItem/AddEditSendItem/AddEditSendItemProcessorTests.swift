@@ -40,9 +40,9 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 reviewPromptService: reviewPromptService,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
             ),
-            state: AddEditSendItemState()
+            state: AddEditSendItemState(),
         )
     }
 
@@ -72,7 +72,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
         )
     }
 
@@ -115,7 +115,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.deleting
+            Localizations.deleting,
         )
         XCTAssertEqual(coordinator.routes.last, .deleted)
     }
@@ -166,7 +166,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.removingSendPassword
+            Localizations.removingSendPassword,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
@@ -193,7 +193,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.removingSendPassword
+            Localizations.removingSendPassword,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
@@ -343,7 +343,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.youMustAttachAFileToSaveThisSend
+                message: Localizations.youMustAttachAFileToSaveThisSend,
             ),
         ])
     }
@@ -365,7 +365,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.youMustAttachAFileToSaveThisSend
+                message: Localizations.youMustAttachAFileToSaveThisSend,
             ),
         ])
     }
@@ -387,7 +387,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.maxFileSize
+                message: Localizations.maxFileSize,
             ),
         ])
     }
@@ -405,7 +405,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let sendView = SendView.fixture(
             id: "SEND_ID",
             name: "Name",
-            text: .fixture(text: "Text")
+            text: .fixture(text: "Text"),
         )
         sendRepository.addTextSendResult = .success(sendView)
         sendRepository.shareURLResult = .success(.example)
@@ -424,7 +424,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
         )
 
         subject.receive(.toastShown(nil))

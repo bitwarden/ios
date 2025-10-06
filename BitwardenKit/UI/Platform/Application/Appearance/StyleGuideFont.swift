@@ -77,7 +77,7 @@ extension StyleGuideFont {
             font: font,
             lineHeight: lineHeight,
             size: size,
-            textStyle: textStyle
+            textStyle: textStyle,
         )
     }
 }
@@ -140,7 +140,7 @@ public extension StyleGuideFont {
     static let caption2Monospaced = StyleGuideFont(
         font: .system(.caption2, design: .monospaced),
         lineHeight: 13,
-        size: 11
+        size: 11,
     )
 }
 
@@ -171,13 +171,13 @@ public extension View {
     func styleGuide(
         _ style: StyleGuideFont,
         includeLinePadding: Bool = true,
-        includeLineSpacing: Bool = true
+        includeLineSpacing: Bool = true,
     ) -> some View {
         font(.styleGuide(style))
             .lineHeight(
                 for: style,
                 includeLinePadding: includeLinePadding,
-                includeLineSpacing: includeLineSpacing
+                includeLineSpacing: includeLineSpacing,
             )
     }
 
@@ -194,7 +194,7 @@ public extension View {
     func lineHeight(
         for style: StyleGuideFont,
         includeLinePadding: Bool,
-        includeLineSpacing: Bool
+        includeLineSpacing: Bool,
     ) -> some View {
         if includeLineSpacing {
             padding(.vertical, (style.lineHeight - style.size) / 2)
@@ -230,7 +230,7 @@ public extension Text {
         isItalic: Bool = false,
         includeLinePadding: Bool = true,
         includeLineSpacing: Bool = true,
-        monoSpacedDigit: Bool = false
+        monoSpacedDigit: Bool = false,
     ) -> some View {
         var textWithFont = font(.styleGuide(style))
             .fontWeight(weight)
@@ -244,7 +244,7 @@ public extension Text {
             .lineHeight(
                 for: style,
                 includeLinePadding: includeLinePadding,
-                includeLineSpacing: includeLineSpacing
+                includeLineSpacing: includeLineSpacing,
             )
     }
 }

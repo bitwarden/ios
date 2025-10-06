@@ -18,7 +18,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
 
         subject = AppExtensionProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            state: AppExtensionState()
+            state: AppExtensionState(),
         )
     }
 

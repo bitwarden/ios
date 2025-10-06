@@ -461,7 +461,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async {
         masterPasswordUnlockByUserId[userId] = masterPasswordUnlock
     }
@@ -511,7 +511,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setAppRehydrationState(
         _ rehydrationState: BitwardenShared.AppRehydrationState?,
-        userId: String?
+        userId: String?,
     ) async throws {
         if let setAppRehydrationStateError {
             throw setAppRehydrationStateError
@@ -656,7 +656,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         if requirePasswordAfterRestart {
             accountVolatileData[
                 userId,
-                default: AccountVolatileData()
+                default: AccountVolatileData(),
             ].pinProtectedUserKey = enrollPinResponse.pinProtectedUserKeyEnvelope
         }
     }
@@ -665,7 +665,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(nil)
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pin
     }
 

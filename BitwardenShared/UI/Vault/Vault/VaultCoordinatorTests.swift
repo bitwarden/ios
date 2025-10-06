@@ -37,9 +37,9 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -74,7 +74,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await subject.handleEvent(.switchAccount(
             isAutomatic: true,
             userId: "1",
-            authCompletionRoute: route
+            authCompletionRoute: route,
         ))
 
         XCTAssertTrue(delegate.switchedAccounts)
@@ -238,10 +238,10 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             to: .importCXF(
                 .importCredentials(
                     credentialImportToken: UUID(
-                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
-                    )!
-                )
-            )
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
+                    )!,
+                ),
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -252,9 +252,9 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             module.importCXFCoordinator.routes.last,
             .importCredentials(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
-                )!
-            )
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
+                )!,
+            ),
         )
     }
 

@@ -28,9 +28,9 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
             delegate: delegate,
             module: module,
             services: ServiceContainer.withMocks(
-                configService: configService
+                configService: configService,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -92,7 +92,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.genericErrorMessage
+            message: Localizations.genericErrorMessage,
         )
         subject.showAlert(alert)
 

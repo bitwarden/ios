@@ -7,7 +7,7 @@ import BitwardenResources
 class LoginDecryptionOptionsProcessor: StateProcessor<
     LoginDecryptionOptionsState,
     LoginDecryptionOptionsAction,
-    LoginDecryptionOptionsEffect
+    LoginDecryptionOptionsEffect,
 > {
     // MARK: Types
 
@@ -36,7 +36,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LoginDecryptionOptionsState
+        state: LoginDecryptionOptionsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -53,7 +53,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             await setTrustAndNavigate(route: .loginWithDevice(
                 email: state.email,
                 authRequestType: AuthRequestType.authenticateAndUnlock,
-                isAuthenticated: true
+                isAuthenticated: true,
             ))
         case .continuePressed:
             await createNewSsoUser()
@@ -65,7 +65,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             await setTrustAndNavigate(route: .loginWithDevice(
                 email: state.email,
                 authRequestType: AuthRequestType.adminApproval,
-                isAuthenticated: true
+                isAuthenticated: true,
             ))
         }
     }
@@ -88,7 +88,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 userAccount,
                 animated: true,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
+                didSwitchAccountAutomatically: false,
             ))
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -101,7 +101,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             guard let orgIdentifier = state.orgIdentifier else { throw AuthError.missingData }
             try await services.authRepository.createNewSsoUser(
                 orgIdentifier: orgIdentifier,
-                rememberDevice: state.isRememberDeviceToggleOn
+                rememberDevice: state.isRememberDeviceToggleOn,
             )
 
             await coordinator.handleEvent(.didCompleteAuth)
@@ -113,7 +113,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     private func hasApprovedPendingAdminRequest() async throws -> Bool {
         if let savedPendingAdminLoginRequest = try await services.authService.getPendingAdminLoginRequest(userId: nil),
            let adminAuthRequest = try await services.authService.getPendingLoginRequest(
-               withId: savedPendingAdminLoginRequest.id
+               withId: savedPendingAdminLoginRequest.id,
            ).first,
            let key = adminAuthRequest.key,
            let approved = adminAuthRequest.requestApproved,
@@ -122,7 +122,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: savedPendingAdminLoginRequest.privateKey,
                 key: key,
-                masterPasswordHash: adminAuthRequest.masterPasswordHash
+                masterPasswordHash: adminAuthRequest.masterPasswordHash,
             )
 
             // Remove admin pending login request if exists

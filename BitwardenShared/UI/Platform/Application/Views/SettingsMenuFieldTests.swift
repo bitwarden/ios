@@ -34,7 +34,7 @@ class SettingsMenuFieldTests: BitwardenTestCase {
         subject = SettingsMenuField(
             title: "Title",
             options: TestValue.allCases,
-            selection: binding
+            selection: binding,
         )
     }
 

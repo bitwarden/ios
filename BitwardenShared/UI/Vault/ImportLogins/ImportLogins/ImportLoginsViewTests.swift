@@ -88,7 +88,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
     func disabletest_snapshot_importLoginsIntro() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape],
         )
     }
 
@@ -98,7 +98,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
         processor.state.page = .step1
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape],
         )
     }
 
@@ -109,7 +109,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
         processor.state.webVaultHost = "vault.bitwarden.com"
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape],
         )
     }
 
@@ -119,7 +119,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
         processor.state.page = .step3
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape],
         )
     }
 }

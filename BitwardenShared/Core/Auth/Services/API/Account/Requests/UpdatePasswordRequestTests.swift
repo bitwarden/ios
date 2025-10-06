@@ -18,8 +18,8 @@ class UpdatePasswordRequestTests: BitwardenTestCase {
                 key: "KEY",
                 masterPasswordHash: "MASTER_PASSWORD_HASH",
                 masterPasswordHint: "MASTER_PASSWORD_HINT",
-                newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
-            )
+                newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
+            ),
         )
     }
 
@@ -43,7 +43,7 @@ class UpdatePasswordRequestTests: BitwardenTestCase {
               "masterPasswordHint" : "MASTER_PASSWORD_HINT",
               "newMasterPasswordHash" : "NEW_MASTER_PASSWORD_HASH"
             }
-            """
+            """,
         )
     }
 

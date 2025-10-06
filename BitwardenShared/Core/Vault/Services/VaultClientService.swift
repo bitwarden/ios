@@ -90,7 +90,7 @@ extension VaultClient: VaultClientService {
         TOTPCodeModel(
             code: response.code,
             codeGenerationDate: calculationDate,
-            period: response.period
+            period: response.period,
         )
     }
 }

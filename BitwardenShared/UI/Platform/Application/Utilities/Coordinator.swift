@@ -55,7 +55,7 @@ protocol Coordinator<Route, Event>: AnyObject {
     func showErrorAlert(
         error: Error,
         tryAgain: (() async -> Void)?,
-        onDismissed: (() -> Void)?
+        onDismissed: (() -> Void)?,
     ) async
 
     /// Shows the loading overlay view.
@@ -205,16 +205,16 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
             shareErrorDetails: {
                 let errorReport = await self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
                     for: error,
-                    callStack: callStack
+                    callStack: callStack,
                 )
 
                 let viewController = UIActivityViewController(
                     activityItems: [errorReport],
-                    applicationActivities: nil
+                    applicationActivities: nil,
                 )
                 self.navigator?.present(viewController)
             },
-            tryAgain: tryAgain
+            tryAgain: tryAgain,
         )
         showAlert(alert, onDismissed: onDismissed)
     }
@@ -255,11 +255,11 @@ extension Coordinator where Self: HasNavigator {
     func showToast(
         _ title: String,
         subtitle: String? = nil,
-        additionalBottomPadding: CGFloat = 0
+        additionalBottomPadding: CGFloat = 0,
     ) {
         navigator?.showToast(
             Toast(title: title, subtitle: subtitle),
-            additionalBottomPadding: additionalBottomPadding
+            additionalBottomPadding: additionalBottomPadding,
         )
     }
 }

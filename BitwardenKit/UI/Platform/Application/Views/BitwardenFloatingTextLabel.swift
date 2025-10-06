@@ -82,7 +82,7 @@ public struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: 
         isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder trailingContent: () -> TrailingContent
+        @ViewBuilder trailingContent: () -> TrailingContent,
     ) {
         self.content = content()
         self.isTextFieldDisabled = isTextFieldDisabled
@@ -104,7 +104,7 @@ public struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: 
         title: String?,
         isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) where TrailingContent == EmptyView {
         self.content = content()
         self.isTextFieldDisabled = isTextFieldDisabled
@@ -124,12 +124,12 @@ public struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: 
                     showPlaceholder ? .body : .subheadline,
                     weight: showPlaceholder ? .regular : .semibold,
                     includeLinePadding: false,
-                    includeLineSpacing: false
+                    includeLineSpacing: false,
                 )
                 .foregroundStyle(
                     isEnabled && !isTextFieldDisabled
                         ? SharedAsset.Colors.textSecondary.swiftUIColor
-                        : SharedAsset.Colors.textDisabled.swiftUIColor
+                        : SharedAsset.Colors.textDisabled.swiftUIColor,
                 )
         }
     }

@@ -95,7 +95,7 @@ class MockSendRepository: SendRepository {
 
     func searchSendPublisher(
         searchText: String,
-        type: BitwardenShared.SendType?
+        type: BitwardenShared.SendType?,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         searchSendSearchText = searchText
         searchSendType = type
@@ -115,7 +115,7 @@ class MockSendRepository: SendRepository {
     }
 
     func sendTypeListPublisher(
-        type: BitwardenShared.SendType
+        type: BitwardenShared.SendType,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         sendTypeListPublisherType = type
         return sendTypeListSubject

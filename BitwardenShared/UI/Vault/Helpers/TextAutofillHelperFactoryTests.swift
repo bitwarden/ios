@@ -31,7 +31,7 @@ class TextAutofillHelperFactoryTests: BitwardenTestCase {
             errorReporter: errorReporter,
             eventService: eventService,
             userVerificationHelperFactory: userVerificationHelperFactory,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
     }
 

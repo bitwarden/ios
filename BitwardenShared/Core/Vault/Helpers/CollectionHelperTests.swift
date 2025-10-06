@@ -44,7 +44,7 @@ class CollectionHelperTests: BitwardenTestCase {
                 "Collection 1",
                 "Collection 2",
                 "Collection 3",
-            ]
+            ],
         )
         XCTAssertFalse(organizationService.fetchAllOrganizationsCalled)
     }
@@ -65,7 +65,7 @@ class CollectionHelperTests: BitwardenTestCase {
                 "Collection 2",
                 "Collection 1",
                 "Collection 3",
-            ]
+            ],
         )
         XCTAssertFalse(organizationService.fetchAllOrganizationsCalled)
     }
@@ -94,7 +94,7 @@ class CollectionHelperTests: BitwardenTestCase {
                 "[2] My Items",
                 "[4] Collection 1",
                 "[1] Collection 3",
-            ]
+            ],
         )
     }
 }

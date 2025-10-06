@@ -59,7 +59,7 @@ actor DefaultTokenService: TokenService {
     init(
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -98,6 +98,6 @@ extension DefaultTokenService: ClientManagedTokens {
     func getAccessToken() async -> String? {
         // TODO: PM-21846 Returning `nil` temporarily until we add validation
         // given that the SDK expects non-expired token.
-        return nil
+        nil
     }
 }

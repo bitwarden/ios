@@ -12,7 +12,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         let subject = AddEditSendItemState(mode: .add)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
         )
     }
 
@@ -23,7 +23,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         let subject = AddEditSendItemState(customDeletionDate: deletionDate, mode: .edit)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(deletionDate)]
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(deletionDate)],
         )
     }
 
@@ -33,7 +33,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         let subject = AddEditSendItemState(mode: .shareExtension(.singleAccount))
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
         )
     }
 
@@ -52,7 +52,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             notes: "Notes",
             password: "password",
             text: "Text",
-            type: .text
+            type: .text,
         )
         let sendView = subject.newSendView()
         XCTAssertNil(sendView.id)
@@ -82,7 +82,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         let subject = AddEditSendItemState(
             customDeletionDate: deletionDate,
             deletionDate: .custom(deletionDate),
-            expirationDate: .distantPast
+            expirationDate: .distantPast,
         )
         let sendView = subject.newSendView()
         XCTAssertEqual(sendView.deletionDate, deletionDate)
@@ -108,7 +108,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             hideEmail: false,
             revisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 0),
             deletionDate: deletionDate,
-            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22),
         )
         let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.id, "ID")
@@ -150,7 +150,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             hideEmail: false,
             revisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 0),
             deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
-            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22),
         )
         let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.id, "ID")
@@ -172,11 +172,11 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.isHideMyEmailOn, false)
         XCTAssertEqual(
             subject.customDeletionDate,
-            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
         )
         XCTAssertEqual(
             subject.expirationDate,
-            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22),
         )
     }
 }

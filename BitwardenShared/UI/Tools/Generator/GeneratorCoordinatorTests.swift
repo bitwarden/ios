@@ -24,7 +24,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             module: module,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -124,7 +124,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
             delegate: nil,
             module: module,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         subject.navigate(to: .generator())
 

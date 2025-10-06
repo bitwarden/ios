@@ -48,7 +48,7 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
         keyPath: WritableKeyPath<State, T>,
         options: [T],
         selection: T,
-        title: String
+        title: String,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
@@ -89,7 +89,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
                 options: field.options,
                 selection: Binding(get: { field.selection }, set: action),
                 titleAccessoryContent: { titleAccessoryContent },
-                trailingContent: { trailingContent }
+                trailingContent: { trailingContent },
             )
         } else if let trailingContent {
             BitwardenMenuField(
@@ -98,7 +98,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
                 accessibilityIdentifier: field.accessibilityIdentifier,
                 options: field.options,
                 selection: Binding(get: { field.selection }, set: action),
-                trailingContent: { trailingContent }
+                trailingContent: { trailingContent },
             )
         } else if let titleAccessoryContent {
             BitwardenMenuField(
@@ -107,7 +107,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
                 accessibilityIdentifier: field.accessibilityIdentifier,
                 options: field.options,
                 selection: Binding(get: { field.selection }, set: action),
-                titleAccessoryContent: { titleAccessoryContent }
+                titleAccessoryContent: { titleAccessoryContent },
             )
         } else {
             BitwardenMenuField(
@@ -115,7 +115,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
                 footer: field.footer,
                 accessibilityIdentifier: field.accessibilityIdentifier,
                 options: field.options,
-                selection: Binding(get: { field.selection }, set: action)
+                selection: Binding(get: { field.selection }, set: action),
             )
         }
     }
@@ -130,7 +130,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     ///
     init(
         field: FormMenuField<State, T>,
-        action: @escaping (T) -> Void
+        action: @escaping (T) -> Void,
     ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
         self.action = action
         self.field = field
@@ -148,7 +148,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
-        trailingContent: @escaping () -> TrailingContent
+        trailingContent: @escaping () -> TrailingContent,
     ) where TitleAccessory == EmptyView {
         self.action = action
         self.field = field
@@ -166,7 +166,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
-        titleAccessoryContent: @escaping () -> TitleAccessory
+        titleAccessoryContent: @escaping () -> TitleAccessory,
     ) where TrailingContent == EmptyView {
         self.action = action
         self.field = field
@@ -186,7 +186,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
         titleAccessoryContent: () -> TitleAccessory,
-        trailingContent: @escaping () -> TrailingContent
+        trailingContent: @escaping () -> TrailingContent,
     ) {
         self.action = action
         self.field = field

@@ -58,13 +58,13 @@ public enum UI {
     ///
     public static func applyDefaultAppearances() { // swiftlint:disable:this function_body_length
         let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.regular.font(size: 15)
+            for: FontFamily.DMSans.regular.font(size: 15),
         )
         let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 15)
+            for: FontFamily.DMSans.bold.font(size: 15),
         )
         let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 26)
+            for: FontFamily.DMSans.bold.font(size: 26),
         )
         let iconBadgeBackground = SharedAsset.Colors.iconBadgeBackground.color
         let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
@@ -124,7 +124,7 @@ public enum UI {
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(
             [.font: FontFamily.DMSans.regular.font(size: 15)],
-            for: .normal
+            for: .normal,
         )
 
         UISearchBar.appearance().tintColor = SharedAsset.Colors.textInteraction.color

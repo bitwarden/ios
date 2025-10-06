@@ -4,10 +4,10 @@ import BitwardenSdk
 
 extension BitwardenSdk.CardListView {
     static func fixture(
-        brand: String? = nil
+        brand: String? = nil,
     ) -> CardListView {
         .init(
-            brand: brand
+            brand: brand,
         )
     }
 }

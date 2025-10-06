@@ -55,7 +55,7 @@ class AppearanceViewTests: BitwardenTestCase {
     func disabletest_snapshot_viewRender() {
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

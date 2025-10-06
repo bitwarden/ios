@@ -43,7 +43,7 @@ public extension ImageStyle {
         color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
         scaleWithFont: false,
         width: 32,
-        height: 32
+        height: 32,
     )
 
     /// An `ImageStyle` for applying common properties for icons within a row.
@@ -62,7 +62,7 @@ public extension ImageStyle {
         color: SharedAsset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
         width: 24,
-        height: 24
+        height: 24,
     )
 
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
@@ -76,7 +76,7 @@ public extension ImageStyle {
     ///
     static func accessoryIcon16(
         color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
-        scaleWithFont: Bool = false
+        scaleWithFont: Bool = false,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
     }
@@ -92,7 +92,7 @@ public extension ImageStyle {
     ///
     static func accessoryIcon24(
         color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
-        scaleWithFont: Bool = false
+        scaleWithFont: Bool = false,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
     }
@@ -108,7 +108,7 @@ public extension ImageStyle {
     ///
     static func rowIcon(
         color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
-        scaleWithFont: Bool = true
+        scaleWithFont: Bool = true,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
     }
@@ -126,7 +126,7 @@ public extension ImageStyle {
     static func viewIcon(
         color: Color = SharedAsset.Colors.illustrationOutline.swiftUIColor,
         scaleWithFont: Bool = true,
-        size: CGFloat = 36
+        size: CGFloat = 36,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: size, height: size)
     }

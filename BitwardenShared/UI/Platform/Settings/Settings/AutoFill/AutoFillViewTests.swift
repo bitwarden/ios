@@ -111,7 +111,7 @@ class AutoFillViewTests: BitwardenTestCase {
         processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -121,7 +121,7 @@ class AutoFillViewTests: BitwardenTestCase {
         processor.state.defaultUriMatchType = UriMatchType.regularExpression
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -131,7 +131,7 @@ class AutoFillViewTests: BitwardenTestCase {
         processor.state.defaultUriMatchType = UriMatchType.startsWith
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 

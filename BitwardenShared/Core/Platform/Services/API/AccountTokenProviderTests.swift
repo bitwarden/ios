@@ -21,7 +21,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         subject = DefaultAccountTokenProvider(
             httpService: HTTPService(baseURL: URL(string: "https://example.com")!, client: client),
-            tokenService: tokenService
+            tokenService: tokenService,
         )
     }
 

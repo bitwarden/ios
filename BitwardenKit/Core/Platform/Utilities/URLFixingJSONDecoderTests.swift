@@ -66,7 +66,7 @@ class URLFixingJSONDecoderTests: BitwardenTestCase {
                 "http://10.0.0.2:4000/example",
                 "api.example.com/v1/endpoint",
                 "https://secure.example.com/api/v2",
-            ]
+            ],
         )
     }
 

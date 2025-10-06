@@ -19,7 +19,7 @@ protocol EditCollectionsProcessorDelegate: AnyObject {
 class EditCollectionsProcessor: StateProcessor<
     EditCollectionsState,
     EditCollectionsAction,
-    EditCollectionsEffect
+    EditCollectionsEffect,
 > {
     // MARK: Types
 
@@ -53,7 +53,7 @@ class EditCollectionsProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: EditCollectionsProcessorDelegate?,
         services: Services,
-        state: EditCollectionsState
+        state: EditCollectionsState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -101,8 +101,8 @@ class EditCollectionsProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection
-                )
+                    message: Localizations.selectOneCollection,
+                ),
             )
             return
         }

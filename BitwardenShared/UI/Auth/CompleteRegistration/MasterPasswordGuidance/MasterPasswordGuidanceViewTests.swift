@@ -58,7 +58,7 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .tallPortraitAX5(heightMultiple: 2),
                 .defaultLandscape,
-            ]
+            ],
         )
     }
 }

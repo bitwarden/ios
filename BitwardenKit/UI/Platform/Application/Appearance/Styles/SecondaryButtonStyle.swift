@@ -86,13 +86,13 @@ public extension ButtonStyle where Self == SecondaryButtonStyle {
         isDestructive: Bool = false,
         isReversed: Bool = false,
         shouldFillWidth: Bool = true,
-        size: ButtonStyleSize = .large
+        size: ButtonStyleSize = .large,
     ) -> SecondaryButtonStyle {
         SecondaryButtonStyle(
             isDestructive: isDestructive,
             isReversed: isReversed,
             shouldFillWidth: shouldFillWidth,
-            size: size
+            size: size,
         )
     }
 }

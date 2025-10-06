@@ -29,7 +29,7 @@ class MockExportVaultService: ExportVaultService {
 
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String {
         mockFileName
     }

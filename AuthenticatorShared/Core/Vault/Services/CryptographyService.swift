@@ -26,7 +26,7 @@ class DefaultCryptographyService: CryptographyService {
     ///   - cryptographyKeyService: A service for getting the cryptography key
     ///
     init(
-        cryptographyKeyService: CryptographyKeyService
+        cryptographyKeyService: CryptographyKeyService,
     ) {
         self.cryptographyKeyService = cryptographyKeyService
     }
@@ -51,7 +51,7 @@ class DefaultCryptographyService: CryptographyService {
             id: authenticatorItemView.id,
             name: encryptedName,
             totpKey: encryptString(authenticatorItemView.totpKey, withKey: secretKey),
-            username: encryptString(authenticatorItemView.username, withKey: secretKey)
+            username: encryptString(authenticatorItemView.username, withKey: secretKey),
         )
     }
 
@@ -69,7 +69,7 @@ class DefaultCryptographyService: CryptographyService {
             id: authenticatorItem.id,
             name: decryptString(authenticatorItem.name, withKey: secretKey) ?? "",
             totpKey: decryptString(authenticatorItem.totpKey, withKey: secretKey),
-            username: decryptString(authenticatorItem.username, withKey: secretKey)
+            username: decryptString(authenticatorItem.username, withKey: secretKey),
         )
     }
 
@@ -89,7 +89,7 @@ class DefaultCryptographyService: CryptographyService {
 
         let encryptedSealedBox = try AES.GCM.seal(
             data,
-            using: secretKey
+            using: secretKey,
         )
 
         return encryptedSealedBox.combined?.base64EncodedString()
@@ -107,12 +107,12 @@ class DefaultCryptographyService: CryptographyService {
         }
 
         let encryptedSealedBox = try AES.GCM.SealedBox(
-            combined: data
+            combined: data,
         )
 
         let decryptedBox = try AES.GCM.open(
             encryptedSealedBox,
-            using: secretKey
+            using: secretKey,
         )
 
         return String(data: decryptedBox, encoding: .utf8)

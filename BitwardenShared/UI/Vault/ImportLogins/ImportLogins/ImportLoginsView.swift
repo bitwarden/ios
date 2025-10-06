@@ -48,7 +48,7 @@ struct ImportLoginsView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.import,
                 title: Localizations.giveYourVaultAHeadStart,
-                message: Localizations.importLoginsDescriptionLong
+                message: Localizations.importLoginsDescriptionLong,
             )
 
             VStack(spacing: 12) {
@@ -78,7 +78,7 @@ struct ImportLoginsView: View {
             NumberedListRow(title: Localizations.exportYourPasswordsThisOptionIsUsuallyFoundInYourSettings)
             NumberedListRow(
                 title: Localizations.saveTheExportedFileSomewhereOnYourComputerYouCanFindEasily,
-                subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete
+                subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete,
             )
         }
     }
@@ -114,7 +114,7 @@ struct ImportLoginsView: View {
     private func stepView(
         step: Int,
         title: String,
-        @ViewBuilder list: () -> some View
+        @ViewBuilder list: () -> some View,
     ) -> some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
@@ -129,7 +129,7 @@ struct ImportLoginsView: View {
             NumberedList(content: list)
 
             Text(LocalizedStringKey(
-                Localizations.needHelpCheckOutImportHelp(ExternalLinksConstants.importHelp)
+                Localizations.needHelpCheckOutImportHelp(ExternalLinksConstants.importHelp),
             ))
             .multilineTextAlignment(.center)
             .styleGuide(.footnote)

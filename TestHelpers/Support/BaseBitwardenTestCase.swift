@@ -11,7 +11,7 @@ open class BaseBitwardenTestCase: XCTestCase {
                 """
                 Tests must be run using iOS 26.0 on an iPhone 17 Pro simulator.
                 Snapshot tests depend on using the correct device.
-                """
+                """,
             )
         }
     }
@@ -47,7 +47,7 @@ open class BaseBitwardenTestCase: XCTestCase {
     open func assertAsyncThrows(
         _ block: () async throws -> Void,
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) async {
         do {
             try await block()
@@ -72,7 +72,7 @@ open class BaseBitwardenTestCase: XCTestCase {
         error: E,
         file: StaticString = #file,
         line: UInt = #line,
-        _ block: () async throws -> Void
+        _ block: () async throws -> Void,
     ) async {
         do {
             try await block()
@@ -83,7 +83,7 @@ open class BaseBitwardenTestCase: XCTestCase {
             XCTFail(
                 "The error caught (\(caughtError)) does not match the type of error provided (\(error)).",
                 file: file,
-                line: line
+                line: line,
             )
         }
     }
@@ -101,7 +101,7 @@ open class BaseBitwardenTestCase: XCTestCase {
     open func assertAsyncDoesNotThrow(
         _ block: () async throws -> Void,
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) async {
         do {
             try await block()
@@ -139,7 +139,7 @@ open class BaseBitwardenTestCase: XCTestCase {
         timeout: TimeInterval = 10.0,
         failureMessage: String = "waitFor condition wasn't met within the time limit",
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         let start = Date()
         let limit = Date(timeIntervalSinceNow: timeout)
@@ -171,14 +171,14 @@ open class BaseBitwardenTestCase: XCTestCase {
         timeout: TimeInterval = 10.0,
         failureMessage: String = "waitFor condition wasn't met within the time limit",
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         waitFor(
             condition,
             timeout: timeout,
             failureMessage: failureMessage,
             file: file,
-            line: line
+            line: line,
         )
     }
 
@@ -200,7 +200,7 @@ open class BaseBitwardenTestCase: XCTestCase {
         timeout: TimeInterval = 10.0,
         failureMessage: String = "waitForAsync condition wasn't met within the time limit",
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) async throws {
         let start = Date()
         let limit = Date(timeIntervalSinceNow: timeout)
@@ -224,7 +224,7 @@ open class BaseBitwardenTestCase: XCTestCase {
         start: Date,
         afterSeconds: Int = 3,
         functionName: String = #function,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         // If the condition took more than 3 seconds to satisfy, add a warning to the logs to look into it.
         let elapsed = Date().timeIntervalSince(start)

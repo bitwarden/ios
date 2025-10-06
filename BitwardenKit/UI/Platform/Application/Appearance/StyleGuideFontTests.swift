@@ -11,7 +11,7 @@ final class StyleGuideFontTests: BitwardenTestCase {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait]
+                as: [.defaultPortrait],
             )
         }
     }
@@ -21,7 +21,7 @@ final class StyleGuideFontTests: BitwardenTestCase {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortraitAX5]
+                as: [.defaultPortraitAX5],
             )
         }
     }

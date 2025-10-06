@@ -34,6 +34,6 @@ public protocol ShareExtensionDelegate: AnyObject {
     ///
     func handle(
         _ coordinator: AnyCoordinator<SendRoute, AuthEvent>,
-        authAction: AuthAction
+        authAction: AuthAction,
     ) async
 }

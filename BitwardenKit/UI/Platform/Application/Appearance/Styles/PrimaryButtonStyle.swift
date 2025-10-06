@@ -64,12 +64,12 @@ public extension ButtonStyle where Self == PrimaryButtonStyle {
     static func primary(
         isDestructive: Bool = false,
         shouldFillWidth: Bool = true,
-        size: ButtonStyleSize = .large
+        size: ButtonStyleSize = .large,
     ) -> PrimaryButtonStyle {
         PrimaryButtonStyle(
             isDestructive: isDestructive,
             size: size,
-            shouldFillWidth: shouldFillWidth
+            shouldFillWidth: shouldFillWidth,
         )
     }
 }

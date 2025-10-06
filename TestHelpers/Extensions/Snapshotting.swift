@@ -14,7 +14,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.landscape)),
-            traits: UITraitCollection(userInterfaceStyle: .light)
+            traits: UITraitCollection(userInterfaceStyle: .light),
         )
     }
 
@@ -28,7 +28,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             traits: UITraitCollection(traitsFrom: [
                 UITraitCollection(userInterfaceStyle: .light),
                 UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
-            ])
+            ]),
         )
     }
 
@@ -39,7 +39,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.landscape)),
-            traits: UITraitCollection(userInterfaceStyle: .dark)
+            traits: UITraitCollection(userInterfaceStyle: .dark),
         )
     }
 
@@ -49,7 +49,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.portrait)),
-            traits: UITraitCollection(userInterfaceStyle: .light)
+            traits: UITraitCollection(userInterfaceStyle: .light),
         )
     }
 
@@ -63,7 +63,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             traits: UITraitCollection(traitsFrom: [
                 UITraitCollection(userInterfaceStyle: .light),
                 UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
-            ])
+            ]),
         )
     }
 
@@ -74,7 +74,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.portrait)),
-            traits: .init(userInterfaceStyle: .dark)
+            traits: .init(userInterfaceStyle: .dark),
         )
     }
 
@@ -84,7 +84,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .sizeThatFits,
-            traits: UITraitCollection(userInterfaceStyle: .light)
+            traits: UITraitCollection(userInterfaceStyle: .light),
         )
     }
 
@@ -99,7 +99,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
-            traits: .init(userInterfaceStyle: .light)
+            traits: .init(userInterfaceStyle: .light),
         )
     }
 
@@ -114,7 +114,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
-            traits: .init(userInterfaceStyle: .light)
+            traits: .init(userInterfaceStyle: .light),
         )
     }
 
@@ -130,7 +130,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
-            traits: .init(userInterfaceStyle: .light)
+            traits: .init(userInterfaceStyle: .light),
         )
     }
 
@@ -149,7 +149,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
-            traits: .init(userInterfaceStyle: .light)
+            traits: .init(userInterfaceStyle: .light),
         )
     }
 
@@ -168,7 +168,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
-            traits: .init(userInterfaceStyle: .dark)
+            traits: .init(userInterfaceStyle: .dark),
         )
     }
 
@@ -192,7 +192,7 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             traits: UITraitCollection(traitsFrom: [
                 UITraitCollection(userInterfaceStyle: .light),
                 UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
-            ])
+            ]),
         )
     }
 }
@@ -209,7 +209,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
         .image(
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
-            size: ViewImageConfig.iPhone13(.portrait).size
+            size: ViewImageConfig.iPhone13(.portrait).size,
         )
     }
 }

@@ -9,7 +9,7 @@ struct DeleteAccountState: Equatable {
 
     /// A detailed description of the view.
     var description: String {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             Localizations.cannotDeleteAccountDescriptionLong
         } else {
             Localizations.deleteAccountExplanation
@@ -18,7 +18,7 @@ struct DeleteAccountState: Equatable {
 
     /// The main icon to be displayed.
     var mainIcon: SharedImageAsset {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             SharedAsset.Icons.circleX16
         } else {
             SharedAsset.Icons.warning24
@@ -35,7 +35,7 @@ struct DeleteAccountState: Equatable {
 
     /// A short description of the view.
     var title: String {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             Localizations.cannotDeleteAccount
         } else {
             Localizations.deletingYourAccountIsPermanent

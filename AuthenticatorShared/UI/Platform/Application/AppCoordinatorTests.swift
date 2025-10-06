@@ -25,7 +25,7 @@ class AppCoordinatorTests: BitwardenTestCase {
             appContext: .mainApp,
             module: module,
             rootNavigator: rootNavigator,
-            services: services
+            services: services,
         )
     }
 

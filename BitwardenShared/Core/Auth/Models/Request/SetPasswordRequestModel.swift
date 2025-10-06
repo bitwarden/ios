@@ -52,7 +52,7 @@ struct SetPasswordRequestModel: JSONRequestBody {
         keys: KeysRequestModel?,
         masterPasswordHash: String,
         masterPasswordHint: String?,
-        orgIdentifier: String
+        orgIdentifier: String,
     ) {
         kdf = kdfConfig.kdf
         kdfIterations = kdfConfig.kdfIterations

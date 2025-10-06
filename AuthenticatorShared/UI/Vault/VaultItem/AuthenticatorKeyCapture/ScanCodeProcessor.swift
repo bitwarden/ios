@@ -44,7 +44,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     init(
         coordinator: any Coordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         services: Services,
-        state: ScanCodeState
+        state: ScanCodeState,
     ) {
         self.coordinator = coordinator
         self.services = services

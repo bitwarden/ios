@@ -59,11 +59,11 @@ public extension MenuStyle where Self == PrimaryMenuStyle {
     ///
     static func primary(
         shouldFillWidth: Bool = true,
-        size: ButtonStyleSize = .large
+        size: ButtonStyleSize = .large,
     ) -> PrimaryMenuStyle {
         PrimaryMenuStyle(
             size: size,
-            shouldFillWidth: shouldFillWidth
+            shouldFillWidth: shouldFillWidth,
         )
     }
 }

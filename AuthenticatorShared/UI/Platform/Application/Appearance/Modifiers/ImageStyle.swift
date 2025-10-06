@@ -41,7 +41,7 @@ extension ImageStyle {
     ///
     static func accessoryIcon(
         color: Color = Asset.Colors.primaryBitwarden.swiftUIColor,
-        scaleWithFont: Bool = false
+        scaleWithFont: Bool = false,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
     }
