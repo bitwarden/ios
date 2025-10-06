@@ -17,6 +17,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
 
     /// The keychain item for device key.
     case deviceKey(userId: String)
+    
+    /// The keychain item for the device passkey
+    case devicePasskey(userId: String)
 
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
@@ -39,7 +42,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .pendingAdminLoginRequest,
              .refreshToken:
             nil
-        case .biometrics:
+        case .biometrics,
+             .devicePasskey:
             .biometryCurrentSet
         }
     }
@@ -56,6 +60,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .authenticatorVaultKey,
              .refreshToken:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        case .devicePasskey:
+            kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
         }
     }
 
@@ -71,6 +77,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
+        case let .devicePasskey(userId: id):
+            "devicePasskey_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
@@ -112,6 +120,12 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteDeviceKey(userId: String) async throws
 
+    /// Attempts to delete the device passkey from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device passkey.
+    ///
+    func deleteDevicePasskey(userId: String) async throws
+
     /// Attempts to delete the pending admin login request from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device key.
@@ -138,6 +152,13 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The device key.
     ///
     func getDeviceKey(userId: String) async throws -> String?
+
+    /// Gets the stored device passkey for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device passkey.
+    /// - Returns: The device passkey.
+    ///
+    func getDevicePasskey(userId: String) async throws -> String?
 
     /// Gets the stored refresh token for a user from the keychain.
     ///
@@ -183,6 +204,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the device key later on.
     ///
     func setDeviceKey(_ value: String, userId: String) async throws
+
+    /// Stores the device passkey for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The device passkey to store.
+    ///   - userId: The user's ID, used to get back the device passkey later on.
+    ///
+    func setDevicePasskey(_ value: String, userId: String) async throws
 
     /// Stores the refresh token for a user in the keychain.
     ///
@@ -382,6 +411,7 @@ extension DefaultKeychainRepository {
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
+            // Exclude `devicePasskey` since it is used to log back into an account.
             .neverLock(userId: userId),
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
             // is approved, the next login for the user will succeed with the pending request.
@@ -404,6 +434,12 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteDevicePasskey(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .devicePasskey(userId: userId))
+        )
+    }
+
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
@@ -420,6 +456,10 @@ extension DefaultKeychainRepository {
 
     func getDeviceKey(userId: String) async throws -> String? {
         try await getValue(for: .deviceKey(userId: userId))
+    }
+
+    func getDevicePasskey(userId: String) async throws -> String? {
+        try? await getValue(for: .devicePasskey(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -444,6 +484,10 @@ extension DefaultKeychainRepository {
 
     func setDeviceKey(_ value: String, userId: String) async throws {
         try await setValue(value, for: .deviceKey(userId: userId))
+    }
+
+    func setDevicePasskey(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .devicePasskey(userId: userId))
     }
 
     func setRefreshToken(_ value: String, userId: String) async throws {
