@@ -51,7 +51,7 @@ struct ScrollViewModifier: ViewModifier {
 
 // MARK: - View + ScrollViewModifier
 
-extension View {
+public extension View {
     /// Applies the `ScrollViewModifier` to a view.
     ///
     /// - Parameters:

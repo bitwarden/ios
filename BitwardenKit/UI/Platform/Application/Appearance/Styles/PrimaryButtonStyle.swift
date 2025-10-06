@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for all primary buttons in this application.
 ///
-struct PrimaryButtonStyle: ButtonStyle {
+public struct PrimaryButtonStyle: ButtonStyle {
     // MARK: Properties
 
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -37,7 +37,7 @@ struct PrimaryButtonStyle: ButtonStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
             .multilineTextAlignment(.center)
@@ -53,7 +53,7 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == PrimaryButtonStyle {
+public extension ButtonStyle where Self == PrimaryButtonStyle {
     /// The style for all primary buttons in this application.
     ///
     /// - Parameters:

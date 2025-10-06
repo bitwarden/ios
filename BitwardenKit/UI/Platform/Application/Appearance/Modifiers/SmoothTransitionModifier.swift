@@ -39,7 +39,7 @@ struct SmoothTransitionEffect: GeometryEffect {
 
 // MARK: - Extensions
 
-extension View {
+public extension View {
     /// A view modifier that applies a smooth transition effect to the view.
     ///
     func smoothTransition<V: Equatable>(animation: Animation, value: V) -> some View {

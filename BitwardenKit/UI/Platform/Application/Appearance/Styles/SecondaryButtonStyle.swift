@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The style for all secondary buttons in this application.
 ///
-struct SecondaryButtonStyle: ButtonStyle {
+public struct SecondaryButtonStyle: ButtonStyle {
     // MARK: Properties
 
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -53,7 +53,7 @@ struct SecondaryButtonStyle: ButtonStyle {
 
     // MARK: ButtonStyle
 
-    func makeBody(configuration: Configuration) -> some View {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
             .multilineTextAlignment(.center)
@@ -73,7 +73,7 @@ struct SecondaryButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == SecondaryButtonStyle {
+public extension ButtonStyle where Self == SecondaryButtonStyle {
     /// The style for all secondary buttons in this application.
     ///
     /// - Parameters:

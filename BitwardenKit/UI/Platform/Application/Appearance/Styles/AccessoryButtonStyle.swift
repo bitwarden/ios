@@ -5,21 +5,26 @@ import SwiftUI
 
 /// The style for an accessory button.
 ///
-struct AccessoryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct AccessoryButtonStyle: ButtonStyle {
+    /// A value indicating whether the button is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled
+
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 14, height: 14)
-            .padding(10)
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(Asset.Colors.fillTertiary.swiftUIColor)
-            .clipShape(Circle())
+            .frame(width: 24, height: 24)
+            .foregroundColor(
+                isEnabled
+                    ? SharedAsset.Colors.iconPrimary.swiftUIColor
+                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            )
             .opacity(configuration.isPressed ? 0.5 : 1)
+            .contentShape(Rectangle())
     }
 }
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == AccessoryButtonStyle {
+public extension ButtonStyle where Self == AccessoryButtonStyle {
     /// The style for an accessory buttons in this application.
     ///
     static var accessory: AccessoryButtonStyle {

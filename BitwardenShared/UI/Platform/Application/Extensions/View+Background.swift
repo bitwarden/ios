@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 /// Helper functions extended from the `View` protocol
