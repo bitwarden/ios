@@ -122,7 +122,11 @@ def yeet(processes):
     for p in processes:
         try:
             output.append(f"🤠 pyeetd: Stopping - {p.output_string}")
-            os.killpg(p.pid, signal.SIGKILL)
+            try:
+                os.killpg(p.pid, signal.SIGKILL)
+            except PermissionError:
+                subprocess.run(['sudo', 'kill', '-SIGKILL', str(p.pid)], capture_output=True, check=False)
+                output.append(f"🔐 pyeetd with sudo - {p.pid}")
         except (OSError, ProcessLookupError) as e:
             output.append(f"😪 pyeetd: Failed to stop {p.pid} - {e}")
     return output
