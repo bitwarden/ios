@@ -185,7 +185,7 @@ struct SendListItemRowView: View {
             }
 
         } label: {
-            Asset.Images.ellipsisHorizontal24.swiftUIImage
+            SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
         .accessibilityIdentifier("SendOptionsButton")
@@ -227,8 +227,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "DisabledSendIcon",
-                    asset: Asset.Images.warning16.swiftUIImage,
-                ),
+                    asset: SharedAsset.Icons.warning16.swiftUIImage
+                )
             )
         }
 
@@ -236,8 +236,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PasswordProtectedSendIcon",
-                    asset: Asset.Images.key16.swiftUIImage,
-                ),
+                    asset: SharedAsset.Icons.key16.swiftUIImage
+                )
             )
         }
 
@@ -246,8 +246,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "MaxAccessSendIcon",
-                    asset: Asset.Images.doNot16.swiftUIImage,
-                ),
+                    asset: SharedAsset.Icons.doNot16.swiftUIImage
+                )
             )
         }
 
@@ -255,8 +255,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "ExpiredSendIcon",
-                    asset: Asset.Images.clock16.swiftUIImage,
-                ),
+                    asset: SharedAsset.Icons.clock16.swiftUIImage
+                )
             )
         }
 
@@ -264,8 +264,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PendingDeletionSendIcon",
-                    asset: Asset.Images.trash16.swiftUIImage,
-                ),
+                    asset: SharedAsset.Icons.trash16.swiftUIImage
+                )
             )
         }
 

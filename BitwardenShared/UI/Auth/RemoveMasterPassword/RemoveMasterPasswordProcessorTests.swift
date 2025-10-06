@@ -81,7 +81,11 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_continueFlow_invalidPassword() async throws {
         authRepository.migrateUserToKeyConnectorResult = .failure(
-            BitwardenSdk.BitwardenError.E(message: "invalid master password"),
+            BitwardenSdk.BitwardenError.AuthValidate(
+                AuthValidateError.WrongPassword(
+                    message: "invalid master password"
+                )
+            )
         )
         subject.state.masterPassword = "password"
 

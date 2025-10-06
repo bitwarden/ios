@@ -86,7 +86,7 @@ struct ExtensionActivationView: View {
     @ViewBuilder private var image: some View {
         switch store.state.extensionType {
         case .appExtension:
-            Image(decorative: Asset.Images.shield24)
+            Image(decorative: SharedAsset.Icons.shield24)
                 .resizable()
                 .frame(width: 70, height: 70)
                 .padding(16)
@@ -95,7 +95,7 @@ struct ExtensionActivationView: View {
                         .strokeBorder(SharedAsset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
                 }
         case .autofillExtension:
-            Image(decorative: Asset.Images.check24)
+            Image(decorative: SharedAsset.Icons.check24)
                 .resizable()
                 .frame(width: 100, height: 100)
                 .foregroundStyle(.green)

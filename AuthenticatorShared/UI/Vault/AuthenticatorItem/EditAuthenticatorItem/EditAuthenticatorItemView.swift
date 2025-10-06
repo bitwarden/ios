@@ -109,7 +109,7 @@ struct EditAuthenticatorItemView: View {
                 Text(Localizations.advanced)
                     .styleGuide(.body)
 
-                Asset.Images.downAngle.swiftUIImage
+                SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon)
                     .rotationEffect(store.state.isAdvancedExpanded ? Angle(degrees: 180) : .zero)
             }

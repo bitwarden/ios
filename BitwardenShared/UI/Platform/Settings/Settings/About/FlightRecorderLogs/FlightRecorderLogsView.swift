@@ -107,7 +107,7 @@ struct FlightRecorderLogsView: View {
                 }
                 .disabled(log.isActiveLog)
             } label: {
-                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
             .accessibilityLabel(Localizations.more)

@@ -82,7 +82,7 @@ struct VaultGroupView: View {
             if let newItemButtonType = store.state.newItemButtonType {
                 let newItemLabel = Label(
                     store.state.addItemButtonTitle,
-                    image: Asset.Images.plus16.swiftUIImage,
+                    image: SharedAsset.Icons.plus16.swiftUIImage
                 )
 
                 Group {

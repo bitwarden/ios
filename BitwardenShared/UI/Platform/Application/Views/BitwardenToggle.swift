@@ -164,7 +164,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
                 Text("Toggle")
 
                 Button {} label: {
-                    Asset.Images.cog16.swiftUIImage
+                    SharedAsset.Icons.cog16.swiftUIImage
                 }
                 .buttonStyle(.fieldLabelIcon)
             }

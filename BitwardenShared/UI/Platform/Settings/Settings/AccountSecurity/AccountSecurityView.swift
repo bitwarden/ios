@@ -95,7 +95,7 @@ struct AccountSecurityView: View {
                 ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
-                    Image(asset: Asset.Images.externalLink24)
+                    Image(asset: SharedAsset.Icons.externalLink24)
                         .imageStyle(.rowIcon)
                 }
 
@@ -136,7 +136,7 @@ struct AccountSecurityView: View {
             ) {
                 store.send(.pendingLoginRequestsTapped)
             } trailingContent: {
-                Image(asset: Asset.Images.chevronRight16)
+                Image(asset: SharedAsset.Icons.chevronRight16)
                     .imageStyle(.accessoryIcon16)
             }
             .contentBlock()

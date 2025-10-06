@@ -88,7 +88,7 @@ private struct MainSendListView: View {
                     .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted,
             ) {
                 Group {
-                    let newSendLabel = Label(Localizations.newSend, image: Asset.Images.plus16.swiftUIImage)
+                    let newSendLabel = Label(Localizations.newSend, image: SharedAsset.Icons.plus16.swiftUIImage)
                     if let sendType = store.state.type {
                         AsyncButton {
                             await store.perform(.addItemPressed(sendType))
@@ -250,7 +250,7 @@ struct SendListView: View {
                         Button {
                             store.send(.infoButtonPressed)
                         } label: {
-                            Image(asset: Asset.Images.questionCircle24, label: Text(Localizations.aboutSend))
+                            Image(asset: SharedAsset.Icons.questionCircle24, label: Text(Localizations.aboutSend))
                                 .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                         }
                         .frame(minHeight: 44)

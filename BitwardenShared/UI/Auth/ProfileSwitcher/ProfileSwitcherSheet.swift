@@ -40,7 +40,7 @@ public struct ProfileSwitcherSheet: View {
         AsyncButton {
             await store.perform(.addAccountPressed)
         } label: {
-            Label(Localizations.addAccount, image: Asset.Images.plus16.swiftUIImage)
+            Label(Localizations.addAccount, image: SharedAsset.Icons.plus16.swiftUIImage)
         }
         .buttonStyle(.bitwardenBorderless)
         .frame(maxWidth: .infinity, alignment: .center)

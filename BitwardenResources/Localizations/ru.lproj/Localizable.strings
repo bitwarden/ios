@@ -1289,3 +1289,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Предупреждение:** “Начинается с\\” - это расширенный вариант с повышенным риском компрометации учетных данных.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Предупреждение:** “Регулярное выражение\\” - это расширенный вариант с повышенным риском компрометации учетных данных при неправильном использовании.";
 "DefaultX" = "По умолчанию (%1$@)";
+"UpdateYourEncryptionSettings" = "Обновите настройки шифрования";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас.";
+"Updating" = "Обновление...";
+"EncryptionSettingsUpdated" = "Настройки шифрования обновлены";

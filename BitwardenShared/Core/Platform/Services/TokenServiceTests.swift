@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -6,6 +7,7 @@ import XCTest
 class TokenServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultTokenService!
@@ -15,15 +17,21 @@ class TokenServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
-        subject = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
+        subject = DefaultTokenService(
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        errorReporter = nil
         keychainRepository = nil
         stateService = nil
         subject = nil
@@ -35,12 +43,12 @@ class TokenServiceTests: BitwardenTestCase {
     func test_getAccessToken() async throws {
         stateService.activeAccount = .fixture()
 
-        let accessToken = try await subject.getAccessToken()
+        let accessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(accessToken, "ACCESS_TOKEN")
 
         keychainRepository.getAccessTokenResult = .success("🔑")
 
-        let updatedAccessToken = try await subject.getAccessToken()
+        let updatedAccessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(updatedAccessToken, "🔑")
     }
 
@@ -49,8 +57,16 @@ class TokenServiceTests: BitwardenTestCase {
         stateService.activeAccount = nil
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getAccessToken()
+            let accessToken: String = try await subject.getAccessToken()
         }
+    }
+
+    /// `getAccessToken()` returns the access token stored in the state service for the active account
+    /// for the `ClientManagedTokens` function. Now it temporarily returns `nil` until the expired validation is added
+    /// as the SDK always expect a valid token.
+    func test_getAccessToken_sdk() async throws {
+        let accessToken: String? = await subject.getAccessToken()
+        XCTAssertNil(accessToken)
     }
 
     /// `getIsExternal()` returns false if the user isn't an external user.

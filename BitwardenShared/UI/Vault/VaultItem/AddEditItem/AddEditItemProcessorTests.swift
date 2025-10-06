@@ -1056,7 +1056,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
 
         await subject.perform(.fetchCipherOptions)
 
@@ -1092,7 +1092,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering"),
         ])
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
 
         await subject.perform(.fetchCipherOptions)
 
@@ -1138,7 +1138,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "3", name: "Platform", organizationId: "1"),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
@@ -1160,7 +1160,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "3", name: "Platform", organizationId: "1", type: .defaultUserCollection),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
@@ -1180,7 +1180,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering", organizationId: "1", type: .sharedCollection),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
@@ -1200,7 +1200,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering", organizationId: "1", type: .sharedCollection),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = false
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = []
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
@@ -1220,7 +1220,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering", organizationId: "1"),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
@@ -1245,7 +1245,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering", organizationId: "1"),
         ]
 
-        policyService.policyAppliesToUserResult[.personalOwnership] = true
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = ["1"]
         vaultRepository.fetchCipherOwnershipOptions = [.organization(id: "1", name: "OrgTest")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 

@@ -26,7 +26,7 @@ struct AccessoryButton: View {
     var action: Action
 
     /// The image to display in the button.
-    var asset: ImageAsset
+    var asset: SharedImageAsset
 
     var body: some View {
         switch action {
@@ -59,7 +59,7 @@ struct AccessoryButton: View {
     ///   - accessibilityLabel: The accessibility label of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: ImageAsset, accessibilityLabel: String, action: @escaping () -> Void) {
+    init(asset: SharedImageAsset, accessibilityLabel: String, action: @escaping () -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .sync(action)
         self.asset = asset
@@ -73,7 +73,7 @@ struct AccessoryButton: View {
     ///   - accessibilityLabel: The accessibility label of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: ImageAsset, accessibilityLabel: String, action: @escaping () async -> Void) {
+    init(asset: SharedImageAsset, accessibilityLabel: String, action: @escaping () async -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .async(action)
         self.asset = asset
@@ -83,5 +83,5 @@ struct AccessoryButton: View {
 // MARK: Previews
 
 #Preview {
-    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copy) {}
+    AccessoryButton(asset: SharedAsset.Icons.copy16, accessibilityLabel: Localizations.copy) {}
 }

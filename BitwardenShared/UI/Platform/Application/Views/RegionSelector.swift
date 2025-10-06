@@ -31,7 +31,7 @@ struct RegionSelector: View {
                 .styleGuide(.footnote)
                 .multilineTextAlignment(.leading)
 
-                Image(decorative: Asset.Images.chevronDown16)
+                Image(decorative: SharedAsset.Icons.chevronDown16)
                     .scaledFrame(width: 12, height: 12)
                     .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }

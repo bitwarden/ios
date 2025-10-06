@@ -82,7 +82,7 @@ struct CompleteRegistrationView: View {
     /// The section where the user can learn more about passwords.
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(decorative: Asset.Images.questionCircle24)
+            Image(decorative: SharedAsset.Icons.questionCircle24)
                 .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {

@@ -37,7 +37,7 @@ struct PasswordStrengthIndicator: View {
             HStack {
                 HStack(spacing: 4) {
                     if passwordTextCount >= requiredTextCount {
-                        Image(asset: Asset.Images.check12)
+                        Image(asset: SharedAsset.Icons.check12)
                             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
                     } else {

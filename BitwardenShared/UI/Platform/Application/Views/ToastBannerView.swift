@@ -45,7 +45,7 @@ struct ToastBannerView<ButtonContent: View>: View {
                     Button {
                         isVisible = false
                     } label: {
-                        Image(asset: Asset.Images.close16, label: Text(Localizations.close))
+                        Image(asset: SharedAsset.Icons.close16, label: Text(Localizations.close))
                             .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconReversed.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }

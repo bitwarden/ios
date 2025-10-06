@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 /// Data model for an item displayed in the vault list.
@@ -36,21 +37,21 @@ extension SendListItem {
 
 extension SendListItem {
     /// An image asset for this item that can be used in the UI.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch itemType {
         case let .send(sendView):
             switch sendView.type {
             case .file:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .text:
-                Asset.Images.fileText24
+                SharedAsset.Icons.fileText24
             }
         case let .group(group, _):
             switch group {
             case .file:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .text:
-                Asset.Images.fileText24
+                SharedAsset.Icons.fileText24
             }
         }
     }

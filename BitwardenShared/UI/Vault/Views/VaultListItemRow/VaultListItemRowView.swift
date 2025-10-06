@@ -38,7 +38,7 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
-                                    Asset.Images.collections16.swiftUIImage
+                                    SharedAsset.Icons.collections16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true,
@@ -48,7 +48,7 @@ struct VaultListItemRowView: View {
                                 }
 
                                 if cipherItem.attachments > 0 {
-                                    Asset.Images.paperclip16.swiftUIImage
+                                    SharedAsset.Icons.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true,
@@ -83,7 +83,7 @@ struct VaultListItemRowView: View {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                                SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)
@@ -155,7 +155,7 @@ struct VaultListItemRowView: View {
                 Button {
                     store.send(.copyTOTPCode(model.totpCode.code))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                 }
                 .foregroundColor(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.copyTotp)

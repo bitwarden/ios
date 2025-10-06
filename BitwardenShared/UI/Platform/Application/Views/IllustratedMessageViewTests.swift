@@ -35,7 +35,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     /// Test snapshots of the largeTextTintedIcon style.
     func disabletest_snapshot_largeTextTintedIcon() {
         let subject = IllustratedMessageView(
-            image: Asset.Images.plus24,
+            image: SharedAsset.Icons.plus24,
             style: .largeTextTintedIcon,
             title: Localizations.importPasswords,
             message: Localizations.startImportCXFDescriptionLong,

@@ -351,6 +351,9 @@ class DefaultClientBuilder: ClientBuilder {
     /// The settings applied to the client.
     private let settings: ClientSettings?
 
+    /// The token provider to pass to the SDK.
+    private let tokenProvider: ClientManagedTokens
+
     // MARK: Initialization
 
     /// Initializes a new client.
@@ -358,18 +361,21 @@ class DefaultClientBuilder: ClientBuilder {
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - settings: The settings applied to the client.
+    ///   - tokenProvider: The token provider to pass to the SDK.
     init(
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
+        tokenProvider: ClientManagedTokens
     ) {
         self.errorReporter = errorReporter
         self.settings = settings
+        self.tokenProvider = tokenProvider
     }
 
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        Client(settings: settings)
+        Client(tokenProvider: tokenProvider, settings: settings)
     }
 }
 

@@ -55,7 +55,7 @@
 "Name" = "Nosaukums";
 "No" = "Nē";
 "Notes" = "Piezīmes";
-"OK" = "OK";
+"OK" = "Labi";
 "Password" = "Parole";
 "Save" = "Saglabāt";
 "Move" = "Pārvietot";
@@ -155,7 +155,7 @@
 "NoItems" = "Glabātavā nav vienumu.";
 "NoItemsTap" = "Glabātāvā nav vienumu, ko izmantot šajā tīmekļvietnē/lietotnē. Piesist, lai pievienotu.";
 "NoUsernamePasswordConfigured" = "Šajā pieteikšanās vienumā nav norādīts lietotājvārds vai parole.";
-"OKGotIt" = "OK, got it!";
+"OKGotIt" = "Labi, sapratu.";
 "OptionDefaults" = "Option defaults are set from the main Bitwarden app’s password generator tool.";
 "Options" = "Iespējas";
 "Other" = "Citi";
@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Brīdinājums:** “Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Brīdinājums:** “Regulārā izteiksme” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.";
 "DefaultX" = "Noklusējums (%1$@)";
+"UpdateYourEncryptionSettings" = "Atjaunini savus šifrēšanas iestatījumus";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad.";
+"Updating" = "Atjaunina...";
+"EncryptionSettingsUpdated" = "Šifrēšanas iestatījumi ir atjaunināti";

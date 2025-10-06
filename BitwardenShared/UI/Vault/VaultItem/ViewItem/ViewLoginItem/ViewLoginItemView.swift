@@ -69,7 +69,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -116,7 +116,7 @@ struct ViewLoginItemView: View {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.accessoryIcon24)
             }
             .accessibilityLabel(Localizations.copy)
@@ -167,7 +167,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)

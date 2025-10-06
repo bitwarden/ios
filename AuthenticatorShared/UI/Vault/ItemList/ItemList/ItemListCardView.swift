@@ -55,7 +55,7 @@ struct ItemListCardView<ImageContent: View>: View {
                 Button {
                     closeTapped()
                 } label: {
-                    Image(decorative: Asset.Images.cancel)
+                    Image(decorative: SharedAsset.Icons.close16)
                         .padding(16) // Add padding to increase tappable area...
                 }
                 .padding(-16) // ...but remove it to not affect layout.
@@ -104,7 +104,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                         .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
                     buttonText: Localizations.takeMeToTheAppSettings,
                     leftImage: {
-                        Image(decorative: Asset.Images.syncArrow)
+                        Image(decorative: SharedAsset.Icons.arrowSync24)
                             .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                             .frame(width: 24, height: 24)
                     },
@@ -118,7 +118,7 @@ struct ItemListCardView_Previews: PreviewProvider {
                         .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
                     buttonText: Localizations.takeMeToTheAppSettings,
                     leftImage: {
-                        Image(decorative: Asset.Images.syncArrow)
+                        Image(decorative: SharedAsset.Icons.arrowSync24)
                             .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                             .frame(width: 24, height: 24)
                     },

@@ -55,7 +55,7 @@
 "Name" = "Ad";
 "No" = "Hayır";
 "Notes" = "Notlar";
-"OK" = "OK";
+"OK" = "Tamam";
 "Password" = "Parola";
 "Save" = "Kaydet";
 "Move" = "Taşı";
@@ -155,7 +155,7 @@
 "NoItems" = "Kasanızda hiç kayıt yok.";
 "NoItemsTap" = "Kasanızda bu siteye/uygulamaya ait hiç hesap yok. Eklemek isterseniz dokunun.";
 "NoUsernamePasswordConfigured" = "Bu hesaba ait kullanıcı adı veya parola kaydedilmemiş.";
-"OKGotIt" = "OK, got it!";
+"OKGotIt" = "Tamam, anladım";
 "OptionDefaults" = "Option defaults are set from the main Bitwarden app’s password generator tool.";
 "Options" = "Seçenekler";
 "Other" = "Diğer";
@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Uyarı:** \"Şu şekilde başlar\\” seçeneği, kimlik bilgilerinin açığa çıkma riskini artıran gelişmiş bir seçenektir.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Uyarı:** \"Düzenli ifade\\” yanlış kullanıldığında kimlik bilgilerinin açığa çıkma riskini artıran gelişmiş bir seçenektir.";
 "DefaultX" = "Varsayılan (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";

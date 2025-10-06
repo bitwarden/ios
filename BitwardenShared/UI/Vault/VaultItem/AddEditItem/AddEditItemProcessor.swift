@@ -280,7 +280,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
     private func fetchCipherOptions() async {
         do {
-            let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
+            state.organizationsWithPersonalOwnershipPolicy = await services.policyService
+                .organizationsApplyingPolicyToUser(.personalOwnership)
+            let isPersonalOwnershipDisabled = !state.organizationsWithPersonalOwnershipPolicy.isEmpty
             let ownershipOptions = try await services.vaultRepository
                 .fetchCipherOwnershipOptions(includePersonal: !isPersonalOwnershipDisabled)
 
@@ -301,12 +303,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 state.owner = ownershipOptions.first
             }
 
-            if state.configuration.isAdding {
-                let defaultCollection = state.collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
-                if let defaultCollectionId = defaultCollection?.id, state.collectionIds.isEmpty {
-                    state.collectionIds.append(defaultCollectionId)
-                }
-            } else {
+            state.selectDefaultCollectionIfNeeded()
+
+            if !state.configuration.isAdding {
                 await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
             }
         } catch {

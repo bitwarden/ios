@@ -48,13 +48,13 @@ class ExportCXFStateTests: BitwardenTestCase {
     /// `getter:mainIcon` gets the main icon depending on the status.
     func test_mainIcon() {
         subject.status = .start
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.fileUpload24.name)
 
         subject.status = .prepared(itemsToExport: [])
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.fileUpload24.name)
 
         subject.status = .failure(message: "")
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.circleX16.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.circleX16.name)
     }
 
     /// `getter:message` gets the message depending on the status.

@@ -54,7 +54,7 @@ struct VaultItemManagementMenuView: View {
                 }
             }
         } label: {
-            Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
         }
         .accessibilityLabel(Localizations.options)

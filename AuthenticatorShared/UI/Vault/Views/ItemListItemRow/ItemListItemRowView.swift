@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -64,11 +65,11 @@ struct ItemListItemRowView: View {
     ///
     @ViewBuilder
     private func decorativeImage(_ item: ItemListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        placeholderDecorativeImage(Asset.Images.globe)
+        placeholderDecorativeImage(SharedAsset.Icons.globe24)
     }
 
     /// The placeholder image for the decorative image.
-    private func placeholderDecorativeImage(_ icon: ImageAsset) -> some View {
+    private func placeholderDecorativeImage(_ icon: SharedImageAsset) -> some View {
         Image(decorative: icon)
             .resizable()
             .scaledToFit()
