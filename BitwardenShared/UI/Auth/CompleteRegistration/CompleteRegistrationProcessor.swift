@@ -51,6 +51,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasClientService
+        & HasDevicePasskeyService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -234,7 +235,9 @@ class CompleteRegistrationProcessor: StateProcessor<
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
-
+            let masterPasswordHash = try await services.authService.hashPassword(password: state.passwordText, purpose: .serverAuthorization)
+            try await services.devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash, overwrite: true)
+            
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch let error as CompleteRegistrationError {

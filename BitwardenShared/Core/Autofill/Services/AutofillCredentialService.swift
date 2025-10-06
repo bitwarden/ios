@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import CryptoKit
 import BitwardenSdk
 import OSLog
 
@@ -113,6 +114,9 @@ class DefaultAutofillCredentialService {
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
 
+    /// The service to make and use the device passkey.
+    private let devicePasskeyService: DevicePasskeyService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -132,6 +136,9 @@ class DefaultAutofillCredentialService {
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
+    /// The repository to interact with keychain items.
+    private let keychainRepository: KeychainRepository
+    
     /// The last user ID that had their identities synced.
     private(set) var lastSyncedUserId: String?
 
@@ -164,6 +171,7 @@ class DefaultAutofillCredentialService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityFactory: The factory to create credential identities.
+    ///   - devicePasskeyService: The service to make and use the device passkey.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
@@ -171,6 +179,7 @@ class DefaultAutofillCredentialService {
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
+    ///   - keychainRepository: The repository used to interact with keychain items.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: Provides the present time.
@@ -183,12 +192,14 @@ class DefaultAutofillCredentialService {
         clientService: ClientService,
         configService: ConfigService,
         credentialIdentityFactory: CredentialIdentityFactory,
+        devicePasskeyService: DevicePasskeyService,
         errorReporter: ErrorReporter,
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         flightRecorder: FlightRecorder,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        keychainRepository: KeychainRepository,
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -200,12 +211,14 @@ class DefaultAutofillCredentialService {
         self.clientService = clientService
         self.configService = configService
         self.credentialIdentityFactory = credentialIdentityFactory
+        self.devicePasskeyService = devicePasskeyService
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.flightRecorder = flightRecorder
         self.identityStore = identityStore
+        self.keychainRepository = keychainRepository
         self.pasteboardService = pasteboardService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -340,7 +353,21 @@ class DefaultAutofillCredentialService {
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
-
+                
+                let deviceIdentities = try await clientService.platform().fido2().authenticator(
+                    userInterface: DevicePasskeyUserInterface(),
+                    credentialStore: DevicePasskeyCredentialStore(
+                        clientService: clientService,
+                        keychainRepository: keychainRepository,
+                        userId: userId
+                    )
+                )
+                    .credentialsForAutofill()
+                    .compactMap {
+                        $0.toFido2CredentialIdentity()
+                    }
+                identities.append(contentsOf: deviceIdentities)
+                
                 try await identityStore.replaceCredentialIdentities(identities)
                 await flightRecorder.log(
                     "[AutofillCredentialService] Replaced \(identities.count) credential identities",
@@ -586,12 +613,29 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         #endif
 
         do {
-            let assertionResult = try await clientService.platform().fido2()
-                .authenticator(
-                    userInterface: fido2UserInterfaceHelper,
-                    credentialStore: fido2CredentialStore,
+            let devicePasskeyAssertionResult = try? await clientService.platform().fido2().authenticator(
+                userInterface: DevicePasskeyUserInterface(),
+                credentialStore: DevicePasskeyCredentialStore(
+                    clientService: clientService,
+                    keychainRepository: keychainRepository,
+                    userId: stateService.getActiveAccountId()
                 )
-                .getAssertion(request: request)
+            ).getAssertion(request: request)
+            
+            var assertionResult: GetAssertionResult
+            var prfResult: SymmetricKey?
+            if devicePasskeyAssertionResult != nil {
+                assertionResult = devicePasskeyAssertionResult!
+                prfResult = try await devicePasskeyService.getPrfResult()
+            } else {
+               assertionResult = try await clientService.platform().fido2()
+                    .authenticator(
+                        userInterface: fido2UserInterfaceHelper,
+                        credentialStore: fido2CredentialStore
+                    )
+                    .getAssertion(request: request)
+                prfResult = nil
+            }
 
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
@@ -603,14 +647,35 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 errorReporter.log(error: error)
             }
 
-            return ASPasskeyAssertionCredential(
-                userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
-                signature: assertionResult.signature,
-                clientDataHash: clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId,
-            )
+            if #available(iOSApplicationExtension 18.0, *) {
+                            let extOutput = if let prfResult {
+                                ASPasskeyAssertionCredentialExtensionOutput(
+                                    largeBlob: nil,
+                                    prf: ASAuthorizationPublicKeyCredentialPRFAssertionOutput(first: prfResult, second: nil))
+                            }
+                            else {
+                                nil as ASPasskeyAssertionCredentialExtensionOutput?
+                            }
+                            return ASPasskeyAssertionCredential(
+                                userHandle: assertionResult.userHandle,
+                                relyingParty: rpId,
+                                signature: assertionResult.signature,
+                                clientDataHash: clientDataHash,
+                                authenticatorData: assertionResult.authenticatorData,
+                                credentialID: assertionResult.credentialId,
+                                extensionOutput: extOutput,
+                            )
+                        }
+            else {
+                return ASPasskeyAssertionCredential(
+                    userHandle: assertionResult.userHandle,
+                    relyingParty: rpId,
+                    signature: assertionResult.signature,
+                    clientDataHash: clientDataHash,
+                    authenticatorData: assertionResult.authenticatorData,
+                    credentialID: assertionResult.credentialId
+                )
+            }
         } catch {
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
