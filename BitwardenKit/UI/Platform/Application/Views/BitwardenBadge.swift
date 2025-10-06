@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A view that displays some text surrounded by a circular background, similar to an iOS icon badge.
 ///
-struct BitwardenBadge: View {
+public struct BitwardenBadge: View {
     // MARK: Properties
 
     /// Padding applied between the text and the circular background. Scales with dynamic type)
@@ -30,7 +30,7 @@ struct BitwardenBadge: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         Text(badgeValue)
             .styleGuide(.callout, weight: .bold, includeLinePadding: false, includeLineSpacing: false)
             .foregroundStyle(SharedAsset.Colors.iconBadgeForeground.swiftUIColor)
@@ -43,6 +43,16 @@ struct BitwardenBadge: View {
             .padding(.vertical, (circleDiameter - textSize.height) / 2 + badgePadding)
             .background(SharedAsset.Colors.iconBadgeBackground.swiftUIColor)
             .clipShape(Circle())
+    }
+
+    // MARK: Initializers
+
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - badgeValue: The value to display in the badge.
+    public init(badgeValue: String) {
+        self.badgeValue = badgeValue
     }
 }
 
