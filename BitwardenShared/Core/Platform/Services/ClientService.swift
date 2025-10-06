@@ -365,7 +365,7 @@ class DefaultClientBuilder: ClientBuilder {
     init(
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
-        tokenProvider: ClientManagedTokens
+        tokenProvider: ClientManagedTokens,
     ) {
         self.errorReporter = errorReporter
         self.settings = settings

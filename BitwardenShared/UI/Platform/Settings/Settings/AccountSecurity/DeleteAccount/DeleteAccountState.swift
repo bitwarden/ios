@@ -18,7 +18,7 @@ struct DeleteAccountState: Equatable {
 
     /// The main icon to be displayed.
     var mainIcon: SharedImageAsset {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             SharedAsset.Icons.circleX16
         } else {
             SharedAsset.Icons.warning24

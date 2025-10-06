@@ -83,9 +83,9 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
         authRepository.migrateUserToKeyConnectorResult = .failure(
             BitwardenSdk.BitwardenError.AuthValidate(
                 AuthValidateError.WrongPassword(
-                    message: "invalid master password"
-                )
-            )
+                    message: "invalid master password",
+                ),
+            ),
         )
         subject.state.masterPassword = "password"
 

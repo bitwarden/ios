@@ -61,7 +61,7 @@ struct AddEditLoginItemView: View {
                 if store.state.canViewPassword, store.state.editView {
                     AccessoryButton(
                         asset: SharedAsset.Icons.minusCircle24,
-                        accessibilityLabel: Localizations.removePasskey
+                        accessibilityLabel: Localizations.removePasskey,
                     ) {
                         store.send(.removePasskeyPressed)
                     }
@@ -88,7 +88,10 @@ struct AddEditLoginItemView: View {
             ),
         ) {
             if store.state.canViewPassword {
-                AccessoryButton(asset: SharedAsset.Icons.generate24, accessibilityLabel: Localizations.generatePassword) {
+                AccessoryButton(
+                    asset: SharedAsset.Icons.generate24,
+                    accessibilityLabel: Localizations.generatePassword,
+                ) {
                     store.send(.generatePasswordPressed)
                 }
                 .guidedTourStep(.step1) { frame in
@@ -230,7 +233,7 @@ struct AddEditLoginItemView: View {
         ) {
             AccessoryButton(
                 asset: SharedAsset.Icons.generate24,
-                accessibilityLabel: Localizations.generateUsername
+                accessibilityLabel: Localizations.generateUsername,
             ) {
                 store.send(.generateUsernamePressed)
             }

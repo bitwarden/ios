@@ -27,7 +27,7 @@ struct PasswordVisibilityButton: View {
             (
                 isPasswordVisible
                     ? SharedAsset.Icons.eyeSlash24.swiftUIImage
-                    : SharedAsset.Icons.eye24.swiftUIImage
+                    : SharedAsset.Icons.eye24.swiftUIImage,
             )
             .resizable()
             .frame(width: size, height: size)

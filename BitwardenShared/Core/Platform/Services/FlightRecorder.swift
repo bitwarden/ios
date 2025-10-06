@@ -260,7 +260,7 @@ actor DefaultFlightRecorder {
             guard log.expirationDate <= timeProvider.presentTime else { continue }
 
             Logger.flightRecorder.debug(
-                "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)"
+                "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)",
             )
 
             do {

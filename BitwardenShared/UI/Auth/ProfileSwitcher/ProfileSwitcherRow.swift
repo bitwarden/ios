@@ -169,12 +169,12 @@ struct ProfileSwitcherRow: View {
     private var trailingIcon: Image? {
         switch store.state.rowType {
         case .active:
-            return SharedAsset.Icons.checkCircle24.swiftUIImage
+            SharedAsset.Icons.checkCircle24.swiftUIImage
         case let .alternate(account):
             if account.isUnlocked {
-                return SharedAsset.Icons.unlocked24.swiftUIImage
+                SharedAsset.Icons.unlocked24.swiftUIImage
             } else {
-                return SharedAsset.Icons.locked24.swiftUIImage
+                SharedAsset.Icons.locked24.swiftUIImage
             }
         case .addAccount:
             nil

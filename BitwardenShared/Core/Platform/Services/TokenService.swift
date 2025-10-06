@@ -98,6 +98,6 @@ extension DefaultTokenService: ClientManagedTokens {
     func getAccessToken() async -> String? {
         // TODO: PM-21846 Returning `nil` temporarily until we add validation
         // given that the SDK expects non-expired token.
-        return nil
+        nil
     }
 }

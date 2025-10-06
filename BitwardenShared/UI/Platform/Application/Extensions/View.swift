@@ -65,7 +65,7 @@ extension View {
         floatingActionButton(
             hidden: hidden,
             image: SharedAsset.Icons.plus32.swiftUIImage,
-            action: action
+            action: action,
         )
         .accessibilityLabel(Localizations.add)
         .accessibilityIdentifier("AddItemFloatingActionButton")
@@ -146,7 +146,7 @@ extension View {
         floatingActionButton(
             hidden: hidden,
             image: SharedAsset.Icons.pencil32.swiftUIImage,
-            action: action
+            action: action,
         )
         .accessibilityLabel(Localizations.edit)
         .accessibilityIdentifier("EditItemFloatingActionButton")

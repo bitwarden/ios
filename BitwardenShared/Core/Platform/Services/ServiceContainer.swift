@@ -438,7 +438,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let tokenService = DefaultTokenService(
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
         let apiService = APIService(
             environmentService: environmentService,
@@ -468,7 +468,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let clientBuilder = DefaultClientBuilder(
             errorReporter: errorReporter,
-            tokenProvider: tokenService
+            tokenProvider: tokenService,
         )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,

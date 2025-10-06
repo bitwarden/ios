@@ -24,7 +24,7 @@ class TokenServiceTests: BitwardenTestCase {
         subject = DefaultTokenService(
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 

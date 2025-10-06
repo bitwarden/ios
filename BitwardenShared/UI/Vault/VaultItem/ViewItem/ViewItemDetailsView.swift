@@ -158,7 +158,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             if store.state.shouldDisplayNoFolder {
                 belongingView(
                     icon: SharedAsset.Icons.folder16,
-                    name: Localizations.folderNone
+                    name: Localizations.folderNone,
                 )
                 .padding(.leading, 8)
                 .accessibilityLabel(Localizations.folderX(Localizations.folderNone))
@@ -187,7 +187,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             if let organizationName = store.state.organizationName {
                 belongingView(
                     icon: SharedAsset.Icons.business16,
-                    name: organizationName
+                    name: organizationName,
                 )
                 .accessibilityLabel(Localizations.ownerX(organizationName))
                 .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
@@ -198,7 +198,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     VStack(alignment: .leading, spacing: 0) {
                         belongingView(
                             icon: SharedAsset.Icons.collections16,
-                            name: collection.name
+                            name: collection.name,
                         )
                         .accessibilityLabel(Localizations.collectionX(collection.name))
                         .accessibilityHint(Localizations.itemXOfY(index + 2, store.state.totalHeaderAdditionalItems))
@@ -213,7 +213,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             if store.state.shouldDisplayFolder, let folderName = store.state.folderName {
                 belongingView(
                     icon: SharedAsset.Icons.folder16,
-                    name: folderName
+                    name: folderName,
                 )
                 .accessibilityLabel(Localizations.folderX(folderName))
                 .accessibilityHint(

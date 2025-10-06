@@ -29,7 +29,7 @@ class APIService {
 
     /// A `TokenProvider` that gets the access token for the current account and can refresh it when
     /// necessary.
-    internal let accountTokenProvider: AccountTokenProvider
+    let accountTokenProvider: AccountTokenProvider
 
     /// A builder for building an `HTTPService`.
     private let httpServiceBuilder: HTTPServiceBuilder

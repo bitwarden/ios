@@ -124,7 +124,7 @@ struct IllustratedMessageView<Accessory: View>: View {
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
         message: String,
-        @ViewBuilder accessory: () -> Accessory
+        @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
         self.image = image.swiftUIImage
@@ -203,7 +203,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: SharedImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String
+        message: String,
     ) {
         accessory = nil
         self.image = image.swiftUIImage

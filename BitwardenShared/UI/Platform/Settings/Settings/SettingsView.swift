@@ -61,7 +61,7 @@ struct SettingsView: View {
     private var aboutRow: some View {
         SettingsListItem(
             Localizations.about,
-            icon: SharedAsset.Icons.informationCircle24
+            icon: SharedAsset.Icons.informationCircle24,
         ) {
             store.send(.aboutPressed)
         } trailingContent: {
@@ -75,7 +75,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.accountSecurity,
             badgeValue: store.state.accountSecurityBadgeValue,
-            icon: SharedAsset.Icons.locked24
+            icon: SharedAsset.Icons.locked24,
         ) {
             store.send(.accountSecurityPressed)
         } trailingContent: {
@@ -99,7 +99,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.autofill,
             badgeValue: store.state.autofillBadgeValue,
-            icon: SharedAsset.Icons.checkCircle24
+            icon: SharedAsset.Icons.checkCircle24,
         ) {
             store.send(.autoFillPressed)
         } trailingContent: {
@@ -123,7 +123,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.vault,
             badgeValue: store.state.vaultBadgeValue,
-            icon: SharedAsset.Icons.vaultSettings
+            icon: SharedAsset.Icons.vaultSettings,
         ) {
             store.send(.vaultPressed)
         } trailingContent: {

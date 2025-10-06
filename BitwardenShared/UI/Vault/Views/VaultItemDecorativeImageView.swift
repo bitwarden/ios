@@ -61,7 +61,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
         item: VaultItemWithDecorativeIcon,
         iconBaseURL: URL?,
         showWebIcons: Bool,
-        placeholderContent: ((SharedImageAsset) -> PlaceholderContent)? = nil
+        placeholderContent: ((SharedImageAsset) -> PlaceholderContent)? = nil,
     ) {
         self.item = item
         self.iconBaseURL = iconBaseURL
