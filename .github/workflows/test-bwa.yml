@@ -125,17 +125,6 @@ jobs:
           brew bundle
           ./Scripts/bootstrap.sh
 
-      - name: Boot Simulator
-        run: |
-          echo "Listing simulator devices:"
-          SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
-          echo "$DEVICES_LIST"
-          DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
-          echo "--------------------------------"
-          echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-          xcrun simctl boot "$DEVICE_ID" || true
-          xcrun simctl bootstatus "$DEVICE_ID"
-
       - name: Build
         run: |
           python Scripts/pyeetd/main.py & PYEETD_PID=$!
@@ -148,6 +137,17 @@ jobs:
             -resultBundlePath $_BUILD_RESULT_BUNDLE_PATH \
             -quiet
           kill $PYEETD_PID
+
+      - name: Boot Simulator
+        run: |
+            echo "Listing simulator devices:"
+            SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
+            echo "$DEVICES_LIST"
+            DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+            echo "--------------------------------"
+            echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
+            xcrun simctl boot "$DEVICE_ID" || true
+            xcrun simctl bootstatus "$DEVICE_ID"
 
       - name: Test
         run: |
