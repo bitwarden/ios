@@ -3,8 +3,6 @@ import SwiftUI
 import ViewInspector
 import XCTest
 
-@testable import BitwardenShared
-
 class SettingsMenuFieldTests: BitwardenTestCase {
     // MARK: Types
 
