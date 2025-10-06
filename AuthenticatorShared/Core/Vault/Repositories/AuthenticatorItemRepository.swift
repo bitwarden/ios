@@ -409,4 +409,15 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         .eraseToAnyPublisher()
         .values
     }
+}
+
+extension DefaultAuthenticatorItemRepository: TOTPRefreshingRepository {
+    // MARK: Types
+
+    /// The type os item in the list to be refreshed.
+    typealias Item = ItemListItem
+
+    func refreshTOTPCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
+        try await refreshTotpCodes(for: items)
+    }
 } // swiftlint:disable:this file_length

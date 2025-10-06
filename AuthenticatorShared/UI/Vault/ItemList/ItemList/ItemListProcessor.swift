@@ -8,7 +8,7 @@ import Foundation
 // MARK: - ItemListProcessor
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
-final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect>, HasTOTPCodesSections {
+final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // swiftlint:disable:previous type_body_length
 
     // MARK: Types
@@ -609,5 +609,23 @@ enum MoreOptionsAction: Equatable {
 extension ItemListProcessor: AuthenticatorItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemDeleted)
+    }
+}
+
+// MARK: - HasTOTPCodesSection
+
+extension ItemListProcessor: HasTOTPCodesSections {
+    // MARK: Types
+
+    /// The type of item in the list.
+    typealias Item = ItemListItem
+    /// The type of section in the list.
+    typealias Section = ItemListSection
+    /// The type of repository that contains item to be refreshed.
+    typealias Repository = AnyTOTPRefreshingRepository
+
+    
+    var repository: AnyTOTPRefreshingRepository {
+        AnyTOTPRefreshingRepository(services.authenticatorItemRepository)
     }
 }
