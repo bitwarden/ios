@@ -408,6 +408,129 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
     }
 
+    /// `setter:owner` adds the default user collection to the collection IDs
+    /// when it's adding, there's a default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned on.
+    func test_owner_addsDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "2"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.owner = .organization(id: "1", name: "Org")
+        XCTAssertEqual(subject.collectionIds, ["1"])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` adds the default user collection to the collection IDs
+    /// when it's adding, there's a default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned on.
+    func test_selectDefaultCollectionIfNeeded_addsDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, ["1"])
+
+        // added this to check that the collection doesn't get duplicated
+        // when the function is called twice.
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, ["1"])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's editing.
+    func test_selectDefaultCollectionIfNeeded_editing() throws {
+        var subject = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's adding, but there's no default user collection for the owner organization.
+    func test_selectDefaultCollectionIfNeeded_noDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1"),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's adding, there's  default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned off.
+    func test_selectDefaultCollectionIfNeeded_personalOwnershipOff() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
     /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.
     func test_shouldShowLearnNewLoginActionCard_true() {
         let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))

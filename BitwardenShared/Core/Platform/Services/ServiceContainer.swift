@@ -435,7 +435,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
-        let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
+        let tokenService = DefaultTokenService(
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService
+        )
         let apiService = APIService(
             environmentService: environmentService,
             flightRecorder: flightRecorder,
@@ -463,7 +467,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let clientBuilder = DefaultClientBuilder(
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
+            tokenProvider: tokenService
         )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -654,6 +659,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainService: keychainRepository,
             keyConnectorService: keyConnectorService,
             organizationAPIService: apiService,
@@ -685,6 +691,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             errorReporter: errorReporter,
             notificationAPIService: apiService,
+            refreshableApiService: apiService,
             stateService: stateService,
             syncService: syncService
         )
