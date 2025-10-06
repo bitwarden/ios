@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozornenie:** \"Začína na\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozornenie:** \"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov, ak sa použije nesprávne.";
 "DefaultX" = "Predvolené (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";

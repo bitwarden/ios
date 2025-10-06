@@ -1,10 +1,16 @@
 import BitwardenKit
+import BitwardenSdk
 
 // MARK: - KdfConfig
 
 /// A model for configuring KDF options.
 ///
 struct KdfConfig: Codable, Equatable, Hashable {
+    // MARK: Type Properties
+
+    /// The default `KdfConfig` used for new accounts or when upgrading the KDF config to minimums.
+    static let defaultKdfConfig = KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations)
+
     // MARK: Properties
 
     /// The type of KDF used in the request.
@@ -39,6 +45,24 @@ struct KdfConfig: Codable, Equatable, Hashable {
         self.iterations = iterations
         self.memory = memory
         self.parallelism = parallelism
+    }
+
+    /// Initializes a `KdfConfig` from the SDK's `Kdf` type.
+    ///
+    /// - Parameter kdf: The type of KDF used in the request.
+    ///
+    init(kdf: Kdf) {
+        switch kdf {
+        case let .argon2id(iterations, memory, parallelism):
+            self.init(
+                kdfType: .argon2id,
+                iterations: Int(iterations),
+                memory: Int(memory),
+                parallelism: Int(parallelism)
+            )
+        case let .pbkdf2(iterations):
+            self.init(kdfType: .pbkdf2sha256, iterations: Int(iterations))
+        }
     }
 }
 

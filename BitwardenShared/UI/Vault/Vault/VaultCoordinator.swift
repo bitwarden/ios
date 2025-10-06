@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
@@ -77,6 +78,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasAuthService
         & HasAutofillCredentialService
         & HasCameraService
+        & HasChangeKdfService
         & HasClientService
         & HasConfigService
         & HasEnvironmentService

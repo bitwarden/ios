@@ -155,8 +155,8 @@ struct AddEditItemView: View {
                     store.send(.favoriteChanged(!store.state.isFavoriteOn))
                 } label: {
                     store.state.isFavoriteOn
-                        ? Asset.Images.starFilled24.swiftUIImage
-                        : Asset.Images.star24.swiftUIImage
+                        ? SharedAsset.Icons.starFilled24.swiftUIImage
+                        : SharedAsset.Icons.star24.swiftUIImage
                 }
                 .buttonStyle(.accessory)
                 .accessibilityIdentifier("ItemFavoriteButton")
@@ -237,7 +237,7 @@ private extension AddEditItemView {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
-                            Asset.Images.questionCircle16.swiftUIImage
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
                         }
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                         .buttonStyle(.fieldLabelIcon)

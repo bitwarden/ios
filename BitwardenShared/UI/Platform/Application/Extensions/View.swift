@@ -64,7 +64,7 @@ extension View {
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
-            image: Asset.Images.plus32.swiftUIImage,
+            image: SharedAsset.Icons.plus32.swiftUIImage,
             action: action
         )
         .accessibilityLabel(Localizations.add)
@@ -83,7 +83,7 @@ extension View {
         hidden: Bool = false,
         action: @escaping (SendType) async -> Void
     ) -> some View {
-        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             ForEach(SendType.allCases) { type in
                 AsyncButton(type.localizedName) {
                     await action(type)
@@ -110,7 +110,7 @@ extension View {
         addItem: @escaping (CipherType) -> Void,
         addFolder: (() -> Void)? = nil
     ) -> some View {
-        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             // The items in the menu are added in reverse order so that when the context menu
             // displays above the button, which is the common case, the types are at the top with
             // folder at the bottom.
@@ -145,7 +145,7 @@ extension View {
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
-            image: Asset.Images.pencil32.swiftUIImage,
+            image: SharedAsset.Icons.pencil32.swiftUIImage,
             action: action
         )
         .accessibilityLabel(Localizations.edit)

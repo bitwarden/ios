@@ -1288,3 +1288,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**எச்சரிக்கை:** \"தொடங்குகிறது\\\" என்பது சான்றுகளை வெளிப்படுத்தும் அபாயம் உள்ள ஒரு மேம்பட்ட விருப்பமாகும்.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**எச்சரிக்கை:** \"வழக்கமான வெளிப்பாடு\\\" என்பது ஒரு மேம்பட்ட விருப்பமாகும், இது தவறாகப் பயன்படுத்தப்பட்டால் சான்றுகளை வெளிப்படுத்தும் அபாயத்தை அதிகரிக்கிறது.";
 "DefaultX" = "இயல்புநிலை (%1$@)";
+"UpdateYourEncryptionSettings" = "Update your encryption settings";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Encryption settings updated";

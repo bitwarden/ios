@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "A “Kezdés:” egy fejlett opció, amely növeli a hitelesítő adatok felfedésének kockázatát.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“A reguláris kifejezés” egy fejlett opció, amely megnöveli a hitelesítő adatok felfedésének kockázatát, ha helytelenül használják.";
 "DefaultX" = "Alapértelmezés (%1$@)";
+"UpdateYourEncryptionSettings" = "A titkosítási beállítások frissítése";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
+"Updating" = "Frissítés...";
+"EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";

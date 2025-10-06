@@ -17,6 +17,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
+    var changeKdfService: MockChangeKdfService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
@@ -43,6 +44,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
+        changeKdfService = MockChangeKdfService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
@@ -59,6 +61,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
+            changeKdfService: changeKdfService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -84,6 +87,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
+        changeKdfService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
@@ -222,6 +226,69 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Verify the results.
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
         XCTAssertNil(stateService.loginRequest)
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and logs
+    /// an error and shows an alert if updating the settings fails.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_error() async throws {
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+
+        let updateEncryptionSettingsAlert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(updateEncryptionSettingsAlert, .updateEncryptionSettings { _ in })
+
+        try updateEncryptionSettingsAlert.setText("password123!", forTextFieldWithId: "password")
+        try await updateEncryptionSettingsAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and does
+    /// nothing if they already meet the minimums.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_false() async {
+        notificationService.authorizationStatus = .denied
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and
+    /// shows an alert asking the user for their master password to update the KDF settings.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_true() async throws {
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+
+        let updateEncryptionSettingsAlert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(updateEncryptionSettingsAlert, .updateEncryptionSettings { _ in })
+
+        try await updateEncryptionSettingsAlert.tapCancel()
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+
+        try updateEncryptionSettingsAlert.setText("password123!", forTextFieldWithId: "password")
+        try await updateEncryptionSettingsAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertEqual(changeKdfService.updateKdfToMinimumsPassword, "password123!")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.updating)])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.encryptionSettingsUpdated)])
     }
 
     /// `perform(_:)` with `appeared` does not register the device for notifications

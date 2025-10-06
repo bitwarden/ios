@@ -22,7 +22,7 @@ struct SearchNoResultsView<Content: View>: View {
                     }
 
                     VStack(spacing: 35) {
-                        Image(decorative: Asset.Images.search24)
+                        Image(decorative: SharedAsset.Icons.search24)
                             .resizable()
                             .frame(width: 74, height: 74)
                             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
