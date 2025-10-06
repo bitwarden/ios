@@ -162,7 +162,7 @@ jobs:
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
             -retry-tests-on-failure \
-            -test-repetition-relaunch-enabled YES \
+            -test-repetition-relaunch-enabled YES
           kill $PYEETD_PID
 
       - name: Print Logs Summary
