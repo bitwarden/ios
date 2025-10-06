@@ -135,7 +135,10 @@ jobs:
 
       - name: Boot Simulator
         run: |
+            echo "Listing simulator devices:"
+            xcrun simctl list devices available
             DEVICE_ID=$(xcrun simctl list devices available | grep "$_SIMULATOR_NAME ($_SIMULATOR_VERSION)" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+            echo "--------------------------------"
             echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
             xcrun simctl boot "$DEVICE_ID" || true
             xcrun simctl bootstatus "$DEVICE_ID"
