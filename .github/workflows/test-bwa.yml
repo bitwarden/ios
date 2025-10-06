@@ -183,6 +183,7 @@ jobs:
           path: |
             ${{ env._COVERAGE_PATH }}
             ${{ env._TESTS_RESULT_BUNDLE_PATH }}
+            ${{ env._BUILD_RESULT_BUNDLE_PATH }}
 
   report:
     name: Process Test Reports
