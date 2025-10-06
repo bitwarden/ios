@@ -25,10 +25,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasTimeProvider
 
     // MARK: Private Properties
-    
-    var authenticatorItemRepository: AuthenticatorItemRepository {
-        services.authenticatorItemRepository
-    }
 
     /// The set to hold Combine cancellables.
     private var cancellables = Set<AnyCancellable>()
@@ -624,7 +620,6 @@ extension ItemListProcessor: HasTOTPCodesSections {
     /// The type of repository that contains item to be refreshed.
     typealias Repository = AnyTOTPRefreshingRepository
 
-    
     var repository: AnyTOTPRefreshingRepository {
         AnyTOTPRefreshingRepository(services.authenticatorItemRepository)
     }
