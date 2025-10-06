@@ -123,23 +123,29 @@ def find_unwanted(processes):
 def yeet(processes):
     output = []
     for p in processes:
-        output.append(f"🤠 pyeetd: Stopping - {p.output_string}")
-        os.killpg(p.pid, signal.SIGKILL)
+        try:
+            output.append(f"🤠 pyeetd: Stopping - {p.output_string}")
+            os.killpg(p.pid, signal.SIGKILL)
+        except (OSError, ProcessLookupError) as e:
+            output.append(f"😪 pyeetd: Failed to stop {p.pid} - {e}")
     return output
 
 def main():
     print_cycles = PRINT_PROCESSES_INTERVAL // SLEEP_DELAY
     i = 0
     while True:
-        output = []
-        processes = get_processes(ProcessSort.CPU)
-        processes_to_yeet = find_unwanted(processes)
-        output.extend(yeet(processes_to_yeet))
-        output.append(f"🤠 {time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes.")
-        print("\n".join(output))
-        if i % print_cycles == 0:
-            print_processes(processes, 10)
-        i += 1
+        try:
+            output = []
+            processes = get_processes(ProcessSort.CPU)
+            processes_to_yeet = find_unwanted(processes)
+            output.extend(yeet(processes_to_yeet))
+            output.append(f"🤠 {time.strftime('%Y-%m-%d %H:%M:%S')} - pyeetd {len(processes_to_yeet)} processes.")
+            print("\n".join(output))
+            if i % print_cycles == 0:
+                print_processes(processes, 10)
+            i += 1
+        except Exception as e:
+            print(f"🤠 pyeetd: Error in main loop - {e}")
         time.sleep(SLEEP_DELAY)
 
 if __name__ == '__main__':
