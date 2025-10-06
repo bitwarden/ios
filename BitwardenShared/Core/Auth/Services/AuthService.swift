@@ -53,6 +53,9 @@ enum AuthError: Error {
 
     /// There was a problem generating the request to resend the email with new device otp.
     case unableToResendNewDeviceOtp
+    
+    /// There was a problem generating the device passkey or PRF encryption key.
+    case unableToCreateDevicePasskey
 }
 
 // MARK: - LoginUnlockMethod
@@ -89,6 +92,9 @@ protocol AuthService {
     /// Check the status of the pending login request for the unauthenticated user.
     ///
     func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest
+    
+    /// Create device passkey with PRF encryption key.
+    func createDevicePasskey(masterPasswordHash: String) async throws
 
     /// Deny all the pending login requests.
     ///
@@ -241,6 +247,18 @@ extension AuthService {
     }
 }
 
+struct DevicePasskeyRecord: Decodable, Encodable {
+    let credId: String
+    let privKey: String
+    let prfSeed: String
+    let rpId: String
+    let rpName: String?
+    let userId: String?
+    let userName: String?
+    let userDisplayName: String?
+    let creationDate: DateTime
+}
+
 // MARK: - DefaultAuthService
 
 /// The default implementation of `AuthService`.
@@ -272,6 +290,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The store which makes credential identities available to the system for AutoFill suggestions.
     private let credentialIdentityStore: CredentialIdentityStore
 
+    /// The service used to create and assert the device passkey for logging into remote clients.
+    private let devicePasskeyService: DevicePasskeyService
+    
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -326,6 +347,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityStore: The store which makes credential identities available to the
     ///     system for AutoFill suggestions.
+    ///   - devicePasskeyService: The service used to create and assert the device passkey for logging into remote clients.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
@@ -341,6 +363,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         clientService: ClientService,
         configService: ConfigService,
         credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        devicePasskeyService: DevicePasskeyService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -355,6 +378,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.clientService = clientService
         self.configService = configService
         self.credentialIdentityStore = credentialIdentityStore
+        self.devicePasskeyService = devicePasskeyService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -589,7 +613,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             masterPassword: masterPassword
         )
-
+        
         // Save the master password hash.
         try await saveMasterPasswordHash(password: masterPassword)
 
@@ -679,6 +703,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         return false
+    }
+    
+    /// Create device passkey with PRF encryption key.
+    func createDevicePasskey(masterPasswordHash: String) async throws {
+        try await devicePasskeyService.createDevicePasskey(masterPasswordHash: masterPasswordHash, overwrite: true)
     }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod {

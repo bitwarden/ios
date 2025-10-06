@@ -56,6 +56,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasClientService
         & HasConfigService
         & HasDeviceAPIService
+        & HasDevicePasskeyService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
