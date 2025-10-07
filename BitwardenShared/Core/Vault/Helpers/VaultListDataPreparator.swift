@@ -249,13 +249,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
     // MARK: Private
 
-    /// Returns the restricted organization IDs for the `.restrictItemTypes` policy if enabled
-    /// and adds them to the builder.
+    /// Returns the restricted organization IDs for the `.restrictItemTypes` policy and adds them
+    /// to the builder.
     /// - Returns: The restricted organization IDs.
     func prepareRestrictedOrganizationIds(builder: VaultListPreparedDataBuilder) async -> [String] {
-        guard await configService.getFeatureFlag(.removeCardPolicy) else {
-            return []
-        }
         let restrictedOrganizationIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         builder.prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: restrictedOrganizationIds)
         return restrictedOrganizationIds
