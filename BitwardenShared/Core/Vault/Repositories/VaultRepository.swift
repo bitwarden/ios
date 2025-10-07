@@ -554,7 +554,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let isMatchingCipher: (CipherListView) -> Bool = isActive
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
-        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
+        let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
 
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherListView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
@@ -814,7 +814,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         collections: [Collection],
         folders: [Folder] = [],
     ) async throws -> [VaultListSection] {
-        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
+        let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         let ciphers = try await clientService.vault().ciphers().decryptListWithFailures(ciphers: ciphers)
             .successes
             .filter { cipher in
@@ -873,15 +873,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         return !restrictItemTypesOrgIds.contains(orgId)
     }
 
-    /// If `FeatureFlag.removeCardPolicy` feature flag is enabled, gets the organization IDs that have the
-    /// `PolicyType.restrictItemTypes` policy active.
-    ///
-    /// - Returns: A list of organization IDs that have the restrictItemTypes policy enabled.
-    private func getRestrictItemTypesOrgIds() async -> [String] {
-        guard await configService.getFeatureFlag(.removeCardPolicy) else { return [] }
-        return await policyService.getOrganizationIdsForRestricItemTypesPolicy()
-    }
-
     /// Returns a list of the sections in the vault list from a sync response.
     ///
     /// - Parameters:
@@ -897,7 +888,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter,
     ) async throws -> [VaultListSection] {
-        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
+        let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         let ciphers = try await clientService.vault().ciphers().decryptListWithFailures(ciphers: ciphers)
             .successes
             .filter { cipher in
@@ -1154,7 +1145,6 @@ extension DefaultVaultRepository: VaultRepository {
 
     func getItemTypesUserCanCreate() async -> [CipherType] {
         let itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
-        guard await configService.getFeatureFlag(.removeCardPolicy) else { return itemTypes }
         let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         if !restrictItemTypesOrgIds.isEmpty {
             return itemTypes.filter { $0 != .card }
