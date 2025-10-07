@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 /// An enum describing the type of data contained in a cipher.
@@ -51,7 +52,7 @@ extension CipherType: CaseIterable {
 }
 
 extension CipherType: Menuable {
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .card: Localizations.typeCard
         case .identity: Localizations.typeIdentity

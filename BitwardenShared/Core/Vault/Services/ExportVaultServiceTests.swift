@@ -302,34 +302,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_exportVaultFileContents_restrictedTypes_excludeCard() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
             clientService.mockExporters.ciphers,
             [
-                identityCipher,
-                loginCipher,
-                secureNoteCipher,
-            ],
-        )
-    }
-
-    /// `exportVaultFileContents(format:)` doesn't exclude card ciphers when restrictedTypes contains `.card`
-    /// but the `.removeCardPolicy` feature flag is not enabled.
-    ///
-    @MainActor
-    func test_exportVaultFileContents_restrictedTypes_doesNotexcludeCardFFDisabled() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.getRestrictedItemCipherTypesResult = [.card]
-        _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
-        XCTAssertEqual(
-            clientService.mockExporters.ciphers,
-            [
-                cardCipher,
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
@@ -358,8 +336,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     @MainActor
     func test_fetchAllCiphersToExport() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.getRestrictedItemCipherTypesResult = [.card]
         let ciphers = try await subject.fetchAllCiphersToExport()
         XCTAssertEqual(
             ciphers,
@@ -373,11 +349,10 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `fetchAllCiphersToExport()` fetches all ciphers to be exported except `.card` items
-    /// given the `.removeCardPolicy` feature flag is enabled and there are restricted types.
+    /// given there are restricted types.
     ///
     @MainActor
     func test_fetchAllCiphersToExport_restrictedItemCipherTypes() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.getRestrictedItemCipherTypesResult = [.card]
         let ciphers = try await subject.fetchAllCiphersToExport()
         XCTAssertEqual(
@@ -415,4 +390,4 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         let name = subject.generateExportFileName(extension: ExportFileType.json.fileExtension)
         XCTAssertEqual(name, expectedName)
     }
-} // swiftlint:disable:this file_length
+}

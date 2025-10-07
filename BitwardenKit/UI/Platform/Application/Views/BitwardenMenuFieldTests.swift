@@ -1,8 +1,7 @@
+import BitwardenKit
 import SwiftUI
 import ViewInspector
 import XCTest
-
-@testable import AuthenticatorShared
 
 class BitwardenMenuFieldTests: BitwardenTestCase {
     // MARK: Types
@@ -19,7 +18,7 @@ class BitwardenMenuFieldTests: BitwardenTestCase {
     // MARK: Properties
 
     var selection: TestValue!
-    var subject: BitwardenMenuField<TestValue, EmptyView>!
+    var subject: BitwardenMenuField<TestValue, EmptyView, EmptyView, EmptyView, Text>!
 
     // MARK: Setup & Teardown
 

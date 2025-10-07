@@ -119,6 +119,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -147,6 +148,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "addFido2Item",
         ])
         XCTAssertNotNil(result)
@@ -156,7 +158,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     /// cipher as it doesn't pass restrict item type policy.
     @MainActor
     func test_prepareAutofillCombinedSingleData_doesNotPassRestrictItemPolicy() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = true
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
@@ -201,7 +202,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             filter: VaultListFilter(uri: "https://example.com"),
         )
 
-        XCTAssertTrue(mockCallOrderHelper.callOrder.isEmpty)
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
         XCTAssertNotNil(result)
     }
 
@@ -228,6 +231,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "incrementTOTPCount",
@@ -254,6 +258,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "addCipherDecryptionFailure",
@@ -282,6 +287,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
         ])
@@ -297,7 +303,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             organizationId: "1",
             type: .card(.fixture()),
         )
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
 
         let result = try await subject.prepareData(
@@ -316,40 +321,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     }
 
     /// `prepareData(from:collections:folders:filter:)` returns the prepared data without filtering out cipher even
-    /// with restricted item types policy but with `.removeCardPolicy` off.
-    @MainActor
-    func test_prepareData_preparedDataNoFilteringOutCipherWithRestrictedItemsPolicyButCardFlagOff() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            organizationId: "1",
-            type: .card(.fixture()),
-        )
-
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
-
-        let result = try await subject.prepareData(
-            from: [.fixture(organizationId: "1", type: .card)],
-            collections: [.fixture(id: "1"), .fixture(id: "2")],
-            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true),
-        )
-
-        XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareFolders",
-            "prepareCollections",
-            "incrementTOTPCount",
-            "addCipherDecryptionFailure",
-            "addFolderItem",
-            "addFavoriteItem",
-            "addNoFolderItem",
-            "incrementCipherTypeCount",
-            "incrementCollectionCount",
-        ])
-        XCTAssertNotNil(result)
-    }
-
-    /// `prepareData(from:collections:folders:filter:)` returns the prepared data without filtering out cipher even
-    /// with `.removeCardPolicy` flag on, restricted item types policy without matching organization.
+    /// with restricted item types policy without matching organization.
     @MainActor
     func test_prepareData_preparedDataNoFilteringOutCipherWithRestrictedItemsPolicyNonMatchingOrgs() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
@@ -357,7 +329,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             type: .card(.fixture()),
         )
 
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "2")]
 
         let result = try await subject.prepareData(
@@ -399,6 +370,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "incrementCipherDeletedCount",
@@ -434,6 +406,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
         ])
@@ -449,7 +422,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             organizationId: "1",
             type: .card(.fixture()),
         )
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
 
         let result = try await subject.prepareGroupData(
@@ -480,6 +452,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         // should not call incrementCollectionCount and addItemForGroup
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
         ])
@@ -501,6 +474,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "addFolderItem",
@@ -524,6 +498,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "incrementCollectionCount",
@@ -547,31 +522,15 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     }
 
     /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
-    /// when not filtering by folder nor collection with restricted items policy but `.removeCardPolicy` flag off.
-    @MainActor
-    func test_prepareGroupData_cardRestrictedItemsTypeCardFlagOff() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            organizationId: "1",
-            type: .card(.fixture()),
-        )
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
-
-        try await prepareGroupDataGenericTest(group: .card)
-    }
-
-    /// `prepareGroupData(from:collections:folders:filter:)` returns the prepared data
-    /// when not filtering by folder nor collection with `.removeCardPolicy` flag on and restricted items policy
+    /// when not filtering by folder nor collection with restricted items policy
     /// non-matching organization IDs.
     @MainActor
-    func test_prepareGroupData_cardWithCardFlagOffAndNonMatchingRestrictedItemsTypeOrgs() async throws {
+    func test_prepareGroupData_cardNonMatchingRestrictedItemsTypeOrgs() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
             type: .card(.fixture()),
         )
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "2")]
 
         let result = try await subject.prepareGroupData(
@@ -627,6 +586,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "addItemWithMatchResultCipher",
         ])
         XCTAssertNotNil(result)
@@ -634,10 +594,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass
-    /// restrict item type policy..
+    /// restrict item type policy.
     @MainActor
     func test_prepareAutofillPasswordsData_doesNotPassRestrictItemPolicy() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = true
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
@@ -685,6 +644,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
@@ -703,6 +663,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
             "addItemForGroup",
