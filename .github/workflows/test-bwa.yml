@@ -133,7 +133,7 @@ jobs:
           DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "--------------------------------"
           echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl boot "$DEVICE_ID"
           xcrun simctl bootstatus "$DEVICE_ID"
 
       - name: Build

@@ -34,12 +34,12 @@ SIMULATOR_PROCESSES = {
     "AvatarPosterExtension",
     "GradientPosterExtension",
     "MonogramPosterExtension",
-    "System/Library/PrivateFrameworks/SessionCore.framework/Support/liveactivitiesd",
-    "Applications/News.app",
-    "usr/libexec/icloudmailagent",
-    "Applications/Family.app",
-    "Applications/PosterBoard.app",
-    "Applications/PassbookStub.app",
+    # "System/Library/PrivateFrameworks/SessionCore.framework/Support/liveactivitiesd",
+    # "Applications/News.app",
+    # "usr/libexec/icloudmailagent",
+    # "Applications/Family.app",
+    # "Applications/PosterBoard.app",
+    # "Applications/PassbookStub.app",
 }
 
 SIMULATOR_PATH_SEARCH_KEY = "simruntime/Contents/Resources/RuntimeRoot"
