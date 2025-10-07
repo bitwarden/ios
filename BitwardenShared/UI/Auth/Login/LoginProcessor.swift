@@ -43,7 +43,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LoginState
+        state: LoginState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -71,7 +71,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.navigate(to: .loginWithDevice(
                 email: state.username,
                 authRequestType: AuthRequestType.authenticateAndUnlock,
-                isAuthenticated: false
+                isAuthenticated: false,
             ))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
@@ -100,7 +100,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                isNewAccount: state.isNewAccount
+                isNewAccount: state.isNewAccount,
             )
 
             // Unlock the vault.
@@ -114,7 +114,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             switch error {
             case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
-                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
+                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil),
                 )
             case .twoFactorProvidersNotConfigured:
                 await handleErrorResponse(error)
@@ -125,8 +125,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                         .password(state.masterPassword),
                         AuthMethodsData(email: Email(email: state.username)),
                         nil,
-                        true
-                    )
+                        true,
+                    ),
                 )
             case .encryptionKeyMigrationRequired:
                 coordinator.showAlert(.encryptionKeyMigrationRequiredAlert(environmentUrl: state.serverURLString))
@@ -151,7 +151,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let deviceIdentifier = await services.appIdService.getOrCreateAppId()
             let isKnownDevice = try await services.deviceAPIService.knownDevice(
                 email: state.username,
-                deviceIdentifier: deviceIdentifier
+                deviceIdentifier: deviceIdentifier,
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
@@ -174,8 +174,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         coordinator.showAlert(
             .networkResponseError(
                 error,
-                isOfficialBitwardenServer: isOfficialBitwardenServer
-            )
+                isOfficialBitwardenServer: isOfficialBitwardenServer,
+            ),
         )
     }
 }

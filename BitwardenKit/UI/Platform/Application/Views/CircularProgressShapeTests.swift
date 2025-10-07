@@ -11,28 +11,28 @@ final class CircularProgressShapeTests: BitwardenTestCase {
         let stack = HStack {
             CircularProgressShape(
                 progress: 0.75,
-                clockwise: true
+                clockwise: true,
             )
             .stroke(lineWidth: 3)
             .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.4,
-                clockwise: false
+                clockwise: false,
             )
             .stroke(lineWidth: 3)
             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.1,
-                clockwise: true
+                clockwise: true,
             )
             .stroke(lineWidth: 3)
             .foregroundColor(.red)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.95,
-                clockwise: false
+                clockwise: false,
             )
             .stroke(lineWidth: 3)
             .foregroundColor(.green)

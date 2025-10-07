@@ -53,7 +53,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             errorReporter: errorReporter,
             policyService: policyService,
             stateService: stateService,
-            vaultListPreparedDataBuilderFactory: vaultListPreparedDataBuilderFactory
+            vaultListPreparedDataBuilderFactory: vaultListPreparedDataBuilderFactory,
         )
     }
 
@@ -80,27 +80,29 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareAutofillCombinedSingleData_noCiphers() async throws {
         let result = try await subject.prepareAutofillCombinedSingleData(
             from: [],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
         XCTAssertNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns `nil` when filter passed doesn't have the URI to filter.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns `nil` when filter passed doesn't
+    /// have the URI to filter.
     func test_prepareAutofillCombinedSingleData_noFilterUri() async throws {
         let result = try await subject.prepareAutofillCombinedSingleData(
             from: [.fixture()],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
         XCTAssertNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher with login and no Fido2.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher
+    /// with login and no Fido2.
     func test_prepareAutofillCombinedSingleData_returnsPreparedDataForLoginNoFido2() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             login: .fixture(
                 hasFido2: false,
-                uris: [.fixture(uri: "https://example.com", match: .exact)]
-            )
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
         )
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
 
@@ -109,15 +111,15 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
                 .fixture(
                     login: .fixture(
                         fido2Credentials: [],
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
-                    )
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "addItemForGroup"
+            "addItemForGroup",
         ])
         XCTAssertNotNil(result)
     }
@@ -127,8 +129,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             login: .fixture(
                 hasFido2: true,
-                uris: [.fixture(uri: "https://example.com", match: .exact)]
-            )
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
         )
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
 
@@ -137,27 +139,28 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
                 .fixture(
                     login: .fixture(
                         fido2Credentials: [.fixture()],
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
-                    )
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "addFido2Item"
+            "addFido2Item",
         ])
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass restrict item type policy.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out
+    /// cipher as it doesn't pass restrict item type policy.
     @MainActor
     func test_prepareAutofillCombinedSingleData_doesNotPassRestrictItemPolicy() async throws {
         configService.featureFlagsBool[.removeCardPolicy] = true
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         policyService.policyAppliesToUserPolicies = [
             .fixture(organizationId: "1"),
@@ -168,21 +171,22 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [
                 .fixture(type: .card),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations"
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out cipher as it's deleted.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out
+    /// cipher as it's deleted.
     @MainActor
     func test_prepareAutofillCombinedSingleData_deletedCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
-            deletedDate: .now
+            deletedDate: .now,
         )
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
 
@@ -190,11 +194,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [
                 .fixture(
                     login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
-                    )
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertTrue(mockCallOrderHelper.callOrder.isEmpty)
@@ -207,7 +211,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [],
             collections: [],
             folders: [],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
         XCTAssertNil(result)
     }
@@ -220,7 +224,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true)
+            filter: VaultListFilter(addTOTPGroup: true),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -246,7 +250,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: false)
+            filter: VaultListFilter(addTOTPGroup: false),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -267,14 +271,14 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareData_withMyVaultFilterAndBelongingToOrganization() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
-            organizationId: "1"
+            organizationId: "1",
         )
 
         let result = try await subject.prepareData(
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true, filterType: .myVault)
+            filter: VaultListFilter(addTOTPGroup: true, filterType: .myVault),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -291,7 +295,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
@@ -300,7 +304,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(organizationId: "1", type: .card)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -317,7 +321,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareData_preparedDataNoFilteringOutCipherWithRestrictedItemsPolicyButCardFlagOff() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
 
         configService.featureFlagsBool[.removeCardPolicy] = false
@@ -327,7 +331,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(organizationId: "1", type: .card)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true)
+            filter: VaultListFilter(addTOTPGroup: true),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -350,7 +354,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareData_preparedDataNoFilteringOutCipherWithRestrictedItemsPolicyNonMatchingOrgs() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
 
         configService.featureFlagsBool[.removeCardPolicy] = true
@@ -360,7 +364,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(organizationId: "1", type: .card)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true)
+            filter: VaultListFilter(addTOTPGroup: true),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -384,14 +388,14 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            deletedDate: .now
+            deletedDate: .now,
         )
 
         let result = try await subject.prepareData(
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -408,7 +412,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [],
             collections: [],
             folders: [],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
         XCTAssertTrue(mockCallOrderHelper.callOrder.isEmpty)
         XCTAssertNil(result)
@@ -419,14 +423,14 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareGroupData_withMyVaultFilterAndBelongingToOrganization() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
-            organizationId: "1"
+            organizationId: "1",
         )
 
         let result = try await subject.prepareGroupData(
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(filterType: .myVault, group: .login)
+            filter: VaultListFilter(filterType: .myVault, group: .login),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -443,7 +447,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
@@ -452,7 +456,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(organizationId: "1", type: .card)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: .login)
+            filter: VaultListFilter(group: .login),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -471,7 +475,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(deletedDate: .now)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
+            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1")),
         )
 
         // should not call incrementCollectionCount and addItemForGroup
@@ -486,14 +490,14 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     /// adding folder items when filtering by folder.
     func test_prepareGroupData_folder() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1"
+            id: "1",
         )
 
         let result = try await subject.prepareGroupData(
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: .folder(id: "1", name: "Folder"))
+            filter: VaultListFilter(group: .folder(id: "1", name: "Folder")),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -509,14 +513,14 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     /// adding incrementing collection count when filtering by collection.
     func test_prepareGroupData_collection() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1"
+            id: "1",
         )
 
         let result = try await subject.prepareGroupData(
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1"))
+            filter: VaultListFilter(group: .collection(id: "1", name: "Collection", organizationId: "1")),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -532,7 +536,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     /// when not filtering by folder nor collection.
     func test_prepareGroupData_nonFolderNonCollection() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1"
+            id: "1",
         )
 
         let groups: [VaultListGroup] = [.card, .identity, .login, .noFolder, .secureNote, .sshKey, .totp, .trash]
@@ -549,7 +553,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         configService.featureFlagsBool[.removeCardPolicy] = false
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "1")]
@@ -565,7 +569,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = [.fixture(organizationId: "2")]
@@ -574,7 +578,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: .card)
+            filter: VaultListFilter(group: .card),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -590,7 +594,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareAutofillPasswordsData_noCiphers() async throws {
         let result = try await subject.prepareAutofillPasswordsData(
             from: [],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
         XCTAssertNil(result)
     }
@@ -600,7 +604,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareAutofillPasswordsData_noLoginUris() async throws {
         let result = try await subject.prepareAutofillPasswordsData(
             from: [.fixture()],
-            filter: VaultListFilter()
+            filter: VaultListFilter(),
         )
         XCTAssertNil(result)
     }
@@ -614,12 +618,12 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [
                 .fixture(
                     login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
                     ),
-                    type: .login
+                    type: .login,
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -637,7 +641,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             organizationId: "1",
-            type: .card(.fixture())
+            type: .card(.fixture()),
         )
         policyService.policyAppliesToUserPolicies = [
             .fixture(organizationId: "1"),
@@ -647,10 +651,10 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         let result = try await subject.prepareAutofillPasswordsData(
             from: [
                 .fixture(
-                    type: .card
+                    type: .card,
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -665,7 +669,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     func test_prepareAutofillPasswordsData_deletedCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
-            deletedDate: .now
+            deletedDate: .now,
         )
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
 
@@ -673,11 +677,11 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [
                 .fixture(
                     login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)]
-                    )
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
                 ),
             ],
-            filter: VaultListFilter(uri: "https://example.com")
+            filter: VaultListFilter(uri: "https://example.com"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -695,7 +699,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(group: group)
+            filter: VaultListFilter(group: group),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [

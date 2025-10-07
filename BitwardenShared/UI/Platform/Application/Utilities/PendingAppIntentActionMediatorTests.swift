@@ -28,7 +28,7 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
         subject = DefaultPendingAppIntentActionMediator(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -158,7 +158,7 @@ class MockPendingAppIntentActionMediatorDelegate: PendingAppIntentActionMediator
 
     func onPendingAppIntentActionSuccess(
         _ pendingAppIntentAction: PendingAppIntentAction,
-        data: Any?
+        data: Any?,
     ) async {
         onPendingAppIntentActionSuccessAction = pendingAppIntentAction
         onPendingAppIntentActionSuccessData = data

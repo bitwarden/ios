@@ -27,7 +27,7 @@ class APIServiceTests: BitwardenTestCase {
         let apiUnauthenticatedServiceBaseURL = subject.apiUnauthenticatedService.baseURL
         XCTAssertEqual(apiUnauthenticatedServiceBaseURL, URL(string: "https://example.com/api")!)
         XCTAssertTrue(
-            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertNil(subject.apiUnauthenticatedService.tokenProvider)
     }

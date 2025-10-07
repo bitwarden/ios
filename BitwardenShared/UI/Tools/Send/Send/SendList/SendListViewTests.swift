@@ -35,7 +35,7 @@ class SendListViewTests: BitwardenTestCase {
     func test_addItemFloatingActionButton_sendTypeFile_tap() async throws {
         processor.state.type = .file
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
@@ -46,7 +46,7 @@ class SendListViewTests: BitwardenTestCase {
     func test_addItemFloatingActionButton_sendTypeText_tap() async throws {
         processor.state.type = .text
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
@@ -109,7 +109,7 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -122,7 +122,7 @@ class SendListViewTests: BitwardenTestCase {
             as: [
                 .defaultPortrait,
                 .defaultPortraitDark,
-            ]
+            ],
         )
     }
 
@@ -138,7 +138,7 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -153,7 +153,7 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -168,7 +168,7 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -183,7 +183,7 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 }

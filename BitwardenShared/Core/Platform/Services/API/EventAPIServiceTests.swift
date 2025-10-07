@@ -46,7 +46,7 @@ class EventAPIServiceTests: BitwardenTestCase {
             [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
                 EventRequestModel(type: .cipherClientViewed, cipherId: "2", date: date.addingTimeInterval(1)),
-            ]
+            ],
         )
         XCTAssertEqual(request.method, .post)
         XCTAssertEqual(request.url.absoluteString, "https://example.com/events/collect")

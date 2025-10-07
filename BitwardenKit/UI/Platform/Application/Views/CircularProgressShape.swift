@@ -49,7 +49,7 @@ public struct CircularProgressShape: Shape {
             radius: radius,
             startAngle: startAngle,
             endAngle: endAngle,
-            clockwise: !clockwise
+            clockwise: !clockwise,
         )
 
         return path

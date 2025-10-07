@@ -22,11 +22,11 @@ class VaultUnlockViewTests: BitwardenTestCase {
                     accounts: [],
                     activeAccountId: nil,
                     allowLockAndLogout: false,
-                    isVisible: false
+                    isVisible: false,
                 ),
                 unlockMethod: .password,
-                webVaultHost: "bitwarden.com"
-            )
+                webVaultHost: "bitwarden.com",
+            ),
         )
         let store = Store(processor: processor)
 
@@ -108,28 +108,28 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_vaultUnlockWithBiometricsButton_tap() throws {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
         var expectedString = Localizations.useFaceIDToUnlock
         var button = try subject.inspect().find(button: expectedString)
 
         processor.state.biometricUnlockStatus = .available(
             .touchID,
-            enabled: true
+            enabled: true,
         )
         expectedString = Localizations.useFingerprintToUnlock
         button = try subject.inspect().find(button: expectedString)
 
         processor.state.biometricUnlockStatus = .available(
             .opticID,
-            enabled: true
+            enabled: true,
         )
         expectedString = Localizations.useOpticIDToUnlock
         button = try subject.inspect().find(button: expectedString)
 
         processor.state.biometricUnlockStatus = .available(
             .unknown,
-            enabled: true
+            enabled: true,
         )
         expectedString = Localizations.useBiometricsToUnlock
         button = try subject.inspect().find(button: expectedString)
@@ -150,7 +150,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func disabletest_snapshot_vaultUnlock_withBiometrics_faceId() {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -167,7 +167,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func disabletest_snapshot_vaultUnlock_withBiometrics_touchId() {
         processor.state.biometricUnlockStatus = .available(
             .touchID,
-            enabled: true
+            enabled: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -178,7 +178,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         processor.state.shouldShowPasswordOrPinFields = false
         processor.state.biometricUnlockStatus = .available(
             .touchID,
-            enabled: true
+            enabled: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -189,7 +189,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         processor.state.shouldShowPasswordOrPinFields = false
         processor.state.biometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -223,7 +223,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func disabletest_snapshot_profilesVisible() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
-            userInitials: "EW"
+            userInitials: "EW",
         )
         processor.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [
@@ -231,7 +231,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
             ],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -255,7 +255,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func disabletest_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
-            userInitials: "EW"
+            userInitials: "EW",
         )
         processor.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [
@@ -263,7 +263,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
             ],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

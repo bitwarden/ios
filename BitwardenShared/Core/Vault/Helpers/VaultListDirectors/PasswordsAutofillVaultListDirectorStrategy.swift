@@ -16,7 +16,7 @@ struct PasswordsAutofillVaultListDirectorStrategy: VaultListDirectorStrategy {
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
@@ -35,13 +35,13 @@ struct PasswordsAutofillVaultListDirectorStrategy: VaultListDirectorStrategy {
     /// - Returns: Sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListData {
         guard !ciphers.isEmpty else { return VaultListData() }
 
         guard let preparedData = try await vaultListDataPreparator.prepareAutofillPasswordsData(
             from: ciphers,
-            filter: filter
+            filter: filter,
         ) else {
             return VaultListData()
         }

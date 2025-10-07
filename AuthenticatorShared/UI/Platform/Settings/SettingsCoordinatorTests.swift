@@ -22,7 +22,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject = SettingsCoordinator(
             module: module,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -41,7 +41,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.genericErrorMessage
+            message: Localizations.genericErrorMessage,
         )
         subject.showAlert(alert)
 

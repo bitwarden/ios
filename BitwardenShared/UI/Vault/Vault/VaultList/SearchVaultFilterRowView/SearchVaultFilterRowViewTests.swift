@@ -22,7 +22,7 @@ class SearchVaultFilterRowViewTests: BitwardenTestCase {
         let store = Store(processor: processor)
         subject = SearchVaultFilterRowView(
             hasDivider: true,
-            store: store
+            store: store,
         )
     }
 

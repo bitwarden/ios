@@ -26,7 +26,7 @@ class PushNotificationTokenRequestTests: BitwardenTestCase {
         let bodyData = try XCTUnwrap(subject.body?.encode())
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
-            "{\"pushToken\":\"token\"}"
+            "{\"pushToken\":\"token\"}",
         )
     }
 

@@ -19,7 +19,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [account],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherToolbarView(store: Store(processor: processor))
@@ -53,7 +53,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
         XCTAssertEqual(
             processor.effects.last,
-            .requestedProfileSwitcher(visible: !subject.store.state.isVisible)
+            .requestedProfileSwitcher(visible: !subject.store.state.isVisible),
         )
     }
 
@@ -64,9 +64,9 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .empty()
         assertSnapshot(
             of: snapshotSubject(
-                title: "Empty State"
+                title: "Empty State",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -76,22 +76,22 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [ProfileSwitcherItem.anneAccount],
             activeAccountId: nil,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "No Active Account"
+                title: "No Active Account",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
     func disabletest_snapshot_singleAccount() {
         assertSnapshot(
             of: snapshotSubject(
-                title: "Single Account"
+                title: "Single Account",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -104,18 +104,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     color: .blue,
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
                 ),
             ],
             activeAccountId: "123",
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "Multi Account"
+                title: "Multi Account",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -128,18 +128,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     color: Color(hex: "000000"),
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
                 ),
             ],
             activeAccountId: "123",
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "Black Icon Color"
+                title: "Black Icon Color",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -152,18 +152,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     color: Color(hex: "16cbfc"),
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
                 ),
             ],
             activeAccountId: "123",
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "Blue Icon Color"
+                title: "Blue Icon Color",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -176,18 +176,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     color: Color(hex: "ffffff"),
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
                 ),
             ],
             activeAccountId: "123",
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "White Icon Color"
+                title: "White Icon Color",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 
@@ -200,18 +200,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     color: Color(hex: "fcff41"),
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
                 ),
             ],
             activeAccountId: "123",
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshot(
             of: snapshotSubject(
-                title: "Yellow Icon Color"
+                title: "Yellow Icon Color",
             ),
-            as: .portrait(heightMultiple: 0.1)
+            as: .portrait(heightMultiple: 0.1),
         )
     }
 }

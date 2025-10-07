@@ -17,7 +17,7 @@ struct SortDescriptorWrapper<T> {
     init(
         _ keyPath: KeyPath<T, String>,
         comparator: String.StandardComparator,
-        order: SortOrder = .forward
+        order: SortOrder = .forward,
     ) {
         if #available(iOS 17, *) {
             // Use native SortDescriptor on iOS 17+
@@ -53,7 +53,7 @@ struct SortDescriptorWrapper<T> {
     init(
         _ keyPath: KeyPath<T, String?>,
         comparator: String.StandardComparator,
-        order: SortOrder = .forward
+        order: SortOrder = .forward,
     ) {
         if #available(iOS 17, *) {
             let native = SortDescriptor<T>(keyPath, comparator: comparator, order: order)
@@ -62,13 +62,13 @@ struct SortDescriptorWrapper<T> {
             let comparison: (String?, String?) -> ComparisonResult = { lhs, rhs in
                 switch (lhs, rhs) {
                 case let (lhsValue?, rhsValue?):
-                    return comparator.compare(lhsValue, rhsValue)
+                    comparator.compare(lhsValue, rhsValue)
                 case (nil, nil):
-                    return .orderedSame
+                    .orderedSame
                 case (nil, _):
-                    return .orderedAscending
+                    .orderedAscending
                 case (_, nil):
-                    return .orderedDescending
+                    .orderedDescending
                 }
             }
             let backport = BackportSortDescriptor<T>(comparator: { lhs, rhs in
@@ -82,16 +82,15 @@ struct SortDescriptorWrapper<T> {
                 let lhsStr = lhs[keyPath: keyPath]
                 let rhsStr = rhs[keyPath: keyPath]
 
-                let result: ComparisonResult
-                switch (lhsStr, rhsStr) {
+                let result: ComparisonResult = switch (lhsStr, rhsStr) {
                 case let (lhsValue?, rhsValue?):
-                    result = lhsValue.localizedStandardCompare(rhsValue)
+                    lhsValue.localizedStandardCompare(rhsValue)
                 case (nil, nil):
-                    result = .orderedSame
+                    .orderedSame
                 case (nil, _):
-                    result = .orderedAscending
+                    .orderedAscending
                 case (_, nil):
-                    result = .orderedDescending
+                    .orderedDescending
                 }
 
                 return order == .forward ? result : result.reversed()
@@ -163,11 +162,11 @@ extension ComparisonResult {
     func reversed() -> ComparisonResult {
         switch self {
         case .orderedAscending:
-            return .orderedDescending
+            .orderedDescending
         case .orderedDescending:
-            return .orderedAscending
+            .orderedAscending
         case .orderedSame:
-            return .orderedSame
+            .orderedSame
         }
     }
 }

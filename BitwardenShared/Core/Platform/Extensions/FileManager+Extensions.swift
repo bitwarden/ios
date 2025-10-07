@@ -11,7 +11,7 @@ extension FileManager {
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
-            create: true
+            create: true,
         )
         .appendingPathComponent(userId, isDirectory: true)
         .appendingPathComponent("Attachments", isDirectory: true)
@@ -26,7 +26,7 @@ extension FileManager {
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
-            create: true
+            create: true,
         )
         .appendingPathComponent("Exports", isDirectory: true)
     }

@@ -52,10 +52,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService,
-                vaultTimeoutService: vaultTimeoutService
+                vaultTimeoutService: vaultTimeoutService,
             ),
             state: AccountSecurityState(),
-            vaultUnlockSetupHelper: vaultUnlockSetupHelper
+            vaultUnlockSetupHelper: vaultUnlockSetupHelper,
         )
     }
 
@@ -114,11 +114,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut)
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut),
         )
     }
 
@@ -146,7 +146,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(subject.state.policyTimeoutMessage, Localizations.vaultTimeoutPolicyInEffect(1, 1))
     }
@@ -170,11 +170,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock)
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock),
         )
     }
 
@@ -217,7 +217,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
         biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus
+            biometricUnlockStatus,
         )
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
@@ -376,8 +376,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(
             alert,
             Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred
-            )
+                title: Localizations.anErrorHasOccurred,
+            ),
         )
     }
 
@@ -428,7 +428,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false
+            enabled: false,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -451,7 +451,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.sessionTimeoutAction = .lock
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false
+            enabled: false,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -471,7 +471,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(true))

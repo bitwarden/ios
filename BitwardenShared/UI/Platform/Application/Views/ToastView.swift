@@ -72,7 +72,7 @@ struct ToastView: View {
                         .headline,
                         weight: .bold,
                         includeLinePadding: false,
-                        includeLineSpacing: false
+                        includeLineSpacing: false,
                     )
 
                 if let subtitle = toast.subtitle {

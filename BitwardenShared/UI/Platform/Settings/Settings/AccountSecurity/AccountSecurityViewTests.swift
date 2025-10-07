@@ -103,11 +103,11 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_biometricsToggle() throws {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         _ = try subject.inspect().find(
-            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID)
+            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID),
         )
         processor.state.biometricUnlockStatus = .available(.touchID, enabled: true)
         _ = try subject.inspect().find(
-            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.touchID)
+            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.touchID),
         )
     }
 
@@ -117,8 +117,8 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.biometricUnlockStatus = .notAvailable
         XCTAssertNil(
             try? subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID)
-            )
+                toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID),
+            ),
         )
     }
 
@@ -212,7 +212,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -225,12 +225,12 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     state: AccountSecurityState(
                         biometricUnlockStatus: .available(
                             .touchID,
-                            enabled: false
+                            enabled: false,
                         ),
-                        sessionTimeoutValue: .custom(1)
-                    )
-                )
-            )
+                        sessionTimeoutValue: .custom(1),
+                    ),
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -244,12 +244,12 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     state: AccountSecurityState(
                         biometricUnlockStatus: .available(
                             .faceID,
-                            enabled: true
+                            enabled: true,
                         ),
-                        sessionTimeoutValue: .custom(1)
-                    )
-                )
-            )
+                        sessionTimeoutValue: .custom(1),
+                    ),
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -260,9 +260,9 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
-                    state: AccountSecurityState(sessionTimeoutValue: .custom(1))
-                )
-            )
+                    state: AccountSecurityState(sessionTimeoutValue: .custom(1)),
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -275,10 +275,10 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 processor: StateProcessor(
                     state: AccountSecurityState(
                         hasMasterPassword: false,
-                        sessionTimeoutAction: .logout
-                    )
-                )
-            )
+                        sessionTimeoutAction: .logout,
+                    ),
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -291,14 +291,14 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 processor: StateProcessor(
                     state: AccountSecurityState(
                         biometricUnlockStatus: .available(.faceID, enabled: true),
-                        removeUnlockWithPinPolicyEnabled: true
-                    )
-                )
-            )
+                        removeUnlockWithPinPolicyEnabled: true,
+                    ),
+                ),
+            ),
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()],
         )
     }
 
@@ -310,14 +310,14 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 processor: StateProcessor(
                     state: AccountSecurityState(
                         isTimeoutPolicyEnabled: true,
-                        sessionTimeoutValue: .custom(1)
-                    )
-                )
-            )
+                        sessionTimeoutValue: .custom(1),
+                    ),
+                ),
+            ),
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()],
         )
     }
 
@@ -331,14 +331,14 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                         isTimeoutPolicyEnabled: true,
                         policyTimeoutAction: .logout,
                         sessionTimeoutAction: .logout,
-                        sessionTimeoutValue: .custom(1)
-                    )
-                )
-            )
+                        sessionTimeoutValue: .custom(1),
+                    ),
+                ),
+            ),
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()],
         )
     }
 

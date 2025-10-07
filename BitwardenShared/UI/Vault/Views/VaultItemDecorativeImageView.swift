@@ -29,7 +29,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
                 AsyncImage(
                     url: IconImageHelper.getIconImage(
                         for: cipherDecorativeIconDataView,
-                        from: iconBaseURL
+                        from: iconBaseURL,
                     ),
                     content: { image in
                         image
@@ -39,7 +39,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
                     },
                     placeholder: {
                         placeholder(item.icon)
-                    }
+                    },
                 )
             } else {
                 placeholder(item.icon)
@@ -61,7 +61,7 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
         item: VaultItemWithDecorativeIcon,
         iconBaseURL: URL?,
         showWebIcons: Bool,
-        placeholderContent: ((SharedImageAsset) -> PlaceholderContent)? = nil
+        placeholderContent: ((SharedImageAsset) -> PlaceholderContent)? = nil,
     ) {
         self.item = item
         self.iconBaseURL = iconBaseURL
@@ -104,7 +104,7 @@ extension VaultItemDecorativeImageView where PlaceholderContent == EmptyView {
     init(
         item: VaultItemWithDecorativeIcon,
         iconBaseURL: URL?,
-        showWebIcons: Bool
+        showWebIcons: Bool,
     ) {
         self.item = item
         self.iconBaseURL = iconBaseURL

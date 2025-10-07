@@ -20,13 +20,13 @@ class EmptyInputValidatorTests: BitwardenTestCase {
         func assertThrowsInputValidationError(
             input: String?,
             file: StaticString = #filePath,
-            line: UInt = #line
+            line: UInt = #line,
         ) {
             XCTAssertThrowsError(try subject.validate(input: input)) { error in
                 XCTAssertTrue(error is InputValidationError)
                 XCTAssertEqual(
                     error as? InputValidationError,
-                    InputValidationError(message: "The Email field is required.")
+                    InputValidationError(message: "The Email field is required."),
                 )
             }
         }

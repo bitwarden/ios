@@ -24,7 +24,7 @@ protocol EventService {
 extension EventService {
     func collect(
         eventType: EventType,
-        cipherId: String? = nil
+        cipherId: String? = nil,
     ) async {
         await collect(eventType: eventType, cipherId: cipherId)
     }
@@ -73,7 +73,7 @@ class DefaultEventService: EventService {
         eventAPIService: EventAPIService,
         organizationService: OrganizationService,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.cipherService = cipherService
         self.errorReporter = errorReporter
@@ -108,7 +108,7 @@ class DefaultEventService: EventService {
             let newEvent = EventData(
                 type: eventType,
                 cipherId: cipherId,
-                date: timeProvider.presentTime
+                date: timeProvider.presentTime,
             )
 
             events.append(newEvent)

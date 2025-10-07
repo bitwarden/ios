@@ -11,17 +11,17 @@ protocol AddEditFolderModule {
     /// - Returns: A coordinator that can navigate to `AddEditFolderRoute`s.
     ///
     func makeAddEditFolderCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AddEditFolderRoute, Void>
 }
 
 extension DefaultAppModule: AddEditFolderModule {
     func makeAddEditFolderCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AddEditFolderRoute, Void> {
         AddEditFolderCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

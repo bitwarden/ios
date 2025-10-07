@@ -10,7 +10,7 @@ class LoadingOverlayViewTests: BitwardenTestCase {
     func disabletest_snapshot_loadingOverlay() {
         assertSnapshots(
             of: LoadingOverlayView(state: .init(title: "Loading...")),
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 }

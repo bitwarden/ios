@@ -75,11 +75,10 @@ public extension String {
     var isValidURL: Bool {
         guard rangeOfCharacter(from: .whitespaces) == nil else { return false }
 
-        let urlString: String
-        if starts(with: "https://") || starts(with: "http://") {
-            urlString = self
+        let urlString: String = if starts(with: "https://") || starts(with: "http://") {
+            self
         } else {
-            urlString = "https://" + self
+            "https://" + self
         }
 
         if #available(iOS 16, *) {
@@ -134,9 +133,9 @@ public extension String {
     ///
     func leftPadding(toLength: Int, withPad character: Character) -> String {
         if count < toLength {
-            return String(repeatElement(character, count: toLength - count)) + self
+            String(repeatElement(character, count: toLength - count)) + self
         } else {
-            return String(suffix(toLength))
+            String(suffix(toLength))
         }
     }
 
@@ -164,7 +163,7 @@ public extension String {
             .replacingOccurrences(of: "_", with: "/")
             .appending(String(
                 repeating: "=",
-                count: remainder == 0 ? 0 : 4 - remainder
+                count: remainder == 0 ? 0 : 4 - remainder,
             ))
     }
 

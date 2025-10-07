@@ -85,7 +85,7 @@ private struct MainSendListView: View {
                 image: Asset.Images.Illustrations.send,
                 title: Localizations.sendSensitiveInformationSafely,
                 message: Localizations
-                    .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted
+                    .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted,
             ) {
                 Group {
                     let newSendLabel = Label(Localizations.newSend, image: SharedAsset.Icons.plus16.swiftUIImage)
@@ -136,7 +136,7 @@ private struct MainSendListView: View {
                 if !store.state.searchResults.isEmpty {
                     sendItemSectionView(
                         sectionName: nil,
-                        items: store.state.searchResults
+                        items: store.state.searchResults,
                     )
                 }
             }
@@ -157,7 +157,7 @@ private struct MainSendListView: View {
             ForEach(sections) { section in
                 sendItemSectionView(
                     sectionName: section.name,
-                    items: section.items
+                    items: section.items,
                 )
             }
         }
@@ -175,7 +175,7 @@ private struct MainSendListView: View {
     @ViewBuilder
     private func sendItemSectionView(
         sectionName: String?,
-        items: [SendListItem]
+        items: [SendListItem],
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             if let sectionName {
@@ -191,12 +191,12 @@ private struct MainSendListView: View {
                                 SendListItemRowState(
                                     isSendDisabled: store.state.isSendDisabled,
                                     item: item,
-                                    hasDivider: items.last != item
+                                    hasDivider: items.last != item,
                                 )
                             },
                             mapAction: SendListAction.sendListItemRow,
-                            mapEffect: SendListEffect.sendListItemRow
-                        )
+                            mapEffect: SendListEffect.sendListItemRow,
+                        ),
                     )
                 }
             }
@@ -229,10 +229,10 @@ struct SendListView: View {
             .searchable(
                 text: store.binding(
                     get: \.searchText,
-                    send: SendListAction.searchTextChanged
+                    send: SendListAction.searchTextChanged,
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: Localizations.search,
             )
             .autocorrectionDisabled(true)
             .refreshable { [weak store] in
@@ -242,7 +242,7 @@ struct SendListView: View {
             .toolbar {
                 largeNavigationTitleToolbarItem(
                     store.state.navigationTitle,
-                    hidden: store.state.type != nil
+                    hidden: store.state.type != nil,
                 )
 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -260,9 +260,9 @@ struct SendListView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: SendListAction.toastShown
+                    send: SendListAction.toastShown,
                 ),
-                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
             .task { await store.perform(.loadData) }
             .task { await store.perform(.streamSendList) }
@@ -285,9 +285,9 @@ struct SendListView: View {
         SendListView(
             store: Store(
                 processor: StateProcessor(
-                    state: SendListState()
-                )
-            )
+                    state: SendListState(),
+                ),
+            ),
         )
     }
 }
@@ -297,9 +297,9 @@ struct SendListView: View {
         SendListView(
             store: Store(
                 processor: StateProcessor(
-                    state: SendListState(loadingState: .data([]))
-                )
-            )
+                    state: SendListState(loadingState: .data([])),
+                ),
+            ),
         )
     }
 }
@@ -316,19 +316,19 @@ struct SendListView: View {
                                 items: [
                                     SendListItem(
                                         id: "11",
-                                        itemType: .group(.text, 42)
+                                        itemType: .group(.text, 42),
                                     ),
                                     SendListItem(
                                         id: "12",
-                                        itemType: .group(.file, 1)
+                                        itemType: .group(.file, 1),
                                     ),
                                 ] + (1 ... 10).map { id in
                                     SendListItem(
                                         id: String(id),
-                                        itemType: .group(.file, id)
+                                        itemType: .group(.file, id),
                                     )
                                 },
-                                name: "Types"
+                                name: "Types",
                             ),
                             SendListSection(
                                 id: "2",
@@ -338,14 +338,14 @@ struct SendListView: View {
                                         name: "File Send",
                                         type: .file,
                                         deletionDate: Date().advanced(by: 100),
-                                        expirationDate: Date().advanced(by: 100)
+                                        expirationDate: Date().advanced(by: 100),
                                     ))!,
                                     SendListItem(sendView: .fixture(
                                         id: "22",
                                         name: "Text Send",
                                         type: .text,
                                         deletionDate: Date().advanced(by: 100),
-                                        expirationDate: Date().advanced(by: 100)
+                                        expirationDate: Date().advanced(by: 100),
                                     ))!,
                                     SendListItem(sendView: .fixture(
                                         id: "23",
@@ -356,15 +356,15 @@ struct SendListView: View {
                                         accessCount: 1,
                                         disabled: true,
                                         deletionDate: Date(),
-                                        expirationDate: Date().advanced(by: -1)
+                                        expirationDate: Date().advanced(by: -1),
                                     ))!,
                                 ],
-                                name: "All sends"
+                                name: "All sends",
                             ),
-                        ])
-                    )
-                )
-            )
+                        ]),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -376,10 +376,10 @@ struct SendListView: View {
                 processor: StateProcessor(
                     state: SendListState(
                         searchText: "Searching",
-                        searchResults: []
-                    )
-                )
-            )
+                        searchResults: [],
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -396,7 +396,7 @@ struct SendListView: View {
                                 id: "22",
                                 name: "Text Send",
                                 deletionDate: Date().advanced(by: 100),
-                                expirationDate: Date().advanced(by: 100)
+                                expirationDate: Date().advanced(by: 100),
                             ))!,
                             SendListItem(sendView: .fixture(
                                 id: "23",
@@ -407,12 +407,12 @@ struct SendListView: View {
                                 accessCount: 1,
                                 disabled: true,
                                 deletionDate: Date(),
-                                expirationDate: Date().advanced(by: -1)
+                                expirationDate: Date().advanced(by: -1),
                             ))!,
-                        ]
-                    )
-                )
-            )
+                        ],
+                    ),
+                ),
+            ),
         )
     }
 }

@@ -90,7 +90,7 @@ struct SettingsListItem<Content: View>: View {
         icon: SharedImageAsset? = nil,
         nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
-        @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
+        @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() },
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.badgeValue = badgeValue

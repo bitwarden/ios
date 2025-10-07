@@ -32,7 +32,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             credentialManagerFactory: credentialManagerFactory,
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             importCiphersService: importCiphersService,
-            syncService: syncService
+            syncService: syncService,
         )
     }
 
@@ -62,7 +62,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         credentialImportManager.importCredentialsResult = try .success(getASExportedCredentialDataAsJson(
             accounts: [
                 .fixture(items: [.fixture()]),
-            ]
+            ],
         ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -93,9 +93,9 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         var progressReports: [Double] = []
         let result = try await subject.importCiphers(
             credentialImportToken: UUID(
-                uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
             )!,
-            onProgress: { progress in progressReports.append(progress) }
+            onProgress: { progress in progressReports.append(progress) },
         )
 
         XCTAssertNotNil(clientService.mockExporters.importCxfPayload)
@@ -118,16 +118,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
             try .success(getASExportedCredentialDataAsJson(
-                accounts: []
+                accounts: [],
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
         await assertAsyncThrows(error: ImportCiphersRepositoryError.noDataFound) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
                 )!,
-                onProgress: { _ in }
+                onProgress: { _ in },
             )
         }
     }
@@ -145,7 +145,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             try .success(getASExportedCredentialDataAsJson(
                 accounts: [
                     .fixture(items: [.fixture()]),
-                ]
+                ],
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -154,9 +154,9 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
                 )!,
-                onProgress: { _ in }
+                onProgress: { _ in },
             )
         }
     }
@@ -174,7 +174,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             try .success(getASExportedCredentialDataAsJson(
                 accounts: [
                     .fixture(items: [.fixture()]),
-                ]
+                ],
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -189,9 +189,9 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
                 )!,
-                onProgress: { progress in progressReports.append(progress) }
+                onProgress: { progress in progressReports.append(progress) },
             )
         }
         XCTAssertEqual(progressReports, [0.3])
@@ -210,7 +210,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             try .success(getASExportedCredentialDataAsJson(
                 accounts: [
                     .fixture(items: [.fixture()]),
-                ]
+                ],
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
@@ -225,9 +225,9 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
                 )!,
-                onProgress: { progress in progressReports.append(progress) }
+                onProgress: { progress in progressReports.append(progress) },
             )
         }
         XCTAssertEqual(progressReports, [0.3, 0.8])
@@ -242,7 +242,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             formatVersion: .v1,
             exporterRelyingPartyIdentifier: "com.bitwarden.test",
             exporterDisplayName: "Bitwarden Test",
-            timestamp: .now
+            timestamp: .now,
         )
         let credentialData = try JSONEncoder.cxfEncoder.encode(data)
         guard let credentialDataJsonString = String(data: credentialData, encoding: .utf8) else {

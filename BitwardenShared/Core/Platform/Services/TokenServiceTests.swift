@@ -24,7 +24,7 @@ class TokenServiceTests: BitwardenTestCase {
         subject = DefaultTokenService(
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -148,11 +148,11 @@ class TokenServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "1"))],
-            "🔑"
+            "🔑",
         )
         XCTAssertEqual(
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "1"))],
-            "🔒"
+            "🔒",
         )
     }
 }

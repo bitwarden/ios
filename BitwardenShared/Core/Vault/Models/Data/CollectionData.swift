@@ -31,7 +31,7 @@ class CollectionData: NSManagedObject, ManagedUserObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        collection: Collection
+        collection: Collection,
     ) throws {
         self.init(context: context)
         id = collection.id
@@ -65,7 +65,7 @@ extension CollectionData {
             #keyPath(CollectionData.userId),
             userId,
             #keyPath(CollectionData.id),
-            id
+            id,
         )
     }
 }

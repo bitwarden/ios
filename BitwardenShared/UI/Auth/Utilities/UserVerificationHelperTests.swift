@@ -33,7 +33,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
         subject = DefaultUserVerificationHelper(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            localAuthService: localAuthService
+            localAuthService: localAuthService,
         )
         subject.userVerificationDelegate = userVerificationDelegate
     }

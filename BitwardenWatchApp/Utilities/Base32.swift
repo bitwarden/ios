@@ -30,7 +30,7 @@ enum Base32 {
         while outputIndex < output.count {
             guard let byteIndex = BASE_32_CHARS.firstIndex(of: input[input.index(
                 input.startIndex,
-                offsetBy: inputIndex
+                offsetBy: inputIndex,
             )]) else {
                 throw Base32Error.invalidFormat
             }

@@ -24,7 +24,7 @@ class UpdateSendRequestTests: BitwardenTestCase {
         XCTAssertThrowsError(try UpdateSendRequest(send: send)) { error in
             XCTAssertEqual(
                 error as NSError,
-                BitwardenError.dataError("Received a send from the API with a missing ID.")
+                BitwardenError.dataError("Received a send from the API with a missing ID."),
             )
         }
     }

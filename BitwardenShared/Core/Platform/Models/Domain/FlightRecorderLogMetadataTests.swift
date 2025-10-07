@@ -10,14 +10,14 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
         duration: .oneHour,
         endDate: Date(year: 2025, month: 4, day: 3, hour: 11, minute: 30),
         expirationDate: Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30),
-        startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+        startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30),
     )
 
     let logEightHours = FlightRecorderLogMetadata.fixture(
         duration: .eightHours,
         endDate: Date(year: 2025, month: 4, day: 3, hour: 18, minute: 30),
         expirationDate: Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30),
-        startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+        startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30),
     )
 
     // MARK: Tests
@@ -26,11 +26,11 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     func test_formattedLoggingDateRange() {
         XCTAssertEqual(
             logOneHour.formattedLoggingDateRange,
-            "2025-04-03T10:30:00 – 2025-04-03T11:30:00"
+            "2025-04-03T10:30:00 – 2025-04-03T11:30:00",
         )
         XCTAssertEqual(
             logEightHours.formattedLoggingDateRange,
-            "2025-04-03T10:30:00 – 2025-04-03T18:30:00"
+            "2025-04-03T10:30:00 – 2025-04-03T18:30:00",
         )
     }
 
@@ -40,7 +40,7 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
         let log = FlightRecorderLogMetadata.fixture(
             duration: .oneHour,
             isActiveLog: true,
-            startDate: currentDate
+            startDate: currentDate,
         )
         XCTAssertNil(log.formattedExpiration(currentDate: currentDate))
     }
@@ -51,11 +51,11 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
         let currentDate = Date(year: 2025, month: 4, day: 30, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresOnXDate("5/3/25")
+            Localizations.expiresOnXDate("5/3/25"),
         )
         XCTAssertEqual(
             logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresOnXDate("5/3/25")
+            Localizations.expiresOnXDate("5/3/25"),
         )
     }
 
@@ -64,11 +64,11 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
         let currentDate = Date(year: 2025, month: 5, day: 3, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresAtXTime("11:30 AM")
+            Localizations.expiresAtXTime("11:30 AM"),
         )
         XCTAssertEqual(
             logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresAtXTime("6:30 PM")
+            Localizations.expiresAtXTime("6:30 PM"),
         )
     }
 
@@ -77,11 +77,11 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
         let currentDate = Date(year: 2025, month: 5, day: 2, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresTomorrow
+            Localizations.expiresTomorrow,
         )
         XCTAssertEqual(
             logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresTomorrow
+            Localizations.expiresTomorrow,
         )
     }
 
@@ -89,11 +89,11 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     func test_loggingDateRangeAccessibilityLabel() {
         XCTAssertEqual(
             logOneHour.loggingDateRangeAccessibilityLabel,
-            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 11:30 AM"
+            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 11:30 AM",
         )
         XCTAssertEqual(
             logEightHours.loggingDateRangeAccessibilityLabel,
-            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 6:30 PM"
+            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 6:30 PM",
         )
     }
 }

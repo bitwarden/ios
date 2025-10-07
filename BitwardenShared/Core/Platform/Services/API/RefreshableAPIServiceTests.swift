@@ -23,7 +23,7 @@ class RefreshableAPIServiceTests: BitwardenTestCase {
             environmentService: MockEnvironmentService(),
             flightRecorder: MockFlightRecorder(),
             stateService: MockStateService(),
-            tokenService: MockTokenService()
+            tokenService: MockTokenService(),
         )
     }
 

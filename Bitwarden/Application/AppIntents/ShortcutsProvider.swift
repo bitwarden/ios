@@ -21,7 +21,7 @@ struct ShortcutsProvider: AppShortcutsProvider {
                 "Global lock for \(.applicationName)",
             ],
             shortTitle: "LockAllAccounts",
-            systemImageName: "lock.circle.dotted"
+            systemImageName: "lock.circle.dotted",
         )
         AppShortcut(
             intent: LogoutAllAccountsIntent(),
@@ -39,7 +39,7 @@ struct ShortcutsProvider: AppShortcutsProvider {
                 "Exit every \(.applicationName) account",
             ],
             shortTitle: "LogOutAllAccounts",
-            systemImageName: "person.crop.circle.badge.xmark"
+            systemImageName: "person.crop.circle.badge.xmark",
         )
         AppShortcut(
             intent: OpenGeneratorIntent(),
@@ -57,7 +57,7 @@ struct ShortcutsProvider: AppShortcutsProvider {
                 "Begin generating passwords with \(.applicationName)",
             ],
             shortTitle: "OpenPasswordGenerator",
-            systemImageName: "arrow.clockwise.square"
+            systemImageName: "arrow.clockwise.square",
         )
         AppShortcut(
             intent: GeneratePassphraseIntent(),
@@ -75,7 +75,7 @@ struct ShortcutsProvider: AppShortcutsProvider {
                 "\(.applicationName), generate a strong passphrase",
             ],
             shortTitle: "GeneratePassphrase",
-            systemImageName: "arrow.clockwise"
+            systemImageName: "arrow.clockwise",
         )
     }
 }

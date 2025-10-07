@@ -69,7 +69,7 @@ public protocol StackNavigator: Navigator {
         _ view: Content,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     )
 
     /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
@@ -84,7 +84,7 @@ public protocol StackNavigator: Navigator {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     )
 
     /// Replaces the stack with the specified view.
@@ -136,7 +136,7 @@ extension StackNavigator {
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         navigationTitle: String? = nil,
-        searchController: UISearchController? = nil
+        searchController: UISearchController? = nil,
     ) {
         if let navigationTitle {
             // Preset some navigation item values so that the navigation bar does not flash oddly once
@@ -193,13 +193,13 @@ extension StackNavigator {
         _ view: Content,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
-        onCompletion _: (() -> Void)? = nil
+        onCompletion _: (() -> Void)? = nil,
     ) {
         present(
             view,
             animated: animated,
             overFullscreen: overFullscreen,
-            onCompletion: nil
+            onCompletion: nil,
         )
     }
 
@@ -214,13 +214,13 @@ extension StackNavigator {
     func present(
         _ viewController: UIViewController,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         present(
             viewController,
             animated: UI.animated,
             overFullscreen: overFullscreen,
-            onCompletion: onCompletion
+            onCompletion: onCompletion,
         )
     }
 
@@ -274,7 +274,7 @@ extension UINavigationController: StackNavigator {
         _ view: Content,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         let controller = UIHostingController(rootView: view)
         controller.isModalInPresentation = true
@@ -290,7 +290,7 @@ extension UINavigationController: StackNavigator {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
@@ -304,7 +304,7 @@ extension UINavigationController: StackNavigator {
         availablePresenter?.present(
             viewController,
             animated: animated,
-            completion: onCompletion
+            completion: onCompletion,
         )
     }
 

@@ -38,7 +38,7 @@ struct BitwardenMenuField<
     AdditionalMenu: View,
     TitleAccessory: View,
     TrailingContent: View,
-    FooterContent: View
+    FooterContent: View,
 >: View where T: Menuable {
     // MARK: Properties
 
@@ -84,7 +84,7 @@ struct BitwardenMenuField<
         .background(
             isEnabled
                 ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
-                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor
+                : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -114,15 +114,14 @@ struct BitwardenMenuField<
                                 .subheadline,
                                 weight: .semibold,
                                 includeLinePadding: false,
-                                includeLineSpacing: false
+                                includeLineSpacing: false,
                             )
                             .foregroundColor(isEnabled
                                 ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
-                            )
-                            .onSizeChanged { size in
-                                titleWidth = size.width
-                            }
+                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
+                                .onSizeChanged { size in
+                                    titleWidth = size.width
+                                }
                     }
 
                     Text(selection.localizedName)
@@ -149,21 +148,20 @@ struct BitwardenMenuField<
         .styleGuide(.body)
         .foregroundColor(isEnabled
             ? SharedAsset.Colors.textPrimary.swiftUIColor
-            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
-        )
-        .frame(minHeight: 64)
-        .accessibilityIdentifier(accessibilityIdentifier ?? "")
-        .overlay {
-            if let titleAccessoryContent {
-                titleAccessoryContent
-                    .frame(
-                        maxWidth: .infinity,
-                        maxHeight: .infinity,
-                        alignment: .topLeading
-                    )
-                    .offset(x: titleWidth + 4, y: 12)
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
+            .frame(minHeight: 64)
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
+            .overlay {
+                if let titleAccessoryContent {
+                    titleAccessoryContent
+                        .frame(
+                            maxWidth: .infinity,
+                            maxHeight: .infinity,
+                            alignment: .topLeading,
+                        )
+                        .offset(x: titleWidth + 4, y: 12)
+                }
             }
-        }
     }
 
     // MARK: Initialization
@@ -182,7 +180,7 @@ struct BitwardenMenuField<
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
         options: [T],
-        selection: Binding<T>
+        selection: Binding<T>,
     )
         where AdditionalMenu == EmptyView,
         TitleAccessory == EmptyView,
@@ -212,7 +210,7 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
-        @ViewBuilder footer footerContent: () -> FooterContent
+        @ViewBuilder footer footerContent: () -> FooterContent,
     ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
@@ -242,7 +240,7 @@ struct BitwardenMenuField<
         options: [T],
         selection: Binding<T>,
         titleAccessoryContent: () -> TitleAccessory,
-        trailingContent: () -> TrailingContent
+        trailingContent: () -> TrailingContent,
     ) where AdditionalMenu == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
@@ -270,7 +268,7 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
-        trailingContent: () -> TrailingContent
+        trailingContent: () -> TrailingContent,
     ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
@@ -298,7 +296,7 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
-        titleAccessoryContent: () -> TitleAccessory
+        titleAccessoryContent: () -> TitleAccessory,
     ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
@@ -327,7 +325,7 @@ struct BitwardenMenuField<
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
-        @ViewBuilder additionalMenu: () -> AdditionalMenu
+        @ViewBuilder additionalMenu: () -> AdditionalMenu,
     ) where TrailingContent == EmptyView, TitleAccessory == EmptyView, FooterContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
@@ -363,9 +361,9 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
 
     var localizedName: String {
         switch self {
-        case .bear: return "🧸"
-        case .bird: return "🪿"
-        case .dog: return "🐕"
+        case .bear: "🧸"
+        case .bird: "🪿"
+        case .dog: "🐕"
         }
     }
 }
@@ -376,7 +374,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             title: "Animals",
             footer: nil,
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         )
         .padding()
 
@@ -384,7 +382,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             title: "Animals",
             footer: nil,
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         )
         .disabled(true)
         .padding()
@@ -403,7 +401,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
                     SharedAsset.Icons.camera16.swiftUIImage
                 }
                 .buttonStyle(.accessory)
-            }
+            },
         )
         .padding()
     }
@@ -416,7 +414,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             title: "Animals",
             footer: "Select your favorite animal",
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
+            selection: .constant(.dog),
         )
         .padding()
     }
@@ -431,7 +429,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             selection: .constant(.dog),
             additionalMenu: {
                 Button("Add an animal") {}
-            }
+            },
         )
         .padding()
     }

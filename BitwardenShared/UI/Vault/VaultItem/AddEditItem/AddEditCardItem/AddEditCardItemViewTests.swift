@@ -16,7 +16,7 @@ class AddEditCardItemViewTests: BitwardenTestCase {
                     .defaultPortrait,
                     .defaultPortraitDark,
                     .tallPortraitAX5(heightMultiple: 1.75),
-                ]
+                ],
             )
         }
     }

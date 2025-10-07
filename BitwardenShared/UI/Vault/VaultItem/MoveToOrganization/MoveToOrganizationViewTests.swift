@@ -64,7 +64,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     func disabletest_snapshot_moveToOrganization_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -79,7 +79,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
         processor.state.ownershipOptions = [.organization(id: "1", name: "Organization")]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

@@ -95,7 +95,7 @@ extension CipherRequestModel {
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
-            type: CipherType(type: cipher.type)
+            type: CipherType(type: cipher.type),
         )
     }
 }

@@ -51,7 +51,7 @@ struct ToggleFieldView<State>: View {
         VStack(spacing: 0) {
             Toggle(
                 field.title,
-                isOn: Binding(get: { field.isOn }, set: action)
+                isOn: Binding(get: { field.isOn }, set: action),
             )
             .accessibilityIdentifier(field.accessibilityId ?? field.id)
             .accessibilityLabel(field.accessibilityLabel ?? field.title)

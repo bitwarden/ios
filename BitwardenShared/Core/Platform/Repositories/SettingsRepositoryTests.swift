@@ -33,7 +33,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
             pasteboardService: pasteboardService,
             stateService: stateService,
             syncService: syncService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
     }
 

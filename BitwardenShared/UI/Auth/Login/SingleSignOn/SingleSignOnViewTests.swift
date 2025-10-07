@@ -61,7 +61,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     func disabletest_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -71,7 +71,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
         processor.state.identifierText = "Insert cool identifier here"
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

@@ -36,9 +36,9 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenterService,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: .init(mode: .onboarding)
+            state: .init(mode: .onboarding),
         )
     }
 

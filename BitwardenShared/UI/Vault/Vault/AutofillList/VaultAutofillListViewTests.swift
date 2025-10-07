@@ -38,7 +38,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     @MainActor
     func test_addItemFloatingActionButton_tap() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: true))
@@ -73,7 +73,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.activeAccountId = account.userId
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -88,7 +88,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -106,39 +106,39 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: "1",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
                             name: "Apple",
-                            subtitle: "user@bitwarden.com"
-                        )
+                            subtitle: "user@bitwarden.com",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "2",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
                             name: "Bitwarden",
-                            subtitle: "user@bitwarden.com"
-                        )
+                            subtitle: "user@bitwarden.com",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "3",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
                             name: "Company XYZ",
-                            subtitle: ""
-                        )
+                            subtitle: "",
+                        ),
                     )!,
                 ],
-                name: ""
+                name: "",
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -157,64 +157,64 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: "1",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
                             name: "Apple",
-                            subtitle: "user@bitwarden.com"
-                        )
+                            subtitle: "user@bitwarden.com",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "2",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
                             name: "Bitwarden",
-                            subtitle: "user@bitwarden.com"
-                        )
+                            subtitle: "user@bitwarden.com",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "3",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
-                            name: "Company XYZ"
-                        )
+                            name: "Company XYZ",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "4",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
                             name: "App",
-                            subtitle: "myFido2Username"
+                            subtitle: "myFido2Username",
                         ),
                         fido2CredentialAutofillView: .fixture(
-                            userNameForUi: "myFido2Username"
-                        )
+                            userNameForUi: "myFido2Username",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "5",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
                             name: "myApp.com",
-                            subtitle: "another user"
+                            subtitle: "another user",
                         ),
                         fido2CredentialAutofillView: .fixture(
-                            userNameForUi: "another user"
-                        )
+                            userNameForUi: "another user",
+                        ),
                     )!,
                 ],
-                name: Localizations.chooseALoginToSaveThisPasskeyTo
+                name: Localizations.chooseALoginToSaveThisPasskeyTo,
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -234,28 +234,28 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: "4",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
-                            name: "App"
+                            name: "App",
                         ),
                         fido2CredentialAutofillView: .fixture(
-                            userNameForUi: "myFido2Username"
-                        )
+                            userNameForUi: "myFido2Username",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "5",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
-                            name: "myApp.com"
+                            name: "myApp.com",
                         ),
                         fido2CredentialAutofillView: .fixture(
-                            userNameForUi: "another user"
-                        )
+                            userNameForUi: "another user",
+                        ),
                     )!,
                 ],
-                name: "Passkeys for myApp.com"
+                name: "Passkeys for myApp.com",
             ),
             VaultListSection(
                 id: "Passwords for myApp.com",
@@ -264,36 +264,36 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: "1",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
-                            name: "Apple"
-                        )
+                            name: "Apple",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "2",
                             login: .fixture(
-                                username: "user@bitwarden.com"
+                                username: "user@bitwarden.com",
                             ),
-                            name: "Bitwarden"
-                        )
+                            name: "Bitwarden",
+                        ),
                     )!,
                     .init(
                         cipherListView: .fixture(
                             id: "3",
                             login: .fixture(
-                                username: ""
+                                username: "",
                             ),
-                            name: "Company XYZ"
-                        )
+                            name: "Company XYZ",
+                        ),
                     )!,
                 ],
-                name: "Passwords for myApp.com"
+                name: "Passwords for myApp.com",
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -312,51 +312,51 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 items: [
                     .fixture(cipherListView: .fixture(
                         login: .fixture(
-                            username: "email@example.com"
+                            username: "email@example.com",
                         ),
                         name: "Example",
-                        subtitle: "email@example.com"
+                        subtitle: "email@example.com",
                     )),
                     .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
                     .fixture(cipherListView: .fixture(
                         id: "13",
                         organizationId: "1",
                         login: .fixture(
-                            username: "user@bitwarden.com"
+                            username: "user@bitwarden.com",
                         ),
                         name: "Bitwarden",
                         subtitle: "user@bitwarden.com",
-                        attachments: 1
+                        attachments: 1,
                     )),
                 ],
-                name: "Favorites"
+                name: "Favorites",
             ),
             VaultListSection(
                 id: "2",
                 items: [
                     VaultListItem(
                         id: "21",
-                        itemType: .group(.login, 123)
+                        itemType: .group(.login, 123),
                     ),
                     VaultListItem(
                         id: "22",
-                        itemType: .group(.card, 25)
+                        itemType: .group(.card, 25),
                     ),
                     VaultListItem(
                         id: "23",
-                        itemType: .group(.identity, 1)
+                        itemType: .group(.identity, 1),
                     ),
                     VaultListItem(
                         id: "24",
-                        itemType: .group(.secureNote, 0)
+                        itemType: .group(.secureNote, 0),
                     ),
                 ],
-                name: "Types"
+                name: "Types",
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -377,16 +377,16 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: "1",
                             login: .fixture(
-                                username: "email@example.com"
+                                username: "email@example.com",
                             ),
                             name: "Example",
                             subtitle: "email@example.com",
-                        )
+                        ),
                     ),
                     .fixture(cipherListView: .fixture(
                         id: "2",
                         login: .fixture(
-                            username: "An equally long subtitle that should also take up more than one line"
+                            username: "An equally long subtitle that should also take up more than one line",
                         ),
                         name: "An extra long name that should take up more than one line",
                         subtitle: "An equally long subtitle that should also take up more than one line",
@@ -394,26 +394,26 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                     .fixture(cipherListView: .fixture(
                         id: "3",
                         login: .fixture(
-                            username: "email@example.com"
+                            username: "email@example.com",
                         ),
                         name: "Example",
-                        subtitle: "email@example.com"
+                        subtitle: "email@example.com",
                     )),
                     .fixture(cipherListView: .fixture(
                         id: "4",
                         login: .fixture(
-                            username: "email@example.com"
+                            username: "email@example.com",
                         ),
                         name: "Example",
-                        subtitle: "email@example.com"
+                        subtitle: "email@example.com",
                     )),
                 ],
-                name: Localizations.items
+                name: Localizations.items,
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -433,19 +433,19 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         id: "13",
                         organizationId: "1",
                         login: .fixture(
-                            username: "user@bitwarden.com"
+                            username: "user@bitwarden.com",
                         ),
                         name: "Bitwarden",
                         subtitle: "user@bitwarden.com",
                         attachments: 1,
                     ), fido2CredentialAutofillView: .fixture()),
                 ],
-                name: Localizations.aPasskeyAlreadyExistsForThisApplication
+                name: Localizations.aPasskeyAlreadyExistsForThisApplication,
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -461,17 +461,17 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                         cipherListView: .fixture(
                             id: String(id),
                             login: .fixture(),
-                            name: "Bitwarden"
-                        )
+                            name: "Bitwarden",
+                        ),
                     )!
                 },
-                name: "Passwords"
+                name: "Passwords",
             ),
         ]
 
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -483,7 +483,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 } // swiftlint:disable:this file_length

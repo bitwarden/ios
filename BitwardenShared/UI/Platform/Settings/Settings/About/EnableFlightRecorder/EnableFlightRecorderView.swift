@@ -43,8 +43,8 @@ struct EnableFlightRecorderView: View {
 
             Text(LocalizedStringKey(
                 Localizations.forDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter(
-                    ExternalLinksConstants.helpAndFeedback
-                )
+                    ExternalLinksConstants.helpAndFeedback,
+                ),
             ))
             .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
@@ -78,8 +78,8 @@ struct EnableFlightRecorderView: View {
             options: FlightRecorderLoggingDuration.allCases,
             selection: store.binding(
                 get: \.loggingDuration,
-                send: EnableFlightRecorderAction.loggingDurationChanged
-            )
+                send: EnableFlightRecorderAction.loggingDurationChanged,
+            ),
         )
     }
 }

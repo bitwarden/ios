@@ -7,15 +7,15 @@ class MockFido2UserVerificationMediator: Fido2UserVerificationMediator {
     var checkUserResult: Result<BitwardenSdk.CheckUserResult, Error> = .success(
         CheckUserResult(
             userPresent: false,
-            userVerified: false
-        )
+            userVerified: false,
+        ),
     )
     var isPreferredVerificationEnabledResult = false
     var setupDelegateCalled = false
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: Fido2UserVerifiableCipherView
+        credential: Fido2UserVerifiableCipherView,
     ) async throws -> BitwardenSdk.CheckUserResult {
         try checkUserResult.get()
     }
@@ -25,7 +25,7 @@ class MockFido2UserVerificationMediator: Fido2UserVerificationMediator {
     }
 
     func setupDelegate(
-        fido2UserVerificationMediatorDelegate: any BitwardenShared.Fido2UserVerificationMediatorDelegate
+        fido2UserVerificationMediatorDelegate: any BitwardenShared.Fido2UserVerificationMediatorDelegate,
     ) {
         setupDelegateCalled = true
     }

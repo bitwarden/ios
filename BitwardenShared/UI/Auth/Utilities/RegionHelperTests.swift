@@ -26,7 +26,7 @@ class RegionHelperTests: BitwardenTestCase {
         subject = RegionHelper(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: regionDelegate,
-            stateService: stateService
+            stateService: stateService,
         )
         subject.delegate = regionDelegate
     }

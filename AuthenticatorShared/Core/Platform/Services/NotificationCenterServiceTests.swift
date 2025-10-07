@@ -32,7 +32,7 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
 
         notificationCenter.post(
             name: UIApplication.didEnterBackgroundNotification,
-            object: nil
+            object: nil,
         )
 
         wait(for: [expectation], timeout: 1)
@@ -49,7 +49,7 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
 
         notificationCenter.post(
             name: UIApplication.willEnterForegroundNotification,
-            object: nil
+            object: nil,
         )
 
         wait(for: [expectation], timeout: 1)

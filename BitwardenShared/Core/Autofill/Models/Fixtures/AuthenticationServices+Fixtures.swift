@@ -7,7 +7,7 @@ import AuthenticationServices
 extension ASCredentialServiceIdentifier {
     static func fixture(
         identifier: String = "id",
-        type: ASCredentialServiceIdentifier.IdentifierType = ASCredentialServiceIdentifier.IdentifierType.URL
+        type: ASCredentialServiceIdentifier.IdentifierType = ASCredentialServiceIdentifier.IdentifierType.URL,
     ) -> ASCredentialServiceIdentifier {
         ASCredentialServiceIdentifier(identifier: identifier, type: type)
     }
@@ -20,14 +20,14 @@ extension ASPasskeyCredentialIdentity {
         userName: String = "",
         credentialID: Data = Data(capacity: 32),
         userHandle: Data = Data(capacity: 32),
-        recordIdentifier: String? = nil
+        recordIdentifier: String? = nil,
     ) -> ASPasskeyCredentialIdentity {
         ASPasskeyCredentialIdentity(
             relyingPartyIdentifier: relyingPartyIdentifier,
             userName: userName,
             credentialID: credentialID,
             userHandle: userHandle,
-            recordIdentifier: recordIdentifier
+            recordIdentifier: recordIdentifier,
         )
     }
 }
@@ -38,13 +38,13 @@ extension ASPasskeyCredentialRequest {
         credentialIdentity: ASPasskeyCredentialIdentity = .fixture(),
         clientDataHash: Data = Data(capacity: 32),
         userVerificationPreference: ASAuthorizationPublicKeyCredentialUserVerificationPreference = .discouraged,
-        supportedAlgorithms: [ASCOSEAlgorithmIdentifier] = []
+        supportedAlgorithms: [ASCOSEAlgorithmIdentifier] = [],
     ) -> ASPasskeyCredentialRequest {
         ASPasskeyCredentialRequest(
             credentialIdentity: credentialIdentity,
             clientDataHash: clientDataHash,
             userVerificationPreference: userVerificationPreference,
-            supportedAlgorithms: supportedAlgorithms
+            supportedAlgorithms: supportedAlgorithms,
         )
     }
 }
@@ -53,12 +53,12 @@ extension ASPasswordCredentialIdentity {
     static func fixture(
         serviceIdentifier: ASCredentialServiceIdentifier = .fixture(),
         user: String = "",
-        recordIdentifier: String? = nil
+        recordIdentifier: String? = nil,
     ) -> ASPasswordCredentialIdentity {
         ASPasswordCredentialIdentity(
             serviceIdentifier: serviceIdentifier,
             user: user,
-            recordIdentifier: recordIdentifier
+            recordIdentifier: recordIdentifier,
         )
     }
 }

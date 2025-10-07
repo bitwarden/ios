@@ -109,7 +109,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         processor.state.authMethod = .duo
         assertSnapshot(
             of: subject.navStackWrapped,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -119,7 +119,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         processor.state.authMethod = .duo
         assertSnapshot(
             of: subject.navStackWrapped,
-            as: .defaultPortraitDark
+            as: .defaultPortraitDark,
         )
     }
 
@@ -129,7 +129,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         processor.state.authMethod = .duo
         assertSnapshot(
             of: subject.navStackWrapped,
-            as: .defaultPortraitAX5
+            as: .defaultPortraitAX5,
         )
     }
 

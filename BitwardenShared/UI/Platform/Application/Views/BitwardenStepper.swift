@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -52,7 +53,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
         let zeroString = String(repeating: "0", count: value.numberOfDigits)
         let font = FontFamily.DMSans.semiBold.font(size: StyleGuideFont.body.size)
         let traitCollection = UITraitCollection(
-            preferredContentSizeCategory: UIContentSizeCategory(dynamicTypeSize)
+            preferredContentSizeCategory: UIContentSizeCategory(dynamicTypeSize),
         )
         let scaledFont = UIFontMetrics.default.scaledFont(for: font, compatibleWith: traitCollection)
         let idealTextSize = (zeroString as NSString).size(withAttributes: [.font: scaledFont])
@@ -92,7 +93,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
         allowTextFieldInput: Bool = false,
         textFieldAccessibilityIdentifier: String? = nil,
         @ViewBuilder label: () -> Label,
-        @ViewBuilder footer: () -> Footer
+        @ViewBuilder footer: () -> Footer,
     ) {
         self.allowTextFieldInput = allowTextFieldInput
         self.footer = footer()
@@ -117,7 +118,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
         in range: ClosedRange<Int>,
         allowTextFieldInput: Bool = false,
         textFieldAccessibilityIdentifier: String? = nil,
-        @ViewBuilder label: () -> Label
+        @ViewBuilder label: () -> Label,
     ) where Footer == EmptyView {
         self.allowTextFieldInput = allowTextFieldInput
         footer = nil
@@ -200,8 +201,8 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
                 set: { newValue in
                     guard let intValue = Int(newValue) else { return }
                     value = intValue
-                }
-            )
+                },
+            ),
         )
         .focused($isTextFieldFocused)
         .keyboardType(.numberPad)

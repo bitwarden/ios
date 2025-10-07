@@ -30,7 +30,7 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 }
@@ -49,14 +49,14 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
-        folders: [Folder]
+        folders: [Folder],
     ) -> VaultListPreparedDataBuilder
     /// Adds an item for a specific group to the prepared data.
     func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
     /// Adds an item with a match result strength to the prepared data.
     func addItem( // sourcery: useSelectorName
         withMatchResult matchResult: CipherMatchResult,
-        cipher: CipherListView
+        cipher: CipherListView,
     ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
@@ -117,7 +117,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -162,7 +162,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
             guard let fido2Item = VaultListItem(
                 cipherListView: cipher,
-                fido2CredentialAutofillView: fido2CredentialAutofillView
+                fido2CredentialAutofillView: fido2CredentialAutofillView,
             ) else {
                 return self
             }
@@ -178,7 +178,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
-        folders: [Folder]
+        folders: [Folder],
     ) -> VaultListPreparedDataBuilder {
         if let folderId = cipher.folderId, let folder = folders.first(where: { $0.id == folderId }) {
             preparedData.foldersCount[folderId, default: 0] += 1
@@ -192,7 +192,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func addItem( // swiftlint:disable:this cyclomatic_complexity
         forGroup group: VaultListGroup,
-        with cipher: CipherListView
+        with cipher: CipherListView,
     ) async -> any VaultListPreparedDataBuilder {
         guard cipher.deletedDate == nil else {
             if group == .trash, let trashItem = VaultListItem(cipherListView: cipher) {
@@ -238,7 +238,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func addItem(
         withMatchResult matchResult: CipherMatchResult,
-        cipher: CipherListView
+        cipher: CipherListView,
     ) async -> VaultListPreparedDataBuilder {
         guard matchResult != .none, let vaultListItem = VaultListItem(cipherListView: cipher) else {
             return self
@@ -350,7 +350,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     private func totpItem(
-        for cipherListView: CipherListView
+        for cipherListView: CipherListView,
     ) async -> VaultListItem? {
         guard let id = cipherListView.id,
               cipherListView.type.loginListView?.totp != nil else {
@@ -358,11 +358,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         }
         guard let code = try? await clientService.vault().generateTOTPCode(
             for: cipherListView,
-            date: timeProvider.presentTime
+            date: timeProvider.presentTime,
         ) else {
             errorReporter.log(
                 error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)")
+                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)"),
             )
             return nil
         }
@@ -373,14 +373,14 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             id: id,
             cipherListView: cipherListView,
             requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
-            totpCode: code
+            totpCode: code,
         )
         return VaultListItem(
             id: id,
             itemType: .totp(
                 name: cipherListView.name,
-                totpModel: listModel
-            )
+                totpModel: listModel,
+            ),
         )
     }
 }

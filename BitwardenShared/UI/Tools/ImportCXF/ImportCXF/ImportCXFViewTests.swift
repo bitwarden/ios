@@ -59,7 +59,7 @@ class ImportCXFViewTests: BitwardenTestCase {
     func disabletest_snapshot_start() {
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -70,7 +70,7 @@ class ImportCXFViewTests: BitwardenTestCase {
         processor.state.status = .importing
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -84,7 +84,7 @@ class ImportCXFViewTests: BitwardenTestCase {
         ])
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -94,7 +94,7 @@ class ImportCXFViewTests: BitwardenTestCase {
         processor.state.status = .failure(message: "Something went wrong")
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

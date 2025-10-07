@@ -24,17 +24,17 @@ struct VaultGroupState: Equatable, Sendable {
     var addItemButtonTitle: String {
         switch group {
         case .card:
-            return Localizations.newCard
+            Localizations.newCard
         case .collection, .folder:
-            return Localizations.newItem
+            Localizations.newItem
         case .identity:
-            return Localizations.newIdentity
+            Localizations.newIdentity
         case .login:
-            return Localizations.newLogin
+            Localizations.newLogin
         case .secureNote:
-            return Localizations.newNote
+            Localizations.newNote
         default:
-            return Localizations.newItem
+            Localizations.newItem
         }
     }
 
@@ -85,23 +85,23 @@ struct VaultGroupState: Equatable, Sendable {
     var noItemsString: String {
         switch group {
         case .card:
-            return Localizations.thereAreNoCardsInYourVault
+            Localizations.thereAreNoCardsInYourVault
         case .collection:
-            return Localizations.noItemsCollection
+            Localizations.noItemsCollection
         case .folder:
-            return Localizations.noItemsFolder
+            Localizations.noItemsFolder
         case .identity:
-            return Localizations.thereAreNoIdentitiesInYourVault
+            Localizations.thereAreNoIdentitiesInYourVault
         case .login:
-            return Localizations.thereAreNoLoginsInYourVault
+            Localizations.thereAreNoLoginsInYourVault
         case .secureNote:
-            return Localizations.thereAreNoNotesInYourVault
+            Localizations.thereAreNoNotesInYourVault
         case .sshKey:
-            return Localizations.thereAreNoSSHKeysInYourVault
+            Localizations.thereAreNoSSHKeysInYourVault
         case .trash:
-            return Localizations.noItemsTrash
+            Localizations.noItemsTrash
         default:
-            return Localizations.noItems
+            Localizations.noItems
         }
     }
 
@@ -132,7 +132,7 @@ struct VaultGroupState: Equatable, Sendable {
             canShowVaultFilter: canShowVaultFilter,
             isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
             organizations: organizations,
-            searchVaultFilterType: searchVaultFilterType
+            searchVaultFilterType: searchVaultFilterType,
         )
     }
 

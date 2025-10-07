@@ -7,7 +7,7 @@ extension Fido2CredentialListView {
         userHandle: String? = nil,
         userName: String? = nil,
         userDisplayName: String? = nil,
-        counter: String = "0"
+        counter: String = "0",
     ) -> Fido2CredentialListView {
         .init(
             credentialId: credentialId,
@@ -15,7 +15,7 @@ extension Fido2CredentialListView {
             userHandle: userHandle,
             userName: userName,
             userDisplayName: userDisplayName,
-            counter: counter
+            counter: counter,
         )
     }
 }

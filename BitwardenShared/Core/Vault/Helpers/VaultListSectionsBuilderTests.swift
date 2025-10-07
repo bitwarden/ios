@@ -64,7 +64,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addAutofillCombinedSingleSection_empty() {
         setUpSubject(withData: VaultListPreparedData(
             fido2Items: [],
-            groupItems: []
+            groupItems: [],
         ))
 
         let vaultListData = subject.addAutofillCombinedSingleSection().build()
@@ -86,7 +86,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             fuzzyMatchItems: [
                 .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy11")),
                 .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy10")),
-            ]
+            ],
         ))
 
         let vaultListData = subject.addAutofillPasswordsSection().build()
@@ -111,7 +111,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                 .fixture(cipherListView: .fixture(id: "2", name: "Exact1")),
                 .fixture(cipherListView: .fixture(id: "4", name: "Exact2")),
             ],
-            fuzzyMatchItems: []
+            fuzzyMatchItems: [],
         ))
 
         let vaultListData = subject.addAutofillPasswordsSection().build()
@@ -134,7 +134,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                 .fixture(cipherListView: .fixture(id: "1", name: "Fuzzy42")),
                 .fixture(cipherListView: .fixture(id: "2", name: "Fuzzy1")),
                 .fixture(cipherListView: .fixture(id: "4", name: "Fuzzy2")),
-            ]
+            ],
         ))
 
         let vaultListData = subject.addAutofillPasswordsSection().build()
@@ -153,7 +153,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addAutofillPasswordsSection_empty() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [],
-            fuzzyMatchItems: []
+            fuzzyMatchItems: [],
         ))
 
         let vaultListData = subject.addAutofillPasswordsSection().build()
@@ -179,8 +179,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .fixture(cipherListView: .fixture(id: "1", name: "MyFavoriteItem2")),
                     .fixture(cipherListView: .fixture(id: "2", name: "MyFavoriteItem45")),
                     .fixture(cipherListView: .fixture(id: "3", name: "MyFavoriteItem0")),
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = subject.addFavoritesSection().build()
@@ -199,8 +199,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addFavoritesSection_empty() {
         setUpSubject(
             withData: VaultListPreparedData(
-                favorites: []
-            )
+                favorites: [],
+            ),
         )
 
         let vaultListData = subject.addFavoritesSection().build()
@@ -219,8 +219,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .fixture(cipherListView: .fixture(id: "1", name: "MyItem2")),
                     .fixture(cipherListView: .fixture(id: "2", name: "MyItem45")),
                     .fixture(cipherListView: .fixture(id: "3", name: "MyItem0")),
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = subject.addGroupSection().build()
@@ -239,8 +239,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addGroupSection_empty() {
         setUpSubject(
             withData: VaultListPreparedData(
-                groupItems: []
-            )
+                groupItems: [],
+            ),
         )
 
         let vaultListData = subject.addGroupSection().build()
@@ -255,8 +255,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addTOTPSection() {
         setUpSubject(
             withData: VaultListPreparedData(
-                totpItemsCount: 20
-            )
+                totpItemsCount: 20,
+            ),
         )
 
         let vaultListData = subject.addTOTPSection().build()
@@ -273,8 +273,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     func test_addTOTPSection_empty() {
         setUpSubject(
             withData: VaultListPreparedData(
-                totpItemsCount: 0
-            )
+                totpItemsCount: 0,
+            ),
         )
 
         let vaultListData = subject.addTOTPSection().build()
@@ -308,8 +308,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .identity: 1,
                     .login: 15,
                     .secureNote: 2,
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = subject.addTypesSection().build()
@@ -338,7 +338,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .secureNote: 2,
                 ],
                 restrictedOrganizationIds: ["org1", "org2"],
-            )
+            ),
         )
 
         let vaultListData = subject.addTypesSection().build()
@@ -367,7 +367,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .secureNote: 2,
                 ],
                 restrictedOrganizationIds: ["org1", "org2"],
-            )
+            ),
         )
 
         let vaultListData = subject.addTypesSection().build()
@@ -402,8 +402,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                 foldersCount: ["1": 60],
                 groupItems: [.fixture(cipherListView: .fixture(name: "Group cipher 1"))],
                 noFolderItems: [.fixture(cipherListView: .fixture(name: "No folder 1"))],
-                totpItemsCount: 20
-            )
+                totpItemsCount: 20,
+            ),
         )
 
         let vaultListData = try await subject
@@ -451,7 +451,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             clientService: clientService,
             collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: withData
+            withData: withData,
         )
     }
 } // swiftlint:disable:this file_length

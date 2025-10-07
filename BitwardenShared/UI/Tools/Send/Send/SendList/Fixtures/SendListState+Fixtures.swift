@@ -20,14 +20,14 @@ extension SendListState {
                     items: [
                         SendListItem(
                             id: "11",
-                            itemType: .group(.text, 42)
+                            itemType: .group(.text, 42),
                         ),
                         SendListItem(
                             id: "12",
-                            itemType: .group(.file, 1)
+                            itemType: .group(.file, 1),
                         ),
                     ],
-                    name: "Types"
+                    name: "Types",
                 ),
                 SendListSection(
                     id: "2",
@@ -50,8 +50,8 @@ extension SendListState {
                                 hideEmail: false,
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
-                                expirationDate: date.advanced(by: 100)
-                            )
+                                expirationDate: date.advanced(by: 100),
+                            ),
                         )!,
                         SendListItem(
                             sendView: .init(
@@ -71,8 +71,8 @@ extension SendListState {
                                 hideEmail: false,
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
-                                expirationDate: date.advanced(by: 100)
-                            )
+                                expirationDate: date.advanced(by: 100),
+                            ),
                         )!,
                         SendListItem(
                             sendView: .init(
@@ -92,13 +92,13 @@ extension SendListState {
                                 hideEmail: true,
                                 revisionDate: date,
                                 deletionDate: date,
-                                expirationDate: date.advanced(by: -1)
-                            )
+                                expirationDate: date.advanced(by: -1),
+                            ),
                         )!,
                     ],
-                    name: "All sends"
+                    name: "All sends",
                 ),
-            ])
+            ]),
         )
     }
 
@@ -127,8 +127,8 @@ extension SendListState {
                                 hideEmail: false,
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
-                                expirationDate: date.advanced(by: 100)
-                            )
+                                expirationDate: date.advanced(by: 100),
+                            ),
                         )!,
                         SendListItem(
                             sendView: .init(
@@ -148,8 +148,8 @@ extension SendListState {
                                 hideEmail: false,
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
-                                expirationDate: date.advanced(by: 100)
-                            )
+                                expirationDate: date.advanced(by: 100),
+                            ),
                         )!,
                         SendListItem(
                             sendView: .init(
@@ -169,14 +169,14 @@ extension SendListState {
                                 hideEmail: true,
                                 revisionDate: date,
                                 deletionDate: date,
-                                expirationDate: date.advanced(by: -1)
-                            )
+                                expirationDate: date.advanced(by: -1),
+                            ),
                         )!,
                     ],
-                    name: nil
+                    name: nil,
                 ),
             ]),
-            type: .text
+            type: .text,
         )
     }
 
@@ -203,8 +203,8 @@ extension SendListState {
                         hideEmail: false,
                         revisionDate: date,
                         deletionDate: date.advanced(by: 100),
-                        expirationDate: date.advanced(by: 100)
-                    )
+                        expirationDate: date.advanced(by: 100),
+                    ),
                 )!,
                 SendListItem(
                     sendView: .init(
@@ -224,8 +224,8 @@ extension SendListState {
                         hideEmail: false,
                         revisionDate: date,
                         deletionDate: date.advanced(by: 100),
-                        expirationDate: date.advanced(by: 100)
-                    )
+                        expirationDate: date.advanced(by: 100),
+                    ),
                 )!,
                 SendListItem(
                     sendView: .init(
@@ -245,10 +245,10 @@ extension SendListState {
                         hideEmail: true,
                         revisionDate: date,
                         deletionDate: date,
-                        expirationDate: date.advanced(by: -1)
-                    )
+                        expirationDate: date.advanced(by: -1),
+                    ),
                 )!,
-            ]
+            ],
         )
     }
 }

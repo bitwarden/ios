@@ -62,12 +62,12 @@ extension ViewItemState {
     init?(
         cipherView: CipherView,
         hasPremium: Bool,
-        iconBaseURL: URL?
+        iconBaseURL: URL?,
     ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
             hasPremium: hasPremium,
-            iconBaseURL: iconBaseURL
+            iconBaseURL: iconBaseURL,
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
         hasPremiumFeatures = cipherItemState.accountHasPremium

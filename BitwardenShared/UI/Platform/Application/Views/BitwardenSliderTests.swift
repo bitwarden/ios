@@ -14,11 +14,11 @@ class BitwardenSliderTests: BitwardenTestCase {
             value: .constant(0),
             in: 0 ... 50,
             step: 1,
-            onEditingChanged: { _ in }
+            onEditingChanged: { _ in },
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -28,11 +28,11 @@ class BitwardenSliderTests: BitwardenTestCase {
             value: .constant(25),
             in: 0 ... 50,
             step: 1,
-            onEditingChanged: { _ in }
+            onEditingChanged: { _ in },
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -42,11 +42,11 @@ class BitwardenSliderTests: BitwardenTestCase {
             value: .constant(50),
             in: 0 ... 50,
             step: 1,
-            onEditingChanged: { _ in }
+            onEditingChanged: { _ in },
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 }

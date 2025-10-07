@@ -7,15 +7,15 @@ extension UIViewController {
     ///
     func topmostViewController() -> UIViewController {
         if let presentedViewController {
-            return presentedViewController.topmostViewController()
+            presentedViewController.topmostViewController()
         } else {
             switch self {
             case let navigationController as UINavigationController:
-                return navigationController.topViewController?.topmostViewController() ?? navigationController
+                navigationController.topViewController?.topmostViewController() ?? navigationController
             case let tabBarController as UITabBarController:
-                return tabBarController.selectedViewController?.topmostViewController() ?? tabBarController
+                tabBarController.selectedViewController?.topmostViewController() ?? tabBarController
             default:
-                return self
+                self
             }
         }
     }

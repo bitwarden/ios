@@ -27,7 +27,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     var body: some View {
         if #available(iOS 26, *) {
             Picker(
-                selection: $selection
+                selection: $selection,
             ) {
                 ForEach(selections) { type in
                     Text(type.localizedName)
@@ -64,7 +64,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
                     .strokeBorder(SharedAsset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
                     .background(Capsule().fill(SharedAsset.Colors.backgroundSecondary.swiftUIColor))
                     .padding(2)
-                    .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false)
+                    .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false),
             )
             .animation(.default, value: selection)
             .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
@@ -84,7 +84,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     init(
         isSelectionDisabled: @escaping (T) -> Bool = { _ in false },
         selection: Binding<T>,
-        selections: [T]
+        selections: [T],
     ) {
         self.isSelectionDisabled = isSelectionDisabled
         _selection = selection
@@ -134,7 +134,7 @@ private struct SegmentButtonStyle: ButtonStyle {
 
     BitwardenSegmentedControl(
         selection: $selection,
-        selections: GeneratorType.allCases
+        selections: GeneratorType.allCases,
     )
     .padding()
 }

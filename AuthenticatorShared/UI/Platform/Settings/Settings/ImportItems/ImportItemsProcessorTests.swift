@@ -29,8 +29,8 @@ class ImportItemsProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 application: application,
                 errorReporter: errorReporter,
-                importItemsService: importItemsService
-            )
+                importItemsService: importItemsService,
+            ),
         )
     }
 
@@ -50,7 +50,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_fileSelectionCompleted_corruptedFile() async throws {
         importItemsService.errorToThrow = DecodingError.dataCorrupted(
-            DecodingError.Context(codingPath: [], debugDescription: "Not valid JSON")
+            DecodingError.Context(codingPath: [], debugDescription: "Not valid JSON"),
         )
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
@@ -60,7 +60,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .importFileCorrupted(action: {
                 self.subject.state.url = ExternalLinksConstants.helpAndFeedback
-            })
+            }),
         )
         XCTAssertNil(subject.state.toast)
     }
@@ -75,8 +75,8 @@ class ImportItemsProcessorTests: BitwardenTestCase {
                     AnyCodingKey(stringValue: "services"),
                     AnyCodingKey(stringValue: "item 0"),
                 ],
-                debugDescription: "Missing key"
-            )
+                debugDescription: "Missing key",
+            ),
         )
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
@@ -86,7 +86,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .requiredInfoMissing(keyPath: "services.item 0.missingKey", action: {
                 self.subject.state.url = ExternalLinksConstants.helpAndFeedback
-            })
+            }),
         )
         XCTAssertNil(subject.state.toast)
     }
@@ -101,8 +101,8 @@ class ImportItemsProcessorTests: BitwardenTestCase {
                     AnyCodingKey(stringValue: "services"),
                     AnyCodingKey(stringValue: "item 0"),
                 ],
-                debugDescription: "Missing value"
-            )
+                debugDescription: "Missing value",
+            ),
         )
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
@@ -112,7 +112,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .requiredInfoMissing(keyPath: "services.item 0", action: {
                 self.subject.state.url = ExternalLinksConstants.helpAndFeedback
-            })
+            }),
         )
         XCTAssertNil(subject.state.toast)
     }
@@ -152,8 +152,8 @@ class ImportItemsProcessorTests: BitwardenTestCase {
                     AnyCodingKey(stringValue: "services"),
                     AnyCodingKey(stringValue: "item 0"),
                 ],
-                debugDescription: "Type Mismatch"
-            )
+                debugDescription: "Type Mismatch",
+            ),
         )
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
@@ -163,7 +163,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .typeMismatch(action: {
                 self.subject.state.url = ExternalLinksConstants.helpAndFeedback
-            })
+            }),
         )
         XCTAssertNil(subject.state.toast)
     }

@@ -23,10 +23,10 @@ public extension View {
     ///
     func accessibilityAsyncAction<S>(
         named name: S,
-        _ asyncHandler: @escaping () async -> Void
+        _ asyncHandler: @escaping () async -> Void,
     ) -> some View where S: StringProtocol {
         accessibilityAction(
-            named: name, { Task { await asyncHandler() } }
+            named: name, { Task { await asyncHandler() } },
         )
     }
 }

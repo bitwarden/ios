@@ -34,7 +34,7 @@ struct ToastBannerView<ButtonContent: View>: View {
                                 .headline,
                                 weight: .semibold,
                                 includeLinePadding: false,
-                                includeLineSpacing: false
+                                includeLineSpacing: false,
                             )
                         Text(subtitle)
                             .styleGuide(.callout)
@@ -81,7 +81,7 @@ struct ToastBannerView<ButtonContent: View>: View {
         title: String,
         subtitle: String,
         isVisible: Binding<Bool>,
-        @ViewBuilder buttonContent: () -> ButtonContent
+        @ViewBuilder buttonContent: () -> ButtonContent,
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -108,14 +108,14 @@ extension View {
         subtitle: String,
         additionalBottomPadding: CGFloat = 0,
         isVisible: Binding<Bool>,
-        @ViewBuilder buttonContent: () -> ButtonContent
+        @ViewBuilder buttonContent: () -> ButtonContent,
     ) -> some View {
         overlay(alignment: .bottom) {
             ToastBannerView(
                 title: title,
                 subtitle: subtitle,
                 isVisible: isVisible,
-                buttonContent: buttonContent
+                buttonContent: buttonContent,
             )
             .padding(.bottom, 12 + additionalBottomPadding)
             .animation(.easeInOut, value: isVisible.wrappedValue)
@@ -130,7 +130,7 @@ extension View {
     ToastBannerView(
         title: "Title",
         subtitle: "Subtitle",
-        isVisible: .constant(true)
+        isVisible: .constant(true),
     ) {
         Button("Tap me") {}
     }

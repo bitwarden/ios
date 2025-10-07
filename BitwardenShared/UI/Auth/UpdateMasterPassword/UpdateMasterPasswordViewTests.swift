@@ -28,9 +28,9 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
                 requireLower: false,
                 requireNumbers: false,
                 requireSpecial: false,
-                enforceOnLogin: true
+                enforceOnLogin: true,
             ),
-            masterPasswordRetype: "new master password"
+            masterPasswordRetype: "new master password",
         )
         processor = MockProcessor(state: state)
         subject = UpdateMasterPasswordView(store: Store(processor: processor))
@@ -50,7 +50,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     func test_currentMasterPassword_change() throws {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         let textField = try subject.inspect().find(
-            bitwardenTextField: Localizations.currentMasterPasswordRequired
+            bitwardenTextField: Localizations.currentMasterPasswordRequired,
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .currentMasterPasswordChanged("text"))
@@ -62,7 +62,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         processor.state.isCurrentMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "MasterPasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "MasterPasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .revealCurrentMasterPasswordFieldPressed(true))
@@ -72,7 +72,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     @MainActor
     func test_learnPreventAccountLock_tap() throws {
         let button = try subject.inspect().find(
-            button: Localizations.learnAboutWaysToPreventAccountLockout
+            button: Localizations.learnAboutWaysToPreventAccountLockout,
         )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .preventAccountLockTapped)
@@ -90,7 +90,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     @MainActor
     func test_masterPassword_change() throws {
         let textField = try subject.inspect().find(
-            bitwardenTextField: Localizations.newMasterPasswordRequired
+            bitwardenTextField: Localizations.newMasterPasswordRequired,
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordChanged("text"))
@@ -100,7 +100,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     @MainActor
     func test_masterPasswordHint_change() throws {
         let textField = try subject.inspect().find(
-            bitwardenTextField: Localizations.newMasterPasswordHint
+            bitwardenTextField: Localizations.newMasterPasswordHint,
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordHintChanged("text"))
@@ -110,7 +110,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     @MainActor
     func test_masterPasswordRetype_change() throws {
         let textField = try subject.inspect().find(
-            bitwardenTextField: Localizations.retypeNewMasterPasswordRequired
+            bitwardenTextField: Localizations.retypeNewMasterPasswordRequired,
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRetypeChanged("text"))
@@ -121,7 +121,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     func test_masterPasswordRetypeVisibility_tap() throws {
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "RetypePasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "RetypePasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordRetypeFieldPressed(true))
@@ -132,7 +132,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "NewPasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "NewPasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordFieldPressed(true))
@@ -154,7 +154,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.portrait(heightMultiple: 1.25)]
+            as: [.portrait(heightMultiple: 1.25)],
         )
     }
 
@@ -164,7 +164,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.portraitDark(heightMultiple: 1.25)]
+            as: [.portraitDark(heightMultiple: 1.25)],
         )
     }
 
@@ -174,7 +174,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.tallPortraitAX5(heightMultiple: 6)]
+            as: [.tallPortraitAX5(heightMultiple: 6)],
         )
     }
 
@@ -184,7 +184,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.portrait(heightMultiple: 1.25)]
+            as: [.portrait(heightMultiple: 1.25)],
         )
     }
 
@@ -194,7 +194,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.portraitDark(heightMultiple: 1.25)]
+            as: [.portraitDark(heightMultiple: 1.25)],
         )
     }
 
@@ -204,7 +204,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.tallPortraitAX5(heightMultiple: 6)]
+            as: [.tallPortraitAX5(heightMultiple: 6)],
         )
     }
 }

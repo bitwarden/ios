@@ -16,12 +16,12 @@ extension Alert {
     ///
     static func defaultAlert(
         error: Error,
-        alertActions: [AlertAction]? = nil
+        alertActions: [AlertAction]? = nil,
     ) -> Alert {
         defaultAlert(
             title: Localizations.anErrorHasOccurred,
             message: error.localizedDescription,
-            alertActions: alertActions
+            alertActions: alertActions,
         )
     }
 
@@ -36,12 +36,12 @@ extension Alert {
     static func defaultAlert(
         title: String? = nil,
         message: String? = nil,
-        alertActions: [AlertAction]? = nil
+        alertActions: [AlertAction]? = nil,
     ) -> Alert {
         Alert(
             title: title,
             message: message,
-            alertActions: alertActions ?? [AlertAction(title: Localizations.ok, style: .cancel)]
+            alertActions: alertActions ?? [AlertAction(title: Localizations.ok, style: .cancel)],
         )
     }
 
@@ -54,7 +54,7 @@ extension Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,
             message: error.message,
-            alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            alertActions: [AlertAction(title: Localizations.ok, style: .default)],
         )
     }
 }

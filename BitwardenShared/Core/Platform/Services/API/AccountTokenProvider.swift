@@ -39,7 +39,7 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     ///
     init(
         httpService: HTTPService,
-        tokenService: TokenService
+        tokenService: TokenService,
     ) {
         self.tokenService = tokenService
         self.httpService = httpService
@@ -71,11 +71,11 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             do {
                 let refreshToken = try await tokenService.getRefreshToken()
                 let response = try await httpService.send(
-                    IdentityTokenRefreshRequest(refreshToken: refreshToken)
+                    IdentityTokenRefreshRequest(refreshToken: refreshToken),
                 )
                 try await tokenService.setTokens(
                     accessToken: response.accessToken,
-                    refreshToken: response.refreshToken
+                    refreshToken: response.refreshToken,
                 )
 
                 return response.accessToken

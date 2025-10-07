@@ -13,7 +13,7 @@ protocol CiphersClientWrapperService {
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,
         ciphers: [Cipher],
-        onCipher: (CipherListView) async throws -> Void
+        onCipher: (CipherListView) async throws -> Void,
     ) async
 }
 
@@ -26,12 +26,12 @@ extension CiphersClientWrapperService {
     ///   - onCipher: The action to perform on each decrypted cipher.
     func decryptAndProcessCiphersInBatch(
         ciphers: [Cipher],
-        onCipher: (CipherListView) async throws -> Void
+        onCipher: (CipherListView) async throws -> Void,
     ) async {
         await decryptAndProcessCiphersInBatch(
             batchSize: Constants.decryptCiphersBatchSize,
             ciphers: ciphers,
-            onCipher: onCipher
+            onCipher: onCipher,
         )
     }
 }
@@ -52,14 +52,14 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,
         ciphers: [Cipher],
-        onCipher: (CipherListView) async throws -> Void
+        onCipher: (CipherListView) async throws -> Void,
     ) async {
         for start in stride(from: 0, to: ciphers.count, by: batchSize) {
             let end = min(start + batchSize, ciphers.count)
 
             do {
                 let decryptResult = try await clientService.vault().ciphers().decryptListWithFailures(
-                    ciphers: Array(ciphers[start ..< end])
+                    ciphers: Array(ciphers[start ..< end]),
                 )
 
                 for decryptedCipher in decryptResult.successes {

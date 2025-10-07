@@ -21,7 +21,7 @@ struct ImportCXFView: View {
                     image: Image(decorative: store.state.mainIcon),
                     style: .largeTextTintedIcon,
                     title: store.state.title,
-                    message: store.state.message
+                    message: store.state.message,
                 )
                 switch store.state.status {
                 case .start:
@@ -113,10 +113,10 @@ struct ImportCXFView: View {
             processor: StateProcessor(
                 state: ImportCXFState(
                     progress: 0.3,
-                    status: .importing
-                )
-            )
-        )
+                    status: .importing,
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -131,11 +131,11 @@ struct ImportCXFView: View {
                             CXFCredentialsResult(count: 13, type: .password),
                             CXFCredentialsResult(count: 7, type: .passkey),
                             CXFCredentialsResult(count: 10, type: .card),
-                        ]
-                    )
-                )
-            )
-        )
+                        ],
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -145,11 +145,11 @@ struct ImportCXFView: View {
             processor: StateProcessor(
                 state: ImportCXFState(
                     status: .failure(
-                        message: "Something went wrong"
-                    )
-                )
-            )
-        )
+                        message: "Something went wrong",
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 

@@ -19,11 +19,11 @@ final class VaultItemDecorativeImageViewTests: BitwardenTestCase {
                 LoginUriView(
                     uri: "some",
                     match: .domain,
-                    uriChecksum: ""
+                    uriChecksum: "",
                 ),
             ]))),
             iconBaseURL: .example,
-            showWebIcons: false
+            showWebIcons: false,
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -33,7 +33,7 @@ final class VaultItemDecorativeImageViewTests: BitwardenTestCase {
         let subject = VaultItemDecorativeImageView(
             item: VaultListItem.fixture(cipherListView: .fixture()),
             iconBaseURL: .example,
-            showWebIcons: true
+            showWebIcons: true,
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }

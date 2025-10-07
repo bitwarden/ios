@@ -31,7 +31,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -43,7 +43,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
         try await clientService.vault().ciphers().decryptList(
-            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials)
+            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials),
         )
     }
 

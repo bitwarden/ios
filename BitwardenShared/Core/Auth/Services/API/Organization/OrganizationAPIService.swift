@@ -26,7 +26,7 @@ protocol OrganizationAPIService {
     ///   - organizationId: The organization identifier for the organization the user wants to leave.
     ///
     func leaveOrganization(
-        organizationId: String
+        organizationId: String,
     ) async throws
 }
 
@@ -45,7 +45,7 @@ extension APIService: OrganizationAPIService {
 
     func leaveOrganization(organizationId: String) async throws {
         _ = try await apiService.send(
-            OrganizationLeaveRequest(identifier: organizationId)
+            OrganizationLeaveRequest(identifier: organizationId),
         )
     }
 }

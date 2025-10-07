@@ -13,7 +13,7 @@ class SettingsServiceTests: XCTestCase {
         equivalentDomains: [["google.com", "youtube.com"]],
         globalEquivalentDomains: [
             GlobalDomains(domains: ["apple.com", "icloud.com"], excluded: false, type: 0),
-        ]
+        ],
     )
 
     // MARK: Setup & Teardown
@@ -26,7 +26,7 @@ class SettingsServiceTests: XCTestCase {
 
         subject = DefaultSettingsService(
             settingsDataStore: settingsDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -48,7 +48,7 @@ class SettingsServiceTests: XCTestCase {
         XCTAssertEqual(fetchedDomains, [])
 
         settingsDataStore.fetchDomainsResult = .success(
-            DomainsResponseModel(equivalentDomains: nil, globalEquivalentDomains: nil)
+            DomainsResponseModel(equivalentDomains: nil, globalEquivalentDomains: nil),
         )
         fetchedDomains = try await subject.fetchEquivalentDomains()
         XCTAssertEqual(fetchedDomains, [])
@@ -60,7 +60,7 @@ class SettingsServiceTests: XCTestCase {
             [
                 ["google.com", "youtube.com"],
                 ["apple.com", "icloud.com"],
-            ]
+            ],
         )
     }
 

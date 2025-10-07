@@ -125,6 +125,7 @@ targets:
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
     dependencies:
+      - package: SwiftUIIntrospect
       - target: BitwardenResources
       - target: Networking
   BitwardenKitMocks:

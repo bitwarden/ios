@@ -12,7 +12,7 @@ class MockImportCiphersService: ImportCiphersService {
     func importCiphers(
         ciphers: [Cipher],
         folders: [Folder],
-        folderRelationships: [(key: Int, value: Int)]
+        folderRelationships: [(key: Int, value: Int)],
     ) async throws {
         importCiphersCalled = true
         importCiphersCiphers = ciphers
