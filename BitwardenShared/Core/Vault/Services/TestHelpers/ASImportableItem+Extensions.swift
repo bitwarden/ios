@@ -12,7 +12,7 @@ extension ASImportableItem {
         favorite: Bool = false,
         scope: ASImportableCredentialScope? = nil,
         credentials: [ASImportableCredential] = [],
-        tags: [String] = []
+        tags: [String] = [],
     ) -> ASImportableItem {
         ASImportableItem(
             id: id,
@@ -23,7 +23,7 @@ extension ASImportableItem {
             favorite: favorite,
             scope: scope,
             credentials: credentials,
-            tags: tags
+            tags: tags,
         )
     }
 }

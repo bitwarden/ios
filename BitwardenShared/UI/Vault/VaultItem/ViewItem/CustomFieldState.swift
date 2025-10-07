@@ -48,7 +48,7 @@ extension CustomFieldState {
         linkedIdType: LinkedIdType? = nil,
         name: String?,
         type: FieldType,
-        value: String? = nil
+        value: String? = nil,
     ) {
         self.init(id: id, linkedIdType: linkedIdType, name: name, type: type, value: value)
     }
@@ -63,7 +63,7 @@ extension CustomFieldState {
             linkedIdType: fieldView.linkedId.flatMap(LinkedIdType.init),
             name: fieldView.name,
             type: FieldType(fieldType: fieldView.type),
-            value: fieldView.value
+            value: fieldView.value,
         )
     }
 }

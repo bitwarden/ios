@@ -14,12 +14,12 @@ extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
     func conditionalAccessibilityAction<S>(
         if condition: Bool = true,
         named name: S,
-        _ handler: @escaping () -> Void
+        _ handler: @escaping () -> Void,
     ) -> ModifiedContent<Content, Modifier> where S: StringProtocol {
         if condition {
-            return accessibilityAction(named: name, handler)
+            accessibilityAction(named: name, handler)
         } else {
-            return self
+            self
         }
     }
 
@@ -36,16 +36,16 @@ extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
     func conditionalAccessibilityAsyncAction<S>(
         if condition: Bool = true,
         named name: S,
-        _ asyncHandler: @escaping () async -> Void
+        _ asyncHandler: @escaping () async -> Void,
     ) -> ModifiedContent<Content, Modifier> where S: StringProtocol {
         if condition {
-            return accessibilityAsyncAction(
-                named: name
+            accessibilityAsyncAction(
+                named: name,
             ) {
                 await asyncHandler()
             }
         } else {
-            return self
+            self
         }
     }
 
@@ -60,10 +60,10 @@ extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
     ///
     func accessibilityAsyncAction<S>(
         named name: S,
-        _ asyncHandler: @escaping () async -> Void
+        _ asyncHandler: @escaping () async -> Void,
     ) -> ModifiedContent<Content, Modifier> where S: StringProtocol {
         accessibilityAction(
-            named: name, { Task { await asyncHandler() } }
+            named: name, { Task { await asyncHandler() } },
         )
     }
 }

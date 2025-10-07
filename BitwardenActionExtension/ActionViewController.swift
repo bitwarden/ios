@@ -36,7 +36,7 @@ class ActionViewController: UIViewController {
     private func completeRequest(itemData: [String: Any]) {
         let resultsProvider = NSItemProvider(
             item: itemData as NSSecureCoding,
-            typeIdentifier: UTType.propertyList.identifier
+            typeIdentifier: UTType.propertyList.identifier,
         )
         let resultsItem = NSExtensionItem()
         resultsItem.attachments = [resultsProvider]
@@ -63,7 +63,7 @@ class ActionViewController: UIViewController {
                 appContext: .appExtension,
                 initialRoute: initialRoute,
                 navigator: self,
-                window: nil
+                window: nil,
             )
         }
     }
@@ -92,7 +92,7 @@ extension ActionViewController: AppExtensionDelegate {
         let itemData = actionExtensionHelper.itemDataToCompleteRequest(
             username: username,
             password: password,
-            fields: fields ?? []
+            fields: fields ?? [],
         )
         completeRequest(itemData: itemData)
     }

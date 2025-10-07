@@ -21,7 +21,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         let state = VaultUnlockState()
         processor = MockProcessor(state: state)
         subject = VaultUnlockView(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
     }
 
@@ -45,7 +45,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                     .defaultPortraitAX5,
                     .defaultLandscape,
                     .defaultLandscapeAX5,
-                ]
+                ],
             )
         }
     }

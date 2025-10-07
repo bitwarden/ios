@@ -20,7 +20,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         processor = MockProcessor(state: DefaultEntryState(deviceSupportsCamera: true))
         let store = Store(processor: processor)
         subject = ManualEntryView(
-            store: store
+            store: store,
         )
     }
 
@@ -39,7 +39,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "", name: "", sendToBitwarden: false)
+            .addPressed(code: "", name: "", sendToBitwarden: false),
         )
     }
 
@@ -52,7 +52,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: false)
+            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: false),
         )
     }
 
@@ -64,7 +64,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "", name: "", sendToBitwarden: false)
+            .addPressed(code: "", name: "", sendToBitwarden: false),
         )
     }
 
@@ -78,7 +78,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: false)
+            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: false),
         )
     }
 
@@ -90,7 +90,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "", name: "", sendToBitwarden: true)
+            .addPressed(code: "", name: "", sendToBitwarden: true),
         )
     }
 
@@ -104,7 +104,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: true)
+            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: true),
         )
     }
 
@@ -120,7 +120,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     @MainActor
     func test_scanCodeButton_tap() throws {
         let button = try subject.inspect().find(
-            button: Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode
+            button: Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode,
         )
         try button.tap()
         waitFor(!processor.effects.isEmpty)
@@ -134,7 +134,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_empty() {
         assertSnapshot(
             of: ManualEntryView_Previews.empty,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -142,7 +142,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_empty_landscape() {
         assertSnapshot(
             of: ManualEntryView_Previews.empty,
-            as: .defaultLandscape
+            as: .defaultLandscape,
         )
     }
 
@@ -150,7 +150,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_dark() {
         assertSnapshot(
             of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortraitDark
+            as: .defaultPortraitDark,
         )
     }
 
@@ -158,7 +158,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_largeText() {
         assertSnapshot(
             of: ManualEntryView_Previews.textAdded,
-            as: .tallPortraitAX5(heightMultiple: 1.75)
+            as: .tallPortraitAX5(heightMultiple: 1.75),
         )
     }
 
@@ -166,7 +166,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_light() {
         assertSnapshot(
             of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -175,7 +175,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_dark_syncActive() {
         assertSnapshot(
             of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .defaultPortraitDark
+            as: .defaultPortraitDark,
         )
     }
 
@@ -184,7 +184,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_largeText_syncActive() {
         assertSnapshot(
             of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .tallPortraitAX5(heightMultiple: 1.75)
+            as: .tallPortraitAX5(heightMultiple: 1.75),
         )
     }
 
@@ -193,7 +193,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     func disabletest_snapshot_manualEntryView_text_light_syncActive() {
         assertSnapshot(
             of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -207,7 +207,7 @@ class ManualEntryViewTests: BitwardenTestCase {
                     "\(name)-portrait": .defaultPortrait,
                     "\(name)-portraitDark": .defaultPortraitDark,
                     "\(name)-portraitAX5": .defaultPortraitAX5,
-                ]
+                ],
             )
         }
     }

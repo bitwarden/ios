@@ -25,7 +25,7 @@ class MockVaultRepository: VaultRepository {
 
     // swiftlint:disable:next identifier_name
     var createAutofillListExcludedCredentialSectionResult: Result<VaultListSection, Error> = .failure(
-        BitwardenTestError.example
+        BitwardenTestError.example,
     )
 
     var deleteAttachmentId: String?
@@ -84,7 +84,7 @@ class MockVaultRepository: VaultRepository {
     var refreshedTOTPTime: Date?
     var refreshedTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodeResult: Result<LoginTOTPState, Error> = .success(
-        LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey))
+        LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey)),
     )
     var refreshedTOTPKeyConfig: TOTPKeyModel?
 
@@ -151,7 +151,7 @@ class MockVaultRepository: VaultRepository {
         mode: BitwardenShared.AutofillListMode,
         group: BitwardenShared.VaultListGroup?,
         rpID: String?,
-        uri: String?
+        uri: String?,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         ciphersAutofillPublisherUriCalled = uri
         ciphersAutofillPublisherCalledWithGroup = group
@@ -217,7 +217,7 @@ class MockVaultRepository: VaultRepository {
     func fetchSync(
         forceSync: Bool,
         filter _: VaultFilterType,
-        isPeriodic: Bool
+        isPeriodic: Bool,
     ) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
@@ -291,7 +291,7 @@ class MockVaultRepository: VaultRepository {
         filter: BitwardenShared.VaultListFilter,
         group: BitwardenShared.VaultListGroup?,
         rpID: String?,
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         searchCipherAutofillPublisherCalledWithGroup = group
         return searchCipherAutofillSubject.eraseToAnyPublisher().values
@@ -300,7 +300,7 @@ class MockVaultRepository: VaultRepository {
     func searchVaultListPublisher(
         searchText _: String,
         group: VaultListGroup?,
-        filter: BitwardenShared.VaultListFilter
+        filter: BitwardenShared.VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         searchVaultListFilterType = filter
         return searchVaultListSubject.eraseToAnyPublisher().values
@@ -327,7 +327,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func vaultListPublisher(
-        filter: BitwardenShared.VaultListFilter
+        filter: BitwardenShared.VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values

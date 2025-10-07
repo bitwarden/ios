@@ -11,7 +11,7 @@ extension Alert {
         Alert(
             title: Localizations.yourAccountHasBeenPermanentlyDeleted,
             message: nil,
-            alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            alertActions: [AlertAction(title: Localizations.ok, style: .default)],
         )
     }
 
@@ -27,7 +27,7 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default) { _, _ in await action() },
-            ]
+            ],
         )
     }
 
@@ -43,7 +43,7 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default) { _, _ in await action() },
-            ]
+            ],
         )
     }
 }

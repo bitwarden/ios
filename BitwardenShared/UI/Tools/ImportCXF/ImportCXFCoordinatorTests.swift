@@ -31,9 +31,9 @@ class ImportCXFCoordinatorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 importCiphersRepository: importCiphersRepository,
-                stateService: stateService
+                stateService: stateService,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -66,9 +66,9 @@ class ImportCXFCoordinatorTests: BitwardenTestCase {
             .navigate(
                 to: .importCredentials(
                     credentialImportToken: UUID(
-                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
-                    )!
-                )
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
+                    )!,
+                ),
             )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)

@@ -31,9 +31,9 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         cameraService.cameraAuthorizationStatus = .authorized
         cameraService.startResult = .success(AVCaptureSession())
@@ -271,7 +271,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        with value: String,
     ) {
         didCompleteCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -279,14 +279,14 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestCamera = true
         capturedCaptureCoordinator = captureCoordinator
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestManual = true
         capturedCaptureCoordinator = captureCoordinator

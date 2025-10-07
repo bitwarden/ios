@@ -22,13 +22,13 @@ struct PreventAccountLockView: View {
                 rowView(
                     image: SharedAsset.Icons.lightbulb24,
                     title: Localizations.createAHint,
-                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt
+                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt,
                 )
 
                 rowView(
                     image: SharedAsset.Icons.pencil24,
                     title: Localizations.writeYourPasswordDown,
-                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe
+                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe,
                 )
             }
         }
@@ -70,7 +70,7 @@ struct PreventAccountLockView: View {
     private func rowView(
         image: SharedImageAsset,
         title: String,
-        subtitle: String? = nil
+        subtitle: String? = nil,
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)
@@ -100,9 +100,9 @@ struct PreventAccountLockView: View {
         PreventAccountLockView(
             store: Store(
                 processor: StateProcessor(
-                    state: ()
-                )
-            )
+                    state: (),
+                ),
+            ),
         )
     }
 }

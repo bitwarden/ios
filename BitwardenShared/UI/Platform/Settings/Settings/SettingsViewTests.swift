@@ -109,11 +109,11 @@ class SettingsViewTests: BitwardenTestCase {
         processor.state.badgeState = .fixture(
             autofillSetupProgress: .setUpLater,
             importLoginsSetupProgress: .setUpLater,
-            vaultUnlockSetupProgress: .setUpLater
+            vaultUnlockSetupProgress: .setUpLater,
         )
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

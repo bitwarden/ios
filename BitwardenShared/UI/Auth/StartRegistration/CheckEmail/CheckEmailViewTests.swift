@@ -57,7 +57,7 @@ class CheckEmailViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .tallPortraitAX5(heightMultiple: 2),
-            ]
+            ],
         )
     }
 }

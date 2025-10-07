@@ -18,7 +18,7 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Voi
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        state: CheckEmailState
+        state: CheckEmailState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

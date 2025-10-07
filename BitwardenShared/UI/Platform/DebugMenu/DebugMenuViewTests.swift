@@ -23,10 +23,10 @@ class DebugMenuViewTests: BitwardenTestCase {
                 featureFlags: [
                     .init(
                         feature: .testFeatureFlag,
-                        isEnabled: false
+                        isEnabled: false,
                     ),
-                ]
-            )
+                ],
+            ),
         )
         let store = Store(processor: processor)
 
@@ -94,7 +94,7 @@ class DebugMenuViewTests: BitwardenTestCase {
         ]
         assertSnapshot(
             of: subject,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 }

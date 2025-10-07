@@ -48,10 +48,10 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         let totp = VaultListTOTP.fixture()
         processor.state = VaultListItemRowState(
             item: .fixtureTOTP(
-                totp: totp
+                totp: totp,
             ),
             hasDivider: false,
-            showWebIcons: true
+            showWebIcons: true,
         )
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
         try button.tap()
@@ -74,9 +74,9 @@ class VaultListItemRowViewTests: BitwardenTestCase {
             totp: .fixture(
                 loginListView: .fixture(
                     username: "username",
-                    totp: .standardTotpKey
-                )
-            )
+                    totp: .standardTotpKey,
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -91,10 +91,10 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                 uris: [
                     .fixture(
                         uri: "Test",
-                        match: nil
+                        match: nil,
                     ),
-                ]
-            )
+                ],
+            ),
         ))
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -109,11 +109,11 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                     uris: [
                         .fixture(
                             uri: "Test",
-                            match: nil
+                            match: nil,
                         ),
-                    ]
-                )
-            )
+                    ],
+                ),
+            ),
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -129,12 +129,12 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                     uris: [
                         .fixture(
                             uri: "Test",
-                            match: nil
+                            match: nil,
                         ),
-                    ]
+                    ],
                 ),
-                subtitle: "username"
-            )
+                subtitle: "username",
+            ),
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -153,16 +153,16 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                     uris: [
                         .fixture(
                             uri: "Test",
-                            match: nil
+                            match: nil,
                         ),
-                    ]
+                    ],
                 ),
-                name: "myApp.com"
+                name: "myApp.com",
             ),
             fido2CredentialAutofillView: .fixture(
                 rpId: "myApp.com",
-                userNameForUi: "another user"
-            )
+                userNameForUi: "another user",
+            ),
         )
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
@@ -182,16 +182,16 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                     uris: [
                         .fixture(
                             uri: "Test",
-                            match: nil
+                            match: nil,
                         ),
-                    ]
+                    ],
                 ),
-                name: "MyApp"
+                name: "MyApp",
             ),
             fido2CredentialAutofillView: .fixture(
                 rpId: "myApp.com",
-                userNameForUi: "another user"
-            )
+                userNameForUi: "another user",
+            ),
         )
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())

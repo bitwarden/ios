@@ -14,7 +14,7 @@ struct PasswordAutoFillView: View {
     @ObservedObject var store: Store<
         PasswordAutoFillState,
         Void,
-        PasswordAutoFillEffect
+        PasswordAutoFillEffect,
     >
 
     /// An object used to determine the current color scheme.
@@ -34,7 +34,7 @@ struct PasswordAutoFillView: View {
         }
         .navigationBar(
             title: store.state.navigationBarTitle,
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .task {
             await store.perform(.checkAutofillOnForeground)
@@ -71,8 +71,8 @@ struct PasswordAutoFillView: View {
             Text(
                 LocalizedStringKey(
                     Localizations.needHelpCheckOutAutofillHelp(
-                        ExternalLinksConstants.autofillHelp)
-                )
+                        ExternalLinksConstants.autofillHelp),
+                ),
             )
             .styleGuide(.subheadline)
             .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
@@ -213,10 +213,10 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .settings
-                )
-            )
-        )
+                    mode: .settings,
+                ),
+            ),
+        ),
     )
 }
 
@@ -225,10 +225,10 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .onboarding
-                )
-            )
-        )
+                    mode: .onboarding,
+                ),
+            ),
+        ),
     )
 }
 #endif

@@ -22,7 +22,7 @@ extension IdentityItemState {
         cityOrTown: String = "",
         state: String = "",
         postalCode: String = "",
-        country: String = ""
+        country: String = "",
     ) -> Self {
         .init(
             title: title,
@@ -42,7 +42,7 @@ extension IdentityItemState {
             cityOrTown: cityOrTown,
             state: state,
             postalCode: postalCode,
-            country: country
+            country: country,
         )
     }
 }

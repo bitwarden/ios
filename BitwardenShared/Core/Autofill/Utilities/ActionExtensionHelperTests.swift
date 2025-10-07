@@ -42,7 +42,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                         Constants.appExtensionWebViewPageDetails: pageDetailsJson,
                     ],
                 ] as NSSecureCoding,
-                typeIdentifier: UTType.propertyList.identifier
+                typeIdentifier: UTType.propertyList.identifier,
             ),
         ]
 
@@ -58,7 +58,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
         extensionItem.attachments = [
             NSItemProvider(
                 item: URL(string: "https://vault.bitwarden.com")! as NSSecureCoding,
-                typeIdentifier: UTType.url.identifier
+                typeIdentifier: UTType.url.identifier,
             ),
         ]
 
@@ -80,7 +80,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                     Constants.appExtensionUrlStringKey: "https://vault.bitwarden.com",
                     Constants.appExtensionWebViewPageDetails: pageDetailsJson,
                 ] as NSSecureCoding,
-                typeIdentifier: Constants.UTType.appExtensionFillBrowserAction
+                typeIdentifier: Constants.UTType.appExtensionFillBrowserAction,
             ),
         ]
 
@@ -97,7 +97,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
         extensionItem.attachments = [
             NSItemProvider(
                 item: "" as NSString,
-                typeIdentifier: Constants.UTType.appExtensionSetup
+                typeIdentifier: Constants.UTType.appExtensionSetup,
             ),
         ]
 
@@ -114,7 +114,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
         extensionItem.attachments = [
             NSItemProvider(
                 item: "" as NSString,
-                typeIdentifier: UTType.text.identifier
+                typeIdentifier: UTType.text.identifier,
             ),
         ]
 
@@ -137,7 +137,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                     Constants.appExtensionUrlStringKey: "https://vault.bitwarden.com",
                     Constants.appExtensionUsernameKey: "user@bitwarden.com",
                 ] as NSSecureCoding,
-                typeIdentifier: Constants.UTType.appExtensionChangePasswordAction
+                typeIdentifier: Constants.UTType.appExtensionChangePasswordAction,
             ),
         ]
 
@@ -157,8 +157,8 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             subject.itemDataToCompleteRequest(
                 username: "user@bitwarden.com",
                 password: "my-top-secret-password",
-                fields: []
-            )
+                fields: [],
+            ),
         )
         XCTAssertEqual(itemData[Constants.appExtensionPasswordKey] as? String, "")
         XCTAssertEqual(itemData[Constants.appExtensionOldPasswordKey] as? String, "my-top-secret-password")
@@ -179,7 +179,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                     Constants.appExtensionUrlStringKey: "https://vault.bitwarden.com",
                     Constants.appExtensionWebViewPageDetails: pageDetailsJson,
                 ] as NSSecureCoding,
-                typeIdentifier: Constants.UTType.appExtensionFillBrowserAction
+                typeIdentifier: Constants.UTType.appExtensionFillBrowserAction,
             ),
         ]
 
@@ -195,8 +195,8 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             subject.itemDataToCompleteRequest(
                 username: "user@bitwarden.com",
                 password: "my-top-secret-password",
-                fields: []
-            )
+                fields: [],
+            ),
         )
         let scriptDictionary = try XCTUnwrap(itemData[Constants.appExtensionWebViewPageFillScript] as? [String: String])
         let scriptJson = try XCTUnwrap(scriptDictionary[Constants.appExtensionWebViewPageFillScript]?.prettyPrintedJson)
@@ -242,7 +242,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                 item: [
                     Constants.appExtensionUrlStringKey: "https://vault.bitwarden.com",
                 ] as NSSecureCoding,
-                typeIdentifier: Constants.UTType.appExtensionFindLoginAction
+                typeIdentifier: Constants.UTType.appExtensionFindLoginAction,
             ),
         ]
 
@@ -257,8 +257,8 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             subject.itemDataToCompleteRequest(
                 username: "user@bitwarden.com",
                 password: "my-top-secret-password",
-                fields: []
-            )
+                fields: [],
+            ),
         )
 
         XCTAssertEqual(itemData.count, 2)
@@ -280,7 +280,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                     Constants.appExtensionUrlStringKey: "https://vault.bitwarden.com",
                     Constants.appExtensionUsernameKey: "user@bitwarden.com",
                 ] as NSSecureCoding,
-                typeIdentifier: Constants.UTType.appExtensionSaveLogin
+                typeIdentifier: Constants.UTType.appExtensionSaveLogin,
             ),
         ]
 
@@ -301,8 +301,8 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             subject.itemDataToCompleteRequest(
                 username: "user@bitwarden.com",
                 password: "my-top-secret-password",
-                fields: []
-            )
+                fields: [],
+            ),
         )
 
         XCTAssertEqual(itemData.count, 2)
@@ -325,7 +325,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
                         Constants.appExtensionWebViewPageDetails: pageDetailsJson,
                     ],
                 ] as NSSecureCoding,
-                typeIdentifier: UTType.propertyList.identifier
+                typeIdentifier: UTType.propertyList.identifier,
             ),
         ]
 
@@ -343,8 +343,8 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             subject.itemDataToCompleteRequest(
                 username: "user@bitwarden.com",
                 password: "my-top-secret-password",
-                fields: []
-            ) as? [String: [String: String]]
+                fields: [],
+            ) as? [String: [String: String]],
         )
         let scriptDictionary = try XCTUnwrap(itemData[NSExtensionJavaScriptFinalizeArgumentKey])
         let scriptJson = try XCTUnwrap(scriptDictionary[Constants.appExtensionWebViewPageFillScript]?.prettyPrintedJson)

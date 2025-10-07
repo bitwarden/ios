@@ -29,7 +29,7 @@ class PasswordHistoryData: NSManagedObject, ManagedObject {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        passwordHistory: PasswordHistory
+        passwordHistory: PasswordHistory,
     ) {
         self.init(context: context)
         lastUsedDate = passwordHistory.lastUsedDate

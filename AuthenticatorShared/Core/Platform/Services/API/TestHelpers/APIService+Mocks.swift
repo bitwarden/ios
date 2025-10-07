@@ -6,11 +6,11 @@ import Networking
 
 extension APIService {
     convenience init(
-        client: HTTPClient
+        client: HTTPClient,
     ) {
         self.init(
             client: client,
-            environmentService: MockEnvironmentService()
+            environmentService: MockEnvironmentService(),
         )
     }
 }

@@ -14,8 +14,8 @@ class StartRegistrationResponseModelTests: BitwardenTestCase {
                 statusCode: 200,
                 headers: [:],
                 body: "0018A45C4D1DEF81644B54AB7F969B88D65".data(using: .utf8)!,
-                requestID: UUID()
-            )
+                requestID: UUID(),
+            ),
         )
         XCTAssertEqual(subject.token, "0018A45C4D1DEF81644B54AB7F969B88D65")
     }

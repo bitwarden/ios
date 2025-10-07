@@ -34,7 +34,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: OtherSettingsState
+        state: OtherSettingsState,
     ) {
         self.coordinator = coordinator
         self.services = services

@@ -29,17 +29,17 @@ struct MasterPasswordGuidanceView: View {
             NumberedList {
                 numberedRowView(
                     title: Localizations.chooseThreeOrFourRandomWords,
-                    subtitle: Localizations.chooseThreeOrFourRandomWordsDescriptionLong
+                    subtitle: Localizations.chooseThreeOrFourRandomWordsDescriptionLong,
                 )
 
                 numberedRowView(
                     title: Localizations.combineThoseWordsTogether,
-                    subtitle: Localizations.combineThoseWordsTogetherDescriptionLong
+                    subtitle: Localizations.combineThoseWordsTogetherDescriptionLong,
                 )
 
                 numberedRowView(
                     title: Localizations.makeItYours,
-                    subtitle: Localizations.makeItYoursDescriptionLong
+                    subtitle: Localizations.makeItYoursDescriptionLong,
                 )
             }
 
@@ -47,7 +47,7 @@ struct MasterPasswordGuidanceView: View {
                 title: Localizations.needSomeInspiration,
                 actionButtonState: ActionCard.ButtonState(title: Localizations.checkOutThePassphraseGenerator) {
                     store.send(.generatePasswordPressed)
-                }
+                },
             )
         }
         .scrollView()

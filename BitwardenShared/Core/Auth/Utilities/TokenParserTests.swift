@@ -21,8 +21,8 @@ class TokenParserTests: BitwardenTestCase {
                 expirationTimeIntervalSince1970: 1_696_908_879,
                 hasPremium: false,
                 name: "Bitwarden User",
-                userId: "13512467-9cfe-43b0-969f-07534084764b"
-            )
+                userId: "13512467-9cfe-43b0-969f-07534084764b",
+            ),
         )
         XCTAssertEqual(payload.expirationDate, Date(timeIntervalSince1970: 1_696_908_879))
         XCTAssertFalse(payload.isExternal)
@@ -44,8 +44,8 @@ class TokenParserTests: BitwardenTestCase {
                 expirationTimeIntervalSince1970: 1_696_908_879,
                 hasPremium: false,
                 name: "Bitwarden User",
-                userId: "13512467-9cfe-43b0-969f-07534084764b"
-            )
+                userId: "13512467-9cfe-43b0-969f-07534084764b",
+            ),
         )
         XCTAssertEqual(payload.expirationDate, Date(timeIntervalSince1970: 1_696_908_879))
         XCTAssertTrue(payload.isExternal)

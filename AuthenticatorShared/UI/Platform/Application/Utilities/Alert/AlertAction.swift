@@ -29,7 +29,7 @@ public class AlertAction {
     public init(
         title: String,
         style: UIAlertAction.Style,
-        handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil
+        handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil,
     ) {
         self.title = title
         self.style = style
@@ -46,7 +46,7 @@ public class AlertAction {
     public init(
         title: String,
         style: UIAlertAction.Style,
-        handler: @escaping (AlertAction) async -> Void
+        handler: @escaping (AlertAction) async -> Void,
     ) {
         self.title = title
         self.style = style

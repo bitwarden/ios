@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - FormTextField
@@ -23,11 +24,11 @@ struct FormTextField<State>: Equatable, Identifiable {
         var textInputAutocapitalization: TextInputAutocapitalization {
             switch self {
             case .never:
-                return .never
+                .never
             case .sentences:
-                return .sentences
+                .sentences
             case .words:
-                return .words
+                .words
             }
         }
     }
@@ -104,7 +105,7 @@ struct FormTextField<State>: Equatable, Identifiable {
         passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
         title: String,
-        value: String
+        value: String,
     ) {
         self.accessibilityId = accessibilityId
         self.autocapitalization = autocapitalization
@@ -145,7 +146,7 @@ struct FormTextFieldView<State>: View {
             passwordVisibilityAccessibilityId: field.passwordVisibilityAccessibilityId,
             isPasswordVisible: field.isPasswordVisible.map { isPasswordVisible in
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
-            }
+            },
         )
         .autocorrectionDisabled(field.isAutocorrectDisabled)
         .keyboardType(field.keyboardType)
@@ -166,7 +167,7 @@ struct FormTextFieldView<State>: View {
     init(
         field: FormTextField<State>,
         action: @escaping (String) -> Void,
-        isPasswordVisibleChangedAction: ((Bool) -> Void)? = nil
+        isPasswordVisibleChangedAction: ((Bool) -> Void)? = nil,
     ) {
         self.action = action
         self.field = field

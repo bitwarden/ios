@@ -21,8 +21,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.setUp()
         processor = MockProcessor(
             state: CipherItemState(
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
@@ -81,7 +81,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
 
         let button = try subject.inspect().find(
-            buttonWithAccessibilityLabel: Localizations.removePasskey
+            buttonWithAccessibilityLabel: Localizations.removePasskey,
         )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .removePasskeyPressed)
@@ -92,7 +92,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_learnNewLoginActionCard_visible_tapDismiss() async throws {
         processor.state = CipherItemState(
-            hasPremium: true
+            hasPremium: true,
         )
         processor.state.isLearnNewLoginActionCardEligible = true
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
@@ -107,7 +107,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_learnNewLoginActionCard_visible_tapGetStarted() async throws {
         processor.state = CipherItemState(
-            hasPremium: true
+            hasPremium: true,
         )
         processor.state.isLearnNewLoginActionCardEligible = true
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
@@ -122,7 +122,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_dismissButton_tap() throws {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
@@ -156,7 +156,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_generatePasswordButton_tap() throws {
         let button = try subject.inspect().find(
-            buttonWithAccessibilityLabel: Localizations.generatePassword
+            buttonWithAccessibilityLabel: Localizations.generatePassword,
         )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .generatePasswordPressed)
@@ -166,7 +166,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_generateUsernameButton_tap() throws {
         let button = try subject.inspect().find(
-            buttonWithAccessibilityLabel: Localizations.generateUsername
+            buttonWithAccessibilityLabel: Localizations.generateUsername,
         )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .generateUsernamePressed)
@@ -215,7 +215,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isAdditionalOptionsExpanded = true
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.notes
+            accessibilityLabel: Localizations.notes,
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
@@ -320,7 +320,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
 
@@ -336,7 +336,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
 
@@ -352,7 +352,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             UriState(
                 id: "id",
                 matchType: .default,
-                uri: "uri"
+                uri: "uri",
             ),
         ]
 
@@ -542,12 +542,12 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func disabletest_snapshot_learnNewLoginActionCard() throws {
         processor.state = CipherItemState(
-            hasPremium: false
+            hasPremium: false,
         )
         processor.state.isLearnNewLoginActionCardEligible = true
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 
@@ -589,7 +589,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             cityOrTown: "City",
             state: "State",
             postalCode: "1234",
-            country: "country"
+            country: "country",
         )
         processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
@@ -624,7 +624,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             cityOrTown: "City",
             state: "State",
             postalCode: "1234",
-            country: "country"
+            country: "country",
         )
         processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
@@ -646,7 +646,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
@@ -708,7 +708,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_fieldsNotVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loginState = .fixture(
             fido2Credentials: [.fixture()],
@@ -717,7 +717,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.type = .login
         processor.state.name = "Name"
@@ -736,7 +736,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_readOnly() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(edit: false),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loginState = .fixture(
             fido2Credentials: [.fixture()],
@@ -745,7 +745,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.type = .login
         processor.state.name = "Name"
@@ -762,7 +762,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             as: [
                 .tallPortrait,
                 .portraitDark(heightMultiple: 2),
-            ]
+            ],
         )
     }
 
@@ -795,7 +795,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_disabledViewPassword() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loginState = .fixture(
             canViewPassword: false,
@@ -805,7 +805,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.type = .login
         processor.state.name = "Name"
@@ -824,7 +824,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loginState = .fixture(
             fido2Credentials: [.fixture()],
@@ -833,7 +833,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.type = .login
         processor.state.name = "Name"
@@ -852,7 +852,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_fieldsVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.type = .login
         processor.state.name = "Name"
@@ -863,7 +863,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
@@ -880,7 +880,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         processor.state.loginState = .fixture(
             fido2Credentials: [.fixture()],
@@ -889,7 +889,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
-            username: "username"
+            username: "username",
         )
         processor.state.type = .login
         processor.state.name = "Name"
@@ -913,7 +913,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .tallPortrait,
                     .tallPortraitAX5(heightMultiple: 5),
                     .defaultPortraitDark,
-                ]
+                ],
             )
         }
     }
@@ -923,11 +923,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_sshKey() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: true,
-            isPrivateKeyVisible: false
+            isPrivateKeyVisible: false,
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -936,11 +936,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_sshKeyPrivateKeyVisible() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: true,
-            isPrivateKeyVisible: true
+            isPrivateKeyVisible: true,
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -949,11 +949,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func disabletest_snapshot_sshKeyCantViewPrivateKey() {
         processor.state = sshKeyCipherItemState(
             canViewPrivateKey: false,
-            isPrivateKeyVisible: false
+            isPrivateKeyVisible: false,
         )
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -967,9 +967,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
-                id: "fake-id"
+                id: "fake-id",
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.name = "Example"
         state.type = .sshKey
@@ -978,7 +978,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isPrivateKeyVisible: isPrivateKeyVisible,
             privateKey: "ajsdfopij1ZXCVZXC12312QW",
             publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
-            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw",
         )
         return state
     }

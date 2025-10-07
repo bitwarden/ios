@@ -203,8 +203,8 @@ extension APIService: AccountAPIService {
         let request = VerifyEmailTokenRequest(
             requestModel: VerifyEmailTokenRequestModel(
                 email: email,
-                emailVerificationToken: emailVerificationToken
-            )
+                emailVerificationToken: emailVerificationToken,
+            ),
         )
         _ = try await identityService.send(request)
     }

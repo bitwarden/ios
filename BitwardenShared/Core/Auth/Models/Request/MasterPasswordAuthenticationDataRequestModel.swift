@@ -27,7 +27,7 @@ extension MasterPasswordAuthenticationDataRequestModel {
         self.init(
             kdf: KdfConfig(kdf: authenticationData.kdf),
             masterPasswordAuthenticationHash: authenticationData.masterPasswordAuthenticationHash,
-            salt: authenticationData.salt
+            salt: authenticationData.salt,
         )
     }
 }

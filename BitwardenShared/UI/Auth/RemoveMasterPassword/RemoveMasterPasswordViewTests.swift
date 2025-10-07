@@ -20,7 +20,7 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
             masterPassword: "password",
             organizationName: "Example Org",
             organizationId: "ORG_ID",
-            keyConnectorUrl: "https://example.com"
+            keyConnectorUrl: "https://example.com",
         ))
 
         subject = RemoveMasterPasswordView(store: Store(processor: processor))
@@ -50,7 +50,7 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
     func disabletest_snapshot_removeMasterPassword() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.5)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.5)],
         )
     }
 }

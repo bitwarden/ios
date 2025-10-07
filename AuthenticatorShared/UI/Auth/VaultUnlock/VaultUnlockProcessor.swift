@@ -7,7 +7,7 @@ import OSLog
 class VaultUnlockProcessor: StateProcessor<
     VaultUnlockState,
     VaultUnlockAction,
-    VaultUnlockEffect
+    VaultUnlockEffect,
 > {
     // MARK: Types
 
@@ -37,7 +37,7 @@ class VaultUnlockProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: VaultUnlockState
+        state: VaultUnlockState,
     ) {
         self.coordinator = coordinator
         self.services = services

@@ -36,7 +36,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             authAPIService: authAPIService,
             clientService: clientService,
             keychainRepository: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
         stateService.activeAccount = .fixture()
     }
@@ -73,7 +73,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             deviceKey: "DEVICE_KEY",
             protectedUserKey: "USER_KEY",
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
-            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
+            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY",
         )
         client.results = [.httpSuccess(testData: .emptyResponse)]
         clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
@@ -99,7 +99,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             deviceKey: "DEVICE_KEY",
             protectedUserKey: "USER_KEY",
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
-            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
+            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY",
         )
         clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         stateService.shouldTrustDevice[userId] = true
@@ -125,7 +125,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             deviceKey: "DEVICE_KEY",
             protectedUserKey: "USER_KEY",
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
-            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
+            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY",
         )
         appSettingsStore.appId = "App id"
 

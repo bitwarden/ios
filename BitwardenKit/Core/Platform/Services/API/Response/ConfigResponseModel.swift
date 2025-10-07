@@ -31,7 +31,7 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
         featureStates: [String: AnyCodable]?,
         gitHash: String?,
         server: ThirdPartyConfigResponseModel?,
-        version: String
+        version: String,
     ) {
         self.environment = environment
         self.featureStates = featureStates
@@ -54,7 +54,7 @@ public struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
     /// A public version of the standard synthesized initializer.
     public init(
         name: String,
-        url: String
+        url: String,
     ) {
         self.name = name
         self.url = url
@@ -90,7 +90,7 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
         identity: String?,
         notifications: String?,
         sso: String?,
-        vault: String?
+        vault: String?,
     ) {
         self.api = api
         self.cloudRegion = cloudRegion

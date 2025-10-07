@@ -44,7 +44,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: TwoFactorAuthState
+        state: TwoFactorAuthState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -153,7 +153,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 email: state.email,
                 code: code,
                 method: state.authMethod,
-                remember: state.isRememberMeOn
+                remember: state.isRememberMeOn,
             )
 
             try await tryToUnlockVault(unlockMethod)
@@ -197,7 +197,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.verificationEmailNotSent
+                message: Localizations.verificationEmailNotSent,
             ))
             services.errorReporter.log(error: error)
         }
@@ -243,8 +243,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                         account,
                         animated: false,
                         attemptAutomaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
                 coordinator.navigate(to: .dismiss)
             case let .keyConnector(keyConnectorUrl):
@@ -253,7 +253,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
                     keyConnectorURL: keyConnectorUrl,
-                    orgIdentifier: orgIdentifier
+                    orgIdentifier: orgIdentifier,
                 )
                 await coordinator.handleEvent(.didCompleteAuth)
             }
@@ -272,7 +272,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: masterPasswordHash
+                masterPasswordHash: masterPasswordHash,
             )
         }
     }
@@ -334,14 +334,14 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
               let authURL = URL(string: authURLValue) else {
             state.toast = Toast(
                 // swiftlint:disable:next line_length
-                title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance
+                title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance,
             )
             return
         }
 
         coordinator.navigate(
             to: .duoAuthenticationFlow(authURL),
-            context: self
+            context: self,
         )
     }
 
@@ -442,10 +442,10 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                                 data: webAuthnProvider,
                                 headerText: Localizations.fido2Title,
                                 buttonText: Localizations.fido2AuthenticateWebAuthn,
-                                returnButtonText: Localizations.fido2ReturnToApp
-                            )
+                                returnButtonText: Localizations.fido2ReturnToApp,
+                            ),
                         ),
-                        context: self
+                        context: self,
                     )
                 } else {
                     try coordinator.navigate(
@@ -460,7 +460,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                                           return idData
                                       },
                                       userVerificationPreference: userVerificationPreference),
-                        context: self
+                        context: self,
                     )
                 }
             } else {
@@ -469,7 +469,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         } catch {
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication
+                message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication,
             ))
             services.errorReporter.log(error: error)
         }
@@ -482,7 +482,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         data: WebAuthn,
         headerText: String,
         buttonText: String,
-        returnButtonText: String
+        returnButtonText: String,
     ) throws -> URL {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys // for consistency
@@ -493,7 +493,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
             btnText: buttonText,
             callbackUri: URL(string: callbackUrlString)!,
             data: String(data: encoder.encode(data), encoding: .utf8)!,
-            headerText: headerText
+            headerText: headerText,
         )
         let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()

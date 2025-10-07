@@ -14,8 +14,8 @@ class MockPolicyService: PolicyService {
             requireLower: false,
             requireNumbers: true,
             requireSpecial: false,
-            enforceOnLogin: true
-        )
+            enforceOnLogin: true,
+        ),
     )
 
     var isSendHideEmailDisabledByPolicy = false
@@ -57,7 +57,7 @@ class MockPolicyService: PolicyService {
 
     func fetchTimeoutPolicyValues() async throws -> (
         action: SessionTimeoutAction?,
-        value: Int
+        value: Int,
     )? {
         try fetchTimeoutPolicyValuesResult.get()
     }

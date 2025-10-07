@@ -14,7 +14,7 @@ class DefaultSaveOptionTests: BitwardenTestCase {
                 .saveToBitwarden,
                 .saveHere,
                 .none,
-            ]
+            ],
         )
     }
 

@@ -36,8 +36,8 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 authRepository: authRepository,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
-                vaultRepository: vaultRepository
-            )
+                vaultRepository: vaultRepository,
+            ),
         )
     }
 
@@ -60,7 +60,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_handleCipherForAutofill() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -77,7 +77,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appExtensionDelegate.canAutofill = false
 
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -136,7 +136,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let nsError = errorReporter.errors.first as? NSError
         XCTAssertEqual(
             nsError?.userInfo["ErrorMessage"] as? String,
-            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
+            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired.",
         )
     }
 
@@ -156,7 +156,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let nsError = errorReporter.errors[0] as NSError
         XCTAssertEqual(
             nsError.userInfo["ErrorMessage"] as? String,
-            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
+            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired.",
         )
     }
 
@@ -165,7 +165,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_missingPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: nil, username: "user@bitwarden.com"),
-            name: "Bitwarden Login"
+            name: "Bitwarden Login",
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -189,7 +189,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_missingUsername() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil),
-            name: "Bitwarden Login"
+            name: "Bitwarden Login",
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -214,13 +214,13 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_missingValueCopyTotp() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
-            name: "Bitwarden Login"
+            name: "Bitwarden Login",
         ))
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
 
         let cipher = CipherListView.fixture(id: "1")
@@ -250,7 +250,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_missingValueCopyTotpError() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
-            name: "Bitwarden Login"
+            name: "Bitwarden Login",
         ))
         struct GenerateTotpError: Error, Equatable {}
         vaultRepository.refreshTOTPCodeResult = .failure(GenerateTotpError())
@@ -268,7 +268,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_handleCipherForAutofill_missingUsernameAndPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: nil, username: nil)
+            login: .fixture(password: nil, username: nil),
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -285,7 +285,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
             name: "Bitwarden Login",
-            reprompt: .password
+            reprompt: .password,
         ))
 
         let cipher = CipherListView.fixture(id: "1", reprompt: .password)
@@ -309,7 +309,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
             name: "Bitwarden Login",
-            reprompt: .password
+            reprompt: .password,
         ))
         authRepository.validatePasswordResult = .success(false)
 
@@ -332,7 +332,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
             name: "Bitwarden Login",
-            reprompt: .password
+            reprompt: .password,
         ))
 
         let cipher = CipherListView.fixture(id: "1")
@@ -346,7 +346,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_handleCipherForAutofill_generateTOTPError() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
         ))
         struct GenerateTotpError: Error, Equatable {}
         vaultRepository.refreshTOTPCodeResult = .failure(GenerateTotpError())
@@ -362,14 +362,14 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
     func test_handleCipherForAutofill_totpCopy() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
         ))
         vaultRepository.getDisableAutoTotpCopyResult = .success(false)
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
 
         let cipher = CipherListView.fixture(id: "1")
@@ -384,14 +384,14 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
-            organizationUseTotp: true
+            organizationUseTotp: true,
         ))
         vaultRepository.getDisableAutoTotpCopyResult = .success(false)
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
 
         let cipher = CipherListView.fixture(id: "1")
@@ -404,7 +404,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// disable auto-copy TOTP setting is set.
     func test_handleCipherForAutofill_totpCopyDisabled() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
         ))
         vaultRepository.getDisableAutoTotpCopyResult = .success(true)
 
@@ -418,7 +418,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// have premium.
     func test_handleCipherForAutofill_totpCopyWithoutPremium() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
         ))
         vaultRepository.doesActiveAccountHavePremiumResult = false
 

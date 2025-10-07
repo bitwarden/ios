@@ -50,7 +50,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "NewPasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "NewPasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordFieldPressed(true))
@@ -85,7 +85,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     func test_masterPasswordRetypeVisibility_tap() throws {
         processor.state.isMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "RetypePasswordVisibilityToggle"
+            viewWithAccessibilityIdentifier: "RetypePasswordVisibilityToggle",
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordFieldPressed(true))
@@ -115,7 +115,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),
                 "tallPortraitAX5": .tallPortraitAX5(),
-            ]
+            ],
         )
     }
 
@@ -133,7 +133,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),
                 "tallPortraitAX5": .tallPortraitAX5(),
-            ]
+            ],
         )
     }
 }

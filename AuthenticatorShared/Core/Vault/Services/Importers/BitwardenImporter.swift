@@ -11,7 +11,7 @@ class BitwardenImporter {
                 id: cipherLike.id,
                 name: cipherLike.name,
                 totpKey: cipherLike.login?.totp,
-                username: cipherLike.login?.username
+                username: cipherLike.login?.username,
             )
         }
     }

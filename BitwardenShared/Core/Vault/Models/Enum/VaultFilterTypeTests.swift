@@ -22,11 +22,11 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_collectionFilter_organization() {
         XCTAssertTrue(
             VaultFilterType.organization(.fixture(id: "1"))
-                .collectionFilter(.fixture(organizationId: "1"))
+                .collectionFilter(.fixture(organizationId: "1")),
         )
         XCTAssertFalse(
             VaultFilterType.organization(.fixture(id: "1"))
-                .collectionFilter(.fixture(organizationId: "2"))
+                .collectionFilter(.fixture(organizationId: "2")),
         )
     }
 
@@ -46,15 +46,15 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_filterCipher_organization() {
         XCTAssertTrue(
             VaultFilterType.organization(.fixture(id: "1"))
-                .cipherFilter(.fixture(organizationId: "1"))
+                .cipherFilter(.fixture(organizationId: "1")),
         )
         XCTAssertFalse(
             VaultFilterType.organization(.fixture(id: "1"))
-                .cipherFilter(.fixture(organizationId: nil))
+                .cipherFilter(.fixture(organizationId: nil)),
         )
         XCTAssertFalse(
             VaultFilterType.organization(.fixture(id: "1"))
-                .cipherFilter(.fixture(organizationId: "2"))
+                .cipherFilter(.fixture(organizationId: "2")),
         )
     }
 
@@ -64,7 +64,7 @@ class VaultFilterTypeTests: BitwardenTestCase {
         XCTAssertEqual(VaultFilterType.myVault.filterTitle, "Vault: My vault")
         XCTAssertEqual(
             VaultFilterType.organization(.fixture(id: "", name: "Test Organization")).filterTitle,
-            "Vault: Test Organization"
+            "Vault: Test Organization",
         )
     }
 
@@ -134,7 +134,7 @@ class VaultFilterTypeTests: BitwardenTestCase {
         XCTAssertEqual(VaultFilterType.myVault.title, "My vault")
         XCTAssertEqual(
             VaultFilterType.organization(.fixture(id: "", name: "Test Organization")).title,
-            "Test Organization"
+            "Test Organization",
         )
     }
 }

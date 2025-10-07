@@ -68,7 +68,7 @@ struct SliderFieldView<State>: View {
                 value: Binding(get: { field.value }, set: onValueChanged),
                 in: field.range,
                 step: field.step,
-                onEditingChanged: onEditingChanged
+                onEditingChanged: onEditingChanged,
             )
             .accessibilityLabel(field.title)
             .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
@@ -113,7 +113,7 @@ struct SliderFieldView<State>: View {
     init(
         field: SliderField<State>,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
-        onValueChanged: @escaping (Double) -> Void
+        onValueChanged: @escaping (Double) -> Void,
     ) {
         self.field = field
         self.onEditingChanged = onEditingChanged

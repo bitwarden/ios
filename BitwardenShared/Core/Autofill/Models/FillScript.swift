@@ -49,7 +49,7 @@ struct FillScript: Codable {
         pageDetails: PageDetails?,
         fillUsername: String,
         fillPassword: String,
-        fillFields: [(String, String)]
+        fillFields: [(String, String)],
     ) {
         guard let pageDetails else { documentUUID = ""; return }
 
@@ -99,7 +99,7 @@ struct FillScript: Codable {
                     pageDetails: pageDetails,
                     passwordField: passwordField,
                     canBeHidden: false,
-                    checkForm: true
+                    checkForm: true,
                 )
                 if username == nil {
                     // not able to find any viewable username fields. maybe there are some "hidden" ones?
@@ -107,7 +107,7 @@ struct FillScript: Codable {
                         pageDetails: pageDetails,
                         passwordField: passwordField,
                         canBeHidden: true,
-                        checkForm: true
+                        checkForm: true,
                     )
                 }
 
@@ -128,7 +128,7 @@ struct FillScript: Codable {
                         pageDetails: pageDetails,
                         passwordField: passwordField,
                         canBeHidden: false,
-                        checkForm: false
+                        checkForm: false,
                     )
                     if username == nil {
                         // not able to find any viewable username fields. maybe there are some "hidden" ones?
@@ -136,7 +136,7 @@ struct FillScript: Codable {
                             pageDetails: pageDetails,
                             passwordField: passwordField,
                             canBeHidden: true,
-                            checkForm: false
+                            checkForm: false,
                         )
                     }
 
@@ -190,7 +190,7 @@ struct FillScript: Codable {
         pageDetails: PageDetails,
         passwordField: PageDetails.Field,
         canBeHidden: Bool,
-        checkForm: Bool
+        checkForm: Bool,
     ) -> PageDetails.Field? {
         var usernameField: PageDetails.Field?
 

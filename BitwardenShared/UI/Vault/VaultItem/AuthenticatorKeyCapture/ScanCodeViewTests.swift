@@ -22,7 +22,7 @@ class ScanCodeViewTests: BitwardenTestCase {
         let store = Store(processor: processor)
         subject = ScanCodeView(
             cameraSession: .init(),
-            store: store
+            store: store,
         )
     }
 
@@ -53,7 +53,7 @@ class ScanCodeViewTests: BitwardenTestCase {
                     .defaultPortrait,
                     .defaultLandscape,
                     .defaultPortraitAX5,
-                ]
+                ],
             )
         }
     }

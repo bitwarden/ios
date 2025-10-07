@@ -21,7 +21,7 @@ struct StartRegistrationState: Equatable {
     /// The text in the receive marketing emails toggle
     var receiveMarketingEmailsText: String {
         Localizations.getAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime(
-            ExternalLinksConstants.unsubscribeFromMarketingEmails
+            ExternalLinksConstants.unsubscribeFromMarketingEmails,
         )
     }
 
@@ -35,7 +35,7 @@ struct StartRegistrationState: Equatable {
     var termsAndPrivacyDisclaimerText: String {
         Localizations.byContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy(
             ExternalLinksConstants.termsOfService,
-            ExternalLinksConstants.privacyPolicy
+            ExternalLinksConstants.privacyPolicy,
         )
     }
 

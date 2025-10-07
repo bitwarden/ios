@@ -182,7 +182,7 @@ actor DefaultStateService: StateService, ConfigStateService {
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore
+        dataStore: DataStore,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore

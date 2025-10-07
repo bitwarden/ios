@@ -12,7 +12,7 @@ extension CryptoClientProtocol {
     func initializeUserCrypto(
         account: Account,
         encryptionKeys: AccountEncryptionKeys,
-        method: InitUserCryptoMethod
+        method: InitUserCryptoMethod,
     ) async throws {
         try await initializeUserCrypto(
             req: InitUserCryptoRequest(
@@ -22,8 +22,8 @@ extension CryptoClientProtocol {
                 privateKey: encryptionKeys.encryptedPrivateKey,
                 signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey,
                 securityState: encryptionKeys.accountKeys?.securityState?.securityState,
-                method: method
-            )
+                method: method,
+            ),
         )
     }
 }

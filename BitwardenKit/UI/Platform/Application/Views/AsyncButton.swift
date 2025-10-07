@@ -29,7 +29,7 @@ public struct AsyncButton<Label>: View where Label: View {
                     await action()
                 }
             },
-            label: { label }
+            label: { label },
         )
     }
 
@@ -46,7 +46,7 @@ public struct AsyncButton<Label>: View where Label: View {
     public init(
         role: ButtonRole? = nil,
         action: @escaping () async -> Void,
-        @ViewBuilder label: @escaping () -> Label
+        @ViewBuilder label: @escaping () -> Label,
     ) {
         self.role = role
         self.action = action

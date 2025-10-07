@@ -6,7 +6,7 @@
 final class ProfileSwitcherProcessor: StateProcessor<
     ProfileSwitcherState,
     ProfileSwitcherAction,
-    ProfileSwitcherEffect
+    ProfileSwitcherEffect,
 > {
     // MARK: Types
 
@@ -37,7 +37,7 @@ final class ProfileSwitcherProcessor: StateProcessor<
         coordinator: AnyCoordinator<ProfileSwitcherRoute, Void>,
         handler: ProfileSwitcherHandler,
         services: Services,
-        state: ProfileSwitcherState
+        state: ProfileSwitcherState,
     ) {
         self.coordinator = coordinator
         self.handler = handler

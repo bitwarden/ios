@@ -20,12 +20,12 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await Publishers.CombineLatest3(
             cipherService.ciphersPublisher(),
             collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
+            folderService.foldersPublisher(),
         )
         .asyncTryMap { ciphers, collections, folders in
             try await build(from: ciphers, collections: collections, folders: folders, filter: filter)
@@ -47,7 +47,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListData {
         guard !ciphers.isEmpty else { return VaultListData() }
 
@@ -55,7 +55,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             from: ciphers,
             collections: collections,
             folders: folders,
-            filter: filter
+            filter: filter,
         ) else {
             return VaultListData()
         }

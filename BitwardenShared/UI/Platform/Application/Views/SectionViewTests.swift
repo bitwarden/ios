@@ -11,7 +11,7 @@ class SectionViewTests: BitwardenTestCase {
         for preview in SectionView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait]
+                as: [.defaultPortrait],
             )
         }
     }

@@ -9,7 +9,7 @@ import OSLog
 final class PasswordHistoryListProcessor: StateProcessor<
     PasswordHistoryListState,
     PasswordHistoryListAction,
-    PasswordHistoryListEffect
+    PasswordHistoryListEffect,
 > {
     // MARK: Types
 
@@ -37,7 +37,7 @@ final class PasswordHistoryListProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<PasswordHistoryRoute, Void>,
         services: Services,
-        state: PasswordHistoryListState
+        state: PasswordHistoryListState,
     ) {
         self.coordinator = coordinator
         self.services = services

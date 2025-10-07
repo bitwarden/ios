@@ -13,7 +13,7 @@ struct TrackableWithHeaderListView<HeaderContent: View, Content: View>: View {
     init(
         offsetChanged: @escaping (CGPoint?) -> Void = { _ in },
         @ViewBuilder headerContent: () -> HeaderContent,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.offsetChanged = offsetChanged
         self.headerContent = headerContent()
@@ -26,7 +26,7 @@ struct TrackableWithHeaderListView<HeaderContent: View, Content: View>: View {
                 headerContent
                     .preference(
                         key: ScrollOffsetPreferenceKey.self,
-                        value: geometry.frame(in: .named("ListView")).origin
+                        value: geometry.frame(in: .named("ListView")).origin,
                     )
             }
             .frame(width: .infinity)
@@ -38,7 +38,7 @@ struct TrackableWithHeaderListView<HeaderContent: View, Content: View>: View {
 }
 
 private struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGPoint? = nil
+    static var defaultValue: CGPoint?
     static func reduce(value: inout CGPoint?, nextValue: () -> CGPoint?) {
         if let nextValue = nextValue() {
             value = nextValue

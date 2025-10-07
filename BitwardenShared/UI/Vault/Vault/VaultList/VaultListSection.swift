@@ -21,7 +21,7 @@ extension [VaultListSection] {
         flatMap(\.items)
             .contains { item in
                 if case let .group(group, count) = item.itemType, group == .login || group == .totp {
-                    count > 0 // swiftlint:disable:this empty_count
+                    count > 0
                 } else if case let .cipher(cipherView, _) = item.itemType, cipherView.type.isLogin {
                     true
                 } else if case .totp = item.itemType {

@@ -24,7 +24,7 @@ public protocol TabModule: AnyObject {
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
     ) -> AnyCoordinator<TabRoute, Void>
 }
 
@@ -37,7 +37,7 @@ extension DefaultAppModule: TabModule {
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
     ) -> AnyCoordinator<TabRoute, Void> {
         TabCoordinator(
             errorReporter: errorReporter,
@@ -46,7 +46,7 @@ extension DefaultAppModule: TabModule {
             settingsDelegate: settingsDelegate,
             tabNavigator: tabNavigator,
             vaultDelegate: vaultDelegate,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         ).asAnyCoordinator()
     }
 }

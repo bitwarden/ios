@@ -13,7 +13,7 @@ final class ExpandableContentTests: BitwardenTestCase {
 
         let subject = ExpandableContent(
             title: "Expand",
-            isExpanded: Binding(get: { isExpanded }, set: { isExpanded = $0 })
+            isExpanded: Binding(get: { isExpanded }, set: { isExpanded = $0 }),
         ) {
             Text("Content")
         }

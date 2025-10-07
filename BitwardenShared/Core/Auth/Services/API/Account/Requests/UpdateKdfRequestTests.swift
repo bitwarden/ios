@@ -19,10 +19,10 @@ class UpdateKdfRequestTests: BitwardenTestCase {
                         kdfType: .argon2id,
                         iterations: 3,
                         memory: 64,
-                        parallelism: 4
+                        parallelism: 4,
                     ),
                     masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
-                    salt: "AUTHENTICATION_SALT"
+                    salt: "AUTHENTICATION_SALT",
                 ),
                 key: "key",
                 masterPasswordHash: "MASTER_PASSWORD_HASH",
@@ -30,9 +30,9 @@ class UpdateKdfRequestTests: BitwardenTestCase {
                 unlockData: MasterPasswordUnlockDataRequestModel(
                     kdf: KdfConfig(),
                     masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
-                    salt: "UNLOCK_SALT"
-                )
-            )
+                    salt: "UNLOCK_SALT",
+                ),
+            ),
         )
     }
 
@@ -73,7 +73,7 @@ class UpdateKdfRequestTests: BitwardenTestCase {
                 "salt" : "UNLOCK_SALT"
               }
             }
-            """
+            """,
         )
     }
 

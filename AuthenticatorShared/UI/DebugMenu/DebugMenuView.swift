@@ -44,8 +44,8 @@ struct DebugMenuView: View {
             Toggle(
                 isOn: store.bindingAsync(
                     get: { _ in flag.isEnabled },
-                    perform: { DebugMenuEffect.toggleFeatureFlag(flag.feature.rawValue, $0) }
-                )
+                    perform: { DebugMenuEffect.toggleFeatureFlag(flag.feature.rawValue, $0) },
+                ),
             ) {
                 Text(flag.feature.name)
             }
@@ -76,10 +76,10 @@ struct DebugMenuView: View {
             processor: StateProcessor(
                 state: .init(
                     featureFlags: [
-                    ]
-                )
-            )
-        )
+                    ],
+                ),
+            ),
+        ),
     )
 }
 #endif

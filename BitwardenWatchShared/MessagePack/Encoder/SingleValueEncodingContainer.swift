@@ -9,7 +9,7 @@ extension _MessagePackEncoder {
             guard canEncodeNewValue else {
                 let context = EncodingError.Context(
                     codingPath: codingPath,
-                    debugDescription: "Attempt to encode value through single value container when previously value already encoded."
+                    debugDescription: "Attempt to encode value through single value container when previously value already encoded.",
                 )
                 throw EncodingError.invalidValue(value as Any, context)
             }
@@ -52,7 +52,7 @@ extension _MessagePackEncoder.SingleValueContainer: SingleValueEncodingContainer
         guard let data = value.data(using: .utf8) else {
             let context = EncodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "Cannot encode string using UTF-8 encoding."
+                debugDescription: "Cannot encode string using UTF-8 encoding.",
             )
             throw EncodingError.invalidValue(value, context)
         }
@@ -74,7 +74,7 @@ extension _MessagePackEncoder.SingleValueContainer: SingleValueEncodingContainer
         } else {
             let context = EncodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "Cannot encode string with length \(length)."
+                debugDescription: "Cannot encode string with length \(length).",
             )
             throw EncodingError.invalidValue(value, context)
         }
@@ -246,7 +246,7 @@ extension _MessagePackEncoder.SingleValueContainer: SingleValueEncodingContainer
         } else {
             let context = EncodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "Cannot encode data of length \(value.count)."
+                debugDescription: "Cannot encode data of length \(value.count).",
             )
             throw EncodingError.invalidValue(value, context)
         }

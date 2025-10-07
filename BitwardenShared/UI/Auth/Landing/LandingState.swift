@@ -42,9 +42,9 @@ struct LandingState: Equatable {
         isRememberMeOn: Bool = false,
         profileSwitcherState: ProfileSwitcherState = .empty(
             shouldAlwaysHideAddAccount: true,
-            showPlaceholderToolbarIcon: true
+            showPlaceholderToolbarIcon: true,
         ),
-        region: RegionType = .unitedStates
+        region: RegionType = .unitedStates,
     ) {
         self.email = email
         self.isRememberMeOn = isRememberMeOn

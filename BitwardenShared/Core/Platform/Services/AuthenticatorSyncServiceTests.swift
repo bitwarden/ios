@@ -50,7 +50,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
     }
 
@@ -201,16 +201,16 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
             .fixture(
                 deletedDate: Date(timeIntervalSinceNow: -10000),
                 id: "Deleted",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -234,14 +234,14 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
             .fixture(
                 id: "No TOTP",
                 login: .fixture(
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -265,8 +265,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             .fixture(
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -296,8 +296,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -488,7 +488,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
 
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "1")
+            VaultLockStatus(isVaultLocked: false, userId: "1"),
         )
         try await waitForAsync {
             !self.errorReporter.errors.isEmpty
@@ -510,8 +510,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
@@ -531,8 +531,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -552,7 +552,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         for _ in 0 ..< 4 {
             async let result1: Void = stateService.syncToAuthenticatorSubject.send(("1", true))
             async let result2: Void = vaultTimeoutService.vaultLockStatusSubject.send(
-                VaultLockStatus(isVaultLocked: false, userId: "1")
+                VaultLockStatus(isVaultLocked: false, userId: "1"),
             )
             await _ = (result1, result2)
         }
@@ -562,8 +562,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
@@ -582,7 +582,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["2"] = false
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "2")
+            VaultLockStatus(isVaultLocked: false, userId: "2"),
         )
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -590,8 +590,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -614,8 +614,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -631,12 +631,12 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.username, "masked@example.com")
         await stateService.addAccount(.fixture(
             profile: .fixture(email: "different@bitwarden.com", userId: "2"),
-            settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com")))
+            settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com"))),
         ))
         stateService.accountEncryptionKeys["2"] = AccountEncryptionKeys(
             accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "privateKey_2",
-            encryptedUserKey: "userKey_2"
+            encryptedUserKey: "userKey_2",
         )
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
@@ -646,8 +646,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "4321",
                 login: .fixture(
                     username: "masked2@example.com",
-                    totp: "totp2"
-                )
+                    totp: "totp2",
+                ),
             ),
         ])
 
@@ -674,7 +674,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["1"] = false
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "1")
+            VaultLockStatus(isVaultLocked: false, userId: "1"),
         )
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -682,8 +682,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -715,7 +715,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: true, userId: "1")
+            VaultLockStatus(isVaultLocked: true, userId: "1"),
         )
         try await Task.sleep(nanoseconds: 10_000_000)
 
@@ -724,8 +724,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -758,7 +758,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await stateService.addAccount(.fixtureAccountLogin())
         vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: true, userId: "1")
+            VaultLockStatus(isVaultLocked: true, userId: "1"),
         )
         try await Task.sleep(nanoseconds: 10_000_000)
 
@@ -767,8 +767,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -797,8 +797,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -846,7 +846,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             id: "id",
             name: "name",
             totpKey: "totpKey",
-            username: nil
+            username: nil,
         )
         authBridgeItemService.tempItem = expected
         let result = await subject.getTemporaryTotpItem()
@@ -868,8 +868,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -915,8 +915,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -949,9 +949,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
+                    totp: "totp",
                 ),
-                organizationId: "org-1"
+                organizationId: "org-1",
             ),
         ])
 
@@ -962,7 +962,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
         XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
         XCTAssertEqual(
-            authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"]
+            authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"],
         )
         XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
@@ -986,8 +986,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1016,8 +1016,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1046,8 +1046,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1074,8 +1074,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
@@ -1102,7 +1102,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
             accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "privateKey",
-            encryptedUserKey: "userKey"
+            encryptedUserKey: "userKey",
         )
         stateService.syncToAuthenticatorByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = vaultLocked
