@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A standardized view used to wrap some content into a row of a list. This is commonly used in
 /// forms.
-struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View>: View {
+public struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View>: View {
     // MARK: Properties
 
     /// The (optional) title of the field.
@@ -29,7 +29,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             contentView()
 
@@ -57,7 +57,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
-    init(
+    public init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
@@ -139,7 +139,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     }
 }
 
-extension BitwardenField where AccessoryContent == EmptyView {
+public extension BitwardenField where AccessoryContent == EmptyView {
     /// Creates a new `BitwardenField`.
     ///
     /// - Parameters:
@@ -163,7 +163,7 @@ extension BitwardenField where AccessoryContent == EmptyView {
     }
 }
 
-extension BitwardenField where FooterContent == EmptyView {
+public extension BitwardenField where FooterContent == EmptyView {
     /// Creates a new `BitwardenField`.
     ///
     /// - Parameters:
@@ -187,7 +187,7 @@ extension BitwardenField where FooterContent == EmptyView {
     }
 }
 
-extension BitwardenField where AccessoryContent == EmptyView, FooterContent == EmptyView {
+public extension BitwardenField where AccessoryContent == EmptyView, FooterContent == EmptyView {
     /// Creates a new `BitwardenField` without accessory content.
     ///
     /// - Parameters:
@@ -209,7 +209,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == E
     }
 }
 
-extension BitwardenField where FooterContent == Text {
+public extension BitwardenField where FooterContent == Text {
     /// Creates a new `BitwardenField`.
     ///
     /// - Parameters:
@@ -236,7 +236,7 @@ extension BitwardenField where FooterContent == Text {
     }
 }
 
-extension BitwardenField where AccessoryContent == EmptyView, FooterContent == Text {
+public extension BitwardenField where AccessoryContent == EmptyView, FooterContent == Text {
     /// Creates a new `BitwardenField`.
     ///
     /// - Parameters:
