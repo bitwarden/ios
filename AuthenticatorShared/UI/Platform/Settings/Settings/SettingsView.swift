@@ -185,23 +185,16 @@ struct SettingsView: View {
 
     /// The application's color theme picker view
     private var theme: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsMenuField(
-                title: Localizations.theme,
-                options: AppTheme.allCases,
-                hasDivider: false,
-                selection: store.binding(
-                    get: \.appTheme,
-                    send: SettingsAction.appThemeChanged,
-                ),
-            )
-            .cornerRadius(10)
-            .accessibilityIdentifier("ThemeChooser")
-
-            Text(Localizations.themeDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
+        BitwardenMenuField(
+            title: Localizations.theme,
+            footer: Localizations.themeDescription,
+            accessibilityIdentifier: "ThemeChooser",
+            options: AppTheme.allCases,
+            selection: store.binding(
+                get: \.appTheme,
+                send: SettingsAction.appThemeChanged,
+            ),
+        )
     }
 
     /// A toggle for the user's biometric unlock preference.
