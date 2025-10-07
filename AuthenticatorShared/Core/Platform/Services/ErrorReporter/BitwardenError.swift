@@ -33,7 +33,7 @@ enum BitwardenError {
             code: Code.dataError.rawValue,
             userInfo: [
                 "ErrorMessage": message,
-            ]
+            ],
         )
     }
 
@@ -47,7 +47,7 @@ enum BitwardenError {
             code: Code.generatorOptionsError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 
@@ -61,7 +61,7 @@ enum BitwardenError {
             code: Code.logoutError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 }

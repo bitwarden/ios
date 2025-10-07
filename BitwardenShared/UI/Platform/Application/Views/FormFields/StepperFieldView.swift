@@ -47,7 +47,7 @@ struct StepperFieldView<State>: View {
     var body: some View {
         BitwardenStepper(
             value: Binding(get: { field.value }, set: action),
-            in: field.range
+            in: field.range,
         ) {
             Text(field.title)
                 .styleGuide(.body)

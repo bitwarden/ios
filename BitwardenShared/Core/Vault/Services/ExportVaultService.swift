@@ -58,7 +58,7 @@ protocol ExportVaultService: AnyObject {
     /// - Returns: A string representing the file name.
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String
 
     /// Writes content to file with a provided name and returns a URL for the file.
@@ -205,7 +205,7 @@ class DefultExportVaultService: ExportVaultService {
         return try await clientService.exporters().exportVault(
             folders: folders,
             ciphers: ciphers,
-            format: exportFormat
+            format: exportFormat,
         )
     }
 
@@ -224,7 +224,7 @@ class DefultExportVaultService: ExportVaultService {
 
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMddHHmmss"
@@ -236,7 +236,7 @@ class DefultExportVaultService: ExportVaultService {
 
     func writeToFile(
         name fileName: String,
-        content fileContent: String
+        content fileContent: String,
     ) throws -> URL {
         // Get the exports directory.
         let exportsDirectoryURL = try FileManager.default.exportedVaultURL()
@@ -246,7 +246,7 @@ class DefultExportVaultService: ExportVaultService {
             try FileManager.default.createDirectory(
                 at: exportsDirectoryURL,
                 withIntermediateDirectories: true,
-                attributes: nil
+                attributes: nil,
             )
         }
 

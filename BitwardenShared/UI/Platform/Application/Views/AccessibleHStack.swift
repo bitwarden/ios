@@ -73,7 +73,7 @@ struct AccessibleHStack<Content>: View where Content: View {
         alignment: Alignment = .center,
         spacing: CGFloat? = nil,
         minVerticalDynamicTypeSize: DynamicTypeSize? = nil,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.alignment = alignment
         self.spacing = spacing

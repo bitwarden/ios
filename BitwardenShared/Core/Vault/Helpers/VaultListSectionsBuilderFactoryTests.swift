@@ -24,7 +24,7 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilderFactory(
             clientService: clientService,
             collectionHelper: collectionHelper,
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
         )
     }
 

@@ -15,14 +15,14 @@ class PolicyDataStoreTests: BitwardenTestCase {
             enabled: true,
             id: "1",
             organizationId: "org-1",
-            type: .twoFactorAuthentication
+            type: .twoFactorAuthentication,
         ),
         PolicyResponseModel(
             data: nil,
             enabled: true,
             id: "2",
             organizationId: "org-1",
-            type: .masterPassword
+            type: .masterPassword,
         ),
     ]
 

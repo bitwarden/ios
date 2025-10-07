@@ -49,9 +49,9 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: VaultAutofillListState()
+            state: VaultAutofillListState(),
         )
     }
 
@@ -84,10 +84,9 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped() async {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
-        )
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")))
         let vaultListItem = VaultListItem(
-            cipherListView: .fixture()
+            cipherListView: .fixture(),
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -115,7 +114,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             1
-            """
+            """,
         )
     }
 
@@ -124,10 +123,9 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped_showToast() async throws {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: nil))
-        )
+            login: .fixture(password: "PASSWORD", username: nil)))
         let vaultListItem = VaultListItem(
-            cipherListView: .fixture()
+            cipherListView: .fixture(),
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -150,7 +148,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             accounts: [.anneAccount],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: false,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.perform(.loadData)
@@ -209,7 +207,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
-
         subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
@@ -223,7 +220,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         let expectedSection = VaultListSection(
             id: "",
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-            name: ""
+            name: "",
         )
         vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
 
@@ -283,7 +280,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         let expectedSection = VaultListSection(
             id: "",
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-            name: ""
+            name: "",
         )
         vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
@@ -334,7 +331,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login)
+            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login),
         )
     }
 
@@ -355,7 +352,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login)
+            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login),
         )
     }
 

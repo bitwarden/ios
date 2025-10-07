@@ -16,7 +16,7 @@ protocol ImportCiphersService {
     func importCiphers(
         ciphers: [Cipher],
         folders: [Folder],
-        folderRelationships: [(key: Int, value: Int)]
+        folderRelationships: [(key: Int, value: Int)],
     ) async throws
 }
 
@@ -44,13 +44,13 @@ extension DefaultImportCiphersService {
     func importCiphers(
         ciphers: [Cipher],
         folders: [Folder],
-        folderRelationships: [(key: Int, value: Int)]
+        folderRelationships: [(key: Int, value: Int)],
     ) async throws {
         _ = try await importCiphersAPIService
             .importCiphers(
                 ciphers: ciphers,
                 folders: folders,
-                folderRelationships: folderRelationships
+                folderRelationships: folderRelationships,
             )
     }
 }

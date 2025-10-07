@@ -12,10 +12,10 @@ class VaultUnlockStateTests: BitwardenTestCase {
             account: .fixture(
                 settings: .fixture(
                     environmentURLs: .fixture(
-                        webVault: URL(string: "https://test.bitwarden.com")
-                    )
-                )
-            )
+                        webVault: URL(string: "https://test.bitwarden.com"),
+                    ),
+                ),
+            ),
         )
 
         XCTAssertEqual(subject.email, "user@bitwarden.com")
@@ -30,10 +30,10 @@ class VaultUnlockStateTests: BitwardenTestCase {
                 settings: .fixture(
                     environmentURLs: .fixture(
                         base: nil,
-                        webVault: nil
-                    )
-                )
-            )
+                        webVault: nil,
+                    ),
+                ),
+            ),
         )
 
         XCTAssertEqual(subject.email, "user@bitwarden.com")

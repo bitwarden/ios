@@ -7,7 +7,7 @@ import BitwardenResources
 class MasterPasswordGeneratorProcessor: StateProcessor<
     MasterPasswordGeneratorState,
     MasterPasswordGeneratorAction,
-    MasterPasswordGeneratorEffect
+    MasterPasswordGeneratorEffect,
 > {
     // MARK: Types
 
@@ -37,7 +37,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: MasterPasswordUpdateDelegate?,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

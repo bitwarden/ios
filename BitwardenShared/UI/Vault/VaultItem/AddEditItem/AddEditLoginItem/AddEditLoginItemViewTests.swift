@@ -15,7 +15,7 @@ class AddEditLoginItemViewTests: BitwardenTestCase {
                     .defaultPortrait,
                     .defaultPortraitDark,
                     .tallPortraitAX5(heightMultiple: 1.5),
-                ]
+                ],
             )
         }
     }

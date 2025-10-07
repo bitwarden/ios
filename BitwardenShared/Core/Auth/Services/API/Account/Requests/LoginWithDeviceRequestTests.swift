@@ -19,8 +19,8 @@ class LoginWithDeviceRequestTests: BitwardenTestCase {
                 deviceIdentifier: "device identifier",
                 accessCode: "access code",
                 type: AuthRequestType.authenticateAndUnlock,
-                fingerprintPhrase: "fingerprint phrase"
-            )
+                fingerprintPhrase: "fingerprint phrase",
+            ),
         )
     }
 
@@ -46,7 +46,7 @@ class LoginWithDeviceRequestTests: BitwardenTestCase {
               "publicKey" : "public key",
               "type" : 0
             }
-            """
+            """,
         )
     }
 

@@ -22,7 +22,7 @@ class GuidedTourViewTests: BitwardenTestCase {
                 .loginStep1,
                 .loginStep2,
                 .loginStep3,
-            ])
+            ]),
         )
         let store = Store(processor: processor)
         subject = GuidedTourView(store: store)

@@ -39,7 +39,7 @@ public struct CipherDTO: Identifiable, Codable {
         id: String,
         login: LoginDTO,
         name: String? = nil,
-        userId: String? = nil
+        userId: String? = nil,
     ) {
         self.id = id
         self.login = login
@@ -76,7 +76,7 @@ public struct LoginDTO: Codable {
     public init(
         totp: String? = nil,
         uris: [LoginUriDTO]? = nil,
-        username: String? = nil
+        username: String? = nil,
     ) {
         self.totp = totp
         self.uris = uris

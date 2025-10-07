@@ -58,7 +58,7 @@ class SelectLanguageViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .tallPortraitAX5(),
-            ]
+            ],
         )
     }
 }

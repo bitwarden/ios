@@ -31,7 +31,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             keyConnectorAPIService: APIService(client: client),
             organizationService: organizationService,
             stateService: stateService,
-            tokenService: tokenService
+            tokenService: tokenService,
         )
     }
 
@@ -58,7 +58,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await subject.convertNewUserToKeyConnector(
             keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-            orgIdentifier: "org-id"
+            orgIdentifier: "org-id",
         )
 
         XCTAssertTrue(clientService.mockAuth.makeKeyConnectorKeysCalled)
@@ -71,8 +71,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             AccountEncryptionKeys(
                 accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "encryptedUserKey"
-            )
+                encryptedUserKey: "encryptedUserKey",
+            ),
         )
     }
 
@@ -83,7 +83,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
@@ -99,7 +99,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
@@ -116,7 +116,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
@@ -135,13 +135,13 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: false,
                     keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
-                    trustedDeviceOption: nil
-                )
-            )
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         let key = try await subject.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: URL(string: "https://example.com/key-connector")!
+            keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
         )
         XCTAssertEqual(key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
     }
@@ -160,11 +160,11 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
             accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
-            encryptedUserKey: "encryptedUserKey"
+            encryptedUserKey: "encryptedUserKey",
         )
 
         try await subject.migrateUser(
-            password: "testPassword123"
+            password: "testPassword123",
         )
 
         XCTAssertEqual(client.requests.count, 2)
@@ -173,7 +173,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests[1].method, .post)
         XCTAssertEqual(
             client.requests[1].url,
-            URL(string: "https://example.com/api/accounts/convert-to-key-connector")!
+            URL(string: "https://example.com/api/accounts/convert-to-key-connector")!,
         )
         XCTAssertEqual(
             clientService.mockCrypto.deriveKeyConnectorRequest,
@@ -181,8 +181,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 userKeyEncrypted: "encryptedUserKey",
                 password: "testPassword123",
                 kdf: account.kdf.sdkKdf,
-                email: "user@bitwarden.com"
-            )
+                email: "user@bitwarden.com",
+            ),
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], false)
     }
@@ -193,7 +193,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         await assertAsyncThrows(error: KeyConnectorServiceError.missingOrganization) {
             try await subject.migrateUser(
-                password: "testPassword123"
+                password: "testPassword123",
             )
         }
     }
@@ -207,12 +207,12 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
             accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
-            encryptedUserKey: nil
+            encryptedUserKey: nil,
         )
 
         await assertAsyncThrows(error: KeyConnectorServiceError.missingEncryptedUserKey) {
             try await subject.migrateUser(
-                password: "testPassword123"
+                password: "testPassword123",
             )
         }
     }
@@ -227,12 +227,12 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
             accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
-            encryptedUserKey: "encryptedUserKey"
+            encryptedUserKey: "encryptedUserKey",
         )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.migrateUser(
-                password: "testPassword123"
+                password: "testPassword123",
             )
         }
     }
@@ -250,12 +250,12 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
             accountKeys: nil,
             encryptedPrivateKey: "encryptedPrivateKey",
-            encryptedUserKey: "encryptedUserKey"
+            encryptedUserKey: "encryptedUserKey",
         )
 
         await assertAsyncThrows(error: URLError(.networkConnectionLost)) {
             try await subject.migrateUser(
-                password: "testPassword123"
+                password: "testPassword123",
             )
         }
     }

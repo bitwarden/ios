@@ -33,7 +33,7 @@ class FoldersViewTests: BitwardenTestCase {
     @MainActor
     func test_addItemFloatingActionButton_tap() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .add)

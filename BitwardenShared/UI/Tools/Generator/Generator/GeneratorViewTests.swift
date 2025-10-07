@@ -161,13 +161,13 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             sliderValueAccessibilityId: "PasswordLengthLabel",
             step: 1,
             title: Localizations.length,
-            value: 14
+            value: 14,
         )
         let slider = try subject.inspect().find(sliderWithAccessibilityLabel: Localizations.length)
         try slider.setValue(0.25) // (128 - 5 + 1) * 0.25 + 5 = 36
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .sliderValueChanged(field: field, value: 36)
+            .sliderValueChanged(field: field, value: 36),
         )
     }
 
@@ -179,16 +179,16 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             keyPath: \.passwordState.minimumNumber,
             range: 0 ... 5,
             title: Localizations.minNumbers,
-            value: 1
+            value: 1,
         )
         let stepper = try subject.inspect().find(
             BitwardenStepperType.self,
-            containing: Localizations.minNumbers
+            containing: Localizations.minNumbers,
         )
         try stepper.increment()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .stepperValueChanged(field: field, value: 2)
+            .stepperValueChanged(field: field, value: 2),
         )
     }
 
@@ -202,7 +202,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             isAutocorrectDisabled: true,
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
-            value: "-"
+            value: "-",
         )
         let textField = try subject.inspect().find(textField: "")
         try textField.setInput("!!")
@@ -221,7 +221,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             isDisabled: false,
             isOn: true,
             keyPath: \.passwordState.containsLowercase,
-            title: "a-z"
+            title: "a-z",
         )
         let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.lowercaseAtoZ)
         try toggle.tap()
@@ -237,7 +237,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.showCopiedValueToast()
         assertSnapshot(
             of: snapshotView,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -247,7 +247,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.generatorType = .passphrase
         assertSnapshots(
             of: snapshotView,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -257,7 +257,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.generatorType = .password
         assertSnapshots(
             of: snapshotView,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -276,7 +276,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
         assertSnapshot(
             of: snapshotView,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -291,7 +291,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 Snapshotting.portrait(drawHierarchyInKeyWindow: true),
                 Snapshotting.portraitDark(drawHierarchyInKeyWindow: true),
                 Snapshotting.tallPortraitAX5(heightMultiple: 1.5, drawHierarchyInKeyWindow: true),
-            ]
+            ],
         )
     }
 
@@ -302,7 +302,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
             of: snapshotView,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -313,7 +313,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         assertSnapshot(
             of: snapshotView,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -333,7 +333,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
             of: snapshotView,
-            as: .defaultPortrait
+            as: .defaultPortrait,
         )
     }
 
@@ -343,7 +343,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.isLearnGeneratorActionCardEligible = true
         assertSnapshots(
             of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark]
+            as: [.defaultPortrait, .defaultPortraitDark],
         )
     }
 }

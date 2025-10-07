@@ -25,7 +25,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             appAdditionalInfo: appAdditionalInfo,
             bundle: bundle,
             systemDevice: systemDevice,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -53,7 +53,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            """
+            """,
         )
     }
 
@@ -70,7 +70,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             📦 Bundle: Unknown
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            """
+            """,
         )
     }
 
@@ -95,7 +95,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             🧱 Commit: bitwarden/ios/main@abc123
             💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
             🛠️ Compiler Flags: DEBUG_MENU
-            """
+            """,
         )
     }
 
@@ -120,7 +120,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             🍏 System: iOS 16.4
             🧱 Commit: bitwarden/ios/main@abc123
             💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
-            """
+            """,
         )
     }
 
@@ -142,7 +142,7 @@ class AppInfoServiceTests: BitwardenTestCase {
             🧱 Commit: bitwarden/ios/main@abc123
             💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
             🛠️ Compiler Flags: DEBUG_MENU
-            """
+            """,
         )
     }
 

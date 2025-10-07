@@ -89,8 +89,8 @@ struct LoginRequestView: View {
         Text(
             Localizations.logInAttemptByXOnY(
                 store.state.email ?? "",
-                store.state.request.origin
-            )
+                store.state.request.origin,
+            ),
         )
         .styleGuide(.body)
         .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
@@ -158,8 +158,8 @@ struct LoginRequestView: View {
     LoginRequestView(store: Store(processor: StateProcessor(state: LoginRequestState(
         request: .fixture(
             creationDate: .now,
-            fingerprintPhrase: "which-ninja-turtle-is-the-best"
-        )
+            fingerprintPhrase: "which-ninja-turtle-is-the-best",
+        ),
     ))))
 }
 #endif

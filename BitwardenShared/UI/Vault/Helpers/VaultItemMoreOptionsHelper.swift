@@ -18,7 +18,7 @@ protocol VaultItemMoreOptionsHelper {
     func showMoreOptionsAlert(
         for item: VaultListItem,
         handleDisplayToast: @escaping (Toast) -> Void,
-        handleOpenURL: @escaping (URL) -> Void
+        handleOpenURL: @escaping (URL) -> Void,
     ) async
 }
 
@@ -60,7 +60,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -72,7 +72,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     func showMoreOptionsAlert(
         for item: VaultListItem,
         handleDisplayToast: @escaping (Toast) -> Void,
-        handleOpenURL: @escaping (URL) -> Void
+        handleOpenURL: @escaping (URL) -> Void,
     ) async {
         do {
             // Only ciphers have more options.
@@ -89,13 +89,13 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 id: item.id,
-                showEdit: canEdit
+                showEdit: canEdit,
             ) { action in
                 await self.handleMoreOptionsAction(
                     action,
                     cipherView: cipherView,
                     handleDisplayToast: handleDisplayToast,
-                    handleOpenURL: handleOpenURL
+                    handleOpenURL: handleOpenURL,
                 )
             })
         } catch {
@@ -112,7 +112,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ///
     private func generateAndCopyTotpCode(
         totpKey: TOTPKeyModel,
-        handleDisplayToast: @escaping (Toast) -> Void
+        handleDisplayToast: @escaping (Toast) -> Void,
     ) async {
         do {
             let response = try await services.vaultRepository.refreshTOTPCode(for: totpKey)
@@ -121,7 +121,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
             services.pasteboardService.copy(code)
             handleDisplayToast(
-                Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)),
             )
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -137,7 +137,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         _ action: MoreOptionsAction,
         cipherView: CipherView,
         handleDisplayToast: @escaping (Toast) -> Void,
-        handleOpenURL: (URL) -> Void
+        handleOpenURL: (URL) -> Void,
     ) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
@@ -148,7 +148,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                     Task {
                         await self.services.eventService.collect(
                             eventType: event,
-                            cipherId: cipherId
+                            cipherId: cipherId,
                         )
                     }
                 }

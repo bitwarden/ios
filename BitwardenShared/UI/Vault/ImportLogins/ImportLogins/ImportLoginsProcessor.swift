@@ -33,7 +33,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     init(
         coordinator: AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>,
         services: Services,
-        state: ImportLoginsState
+        state: ImportLoginsState,
     ) {
         self.coordinator = coordinator
         self.services = services

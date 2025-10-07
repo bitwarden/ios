@@ -87,7 +87,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         processor.state.biometricsStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape],
         )
     }
 
@@ -98,7 +98,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         processor.state.biometricsStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
         )
     }
 
@@ -108,7 +108,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         processor.state.biometricsStatus = .available(.touchID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -117,7 +117,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     func disabletest_snapshot_vaultUnlockSetup_noBiometrics() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -127,7 +127,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         processor.state.biometricsStatus = .available(.faceID, enabled: true)
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 }

@@ -14,7 +14,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
     /// Returns `nil` if the vault is empty.
     func prepareAutofillPasswordsData(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData?
 
     /// Prepares autofill's data on passwords + Fido2 combined in a single section for the vault list builder.
@@ -25,7 +25,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
     /// Returns `nil` if the vault is empty.
     func prepareAutofillCombinedSingleData(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData?
 
     /// Prepares data for the vault list builder.
@@ -40,7 +40,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData?
 
     /// Prepares group data for the vault list builder.
@@ -55,7 +55,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData?
 }
 
@@ -84,7 +84,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
     func prepareAutofillPasswordsData(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty, let uri = filter.uri else {
             return nil
@@ -96,7 +96,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
-            ciphers: ciphers
+            ciphers: ciphers,
         ) { decryptedCipher in
             guard decryptedCipher.deletedDate == nil,
                   decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
@@ -107,7 +107,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
             preparedDataBuilder = await preparedDataBuilder.addItem(
                 withMatchResult: matchResult,
-                cipher: decryptedCipher
+                cipher: decryptedCipher,
             )
         }
 
@@ -116,7 +116,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
     func prepareAutofillCombinedSingleData(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty, let uri = filter.uri else {
             return nil
@@ -128,7 +128,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
-            ciphers: ciphers
+            ciphers: ciphers,
         ) { decryptedCipher in
             guard decryptedCipher.deletedDate == nil,
                   decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
@@ -143,7 +143,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             guard decryptedCipher.type.loginListView?.hasFido2 == true else {
                 preparedDataBuilder = await preparedDataBuilder.addItem(
                     forGroup: .login,
-                    with: decryptedCipher
+                    with: decryptedCipher,
                 )
                 return
             }
@@ -158,7 +158,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty else {
             return nil
@@ -172,7 +172,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
-            ciphers: ciphers
+            ciphers: ciphers,
         ) { decryptedCipher in
             guard filter.filterType.cipherFilter(decryptedCipher),
                   decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
@@ -204,7 +204,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty, let group = filter.group else {
             return nil
@@ -218,7 +218,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
-            ciphers: ciphers
+            ciphers: ciphers,
         ) { decryptedCipher in
             guard filter.filterType.cipherFilter(decryptedCipher),
                   decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
@@ -233,7 +233,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 preparedDataBuilder = preparedDataBuilder.addFolderItem(
                     cipher: decryptedCipher,
                     filter: filter,
-                    folders: folders
+                    folders: folders,
                 )
             }
 

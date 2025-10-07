@@ -15,26 +15,26 @@ struct GeneratePassphraseIntent: AppIntent {
         title: "Number of words",
         description: "The number of words to include in the passphrase.",
         inclusiveRange: (3, 20),
-        requestValueDialog: "Number of words must be between 3 and 20."
+        requestValueDialog: "Number of words must be between 3 and 20.",
     )
     var numberOfWords: Int?
 
     @Parameter(
         title: "Capitalize",
-        description: "Whether to capitalize each word."
+        description: "Whether to capitalize each word.",
     )
     var capitalize: Bool?
 
     @Parameter(
         title: "Include numbers",
-        description: "Whether to include numbers."
+        description: "Whether to include numbers.",
     )
     var includeNumber: Bool?
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         let services = ServiceContainer.shared(
-            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() }
+            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
         )
         let appIntentMediator = services.getAppIntentMediator()
 
@@ -51,8 +51,8 @@ struct GeneratePassphraseIntent: AppIntent {
                 numWords: UInt8(numberOfWords),
                 wordSeparator: "-",
                 capitalize: capitalize ?? true,
-                includeNumber: includeNumber ?? true
-            )
+                includeNumber: includeNumber ?? true,
+            ),
         )
 
         return .result(value: passphrase, dialog: "Passphrase: \(passphrase)")

@@ -27,7 +27,7 @@ class SingleSignOnDomainsVerifiedRequestTests: BitwardenTestCase {
         let bodyData = try XCTUnwrap(subject.body?.encode())
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
-            "{\"email\":\"email@example.com\"}"
+            "{\"email\":\"email@example.com\"}",
         )
     }
 

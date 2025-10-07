@@ -21,7 +21,7 @@ struct VaultUnlockView: View {
             }
             .toast(store.binding(
                 get: \.toast,
-                send: VaultUnlockAction.toastShown
+                send: VaultUnlockAction.toastShown,
             ))
     }
 
@@ -86,11 +86,11 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: false,
-                                hasValidIntegrity: false
-                            )
-                        )
-                    )
-                )
+                                hasValidIntegrity: false,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }.previewDisplayName("No Button")
 
@@ -102,11 +102,11 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: true,
-                                hasValidIntegrity: true
-                            )
-                        )
-                    )
-                )
+                                hasValidIntegrity: true,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }.previewDisplayName("Face ID Button")
 
@@ -118,11 +118,11 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .touchID,
                                 enabled: true,
-                                hasValidIntegrity: true
-                            )
-                        )
-                    )
-                )
+                                hasValidIntegrity: true,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }.previewDisplayName("Touch ID Button")
     }

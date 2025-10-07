@@ -36,7 +36,7 @@ struct DefaultTOTPService: TOTPService {
     init(
         clientService: ClientService,
         pasteboardService: PasteboardService,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientService = clientService
         self.pasteboardService = pasteboardService

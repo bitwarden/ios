@@ -57,7 +57,7 @@ class AppModuleTests: BitwardenTestCase {
         let coordinator = subject.makeAuthCoordinator(
             delegate: MockAuthDelegate(),
             rootNavigator: rootViewController,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertNotNil(rootViewController.childViewController)
@@ -70,7 +70,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeDebugMenuCoordinator(
             delegate: MockDebugMenuCoordinatorDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -82,7 +82,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeExportCXFCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeExportCXFCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -94,7 +94,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeExtensionSetupCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeExtensionSetupCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.navigate(to: .extensionActivation(type: .autofillExtension))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -107,7 +107,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeImportLoginsCoordinator(
             delegate: MockImportLoginsCoordinatorDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.navigate(to: .importLogins(.vault))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -120,7 +120,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makePasswordAutoFillCoordinator(
             delegate: MockPasswordAutoFillCoordinatorDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -132,7 +132,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeSendCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSendCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -146,7 +146,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSendItemCoordinator(
             delegate: delegate,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 0)
@@ -158,7 +158,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSettingsCoordinator(
             delegate: MockSettingsCoordinatorDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         XCTAssertEqual(navigationController.viewControllers.count, 1)
@@ -179,7 +179,7 @@ class AppModuleTests: BitwardenTestCase {
             settingsDelegate: settingsDelegate,
             tabNavigator: tabBarController,
             vaultDelegate: vaultDelegate,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
         coordinator.start()
         XCTAssertNotNil(rootViewController.childViewController)
@@ -192,7 +192,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeVaultCoordinator(
             delegate: MockVaultCoordinatorDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.navigate(to: .list)
         XCTAssertEqual(navigationController.viewControllers.count, 1)

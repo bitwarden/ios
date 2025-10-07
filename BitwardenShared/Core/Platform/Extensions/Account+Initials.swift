@@ -10,7 +10,7 @@ extension Account {
         if let name = profile.name,
            !name.isEmpty {
             initials = extractInitials(
-                from: name
+                from: name,
             )
         } else {
             // Create a separators set that includes punctuation characters and symbols
@@ -21,7 +21,7 @@ extension Account {
             if let emailPrefix = profile.email.components(separatedBy: "@").first {
                 return extractInitials(
                     from: emailPrefix,
-                    separators: separators
+                    separators: separators,
                 )
             }
         }
@@ -39,7 +39,7 @@ extension Account {
     private func extractInitials(
         from string: String,
         limit: Int = 2,
-        separators: CharacterSet = .whitespacesAndNewlines
+        separators: CharacterSet = .whitespacesAndNewlines,
     ) -> String? {
         var initials: String?
         let components = string.components(separatedBy: separators)

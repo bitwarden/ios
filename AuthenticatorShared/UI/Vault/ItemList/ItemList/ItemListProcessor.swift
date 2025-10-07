@@ -50,7 +50,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     init(
         coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
-        state: ItemListState
+        state: ItemListState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -63,7 +63,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
         )
         setupForegroundNotification()
     }
@@ -258,7 +258,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
         do {
             let result = try await services.authenticatorItemRepository.searchItemListPublisher(
-                searchText: searchText
+                searchText: searchText,
             )
             for try await items in result {
                 let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
@@ -393,7 +393,7 @@ private class TOTPExpirationManager {
     ///
     init(
         timeProvider: any TimeProvider,
-        onExpiration: (([ItemListItem]) -> Void)?
+        onExpiration: (([ItemListItem]) -> Void)?,
     ) {
         self.timeProvider = timeProvider
         self.onExpiration = onExpiration
@@ -402,7 +402,7 @@ private class TOTPExpirationManager {
             repeats: true,
             block: { _ in
                 self.checkForExpirations()
-            }
+            },
         )
     }
 
@@ -440,7 +440,7 @@ private class TOTPExpirationManager {
         itemsByInterval.forEach { period, items in
             let sortedItems: [Bool: [ItemListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
                 items,
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
             expired.append(contentsOf: sortedItems[true] ?? [])
             notExpired[period] = sortedItems[false]
@@ -454,12 +454,12 @@ private class TOTPExpirationManager {
 extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     ) {
         Task {
             guard await services.authenticatorItemRepository.isPasswordManagerSyncActive() else {
                 captureCoordinator.navigate(
-                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false))
+                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)),
                 )
                 return
             }
@@ -474,13 +474,13 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                     coordinator.showAlert(.determineScanSaveLocation(
                         saveLocallyAction: { [weak self] in
                             captureCoordinator.navigate(
-                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false)),
                             )
                         }, sendToBitwardenAction: { [weak self] in
                             captureCoordinator.navigate(
-                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true)),
                             )
-                        }
+                        },
                     ))
                 }
             } else {
@@ -495,7 +495,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                             self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
                         })
                         captureCoordinator.navigate(to: .dismiss(dismissAction))
-                    }
+                    },
                 ))
             }
         }
@@ -516,7 +516,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 id: UUID().uuidString,
                 name: itemName,
                 totpKey: key,
-                username: accountName
+                username: accountName,
             )
             try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
@@ -528,7 +528,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
@@ -560,7 +560,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 id: UUID().uuidString,
                 name: itemName,
                 totpKey: key,
-                username: nil
+                username: nil,
             )
             try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
@@ -569,7 +569,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
@@ -582,7 +582,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
@@ -614,7 +614,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             }, noAction: { [weak self] in
                 self?.services.appSettingsStore.defaultSaveOption = .none
                 await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
-            }
+            },
         ))
     }
 

@@ -16,7 +16,7 @@ struct ManualEntryView: View {
         content
             .navigationBar(
                 title: Localizations.createVerificationCode,
-                titleDisplayMode: .inline
+                titleDisplayMode: .inline,
             )
             .toolbar {
                 cancelToolbarItem {
@@ -36,8 +36,8 @@ struct ManualEntryView: View {
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
                     name: store.state.name,
-                    sendToBitwarden: false
-                )
+                    sendToBitwarden: false,
+                ),
             )
         }
         .buttonStyle(.tertiary())
@@ -54,8 +54,8 @@ struct ManualEntryView: View {
                 title: Localizations.name,
                 text: store.binding(
                     get: \.name,
-                    send: ManualEntryAction.nameChanged
-                )
+                    send: ManualEntryAction.nameChanged,
+                ),
             )
             .accessibilityIdentifier("ManualEntryNameField")
 
@@ -63,8 +63,8 @@ struct ManualEntryView: View {
                 title: Localizations.key,
                 text: store.binding(
                     get: \.authenticatorKey,
-                    send: ManualEntryAction.authenticatorKeyChanged
-                )
+                    send: ManualEntryAction.authenticatorKeyChanged,
+                ),
             )
             .accessibilityIdentifier("ManualEntryKeyField")
 
@@ -83,7 +83,7 @@ struct ManualEntryView: View {
         }
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(),
         )
         .scrollView()
     }
@@ -121,8 +121,8 @@ struct ManualEntryView: View {
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
                     name: store.state.name,
-                    sendToBitwarden: sendToBitwarden
-                )
+                    sendToBitwarden: sendToBitwarden,
+                ),
             )
         }
         .accessibilityIdentifier(accessibilityIdentifier)
@@ -157,7 +157,7 @@ struct ManualEntryView: View {
     ///
     private func styledFooterText() -> AttributedString {
         var attributed = AttributedString(
-            Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode
+            Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode,
         )
         if let range = attributed.range(of: Localizations.scanQRCode) {
             attributed[range].foregroundColor = Asset.Colors.primaryBitwarden.swiftUIColor
@@ -197,9 +197,9 @@ struct ManualEntryView_Previews: PreviewProvider {
             ManualEntryView(
                 store: Store(
                     processor: StateProcessor(
-                        state: PreviewState().manualEntryState
-                    )
-                )
+                        state: PreviewState().manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Empty")
@@ -212,10 +212,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             authenticatorKey: "manualEntry",
-                            name: "Manual Name"
-                        ).manualEntryState
-                    )
-                )
+                            name: "Manual Name",
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Text Added")
@@ -228,10 +228,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             defaultSaveOption: .none,
-                            isPasswordManagerSyncActive: true
-                        ).manualEntryState
-                    )
-                )
+                            isPasswordManagerSyncActive: true,
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Sync Active - No default")
@@ -244,10 +244,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             defaultSaveOption: .saveToBitwarden,
-                            isPasswordManagerSyncActive: true
-                        ).manualEntryState
-                    )
-                )
+                            isPasswordManagerSyncActive: true,
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Sync Active - Bitwarden default")
@@ -260,10 +260,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             defaultSaveOption: .saveHere,
-                            isPasswordManagerSyncActive: true
-                        ).manualEntryState
-                    )
-                )
+                            isPasswordManagerSyncActive: true,
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Sync Active - Local default")

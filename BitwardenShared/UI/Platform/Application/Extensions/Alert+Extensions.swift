@@ -14,7 +14,7 @@ extension Alert {
             message: Localizations.invalidEmail,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -26,7 +26,7 @@ extension Alert {
             message: Localizations.masterPasswordConfirmationValMessage,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -38,7 +38,7 @@ extension Alert {
             message: Localizations.masterPasswordLengthValMessageX(Constants.minimumPasswordCharacters),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -53,7 +53,7 @@ extension Alert {
     static func confirmation(
         title: String,
         message: String? = nil,
-        confirmationHandler: @escaping () async -> Void
+        confirmationHandler: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: title,
@@ -61,16 +61,16 @@ extension Alert {
             alertActions: [
                 AlertAction(
                     title: Localizations.cancel,
-                    style: .cancel
+                    style: .cancel,
                 ),
                 AlertAction(
                     title: Localizations.yes,
                     style: .default,
                     handler: { _, _ in
                         await confirmationHandler()
-                    }
+                    },
                 ),
-            ]
+            ],
         )
     }
 
@@ -86,7 +86,7 @@ extension Alert {
         title: String,
         message: String? = nil,
         destructiveTitle: String? = nil,
-        confirmationHandler: @escaping () async -> Void
+        confirmationHandler: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: title,
@@ -94,16 +94,16 @@ extension Alert {
             alertActions: [
                 AlertAction(
                     title: Localizations.cancel,
-                    style: .cancel
+                    style: .cancel,
                 ),
                 AlertAction(
                     title: destructiveTitle ?? Localizations.delete,
                     style: .destructive,
                     handler: { _, _ in
                         await confirmationHandler()
-                    }
+                    },
                 ),
-            ]
+            ],
         )
     }
 
@@ -115,7 +115,7 @@ extension Alert {
     ///
     static func nameCustomFieldAlert(
         text: String? = nil,
-        completion: @MainActor @escaping (String) async -> Void
+        completion: @MainActor @escaping (String) async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.customFieldName,
@@ -131,7 +131,7 @@ extension Alert {
                     shouldEnableAction: { textFields in
                         guard let text = textFields.first(where: { $0.id == "name" })?.text else { return false }
                         return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    }
+                    },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ],
@@ -141,9 +141,9 @@ extension Alert {
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
                     isSecureTextEntry: false,
-                    text: text
+                    text: text,
                 ),
-            ]
+            ],
         )
     }
 
@@ -159,7 +159,7 @@ extension Alert {
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
+                ],
             )
         } else {
             Alert(
@@ -167,7 +167,7 @@ extension Alert {
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
+                ],
             )
         }
     }
@@ -184,7 +184,7 @@ extension Alert {
             message: Localizations.validationFieldRequired(fieldName),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -198,7 +198,7 @@ extension Alert {
     ///
     static func deleteCipherConfirmation(
         isSoftDelete: Bool,
-        completion: @MainActor @escaping () async -> Void
+        completion: @MainActor @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: isSoftDelete
@@ -211,10 +211,10 @@ extension Alert {
                     style: .default,
                     handler: { _ in
                         await completion()
-                    }
+                    },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -229,9 +229,9 @@ extension Alert {
             alertActions: [
                 AlertAction(
                     title: Localizations.ok,
-                    style: .default
+                    style: .default,
                 ),
-            ]
+            ],
         )
     }
 
@@ -241,7 +241,7 @@ extension Alert {
     ///   - completion: A block that is executed when the user interacts with the "Submit" button.
     static func masterPasswordPrompt(
         onCancelled: (() -> Void)? = nil,
-        completion: @MainActor @escaping (String) async -> Void
+        completion: @MainActor @escaping (String) async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.passwordConfirmation,
@@ -253,7 +253,7 @@ extension Alert {
                     handler: { _, alertTextFields in
                         guard let password = alertTextFields.first(where: { $0.id == "password" })?.text else { return }
                         await completion(password)
-                    }
+                    },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
                     onCancelled?()
@@ -264,9 +264,9 @@ extension Alert {
                     id: "password",
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
-                    isSecureTextEntry: true
+                    isSecureTextEntry: true,
                 ),
-            ]
+            ],
         )
     }
 }

@@ -59,7 +59,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
         rootNavigator: RootNavigator,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.rootNavigator = rootNavigator
@@ -103,7 +103,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
         let processor = VaultUnlockProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockState()
+            state: VaultUnlockState(),
         )
         processor.shouldAttemptAutomaticBiometricUnlock = true
         let view = VaultUnlockView(store: Store(processor: processor))

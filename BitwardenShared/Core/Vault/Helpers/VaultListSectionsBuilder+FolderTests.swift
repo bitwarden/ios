@@ -47,8 +47,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -77,8 +77,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -92,7 +92,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         }
         XCTAssertEqual(
             errorReporter.errors.first as? NSError,
-            BitwardenError.dataError("Received a folder from the API with a missing ID.")
+            BitwardenError.dataError("Received a folder from the API with a missing ID."),
         )
     }
 
@@ -111,8 +111,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "3": 15,
                     "4": 6,
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection(nestedFolderId: "2").build()
@@ -144,8 +144,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -174,8 +174,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -209,8 +209,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
-                ]
-            )
+                ],
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -232,7 +232,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         var noFolderItems: [VaultListItem] = []
         for cipherIndex in 1 ... 101 {
             noFolderItems.append(
-                .fixture(cipherListView: .fixture(id: "\(cipherIndex)", name: "Cipher\(cipherIndex)"))
+                .fixture(cipherListView: .fixture(id: "\(cipherIndex)", name: "Cipher\(cipherIndex)")),
             )
         }
         setUpSubject(
@@ -246,8 +246,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     "1": 20,
                     "2": 5,
                 ],
-                noFolderItems: noFolderItems
-            )
+                noFolderItems: noFolderItems,
+            ),
         )
 
         let vaultListData = try await subject.addFoldersSection().build()
@@ -273,7 +273,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             clientService: clientService,
             collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: withData
+            withData: withData,
         )
     }
 }

@@ -13,7 +13,7 @@ class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
 
         LoadingOverlayDisplayHelper.show(
             in: parentViewController,
-            state: LoadingOverlayState(title: "Loading...")
+            state: LoadingOverlayState(title: "Loading..."),
         )
 
         let overlayView = try XCTUnwrap(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
@@ -33,7 +33,7 @@ class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
 
         LoadingOverlayDisplayHelper.show(
             in: parentViewController,
-            state: LoadingOverlayState(title: "Loading...")
+            state: LoadingOverlayState(title: "Loading..."),
         )
         let overlayView = try XCTUnwrap(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
 

@@ -46,13 +46,13 @@ struct DirectAttachmentUploadRequest: Request {
         attachmentId: String,
         data: Data,
         cipherId: String,
-        fileName: String
+        fileName: String,
     ) {
         self.attachmentId = attachmentId
         self.cipherId = cipherId
         requestModel = DirectFileUploadRequestModel(
             data: data,
-            fileName: fileName
+            fileName: fileName,
         )
     }
 }

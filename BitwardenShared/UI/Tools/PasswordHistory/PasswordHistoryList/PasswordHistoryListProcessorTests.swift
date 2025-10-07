@@ -30,9 +30,9 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,
-                pasteboardService: pasteboardService
+                pasteboardService: pasteboardService,
             ),
-            state: PasswordHistoryListState()
+            state: PasswordHistoryListState(),
         )
     }
 

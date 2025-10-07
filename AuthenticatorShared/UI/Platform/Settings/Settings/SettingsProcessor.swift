@@ -40,7 +40,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: SettingsState
+        state: SettingsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -63,7 +63,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             state.sessionTimeoutValue = timeoutValue
             services.appSettingsStore.setVaultTimeout(
                 minutes: timeoutValue.rawValue,
-                userId: services.appSettingsStore.localUserId
+                userId: services.appSettingsStore.localUserId,
             )
         case let .toggleUnlockWithBiometrics(isOn):
             await setBiometricAuth(isOn)

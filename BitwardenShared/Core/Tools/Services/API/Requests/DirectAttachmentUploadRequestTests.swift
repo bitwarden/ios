@@ -11,7 +11,7 @@ class DirectAttachmentUploadRequestTests: BitwardenTestCase {
     func test_init() {
         let data = Data("example".utf8)
         let subject = DirectAttachmentUploadRequest(
-            attachmentId: "10", data: data, cipherId: "11", fileName: "cheese.txt"
+            attachmentId: "10", data: data, cipherId: "11", fileName: "cheese.txt",
         )
 
         XCTAssertEqual(subject.attachmentId, "10")

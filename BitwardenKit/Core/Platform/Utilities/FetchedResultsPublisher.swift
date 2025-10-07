@@ -42,7 +42,7 @@ public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NS
         subscriber.receive(subscription: FetchedResultsSubscription(
             context: context,
             request: request,
-            subscriber: subscriber
+            subscriber: subscriber,
         ))
     }
 }
@@ -84,13 +84,13 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType>: NSOb
     init(
         context: NSManagedObjectContext,
         request: NSFetchRequest<ResultType>,
-        subscriber: SubscriberType
+        subscriber: SubscriberType,
     ) {
         controller = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: context,
             sectionNameKeyPath: nil,
-            cacheName: nil
+            cacheName: nil,
         )
         self.subscriber = subscriber
 

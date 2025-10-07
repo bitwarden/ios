@@ -11,7 +11,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         LoginDecryptionOptionsState,
         LoginDecryptionOptionsAction,
-        LoginDecryptionOptionsEffect
+        LoginDecryptionOptionsEffect,
     >!
     var subject: LoginDecryptionOptionsView!
 
@@ -28,8 +28,8 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
                 email: "example@bitwarden.com",
                 isRememberDeviceToggleOn: true,
                 orgIdentifier: "Bitwarden",
-                shouldShowAdminApprovalButton: true
-            )
+                shouldShowAdminApprovalButton: true,
+            ),
         )
         let store = Store(processor: processor)
 

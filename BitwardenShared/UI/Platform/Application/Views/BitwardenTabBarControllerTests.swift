@@ -36,7 +36,7 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
             settingsDelegate: settingsDelegate,
             tabNavigator: subject,
             vaultDelegate: vaultDelegate,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
 
         coordinator.start()

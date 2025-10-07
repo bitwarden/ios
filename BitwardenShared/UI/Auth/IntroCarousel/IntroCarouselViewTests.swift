@@ -52,7 +52,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     func disabletest_snapshot_introCarousel_page1() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape],
         )
     }
 
@@ -62,7 +62,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
         processor.state.currentPageIndex = 1
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape],
         )
     }
 
@@ -72,7 +72,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
         processor.state.currentPageIndex = 2
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape],
         )
     }
 
@@ -82,7 +82,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
         processor.state.currentPageIndex = 3
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape],
         )
     }
 }

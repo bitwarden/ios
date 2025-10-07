@@ -207,12 +207,12 @@ struct AccountSecurityState: Equatable {
             Localizations.vaultTimeoutPolicyWithActionInEffect(
                 policyTimeoutHours,
                 policyTimeoutMinutes,
-                policyTimeoutAction.localizedName
+                policyTimeoutAction.localizedName,
             )
         } else {
             Localizations.vaultTimeoutPolicyInEffect(
                 policyTimeoutHours,
-                policyTimeoutMinutes
+                policyTimeoutMinutes,
             )
         }
     }

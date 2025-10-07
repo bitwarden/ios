@@ -10,7 +10,7 @@ class DataTests: BitwardenTestCase {
         let subject = Data(repeating: 1, count: 32)
         XCTAssertEqual(
             subject.asHexString(),
-            "0101010101010101010101010101010101010101010101010101010101010101"
+            "0101010101010101010101010101010101010101010101010101010101010101",
         )
     }
 }

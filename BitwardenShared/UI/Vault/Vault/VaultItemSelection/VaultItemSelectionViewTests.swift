@@ -18,7 +18,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            totpKeyModel: .fixtureExample
+            totpKeyModel: .fixtureExample,
         ))
         let store = Store(processor: processor)
 
@@ -38,7 +38,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     @MainActor
     func test_addFloatingActionButton_tap() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
@@ -70,7 +70,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.activeAccountId = account.userId
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -79,7 +79,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     func disabletest_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            totpKeyModel: .fixtureMinimum
+            totpKeyModel: .fixtureMinimum,
         ))
         subject = VaultItemSelectionView(store: Store(processor: processor))
 
@@ -88,7 +88,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.activeAccountId = account.userId
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait]
+            as: [.defaultPortrait],
         )
     }
 
@@ -102,30 +102,30 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
             .fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
                 name: "Example",
-                subtitle: "user@bitwarden.com"
+                subtitle: "user@bitwarden.com",
             ),
             .fixture(
                 id: "2",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
                 name: "Example Co",
-                subtitle: "user@bitwarden.com"
+                subtitle: "user@bitwarden.com",
             ),
         ]
         processor.state.vaultListSections = [
             VaultListSection(
                 id: Localizations.matchingItems,
                 items: ciphers.compactMap(VaultListItem.init),
-                name: Localizations.matchingItems
+                name: Localizations.matchingItems,
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -136,25 +136,25 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
             .fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
                 name: "Example",
-                subtitle: "user@bitwarden.com"
+                subtitle: "user@bitwarden.com",
             ),
             .fixture(
                 id: "2",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
                 name: "Example Co",
-                subtitle: "user@bitwarden.com"
+                subtitle: "user@bitwarden.com",
             ),
         ]
         processor.state.searchResults = ciphers.compactMap(VaultListItem.init)
         processor.state.searchText = "Example"
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -165,7 +165,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         processor.state.showNoResults = true
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

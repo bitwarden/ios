@@ -37,7 +37,7 @@ class MainVaultListGroupDirectorStrategyTests: BitwardenTestCase {
             cipherService: cipherService,
             collectionService: collectionService,
             folderService: folderService,
-            vaultListDataPreparator: vaultListDataPreparator
+            vaultListDataPreparator: vaultListDataPreparator,
         )
     }
 
@@ -95,13 +95,13 @@ class MainVaultListGroupDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                group: .login
-            )
+                group: .login,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)
@@ -125,13 +125,13 @@ class MainVaultListGroupDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                group: .folder(id: "1", name: "TestFolder")
-            )
+                group: .folder(id: "1", name: "TestFolder"),
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)
@@ -156,13 +156,13 @@ class MainVaultListGroupDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                group: .collection(id: "1", name: "TestOrg", organizationId: "1")
-            )
+                group: .collection(id: "1", name: "TestOrg", organizationId: "1"),
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)

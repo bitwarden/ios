@@ -95,8 +95,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 stateService: stateService,
                 syncService: syncService,
                 vaultRepository: vaultRepository,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
     }
@@ -252,8 +252,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             AppEvent.accountBecameActive(
                 account,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -282,8 +282,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             AppEvent.accountBecameActive(
                 account,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -312,8 +312,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             AppEvent.accountBecameActive(
                 account,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -383,8 +383,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             debugWillEnterForeground: { willEnterForegroundCalled += 1 },
             services: ServiceContainer.withMocks(
                 notificationCenterService: notificationCenterService,
-                stateService: stateService
-            )
+                stateService: stateService,
+            ),
         )
         try await waitForAsync { willEnterForegroundCalled == 1 }
 
@@ -428,7 +428,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true
+            fromEmail: true,
         )))
     }
 
@@ -442,7 +442,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true
+            fromEmail: true,
         )))
     }
 
@@ -480,17 +480,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidParametersForPath`.
     @MainActor
     func test_init_handleAppLinks_invalidParametersForPath() {
-        var url = URL(
-            string: "https://bitwarden.com/redirect-connector.html#finish-signup?token=verificationtoken&fromEmail=true"
-        )
+        // swiftlint:disable:next line_length
+        var url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?token=verificationtoken&fromEmail=true")
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
         XCTAssertEqual(errorReporter.errors.count, 1)
         errorReporter.errors.removeAll()
 
-        url = URL(
-            string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&fromEmail=true"
-        )
+        // swiftlint:disable:next line_length
+        url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&fromEmail=true")
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
         XCTAssertEqual(errorReporter.errors.count, 1)
@@ -559,9 +557,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 .accountBecameActive(
                     account,
                     attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
+                    didSwitchAccountAutomatically: false,
                 ),
-            ]
+            ],
         )
     }
 
@@ -588,7 +586,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.onPendingAppIntentActionSuccess(.logOutAll, data: nil)
         XCTAssertEqual(
             coordinator.events,
-            [.didLogout(userId: nil, userInitiated: true)]
+            [.didLogout(userId: nil, userInitiated: true)],
         )
     }
 
@@ -701,7 +699,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             id: "",
             name: "",
             totpKey: nil,
-            username: nil
+            username: nil,
         )
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
@@ -741,7 +739,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             id: "",
             name: "",
             totpKey: nil,
-            username: nil
+            username: nil,
         )
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
@@ -767,7 +765,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             id: "",
             name: "",
             totpKey: otpKey,
-            username: nil
+            username: nil,
         )
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
@@ -1044,7 +1042,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             appContext: .mainApp,
             initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
             navigator: rootNavigator,
-            window: nil
+            window: nil,
         )
 
         waitFor(!coordinator.routes.isEmpty)
@@ -1052,7 +1050,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(
             appModule.appCoordinator.routes,
-            [.extensionSetup(.extensionActivation(type: .appExtension))]
+            [.extensionSetup(.extensionActivation(type: .appExtension))],
         )
         XCTAssertEqual(migrationService.didPerformMigrations, true)
     }
@@ -1084,8 +1082,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             services: ServiceContainer.withMocks(
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
-                stateService: stateService
-            )
+                stateService: stateService,
+            ),
         )
         try await waitForAsync { willEnterForegroundCalled == 1 }
 
@@ -1200,8 +1198,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .confirmation(
                 title: Localizations.logInRequested,
                 message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email),
-                confirmationHandler: {}
-            )
+                confirmationHandler: {},
+            ),
         )
 
         try await alert.tapAction(title: Localizations.cancel)
@@ -1340,7 +1338,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         subject.removeMasterPassword(
             organizationName: "Example Org",
             organizationId: "ORG_ID",
-            keyConnectorUrl: "https://example.com"
+            keyConnectorUrl: "https://example.com",
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -1350,9 +1348,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 .auth(.removeMasterPassword(
                     organizationName: "Example Org",
                     organizationId: "ORG_ID",
-                    keyConnectorUrl: "https://example.com"
+                    keyConnectorUrl: "https://example.com",
                 )),
-            ]
+            ],
         )
     }
 
@@ -1364,13 +1362,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let subject = AppProcessor(
             appExtensionDelegate: delegate,
             appModule: appModule,
-            services: ServiceContainer.withMocks()
+            services: ServiceContainer.withMocks(),
         )
 
         subject.removeMasterPassword(
             organizationName: "Example Org",
             organizationId: "ORG_ID",
-            keyConnectorUrl: "https://example.com"
+            keyConnectorUrl: "https://example.com",
         )
 
         XCTAssertTrue(coordinator.routes.isEmpty)

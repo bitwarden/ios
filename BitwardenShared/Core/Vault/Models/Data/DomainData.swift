@@ -27,7 +27,7 @@ class DomainData: NSManagedObject, ManagedObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        domains: DomainsResponseModel
+        domains: DomainsResponseModel,
     ) throws {
         self.init(context: context)
         model = domains

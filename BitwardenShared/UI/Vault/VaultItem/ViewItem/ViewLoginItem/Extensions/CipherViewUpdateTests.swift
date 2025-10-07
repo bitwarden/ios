@@ -39,14 +39,14 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             login: .fixture(
                 fido2Credentials: [
                     .fixture(),
-                ]
-            )
+                ],
+            ),
         )
 
         let loginItemState = cipherView.loginItemState(excludeFido2Credentials: false, showTOTP: false)
         XCTAssertEqual(
             loginItemState.fido2Credentials,
-            [.fixture()]
+            [.fixture()],
         )
     }
 
@@ -56,8 +56,8 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             login: .fixture(
                 fido2Credentials: [
                     .fixture(),
-                ]
-            )
+                ],
+            ),
         )
 
         let loginItemState = cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: false)
@@ -69,7 +69,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let cipherView = CipherView.fixture(
             sshKey: .fixture(),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let sshKeyItemState = cipherView.sshKeyItemState()
         XCTAssertTrue(sshKeyItemState.canViewPrivateKey)
@@ -83,7 +83,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
     func test_sshKeyItemState_nil() {
         let cipherView = CipherView.fixture(
             sshKey: nil,
-            viewPassword: true
+            viewPassword: true,
         )
         let sshKeyItemState = cipherView.sshKeyItemState()
         XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
@@ -99,7 +99,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let cipherView = CipherView.fixture(
             sshKey: .fixture(),
             type: .sshKey,
-            viewPassword: false
+            viewPassword: false,
         )
         let sshKeyItemState = cipherView.sshKeyItemState()
         XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
@@ -118,7 +118,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             cardNumber: "12345",
             cardSecurityCode: "123",
             expirationMonth: .custom(.apr),
-            expirationYear: "1234"
+            expirationYear: "1234",
         )
         cipherItemState.cardItemState = expectedCardState
         cipherItemState.identityState = .fixture(
@@ -139,7 +139,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             cityOrTown: "Sedona",
             state: "AZ",
             postalCode: "55555",
-            country: "US"
+            country: "US",
         )
 
         let comparison = subject.updatedView(with: cipherItemState)
@@ -163,8 +163,8 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         var editState = try XCTUnwrap(
             CipherItemState(
                 existing: subject,
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         editState.type = .identity
         editState.identityState = .fixture(
@@ -185,15 +185,15 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             cityOrTown: "Sedona",
             state: "AZ",
             postalCode: "55555",
-            country: "US"
+            country: "US",
         )
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(
             comparison.identity,
             .init(
                 identityView: subject.identity,
-                identityState: editState.identityState
-            )
+                identityState: editState.identityState,
+            ),
         )
         XCTAssertEqual(comparison.type, .identity)
         XCTAssertNil(comparison.card)
@@ -206,7 +206,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
     func test_update_noEdits_succeeds() {
         let editState = CipherItemState(
             existing: subject,
-            hasPremium: true
+            hasPremium: true,
         )!
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
@@ -217,8 +217,8 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let editState = try XCTUnwrap(
             CipherItemState(
                 existing: subject,
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
@@ -254,7 +254,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(comparison.favorite, cipherItemState.isFavoriteOn)
         XCTAssertEqual(
             comparison.reprompt,
-            cipherItemState.isMasterPasswordRePromptOn ? .password : .none
+            cipherItemState.isMasterPasswordRePromptOn ? .password : .none,
         )
         XCTAssertEqual(comparison.organizationUseTotp, false)
         XCTAssertEqual(comparison.edit, true)
@@ -292,7 +292,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
                 name: "Name",
                 value: "1",
                 type: BitwardenSdk.FieldType.hidden,
-                linkedId: nil
+                linkedId: nil,
             ),
         ])
         cipherItemState.customFieldsState.customFields = [
@@ -321,7 +321,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
                 name: "Name",
                 value: "1",
                 type: BitwardenSdk.FieldType.hidden,
-                linkedId: nil
+                linkedId: nil,
             ),
         ])
         cipherItemState.customFieldsState.customFields = [
@@ -351,7 +351,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
                 name: "Name",
                 value: "1",
                 type: BitwardenSdk.FieldType.hidden,
-                linkedId: nil
+                linkedId: nil,
             ),
         ])
         cipherItemState.customFieldsState.customFields = [
@@ -370,8 +370,8 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         subject = CipherView.loginFixture(
             login: .fixture(
                 password: "Old password",
-                passwordRevisionDate: DateTime.distantPast
-            )
+                passwordRevisionDate: DateTime.distantPast,
+            ),
         )
         cipherItemState.loginState.password = "New password"
 
@@ -386,8 +386,8 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         subject = CipherView.loginFixture(
             login: .fixture(
                 password: "Old password",
-                passwordRevisionDate: DateTime.distantPast
-            )
+                passwordRevisionDate: DateTime.distantPast,
+            ),
         )
         cipherItemState.loginState.password = "Old password"
         cipherItemState.loginState.username = "New username"
@@ -424,20 +424,20 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
     func test_update_identity_edits_nilValues() throws {
         let state = CipherItemState(
             existing: subject,
-            hasPremium: true
+            hasPremium: true,
         )
         var editState = try XCTUnwrap(state)
         editState.type = .identity
         editState.identityState = .fixture(
-            title: .default
+            title: .default,
         )
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(
             comparison.identity,
             .init(
                 identityView: subject.identity,
-                identityState: editState.identityState
-            )
+                identityState: editState.identityState,
+            ),
         )
 
         XCTAssertEqual(comparison.type, .identity)

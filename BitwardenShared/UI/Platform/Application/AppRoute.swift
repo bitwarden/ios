@@ -37,7 +37,7 @@ public enum AppEvent: Equatable {
     case accountBecameActive(
         Account,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     )
 
     /// When the user logs out from an account.

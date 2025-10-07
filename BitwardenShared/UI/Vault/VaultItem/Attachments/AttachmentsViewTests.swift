@@ -17,7 +17,7 @@ class AttachmentsViewTests: BitwardenTestCase {
                 .fixture(fileName: "selfieWithACat.png", id: "1", sizeName: "10 MB"),
                 .fixture(fileName: "selfieWithADog.png", id: "2", sizeName: "11.2 MB"),
                 .fixture(fileName: "selfieWithAPotato.png", id: "3", sizeName: "201.2 MB"),
-            ]
+            ],
         )
     }
 
@@ -90,7 +90,7 @@ class AttachmentsViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -104,7 +104,7 @@ class AttachmentsViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 
@@ -118,7 +118,7 @@ class AttachmentsViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .defaultPortraitAX5,
-            ]
+            ],
         )
     }
 }

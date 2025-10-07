@@ -79,7 +79,7 @@ struct VaultListState: Equatable {
             canShowVaultFilter: canShowVaultFilter,
             isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
             organizations: organizations,
-            searchVaultFilterType: searchVaultFilterType
+            searchVaultFilterType: searchVaultFilterType,
         )
     }
 
@@ -94,7 +94,7 @@ struct VaultListState: Equatable {
             canShowVaultFilter: canShowVaultFilter,
             isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
             organizations: organizations,
-            searchVaultFilterType: vaultFilterType
+            searchVaultFilterType: vaultFilterType,
         )
     }
 

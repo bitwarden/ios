@@ -41,7 +41,7 @@ enum StartRegistrationError: Error {
 class StartRegistrationProcessor: StateProcessor<
     StartRegistrationState,
     StartRegistrationAction,
-    StartRegistrationEffect
+    StartRegistrationEffect,
 > {
     // MARK: Types
 
@@ -68,7 +68,7 @@ class StartRegistrationProcessor: StateProcessor<
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
         delegate: self,
-        stateService: services.stateService
+        stateService: services.stateService,
     )
 
     /// Whether the start registration view is visible in the view hierarchy.
@@ -87,7 +87,7 @@ class StartRegistrationProcessor: StateProcessor<
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: StartRegistrationDelegate?,
         services: Services,
-        state: StartRegistrationState
+        state: StartRegistrationState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -106,7 +106,7 @@ class StartRegistrationProcessor: StateProcessor<
         case .regionTapped:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
-                currentRegion: state.region
+                currentRegion: state.region,
             )
         case .startRegistration:
             await startRegistration()
@@ -155,15 +155,15 @@ class StartRegistrationProcessor: StateProcessor<
                 requestModel: StartRegistrationRequestModel(
                     email: email,
                     name: name,
-                    receiveMarketingEmails: state.isReceiveMarketingToggleOn
-                )
+                    receiveMarketingEmails: state.isReceiveMarketingToggleOn,
+                ),
             )
 
             if let token = result.token,
                !token.isEmpty {
                 coordinator.navigate(to: .completeRegistration(
                     emailVerificationToken: token,
-                    userEmail: email
+                    userEmail: email,
                 ))
             } else {
                 guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
@@ -197,7 +197,7 @@ class StartRegistrationProcessor: StateProcessor<
         case .preAuthUrlsEmpty:
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation,
             ))
         }
     }

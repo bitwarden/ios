@@ -9,7 +9,7 @@ import BitwardenResources
 class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     VaultAutofillListState,
     VaultAutofillListAction,
-    VaultAutofillListEffect
+    VaultAutofillListEffect,
 >, HasTOTPCodesSections {
     // MARK: Types
 
@@ -83,13 +83,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
-        state: VaultAutofillListState
+        state: VaultAutofillListState,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         autofillHelper = AutofillHelper(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator,
-            services: services
+            services: services,
         )
         self.coordinator = coordinator
         self.services = services
@@ -182,8 +182,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     to: .addItem(
                         group: .login,
                         newCipherOptions: createNewCipherOptions(),
-                        type: .login
-                    )
+                        type: .login,
+                    ),
                 )
                 return
             }
@@ -219,7 +219,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             return NewCipherOptions(
                 name: fido2CredentialNewView.rpName,
                 uri: fido2CredentialNewView.rpId,
-                username: fido2CredentialNewView.userName
+                username: fido2CredentialNewView.userName,
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
@@ -271,8 +271,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.failedToAutofillItem(cipher.name)
-                )
+                    message: Localizations.failedToAutofillItem(cipher.name),
+                ),
             )
         }
     }
@@ -285,7 +285,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
         )
         searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredSearchItems in
@@ -293,7 +293,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
-            }
+            },
         )
     }
 
@@ -308,7 +308,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.vaultListSections = try await refreshTOTPCodes(
                 for: items,
                 in: state.vaultListSections,
-                using: vaultItemsTotpExpirationManager
+                using: vaultItemsTotpExpirationManager,
             )
         } catch {
             services.errorReporter.log(error: error)
@@ -325,7 +325,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 in: [
                     VaultListSection(id: "", items: currentSearchResults, name: ""),
                 ],
-                using: searchTotpExpirationManager
+                using: searchTotpExpirationManager,
             )
         } catch {
             services.errorReporter.log(error: error)
@@ -349,7 +349,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 filter: VaultListFilter(filterType: .allVaults),
                 group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
-                searchText: searchText
+                searchText: searchText,
             )
             for try await vaultListData in searchResult {
                 let sections = vaultListData.sections
@@ -384,7 +384,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 mode: autofillListMode,
                 group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
-                uri: uri
+                uri: uri,
             ) {
                 guard state.excludedCredentialIdFound == nil else {
                     break
@@ -421,7 +421,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
 
                 let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
-                    from: cipher
+                    from: cipher,
                 )
                 state.vaultListSections = [vaultListSection]
             }
@@ -430,8 +430,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
-                )
+                    message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt,
+                ),
             ) { [weak self] in
                 guard let self else { return }
                 autofillAppExtensionDelegate?.didCancel()
@@ -547,7 +547,7 @@ extension VaultAutofillListProcessor {
                 await handleFido2CredentialCreation(
                     autofillAppExtensionDelegate: autofillAppExtensionDelegate,
                     request: request,
-                    credentialIdentity: credentialIdentity
+                    credentialIdentity: credentialIdentity,
                 )
             }
         case let .autofillFido2VaultList(serviceIdentifiers, fido2RequestParameters):
@@ -556,7 +556,7 @@ extension VaultAutofillListProcessor {
             await handleFido2CredentialAutofill(
                 autofillAppExtensionDelegate: autofillAppExtensionDelegate,
                 serviceIdentifiers: serviceIdentifiers,
-                fido2RequestParameters: fido2RequestParameters
+                fido2RequestParameters: fido2RequestParameters,
             )
         default:
             break
@@ -571,12 +571,12 @@ extension VaultAutofillListProcessor {
     func handleFido2CredentialAutofill(
         autofillAppExtensionDelegate: AutofillAppExtensionDelegate,
         serviceIdentifiers: [ASCredentialServiceIdentifier],
-        fido2RequestParameters: PasskeyCredentialRequestParameters
+        fido2RequestParameters: PasskeyCredentialRequestParameters,
     ) async {
         do {
             let assertionCredential = try await services.autofillCredentialService.provideFido2Credential(
                 for: fido2RequestParameters,
-                fido2UserInterfaceHelperDelegate: self
+                fido2UserInterfaceHelperDelegate: self,
             )
 
             autofillAppExtensionDelegate.completeAssertionRequest(assertionCredential: assertionCredential)
@@ -594,7 +594,7 @@ extension VaultAutofillListProcessor {
     func handleFido2CredentialCreation(
         autofillAppExtensionDelegate: AutofillAppExtensionDelegate,
         request: ASPasskeyCredentialRequest,
-        credentialIdentity: ASPasskeyCredentialIdentity
+        credentialIdentity: ASPasskeyCredentialIdentity,
     ) async {
         do {
             let userVerificationPreference = Uv(preference: request.userVerificationPreference)
@@ -602,28 +602,28 @@ extension VaultAutofillListProcessor {
                 clientDataHash: request.clientDataHash,
                 rp: PublicKeyCredentialRpEntity(
                     id: credentialIdentity.relyingPartyIdentifier,
-                    name: credentialIdentity.relyingPartyIdentifier
+                    name: credentialIdentity.relyingPartyIdentifier,
                 ),
                 user: PublicKeyCredentialUserEntity(
                     id: credentialIdentity.userHandle,
                     displayName: credentialIdentity.userName,
-                    name: credentialIdentity.userName
+                    name: credentialIdentity.userName,
                 ),
                 pubKeyCredParams: request.getPublicKeyCredentialParams(),
                 excludeList: request.excludedCredentialsList(),
                 options: Options(
                     rk: true,
-                    uv: userVerificationPreference
+                    uv: userVerificationPreference,
                 ),
-                extensions: nil
+                extensions: nil,
             )
             services.fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-                userVerificationPreference: userVerificationPreference
+                userVerificationPreference: userVerificationPreference,
             )
             let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(
                     userInterface: services.fido2UserInterfaceHelper,
-                    credentialStore: services.fido2CredentialStore
+                    credentialStore: services.fido2CredentialStore,
                 )
                 .makeCredential(request: request)
 
@@ -632,8 +632,8 @@ extension VaultAutofillListProcessor {
                     relyingParty: credentialIdentity.relyingPartyIdentifier,
                     clientDataHash: request.clientDataHash,
                     credentialID: createdCredential.credentialId,
-                    attestationObject: createdCredential.attestationObject
-                )
+                    attestationObject: createdCredential.attestationObject,
+                ),
             )
         } catch {
             guard state.excludedCredentialIdFound == nil else {
@@ -669,11 +669,11 @@ extension VaultAutofillListProcessor {
 
             if cipher.type.loginListView?.hasFido2 == true {
                 let alert = Alert.confirmation(
-                    title: Localizations.thisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey
+                    title: Localizations.thisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey,
                 ) { [weak self] in
                     await self?.checkUserAndDoPickedCredentialForCreation(
                         for: cipher,
-                        fido2CreationOptions: fido2CreationOptions
+                        fido2CreationOptions: fido2CreationOptions,
                     )
                 }
                 coordinator.showAlert(alert)
@@ -687,17 +687,17 @@ extension VaultAutofillListProcessor {
                       let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
                     services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
                         result: .failure(
-                            BitwardenError.dataError("Cipher not found when autofilling Fido2 credential from list.")
-                        )
+                            BitwardenError.dataError("Cipher not found when autofilling Fido2 credential from list."),
+                        ),
                     )
                     return
                 }
                 services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
-                    result: .success(cipherView)
+                    result: .success(cipherView),
                 )
             } catch {
                 services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
-                    result: .failure(error)
+                    result: .failure(error),
                 )
             }
         }
@@ -713,7 +713,7 @@ extension VaultAutofillListProcessor {
 
         let newCipher = CipherView(
             fido2CredentialNewView: fido2CredentialNewView,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
 
         await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
@@ -725,13 +725,13 @@ extension VaultAutofillListProcessor {
     ///   - fido2CreationOptions: The options for checking the user on the Fido2 flow.
     func checkUserAndDoPickedCredentialForCreation(
         for cipher: CipherListView,
-        fido2CreationOptions: BitwardenSdk.CheckUserOptions
+        fido2CreationOptions: BitwardenSdk.CheckUserOptions,
     ) async {
         do {
             let cipherView = try await services.vaultRepository.fetchCipher(from: cipher)
             await checkUserAndDoPickedCredentialForCreation(
                 for: cipherView,
-                fido2CreationOptions: fido2CreationOptions
+                fido2CreationOptions: fido2CreationOptions,
             )
         } catch {
             services.errorReporter.log(error: error)
@@ -745,22 +745,22 @@ extension VaultAutofillListProcessor {
     ///   - fido2CreationOptions: The options for checking the user on the Fido2 flow.
     func checkUserAndDoPickedCredentialForCreation(
         for cipher: CipherView,
-        fido2CreationOptions: BitwardenSdk.CheckUserOptions
+        fido2CreationOptions: BitwardenSdk.CheckUserOptions,
     ) async {
         do {
             let result = try await services.fido2UserInterfaceHelper.checkUser(
                 userVerificationPreference: fido2CreationOptions.requireVerification,
                 credential: cipher,
-                shouldThrowEnforcingRequiredVerification: true
+                shouldThrowEnforcingRequiredVerification: true,
             )
 
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
                         cipher: CipherViewWrapper(cipher: cipher),
-                        checkUserResult: CheckUserResult(userPresent: true, userVerified: result.userVerified)
-                    )
-                )
+                        checkUserResult: CheckUserResult(userPresent: true, userVerified: result.userVerified),
+                    ),
+                ),
             )
         } catch UserVerificationError.cancelled {
             return

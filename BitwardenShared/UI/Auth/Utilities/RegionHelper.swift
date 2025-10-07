@@ -43,7 +43,7 @@ class RegionHelper {
                 } else {
                     await self.coordinator.navigate(
                         to: .selfHosted(currentRegion: currentRegion ?? .unitedStates),
-                        context: self.delegate
+                        context: self.delegate,
                     )
                 }
             }
@@ -53,7 +53,7 @@ class RegionHelper {
             title: title,
             message: nil,
             preferredStyle: .actionSheet,
-            alertActions: actions + [cancelAction]
+            alertActions: actions + [cancelAction],
         )
         await coordinator.showAlert(alert)
     }

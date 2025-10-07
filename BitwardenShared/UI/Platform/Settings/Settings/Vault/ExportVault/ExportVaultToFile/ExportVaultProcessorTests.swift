@@ -33,12 +33,12 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             errorReporter: errorReporter,
             eventService: eventService,
             exportVaultService: exportService,
-            policyService: policyService
+            policyService: policyService,
         )
 
         subject = ExportVaultProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: services
+            services: services,
         )
     }
 
@@ -196,9 +196,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.filePassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.filePassword),
+                ),
+            ),
         )
     }
 
@@ -214,9 +214,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.confirmFilePassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.confirmFilePassword),
+                ),
+            ),
         )
     }
 
@@ -229,9 +229,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.masterPassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.masterPassword),
+                ),
+            ),
         )
     }
 
@@ -331,8 +331,8 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_receive_exportVaultTapped_noMasterPassword_otpVerificationFailure() async throws {
         authRepository.verifyOtpResult = .failure(
             ServerError.error(
-                errorResponse: ErrorResponseModel(validationErrors: nil, message: "")
-            )
+                errorResponse: ErrorResponseModel(validationErrors: nil, message: ""),
+            ),
         )
         subject.state.hasMasterPassword = false
         subject.state.masterPasswordOrOtpText = "otp"

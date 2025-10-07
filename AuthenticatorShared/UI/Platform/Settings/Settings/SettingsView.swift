@@ -18,9 +18,9 @@ struct SettingsView: View {
     /// How the screen title is displayed, which depends on iOS version.
     private var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
         if #available(iOS 26, *) {
-            return .inline
+            .inline
         } else {
-            return .large
+            .large
         }
     }
 
@@ -32,7 +32,7 @@ struct SettingsView: View {
             .navigationBar(title: Localizations.settings, titleDisplayMode: titleDisplayMode)
             .toast(store.binding(
                 get: \.toast,
-                send: SettingsAction.toastShown
+                send: SettingsAction.toastShown,
             ))
             .onChange(of: store.state.url) { newValue in
                 guard let url = newValue else { return }
@@ -62,8 +62,8 @@ struct SettingsView: View {
                         selectionAccessibilityID: "SessionTimeoutStatusLabel",
                         selection: store.bindingAsync(
                             get: \.sessionTimeoutValue,
-                            perform: SettingsEffect.sessionTimeoutValueChanged
-                        )
+                            perform: SettingsEffect.sessionTimeoutValueChanged,
+                        ),
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -96,7 +96,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             SettingsListItem(
                 Localizations.language,
-                hasDivider: false
+                hasDivider: false,
             ) {
                 store.send(.languageTapped)
             } trailingContent: {
@@ -185,8 +185,8 @@ struct SettingsView: View {
             hasDivider: false,
             selection: store.binding(
                 get: \.defaultSaveOption,
-                send: SettingsAction.defaultSaveChanged
-            )
+                send: SettingsAction.defaultSaveChanged,
+            ),
         )
         .accessibilityIdentifier("DefaultSaveOptionChooser")
     }
@@ -200,8 +200,8 @@ struct SettingsView: View {
                 hasDivider: false,
                 selection: store.binding(
                     get: \.appTheme,
-                    send: SettingsAction.appThemeChanged
-                )
+                    send: SettingsAction.appThemeChanged,
+                ),
             )
             .cornerRadius(10)
             .accessibilityIdentifier("ThemeChooser")
@@ -219,7 +219,7 @@ struct SettingsView: View {
         let toggleText = biometricsToggleText(type)
         Toggle(isOn: store.bindingAsync(
             get: { _ in enabled },
-            perform: SettingsEffect.toggleUnlockWithBiometrics
+            perform: SettingsEffect.toggleUnlockWithBiometrics,
         )) {
             Text(toggleText)
         }
@@ -232,9 +232,9 @@ struct SettingsView: View {
     private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
         switch biometryType {
         case .faceID:
-            return Localizations.unlockWith(Localizations.faceID)
+            Localizations.unlockWith(Localizations.faceID)
         case .touchID:
-            return Localizations.unlockWith(Localizations.touchID)
+            Localizations.unlockWith(Localizations.touchID)
         }
     }
 
@@ -248,7 +248,7 @@ struct SettingsView: View {
     private func externalLinkRow(
         _ name: String,
         action: SettingsAction,
-        hasDivider: Bool = true
+        hasDivider: Bool = true,
     ) -> some View {
         SettingsListItem(name, hasDivider: hasDivider) {
             store.send(action)
@@ -272,8 +272,8 @@ struct SettingsView: View {
 
                         Text(LocalizedStringKey(
                             Localizations.learnMoreLink(
-                                ExternalLinksConstants.totpSyncHelp
-                            )
+                                ExternalLinksConstants.totpSyncHelp,
+                            ),
                         ))
                         .styleGuide(.subheadline)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
@@ -310,11 +310,11 @@ struct SettingsView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: false,
-                                hasValidIntegrity: true
-                            )
-                        )
-                    )
-                )
+                                hasValidIntegrity: true,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }.previewDisplayName("SettingsView")
 
@@ -323,10 +323,10 @@ struct SettingsView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: SettingsState(
-                            shouldShowDefaultSaveOption: true
-                        )
-                    )
-                )
+                            shouldShowDefaultSaveOption: true,
+                        ),
+                    ),
+                ),
             )
         }.previewDisplayName("With Default Save Option")
     }

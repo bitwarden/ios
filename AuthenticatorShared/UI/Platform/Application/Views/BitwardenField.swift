@@ -82,7 +82,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
         footerAccessibilityIdentifier: String? = nil,
         verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder accessoryContent: () -> AccessoryContent
+        @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -113,7 +113,7 @@ extension BitwardenField where AccessoryContent == EmptyView {
         footer: String? = nil,
         footerAccessibilityIdentifier: String? = nil,
         verticalPadding: CGFloat = 8,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier

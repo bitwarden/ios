@@ -14,7 +14,7 @@ protocol ImportCiphersRepository: AnyObject {
     @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (Double) -> Void
+        onProgress: @MainActor (Double) -> Void,
     ) async throws -> [CXFCredentialsResult]
 }
 
@@ -56,7 +56,7 @@ class DefaultImportCiphersRepository {
         credentialManagerFactory: CredentialManagerFactory,
         cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         importCiphersService: ImportCiphersService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.clientService = clientService
         self.credentialManagerFactory = credentialManagerFactory
@@ -72,10 +72,10 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (Double) -> Void
+        onProgress: @MainActor (Double) -> Void,
     ) async throws -> [CXFCredentialsResult] {
         let credentialData = try await credentialManagerFactory.createImportManager().importCredentials(
-            token: credentialImportToken
+            token: credentialImportToken,
         )
         guard let accountData = credentialData.accounts.first else {
             // this should never happen.
@@ -96,7 +96,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             .importCiphers(
                 ciphers: ciphers,
                 folders: [],
-                folderRelationships: []
+                folderRelationships: [],
             )
 
         await onProgress(0.8)

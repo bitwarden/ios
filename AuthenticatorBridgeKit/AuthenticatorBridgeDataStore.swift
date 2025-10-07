@@ -66,13 +66,13 @@ public class AuthenticatorBridgeDataStore {
     public init(
         errorReporter: ErrorReporter,
         groupIdentifier: String,
-        storeType: AuthenticatorBridgeStoreType = .persisted
+        storeType: AuthenticatorBridgeStoreType = .persisted,
     ) {
         self.errorReporter = errorReporter
 
         persistentContainer = NSPersistentContainer(
             name: authenticatorBridgeModelName,
-            managedObjectModel: Self.managedObjectModel
+            managedObjectModel: Self.managedObjectModel,
         )
         let storeDescription: NSPersistentStoreDescription
         switch storeType {
@@ -105,7 +105,7 @@ public class AuthenticatorBridgeDataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: request,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -118,7 +118,7 @@ public class AuthenticatorBridgeDataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchInsertRequest: request,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -132,13 +132,13 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func executeBatchReplace(
         deleteRequest: NSBatchDeleteRequest,
-        insertRequest: NSBatchInsertRequest
+        insertRequest: NSBatchInsertRequest,
     ) async throws {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: deleteRequest,
                 batchInsertRequest: insertRequest,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }

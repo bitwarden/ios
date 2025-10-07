@@ -64,7 +64,7 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
         let daysTilExpiration = Calendar.current.dateComponents(
             [.day],
             from: currentDate,
-            to: expirationDate
+            to: expirationDate,
         ).day ?? 0
 
         switch daysTilExpiration {

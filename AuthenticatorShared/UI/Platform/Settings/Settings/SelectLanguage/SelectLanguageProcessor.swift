@@ -40,7 +40,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         delegate: SelectLanguageDelegate?,
         services: Services,
-        state: SelectLanguageState
+        state: SelectLanguageState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

@@ -20,7 +20,7 @@ protocol FileAPIService {
         data: Data,
         fileName: String,
         type: FileUploadType,
-        url: URL
+        url: URL,
     ) async throws
 
     /// Upload the file associated with a new File type Send.
@@ -39,7 +39,7 @@ protocol FileAPIService {
         fileId: String,
         fileName: String,
         sendId: String,
-        url: URL
+        url: URL,
     ) async throws
 }
 
@@ -50,7 +50,7 @@ extension APIService: FileAPIService {
         data: Data,
         fileName: String,
         type: FileUploadType,
-        url: URL
+        url: URL,
     ) async throws {
         switch type {
         case .azure:
@@ -60,7 +60,7 @@ extension APIService: FileAPIService {
                 attachmentId: attachmentId,
                 data: data,
                 cipherId: cipherId,
-                fileName: fileName
+                fileName: fileName,
             ))
         }
     }
@@ -71,7 +71,7 @@ extension APIService: FileAPIService {
         fileId: String,
         fileName: String,
         sendId: String,
-        url: URL
+        url: URL,
     ) async throws {
         switch type {
         case .azure:
@@ -81,7 +81,7 @@ extension APIService: FileAPIService {
                 data: data,
                 fileId: fileId,
                 fileName: fileName,
-                sendId: sendId
+                sendId: sendId,
             )
         }
     }
@@ -101,7 +101,7 @@ extension APIService: FileAPIService {
             data: data,
             fileName: fileName,
             fileId: fileId,
-            sendId: sendId
+            sendId: sendId,
         )
         _ = try await apiService.send(request)
     }

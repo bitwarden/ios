@@ -12,7 +12,7 @@ extension LoginItemState {
         password: String = "",
         totpState: LoginTOTPState = .none,
         uris: [UriState] = [],
-        username: String = ""
+        username: String = "",
     ) -> Self {
         LoginItemState(
             canViewPassword: canViewPassword,
@@ -22,7 +22,7 @@ extension LoginItemState {
             password: password,
             totpState: totpState,
             uris: uris,
-            username: username
+            username: username,
         )
     }
 }

@@ -21,9 +21,9 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService
+                configService: configService,
             ),
-            state: DebugMenuState(featureFlags: [])
+            state: DebugMenuState(featureFlags: []),
         )
     }
 
@@ -51,7 +51,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         let flag = DebugMenuFeatureFlag(
             feature: .testFeatureFlag,
-            isEnabled: false
+            isEnabled: false,
         )
 
         configService.debugFeatureFlags = [flag]
@@ -73,14 +73,14 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     func test_perform_toggleFeatureFlag() async {
         let flag = DebugMenuFeatureFlag(
             feature: .testFeatureFlag,
-            isEnabled: true
+            isEnabled: true,
         )
 
         await subject.perform(
             .toggleFeatureFlag(
                 flag.feature.rawValue,
-                false
-            )
+                false,
+            ),
         )
 
         XCTAssertTrue(configService.toggleDebugFeatureFlagCalled)

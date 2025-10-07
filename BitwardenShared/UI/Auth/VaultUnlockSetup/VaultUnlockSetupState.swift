@@ -92,9 +92,9 @@ struct VaultUnlockSetupState: Equatable {
     var isBiometricUnlockOn: Bool {
         switch biometricsStatus {
         case let .available(_, enabled):
-            return enabled
+            enabled
         case nil, .notAvailable:
-            return false
+            false
         }
     }
 

@@ -51,7 +51,7 @@ class SendDataStoreTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             fetchSends(userId: "1"),
-            sends.filter { $0.id != "2" }
+            sends.filter { $0.id != "2" },
         )
     }
 
@@ -63,7 +63,7 @@ class SendDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { value in
                     publishedValues.append(value)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -82,7 +82,7 @@ class SendDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 

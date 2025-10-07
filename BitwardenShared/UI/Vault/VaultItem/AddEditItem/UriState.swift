@@ -34,7 +34,7 @@ struct UriState: Equatable, Hashable, Identifiable {
         return LoginUriView(
             uri: uri,
             match: uriMatchType,
-            uriChecksum: uriChecksum
+            uriChecksum: uriChecksum,
         )
     }
 
@@ -50,7 +50,7 @@ struct UriState: Equatable, Hashable, Identifiable {
         id: String = UUID().uuidString,
         matchType: DefaultableType<UriMatchType> = .default,
         uri: String = "",
-        uriChecksum: String? = nil
+        uriChecksum: String? = nil,
     ) {
         self.id = id
         self.matchType = matchType
@@ -72,7 +72,7 @@ struct UriState: Equatable, Hashable, Identifiable {
         self.init(
             matchType: matchType,
             uri: loginUriView.uri ?? "",
-            uriChecksum: loginUriView.uriChecksum
+            uriChecksum: loginUriView.uriChecksum,
         )
     }
 }

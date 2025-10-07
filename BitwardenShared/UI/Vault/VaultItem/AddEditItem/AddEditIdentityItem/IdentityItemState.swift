@@ -123,7 +123,7 @@ struct IdentityItemState: Equatable {
             ssn: socialSecurityNumber.nilIfEmpty,
             username: userName.nilIfEmpty,
             passportNumber: passportNumber.nilIfEmpty,
-            licenseNumber: licenseNumber.nilIfEmpty
+            licenseNumber: licenseNumber.nilIfEmpty,
         )
     }
 

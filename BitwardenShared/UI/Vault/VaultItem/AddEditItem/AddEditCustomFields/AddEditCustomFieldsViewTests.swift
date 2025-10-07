@@ -22,8 +22,8 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
         processor = MockProcessor(
             state: .init(
                 cipherType: .login,
-                customFields: [.init(name: "custom1", type: .text)]
-            )
+                customFields: [.init(name: "custom1", type: .text)],
+            ),
         )
         let store = Store(processor: processor)
         subject = AddEditCustomFieldsView(store: store)
@@ -87,7 +87,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
                     .defaultPortrait,
                     .defaultPortraitDark,
                     .defaultPortraitAX5,
-                ]
+                ],
             )
         }
     }

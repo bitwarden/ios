@@ -201,7 +201,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService,
         timeProvider: TimeProvider,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
         self.cipherService = cipherService
@@ -224,7 +224,7 @@ class DefaultSyncService: SyncService {
             forceSync: false,
             isPeriodic: onlyCheckLocalData,
             onlyCheckLocalData: onlyCheckLocalData,
-            userId: userId
+            userId: userId,
         )
     }
 
@@ -245,7 +245,7 @@ class DefaultSyncService: SyncService {
         forceSync: Bool,
         isPeriodic: Bool = false,
         onlyCheckLocalData: Bool = false,
-        userId: String
+        userId: String,
     ) async throws -> Bool {
         guard !forceSync, let lastSyncTime = try await stateService.getLastSyncTime(userId: userId) else {
             return true
@@ -274,7 +274,7 @@ class DefaultSyncService: SyncService {
                 // don't do a full sync.
                 try await stateService.setLastSyncTime(
                     timeProvider.presentTime,
-                    userId: userId
+                    userId: userId,
                 )
                 return false
             }
@@ -305,7 +305,7 @@ extension DefaultSyncService {
         if let organizations = response.profile?.organizations {
             if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
-                    organizations: organizations.compactMap(Organization.init)
+                    organizations: organizations.compactMap(Organization.init),
                 )
             }
             try await organizationService.replaceOrganizations(organizations, userId: userId)
@@ -334,7 +334,7 @@ extension DefaultSyncService {
             await delegate?.removeMasterPassword(
                 organizationName: organization.name,
                 organizationId: organization.id,
-                keyConnectorUrl: keyConnectorUrl
+                keyConnectorUrl: keyConnectorUrl,
             )
         }
 
@@ -464,7 +464,7 @@ extension DefaultSyncService {
         // their stored timeout value is > the policy's timeout value.
         if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
             try await stateService.setVaultTimeout(
-                value: SessionTimeoutValue(rawValue: value)
+                value: SessionTimeoutValue(rawValue: value),
             )
         }
 
@@ -477,7 +477,7 @@ extension DefaultSyncService {
     ///
     private func checkTdeUserNeedsToSetPassword(
         _ account: Account,
-        _ organizations: [ProfileOrganizationResponseModel]
+        _ organizations: [ProfileOrganizationResponseModel],
     ) async throws {
         if organizations.count == 1,
            organizations.contains(where: \.passwordRequired),

@@ -13,27 +13,27 @@ struct DefaultCXFCredentialsResultBuilder: CXFCredentialsResultBuilder {
         [
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty != false },
-                type: .password
+                type: .password,
             ),
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty == false },
-                type: .passkey
+                type: .passkey,
             ),
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .card },
-                type: .card
+                type: .card,
             ),
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .identity },
-                type: .identity
+                type: .identity,
             ),
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .secureNote },
-                type: .secureNote
+                type: .secureNote,
             ),
             CXFCredentialsResult(
                 count: ciphers.count { $0.type == .sshKey },
-                type: .sshKey
+                type: .sshKey,
             ),
         ]
     }

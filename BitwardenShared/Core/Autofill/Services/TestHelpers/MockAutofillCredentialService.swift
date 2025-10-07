@@ -20,7 +20,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASPasswordCredential {
         guard let provideCredentialPasswordCredential else {
             throw provideCredentialError ?? ASExtensionError(.failed)
@@ -32,7 +32,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         let result = try provideFido2CredentialResult.get()
         guard let credential = result as? ASPasskeyAssertionCredential else {
@@ -44,7 +44,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         let result = try provideFido2CredentialResult.get()
         guard let credential = result as? ASPasskeyAssertionCredential else {
@@ -57,7 +57,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     func provideOTPCredential(
         for id: String,
         autofillCredentialServiceDelegate: any BitwardenShared.AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential {
         let result = try provideOTPCredentialResult.get()
         guard let credential = result as? ASOneTimeCodeCredential else {

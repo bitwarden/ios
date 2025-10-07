@@ -10,27 +10,27 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     let ciphers: [CipherListView] = [
         .fixture(
             login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-            name: "Bitwarden (Exact)"
+            name: "Bitwarden (Exact)",
         ),
         .fixture(
             login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .startsWith)]),
-            name: "Bitwarden (Starts With)"
+            name: "Bitwarden (Starts With)",
         ),
         .fixture(
             login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]),
-            name: "Bitwarden (Never)"
+            name: "Bitwarden (Never)",
         ),
         .fixture(
             login: .fixture(uris: [LoginUriView.fixture(uri: "https://example.com", match: .startsWith)]),
-            name: "Example (Starts With)"
+            name: "Example (Starts With)",
         ),
         .fixture(
             login: .fixture(),
-            name: "No URIs"
+            name: "No URIs",
         ),
         .fixture(
             login: .fixture(uris: []),
-            name: "Empty URIs"
+            name: "Empty URIs",
         ),
     ]
 
@@ -48,7 +48,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject = DefaultCipherMatchingHelper(
             settingsService: settingsService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -75,14 +75,14 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         let ciphers = uris.map { name, uri in
             CipherListView.fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: .domain)]),
-                name: name
+                name: name,
             )
         }
 
         let matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Google
@@ -102,13 +102,13 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 ("Example App Scheme", "iosapp://example.com"),
                 ("Other", "https://other.com"),
             ],
-            matchType: .domain
+            matchType: .domain,
         )
 
         let matchingCiphers = await subject.ciphersMatching(uri: "iosapp://example.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Example App Scheme
@@ -128,13 +128,13 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 ("Youtube", "https://youtube.com/login"),
                 ("Yahoo", "https://yahoo.com"),
             ],
-            matchType: .domain
+            matchType: .domain,
         )
 
         let matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Google
@@ -155,13 +155,13 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 ("Youtube", "https://youtube.com/login"),
                 ("Yahoo", "https://yahoo.com"),
             ],
-            matchType: .domain
+            matchType: .domain,
         )
 
         let matchingCiphers = await subject.ciphersMatching(uri: "google.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Google
@@ -183,13 +183,13 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 ("Youtube", "youtube.com/login"),
                 ("Yahoo", "yahoo.com"),
             ],
-            matchType: .domain
+            matchType: .domain,
         )
 
         let matchingCiphers = await subject.ciphersMatching(uri: "google.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Google
@@ -211,14 +211,14 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 ("Youtube", "https://youtube.com/login"),
                 ("Yahoo", "https://yahoo.com"),
             ],
-            matchType: nil
+            matchType: nil,
         )
 
         stateService.defaultUriMatchTypeByUserId["1"] = .exact
         var matchingCiphers = await subject.ciphersMatching(uri: "https://yahoo.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Yahoo
@@ -229,7 +229,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Google
@@ -243,31 +243,31 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         let ciphers: [CipherListView] = [
             .fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-                name: "Bitwarden Vault"
+                name: "Bitwarden Vault",
             ),
             .fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: "https://bitwarden.com", match: .exact)]),
-                name: "Bitwarden"
+                name: "Bitwarden",
             ),
             .fixture(
                 login: .fixture(uris: [
                     LoginUriView.fixture(uri: "https://vault.bitwarden.com/login", match: .exact),
                 ]),
-                name: "Bitwarden Login"
+                name: "Bitwarden Login",
             ),
             .fixture(
                 login: .fixture(uris: [
                     LoginUriView.fixture(uri: "https://bitwarden.com", match: .exact),
                     LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact),
                 ]),
-                name: "Bitwarden Multiple"
+                name: "Bitwarden Multiple",
             ),
         ]
 
         var matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Bitwarden Vault
@@ -278,7 +278,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         matchingCiphers = await subject.ciphersMatching(uri: "https://bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Bitwarden
@@ -304,14 +304,14 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         let ciphers = uris.map { name, uri in
             CipherListView.fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: .host)]),
-                name: name
+                name: name,
             )
         }
 
         let matchingCiphers = await subject.ciphersMatching(uri: "https://sub.domain.com:4000", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Sub Domain 4000
@@ -326,18 +326,18 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         let ciphers: [CipherListView] = [
             .fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]),
-                name: "Bitwarden Never"
+                name: "Bitwarden Never",
             ),
             .fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-                name: "Bitwarden Exact"
+                name: "Bitwarden Exact",
             ),
         ]
 
         var matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Bitwarden Exact
@@ -355,38 +355,38 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             login: .fixture(uris: [
                 LoginUriView.fixture(
                     uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#,
-                    match: .regularExpression
+                    match: .regularExpression,
                 ),
-            ])
+            ]),
         )
 
         var matchingCiphers = await subject.ciphersMatching(
             uri: "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Bitwarden",
-            ciphers: [cipher]
+            ciphers: [cipher],
         )
         XCTAssertFalse(matchingCiphers.isEmpty)
 
         matchingCiphers = await subject.ciphersMatching(
             uri: "https://pl.wikipedia.org/w/index.php?title=Specjalna:Zaloguj&returnto=Bitwarden",
-            ciphers: [cipher]
+            ciphers: [cipher],
         )
         XCTAssertFalse(matchingCiphers.isEmpty)
 
         matchingCiphers = await subject.ciphersMatching(
             uri: "https://en.wikipedia.org/w/index.php",
-            ciphers: [cipher]
+            ciphers: [cipher],
         )
         XCTAssertFalse(matchingCiphers.isEmpty)
 
         matchingCiphers = await subject.ciphersMatching(
             uri: "https://malicious-site.com",
-            ciphers: [cipher]
+            ciphers: [cipher],
         )
         XCTAssertTrue(matchingCiphers.isEmpty)
 
         matchingCiphers = await subject.ciphersMatching(
             uri: "https://en.wikipedia.org/wiki/Bitwarden",
-            ciphers: [cipher]
+            ciphers: [cipher],
         )
         XCTAssertTrue(matchingCiphers.isEmpty)
     }
@@ -397,7 +397,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         let matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
             of: dumpMatchingCiphers(matchingCiphers),
-            as: .lines
+            as: .lines,
         ) {
             """
             Bitwarden (Exact)
@@ -422,7 +422,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         nameUris.map { name, uri in
             CipherListView.fixture(
                 login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: matchType)]),
-                name: name
+                name: name,
             )
         }
     }

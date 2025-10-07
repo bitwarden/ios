@@ -24,12 +24,12 @@ class SendListSearchHandler: NSObject {
 extension SendListSearchHandler: SearchHandler {
     func updateSearchResults(for searchController: UISearchController) {
         store.send(
-            .searchStateChanged(isSearching: searchController.isActive)
+            .searchStateChanged(isSearching: searchController.isActive),
         )
         store.send(
             .searchTextChanged(
-                searchController.searchBar.text ?? ""
-            )
+                searchController.searchBar.text ?? "",
+            ),
         )
     }
 }

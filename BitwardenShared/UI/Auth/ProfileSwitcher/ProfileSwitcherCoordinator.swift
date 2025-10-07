@@ -35,7 +35,7 @@ final class ProfileSwitcherCoordinator: Coordinator, HasStackNavigator {
     init(
         handler: ProfileSwitcherHandler,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.handler = handler
         self.services = services
@@ -53,7 +53,7 @@ final class ProfileSwitcherCoordinator: Coordinator, HasStackNavigator {
                 coordinator: asAnyCoordinator(),
                 handler: handler,
                 services: services,
-                state: handler.profileSwitcherState
+                state: handler.profileSwitcherState,
             )
             let store = Store(processor: processor)
             let view = ProfileSwitcherSheet(store: store)

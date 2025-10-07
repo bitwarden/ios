@@ -25,7 +25,7 @@ class RehydrationHelperTests: BitwardenTestCase {
         subject = DefaultRehydrationHelper(
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -52,7 +52,7 @@ class RehydrationHelperTests: BitwardenTestCase {
     func test_clearAppRehydrationState() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.appRehydrationState["1"] = AppRehydrationState(
-            target: .viewCipher(cipherId: "1"), expirationTime: now
+            target: .viewCipher(cipherId: "1"), expirationTime: now,
         )
         try await subject.clearAppRehydrationState()
         XCTAssertTrue(stateService.appRehydrationState.isEmpty)
@@ -107,7 +107,7 @@ class RehydrationHelperTests: BitwardenTestCase {
     func test_getSavedRehydratableTarget() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.appRehydrationState["1"] = AppRehydrationState(
-            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(10)
+            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(10),
         )
         let target = try await subject.getSavedRehydratableTarget()
         XCTAssertEqual(target, .viewCipher(cipherId: "1"))
@@ -124,7 +124,7 @@ class RehydrationHelperTests: BitwardenTestCase {
     func test_getSavedRehydratableTarget_notFoundForActiveUser() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.appRehydrationState["not active"] = AppRehydrationState(
-            target: .viewCipher(cipherId: "not active"), expirationTime: now.addingTimeInterval(10)
+            target: .viewCipher(cipherId: "not active"), expirationTime: now.addingTimeInterval(10),
         )
         let target = try await subject.getSavedRehydratableTarget()
         XCTAssertNil(target)
@@ -134,7 +134,7 @@ class RehydrationHelperTests: BitwardenTestCase {
     func test_getSavedRehydratableTarget_expired() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.appRehydrationState["1"] = AppRehydrationState(
-            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(-2)
+            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(-2),
         )
         let target = try await subject.getSavedRehydratableTarget()
         XCTAssertNil(target)
@@ -153,7 +153,7 @@ class RehydrationHelperTests: BitwardenTestCase {
     func test_getSavedRehydratableTarget_throwsClearingAppRehydrationState() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.appRehydrationState["1"] = AppRehydrationState(
-            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(-2)
+            target: .viewCipher(cipherId: "1"), expirationTime: now.addingTimeInterval(-2),
         )
         stateService.setAppRehydrationStateError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {

@@ -19,7 +19,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
         sharedKeychainRepository = MockSharedKeychainRepository()
         sharedKeychainRepository.authenticatorKey = sharedKeychainRepository.generateMockKeyData()
         subject = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
         )
     }
 

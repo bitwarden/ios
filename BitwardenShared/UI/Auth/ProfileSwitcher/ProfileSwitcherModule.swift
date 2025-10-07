@@ -13,19 +13,19 @@ protocol ProfileSwitcherModule {
     ///
     func makeProfileSwitcherCoordinator(
         handler: ProfileSwitcherHandler,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ProfileSwitcherRoute, Void>
 }
 
 extension DefaultAppModule: ProfileSwitcherModule {
     func makeProfileSwitcherCoordinator(
         handler: ProfileSwitcherHandler,
-        stackNavigator: any StackNavigator
+        stackNavigator: any StackNavigator,
     ) -> AnyCoordinator<ProfileSwitcherRoute, Void> {
         ProfileSwitcherCoordinator(
             handler: handler,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

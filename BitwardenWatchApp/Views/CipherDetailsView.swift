@@ -35,7 +35,7 @@ struct CipherDetailsView: View {
                         ImageView(
                             withURL: cipherDetailsViewModel.iconImageUri!,
                             maxWidth: iconSize.width,
-                            maxHeight: iconSize.height
+                            maxHeight: iconSize.height,
                         ) {
                             iconPlaceholderImage
                         }
@@ -77,7 +77,7 @@ struct CipherDetailsView: View {
                             progress: cipherDetailsViewModel.progress,
                             strokeLineWidth: 3,
                             strokeColor: Color.blue,
-                            endingStrokeColor: Color.red
+                            endingStrokeColor: Color.red,
                         )
                         .frame(width: 40, height: 40)
                         Text("\(cipherDetailsViewModel.counter)")

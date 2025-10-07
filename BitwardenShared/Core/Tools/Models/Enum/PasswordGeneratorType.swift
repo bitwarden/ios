@@ -23,9 +23,9 @@ enum PasswordGeneratorType: String, CaseIterable, Codable, Equatable, Menuable {
     var localizedName: String {
         switch self {
         case .password:
-            return Localizations.password
+            Localizations.password
         case .passphrase:
-            return Localizations.passphrase
+            Localizations.passphrase
         }
     }
 }

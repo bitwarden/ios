@@ -88,6 +88,9 @@ protocol AddEditItemState: Sendable {
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String? { get }
 
+    /// The organization IDs that have `.personalOwnership` policy applied.
+    var organizationsWithPersonalOwnershipPolicy: [String] { get set }
+
     /// The owner of this item.
     var owner: CipherOwner? { get set }
 
@@ -123,6 +126,9 @@ protocol AddEditItemState: Sendable {
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
 
+    /// Selects the `.defaultUserCollection` if needed, mainly checking the organization policies apply.
+    mutating func selectDefaultCollectionIfNeeded()
+
     /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
     /// preserve any additional UI properties on the state.
     ///
@@ -137,20 +143,20 @@ extension GuidedTourStepState {
     static let loginStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .circle,
-        title: Localizations.useThisButtonToGenerateANewUniquePassword
+        title: Localizations.useThisButtonToGenerateANewUniquePassword,
     )
 
     /// The second step of the learn new login guided tour.
     static let loginStep2 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong,
     )
 
     /// The third step of the learn new login guided tour.
     static let loginStep3 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount,
     )
 }

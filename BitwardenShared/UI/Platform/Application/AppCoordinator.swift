@@ -65,7 +65,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         appExtensionDelegate: AppExtensionDelegate?,
         module: Module,
         rootNavigator: RootNavigator,
-        services: Services
+        services: Services,
     ) {
         self.appContext = appContext
         self.appExtensionDelegate = appExtensionDelegate
@@ -81,15 +81,15 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         case let .accountBecameActive(
             account,
             attemptAutomaticBiometricUnlock,
-            didSwitchAccountAutomatically
+            didSwitchAccountAutomatically,
         ):
             await handleAuthEvent(
                 .accountBecameActive(
                     account,
                     animated: true,
                     attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
-                )
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
+                ),
             )
         case let .didLogout(userId, userInitiated):
             await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
@@ -105,9 +105,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                     .switchAccount(
                         isAutomatic: isAutomatic,
                         userId: userId,
-                        authCompletionRoute: nil
-                    )
-                )
+                        authCompletionRoute: nil,
+                    ),
+                ),
             )
         }
     }
@@ -178,7 +178,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
-                stackNavigator: navigationController
+                stackNavigator: navigationController,
             )
 
             coordinator.start()
@@ -197,7 +197,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         } else {
             let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeExtensionSetupCoordinator(
-                stackNavigator: stackNavigator
+                stackNavigator: stackNavigator,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -217,7 +217,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeSendItemCoordinator(
                 delegate: self,
-                stackNavigator: stackNavigator
+                stackNavigator: stackNavigator,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -242,7 +242,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                 settingsDelegate: self,
                 tabNavigator: tabNavigator,
                 vaultDelegate: self,
-                vaultRepository: services.vaultRepository
+                vaultRepository: services.vaultRepository,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -270,7 +270,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             // Present the login request view.
             self.rootNavigator?.rootViewController?.topmostViewController().present(
                 navigationController,
-                animated: true
+                animated: true,
             )
         }
     }
@@ -297,7 +297,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeVaultCoordinator(
                 delegate: self,
-                stackNavigator: stackNavigator
+                stackNavigator: stackNavigator,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -326,7 +326,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
-            completion: { feedbackGenerator.impactOccurred() }
+            completion: { feedbackGenerator.impactOccurred() },
         )
         isShowingDebugMenu = true
     }
@@ -424,7 +424,7 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         showToast(
             Localizations.loginsImported,
             subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
-            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
     }
 
@@ -440,8 +440,8 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
-                )
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking),
+                ),
             )
         }
     }
@@ -450,8 +450,8 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         Task {
             await handleAuthEvent(
                 .action(
-                    .logout(userId: userId, userInitiated: userInitiated)
-                )
+                    .logout(userId: userId, userInitiated: userInitiated),
+                ),
             )
         }
     }
@@ -462,9 +462,9 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
                 .action(
                     .switchAccount(
                         isAutomatic: isAutomatic,
-                        userId: userId
-                    )
-                )
+                        userId: userId,
+                    ),
+                ),
             )
         }
     }
@@ -481,9 +481,9 @@ extension AppCoordinator: VaultCoordinatorDelegate {
                     .switchAccount(
                         isAutomatic: isAutomatic,
                         userId: userId,
-                        authCompletionRoute: authCompletionRoute
-                    )
-                )
+                        authCompletionRoute: authCompletionRoute,
+                    ),
+                ),
             )
         }
     }
@@ -498,9 +498,9 @@ extension AppCoordinator: VaultCoordinatorDelegate {
                 .action(
                     .switchAccount(
                         isAutomatic: false,
-                        userId: userId
-                    )
-                )
+                        userId: userId,
+                    ),
+                ),
             )
         }
     }

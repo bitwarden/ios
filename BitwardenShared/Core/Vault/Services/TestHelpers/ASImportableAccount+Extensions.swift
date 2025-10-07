@@ -11,7 +11,7 @@ extension ASImportableAccount {
         email: String = "",
         fullName: String? = nil,
         collections: [ASImportableCollection] = [],
-        items: [ASImportableItem] = []
+        items: [ASImportableItem] = [],
     ) -> ASImportableAccount {
         ASImportableAccount(
             id: id,
@@ -19,7 +19,7 @@ extension ASImportableAccount {
             email: email,
             fullName: fullName,
             collections: collections,
-            items: items
+            items: items,
         )
     }
 
@@ -59,7 +59,7 @@ extension ASImportableAccount {
                     credResult.appendWithIndentation("Key: \(passkey.key)\n", level: 2)
                     credResult.appendWithIndentation(
                         "RelyingPartyIdentifier: \(passkey.relyingPartyIdentifier)\n",
-                        level: 2
+                        level: 2,
                     )
                     credResult.appendWithIndentation("UserDisplayName: \(passkey.userDisplayName)\n", level: 2)
                     credResult.appendWithIndentation("Username: \(passkey.userName)\n", level: 2)

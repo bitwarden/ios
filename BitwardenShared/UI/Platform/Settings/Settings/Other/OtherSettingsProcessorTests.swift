@@ -31,9 +31,9 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                watchService: watchService
+                watchService: watchService,
             ),
-            state: OtherSettingsState()
+            state: OtherSettingsState(),
         )
     }
 

@@ -29,7 +29,7 @@ class APIService {
 
     /// A `TokenProvider` that gets the access token for the current account and can refresh it when
     /// necessary.
-    private let accountTokenProvider: AccountTokenProvider
+    let accountTokenProvider: AccountTokenProvider
 
     /// A builder for building an `HTTPService`.
     private let httpServiceBuilder: HTTPServiceBuilder
@@ -55,7 +55,7 @@ class APIService {
         environmentService: EnvironmentService,
         flightRecorder: FlightRecorder,
         stateService: StateService,
-        tokenService: TokenService
+        tokenService: TokenService,
     ) {
         self.stateService = stateService
 
@@ -65,35 +65,35 @@ class APIService {
                 appName: "Bitwarden_Mobile",
                 appVersion: Bundle.main.appVersion,
                 buildNumber: Bundle.main.buildNumber,
-                systemDevice: UIDevice.current
+                systemDevice: UIDevice.current,
             ),
             loggers: [
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
                 OSLogHTTPLogger(),
-            ]
+            ],
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
-            tokenService: tokenService
+            tokenService: tokenService,
         )
 
         apiService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL },
-            tokenProvider: self.accountTokenProvider
+            tokenProvider: self.accountTokenProvider,
         )
         apiUnauthenticatedService = httpServiceBuilder.makeService(
-            baseURLGetter: { environmentService.apiURL }
+            baseURLGetter: { environmentService.apiURL },
         )
         eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
-            tokenProvider: self.accountTokenProvider
+            tokenProvider: self.accountTokenProvider,
         )
         hibpService = httpServiceBuilder.makeService(
-            baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! }
+            baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! },
         )
         identityService = httpServiceBuilder.makeService(
-            baseURLGetter: { environmentService.identityURL }
+            baseURLGetter: { environmentService.identityURL },
         )
     }
 
@@ -107,7 +107,7 @@ class APIService {
     func buildKeyConnectorService(baseURL: URL) -> HTTPService {
         httpServiceBuilder.makeService(
             baseURLGetter: { baseURL },
-            tokenProvider: accountTokenProvider
+            tokenProvider: accountTokenProvider,
         )
     }
 

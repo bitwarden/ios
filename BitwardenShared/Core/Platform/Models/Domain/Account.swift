@@ -38,7 +38,7 @@ extension Account {
             kdfType: profile.kdfType ?? .pbkdf2sha256,
             iterations: profile.kdfIterations ?? Constants.pbkdf2Iterations,
             memory: profile.kdfMemory,
-            parallelism: profile.kdfParallelism
+            parallelism: profile.kdfParallelism,
         )
     }
 
@@ -52,7 +52,7 @@ extension Account {
     ///
     init(
         identityTokenResponseModel: IdentityTokenResponseModel,
-        environmentURLs: EnvironmentURLData?
+        environmentURLs: EnvironmentURLData?,
     ) throws {
         let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
         self.init(
@@ -72,12 +72,12 @@ extension Account {
                 orgIdentifier: nil,
                 stamp: nil,
                 userDecryptionOptions: identityTokenResponseModel.userDecryptionOptions,
-                userId: tokenPayload.userId
+                userId: tokenPayload.userId,
             ),
             settings: AccountSettings(
-                environmentUrls: environmentURLs
+                environmentUrls: environmentURLs,
             ),
-            _tokens: nil // Tokens have been moved out of `State` to the keychain.
+            _tokens: nil, // Tokens have been moved out of `State` to the keychain.
         )
     }
 }

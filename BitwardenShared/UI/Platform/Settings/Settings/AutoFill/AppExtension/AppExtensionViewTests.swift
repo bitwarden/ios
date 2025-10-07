@@ -45,7 +45,7 @@ class AppExtensionViewTests: BitwardenTestCase {
     func disabletest_snapshot_appExtension_activate() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -55,7 +55,7 @@ class AppExtensionViewTests: BitwardenTestCase {
         processor.state.extensionActivated = true
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -66,7 +66,7 @@ class AppExtensionViewTests: BitwardenTestCase {
         processor.state.extensionEnabled = true
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }

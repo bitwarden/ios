@@ -122,7 +122,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
     func disabletest_snapshot_flightRecorderLogs_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 
@@ -138,7 +138,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
                 id: "1",
                 isActiveLog: true,
                 startDate: Date(year: 2025, month: 4, day: 1),
-                url: URL(string: "https://example.com")!
+                url: URL(string: "https://example.com")!,
             ),
             FlightRecorderLogMetadata(
                 duration: .oneWeek,
@@ -148,7 +148,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
                 id: "2",
                 isActiveLog: false,
                 startDate: Date(year: 2025, month: 3, day: 7),
-                url: URL(string: "https://example.com")!
+                url: URL(string: "https://example.com")!,
             ),
             FlightRecorderLogMetadata(
                 duration: .oneHour,
@@ -158,7 +158,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
                 id: "3",
                 isActiveLog: false,
                 startDate: Date(year: 2025, month: 3, day: 3, hour: 12),
-                url: URL(string: "https://example.com")!
+                url: URL(string: "https://example.com")!,
             ),
             FlightRecorderLogMetadata(
                 duration: .twentyFourHours,
@@ -168,12 +168,12 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
                 id: "4",
                 isActiveLog: false,
                 startDate: Date(year: 2025, month: 3, day: 1),
-                url: URL(string: "https://example.com")!
+                url: URL(string: "https://example.com")!,
             ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
         )
     }
 }
