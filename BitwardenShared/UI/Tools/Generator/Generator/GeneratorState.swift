@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 // swiftlint:disable file_length
@@ -23,7 +24,7 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
         localizedName
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .passphrase:
             Localizations.passphrase

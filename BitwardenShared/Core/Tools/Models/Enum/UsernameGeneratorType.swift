@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 /// The type of username to generate.
