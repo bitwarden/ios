@@ -54,6 +54,7 @@ schemes:
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
         - path: TestPlans/TestPlan-Snapshot.xctestplan
+        - path: TestPlans/TestPlan-ViewInspector.xctestplan
   BitwardenActionExtension:
     build:
       targets:

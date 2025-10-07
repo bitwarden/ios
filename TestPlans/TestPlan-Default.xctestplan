@@ -9,6 +9,17 @@
     }
   ],
   "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
     "language" : "en",
     "region" : "US",
     "testExecutionOrdering" : "random",
@@ -41,13 +52,6 @@
         "containerPath" : "container:Bitwarden.xcodeproj",
         "identifier" : "2AA7964F64AD34FCAE257E17",
         "name" : "BitwardenTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Bitwarden.xcodeproj",
-        "identifier" : "A046C66D01BE50457BEC672C",
-        "name" : "AuthenticatorBridgeKitTests"
       }
     },
     {
