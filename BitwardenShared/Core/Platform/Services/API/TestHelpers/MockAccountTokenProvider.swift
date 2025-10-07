@@ -9,15 +9,15 @@ class MockAccountTokenProvider: AccountTokenProvider {
     var delegate: AccountTokenProviderDelegate?
     var getTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
     var refreshTokenCalled = false
-    var refreshTokenResult: Result<Void, Error> = .success(())
+    var refreshTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
 
     func getToken() async throws -> String {
         try getTokenResult.get()
     }
 
-    func refreshToken() async throws {
+    func refreshToken() async throws -> String {
         refreshTokenCalled = true
-        try refreshTokenResult.get()
+        return try refreshTokenResult.get()
     }
 
     func setDelegate(delegate: AccountTokenProviderDelegate) async {
