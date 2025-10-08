@@ -623,10 +623,8 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             ).getAssertion(request: request)
             
             var assertionResult: GetAssertionResult
-            var prfResult: SymmetricKey?
             if devicePasskeyAssertionResult != nil {
                 assertionResult = devicePasskeyAssertionResult!
-                prfResult = try await devicePasskeyService.getPrfResult()
             } else {
                assertionResult = try await clientService.platform().fido2()
                     .authenticator(
@@ -634,7 +632,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                         credentialStore: fido2CredentialStore
                     )
                     .getAssertion(request: request)
-                prfResult = nil
             }
 
             #if DEBUG
@@ -648,24 +645,16 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             }
 
             if #available(iOSApplicationExtension 18.0, *) {
-                            let extOutput = if let prfResult {
-                                ASPasskeyAssertionCredentialExtensionOutput(
-                                    largeBlob: nil,
-                                    prf: ASAuthorizationPublicKeyCredentialPRFAssertionOutput(first: prfResult, second: nil))
-                            }
-                            else {
-                                nil as ASPasskeyAssertionCredentialExtensionOutput?
-                            }
-                            return ASPasskeyAssertionCredential(
-                                userHandle: assertionResult.userHandle,
-                                relyingParty: rpId,
-                                signature: assertionResult.signature,
-                                clientDataHash: clientDataHash,
-                                authenticatorData: assertionResult.authenticatorData,
-                                credentialID: assertionResult.credentialId,
-                                extensionOutput: extOutput,
-                            )
-                        }
+                return ASPasskeyAssertionCredential(
+                    userHandle: assertionResult.userHandle,
+                    relyingParty: rpId,
+                    signature: assertionResult.signature,
+                    clientDataHash: clientDataHash,
+                    authenticatorData: assertionResult.authenticatorData,
+                    credentialID: assertionResult.credentialId,
+                    extensionOutput: assertionResult.extensions.toNative()
+                )
+            }
             else {
                 return ASPasskeyAssertionCredential(
                     userHandle: assertionResult.userHandle,

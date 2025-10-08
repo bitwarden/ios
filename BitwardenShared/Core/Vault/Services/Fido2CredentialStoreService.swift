@@ -172,7 +172,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
             errorReporter.log(error: error)
             return false
         }
-    }
+    } 
 }
 
 private extension Cipher {

@@ -9,6 +9,12 @@ extension GetAssertionRequest {
     /// Initializes a `GetAssertionRequest` based on `fido2RequestParameters`
     /// - Parameter fido2RequestParameters: The Fido2 request parameters.
     init(fido2RequestParameters: PasskeyCredentialRequestParameters) {
+        let extensions: GetAssertionExtensionsInput? = if
+            #available(iOSApplicationExtension 18.0, *),
+            let extInput = fido2RequestParameters.extensionInput {
+                GetAssertionExtensionsInput(passkeyExtensionInput: extInput)
+            } else { nil }
+                
         self = .init(
             rpId: fido2RequestParameters.relyingPartyIdentifier,
             clientDataHash: fido2RequestParameters.clientDataHash,
@@ -23,7 +29,7 @@ extension GetAssertionRequest {
                 rk: false,
                 uv: BitwardenSdk.Uv(preference: fido2RequestParameters.userVerificationPreference),
             ),
-            extensions: nil,
+            extensions: extensions
         )
     }
 
@@ -33,6 +39,13 @@ extension GetAssertionRequest {
     ///   - credentialIdentity: The `ASPasskeyCredentialIdentity` of the request.
     @available(iOSApplicationExtension 17.0, *)
     init(passkeyRequest: ASPasskeyCredentialRequest, credentialIdentity: ASPasskeyCredentialIdentity) {
+        let extensions: GetAssertionExtensionsInput? = if
+            #available(iOSApplicationExtension 18.0, *),
+            case let .assertion(extInput) = passkeyRequest.extensionInput {
+            GetAssertionExtensionsInput(passkeyExtensionInput: extInput)
+        } else {
+            nil
+        }
         self = .init(
             rpId: credentialIdentity.relyingPartyIdentifier,
             clientDataHash: passkeyRequest.clientDataHash,
@@ -47,7 +60,7 @@ extension GetAssertionRequest {
                 rk: false,
                 uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference),
             ),
-            extensions: nil,
+            extensions: extensions
         )
     }
 }
@@ -58,7 +71,9 @@ extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConv
     public var debugDescription: String {
         let rpName = rp.name ?? "nil"
         let excludeList = excludeList?.description ?? "nil"
-        let extensions = extensions?.description ?? "nil"
+        // TODO: !!
+        let extensions = if extensions == nil { "nil" } else { "MakeCredentialExtensionsInput { ... } "}
+
 
         return [
             "ClientDataHash: \(clientDataHash.asHexString())",
