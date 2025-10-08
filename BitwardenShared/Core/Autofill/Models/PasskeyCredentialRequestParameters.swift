@@ -7,6 +7,9 @@ public protocol PasskeyCredentialRequestParameters {
     var allowedCredentials: [Data] { get }
     /// Hash of client data for credential provider to sign as part of the operation.
     var clientDataHash: Data { get }
+    /// The input parameters for extensions.
+    @available(iOSApplicationExtension 18.0, *)
+    var extensionInput: ASPasskeyAssertionCredentialExtensionInput? { get }
     /// The relying party identifier for this request.
     var relyingPartyIdentifier: String { get }
     /// A preference for whether the authenticator should attempt to verify that it is being used by its owner,
