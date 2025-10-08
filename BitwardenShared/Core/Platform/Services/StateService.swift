@@ -44,6 +44,13 @@ protocol StateService: AnyObject {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
+    /// Gets the access token's expiration date for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the access token expiration date.
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate(userId: String) async -> Date?
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -428,6 +435,14 @@ protocol StateService: AnyObject {
     ///     after an app restart.
     ///
     func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool
+
+    /// Sets the access token's expiration date for an account.
+    ///
+    /// - Parameters:
+    ///   - expirationDate: The user's access token expiration date.
+    ///   - userId: The user ID associated with the access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async
 
     /// Sets the account encryption keys for an account.
     ///
@@ -855,6 +870,14 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Gets the access token's expiration date for the active account.
+    ///
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate() async throws -> Date? {
+        try await getAccessTokenExpirationDate(userId: getActiveAccountId())
+    }
+
     /// Gets the account encryptions keys for the active account.
     ///
     /// - Returns: The account encryption keys.
@@ -1141,6 +1164,14 @@ extension StateService {
     ///
     func pinProtectedUserKeyEnvelope() async throws -> String? {
         try await pinProtectedUserKeyEnvelope(userId: nil)
+    }
+
+    /// Sets the access token's expiration date for the active account.
+    ///
+    /// - Parameter expirationDate: The user's access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?) async throws {
+        try await setAccessTokenExpirationDate(expirationDate, userId: getActiveAccountId())
     }
 
     /// Sets the account encryption keys for the active account.
@@ -1542,6 +1573,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         }
     }
 
+    func getAccessTokenExpirationDate(userId: String) -> Date? {
+        appSettingsStore.accessTokenExpirationDate(userId: userId)
+    }
+
     func getAccount(userId: String?) throws -> Account {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1844,6 +1879,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
@@ -1874,6 +1910,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let userId = try getActiveAccountUserId()
         return appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId) == nil
             && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        appSettingsStore.setAccessTokenExpirationDate(expirationDate, userId: userId)
     }
 
     func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {

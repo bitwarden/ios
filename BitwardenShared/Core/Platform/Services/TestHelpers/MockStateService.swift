@@ -7,6 +7,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
+    var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
@@ -136,6 +137,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func getAccessTokenExpirationDate(userId: String) async -> Date? {
+        accessTokenExpirationDateByUserId[userId]
     }
 
     func didAccountSwitchInExtension() async throws -> Bool {
@@ -443,6 +448,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
         pinUnlockRequiresPasswordAfterRestartValue
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {

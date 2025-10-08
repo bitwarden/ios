@@ -69,6 +69,22 @@ class TokenServiceTests: BitwardenTestCase {
         XCTAssertNil(accessToken)
     }
 
+    /// `getAccessTokenExpirationDate()` returns the access token's expiration date.
+    func test_getAccessTokenExpirationDate() async throws {
+        stateService.accessTokenExpirationDateByUserId["1"] = Date(year: 2025, month: 10, day: 2)
+        stateService.activeAccount = .fixture()
+
+        let expirationDate = try await subject.getAccessTokenExpirationDate()
+        XCTAssertEqual(expirationDate, Date(year: 2025, month: 10, day: 2))
+    }
+
+    /// `getAccessTokenExpirationDate()` throws an error if there isn't an active account.
+    func test_getAccessTokenExpirationDate_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccessTokenExpirationDate()
+        }
+    }
+
     /// `getIsExternal()` returns false if the user isn't an external user.
     func test_getIsExternal_false() async throws {
         // swiftlint:disable:next line_length
@@ -144,7 +160,8 @@ class TokenServiceTests: BitwardenTestCase {
     func test_setTokens() async throws {
         stateService.activeAccount = .fixture()
 
-        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
+        let expirationDate = Date(year: 2025, month: 10, day: 1)
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒", expirationDate: expirationDate)
 
         XCTAssertEqual(
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "1"))],
@@ -154,5 +171,6 @@ class TokenServiceTests: BitwardenTestCase {
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "1"))],
             "🔒",
         )
+        XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["1"], expirationDate)
     }
 }
