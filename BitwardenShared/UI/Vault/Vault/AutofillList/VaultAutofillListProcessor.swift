@@ -599,6 +599,22 @@ extension VaultAutofillListProcessor {
     ) async {
         do {
             let userVerificationPreference = Uv(preference: request.userVerificationPreference)
+            let extensions: MakeCredentialExtensionsInput? = if #available(
+                iOSApplicationExtension 18.0,
+                *
+            ), case let .registration(
+                extInput
+            ) = request.extensionInput, let saltInput1 = extInput.prf?.inputValues?.saltInput1 {
+                
+                MakeCredentialExtensionsInput(
+                    prf: MakeCredentialPrfInput(
+                        eval: PrfValues(first: saltInput1, second: extInput.prf?.inputValues?.saltInput2)
+                    )
+                )
+            }
+            else {
+                nil
+            }
             let request = MakeCredentialRequest(
                 clientDataHash: request.clientDataHash,
                 rp: PublicKeyCredentialRpEntity(
@@ -616,8 +632,8 @@ extension VaultAutofillListProcessor {
                     rk: true,
                     uv: userVerificationPreference,
                 ),
-                extensions: nil,
-            )
+                extensions: extensions
+             )
             let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(
                     userInterface: services.fido2UserInterfaceHelper,
@@ -625,14 +641,25 @@ extension VaultAutofillListProcessor {
                 )
                 .makeCredential(request: request)
 
-            autofillAppExtensionDelegate.completeRegistrationRequest(
-                asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential(
+            // Add extension output if supported by platform
+            let credential = if #available(iOSApplicationExtension 18.0, *) {
+                ASPasskeyRegistrationCredential(
                     relyingParty: credentialIdentity.relyingPartyIdentifier,
                     clientDataHash: request.clientDataHash,
                     credentialID: createdCredential.credentialId,
                     attestationObject: createdCredential.attestationObject,
-                ),
-            )
+                    extensionOutput: createdCredential.extensions.toNative()
+                )
+            } else {
+                ASPasskeyRegistrationCredential(
+                    relyingParty: credentialIdentity.relyingPartyIdentifier,
+                    clientDataHash: request.clientDataHash,
+                    credentialID: createdCredential.credentialId,
+                    attestationObject: createdCredential.attestationObject
+                )
+            }
+
+            autofillAppExtensionDelegate.completeRegistrationRequest(asPasskeyRegistrationCredential: credential)
         } catch {
             guard state.excludedCredentialIdFound == nil else {
                 return
