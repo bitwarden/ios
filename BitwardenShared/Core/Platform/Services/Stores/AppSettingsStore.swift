@@ -73,6 +73,13 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The user's access token expiration date.
+    ///
+    /// - Parameter userId: The user ID associated with the access token expiration date.
+    /// - Returns: The user's access token expiration date.
+    ///
+    func accessTokenExpirationDate(userId: String) -> Date?
+
     /// The user's v2 account keys.
     ///
     /// - Parameter userId: The user ID associated with the stored account keys.
@@ -264,6 +271,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the user's access token expiration date
+    ///
+    /// - Parameters:
+    ///   - expirationDate: The user's access token expiration date
+    ///   - userId: The user ID associated with the access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String)
 
     /// Sets the account v2 keys for a user ID.
     ///
@@ -740,6 +755,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accessTokenExpirationDate(userId: String)
         case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
@@ -800,6 +816,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
+            case let .accessTokenExpirationDate(userId):
+                "accessTokenExpirationDate_\(userId)"
             case let .accountKeys(userId):
                 "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
@@ -1019,6 +1037,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         }
     }
 
+    func accessTokenExpirationDate(userId: String) -> Date? {
+        fetch(for: .accessTokenExpirationDate(userId: userId))
+    }
+
     func accountKeys(userId: String) -> PrivateKeysResponseModel? {
         fetch(for: .accountKeys(userId: userId))
     }
@@ -1139,6 +1161,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) {
+        store(expirationDate, for: .accessTokenExpirationDate(userId: userId))
     }
 
     func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
