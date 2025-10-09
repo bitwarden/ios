@@ -1,7 +1,7 @@
+import BitwardenKit
 import SwiftUI
+import TestHelpers
 import XCTest
-
-@testable import AuthenticatorShared
 
 class ToastDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the toast in the parent view controller.
@@ -13,7 +13,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
 
         ToastDisplayHelper.show(
             in: parentViewController,
-            toast: Toast(text: "With Butter"),
+            toast: Toast(title: "With Butter"),
         )
 
         let overlayView = try XCTUnwrap(window.viewWithTag(ToastDisplayHelper.toastTag))
@@ -33,7 +33,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
 
         ToastDisplayHelper.show(
             in: parentViewController,
-            toast: Toast(text: "With Butter"),
+            toast: Toast(title: "With Butter"),
             duration: 0.1,
         )
         let overlayView = try XCTUnwrap(window.viewWithTag(ToastDisplayHelper.toastTag))
