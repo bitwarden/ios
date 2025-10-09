@@ -138,11 +138,12 @@ jobs:
               submit_release:"$SUBMIT_RELEASE"
 
         - name: Enable Publish Github Release Workflow
-          if: ${{ steps.publish.conclusion == 'success' }}
+          if: ${{ steps.publish.conclusion == 'success' || inputs.dry-run }}
           env:
             PRODUCT: ${{ inputs.product }}
+            DRY_RUN: ${{ inputs.dry-run }}
           run: |
-            if ${{ inputs.dry-run }} ; then
+            if $DRY_RUN; then
               gh workflow view publish-github-release.yml
               exit 0
             fi
