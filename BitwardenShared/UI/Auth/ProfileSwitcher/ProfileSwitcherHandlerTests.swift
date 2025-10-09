@@ -1,7 +1,6 @@
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
-import SnapshotTesting
 import SwiftUI
 import XCTest
 
