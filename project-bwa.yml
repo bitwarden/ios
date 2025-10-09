@@ -44,11 +44,19 @@ schemes:
         - BitwardenKit/AuthenticatorBridgeKitTests
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
+      testPlans:
+        - path: TestPlans-bwa/TestPlan-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans-bwa/TestPlan-Unit.xctestplan
+        - path: TestPlans-bwa/TestPlan-Snapshot.xctestplan
+        - path: TestPlans-bwa/TestPlan-ViewInspector.xctestplan
   AuthenticatorShared:
     build:
       targets:
         AuthenticatorShared: all
         AuthenticatorSharedTests: [test]
+        AuthenticatorSharedSnapshotTests: [test]
+        AuthenticatorSharedViewInspectorTests: [test]
     test:
       commandLineArguments:
         "-testing": true
@@ -57,6 +65,14 @@ schemes:
       gatherCoverageData: true
       targets:
         - AuthenticatorSharedTests
+        - AuthenticatorSharedSnapshotTests
+        - AuthenticatorSharedViewInspectorTests
+      testPlans:
+        - path: TestPlans-bwa/TestPlan-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans-bwa/TestPlan-Unit.xctestplan
+        - path: TestPlans-bwa/TestPlan-Snapshot.xctestplan
+        - path: TestPlans-bwa/TestPlan-ViewInspector.xctestplan
 targets:
   Authenticator:
     type: application
@@ -217,7 +233,42 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
+        excludes:
+          - "**/InspectableView.*"
+      - path: AuthenticatorShared/Sourcery/Generated
+        optional: true
+      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  AuthenticatorSharedSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwa
+        excludes:
+          - "**/InspectableView.*"
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -231,5 +282,31 @@ targets:
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  AuthenticatorSharedViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwa
+      - path: AuthenticatorShared/Sourcery/Generated
+        optional: true
+      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
       - package: ViewInspector
     randomExecutionOrder: true

@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "D4F7B2E5-8A3C-4D6F-9B8E-5C4A3F2E1D7B",
+      "id" : "B2D5F8A3-9C4E-4B2D-8F7A-5E4C3B2A1D9F",
       "name" : "DefaultConfig",
       "options" : {
 
@@ -27,9 +27,9 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Bitwarden.xcodeproj",
-        "identifier" : "65DAC3D69CB63D5E39AA4601",
-        "name" : "BitwardenSharedViewInspectorTests"
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "0F0F8167EDD3A9370CA429CE",
+        "name" : "BitwardenKitSnapshotTests"
       }
     }
   ],

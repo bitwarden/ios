@@ -26,13 +26,10 @@
   },
   "testTargets" : [
     {
-      "selectedTests" : [
-
-      ],
       "target" : {
         "containerPath" : "container:Bitwarden.xcodeproj",
-        "identifier" : "1ACA591B401F3A38DB33C366",
-        "name" : "BitwardenSharedTests"
+        "identifier" : "9B9276A12810F3EC19899819",
+        "name" : "BitwardenSharedSnapshotTests"
       }
     }
   ],

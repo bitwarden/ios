@@ -29,20 +29,6 @@
     {
       "target" : {
         "containerPath" : "container:Bitwarden.xcodeproj",
-        "identifier" : "1ACA591B401F3A38DB33C366",
-        "name" : "BitwardenSharedTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Bitwarden.xcodeproj",
-        "identifier" : "417A98C7A214F8B5F141E702",
-        "name" : "BitwardenAutoFillExtensionTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Bitwarden.xcodeproj",
         "identifier" : "8E852F2FEA58332906A444C6",
         "name" : "BitwardenActionExtensionTests"
       }
@@ -56,9 +42,51 @@
     },
     {
       "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "9F7BDC2FAE9BA6BFD0EBF905",
+        "name" : "NetworkingTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "192455E6FB7EBDE8BAB85489",
+        "name" : "BitwardenKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "417A98C7A214F8B5F141E702",
+        "name" : "BitwardenAutoFillExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "9B9276A12810F3EC19899819",
+        "name" : "BitwardenSharedSnapshotTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:Bitwarden.xcodeproj",
         "identifier" : "C026D25C368010616A94990A",
         "name" : "BitwardenShareExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "1ACA591B401F3A38DB33C366",
+        "name" : "BitwardenSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "65DAC3D69CB63D5E39AA4601",
+        "name" : "BitwardenSharedViewInspectorTests"
       }
     }
   ],
