@@ -13,7 +13,7 @@ permissions:
 jobs:
   publish-release-password-manager:
     name: Publish Password Manager Release
-    uses: bitwarden/gh-actions/.github/workflows/_publish-mobile-github-release.yml@main
+    uses: bitwarden/gh-actions/.github/workflows/_publish-mobile-github-release.yml@agalles/test-1118
     with:
       workflow_name: "publish-github-release-bwpm.yml"
       credentials_filename: "appstoreconnect-fastlane.json"
