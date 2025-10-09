@@ -30,7 +30,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: PasswordHintState
+        state: PasswordHintState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -74,7 +74,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
             let alert = Alert(
                 title: "",
                 message: Localizations.passwordHintAlert,
-                alertActions: [okAction]
+                alertActions: [okAction],
             )
 
             coordinator.hideLoadingOverlay()

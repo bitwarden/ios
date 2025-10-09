@@ -22,7 +22,7 @@ class OTPAuthModelTests: BitwardenTestCase {
     /// Tests that a malformed string does not create a model.
     func test_init_otpAuthKey_failure_noSecret() {
         let subject = OTPAuthModel(
-            otpAuthKey: "otpauth://totp/Example:user@bitwarden.com?issuer=Example&algorithm=SHA256&digits=6&period=30"
+            otpAuthKey: "otpauth://totp/Example:user@bitwarden.com?issuer=Example&algorithm=SHA256&digits=6&period=30",
         )
         XCTAssertNil(subject)
     }
@@ -45,8 +45,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: "Example",
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: .otpAuthUriKeyComplete
-            )
+                uri: .otpAuthUriKeyComplete,
+            ),
         )
     }
 
@@ -63,8 +63,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: "Bitwarden",
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: key
-            )
+                uri: key,
+            ),
         )
     }
 
@@ -80,8 +80,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: nil,
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: .otpAuthUriKeyMinimum
-            )
+                uri: .otpAuthUriKeyMinimum,
+            ),
         )
     }
 
@@ -97,8 +97,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: nil,
                 key: "1234567890",
                 period: 30,
-                uri: .otpAuthUriKeyNonBase32
-            )
+                uri: .otpAuthUriKeyNonBase32,
+            ),
         )
     }
 
@@ -114,8 +114,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: "Example",
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: .otpAuthUriKeyPartial
-            )
+                uri: .otpAuthUriKeyPartial,
+            ),
         )
     }
 
@@ -132,8 +132,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: "ACME Co",
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: key
-            )
+                uri: key,
+            ),
         )
     }
 
@@ -150,8 +150,8 @@ class OTPAuthModelTests: BitwardenTestCase {
                 issuer: "Bitwarden",
                 key: "JBSWY3DPEHPK3PXP",
                 period: 30,
-                uri: key
-            )
+                uri: key,
+            ),
         )
     }
 }

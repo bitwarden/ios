@@ -32,7 +32,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     init(
         coordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         services: Services,
-        state: ManualEntryState
+        state: ManualEntryState,
     ) {
         self.coordinator = coordinator
         self.services = services

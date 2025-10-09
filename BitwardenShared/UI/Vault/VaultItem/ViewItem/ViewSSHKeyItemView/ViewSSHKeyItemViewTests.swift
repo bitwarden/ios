@@ -48,8 +48,8 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
         initSubject(canViewPrivateKey: false, showCopyButtons: true)
         XCTAssertThrowsError(
             try subject.inspect().find(
-                viewWithAccessibilityIdentifier: "PrivateKeyVisibilityToggle"
-            ).button()
+                viewWithAccessibilityIdentifier: "PrivateKeyVisibilityToggle",
+            ).button(),
         )
     }
 
@@ -59,8 +59,8 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
         initSubject(canViewPrivateKey: false, showCopyButtons: true)
         XCTAssertThrowsError(
             try subject.inspect().find(
-                viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton"
-            ).button()
+                viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton",
+            ).button(),
         )
     }
 
@@ -86,13 +86,13 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
         initSubject(canViewPrivateKey: true, showCopyButtons: false)
 
         XCTAssertThrowsError(
-            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton")
+            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton"),
         )
         XCTAssertThrowsError(
-            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPublicKeyButton")
+            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPublicKeyButton"),
         )
         XCTAssertThrowsError(
-            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyFingerprintButton")
+            try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyFingerprintButton"),
         )
     }
 
@@ -109,8 +109,8 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
                 canViewPrivateKey: canViewPrivateKey,
                 privateKey: "privateKey",
                 publicKey: "publicKey",
-                keyFingerprint: "fingerprint"
-            )
+                keyFingerprint: "fingerprint",
+            ),
         )
         let store = Store(processor: processor)
 

@@ -31,9 +31,9 @@ class DefaultNFCReaderServiceTests: BitwardenTestCase {
         let message = try XCTUnwrap(NFCNDEFMessage(
             records: [
                 XCTUnwrap(NFCNDEFPayload.wellKnownTypeURIPayload(
-                    string: "my.yubico.com/yk/#ccccccjlkgjlevtdernkbbnrrvhcvdbljgchbgbdbvgk"
+                    string: "my.yubico.com/yk/#ccccccjlkgjlevtdernkbbnrrvhcvdbljgchbgbdbvgk",
                 )),
-            ]
+            ],
         ))
 
         subject.readerSession(session, didDetectNDEFs: [message])

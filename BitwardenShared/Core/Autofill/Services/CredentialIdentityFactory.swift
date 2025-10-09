@@ -47,7 +47,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
         return ASPasswordCredentialIdentity(
             serviceIdentifier: serviceIdentifier,
             user: username,
-            recordIdentifier: cipher.id
+            recordIdentifier: cipher.id,
         )
     }
 
@@ -80,7 +80,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
         return ASOneTimeCodeCredentialIdentity(
             serviceIdentifier: serviceIdentifier,
             label: cipher.name,
-            recordIdentifier: cipher.id
+            recordIdentifier: cipher.id,
         )
     }
 }

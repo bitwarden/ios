@@ -25,8 +25,8 @@ class RegisterFinishRequestTests: BitwardenTestCase {
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",
                 userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
+                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private"),
+            ),
         )
     }
 
@@ -57,7 +57,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     func test_validate_with400Error() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: Data("example data".utf8)
+            body: Data("example data".utf8),
         )
 
         XCTAssertNoThrow(try subject.validate(response))
@@ -66,7 +66,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.registerFinishSuccess.data
+            body: APITestData.registerFinishSuccess.data,
         )
 
         XCTAssertNoThrow(try subject.validate(response))

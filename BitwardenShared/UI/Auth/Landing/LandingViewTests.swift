@@ -85,7 +85,7 @@ class LandingViewTests: BitwardenTestCase {
     @MainActor
     func test_regionButton_tap() throws {
         let button = try subject.inspect().find(
-            button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseURLDescription)"
+            button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseURLDescription)",
         )
         try button.tap()
         waitFor(processor.effects.last != nil)
@@ -130,7 +130,7 @@ class LandingViewTests: BitwardenTestCase {
     func disabletest_snapshot_profilesVisible() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
-            userInitials: "EW"
+            userInitials: "EW",
         )
         processor.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [
@@ -138,7 +138,7 @@ class LandingViewTests: BitwardenTestCase {
             ],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -148,7 +148,7 @@ class LandingViewTests: BitwardenTestCase {
     func disabletest_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
-            userInitials: "EW"
+            userInitials: "EW",
         )
         processor.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [
@@ -156,7 +156,7 @@ class LandingViewTests: BitwardenTestCase {
             ],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }

@@ -29,7 +29,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
         delegate: self,
-        stateService: services.stateService
+        stateService: services.stateService,
     )
 
     // MARK: Initialization
@@ -44,7 +44,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LandingState
+        state: LandingState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -75,7 +75,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case .regionPressed:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.loggingInOn,
-                currentRegion: state.region
+                currentRegion: state.region,
             )
         }
     }
@@ -108,7 +108,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func refreshConfig() async {
         await services.configService.getConfig(
             forceRefresh: true,
-            isPreAuth: true
+            isPreAuth: true,
         )
     }
 

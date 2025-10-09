@@ -54,7 +54,7 @@ public struct EnvironmentURLs: Equatable {
         sendShareURL: URL,
         settingsURL: URL,
         setUpTwoFactorURL: URL,
-        webVaultURL: URL
+        webVaultURL: URL,
     ) {
         self.apiURL = apiURL
         self.baseURL = baseURL
@@ -101,7 +101,7 @@ public extension EnvironmentURLs {
         }
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
-            string: "https://vault.bitwarden.com/#/recover-2fa"
+            string: "https://vault.bitwarden.com/#/recover-2fa",
         )!
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL

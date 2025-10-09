@@ -59,9 +59,9 @@ public struct ProfileSwitcherSheet: View {
                 ProfileSwitcherSheet(
                     store: Store(
                         processor: StateProcessor(
-                            state: .singleAccount
-                        )
-                    )
+                            state: .singleAccount,
+                        ),
+                    ),
                 )
             }
             .presentationDetents([.medium])
@@ -77,9 +77,9 @@ public struct ProfileSwitcherSheet: View {
                 ProfileSwitcherSheet(
                     store: Store(
                         processor: StateProcessor(
-                            state: .dualAccounts
-                        )
-                    )
+                            state: .dualAccounts,
+                        ),
+                    ),
                 )
             }
             .presentationDetents([.medium])
@@ -95,9 +95,9 @@ public struct ProfileSwitcherSheet: View {
                 ProfileSwitcherSheet(
                     store: Store(
                         processor: StateProcessor(
-                            state: .subMaximumAccounts
-                        )
-                    )
+                            state: .subMaximumAccounts,
+                        ),
+                    ),
                 )
             }
             .presentationDetents([.medium])
@@ -113,9 +113,9 @@ public struct ProfileSwitcherSheet: View {
                 ProfileSwitcherSheet(
                     store: Store(
                         processor: StateProcessor(
-                            state: .maximumAccounts
-                        )
-                    )
+                            state: .maximumAccounts,
+                        ),
+                    ),
                 )
             }
             .presentationDetents([.medium])

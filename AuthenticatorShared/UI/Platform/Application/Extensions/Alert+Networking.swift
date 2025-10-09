@@ -23,7 +23,7 @@ extension Alert {
                     }
                 },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -37,23 +37,18 @@ extension Alert {
     ///
     static func networkResponseError(
         _ error: Error,
-        _ tryAgain: (() async -> Void)? = nil
+        _ tryAgain: (() async -> Void)? = nil,
     ) -> Alert {
         switch error {
         case let serverError as ServerError:
-            return defaultAlert(
+            defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: serverError.message
-            )
-        case let BitwardenSdk.BitwardenError.E(message):
-            return defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: message
+                message: serverError.message,
             )
         case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
-            return internetConnectionError(tryAgain)
+            internetConnectionError(tryAgain)
         case let error as URLError where error.code == .timedOut:
-            return defaultAlert(
+            defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: error.localizedDescription,
                 alertActions: [
@@ -63,10 +58,10 @@ extension Alert {
                         }
                     },
                     AlertAction(title: Localizations.cancel, style: .cancel),
-                ]
+                ],
             )
         default:
-            return defaultAlert(title: Localizations.anErrorHasOccurred)
+            defaultAlert(title: Localizations.anErrorHasOccurred)
         }
     }
 }

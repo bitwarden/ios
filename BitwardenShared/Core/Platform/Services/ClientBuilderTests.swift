@@ -6,6 +6,7 @@ import XCTest
 class ClientBuilderTests: BitwardenTestCase {
     // MARK: Properties
 
+    var clientManagedTokens: MockClientManagedTokens!
     var errorReporter: MockErrorReporter!
     var mockPlatform: MockPlatformClientService!
     var subject: DefaultClientBuilder!
@@ -15,16 +16,19 @@ class ClientBuilderTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        clientManagedTokens = MockClientManagedTokens()
         errorReporter = MockErrorReporter()
         mockPlatform = MockPlatformClientService()
         subject = DefaultClientBuilder(
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
+            tokenProvider: clientManagedTokens,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        clientManagedTokens = nil
         errorReporter = nil
         mockPlatform = nil
         subject = nil

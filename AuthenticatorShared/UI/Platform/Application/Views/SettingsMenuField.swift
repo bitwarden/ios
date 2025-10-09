@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - SettingsMenuField
@@ -84,7 +85,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
         hasDivider: Bool = true,
         accessibilityIdentifier: String? = nil,
         selectionAccessibilityID: String? = nil,
-        selection: Binding<T>
+        selection: Binding<T>,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.hasDivider = hasDivider
@@ -103,9 +104,9 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
 
     var localizedName: String {
         switch self {
-        case .bear: return "🧸"
-        case .bird: return "🪿"
-        case .dog: return "🐕"
+        case .bear: "🧸"
+        case .bird: "🪿"
+        case .dog: "🐕"
         }
     }
 }
@@ -116,14 +117,14 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             SettingsMenuField(
                 title: "Bear",
                 options: MenuPreviewOptions.allCases,
-                selection: .constant(.bear)
+                selection: .constant(.bear),
             )
 
             SettingsMenuField(
                 title: "Dog",
                 options: MenuPreviewOptions.allCases,
                 hasDivider: false,
-                selection: .constant(.dog)
+                selection: .constant(.dog),
             )
         }
         .padding(8)

@@ -21,7 +21,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: CompleteRegistrationState(
             emailVerificationToken: "emailVerificationToken",
-            userEmail: "email@example.com"
+            userEmail: "email@example.com",
         ))
         let store = Store(processor: processor)
         subject = CompleteRegistrationView(store: store)
@@ -77,7 +77,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     func test_passwordVisibility_tap() throws {
         processor.state.arePasswordsVisible = false
         let visibilityIcon = try subject.inspect().find(
-            viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow
+            viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow,
         ).button()
         try visibilityIcon.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .togglePasswordVisibility(true))
@@ -141,7 +141,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
                 .tallPortrait,
                 .portraitDark(heightMultiple: 2),
                 .tallPortraitAX5(),
-            ]
+            ],
         )
     }
 

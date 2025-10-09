@@ -44,7 +44,7 @@ class PreventAccountLockViewTests: BitwardenTestCase {
     func disabletest_snapshot_preventAccountLock() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape],
         )
     }
 }

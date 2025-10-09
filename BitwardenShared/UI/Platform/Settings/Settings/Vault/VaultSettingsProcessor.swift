@@ -29,7 +29,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: VaultSettingsState
+        state: VaultSettingsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -56,8 +56,8 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            coordinator.showAlert(.importItemsAlert(importUrl:
-                services.environmentService.importItemsURL.absoluteString
+            coordinator.showAlert(.importItemsAlert(
+                importUrl: services.environmentService.importItemsURL.absoluteString,
             ) {
                 self.state.url = self.services.environmentService.importItemsURL
             })

@@ -14,7 +14,7 @@ struct ProfileSwitcherView: View {
     var body: some View {
         OffsetObservingScrollView(
             axes: .vertical,
-            offset: $scrollOffset
+            offset: $scrollOffset,
         ) {
             VStack(spacing: 0.0) {
                 ProfileSwitcherAccountsView(store: store)
@@ -52,13 +52,13 @@ struct ProfileSwitcherView: View {
                 .init(
                     shouldTakeAccessibilityFocus: false,
                     showDivider: false,
-                    rowType: .addAccount
+                    rowType: .addAccount,
                 )
             },
             mapAction: nil,
             mapEffect: { _ in
                 .addAccountPressed
-            }
+            },
         ))
         .accessibilityIdentifier("AddAccountButton")
     }
@@ -85,9 +85,9 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .singleAccount
-                    )
-                )
+                        state: .singleAccount,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Single Account")
@@ -96,9 +96,9 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .dualAccounts
-                    )
-                )
+                        state: .dualAccounts,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Dual Account")
@@ -107,9 +107,9 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .subMaximumAccounts
-                    )
-                )
+                        state: .subMaximumAccounts,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Many Accounts")
@@ -118,9 +118,9 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .maximumAccounts
-                    )
-                )
+                        state: .maximumAccounts,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Max Accounts")

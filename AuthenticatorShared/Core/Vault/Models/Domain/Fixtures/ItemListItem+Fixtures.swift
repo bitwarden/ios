@@ -9,7 +9,7 @@ extension ItemListSection {
         ItemListSection(
             id: "example",
             items: [ItemListItem.fixture()],
-            name: "Section"
+            name: "Section",
         )
     }
 }
@@ -19,13 +19,13 @@ extension ItemListItem {
         id: String = "123",
         name: String = "Name",
         accountName: String = "person@example.com",
-        totp: ItemListTotpItem = .fixture()
+        totp: ItemListTotpItem = .fixture(),
     ) -> ItemListItem {
         ItemListItem(
             id: id,
             name: name,
             accountName: accountName,
-            itemType: .totp(model: totp)
+            itemType: .totp(model: totp),
         )
     }
 
@@ -33,13 +33,13 @@ extension ItemListItem {
         id: String = "123",
         name: String = "Name",
         accountName: String? = "person@example.com",
-        totp: ItemListSharedTotpItem = .fixture()
+        totp: ItemListSharedTotpItem = .fixture(),
     ) -> ItemListItem {
         ItemListItem(
             id: id,
             name: name,
             accountName: accountName,
-            itemType: .sharedTotp(model: totp)
+            itemType: .sharedTotp(model: totp),
         )
     }
 }
@@ -50,12 +50,12 @@ extension ItemListTotpItem {
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: Date(),
-            period: 30
-        )
+            period: 30,
+        ),
     ) -> ItemListTotpItem {
         ItemListTotpItem(
             itemView: itemView,
-            totpCode: totpCode
+            totpCode: totpCode,
         )
     }
 }
@@ -66,12 +66,12 @@ extension ItemListSharedTotpItem {
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: Date(),
-            period: 30
-        )
+            period: 30,
+        ),
     ) -> ItemListSharedTotpItem {
         ItemListSharedTotpItem(
             itemView: itemView,
-            totpCode: totpCode
+            totpCode: totpCode,
         )
     }
 }

@@ -36,7 +36,7 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
         SdkCipherRepository(
             cipherDataStore: cipherDataStore,
             errorReporter: errorReporter,
-            userId: userId
+            userId: userId,
         )
     }
 }

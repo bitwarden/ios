@@ -11,7 +11,7 @@ class MasterPasswordGeneratorViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         MasterPasswordGeneratorState,
         MasterPasswordGeneratorAction,
-        MasterPasswordGeneratorEffect
+        MasterPasswordGeneratorEffect,
     >!
     var subject: MasterPasswordGeneratorView!
 
@@ -76,7 +76,7 @@ class MasterPasswordGeneratorViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .tallPortraitAX5(heightMultiple: 2),
                 .defaultLandscape,
-            ]
+            ],
         )
     }
 }

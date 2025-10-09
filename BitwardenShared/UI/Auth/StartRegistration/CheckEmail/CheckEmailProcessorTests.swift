@@ -19,7 +19,7 @@ class CheckEmailProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         subject = CheckEmailProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            state: CheckEmailState()
+            state: CheckEmailState(),
         )
     }
 

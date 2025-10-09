@@ -10,7 +10,7 @@ class ResponseTests: XCTestCase {
             statusCode: 200,
             headers: [:],
             body: "{ \"field\": \"value\" }".data(using: .utf8)!,
-            requestID: UUID()
+            requestID: UUID(),
         )
         let response = try TestJSONResponse(response: httpResponse)
         XCTAssertEqual(response.field, "value")
@@ -23,7 +23,7 @@ class ResponseTests: XCTestCase {
             statusCode: 200,
             headers: [:],
             body: "[{ \"field\": \"value\" }]".data(using: .utf8)!,
-            requestID: UUID()
+            requestID: UUID(),
         )
         let response = try [TestJSONResponse](response: httpResponse)
         XCTAssertEqual(response.count, 1)

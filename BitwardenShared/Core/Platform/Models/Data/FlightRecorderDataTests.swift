@@ -46,12 +46,12 @@ class FlightRecorderDataTests: BitwardenTestCase {
         let subject = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(
                 duration: .eightHours,
-                startDate: Date(year: 2025, month: 4, day: 1)
+                startDate: Date(year: 2025, month: 4, day: 1),
             ),
             inactiveLogs: [
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 20)),
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 25)),
-            ]
+            ],
         )
         XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 4, day: 1, hour: 8))
     }
@@ -62,12 +62,12 @@ class FlightRecorderDataTests: BitwardenTestCase {
         let subject = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(
                 duration: .eightHours,
-                startDate: Date(year: 2025, month: 4, day: 1)
+                startDate: Date(year: 2025, month: 4, day: 1),
             ),
             inactiveLogs: [
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 1, day: 2)),
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 4)),
-            ]
+            ],
         )
         XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 2, day: 1, hour: 8))
     }
@@ -118,16 +118,16 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .oneHour,
-                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30),
             ).expirationDate,
-            Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30)
+            Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30),
         )
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .eightHours,
-                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30),
             ).expirationDate,
-            Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30)
+            Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30),
         )
     }
 
@@ -136,16 +136,16 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .oneHour,
-                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30),
             ).formattedEndDate,
-            "4/3/25"
+            "4/3/25",
         )
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .eightHours,
-                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30),
             ).formattedEndDate,
-            "4/8/25"
+            "4/8/25",
         )
     }
 
@@ -154,16 +154,16 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .oneHour,
-                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30),
             ).formattedEndTime,
-            "11:30 AM"
+            "11:30 AM",
         )
         XCTAssertEqual(
             FlightRecorderData.LogMetadata(
                 duration: .eightHours,
-                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30)
+                startDate: Date(year: 2025, month: 4, day: 8, hour: 10, minute: 30),
             ).formattedEndTime,
-            "6:30 PM"
+            "6:30 PM",
         )
     }
 
@@ -180,13 +180,13 @@ class FlightRecorderDataTests: BitwardenTestCase {
     func test_logMetadata_init_endDate() {
         let log1 = FlightRecorderData.LogMetadata(
             duration: .oneHour,
-            startDate: Date(year: 2025, month: 4, day: 11, hour: 10, minute: 30, second: 20)
+            startDate: Date(year: 2025, month: 4, day: 11, hour: 10, minute: 30, second: 20),
         )
         XCTAssertEqual(log1.endDate, Date(year: 2025, month: 4, day: 11, hour: 11, minute: 30, second: 20))
 
         let log2 = FlightRecorderData.LogMetadata(
             duration: .oneWeek,
-            startDate: Date(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5)
+            startDate: Date(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5),
         )
         XCTAssertEqual(log2.endDate, Date(year: 2025, month: 1, day: 9, hour: 3, minute: 4, second: 5))
     }
@@ -195,13 +195,13 @@ class FlightRecorderDataTests: BitwardenTestCase {
     func test_logMetadata_init_fileName() {
         let log1 = FlightRecorderData.LogMetadata(
             duration: .oneHour,
-            startDate: Date(year: 2025, month: 4, day: 11, hour: 10, minute: 30, second: 20)
+            startDate: Date(year: 2025, month: 4, day: 11, hour: 10, minute: 30, second: 20),
         )
         XCTAssertEqual(log1.fileName, "flight_recorder_2025-04-11-10-30-20.txt")
 
         let log2 = FlightRecorderData.LogMetadata(
             duration: .oneWeek,
-            startDate: Date(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5)
+            startDate: Date(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5),
         )
         XCTAssertEqual(log2.fileName, "flight_recorder_2025-01-02-03-04-05.txt")
     }

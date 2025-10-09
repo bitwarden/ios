@@ -56,9 +56,9 @@ struct ViewItemView: View {
         .toast(
             store.binding(
                 get: \.toast,
-                send: ViewItemAction.toastShown
+                send: ViewItemAction.toastShown,
             ),
-            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -83,8 +83,8 @@ struct ViewItemView: View {
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
-                        mapEffect: { _ in .deletePressed }
-                    )
+                        mapEffect: { _ in .deletePressed },
+                    ),
                 )
             }
         }
@@ -118,9 +118,9 @@ struct ViewItemView: View {
                 store: store.child(
                     state: { _ in state },
                     mapAction: { $0 },
-                    mapEffect: { $0 }
+                    mapEffect: { $0 },
                 ),
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
@@ -135,7 +135,7 @@ struct ViewItemView_Previews: PreviewProvider {
     static var cardState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .card),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.type = CipherType.card
         state.name = "Points ALL Day"
@@ -145,7 +145,7 @@ struct ViewItemView_Previews: PreviewProvider {
             cardNumber: "123456789012345",
             cardSecurityCode: "123",
             expirationMonth: .custom(.feb),
-            expirationYear: "3009"
+            expirationYear: "3009",
         )
         state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
         return state
@@ -154,14 +154,14 @@ struct ViewItemView_Previews: PreviewProvider {
     static var loginState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .login),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.customFieldsState.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Field Name",
                 type: .text,
-                value: "Value"
+                value: "Value",
             ),
         ]
         state.name = "Example"
@@ -180,8 +180,8 @@ struct ViewItemView_Previews: PreviewProvider {
             codeModel: .init(
                 code: "032823",
                 codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),
-                period: 30
-            )
+                period: 30,
+            ),
         )
         state.loginState.username = "email@example.com"
         return state
@@ -190,7 +190,7 @@ struct ViewItemView_Previews: PreviewProvider {
     static var secureNoteState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .secureNote),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.notes = "secure note"
         state.type = .secureNote
@@ -200,14 +200,14 @@ struct ViewItemView_Previews: PreviewProvider {
     static var sshKeyState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .sshKey),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.name = "Example"
         state.type = .sshKey
         state.sshKeyState = SSHKeyItemState(
             privateKey: "ajsdfopij1ZXCVZXC12312QW",
             publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
-            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw",
         )
         return state
     }
@@ -218,17 +218,17 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .loading(nil)
-                        )
-                    )
+                            loadingState: .loading(nil),
+                        ),
+                    ),
                 ),
                 timeProvider: PreviewTimeProvider(
                     fixedDate: Date(
                         timeIntervalSinceReferenceDate: .init(
-                            1_695_000_000
-                        )
-                    )
-                )
+                            1_695_000_000,
+                        ),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Loading")
@@ -248,17 +248,17 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(cardState)
-                        )
-                    )
+                            loadingState: .data(cardState),
+                        ),
+                    ),
                 ),
                 timeProvider: PreviewTimeProvider(
                     fixedDate: Date(
                         timeIntervalSinceReferenceDate: .init(
-                            1_695_000_000
-                        )
-                    )
-                )
+                            1_695_000_000,
+                        ),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Card")
@@ -270,17 +270,17 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(loginState)
-                        )
-                    )
+                            loadingState: .data(loginState),
+                        ),
+                    ),
                 ),
                 timeProvider: PreviewTimeProvider(
                     fixedDate: Date(
                         timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011
-                        )
-                    )
-                )
+                            1_695_000_011,
+                        ),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Login")
@@ -292,17 +292,17 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(secureNoteState)
-                        )
-                    )
+                            loadingState: .data(secureNoteState),
+                        ),
+                    ),
                 ),
                 timeProvider: PreviewTimeProvider(
                     fixedDate: Date(
                         timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011
-                        )
-                    )
-                )
+                            1_695_000_011,
+                        ),
+                    ),
+                ),
             )
         }
         .previewDisplayName("SecureNote")
@@ -314,17 +314,17 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(sshKeyState)
-                        )
-                    )
+                            loadingState: .data(sshKeyState),
+                        ),
+                    ),
                 ),
                 timeProvider: PreviewTimeProvider(
                     fixedDate: Date(
                         timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011
-                        )
-                    )
-                )
+                            1_695_000_011,
+                        ),
+                    ),
+                ),
             )
         }
         .previewDisplayName("SSH Key")
@@ -336,18 +336,18 @@ struct ViewItemView_Previews: PreviewProvider {
                 .fixture(
                     fileName: "selfieWithACat.png",
                     id: "1",
-                    sizeName: "11.2 MB"
+                    sizeName: "11.2 MB",
                 ),
                 .fixture(
                     fileName: "selfieWithAPotato.png",
                     id: "2",
-                    sizeName: "18.7 MB"
+                    sizeName: "18.7 MB",
                 ),
             ],
             id: "123",
             login: .fixture(),
             type: forType,
-            viewPassword: false
+            viewPassword: false,
         )
     }
 }

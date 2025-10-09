@@ -37,7 +37,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             [
                 kSecClass: kSecClassGenericPassword,
                 kSecAttrService: testKeychainServiceName,
-            ] as CFDictionary
+            ] as CFDictionary,
         )
 
         subject = DefaultMigrationService(
@@ -47,7 +47,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             keychainRepository: keychainRepository,
             keychainService: keychainService,
             keychainServiceName: testKeychainServiceName,
-            standardUserDefaults: standardUserDefaults
+            standardUserDefaults: standardUserDefaults,
         )
     }
 
@@ -82,11 +82,11 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                 "1": .fixture(
                     tokens: Account.AccountTokens(
                         accessToken: "ACCESS_TOKEN_1",
-                        refreshToken: "REFRESH_TOKEN_1"
-                    )
+                        refreshToken: "REFRESH_TOKEN_1",
+                    ),
                 ),
             ],
-            activeUserId: "1"
+            activeUserId: "1",
         )
         keychainRepository.setAccessTokenResult = .failure(KeychainServiceError.osStatusError(-1))
 
@@ -104,17 +104,17 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                 "1": .fixture(
                     tokens: Account.AccountTokens(
                         accessToken: "ACCESS_TOKEN_1",
-                        refreshToken: "REFRESH_TOKEN_1"
-                    )
+                        refreshToken: "REFRESH_TOKEN_1",
+                    ),
                 ),
                 "2": .fixture(
                     tokens: Account.AccountTokens(
                         accessToken: "ACCESS_TOKEN_2",
-                        refreshToken: "REFRESH_TOKEN_2"
-                    )
+                        refreshToken: "REFRESH_TOKEN_2",
+                    ),
                 ),
             ],
-            activeUserId: "1"
+            activeUserId: "1",
         )
         for userId in ["1", "2"] {
             appSettingsStore.lastActiveTime[userId] = Date()
@@ -192,7 +192,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                     kSecAttrService: testKeychainServiceName,
                     kSecAttrGeneric: Data(item.value.utf8),
                 ] as CFDictionary,
-                nil
+                nil,
             )
         }
 
@@ -207,7 +207,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                 kSecReturnData: true,
                 kSecReturnAttributes: true,
             ] as CFDictionary,
-            &copyResult
+            &copyResult,
         )
 
         let keychainItems = try XCTUnwrap(copyResult as? [[CFString: Any]])
@@ -232,35 +232,35 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_performMigrations_3() async throws {
         appGroupUserDefaults.set(
             "integrity-state-app",
-            forKey: "bwPreferencesStorage:biometricIntegritySource"
+            forKey: "bwPreferencesStorage:biometricIntegritySource",
         )
         appGroupUserDefaults.set(
             "integrity-state-autofill",
-            forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource"
+            forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource",
         )
         appGroupUserDefaults.set(
             "integrity-state-extension",
-            forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource"
+            forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource",
         )
         appGroupUserDefaults.set(
             "integrity-state-share-extension",
-            forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"
+            forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource",
         )
 
         try await subject.performMigration(version: 3)
 
         // Previous values are removed.
         XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource")
+            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"),
         )
         XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
+            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource"),
         )
         XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
+            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource"),
         )
         XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
+            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"),
         )
     }
 
@@ -271,26 +271,26 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                 "bwPreferencesStorage:biometricIntegritySource_\(userId)_\(Bundle.main.appIdentifier)",
                 extensionName,
             ]
-            .compactMap { $0 }
+            .compactMap(\.self)
             .joined(separator: ".")
         }
 
         for userId in ["1", "2"] {
             appGroupUserDefaults.set(
                 "integrity-state-app",
-                forKey: newKey(userId: userId, extensionName: nil)
+                forKey: newKey(userId: userId, extensionName: nil),
             )
             appGroupUserDefaults.set(
                 "integrity-state-autofill",
-                forKey: newKey(userId: userId, extensionName: "autofill")
+                forKey: newKey(userId: userId, extensionName: "autofill"),
             )
             appGroupUserDefaults.set(
                 "integrity-state-find-login-action-extension",
-                forKey: newKey(userId: userId, extensionName: "find-login-action-extension")
+                forKey: newKey(userId: userId, extensionName: "find-login-action-extension"),
             )
             appGroupUserDefaults.set(
                 "integrity-state-share-extension",
-                forKey: newKey(userId: userId, extensionName: "share-extension")
+                forKey: newKey(userId: userId, extensionName: "share-extension"),
             )
         }
 
@@ -299,23 +299,23 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
                 "1": .fixture(),
                 "2": .fixture(profile: .fixture(userId: "2")),
             ],
-            activeUserId: "1"
+            activeUserId: "1",
         )
 
         try await subject.performMigration(version: 4)
 
         for userId in ["1", "2"] {
             XCTAssertNil(appGroupUserDefaults.string(
-                forKey: newKey(userId: userId, extensionName: nil)
+                forKey: newKey(userId: userId, extensionName: nil),
             ))
             XCTAssertNil(appGroupUserDefaults.string(
-                forKey: newKey(userId: userId, extensionName: "autofill")
+                forKey: newKey(userId: userId, extensionName: "autofill"),
             ))
             XCTAssertNil(appGroupUserDefaults.string(
-                forKey: newKey(userId: userId, extensionName: "find-login-action-extension")
+                forKey: newKey(userId: userId, extensionName: "find-login-action-extension"),
             ))
             XCTAssertNil(appGroupUserDefaults.string(
-                forKey: newKey(userId: userId, extensionName: "share-extension")
+                forKey: newKey(userId: userId, extensionName: "share-extension"),
             ))
         }
     }

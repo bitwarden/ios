@@ -30,9 +30,9 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 authService: authService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: LoginWithDeviceState(requestType: AuthRequestType.authenticateAndUnlock)
+            state: LoginWithDeviceState(requestType: AuthRequestType.authenticateAndUnlock),
         )
     }
 
@@ -98,7 +98,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
             subject.state.explanationText,
             Localizations.aNotificationHasBeenSentToYourDevice +
                 .newLine +
-                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
+                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice,
         )
         XCTAssertEqual(subject.state.navBarText, Localizations.logInWithDevice)
         XCTAssertEqual(subject.state.titleText, Localizations.logInInitiated)
@@ -165,7 +165,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil),
         )
 
         let task = Task {
@@ -182,11 +182,11 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
                 .loginWithDevice(
                     key: "reallyLongKey",
                     masterPasswordHash: "reallyLongMasterPasswordHash",
-                    privateKey: "PRIVATE_KEY"
+                    privateKey: "PRIVATE_KEY",
                 ),
                 AuthMethodsData(),
-                nil
-            )
+                nil,
+            ),
         )
     }
 
@@ -239,7 +239,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.newDeviceNotVerified
+            IdentityTokenRequestError.newDeviceNotVerified,
         )
 
         let task = Task {
@@ -259,7 +259,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.encryptionKeyMigrationRequired
+            IdentityTokenRequestError.encryptionKeyMigrationRequired,
         )
 
         let task = Task {

@@ -39,7 +39,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -61,7 +61,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         case let .editAuthenticatorItem(authenticatorItemView):
             showEditAuthenticatorItem(
                 for: authenticatorItemView,
-                delegate: context as? AuthenticatorItemOperationDelegate
+                delegate: context as? AuthenticatorItemOperationDelegate,
             )
         }
     }
@@ -93,7 +93,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     private func showEditAuthenticatorItem(
         for authenticatorItemView: AuthenticatorItemView,
-        delegate: AuthenticatorItemOperationDelegate?
+        delegate: AuthenticatorItemOperationDelegate?,
     ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
@@ -104,7 +104,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
                 services: services,
-                state: state
+                state: state,
             )
             let store = Store(processor: processor)
             let view = EditAuthenticatorItemView(store: store)
@@ -112,7 +112,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         } else {
             presentChildAuthenticatorItemCoordinator(
                 route: .editAuthenticatorItem(authenticatorItemView),
-                context: self
+                context: self,
             )
         }
     }

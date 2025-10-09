@@ -14,13 +14,15 @@ class MockPolicyService: PolicyService {
             requireLower: false,
             requireNumbers: true,
             requireSpecial: false,
-            enforceOnLogin: true
-        )
+            enforceOnLogin: true,
+        ),
     )
 
     var isSendHideEmailDisabledByPolicy = false
 
     var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int)?, Error> = .success(nil)
+
+    var organizationsApplyingPolicyToUserResult: [PolicyType: [String]] = [:]
 
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [PolicyType]()
@@ -55,9 +57,13 @@ class MockPolicyService: PolicyService {
 
     func fetchTimeoutPolicyValues() async throws -> (
         action: SessionTimeoutAction?,
-        value: Int
+        value: Int,
     )? {
         try fetchTimeoutPolicyValuesResult.get()
+    }
+
+    func organizationsApplyingPolicyToUser(_ policyType: BitwardenShared.PolicyType) async -> [String] {
+        organizationsApplyingPolicyToUserResult[policyType] ?? []
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

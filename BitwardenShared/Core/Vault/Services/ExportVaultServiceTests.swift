@@ -19,13 +19,13 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 expYear: "29",
                 code: "555",
                 brand: "Visa",
-                number: "4400111122223333"
+                number: "4400111122223333",
             ),
             folderId: "1234",
             id: "example-card-uuid",
             name: "Card",
-            type: .card
-        )
+            type: .card,
+        ),
     )
 
     let deletedCipher = Cipher(
@@ -33,11 +33,11 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
             deletedDate: .init(
                 year: 2023,
                 month: 12,
-                day: 31
+                day: 31,
             ),
             id: "example-deleted-uuid",
-            name: "Deleted"
-        )
+            name: "Deleted",
+        ),
     )
 
     let folder = Folder.fixture(
@@ -46,8 +46,8 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         revisionDate: .init(
             year: 2024,
             month: 01,
-            day: 01
-        )
+            day: 01,
+        ),
     )
 
     let identityCipher = Cipher(
@@ -71,11 +71,11 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 ssn: nil,
                 username: nil,
                 passportNumber: nil,
-                licenseNumber: nil
+                licenseNumber: nil,
             ),
             name: "Identity",
-            type: .identity
-        )
+            type: .identity,
+        ),
     )
 
     let loginCipher = Cipher(
@@ -89,13 +89,13 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                     uris: nil,
                     totp: nil,
                     autofillOnPageLoad: false,
-                    fido2Credentials: nil
-                )
+                    fido2Credentials: nil,
+                ),
             ),
             name: "Login",
             organizationId: nil,
-            type: .login
-        )
+            type: .login,
+        ),
     )
 
     let loginOrgCipher = Cipher(
@@ -109,13 +109,13 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                     uris: nil,
                     totp: nil,
                     autofillOnPageLoad: false,
-                    fido2Credentials: nil
-                )
+                    fido2Credentials: nil,
+                ),
             ),
             name: "Login Org",
             organizationId: "123",
-            type: .login
-        )
+            type: .login,
+        ),
     )
 
     let secureNoteCipher = Cipher(
@@ -124,8 +124,8 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
             name: "Secure Note",
             notes: "Secure content.",
             secureNote: .init(type: .generic),
-            type: .secureNote
-        )
+            type: .secureNote,
+        ),
     )
 
     var cipherService: MockCipherService!
@@ -152,7 +152,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 loginCipher,
                 loginOrgCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
@@ -164,16 +164,16 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         folderService.fetchAllFoldersResult = .success(
             [
                 folder,
-            ]
+            ],
         )
         timeProvider = MockTimeProvider(
             .mockTime(
                 .init(
                     year: 2024,
                     month: 02,
-                    day: 14
-                )
-            )
+                    day: 14,
+                ),
+            ),
         )
         subject = DefultExportVaultService(
             cipherService: cipherService,
@@ -214,7 +214,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
             [
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -231,7 +231,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 loginCipher,
                 identityCipher,
                 secureNoteCipher,
-            ])
+            ]),
         )
     }
 
@@ -275,7 +275,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -293,7 +293,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -302,7 +302,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_exportVaultFileContents_restrictedTypes_excludeCard() async throws {
         clientService.mockExporters.exportVaultResult = .success("success")
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
         XCTAssertEqual(clientService.mockExporters.folders, [folder])
@@ -312,28 +311,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
-            ]
-        )
-    }
-
-    /// `exportVaultFileContents(format:)` doesn't exclude card ciphers when restrictedTypes contains `.card`
-    /// but the `.removeCardPolicy` feature flag is not enabled.
-    ///
-    @MainActor
-    func test_exportVaultFileContents_restrictedTypes_doesNotexcludeCardFFDisabled() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.getRestrictedItemCipherTypesResult = [.card]
-        _ = try await subject.exportVaultFileContents(format: ExportFileType.json)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
-        XCTAssertEqual(
-            clientService.mockExporters.ciphers,
-            [
-                cardCipher,
-                identityCipher,
-                loginCipher,
-                secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -350,7 +328,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
             [
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -358,8 +336,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     @MainActor
     func test_fetchAllCiphersToExport() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        policyService.getRestrictedItemCipherTypesResult = [.card]
         let ciphers = try await subject.fetchAllCiphersToExport()
         XCTAssertEqual(
             ciphers,
@@ -368,16 +344,15 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
     /// `fetchAllCiphersToExport()` fetches all ciphers to be exported except `.card` items
-    /// given the `.removeCardPolicy` feature flag is enabled and there are restricted types.
+    /// given there are restricted types.
     ///
     @MainActor
     func test_fetchAllCiphersToExport_restrictedItemCipherTypes() async throws {
-        configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.getRestrictedItemCipherTypesResult = [.card]
         let ciphers = try await subject.fetchAllCiphersToExport()
         XCTAssertEqual(
@@ -386,7 +361,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 identityCipher,
                 loginCipher,
                 secureNoteCipher,
-            ]
+            ],
         )
     }
 
@@ -403,7 +378,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     func test_fileName_encryptedJSON() {
         let expectedName = "bitwarden_export_20240214000000.json"
         let name = subject.generateExportFileName(
-            extension: ExportFileType.encryptedJson(password: "secure-password-1234?").fileExtension
+            extension: ExportFileType.encryptedJson(password: "secure-password-1234?").fileExtension,
         )
         XCTAssertEqual(name, expectedName)
     }
@@ -415,4 +390,4 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         let name = subject.generateExportFileName(extension: ExportFileType.json.fileExtension)
         XCTAssertEqual(name, expectedName)
     }
-} // swiftlint:disable:this file_length
+}

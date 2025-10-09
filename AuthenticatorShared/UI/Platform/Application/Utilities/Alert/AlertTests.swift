@@ -25,7 +25,7 @@ class AlertTests: BitwardenTestCase {
                 isSecureTextEntry: true,
                 keyboardType: .numberPad,
                 placeholder: "placeholder",
-                text: "value"
+                text: "value",
             ))
     }
 
@@ -67,7 +67,7 @@ class AlertTests: BitwardenTestCase {
             subject!.debugDescription,
             // swiftlint:disable:next line_length
             "Alert(title: 🍎, message: 🥝, alertActions: [AuthenticatorShared.AlertAction, AuthenticatorShared.AlertAction],"
-                + " alertTextFields: [AuthenticatorShared.AlertTextField])"
+                + " alertTextFields: [AuthenticatorShared.AlertTextField])",
         )
     }
 
@@ -83,7 +83,7 @@ class AlertTests: BitwardenTestCase {
                 isSecureTextEntry: true,
                 keyboardType: .numberPad,
                 placeholder: "placeholder",
-                text: "value"
+                text: "value",
             )))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .destructive))
@@ -95,7 +95,7 @@ class AlertTests: BitwardenTestCase {
                 isSecureTextEntry: true,
                 keyboardType: .numberPad,
                 placeholder: "placeholder",
-                text: "value"
+                text: "value",
             )))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
@@ -108,7 +108,7 @@ class AlertTests: BitwardenTestCase {
                 isSecureTextEntry: true,
                 keyboardType: .numberPad,
                 placeholder: "placeholder",
-                text: "value"
+                text: "value",
             )))
         XCTAssertEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .cancel))

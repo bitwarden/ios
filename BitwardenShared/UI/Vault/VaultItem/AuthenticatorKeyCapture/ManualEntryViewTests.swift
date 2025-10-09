@@ -20,7 +20,7 @@ class ManualEntryViewTests: BitwardenTestCase {
         processor = MockProcessor(state: DefaultEntryState(deviceSupportsCamera: true))
         let store = Store(processor: processor)
         subject = ManualEntryView(
-            store: store
+            store: store,
         )
     }
 
@@ -87,7 +87,7 @@ class ManualEntryViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultLandscape,
                 .defaultPortraitDark,
-            ]
+            ],
         )
     }
 
@@ -99,7 +99,7 @@ class ManualEntryViewTests: BitwardenTestCase {
                 .defaultPortrait,
                 .defaultPortraitDark,
                 .tallPortraitAX5(heightMultiple: 1.75),
-            ]
+            ],
         )
     }
 }

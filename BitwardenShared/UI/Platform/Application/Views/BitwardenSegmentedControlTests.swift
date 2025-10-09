@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 import ViewInspector
 import XCTest
@@ -31,7 +32,7 @@ class BitwardenSegmentedControlTests: BitwardenTestCase {
         var selection = Segment.one
         let subject = BitwardenSegmentedControl(
             selection: Binding(get: { selection }, set: { selection = $0 }),
-            selections: Segment.allCases
+            selections: Segment.allCases,
         )
 
         let buttonTwo = try subject.inspect().find(button: "Two")
@@ -56,9 +57,9 @@ class BitwardenSegmentedControlTests: BitwardenTestCase {
                 set: { newValue in
                     selection = newValue
                     selectionChangedHistory.append(newValue)
-                }
+                },
             ),
-            selections: Segment.allCases
+            selections: Segment.allCases,
         )
 
         try subject.inspect().find(button: "One").tap()

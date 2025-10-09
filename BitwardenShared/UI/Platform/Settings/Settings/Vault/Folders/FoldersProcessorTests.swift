@@ -23,12 +23,12 @@ class FoldersProcessorTests: BitwardenTestCase {
         settingsRepository = MockSettingsRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
-            settingsRepository: settingsRepository
+            settingsRepository: settingsRepository,
         )
         subject = FoldersProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: FoldersState()
+            state: FoldersState(),
         )
     }
 

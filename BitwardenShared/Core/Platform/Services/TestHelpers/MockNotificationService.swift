@@ -18,7 +18,7 @@ class MockNotificationService: NotificationService {
     func messageReceived(
         _ message: [AnyHashable: Any],
         notificationDismissed _: Bool?,
-        notificationTapped _: Bool?
+        notificationTapped _: Bool?,
     ) async {
         messageReceivedMessage = message
     }

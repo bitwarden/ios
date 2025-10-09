@@ -109,7 +109,7 @@ class OTPAuthModelTests: BitwardenTestCase {
             digits: 6,
             issuer: "Bitwarden",
             period: 30,
-            secret: "JBSWY3DPEHPK3PXP"
+            secret: "JBSWY3DPEHPK3PXP",
         )
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/Bitwarden:person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden&algorithm=SHA1&digits=6&period=30")
@@ -124,7 +124,7 @@ class OTPAuthModelTests: BitwardenTestCase {
             digits: 6,
             issuer: nil,
             period: 30,
-            secret: "JBSWY3DPEHPK3PXP"
+            secret: "JBSWY3DPEHPK3PXP",
         )
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30")
         XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
@@ -138,7 +138,7 @@ class OTPAuthModelTests: BitwardenTestCase {
             digits: 6,
             issuer: "Bitwarden",
             period: 30,
-            secret: "JBSWY3DPEHPK3PXP"
+            secret: "JBSWY3DPEHPK3PXP",
         )
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden&algorithm=SHA1&digits=6&period=30")
@@ -153,7 +153,7 @@ class OTPAuthModelTests: BitwardenTestCase {
             digits: 6,
             issuer: nil,
             period: 30,
-            secret: "JBSWY3DPEHPK3PXP"
+            secret: "JBSWY3DPEHPK3PXP",
         )
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30")
@@ -168,7 +168,7 @@ class OTPAuthModelTests: BitwardenTestCase {
             digits: 6,
             issuer: "Issuer Two: 100% the Sequel",
             period: 30,
-            secret: "JBSWY3DPEHPK3PXP"
+            secret: "JBSWY3DPEHPK3PXP",
         )
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/Issuer%20Two%3A%20100%25%20the%20Sequel:person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&issuer=Issuer%20Two%3A%20100%25%20the%20Sequel&algorithm=SHA1&digits=6&period=30")

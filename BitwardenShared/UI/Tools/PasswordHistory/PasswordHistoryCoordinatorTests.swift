@@ -18,7 +18,7 @@ class PasswordHistoryCoordinatorTests: BitwardenTestCase {
 
         subject = PasswordHistoryCoordinator(
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

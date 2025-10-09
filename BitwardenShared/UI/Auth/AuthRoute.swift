@@ -30,7 +30,7 @@ public enum AuthRoute: Equatable {
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool
+        fromEmail: Bool,
     )
 
     /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
@@ -161,7 +161,7 @@ public enum AuthRoute: Equatable {
         _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData,
         _ orgIdentifier: String?,
-        _ deviceVerificationRequired: Bool? = nil
+        _ deviceVerificationRequired: Bool? = nil,
     )
 
     /// A route to the update master password screen.
@@ -180,7 +180,7 @@ public enum AuthRoute: Equatable {
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     )
 
     /// A route to the vault unlock setup screen.
@@ -202,7 +202,7 @@ public enum AuthRoute: Equatable {
         rpid: String,
         challenge: Data,
         allowCredentialIDs: [Data],
-        userVerificationPreference: String
+        userVerificationPreference: String,
     )
 
     /// A route to the WebAuthn two-factor authentication webpage for self-hosted users.

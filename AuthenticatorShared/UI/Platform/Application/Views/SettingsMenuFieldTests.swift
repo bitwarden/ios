@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 import ViewInspector
 import XCTest
@@ -34,7 +35,7 @@ class SettingsMenuFieldTests: BitwardenTestCase {
         subject = SettingsMenuField(
             title: "Title",
             options: TestValue.allCases,
-            selection: binding
+            selection: binding,
         )
     }
 

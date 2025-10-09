@@ -30,7 +30,7 @@ class IdentityTokenRefreshRequestTests: BitwardenTestCase {
         let bodyData = try XCTUnwrap(subject.body?.encode())
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
-            "client%5Fid=mobile&grant%5Ftype=refresh%5Ftoken&refresh%5Ftoken=REFRESH%5FTOKEN"
+            "client%5Fid=mobile&grant%5Ftype=refresh%5Ftoken&refresh%5Ftoken=REFRESH%5FTOKEN",
         )
     }
 
@@ -52,7 +52,7 @@ class IdentityTokenRefreshRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.identityTokenRefresh.data
+            body: APITestData.identityTokenRefresh.data,
         )
 
         XCTAssertNoThrow(try subject.validate(response))
@@ -63,7 +63,7 @@ class IdentityTokenRefreshRequestTests: BitwardenTestCase {
     func test_validate_with400DoesntThrow() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenRefreshStubError.data
+            body: APITestData.identityTokenRefreshStubError.data,
         )
 
         XCTAssertNoThrow(try subject.validate(response))
@@ -74,7 +74,7 @@ class IdentityTokenRefreshRequestTests: BitwardenTestCase {
     func test_validate_with400InvalidGrantError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenRefreshInvalidGrantError.data
+            body: APITestData.identityTokenRefreshInvalidGrantError.data,
         )
 
         XCTAssertThrowsError(try subject.validate(response)) { error in

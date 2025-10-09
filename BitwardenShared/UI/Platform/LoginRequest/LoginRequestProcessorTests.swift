@@ -32,9 +32,9 @@ class LoginRequestProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authService: authService,
                 errorReporter: errorReporter,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: LoginRequestState(request: .fixture())
+            state: LoginRequestState(request: .fixture()),
         )
     }
 
@@ -102,7 +102,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
             .fixture(
                 creationDate: .distantFuture,
                 requestApproved: true,
-                responseDate: Date()
+                responseDate: Date(),
             ),
         ])
         await subject.perform(.reloadData)

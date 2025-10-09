@@ -44,7 +44,8 @@ env:
   MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
   MINT_PATH: .mint/lib # used by mint in bootstrap.sh
   _COVERAGE_PATH: build/coverage.xml
-  _RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
+  _BUILD_RESULT_BUNDLE_PATH: build/bwpm-build.xcresult
+  _TESTS_RESULT_BUNDLE_PATH: build/bwpm-tests.xcresult
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -121,43 +122,59 @@ jobs:
           brew bundle
           ./Scripts/bootstrap.sh
 
-      - name: Build and test
+      - name: Boot Simulator
+        run: |
+            echo "Listing simulator devices:"
+            SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
+            echo "$SIMULATORS"
+            DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+            echo "--------------------------------"
+            echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
+            xcrun simctl boot "$DEVICE_ID"
+            xcrun simctl bootstatus "$DEVICE_ID"
+
+      - name: Build
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
-            xcrun xcodebuild test \
-            -workspace Bitwarden.xcworkspace \
-            -scheme Bitwarden \
-            -configuration Debug \
-            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
-            -resultBundlePath "$_RESULT_BUNDLE_PATH" \
-            -derivedDataPath build/DerivedData \
-            -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 1 \
-            -retry-tests-on-failure \
-            -test-repetition-relaunch-enabled YES \
-            -quiet
-            kill $PYEETD_PID
+            xcrun xcodebuild build-for-testing \
+              -workspace Bitwarden.xcworkspace \
+              -scheme Bitwarden \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+              -derivedDataPath build/DerivedData \
+              -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+              -quiet
+            kill "$PYEETD_PID"
 
-      - name: Output processes
+      - name: Test
         run: |
-          echo "Sorted by memory usage"
-          ps -em -o pid,pcpu,pmem,comm | head -n40
-          echo "--------------------------------"
-          echo "Sorted by CPU usage"
-          ps -er -o pid,pcpu,pmem,comm | head -n40
+            python Scripts/pyeetd/main.py & PYEETD_PID=$!
+            xcrun xcodebuild test-without-building \
+              -workspace Bitwarden.xcworkspace \
+              -scheme Bitwarden \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+              -resultBundlePath $_TESTS_RESULT_BUNDLE_PATH \
+              -derivedDataPath build/DerivedData \
+              -test-timeouts-enabled yes \
+              -maximum-test-execution-time-allowance 1 \
+              -retry-tests-on-failure \
+              -test-repetition-relaunch-enabled YES \
+              -quiet
+            kill $PYEETD_PID
 
       - name: Print Logs Summary
         if: always()
         run: |
-          xcresultparser -o cli "$_RESULT_BUNDLE_PATH"
+          xcresultparser -o cli "$_TESTS_RESULT_BUNDLE_PATH"
           echo "# Test Summary" >> "$GITHUB_STEP_SUMMARY"
-          xcresultparser -f -o txt "$_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
+          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
             xcresultparser --output-format cobertura \
-            "$_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
+            "$_TESTS_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
 
       - name: Upload test reports
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -167,7 +184,8 @@ jobs:
           compression-level: 9
           path: |
             ${{ env._COVERAGE_PATH }}
-            ${{ env._RESULT_BUNDLE_PATH }}
+            ${{ env._TESTS_RESULT_BUNDLE_PATH }}
+            ${{ env._BUILD_RESULT_BUNDLE_PATH }}
 
   report:
     name: Process Test Reports

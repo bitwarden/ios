@@ -18,7 +18,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [],
             activeAccountId: nil,
             allowLockAndLogout: false,
-            isVisible: false
+            isVisible: false,
         )
     }
 
@@ -76,7 +76,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
     /// Tests the current account initials when current account known
     func test_currentAccount_userInitials_nonEmpty() {
         let alternate = ProfileSwitcherItem.fixture(
-            userInitials: "TC"
+            userInitials: "TC",
         )
         let newAccounts = [
             alternate,
@@ -92,7 +92,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [],
             activeAccountId: "1",
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
 
         XCTAssertNil(subject.activeAccountProfile)
@@ -105,7 +105,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [account],
             activeAccountId: nil,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
 
         XCTAssertNil(subject.activeAccountProfile)
@@ -118,7 +118,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [account],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
 
         XCTAssertNotNil(subject.activeAccountProfile)
@@ -138,7 +138,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: accounts,
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         XCTAssertNotNil(subject.activeAccountProfile)
@@ -168,7 +168,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [account] + alternates,
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let shouldSet = subject?.shouldSetAccessibilityFocus(for: .addAccount)
@@ -186,7 +186,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
             accounts: [account] + alternates,
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let shouldSet = subject?.shouldSetAccessibilityFocus(for: .alternate(alternate))

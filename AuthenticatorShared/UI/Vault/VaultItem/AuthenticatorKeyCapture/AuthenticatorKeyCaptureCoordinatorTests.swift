@@ -28,9 +28,9 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         cameraService.cameraAuthorizationStatus = .authorized
         cameraService.startResult = .success(AVCaptureSession())
@@ -313,7 +313,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String?
+        name: String?,
     ) {
         didCompleteCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -323,7 +323,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     ) {
         didCompleteAutomaticCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -334,7 +334,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     ) {
         didCompleteManualCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -344,14 +344,14 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestCamera = true
         capturedCaptureCoordinator = captureCoordinator
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestManual = true
         capturedCaptureCoordinator = captureCoordinator

@@ -22,13 +22,13 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         processor = MockProcessor(
             state: VaultGroupState(
                 searchVaultFilterType: .allVaults,
-                vaultFilterType: .allVaults
-            )
+                vaultFilterType: .allVaults,
+            ),
         )
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = VaultGroupView(
             store: Store(processor: processor),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -68,8 +68,8 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertThrowsError(
             try subject.inspect().find(
-                floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
-            )
+                floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
+            ),
         )
     }
 
@@ -89,7 +89,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_addItemFloatingActionButton_tap() async throws {
         let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
         )
         try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(nil))
@@ -125,13 +125,13 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     items: [
                         .fixtureTOTP(
                             totp: .fixture(
-                                timeProvider: timeProvider
-                            )
+                                timeProvider: timeProvider,
+                            ),
                         ),
                     ],
-                    name: Localizations.items
+                    name: Localizations.items,
                 ),
-            ]
+            ],
         )
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
         try button.tap()
@@ -224,46 +224,46 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                             cipherListView: .fixture(
                                 id: "1",
                                 login: .fixture(
-                                    username: "email@example.com"
+                                    username: "email@example.com",
                                 ),
                                 name: "Example",
-                                subtitle: "email@example.com"
-                            )
+                                subtitle: "email@example.com",
+                            ),
                         ),
                         .fixture(
                             cipherListView: .fixture(
                                 id: "2",
                                 login: .fixture(
-                                    username: "An equally long subtitle that should also take up more than one line"
+                                    username: "An equally long subtitle that should also take up more than one line",
                                 ),
                                 name: "An extra long name that should take up more than one line",
-                                subtitle: "An equally long subtitle that should also take up more than one line"
-                            )
+                                subtitle: "An equally long subtitle that should also take up more than one line",
+                            ),
                         ),
                         .fixture(
                             cipherListView: .fixture(
                                 id: "3",
                                 login: .fixture(
-                                    username: "email@example.com"
+                                    username: "email@example.com",
                                 ),
                                 name: "Example",
-                                subtitle: "email@example.com"
-                            )
+                                subtitle: "email@example.com",
+                            ),
                         ),
                         .fixture(
                             cipherListView: .fixture(
                                 id: "4",
                                 login: .fixture(
-                                    username: "email@example.com"
+                                    username: "email@example.com",
                                 ),
                                 name: "Example",
-                                subtitle: "email@example.com"
-                            )
+                                subtitle: "email@example.com",
+                            ),
                         ),
                     ],
-                    name: Localizations.items
+                    name: Localizations.items,
                 ),
-            ]
+            ],
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -277,12 +277,12 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     items: [
                         .fixture(cipherListView: .fixture(
                             login: .fixture(username: "email@example.com"),
-                            name: "Example"
+                            name: "Example",
                         )),
                     ],
-                    name: Localizations.items
+                    name: Localizations.items,
                 ),
-            ]
+            ],
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -293,7 +293,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
                 login: .fixture(username: "email@example.com"),
-                name: "Example"
+                name: "Example",
             )),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -306,8 +306,8 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 year: 2023,
                 month: 5,
                 day: 19,
-                second: 33
-            )
+                second: 33,
+            ),
         )
         processor.state.isSearching = true
         processor.state.searchResults = [
@@ -315,14 +315,14 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 name: "Example Name",
                 totp: .fixture(
                     loginListView: .fixture(
-                        username: "username"
+                        username: "username",
                     ),
                     totpCode: .init(
                         code: "034543",
                         codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
-                )
+                        period: 30,
+                    ),
+                ),
             ),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)

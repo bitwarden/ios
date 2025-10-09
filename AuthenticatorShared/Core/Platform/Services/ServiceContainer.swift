@@ -119,7 +119,7 @@ public class ServiceContainer: Services {
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
-        totpService: TOTPService
+        totpService: TOTPService,
     ) {
         self.application = application
         self.appInfoService = appInfoService
@@ -150,10 +150,10 @@ public class ServiceContainer: Services {
     ///
     public convenience init( // swiftlint:disable:this function_body_length
         application: Application,
-        errorReporter: ErrorReporter
+        errorReporter: ErrorReporter,
     ) {
         let appSettingsStore = DefaultAppSettingsStore(
-            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
+            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
 
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
@@ -166,18 +166,18 @@ public class ServiceContainer: Services {
 
         let keychainRepository = DefaultKeychainRepository(
             appIdService: appIdService,
-            keychainService: keychainService
+            keychainService: keychainService,
         )
 
         let stateService = DefaultStateService(
             appSettingsStore: appSettingsStore,
-            dataStore: dataStore
+            dataStore: dataStore,
         )
 
         let environmentService = DefaultEnvironmentService()
 
         let apiService = APIService(
-            environmentService: environmentService
+            environmentService: environmentService,
         )
 
         let timeProvider = CurrentTime()
@@ -185,7 +185,7 @@ public class ServiceContainer: Services {
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
             keychainService: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let configService = DefaultConfigService(
@@ -193,7 +193,7 @@ public class ServiceContainer: Services {
             configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
@@ -201,21 +201,21 @@ public class ServiceContainer: Services {
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let cryptographyKeyService = CryptographyKeyService(
-            stateService: stateService
+            stateService: stateService,
         )
 
         let cryptographyService = DefaultCryptographyService(
-            cryptographyKeyService: cryptographyKeyService
+            cryptographyKeyService: cryptographyKeyService,
         )
 
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
         )
 
         let notificationCenterService = DefaultNotificationCenterService()
@@ -223,46 +223,46 @@ public class ServiceContainer: Services {
         let totpService = DefaultTOTPService(
             clientService: clientService,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let pasteboardService = DefaultPasteboardService(
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
         )
 
         let authenticatorItemService = DefaultAuthenticatorItemService(
-            authenticatorItemDataStore: dataStore
+            authenticatorItemDataStore: dataStore,
         )
 
         let sharedKeychainStorage = DefaultSharedKeychainStorage(
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage
+            storage: sharedKeychainStorage,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
         )
 
         let sharedDataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
             groupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            storeType: .persisted
+            storeType: .persisted,
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(
             sharedKeychainRepository: sharedKeychainRepository,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let sharedItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: sharedDataStore,
             sharedKeychainRepository: sharedKeychainRepository,
-            sharedTimeoutService: sharedTimeoutService
+            sharedTimeoutService: sharedTimeoutService,
         )
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
@@ -273,18 +273,18 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             sharedItemService: sharedItemService,
             timeProvider: timeProvider,
-            totpService: totpService
+            totpService: totpService,
         )
 
         let exportItemsService = DefaultExportItemsService(
             authenticatorItemRepository: authenticatorItemRepository,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let importItemsService = DefaultImportItemsService(
             authenticatorItemRepository: authenticatorItemRepository,
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
         )
 
         self.init(
@@ -306,7 +306,7 @@ public class ServiceContainer: Services {
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
-            totpService: totpService
+            totpService: totpService,
         )
     }
 }

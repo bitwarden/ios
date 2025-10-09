@@ -53,7 +53,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
         coordinator: AnyCoordinator<LoginRequestRoute, Void>,
         delegate: LoginRequestDelegate?,
         services: Services,
-        state: LoginRequestState
+        state: LoginRequestState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

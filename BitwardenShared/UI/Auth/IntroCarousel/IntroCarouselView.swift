@@ -22,7 +22,7 @@ struct IntroCarouselView: View {
         VStack(spacing: 0) {
             TabView(selection: store.binding(
                 get: \.currentPageIndex,
-                send: IntroCarouselAction.currentPageIndexChanged
+                send: IntroCarouselAction.currentPageIndexChanged,
             )) {
                 ForEachIndexed(store.state.pages) { index, page in
                     pageView(page)
@@ -60,7 +60,7 @@ struct IntroCarouselView: View {
     private func dynamicStackView(
         minHeight: CGFloat,
         @ViewBuilder imageContent: () -> some View,
-        @ViewBuilder textContent: () -> some View
+        @ViewBuilder textContent: () -> some View,
     ) -> some View {
         Group {
             if verticalSizeClass == .regular {
@@ -89,7 +89,7 @@ struct IntroCarouselView: View {
         }
         .scrollView(
             addVerticalPadding: false,
-            backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor
+            backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor,
         )
     }
 
@@ -102,7 +102,7 @@ struct IntroCarouselView: View {
                     .resizable()
                     .frame(
                         width: verticalSizeClass == .regular ? 152 : 124,
-                        height: verticalSizeClass == .regular ? 152 : 124
+                        height: verticalSizeClass == .regular ? 152 : 124,
                     )
                     .accessibilityHidden(true)
             } textContent: {

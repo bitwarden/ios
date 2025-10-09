@@ -41,7 +41,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             errorReporter: errorReporter,
             exportVaultService: exportVaultService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -129,7 +129,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
 
     /// `getExportVaultDataForCXF()` gets the vault data prepared for export on CXF.
     @MainActor
-    func test_getExportVaultDataForCXF() async throws { // swiftlint:disable:this function_body_length
+    func test_getExportVaultDataForCXF() async throws {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("This test requires iOS 26.0")
         }
@@ -141,8 +141,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             profile: .fixture(
                 email: "example@example.com",
                 name: "Test",
-                userId: "1"
-            )
+                userId: "1",
+            ),
         )
 
         clientService.mockExporters.exportCxfResult = .success(
@@ -223,8 +223,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             profile: .fixture(
                 email: "example@example.com",
                 name: "Test",
-                userId: "1"
-            )
+                userId: "1",
+            ),
         )
         clientService.mockExporters.exportCxfResult = .failure(BitwardenTestError.example)
 

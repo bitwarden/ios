@@ -75,7 +75,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     func showErrorAlert(
         error: Error,
         tryAgain: (() async -> Void)? = nil,
-        onDismissed: (() -> Void)? = nil
+        onDismissed: (() -> Void)? = nil,
     ) async {
         await doShowErrorAlert(error, tryAgain, onDismissed)
     }

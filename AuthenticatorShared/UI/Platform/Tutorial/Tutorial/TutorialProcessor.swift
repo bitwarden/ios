@@ -22,7 +22,7 @@ final class TutorialProcessor: StateProcessor<TutorialState, TutorialAction, Tut
     ///
     init(
         coordinator: AnyCoordinator<TutorialRoute, TutorialEvent>,
-        state: TutorialState
+        state: TutorialState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

@@ -38,8 +38,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 deviceIdentifier: "2",
                 key: "key",
                 masterPasswordHash: nil,
-                requestApproved: true
-            )
+                requestApproved: true,
+            ),
         )
 
         XCTAssertEqual(response, .fixture())
@@ -62,13 +62,13 @@ class AuthAPIServiceTests: BitwardenTestCase {
             IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "username", password: "password"),
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
 
         XCTAssertEqual(
             response,
-            IdentityTokenResponseModel.fixture()
+            IdentityTokenResponseModel.fixture(),
         )
     }
 
@@ -77,7 +77,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
     func test_getIdentityToken_newDeviceNotVerified() async throws {
         client.result = .httpFailure(
             statusCode: 400,
-            data: APITestData.identityTokenNewDeviceError.data
+            data: APITestData.identityTokenNewDeviceError.data,
         )
 
         await assertAsyncThrows(error: IdentityTokenRequestError.newDeviceNotVerified) {
@@ -85,8 +85,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
                     deviceInfo: .fixture(),
-                    loginRequestId: nil
-                )
+                    loginRequestId: nil,
+                ),
             )
         }
     }
@@ -119,7 +119,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             deviceIdentifier: "",
             accessCode: "",
             type: AuthRequestType.authenticateAndUnlock,
-            fingerprintPhrase: ""
+            fingerprintPhrase: "",
         ))
 
         XCTAssertEqual(response, .fixture())
@@ -134,7 +134,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(
             response,
-            PreValidateSingleSignOnResponse(token: "BWUserPrefix_longincomprehensiblegibberishhere")
+            PreValidateSingleSignOnResponse(token: "BWUserPrefix_longincomprehensiblegibberishhere"),
         )
     }
 
@@ -150,8 +150,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 accessToken: "ACCESS_TOKEN",
                 expiresIn: 3600,
                 tokenType: "Bearer",
-                refreshToken: "REFRESH_TOKEN"
-            )
+                refreshToken: "REFRESH_TOKEN",
+            ),
         )
     }
 }

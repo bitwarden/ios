@@ -54,7 +54,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
-        @ViewBuilder accessoryContent: () -> AccessoryContent
+        @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
@@ -77,13 +77,13 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
         title: String? = nil,
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
-        valueAccessibilityIdentifier: String? = "ItemValue"
+        valueAccessibilityIdentifier: String? = "ItemValue",
     ) {
         self.init(
             title: title,
             titleAccessibilityIdentifier: titleAccessibilityIdentifier,
             value: value,
-            valueAccessibilityIdentifier: valueAccessibilityIdentifier
+            valueAccessibilityIdentifier: valueAccessibilityIdentifier,
         ) {
             EmptyView()
         }
@@ -97,7 +97,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     VStack {
         BitwardenTextValueField(
             title: "Title",
-            value: "Text field text"
+            value: "Text field text",
         )
         .padding()
     }

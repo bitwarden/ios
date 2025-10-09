@@ -9,9 +9,9 @@ public enum InvocationMockerError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .paramVerificationFailed:
-            return "The verification of the parameter failed."
+            "The verification of the parameter failed."
         case .resultNotSet:
-            return "The result of the InvocationMocker has not been set yet."
+            "The result of the InvocationMocker has not been set yet."
         }
     }
 }
@@ -47,7 +47,7 @@ public class InvocationMocker<TParam> {
         verification: (TParam?) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         XCTAssert(verification(invokedParam), message(), file: file, line: line)
     }
@@ -63,7 +63,7 @@ public class InvocationMocker<TParam> {
         verification: (TParam) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         guard let invokedParam else {
             XCTFail("\(TParam.self) verification failed because parameter has not been set.")
@@ -100,7 +100,7 @@ public class InvocationMockerWithThrowingResult<TParam, TResult> {
         verification: (TParam?) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         XCTAssert(verification(invokedParam), message(), file: file, line: line)
     }
@@ -116,7 +116,7 @@ public class InvocationMockerWithThrowingResult<TParam, TResult> {
         verification: (TParam) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
-        line: UInt = #line
+        line: UInt = #line,
     ) {
         guard let invokedParam else {
             XCTFail("\(TParam.self) verification failed because parameter has not been set.")

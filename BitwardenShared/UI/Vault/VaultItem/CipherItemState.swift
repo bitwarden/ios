@@ -65,7 +65,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             .loginStep1,
             .loginStep2,
             .loginStep3,
-        ]
+        ],
     )
 
     /// The base url used to fetch icons.
@@ -106,6 +106,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The name of the organization the cipher belongs to, if any.
     var organizationName: String?
+
+    /// The organization IDs that have `.personalOwnership` policy applied.
+    var organizationsWithPersonalOwnershipPolicy: [String] = []
 
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
@@ -248,6 +251,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         set {
             organizationId = newValue?.organizationId
             collectionIds = []
+            selectDefaultCollectionIfNeeded()
         }
     }
 
@@ -278,7 +282,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         name: String = "",
         organizationId: String? = nil,
         showWebIcons: Bool,
-        type: CipherType
+        type: CipherType,
     ) {
         self.accountHasPremium = accountHasPremium
         self.collectionIds = collectionIds
@@ -304,7 +308,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         password: String? = nil,
         totpKeyString: String? = nil,
         uri: String? = nil,
-        username: String? = nil
+        username: String? = nil,
     ) {
         self.init(
             accountHasPremium: hasPremium,
@@ -318,7 +322,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
                 password: password ?? "",
                 totpState: .init(totpKeyString),
                 uris: [UriState(uri: uri ?? "")],
-                username: username ?? ""
+                username: username ?? "",
             ),
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             organizationId: organizationId,
@@ -338,7 +342,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         apply(
             cipherView: cipherView,
             overrideName: "\(cipherView.name) - \(Localizations.clone)",
-            overrideLoginItemState: cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: hasPremium)
+            overrideLoginItemState: cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: hasPremium),
         )
     }
 
@@ -346,7 +350,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         existing cipherView: CipherView,
         hasPremium: Bool,
         iconBaseURL: URL? = nil,
-        showWebIcons: Bool = true
+        showWebIcons: Bool = true,
     ) {
         guard cipherView.id != nil else { return nil }
         self.init(
@@ -398,7 +402,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     private mutating func apply(
         cipherView: CipherView,
         overrideName: String? = nil,
-        overrideLoginItemState: LoginItemState? = nil
+        overrideLoginItemState: LoginItemState? = nil,
     ) {
         let type = CipherType(type: cipherView.type)
 
@@ -425,6 +429,8 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 }
 
 extension CipherItemState: AddEditItemState {
+    // MARK: Properties
+
     var navigationTitle: String {
         switch configuration {
         case .add:
@@ -444,6 +450,25 @@ extension CipherItemState: AddEditItemState {
             case .sshKey: Localizations.editSSHKey
             }
         }
+    }
+
+    // MARK: Methods
+
+    mutating func selectDefaultCollectionIfNeeded() {
+        guard configuration.isAdding else {
+            return
+        }
+
+        let defaultCollectionForOwner = collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
+
+        guard let defaultCollectionId = defaultCollectionForOwner?.id,
+              collectionIds.isEmpty,
+              let ownerOrganizationId = owner?.organizationId,
+              organizationsWithPersonalOwnershipPolicy.contains(ownerOrganizationId) else {
+            return
+        }
+
+        collectionIds.append(defaultCollectionId)
     }
 
     mutating func update(from cipherView: CipherView) {
@@ -467,9 +492,9 @@ extension CipherItemState: ViewVaultItemState {
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
-            return view
+            view
         case .add:
-            return newCipherView()
+            newCipherView()
         }
     }
 
@@ -581,14 +606,14 @@ extension CipherItemState {
                     name: customField.name,
                     value: customField.value,
                     type: .init(fieldType: customField.type),
-                    linkedId: customField.linkedIdType?.rawValue
+                    linkedId: customField.linkedIdType?.rawValue,
                 )
             },
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,
             revisionDate: creationDate,
-            archivedDate: nil
+            archivedDate: nil,
         )
     }
 } // swiftlint:disable:this file_length

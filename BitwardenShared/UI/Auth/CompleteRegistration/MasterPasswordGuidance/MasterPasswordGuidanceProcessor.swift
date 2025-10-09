@@ -5,7 +5,7 @@
 class MasterPasswordGuidanceProcessor: StateProcessor<
     Void,
     MasterPasswordGuidanceAction,
-    Void
+    Void,
 > {
     // MARK: Private Properties
 
@@ -25,7 +25,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        delegate: MasterPasswordUpdateDelegate?
+        delegate: MasterPasswordUpdateDelegate?,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -41,7 +41,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
         case .generatePasswordPressed:
             coordinator.navigate(
                 to: .masterPasswordGenerator,
-                context: delegate
+                context: delegate,
             )
         }
     }

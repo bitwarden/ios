@@ -21,7 +21,7 @@ class TutorialViewTests: BitwardenTestCase {
         let state = TutorialState()
         processor = MockProcessor(state: state)
         subject = TutorialView(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
     }
 
@@ -45,7 +45,7 @@ class TutorialViewTests: BitwardenTestCase {
                     .defaultLandscape,
                     .defaultPortraitAX5,
                     .defaultLandscapeAX5,
-                ]
+                ],
             )
         }
     }

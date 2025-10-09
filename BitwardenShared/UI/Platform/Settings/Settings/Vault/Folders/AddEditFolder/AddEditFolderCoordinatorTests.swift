@@ -19,7 +19,7 @@ class AddEditFolderCoordinatorTests: BitwardenTestCase {
 
         subject = AddEditFolderCoordinator(
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

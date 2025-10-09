@@ -42,8 +42,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 errorReporter: errorReporter,
                 rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
     }
 
@@ -74,10 +74,10 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             active,
             animated: true,
             attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: false
+            didSwitchAccountAutomatically: false,
         )
         let route = await subject.handleAndRoute(
-            initialRoute
+            initialRoute,
         )
         XCTAssertEqual(
             route,
@@ -85,8 +85,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         let error = try? XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
         XCTAssertEqual(BitwardenTestError.example, error)
@@ -107,8 +107,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertEqual(route, .completeWithNeverUnlockKey)
     }
@@ -130,8 +130,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertEqual(
             route,
@@ -139,8 +139,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -155,8 +155,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertEqual(route, .complete)
     }
@@ -175,8 +175,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 account,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
 
         XCTAssertEqual(
@@ -185,8 +185,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 account,
                 animated: true,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
@@ -255,8 +255,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 errorReporter: errorReporter,
                 rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
 
         authRepository.activeAccount = .fixture()
@@ -281,8 +281,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject = AuthRouter(
             isInAppExtension: true,
             services: ServiceContainer.withMocks(
-                authRepository: authRepository
-            )
+                authRepository: authRepository,
+            ),
         )
         authRepository.activeAccount = .fixture()
         stateService.activeAccount = .fixture()
@@ -307,8 +307,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject = AuthRouter(
             isInAppExtension: true,
             services: ServiceContainer.withMocks(
-                authRepository: authRepository
-            )
+                authRepository: authRepository,
+            ),
         )
         authRepository.activeAccount = .fixture()
         stateService.activeAccount = .fixture()
@@ -327,7 +327,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// the account requires an updated password.
     func test_handleAndRoute_didCompleteAuth_updatePassword() async {
         authRepository.activeAccount = .fixture(
-            profile: .fixture(forcePasswordResetReason: .adminForcePasswordReset)
+            profile: .fixture(forcePasswordResetReason: .adminForcePasswordReset),
         )
         let route = await subject.handleAndRoute(.didCompleteAuth)
         XCTAssertEqual(route, .updateMasterPassword)
@@ -349,8 +349,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 activeAccount,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
         XCTAssertEqual(authRepository.activeAccount, activeAccount)
     }
@@ -392,8 +392,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
 
         XCTAssertEqual(
@@ -402,8 +402,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -422,13 +422,13 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 alt,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .complete
+            .complete,
         )
     }
 
@@ -477,9 +477,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: alt.profile.userId,
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -488,8 +488,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -511,14 +511,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: alt.profile.userId,
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .complete
+            .complete,
         )
     }
 
@@ -540,9 +540,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: "123",
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -551,8 +551,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 alt,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
     }
 
@@ -575,9 +575,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: main.profile.userId,
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -586,8 +586,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 alt,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
     }
 
@@ -609,14 +609,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: main.profile.userId,
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .complete
+            .complete,
         )
     }
 
@@ -636,8 +636,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let route = await subject.handleAndRoute(
             .action(
-                .lockVault(userId: main.profile.userId)
-            )
+                .lockVault(userId: main.profile.userId),
+            ),
         )
 
         XCTAssertFalse(authRepository.hasManuallyLocked)
@@ -648,8 +648,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -662,8 +662,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let route = await subject.handleAndRoute(
             .action(
-                .lockVault(userId: main.profile.userId, isManuallyLocking: true)
-            )
+                .lockVault(userId: main.profile.userId, isManuallyLocking: true),
+            ),
         )
 
         XCTAssertTrue(authRepository.hasManuallyLocked)
@@ -674,8 +674,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -690,8 +690,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let route = await subject.handleAndRoute(
             .action(
-                .lockVault(userId: alt.profile.userId)
-            )
+                .lockVault(userId: alt.profile.userId),
+            ),
         )
 
         XCTAssertFalse(authRepository.hasManuallyLocked)
@@ -702,8 +702,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -716,14 +716,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(
             .action(
                 .lockVault(
-                    userId: Account.fixtureAccountLogin().profile.userId
-                )
-            )
+                    userId: Account.fixtureAccountLogin().profile.userId,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -738,9 +738,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(
             .action(
                 .lockVault(
-                    userId: Account.fixtureAccountLogin().profile.userId
-                )
-            )
+                    userId: Account.fixtureAccountLogin().profile.userId,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -749,8 +749,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -771,9 +771,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: "123",
-                    userInitiated: true
-                )
-            )
+                    userInitiated: true,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -782,8 +782,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -801,9 +801,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: main.profile.userId,
-                    userInitiated: false
-                )
-            )
+                    userInitiated: false,
+                ),
+            ),
         )
 
         XCTAssertEqual(
@@ -812,8 +812,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 main,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -830,14 +830,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: main.profile.userId,
-                    userInitiated: false
-                )
-            )
+                    userInitiated: false,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -854,14 +854,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: alt.profile.userId,
-                    userInitiated: false
-                )
-            )
+                    userInitiated: false,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -881,14 +881,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             .action(
                 .logout(
                     userId: "123",
-                    userInitiated: false
-                )
-            )
+                    userInitiated: false,
+                ),
+            ),
         )
 
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -907,8 +907,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             route = await subject.handleAndRoute(
                 .didLogout(
                     userId: "123",
-                    userInitiated: true
-                )
+                    userInitiated: true,
+                ),
             )
         }
         waitFor(authRepository.setActiveAccountId != nil)
@@ -921,8 +921,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 alt,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
     }
 
@@ -942,8 +942,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 alt,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -974,8 +974,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
 
         let route = await subject.handleAndRoute(.didStart)
@@ -1014,8 +1014,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 account,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertTrue(stateService.introCarouselShown)
     }
@@ -1051,8 +1051,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 active,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -1108,8 +1108,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 account,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertTrue(rehydrationHelper.saveRehydrationStateIfNeededCalled)
     }
@@ -1127,8 +1127,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 errorReporter: errorReporter,
                 rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
 
         let account = Account.fixture()
@@ -1148,8 +1148,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 account,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
         XCTAssertFalse(rehydrationHelper.saveRehydrationStateIfNeededCalled)
     }
@@ -1172,7 +1172,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(.didTimeout(userId: account.profile.userId))
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -1195,7 +1195,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(.didTimeout(userId: account.profile.userId))
         XCTAssertEqual(
             route,
-            .landing
+            .landing,
         )
     }
 
@@ -1220,8 +1220,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         vaultTimeoutService.lastActiveTime = [:]
         let route = await subject.handleAndRoute(
             .action(
-                .switchAccount(isAutomatic: true, userId: active.profile.userId)
-            )
+                .switchAccount(isAutomatic: true, userId: active.profile.userId),
+            ),
         )
         XCTAssertEqual(route, .complete)
         XCTAssertEqual(authRepository.setActiveAccountId, active.profile.userId)
@@ -1240,8 +1240,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         vaultTimeoutService.lastActiveTime = [:]
         let route = await subject.handleAndRoute(
             .action(
-                .switchAccount(isAutomatic: true, userId: inactive.profile.userId)
-            )
+                .switchAccount(isAutomatic: true, userId: inactive.profile.userId),
+            ),
         )
         XCTAssertEqual(
             route,
@@ -1249,8 +1249,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 inactive,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
         XCTAssertEqual(authRepository.setActiveAccountId, inactive.profile.userId)
         XCTAssertNotNil(vaultTimeoutService.lastActiveTime[active.profile.userId])
@@ -1266,8 +1266,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let route = await subject.handleAndRoute(
             .action(
-                .switchAccount(isAutomatic: true, userId: account.profile.userId)
-            )
+                .switchAccount(isAutomatic: true, userId: account.profile.userId),
+            ),
         )
         XCTAssertEqual(route, .landingSoftLoggedOut(email: account.profile.email))
         XCTAssertEqual(authRepository.setActiveAccountId, account.profile.userId)

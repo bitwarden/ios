@@ -36,7 +36,7 @@ public extension View {
     ///    - asyncAction: The action to perform.
     func onTapGesture(
         count: Int = 1,
-        performAsync asyncAction: @escaping () async -> Void
+        performAsync asyncAction: @escaping () async -> Void,
     ) -> some View {
         onTapGesture(
             count: count,
@@ -44,7 +44,7 @@ public extension View {
                 Task {
                     await asyncAction()
                 }
-            }
+            },
         )
     }
 }

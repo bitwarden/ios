@@ -100,7 +100,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         clientService: ClientService,
         collectionHelper: CollectionHelper,
         errorReporter: ErrorReporter,
-        withData preparedData: VaultListPreparedData
+        withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
@@ -119,7 +119,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         vaultListData.sections.append(VaultListSection(
             id: Localizations.chooseALoginToSaveThisPasskeyTo,
             items: items.sorted(using: VaultListItem.defaultSortDescriptor),
-            name: Localizations.chooseALoginToSaveThisPasskeyTo
+            name: Localizations.chooseALoginToSaveThisPasskeyTo,
         ))
         return self
     }
@@ -135,7 +135,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         vaultListData.sections.append(VaultListSection(
             id: "AutofillPasswords",
             items: matchingItems,
-            name: ""
+            name: "",
         ))
         return self
     }
@@ -168,7 +168,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             let collection = collectionNode.node
             guard let collectionId = collection.id else {
                 self.errorReporter.log(
-                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
+                    error: BitwardenError.dataError("Received a collection from the API with a missing ID."),
                 )
                 return nil
             }
@@ -176,14 +176,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 id: collectionId,
                 itemType: .group(
                     .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
-                    preparedData.collectionsCount[collectionId, default: 0]
-                )
+                    preparedData.collectionsCount[collectionId, default: 0],
+                ),
             )
         }
 
         if !collectionItems.isEmpty {
             vaultListData.sections.append(
-                VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections)
+                VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
             )
         }
         return self
@@ -194,14 +194,13 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             vaultListData.sections.append(VaultListSection(
                 id: "Favorites",
                 items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.favorites
+                name: Localizations.favorites,
             ))
         }
         return self
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
-        // swiftlint:disable:previous function_body_length
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -219,7 +218,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             .compactMap { folderNode in
                 guard let folderId = folderNode.node.id else {
                     self.errorReporter.log(
-                        error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
+                        error: BitwardenError.dataError("Received a folder from the API with a missing ID."),
                     )
                     return nil
                 }
@@ -227,8 +226,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                     id: folderId,
                     itemType: .group(.folder(
                         id: folderId,
-                        name: folderNode.name
-                    ), preparedData.foldersCount[folderId, default: 0])
+                        name: folderNode.name,
+                    ), preparedData.foldersCount[folderId, default: 0]),
                 )
             }
 
@@ -239,14 +238,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             foldersVaultListItems.append(
                 VaultListItem(
                     id: "NoFolderFolderItem",
-                    itemType: .group(.noFolder, preparedData.noFolderItems.count)
-                )
+                    itemType: .group(.noFolder, preparedData.noFolderItems.count),
+                ),
             )
         }
 
         if !foldersVaultListItems.isEmpty {
             vaultListData.sections.append(
-                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders)
+                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders),
             )
         }
 
@@ -254,7 +253,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             vaultListData.sections.append(VaultListSection(
                 id: "NoFolder",
                 items: preparedData.noFolderItems.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.folderNone
+                name: Localizations.folderNone,
             ))
         }
 
@@ -269,8 +268,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                     items: preparedData
                         .groupItems
                         .sorted(using: VaultListItem.defaultSortDescriptor),
-                    name: Localizations.items
-                )
+                    name: Localizations.items,
+                ),
             )
         }
         return self
@@ -283,10 +282,10 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 items: [
                     VaultListItem(
                         id: "Types.VerificationCodes",
-                        itemType: .group(.totp, preparedData.totpItemsCount)
+                        itemType: .group(.totp, preparedData.totpItemsCount),
                     ),
                 ],
-                name: Localizations.totp
+                name: Localizations.totp,
             ))
         }
         return self
@@ -295,7 +294,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     func addTrashSection() -> VaultListSectionsBuilder {
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
         vaultListData.sections.append(
-            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash)
+            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
         )
         return self
     }
@@ -304,7 +303,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
         var types = [
             VaultListItem(
                 id: "Types.Logins",
-                itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0])
+                itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0]),
             ),
         ]
 
@@ -313,7 +312,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             types.append(
                 VaultListItem(
                     id: "Types.Cards",
-                    itemType: .group(.card, cardCount)
+                    itemType: .group(.card, cardCount),
                 ),
             )
         }
@@ -322,17 +321,17 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             contentsOf: [
                 VaultListItem(
                     id: "Types.Identities",
-                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
+                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0]),
                 ),
                 VaultListItem(
                     id: "Types.SecureNotes",
-                    itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
+                    itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0]),
                 ),
                 VaultListItem(
                     id: "Types.SSHKeys",
-                    itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
+                    itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0]),
                 ),
-            ]
+            ],
         )
 
         vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))

@@ -17,7 +17,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
         ) {
             Button {
                 tapped = true
@@ -38,14 +38,14 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             image: SharedAsset.Icons.plus24,
             style: .largeTextTintedIcon,
             title: Localizations.importPasswords,
-            message: Localizations.startImportCXFDescriptionLong
+            message: Localizations.startImportCXFDescriptionLong,
         )
         assertSnapshots(
             of: subject,
             as: [
                 "portrait": .defaultPortrait,
                 "landscape": .defaultLandscape,
-            ]
+            ],
         )
     }
 
@@ -55,14 +55,14 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
         )
         assertSnapshots(
             of: subject,
             as: [
                 "portrait": .defaultPortrait,
                 "landscape": .defaultLandscape,
-            ]
+            ],
         )
     }
 
@@ -72,7 +72,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
         ) {
             Button {} label: {
                 Text(Localizations.learnMore)
@@ -85,7 +85,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             as: [
                 "portrait": .defaultPortrait,
                 "landscape": .defaultLandscape,
-            ]
+            ],
         )
     }
 
@@ -95,14 +95,14 @@ class IllustratedMessageViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .smallImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
         )
         assertSnapshots(
             of: subject,
             as: [
                 "portrait": .defaultPortrait,
                 "landscape": .defaultLandscape,
-            ]
+            ],
         )
     }
 }

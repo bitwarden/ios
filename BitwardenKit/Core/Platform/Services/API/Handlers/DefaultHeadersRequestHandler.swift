@@ -32,7 +32,7 @@ public final class DefaultHeadersRequestHandler: RequestHandler {
         appName: String,
         appVersion: String,
         buildNumber: String,
-        systemDevice: SystemDevice
+        systemDevice: SystemDevice,
     ) {
         self.appName = appName
         self.appVersion = appVersion

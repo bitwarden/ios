@@ -69,7 +69,7 @@ enum Base32 {
         return Octets(
             octet1Index: octetIndex,
             octet2Index: overhangsOctet ? octetIndex + 1 : nil,
-            bitOffset: octetBitOffset
+            bitOffset: octetBitOffset,
         )
     }
 

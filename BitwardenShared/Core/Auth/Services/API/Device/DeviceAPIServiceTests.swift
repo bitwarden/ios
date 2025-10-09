@@ -34,7 +34,7 @@ class DeviceAPIServiceTests: BitwardenTestCase {
 
         let isKnownDevice = try await subject.knownDevice(
             email: "email@example.com",
-            deviceIdentifier: "1234"
+            deviceIdentifier: "1234",
         )
 
         let request = try XCTUnwrap(client.requests.first)
@@ -55,7 +55,7 @@ class DeviceAPIServiceTests: BitwardenTestCase {
         await assertAsyncThrows {
             _ = try await subject.knownDevice(
                 email: "email@example.com",
-                deviceIdentifier: "1234"
+                deviceIdentifier: "1234",
             )
         }
     }
@@ -67,7 +67,7 @@ class DeviceAPIServiceTests: BitwardenTestCase {
         await assertAsyncThrows {
             _ = try await subject.knownDevice(
                 email: "email@example.com",
-                deviceIdentifier: "1234"
+                deviceIdentifier: "1234",
             )
         }
     }

@@ -24,7 +24,7 @@ struct AzureFileUploadRequest: Request {
             url: url,
             method: method,
             headers: headers,
-            body: body
+            body: body,
         )
     }
 

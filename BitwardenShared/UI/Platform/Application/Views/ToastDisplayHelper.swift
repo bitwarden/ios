@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 import UIKit
 
@@ -25,7 +26,7 @@ enum ToastDisplayHelper {
         in parentViewController: UIViewController,
         toast: Toast,
         additionalBottomPadding: CGFloat = 0,
-        duration: TimeInterval = 3
+        duration: TimeInterval = 3,
     ) {
         guard parentViewController.view.window?.viewWithTag(toastTag) == nil,
               let window = parentViewController.view.window

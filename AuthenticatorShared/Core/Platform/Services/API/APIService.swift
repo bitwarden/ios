@@ -33,7 +33,7 @@ class APIService {
     ///
     init(
         client: HTTPClient = URLSession.shared,
-        environmentService: EnvironmentService
+        environmentService: EnvironmentService,
     ) {
         self.client = client
 
@@ -41,14 +41,14 @@ class APIService {
             appName: "Bitwarden_Authenticator_Mobile",
             appVersion: Bundle.main.appVersion,
             buildNumber: Bundle.main.buildNumber,
-            systemDevice: UIDevice.current
+            systemDevice: UIDevice.current,
         )
 
         apiUnauthenticatedService = HTTPService(
             baseURLGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+            responseHandlers: [responseValidationHandler],
         )
     }
 }

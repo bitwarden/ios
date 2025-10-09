@@ -15,7 +15,7 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
 
         processor = MockProcessor(state: SendListState())
         subject = SendListSearchHandler(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
     }
 
@@ -36,8 +36,8 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("The Answer")
-            )
+                .searchTextChanged("The Answer"),
+            ),
         )
     }
 
@@ -51,8 +51,8 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("")
-            )
+                .searchTextChanged(""),
+            ),
         )
     }
 
@@ -66,8 +66,8 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("")
-            )
+                .searchTextChanged(""),
+            ),
         )
     }
 }

@@ -1287,3 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Ostrzeżenie:** „Rozpoczyna się od” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Ostrzeżenie:** „Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych logowania.";
 "DefaultX" = "Domyślne (%1$@)";
+"UpdateYourEncryptionSettings" = "Zaktualizuj ustawienia szyfrowania";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
+"Updating" = "Updating...";
+"EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";

@@ -21,7 +21,7 @@ enum IdentityTokenRequestError: Error, Equatable {
     case twoFactorRequired(
         _ authMethodsData: AuthMethodsData,
         _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
-        _ ssoToken: String?
+        _ ssoToken: String?,
     )
 
     /// Two factor providers aren't configured.
@@ -70,7 +70,7 @@ struct IdentityTokenRequest: Request {
         case 400:
             guard let errorModel = try? IdentityTokenErrorModel.decoder.decode(
                 IdentityTokenErrorModel.self,
-                from: response.body
+                from: response.body,
             ) else { return }
 
             if let twoFactorProvidersData = errorModel.twoFactorProvidersData {
@@ -80,7 +80,7 @@ struct IdentityTokenRequest: Request {
                 throw IdentityTokenRequestError.twoFactorRequired(
                     twoFactorProvidersData,
                     errorModel.masterPasswordPolicy,
-                    errorModel.ssoToken
+                    errorModel.ssoToken,
                 )
             } else if let error = errorModel.error,
                       error == IdentityTokenError.deviceError {

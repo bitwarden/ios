@@ -4,7 +4,10 @@ import Foundation
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
+    var accessTokenExpirationDateByUserId = [String: Date]()
     var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
@@ -71,6 +74,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    func accessTokenExpirationDate(userId: String) -> Date? {
+        accessTokenExpirationDateByUserId[userId]
+    }
 
     func accountKeys(userId: String) -> PrivateKeysResponseModel? {
         accountKeys[userId]
@@ -187,6 +194,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) {
+        accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
     func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
