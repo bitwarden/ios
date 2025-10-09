@@ -882,73 +882,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
-    /// generic error alert if restoring fails.
-    @MainActor
-    func test_perform_restorePressed_genericError() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        struct TestError: Error, Equatable {}
-        vaultRepository.restoreCipherResult = .failure(TestError())
-        await subject.perform(.restorePressed)
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
-        XCTAssertNil(alert?.message)
-
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
-
-        // Ensure the generic error alert is displayed.
-        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
-        XCTAssertEqual(errorAlert as? TestError, TestError())
-        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
-    }
-
-    /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
-    /// toast if restoring succeeds.
-    @MainActor
-    func test_perform_restorePressed_success() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        vaultRepository.softDeleteCipherResult = .success(())
-        await subject.perform(.restorePressed)
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
-        XCTAssertNil(alert?.message)
-
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
-
-        XCTAssertNil(errorReporter.errors.first)
-        // Ensure the cipher is deleted and the view is dismissed.
-        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
-        var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
-        XCTAssertTrue(delegate.itemRestoredCalled)
-    }
-
     /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if
     /// loadingState is not `.data(:)`
     @MainActor
@@ -1325,6 +1258,73 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
         XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
+    /// `receive(_:)` with `.morePressed(.restore)` presents the confirmation alert before restoring
+    /// the item and displays generic error alert if restoring fails.
+    @MainActor
+    func test_receive_morePressed_restore_genericError() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+        struct TestError: Error, Equatable {}
+        vaultRepository.restoreCipherResult = .failure(TestError())
+        subject.receive(.morePressed(.restore))
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `receive(_:)` with `.morePressed(.restore)` presents the confirmation alert before restoring
+    /// the item and displays toast if restoring succeeds.
+    @MainActor
+    func test_receive_morePressed_restore_success() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        subject.receive(.morePressed(.restore))
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemRestoredCalled)
     }
 
     /// `receive` with `.passwordHistoryPressed` navigates to the password history view.
