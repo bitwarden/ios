@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -7,7 +6,7 @@ import SwiftUI
 /// A standard input field that allows the user to select between a predefined set of
 /// options.
 ///
-struct SettingsMenuField<T>: View where T: Menuable {
+public struct SettingsMenuField<T>: View where T: Menuable {
     // MARK: Properties
 
     /// The accessibility ID for the menu field.
@@ -33,7 +32,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             Menu {
                 Picker(selection: $selection) {
@@ -92,7 +91,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
     ///   - selectionAccessibilityID: The accessibility ID for the picker selection.
     ///   - selection: A `Binding` for the currently selected option.
     ///
-    init(
+    public init(
         title: String,
         options: [T],
         hasDivider: Bool = true,
