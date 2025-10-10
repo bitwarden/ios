@@ -4,7 +4,7 @@ import SwiftUI
 
 /// The data necessary for displaying a `ToggleFieldView`.
 ///
-struct ToggleField<State>: Equatable, Identifiable {
+public struct ToggleField<State>: Equatable, Identifiable {
     // MARK: Properties
 
     /// The accessibility id for the toggle. The `id` will be used as the accessibility id
@@ -19,18 +19,47 @@ struct ToggleField<State>: Equatable, Identifiable {
     let isDisabled: Bool
 
     /// The current toggle value.
-    let isOn: Bool
+    public let isOn: Bool
 
     /// A key path for updating the backing value for the toggle field.
-    let keyPath: WritableKeyPath<State, Bool>
+    public let keyPath: WritableKeyPath<State, Bool>
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     // MARK: Identifiable
 
-    var id: String {
+    public var id: String {
         "ToggleField-\(title)"
+    }
+
+    // MARK: Initializer
+
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - accessibilityId: The accessibility ID for the toggle.
+    ///     The `id` will be used as the accessibility ID if this is `nil`.
+    ///   - accessibilityLabel: The accessibility label for the toggle.
+    ///     The title will be used as the accessibility label if this is `nil`.
+    ///   - isDisabled: Whether the toggle is disabled.
+    ///   - isOn: The current toggle value.
+    ///   - keyPath: A key path for updating the backing value for the toggle field.
+    ///   - title: The title of the field.
+    public init(
+        accessibilityId: String?,
+        accessibilityLabel: String?,
+        isDisabled: Bool,
+        isOn: Bool,
+        keyPath: WritableKeyPath<State, Bool>,
+        title: String,
+    ) {
+        self.accessibilityId = accessibilityId
+        self.accessibilityLabel = accessibilityLabel
+        self.isDisabled = isDisabled
+        self.isOn = isOn
+        self.keyPath = keyPath
+        self.title = title
     }
 }
 
@@ -38,7 +67,7 @@ struct ToggleField<State>: Equatable, Identifiable {
 
 /// A view that displays a toggle for display in a form.
 ///
-struct ToggleFieldView<State>: View {
+public struct ToggleFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when the toggle is toggled.
@@ -47,7 +76,7 @@ struct ToggleFieldView<State>: View {
     /// The data for displaying the field.
     let field: ToggleField<State>
 
-    var body: some View {
+    public var body: some View {
         Toggle(
             field.title,
             isOn: Binding(get: { field.isOn }, set: action),
@@ -67,7 +96,7 @@ struct ToggleFieldView<State>: View {
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when the toggle is toggled.
     ///
-    init(field: ToggleField<State>, action: @escaping (Bool) -> Void) {
+    public init(field: ToggleField<State>, action: @escaping (Bool) -> Void) {
         self.action = action
         self.field = field
     }
