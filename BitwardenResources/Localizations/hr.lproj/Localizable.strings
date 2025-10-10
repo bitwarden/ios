@@ -1287,7 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozorenje:** „Počinje s” je napredna mogućnost s povećnim rizikom od otkrivanja vjerodajnica.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Upozorenje:** „Regularni izraz” je napredna mogućnost s povećanim rizikom curenja vjerodajnica u slučaju krivog korištenja.";
 "DefaultX" = "Zadano (%1$@)";
-"UpdateYourEncryptionSettings" = "Update your encryption settings";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
-"EncryptionSettingsUpdated" = "Encryption settings updated";
+"UpdateYourEncryptionSettings" = "Ažuriraj svoje postakve šifriranja";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za aćuriranje, unesi svoju glavnu lozinku.";
+"Updating" = "Ažuriranje...";
+"EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
