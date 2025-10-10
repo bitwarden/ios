@@ -4,12 +4,12 @@ import SwiftUI
 
 /// The data necessary for displaying a `FormTextFieldView`.
 ///
-struct FormTextField<State>: Equatable, Identifiable {
+public struct FormTextField<State>: Equatable, Identifiable {
     // MARK: Types
 
     /// An enum describing the behavior for when the input should be automatically capitalized.
     ///
-    enum Autocapitalization {
+    public enum Autocapitalization {
         /// Input is never capitalized.
         case never
 
@@ -48,13 +48,13 @@ struct FormTextField<State>: Equatable, Identifiable {
     let isPasswordVisible: Bool?
 
     /// A key path for updating whether a password displayed in the text field is visible.
-    let isPasswordVisibleKeyPath: WritableKeyPath<State, Bool>?
+    public let isPasswordVisibleKeyPath: WritableKeyPath<State, Bool>?
 
     /// The type of keyboard to display.
     let keyboardType: UIKeyboardType
 
     /// A key path for updating the backing value for the text field.
-    let keyPath: WritableKeyPath<State, String>
+    public let keyPath: WritableKeyPath<State, String>
 
     /// The accessibility id for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
@@ -70,7 +70,7 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     // MARK: Identifiable
 
-    var id: String {
+    public var id: String {
         "FormTextField-\(title)"
     }
 
@@ -93,7 +93,7 @@ struct FormTextField<State>: Equatable, Identifiable {
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     ///   - value: The current text value.
-    init(
+    public init(
         accessibilityId: String? = nil,
         autocapitalization: Autocapitalization = .sentences,
         isAutocorrectDisabled: Bool = false,
@@ -124,7 +124,7 @@ struct FormTextField<State>: Equatable, Identifiable {
 
 /// A view that displays a text field for display in a form.
 ///
-struct FormTextFieldView<State>: View {
+public struct FormTextFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when the text is changed.
@@ -137,7 +137,7 @@ struct FormTextFieldView<State>: View {
     /// in the text field is changed.
     let isPasswordVisibleChangedAction: ((Bool) -> Void)?
 
-    var body: some View {
+    public var body: some View {
         BitwardenTextField(
             title: field.title,
             text: Binding(get: { field.value }, set: action),
@@ -163,7 +163,7 @@ struct FormTextFieldView<State>: View {
     ///   - isPasswordVisibleChangedAction: A closure containing the action to take when the value
     ///     for whether a password is displayed in the text field is changed.
     ///
-    init(
+    public init(
         field: FormTextField<State>,
         action: @escaping (String) -> Void,
         isPasswordVisibleChangedAction: ((Bool) -> Void)? = nil,

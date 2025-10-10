@@ -5,11 +5,11 @@ import SwiftUI
 
 /// The data necessary for displaying a `SliderFieldView`.
 ///
-struct SliderField<State>: Equatable, Identifiable {
+public struct SliderField<State>: Equatable, Identifiable {
     // MARK: Properties
 
     /// A key path for updating the backing value for the slider field.
-    let keyPath: WritableKeyPath<State, Double>
+    public let keyPath: WritableKeyPath<State, Double>
 
     /// The range of allowable values for the slider.
     let range: ClosedRange<Double>
@@ -33,8 +33,40 @@ struct SliderField<State>: Equatable, Identifiable {
 
     // MARK: Identifiable
 
-    var id: String {
+    public var id: String {
         "SliderField-\(title)"
+    }
+
+    // MARK: Initializer
+
+    /// Public version of synthesized initializer
+    ///
+    /// - Parameters:
+    ///   - keyPath: A key path for updating the backing value for the slider field.
+    ///   - range: The range of allowable values for the slider.
+    ///   - sliderAccessibilityId: The accessibility ID for the slider.
+    ///     The `title` will be used as the accessibility ID if this is `nil`.
+    ///   - sliderValueAccessibilityId: The accessibility ID for the slider value.
+    ///     The `id` will be used as the accessibility ID if this is `nil`.
+    ///   - step: The distance between each valid value.
+    ///   - title: The title of the field.
+    ///   - value: The current slider value.
+    public init(
+        keyPath: WritableKeyPath<State, Double>,
+        range: ClosedRange<Double>,
+        sliderAccessibilityId: String?,
+        sliderValueAccessibilityId: String?,
+        step: Double,
+        title: String,
+        value: Double,
+    ) {
+        self.keyPath = keyPath
+        self.range = range
+        self.sliderAccessibilityId = sliderAccessibilityId
+        self.sliderValueAccessibilityId = sliderValueAccessibilityId
+        self.step = step
+        self.title = title
+        self.value = value
     }
 }
 
@@ -42,7 +74,7 @@ struct SliderField<State>: Equatable, Identifiable {
 
 /// A view that displays a slider for display in a form.
 ///
-struct SliderFieldView<State>: View {
+public struct SliderFieldView<State>: View {
     // MARK: Properties
 
     /// The data for displaying the field.
@@ -57,7 +89,7 @@ struct SliderFieldView<State>: View {
     /// The width of the three digit text "000" based on the current font.
     @SwiftUI.State private var minTextWidth: CGFloat = 14
 
-    var body: some View {
+    public var body: some View {
         HStack(alignment: .center, spacing: 16) {
             Text(field.title)
                 .styleGuide(.body)
@@ -110,7 +142,7 @@ struct SliderFieldView<State>: View {
     ///   - onEditingChanged: A closure containing the action to take when the slider begins or ends editing.
     ///   - onValueChanged: A closure containing the action to take when a new value is selected.
     ///
-    init(
+    public init(
         field: SliderField<State>,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onValueChanged: @escaping (Double) -> Void,

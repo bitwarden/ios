@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A custom stepper component which performs increment and decrement actions.
 ///
-struct BitwardenStepper<Label: View, Footer: View>: View {
+public struct BitwardenStepper<Label: View, Footer: View>: View {
     // MARK: Properties
 
     /// Whether a text field can be used to type in the value as an alternative to using the
@@ -65,7 +65,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             contentView()
 
@@ -86,7 +86,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
     ///   - label: The label to display for the stepper.
     ///   - footer: A footer to display below the stepper.
     ///
-    init(
+    public init(
         value: Binding<Int>,
         in range: ClosedRange<Int>,
         allowTextFieldInput: Bool = false,
@@ -112,7 +112,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
     ///   - textFieldAccessibilityIdentifier: An accessibility identifier for the text field.
     ///   - label: The label to display for the stepper.
     ///
-    init(
+    public init(
         value: Binding<Int>,
         in range: ClosedRange<Int>,
         allowTextFieldInput: Bool = false,

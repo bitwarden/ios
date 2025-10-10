@@ -4,7 +4,7 @@ import SwiftUI
 
 /// The data necessary for displaying a `FormMenuFieldView`.
 ///
-struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
+public struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     // MARK: Properties
 
     /// The accessibility identifier to apply to the field.
@@ -27,7 +27,7 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
 
     // MARK: Identifiable
 
-    var id: String {
+    public var id: String {
         "FormMenuField-\(title)"
     }
 
@@ -42,7 +42,7 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     ///   - options: The options displayed in the menu.
     ///   - selection: The current selection.
     ///   - title: The title of the field.
-    init(
+    public init(
         accessibilityIdentifier: String?,
         footer: String? = nil,
         keyPath: WritableKeyPath<State, T>,
@@ -63,7 +63,7 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
 
 /// A view that displays a menu field for display in a form.
 ///
-struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingContent: View>: View {
+public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingContent: View>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when the menu selection is changed.
@@ -80,7 +80,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         if let trailingContent, let titleAccessoryContent {
             BitwardenMenuField(
                 title: field.title,
@@ -128,7 +128,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when the menu selection is changed.
     ///
-    init(
+    public init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
     ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
@@ -145,7 +145,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     ///   - action: A closure containing the action to take when the menu selection is changed.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
     ///
-    init(
+    public init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
         trailingContent: @escaping () -> TrailingContent,
@@ -163,7 +163,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     ///   - action: A closure containing the action to take when the menu selection is changed.
     ///   - titleAccessoryContent: Optional title accessory view that is displayed to the right of the title.
     ///
-    init(
+    public init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
         titleAccessoryContent: @escaping () -> TitleAccessory,
@@ -182,7 +182,7 @@ struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, TrailingConte
     ///   - titleAccessoryContent: Optional title accessory view that is displayed to the right of the title.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
     ///
-    init(
+    public init(
         field: FormMenuField<State, T>,
         action: @escaping (T) -> Void,
         titleAccessoryContent: () -> TitleAccessory,
