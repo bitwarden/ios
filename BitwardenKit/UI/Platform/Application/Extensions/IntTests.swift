@@ -1,7 +1,6 @@
+import BitwardenKit
 import Foundation
 import XCTest
-
-@testable import BitwardenShared
 
 class IntTests: BitwardenTestCase {
     // MARK: Tests

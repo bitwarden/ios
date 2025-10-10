@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The data necessary for displaying a `StepperFieldView`.
 ///
-struct StepperField<State>: Equatable, Identifiable {
+public struct StepperField<State>: Equatable, Identifiable {
     // MARK: Properties
 
     /// The accessibility id for the stepper. The `id` will be used as the accessibility id
@@ -13,21 +13,46 @@ struct StepperField<State>: Equatable, Identifiable {
     let accessibilityId: String?
 
     /// A key path for updating the backing value for the stepper field.
-    let keyPath: WritableKeyPath<State, Int>
+    public let keyPath: WritableKeyPath<State, Int>
 
     /// The range of allowable values for the stepper.
-    let range: ClosedRange<Int>
+    public let range: ClosedRange<Int>
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     /// The current stepper value.
-    let value: Int
+    public let value: Int
 
     // MARK: Identifiable
 
-    var id: String {
+    public var id: String {
         "StepperField-\(title)"
+    }
+
+    // MARK: Initializers
+
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - accessibilityId: The accessibility ID for the stepper.
+    ///     The `id` will be used as the accessibility ID if this is `nil`.
+    ///   - keyPath: A key path for updating the backing value for the stepper field.
+    ///   - range: The range of allowable values for the stepper.
+    ///   - title: The title of the field.
+    ///   - value: The current stepper value.
+    public init(
+        accessibilityId: String?,
+        keyPath: WritableKeyPath<State, Int>,
+        range: ClosedRange<Int>,
+        title: String,
+        value: Int,
+    ) {
+        self.accessibilityId = accessibilityId
+        self.keyPath = keyPath
+        self.range = range
+        self.title = title
+        self.value = value
     }
 }
 
@@ -35,7 +60,7 @@ struct StepperField<State>: Equatable, Identifiable {
 
 /// A view that displays a stepper for display in a form.
 ///
-struct StepperFieldView<State>: View {
+public struct StepperFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when a new value is selected.
@@ -44,7 +69,7 @@ struct StepperFieldView<State>: View {
     /// The data for displaying the field.
     let field: StepperField<State>
 
-    var body: some View {
+    public var body: some View {
         BitwardenStepper(
             value: Binding(get: { field.value }, set: action),
             in: field.range,
@@ -64,7 +89,7 @@ struct StepperFieldView<State>: View {
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when a new value is selected.
     ///
-    init(field: StepperField<State>, action: @escaping (Int) -> Void) {
+    public init(field: StepperField<State>, action: @escaping (Int) -> Void) {
         self.action = action
         self.field = field
     }

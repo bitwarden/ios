@@ -3,7 +3,7 @@ import SwiftUI
 
 /// A custom slider view that allows for custom styling and accessibility.
 ///
-struct BitwardenSlider: View {
+public struct BitwardenSlider: View {
     // MARK: Private Properties
 
     /// The size of the thumb view.
@@ -31,7 +31,7 @@ struct BitwardenSlider: View {
     /// The color of the filled portion of the slider track.
     var filledTrackColor: Color = SharedAsset.Colors.sliderFilled.swiftUIColor
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { geometry in
             let thumbPosition = thumbPosition(in: geometry.size)
             ZStack {
@@ -103,7 +103,7 @@ struct BitwardenSlider: View {
     ///   - trackColor: The color of the slider track.
     ///   - filledTrackColor: The color of the filled portion of the slider track.
     ///
-    init(
+    public init(
         value: Binding<Double>,
         in range: ClosedRange<Double>,
         step: Double,
