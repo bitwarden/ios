@@ -46,9 +46,17 @@ schemes:
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
+        - BitwardenSharedSnapshotTests
+        - BitwardenSharedViewInspectorTests
         - BitwardenKit/AuthenticatorBridgeKitTests
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenActionExtension:
     build:
       targets:
@@ -62,6 +70,10 @@ schemes:
       region: US
       targets:
         - BitwardenActionExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenAutoFillExtension:
     build:
       targets:
@@ -75,6 +87,10 @@ schemes:
       region: US
       targets:
         - BitwardenAutoFillExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShareExtension:
     build:
       targets:
@@ -88,11 +104,17 @@ schemes:
       region: US
       targets:
         - BitwardenShareExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShared:
     build:
       targets:
         BitwardenShared: all
         BitwardenSharedTests: [test]
+        BitwardenSharedSnapshotTests: [test]
+        BitwardenSharedViewInspectorTests: [test]
     test:
       commandLineArguments:
         "-testing": true
@@ -103,6 +125,14 @@ schemes:
       region: US
       targets:
         - BitwardenSharedTests
+        - BitwardenSharedSnapshotTests
+        - BitwardenSharedViewInspectorTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenWatchApp:
     build:
       targets:
@@ -191,13 +221,13 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenActionExtension:
@@ -229,12 +259,12 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenActionExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenAutoFillExtension:
@@ -266,12 +296,12 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenShareExtension:
@@ -303,12 +333,12 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenShared:
@@ -386,7 +416,12 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
       - path: BitwardenShared/Sourcery/Generated
         optional: true
       - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -398,8 +433,68 @@ targets:
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
+        product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  BitwardenSharedSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSharedTests-Debug.xcconfig
+      Release: Configs/BitwardenSharedTests-Release.xcconfig
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers
+        excludes:
+          - "**/InspectableView.*"
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Bitwarden
+      - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  BitwardenSharedViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSharedTests-Debug.xcconfig
+      Release: Configs/BitwardenSharedTests-Release.xcconfig
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Bitwarden
+      - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
       - package: ViewInspector
     randomExecutionOrder: true
 
