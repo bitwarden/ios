@@ -24,7 +24,7 @@ public protocol HasTOTPCodesSections {
 public extension HasTOTPCodesSections {
     /// Refresh the TOTP codes for items in the given sections.
     func refreshTOTPCodes(for items: [Item], in sections: [Section]) async throws -> [Section] {
-        let refreshed = try await repository.refreshTOTPCodes(for: items)
+        let refreshed = try await repository.refreshTotpCodes(for: items)
         return Section.updated(with: refreshed, from: sections)
     }
 }
@@ -40,7 +40,7 @@ public protocol TOTPRefreshingRepository {
     // MARK: Methods
 
     /// Refresh TOTP codes for the given items.
-    func refreshTOTPCodes(for items: [Item]) async throws -> [Item]
+    func refreshTotpCodes(for items: [Item]) async throws -> [Item]
 }
 
 /// A section type that supports updating its items with refreshed values.

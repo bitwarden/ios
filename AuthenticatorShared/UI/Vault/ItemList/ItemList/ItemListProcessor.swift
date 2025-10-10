@@ -36,10 +36,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private var services: Services
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
-    private var groupTotpExpirationManager: TOTPExpirationManager?
+    private var groupTotpExpirationManager: DefaultTOTPExpirationManager?
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
-    private var searchTotpExpirationManager: TOTPExpirationManager?
+    private var searchTotpExpirationManager: DefaultTOTPExpirationManager?
 
     // MARK: Initialization
 
@@ -59,24 +59,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
-        groupTotpExpirationManager = TOTPExpirationManager(
-            timeProvider: services.timeProvider,
-            onExpiration: { [weak self] expiredItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(for: expiredItems)
-                }
-            }
-        )
-        searchTotpExpirationManager = TOTPExpirationManager(
-            timeProvider: services.timeProvider,
-            onExpiration: { [weak self] expiredSearchItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
-                }
-            }
-        )
+        initTOTPExpirationManagers()
         setupForegroundNotification()
     }
 
@@ -172,6 +155,34 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
+    /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
+    ///
+    private func initTOTPExpirationManagers(){
+        groupTotpExpirationManager = DefaultTOTPExpirationManager(
+            itemPublisher: statePublisher.map(\.loadingState.data).eraseToAnyPublisher(),
+            onExpiration: { [weak self] expiredItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(for: expiredItems)
+                }
+            },
+            timeProvider: services.timeProvider
+        )
+        searchTotpExpirationManager = DefaultTOTPExpirationManager(
+            itemPublisher: statePublisher
+                .map { state in [ItemListSection(id: "", items: state.searchResults, name: "")]
+                }
+                .eraseToAnyPublisher(),
+            onExpiration: { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
+                }
+            },
+            timeProvider: services.timeProvider
+        )
+    }
+
     /// Generates and copies a TOTP code for the cipher's TOTP key.
     ///
     /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
@@ -217,8 +228,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let refreshedItems = try await refreshTOTPCodes(
                 for: items,
-                in: currentSections,
-                using: groupTotpExpirationManager
+                in: currentSections
             )
             state.loadingState = .data(refreshedItems)
         } catch {
@@ -234,8 +244,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 for: searchItems,
                 in: [
                     ItemListSection(id: "", items: state.searchResults, name: ""),
-                ],
-                using: searchTotpExpirationManager
+                ]
             )
             state.searchResults = refreshedItems[0].items
         } catch {

@@ -19,7 +19,7 @@ struct AnyTOTPRefreshingRepository: TOTPRefreshingRepository {
 
     // MARK: Methods
 
-    func refreshTOTPCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
         try await base.refreshTotpCodes(for: items)
     }
 }
