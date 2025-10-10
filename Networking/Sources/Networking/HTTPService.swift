@@ -145,7 +145,7 @@ public final class HTTPService: Sendable {
         }
 
         if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
-            try await tokenProvider.refreshToken()
+            _ = try await tokenProvider.refreshToken()
 
             // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
             return try await send(httpRequest, validate: validate, shouldRetryIfUnauthorized: false)

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import Foundation
@@ -125,7 +126,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
 
         try await waitForAsync { self.subject.state.toast != nil }
-        XCTAssertEqual(subject.state.toast?.text, Toast(text: Localizations.itemsImported).text)
+        XCTAssertEqual(subject.state.toast?.title, Toast(title: Localizations.itemsImported).title)
         XCTAssertEqual(importItemsService.importItemsData, data)
     }
 
@@ -223,7 +224,7 @@ class ImportItemsProcessorTests: BitwardenTestCase {
     /// When the Processor receives a `.toastShown(_)` action, it sets the toast in the state.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "TOAST!")
+        let toast = Toast(title: "TOAST!")
 
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)

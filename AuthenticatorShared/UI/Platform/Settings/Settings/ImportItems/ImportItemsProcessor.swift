@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -90,7 +91,7 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                     .twoFasJson
                 }
                 try await services.importItemsService.importItems(data: data, format: importFileFormat)
-                state.toast = Toast(text: Localizations.itemsImported)
+                state.toast = Toast(title: Localizations.itemsImported)
             } catch TwoFasImporterError.passwordProtectedFile {
                 coordinator.showAlert(.twoFasPasswordProtected())
             } catch DecodingError.dataCorrupted {
@@ -148,7 +149,7 @@ extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
     func parseAndValidateAutomaticCaptureKey(_ key: String) async {
         do {
             try await services.importItemsService.importItems(data: key.data(using: .utf8)!, format: .googleProtobuf)
-            state.toast = Toast(text: Localizations.itemsImported)
+            state.toast = Toast(title: Localizations.itemsImported)
         } catch {
             services.errorReporter.log(error: error)
         }

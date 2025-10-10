@@ -39,6 +39,24 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accessTokenExpirationDate(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accessTokenExpirationDate_isInitiallyNil() {
+        XCTAssertNil(subject.accessTokenExpirationDate(userId: "-1"))
+    }
+
+    /// `accessTokenExpirationDate(userId:)` can be used to get the user's access token expiration date.
+    func test_accessTokenExpirationDate_withValue() {
+        let date1 = Date(year: 2025, month: 10, day: 1)
+        let date2 = Date(year: 2026, month: 1, day: 2)
+        subject.setAccessTokenExpirationDate(date1, userId: "1")
+        subject.setAccessTokenExpirationDate(date2, userId: "2")
+
+        XCTAssertEqual(subject.accessTokenExpirationDate(userId: "1"), date1)
+        XCTAssertEqual(subject.accessTokenExpirationDate(userId: "2"), date2)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_1"), 780_969_600)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_2"), 789_004_800)
+    }
+
     /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountKeys_isInitiallyNil() {
         XCTAssertNil(subject.accountKeys(userId: "-1"))

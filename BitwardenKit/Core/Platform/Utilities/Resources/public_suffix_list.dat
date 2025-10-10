@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2025-09-25_23-29-58_UTC
-// COMMIT: 106b086f3ea59059096edba38a758c7a7a1f8664
+// VERSION: 2025-10-01_18-52-14_UTC
+// COMMIT: 0673151c3d770cbe2bdd0116ca615f24e73d370e
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -6796,7 +6796,7 @@ org.zw
 
 // newGTLDs
 
-// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-08-27T15:19:08Z
+// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-10-01T15:18:26Z
 // This list is auto-generated, don't edit it manually.
 // aaa : American Automobile Association, Inc.
 // https://www.iana.org/domains/root/db/aaa.html
@@ -10694,7 +10694,7 @@ watches
 // https://www.iana.org/domains/root/db/weather.html
 weather
 
-// weatherchannel : International Business Machines Corporation
+// weatherchannel : The Weather Company, LLC
 // https://www.iana.org/domains/root/db/weatherchannel.html
 weatherchannel
 
@@ -12533,10 +12533,12 @@ cloudns.asia
 cloudns.be
 cloud-ip.biz
 cloudns.biz
+cloud-ip.cc
 cloudns.cc
 cloudns.ch
 cloudns.cl
 cloudns.club
+abrdns.com
 dnsabr.com
 ip-ddns.com
 cloudns.cx
@@ -14170,6 +14172,12 @@ leadpages.co
 lpages.co
 lpusercontent.com
 
+// Leapcell : https://leapcell.io/
+// Submitted by Leapcell Team <support@leapcell.io>
+leapcell.app
+leapcell.dev
+leapcell.online
+
 // Liara : https://liara.ir
 // Submitted by Amirhossein Badinloo <info@liara.ir>
 liara.run
@@ -15442,10 +15450,11 @@ myspreadshop.se
 myspreadshop.co.uk
 
 // StackBlitz : https://stackblitz.com
-// Submitted by Dominic Elm <hello@stackblitz.com>
+// Submitted by Dominic Elm & Albert Pai <security@bolt.new>
 w-corp-staticblitz.com
 w-credentialless-staticblitz.com
 w-staticblitz.com
+bolt.host
 
 // Stackhero : https://www.stackhero.io
 // Submitted by Adrien Gillon <adrien+public-suffix-list@stackhero.io>

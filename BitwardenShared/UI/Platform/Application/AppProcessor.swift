@@ -682,6 +682,8 @@ extension AppProcessor: AccountTokenProviderDelegate {
     func onRefreshTokenError(error: any Error) async throws {
         if case IdentityTokenRefreshRequestError.invalidGrant = error {
             await logOutAutomatically()
+        } else if let error = error as? ResponseValidationError, [401, 403].contains(error.response.statusCode) {
+            await logOutAutomatically()
         }
     }
 }

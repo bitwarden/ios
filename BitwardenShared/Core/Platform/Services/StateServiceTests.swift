@@ -290,6 +290,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `getAccessTokenExpirationDate(userId:)` gets the user's access token expiration date.
+    func test_getAccessTokenExpirationDate() async throws {
+        let date1 = Date(year: 2025, month: 1, day: 1)
+        let date2 = Date(year: 2026, month: 6, day: 1)
+        appSettingsStore.accessTokenExpirationDateByUserId["1"] = date1
+        appSettingsStore.accessTokenExpirationDateByUserId["2"] = date2
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        let expirationDate1 = await subject.getAccessTokenExpirationDate(userId: "1")
+        XCTAssertEqual(expirationDate1, date1)
+        let expirationDate2 = try await subject.getAccessTokenExpirationDate()
+        XCTAssertEqual(expirationDate2, date2)
+    }
+
+    /// `getAccessTokenExpirationDate(userId:)` throws an error if there's no accounts.
+    func test_getAccessTokenExpirationDate_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccessTokenExpirationDate()
+        }
+    }
+
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.accountKeys["1"] = .fixture(
@@ -1679,6 +1702,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.shouldTrustDevice["1"] = true
         let result = await subject.getShouldTrustDevice(userId: "1")
         XCTAssertTrue(result == true)
+    }
+
+    /// `setAccessTokenExpirationDate(_:userId:)` sets the access token expiration date for the account.
+    func test_setAccessTokenExpirationDate() async throws {
+        let date1 = Date(year: 2025, month: 1, day: 1)
+        let date2 = Date(year: 2026, month: 6, day: 1)
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        await subject.setAccessTokenExpirationDate(date1, userId: "1")
+        try await subject.setAccessTokenExpirationDate(date2)
+
+        XCTAssertEqual(
+            appSettingsStore.accessTokenExpirationDateByUserId,
+            ["1": date1, "2": date2],
+        )
+    }
+
+    /// `setAccessTokenExpirationDate(_:userId:)` throws an error if there's no accounts.
+    func test_setAccessTokenExpirationDate_noAccounts() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAccessTokenExpirationDate(.now)
+        }
     }
 
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.

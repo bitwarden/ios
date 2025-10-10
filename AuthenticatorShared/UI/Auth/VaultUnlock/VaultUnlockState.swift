@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - VaultUnlockState
 
 /// An object that defines the current state of a `VaultUnlockView`.

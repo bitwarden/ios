@@ -6,7 +6,9 @@ open class BaseBitwardenTestCase: XCTestCase {
 
     @MainActor
     override open class func setUp() {
-        if UIDevice.current.name != "iPhone 17 Pro" || UIDevice.current.systemVersion != "26.0" {
+        let shouldSkipSimulatorCheck = ProcessInfo.processInfo.environment["SKIP_SIMULATOR_CHECK_FOR_TESTS"] == "true"
+        let isCorrectSimulator = UIDevice.current.name == "iPhone 17 Pro" || UIDevice.current.systemVersion == "26.0"
+        if !shouldSkipSimulatorCheck && !isCorrectSimulator {
             assertionFailure(
                 """
                 Tests must be run using iOS 26.0 on an iPhone 17 Pro simulator.
