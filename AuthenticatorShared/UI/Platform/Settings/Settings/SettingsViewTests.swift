@@ -40,7 +40,7 @@ class SettingsViewTests: BitwardenTestCase {
     @MainActor
     func test_appThemeChanged_updateValue() throws {
         processor.state.appTheme = .light
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.theme)
         try menuField.select(newValue: AppTheme.dark)
         XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
     }

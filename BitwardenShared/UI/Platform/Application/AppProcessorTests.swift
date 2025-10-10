@@ -1,5 +1,6 @@
 import AuthenticationServices
 import AuthenticatorBridgeKit
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import Foundation
@@ -1400,6 +1401,36 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when a 401 is
+    /// received while refreshing the token.
+    @MainActor
+    func test_onRefreshTokenError_logOut401() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: ResponseValidationError(response: .failure(statusCode: 401)))
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, nil)
+        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+    }
+
+    /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator a 403 is
+    /// received while refreshing the token.
+    @MainActor
+    func test_onRefreshTokenError_logOut403() async throws {
+        coordinator.isLoadingOverlayShowing = true
+
+        try await subject.onRefreshTokenError(error: ResponseValidationError(response: .failure(statusCode: 403)))
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, nil)
+        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when error is `.invalidGrant`.

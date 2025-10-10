@@ -1102,7 +1102,7 @@
 "RetryExport" = "重试导出";
 "ExportFailed" = "导出失败";
 "ThereHasBeenAnIssueExportingItems" = "导出项目时出现问题。";
-"AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "您确定要取消导出过程吗？";
+"AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "确定要取消导出过程吗？";
 "PleaseDoNotCloseTheApp" = "请不要关闭此 App。";
 "ThisIsTakingLongerThanExpected" = "这花费的时间超过预期";
 "ItemsToExport" = "要导出的项目";
