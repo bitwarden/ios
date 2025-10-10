@@ -333,6 +333,14 @@ protocol StateService: AnyObject {
     ///
     func getSyncToAuthenticator(userId: String?) async throws -> Bool
 
+    /// Gets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool
+
     /// Gets the session timeout action.
     ///
     /// - Parameter userId: The user ID for the account.
@@ -732,6 +740,14 @@ protocol StateService: AnyObject {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws
 
+    /// Sets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws
+
     /// Sets the session timeout action.
     ///
     /// - Parameters:
@@ -1059,6 +1075,14 @@ extension StateService {
         try await getSyncToAuthenticator(userId: nil)
     }
 
+    /// Gets the unlock other devices with this device value for the active account.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices() async throws -> Bool {
+        try await getUnlockOtherDevices(userId: nil)
+    }
+
     /// Gets the session timeout action.
     ///
     /// - Returns: The action to perform when a session timeout occurs.
@@ -1326,6 +1350,14 @@ extension StateService {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
+    }
+
+    /// Sets the unlock other devices with this device value for the active account.
+    ///
+    /// - Parameter unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool) async throws {
+        try await setUnlockOtherDevices(unlockOtherDevices, userId: nil)
     }
 
     /// Sets the session timeout action.
@@ -1762,6 +1794,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return appSettingsStore.syncToAuthenticator(userId: userId)
     }
 
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unlockOtherDevices(userId: userId)
+    }
+
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
         let userId = try userId ?? getActiveAccountUserId()
         guard let rawValue = appSettingsStore.timeoutAction(userId: userId),
@@ -2147,6 +2184,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setSyncToAuthenticator(syncToAuthenticator, userId: userId)
         syncToAuthenticatorByUserIdSubject.value[userId] = syncToAuthenticator
+    }
+
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnlockOtherDevices(unlockOtherDevices, userId: userId)
     }
 
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {

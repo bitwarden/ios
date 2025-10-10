@@ -30,4 +30,7 @@ enum AccountSecurityEffect: Equatable {
 
     /// Unlock with pin code was toggled.
     case toggleUnlockWithPINCode(Bool)
+
+    /// Unlock other devices with this device was toggled.
+    case toggleUnlockOtherDevices(Bool)
 }

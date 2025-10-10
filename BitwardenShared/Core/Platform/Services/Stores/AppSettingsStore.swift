@@ -505,6 +505,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
 
+    /// Sets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID associated with the unlock other devices value.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String)
+
     /// Sets the user's timeout action.
     ///
     /// - Parameters:
@@ -573,6 +581,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to sync TOTP codes with the Authenticator app.
     ///
     func syncToAuthenticator(userId: String) -> Bool
+
+    /// Gets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func unlockOtherDevices(userId: String) -> Bool
 
     /// Returns the action taken upon a session timeout.
     ///
@@ -791,6 +807,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case unlockOtherDevices(userId: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
@@ -903,6 +920,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
+            case let .unlockOtherDevices(userId):
+                key = "unlockOtherDevices_\(userId)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
@@ -1258,6 +1277,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(syncToAuthenticator, for: .syncToAuthenticator(userId: userId))
     }
 
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String) {
+        store(unlockOtherDevices, for: .unlockOtherDevices(userId: userId))
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
@@ -1288,6 +1311,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func syncToAuthenticator(userId: String) -> Bool {
         fetch(for: .syncToAuthenticator(userId: userId))
+    }
+
+    func unlockOtherDevices(userId: String) -> Bool {
+        fetch(for: .unlockOtherDevices(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {
