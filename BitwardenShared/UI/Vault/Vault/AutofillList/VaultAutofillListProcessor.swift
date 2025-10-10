@@ -279,21 +279,25 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
-        vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
+        vaultItemsTotpExpirationManager = NewTOTPExpirationManager(
+            timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher.map(\.vaultListSections).eraseToAnyPublisher()
         )
-        searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
+        searchTotpExpirationManager = NewTOTPExpirationManager(
+            timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher.map(\.ciphersForSearch).eraseToAnyPublisher()
         )
     }
 
@@ -307,8 +311,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             state.vaultListSections = try await refreshTOTPCodes(
                 for: items,
-                in: state.vaultListSections,
-                using: vaultItemsTotpExpirationManager
+                in: state.vaultListSections
             )
         } catch {
             services.errorReporter.log(error: error)
@@ -324,8 +327,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 for: searchItems,
                 in: [
                     VaultListSection(id: "", items: currentSearchResults, name: ""),
-                ],
-                using: searchTotpExpirationManager
+                ]
             )
         } catch {
             services.errorReporter.log(error: error)

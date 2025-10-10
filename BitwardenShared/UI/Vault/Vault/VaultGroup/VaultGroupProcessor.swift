@@ -1,5 +1,7 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - VaultGroupProcessor
@@ -72,23 +74,28 @@ final class VaultGroupProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-        groupTotpExpirationManager = DefaultTOTPExpirationManager(
+        groupTotpExpirationManager = NewTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher.map(\.loadingState.data).eraseToAnyPublisher()
         )
-        searchTotpExpirationManager = DefaultTOTPExpirationManager(
+        searchTotpExpirationManager = NewTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher
+                .map { state in [VaultListSection(id: "Search", items: state.searchResults, name: "")]
+                }
+                .eraseToAnyPublisher()
         )
     }
 
@@ -207,8 +214,7 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             let updatedSections = try await refreshTOTPCodes(
                 for: items,
-                in: currentSections,
-                using: groupTotpExpirationManager
+                in: currentSections
             )
             state.loadingState = .data(updatedSections)
         } catch {
@@ -225,8 +231,7 @@ final class VaultGroupProcessor: StateProcessor<
                 for: searchItems,
                 in: [
                     VaultListSection(id: "", items: currentSearchResults, name: ""),
-                ],
-                using: searchTotpExpirationManager
+                ]
             )
             state.searchResults = updatedSections[0].items
         } catch {

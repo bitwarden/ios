@@ -59,23 +59,28 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
-        groupTotpExpirationManager = TOTPExpirationManager(
+        groupTotpExpirationManager = NewTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher.map(\.loadingState.data).eraseToAnyPublisher()
         )
-        searchTotpExpirationManager = TOTPExpirationManager(
+        searchTotpExpirationManager = NewTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
-            }
+            },
+            itemPublisher: statePublisher
+                .map { state in [ItemListSection(id: "", items: state.searchResults, name: "")]
+                }
+                .eraseToAnyPublisher()
         )
         setupForegroundNotification()
     }
@@ -217,8 +222,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let refreshedItems = try await refreshTOTPCodes(
                 for: items,
-                in: currentSections,
-                using: groupTotpExpirationManager
+                in: currentSections
             )
             state.loadingState = .data(refreshedItems)
         } catch {
@@ -234,8 +238,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 for: searchItems,
                 in: [
                     ItemListSection(id: "", items: state.searchResults, name: ""),
-                ],
-                using: searchTotpExpirationManager
+                ]
             )
             state.searchResults = refreshedItems[0].items
         } catch {

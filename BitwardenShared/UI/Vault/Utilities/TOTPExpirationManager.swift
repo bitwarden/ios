@@ -1,4 +1,5 @@
 import BitwardenKit
+import Combine
 import Foundation
 
 /// A protocol to manage TOTP code expirations for `VaultListItem`s and batch refresh calls.
@@ -105,5 +106,20 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
         itemsByInterval = notExpired
         guard !expired.isEmpty else { return }
         onExpiration?(expired)
+    }
+}
+
+class NewTOTPExpirationManager: DefaultTOTPExpirationManager {
+    private var cancellable: AnyCancellable?
+
+    init(
+        timeProvider: any TimeProvider,
+        onExpiration: (([VaultListItem]) -> Void)?,
+        itemPublisher: AnyPublisher<[VaultListSection]?, Never>
+    ) {
+        super.init(timeProvider: timeProvider, onExpiration: onExpiration)
+        cancellable = itemPublisher.sink { [weak self] sections in
+            self?.configureTOTPRefreshScheduling(for: sections?.flatMap(\.items) ?? [])
+        }
     }
 }
