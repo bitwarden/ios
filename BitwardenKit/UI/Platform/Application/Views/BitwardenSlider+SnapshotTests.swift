@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:BitwardenShared/UI/Platform/Application/Views/BitwardenSlider+SnapshotTests.swift
 // swiftlint:disable:this file_name
-========
 import BitwardenKit
->>>>>>>> 9685bf714 (Migrate files to BWK):BitwardenKit/UI/Platform/Application/Views/BitwardenSliderTests.swift
 import SnapshotTesting
 import XCTest
 
