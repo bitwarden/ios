@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Int
 
-extension Int {
+public extension Int {
     // MARK: Properties
 
     /// Returns the number of digits within the value.

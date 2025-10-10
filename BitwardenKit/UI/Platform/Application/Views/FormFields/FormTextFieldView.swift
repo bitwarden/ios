@@ -1,4 +1,3 @@
-import BitwardenKit
 import SwiftUI
 
 // MARK: - FormTextField
