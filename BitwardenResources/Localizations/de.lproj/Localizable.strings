@@ -156,7 +156,7 @@
 "NoItemsTap" = "Es befinden sich keine Zugangsdaten für diese Webseite in deinem Tresor. Zum Hinzufügen tippen.";
 "NoUsernamePasswordConfigured" = "Diese Zugangsdaten sind noch nicht konfiguriert.";
 "OKGotIt" = "OK, verstanden!";
-"OptionDefaults" = "Option defaults are set from the main Bitwarden app’s password generator tool.";
+"OptionDefaults" = "Die Standardeinstellungen werden mit dem Passwortgenerator der Bitwarden-App festgelegt.";
 "Options" = "Optionen";
 "Other" = "Sonstiges";
 "PasswordGenerated" = "Passwort generiert";
@@ -199,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "Wenn Sie ein Eingabefeld auswählen und ein Auto-Fill-Overlay von Bitwarden sehen, können Sie darauf tippen, um den Dienst zum automatischen Ausfüllen zu starten.";
 "BitwardenAutofillServiceNotificationContent" = "Tippe auf diese Benachrichtigung, um einen Eintrag aus deinem Tresor automatisch auszufüllen.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Einstellungen für Bedienungshilfen öffnen";
-"BitwardenAutofillServiceStep1" = "1. On the Android Accessibility Settings screen, touch “Bitwarden” under the Services heading.";
+"BitwardenAutofillServiceStep1" = "1. Tippe auf \"Bitwarden\" unter \"Dienste\" in den Android Bedienungshilfen.";
 "BitwardenAutofillServiceStep2" = "2. Aktiviere den Schalter und tippe auf \"Ok\".";
 "Disabled" = "Deaktiviert";
 "Enabled" = "Aktiviert";
@@ -376,7 +376,7 @@
 "AutofillTurnOn" = "Um das automatische Ausfüllen von Passwörtern auf deinem Gerät einzurichten, befolge bitte diese Anweisungen:";
 "AutofillTurnOn1" = "1. Gehe in die iOS \"Einstellungen\"-App";
 "AutofillTurnOn2" = "2. Tippe auf \"Passwörter\"";
-"AutofillTurnOn3" = "3. Tap “AutoFill Passwords”";
+"AutofillTurnOn3" = "3. Tippe auf \"Automatisch ausfüllen\"";
 "AutofillTurnOn4" = "4. Schalte Automatisch ausfüllen ein";
 "AutofillTurnOn5" = "5. Wähle \"Bitwarden\"";
 "PasswordAutofill" = "Passwort automatisch ausfüllen";
@@ -528,7 +528,7 @@
 "Loading" = "Wird geladen";
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on “Draw-Over” in “Autofill Services” from Bitwarden Settings";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden braucht Aufmerksamkeit - Aktiviere \"Überschreiben\" im \"Auto-Ausfüllen-Dienst\" in den Bitwarden-Einstellungen";
 "PasskeyManagement" = "Passkey-Verwaltung";
 "AutofillServices" = "Dienste zum automatischen Ausfüllen";
 "InlineAutofill" = "Inline Auto-Ausfüllen verwenden";
@@ -891,7 +891,7 @@
 "SetUpAutoFillDescriptionLong" = "Um das automatische Ausfüllen von Passwörtern und die Passkey-Verwaltung einzurichten, lege Bitwarden in den iOS-Einstellungen als deinen bevorzugten Anbieter fest.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Geh in deine Geräteeinstellungen > Passwörter > Passwortoptionen";
 "SecondDotTurnOnAutoFill" = "2. Schalte \"Automatisch ausfüllen\" ein";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Wähle \"Bitwarden\" bei \"Passwörter und Passkeys verwenden von\"";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Dein Passkey wird in deinem Bitwarden-Tresor gespeichert";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Dein Passkey wird in deinem Bitwarden-Tresor für %1$@ gespeichert";
 "PasskeysNotSupportedForThisApp" = "Passkeys werden für diese App nicht unterstützt";
@@ -1273,7 +1273,7 @@
 "WhenUsingTwoStepVerification" = "Bei der 2-Faktor-Authentifizierung gibst du deinen Benutzernamen und dein Passwort sowie einen in dieser App generierten Code ein.";
 "YesSetDefault" = "Ja, als Standard festlegen";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Du kannst deinen Standard jederzeit in den Einstellungen aktualisieren.";
-"SelectAccount" = "Konto wählen";
+"SelectAccount" = "Konto auswählen";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "Konten";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.";

@@ -1287,7 +1287,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Xəbərdarlıq:** \"\\İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Xəbərdarlıq:** \"Müntəzəm ifadə\\\", yanlış istifadə edilərsə, kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.";
 "DefaultX" = "İlkin (%1$@)";
-"UpdateYourEncryptionSettings" = "Update your encryption settings";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
-"EncryptionSettingsUpdated" = "Encryption settings updated";
+"UpdateYourEncryptionSettings" = "Şifrələmə ayarlarınızı güncəlləyin";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin.";
+"Updating" = "Güncəllənir...";
+"EncryptionSettingsUpdated" = "Şifrələmə ayarları güncəlləndi";
