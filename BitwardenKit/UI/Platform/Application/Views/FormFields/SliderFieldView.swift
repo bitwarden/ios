@@ -12,7 +12,7 @@ public struct SliderField<State>: Equatable, Identifiable {
     public let keyPath: WritableKeyPath<State, Double>
 
     /// The range of allowable values for the slider.
-    let range: ClosedRange<Double>
+    public let range: ClosedRange<Double>
 
     /// The accessibility id for the slider. The `title` will be used as the accessibility id
     /// if this is `nil`.
@@ -23,13 +23,13 @@ public struct SliderField<State>: Equatable, Identifiable {
     let sliderValueAccessibilityId: String?
 
     /// The distance between each valid value.
-    let step: Double
+    public let step: Double
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     /// The current slider value.
-    let value: Double
+    public let value: Double
 
     // MARK: Identifiable
 

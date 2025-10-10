@@ -63,10 +63,10 @@ public struct FormTextField<State>: Equatable, Identifiable {
     let textContentType: UITextContentType?
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     /// The current text value.
-    let value: String
+    public let value: String
 
     // MARK: Identifiable
 

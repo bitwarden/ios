@@ -16,13 +16,13 @@ public struct StepperField<State>: Equatable, Identifiable {
     public let keyPath: WritableKeyPath<State, Int>
 
     /// The range of allowable values for the stepper.
-    let range: ClosedRange<Int>
+    public let range: ClosedRange<Int>
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     /// The current stepper value.
-    let value: Int
+    public let value: Int
 
     // MARK: Identifiable
 

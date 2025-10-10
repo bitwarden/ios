@@ -19,13 +19,13 @@ public struct ToggleField<State>: Equatable, Identifiable {
     let isDisabled: Bool
 
     /// The current toggle value.
-    let isOn: Bool
+    public let isOn: Bool
 
     /// A key path for updating the backing value for the toggle field.
     public let keyPath: WritableKeyPath<State, Bool>
 
     /// The title of the field.
-    let title: String
+    public let title: String
 
     // MARK: Identifiable
 
