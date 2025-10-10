@@ -69,7 +69,7 @@
 "Tools" = "Verktyg";
 "UseFingerprintToUnlock" = "Använd fingeravtryck för att låsa upp";
 "UseThisButtonToGenerateANewUniquePassword" = "Använd denna knapp för att generera ett nytt unikt lösenord.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You’ll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Du behöver bara ställa in Authenticator Key för inloggningar som kräver tvåfaktorsautentisering med en kod. Nyckeln kommer kontinuerligt att generera sexsiffriga koder som du kan använda för att logga in.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Använd generatorn för att skapa säkra lösenord, lösenordsfraser och användarnamn.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Lösenordsfraser är ofta lättare att komma ihåg och skriva än slumpmässiga lösenord. De kan vara till hjälp när du behöver logga in på konton där autofyll inte finns tillgänglig, som en streamingtjänst på din TV.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unika användarnamn ger ett extra lager av säkerhet och kan hjälpa till att förhindra att hackare hittar dina konton.";
@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Ange Bitwarden som din leverantör av inloggningsnycklar i enhetsinställningarna.";
 "AvoidAmbiguousCharacters" = "Undvik tvetydiga tecken";
 "BitwardenAppExtension" = "Bitwarden apptillägg";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "Det enklaste sättet att lägga till nya inloggningar till ditt valv är från Bitwardens apptillägg. Läs mer om hur du använder Bitwardens apptillägg genom att navigera till skärmen ”Inställningar”.";
 "BitwardenAppExtensionDescription" = "Använd Bitwarden i Safari och andra appar för att autofylla dina inloggningar.";
 "BitwardenAutofillService" = "Bitwardens hjälpmedelsservice för automatisk ifyllnad";
 "BitwardenAutofillAccessibilityServiceDescription" = "Använd Bitwardens tillgänglighetstjänst för att fylla i dina inloggningar automatiskt.";
@@ -120,7 +120,7 @@
 "ExtensionSetup" = "Dina inloggningar är nu lättillgängliga i Safari, Chrome och andra appar som stöds.";
 "ExtensionSetup2" = "Inuti Safari och Chrome hittar du Bitwarden genom att trycka på dela-ikonen (hjälp: skrolla till höger på den nedersta raden i dela-menyn).";
 "ExtensionTapIcon" = "Tryck på Bitwarden-ikonen i menyn för att öppna tillägget.";
-"ExtensionTurnOn" = "To turn on Bitwarden in Safari and other apps, tap the “more” icon on the bottom row of the menu.";
+"ExtensionTurnOn" = "För att aktivera Bitwarden i Safari och andra appar trycker du på ikonen ”mer” på den nedre raden i menyn.";
 "Favorite" = "Favorit";
 "Fingerprint" = "Fingeravtryck";
 "GeneratePassword" = "Generera lösenord";
@@ -199,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "När du väljer ett inmatningsfält och ser en Bitwarden autofyll-överlagring kan du trycka på den för att starta autofylltjänsten.";
 "BitwardenAutofillServiceNotificationContent" = "Tryck på detta meddelande för att autofylla ett objekt från ditt valv.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Öppna tillgänglighetsinställningar";
-"BitwardenAutofillServiceStep1" = "1. On the Android Accessibility Settings screen, touch “Bitwarden” under the Services heading.";
+"BitwardenAutofillServiceStep1" = "1. På Androids skärm för hjälpmedelsinställningar, tryck på “Bitwarden” under Tjänster.";
 "BitwardenAutofillServiceStep2" = "2. Växla till på-läget och tryck på OK för att acceptera.";
 "Disabled" = "Inaktiverad";
 "Enabled" = "Aktiverad";
@@ -992,7 +992,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Fel vid anslutning till Duo-tjänsten. Använd en annan tvåstegsinloggningsmetod eller kontakta Duo för hjälp.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Pre Auth Urls kunde inte laddas för att starta skapandet av kontot.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "I inställningarna för din enhet **aktiverar du autofyllning av lösenord och inloggningsnycklar.**";
-"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "** Slå av iCloud Keychain** för att göra Bitwarden till din standardkälla för autofyll.";
+"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Slå av iCloud Keychain** för att göra Bitwarden till din standardkälla för autofyll.";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Slå på Bitwarden** för att använda dina sparade lösenord för att logga in på dina konton.";
 "TurnOnAutoFill" = "Aktivera autofyll";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "Använd autofyll för att logga in på dina konton med ett tryck.";

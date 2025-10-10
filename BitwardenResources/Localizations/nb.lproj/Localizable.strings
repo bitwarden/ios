@@ -12,7 +12,7 @@
 "Credits" = "Krediteringer";
 "Delete" = "Slett";
 "DeleteAll" = "Delete all";
-"Deleting" = "Deleting…";
+"Deleting" = "Sletter ...";
 "DoYouReallyWantToDelete" = "Vil du virkelig slette den? Dette kan ikke angres på.";
 "Edit" = "Rediger";
 "EditFolder" = "Rediger mappe";
@@ -59,7 +59,7 @@
 "Password" = "Passord";
 "Save" = "Lagre";
 "Move" = "Flytt";
-"Saving" = "Saving…";
+"Saving" = "Lagrer…";
 "Settings" = "Innstillinger";
 "Show" = "Vis";
 "ItemDeleted" = "Elementet har blitt slettet.";
@@ -94,7 +94,7 @@
 "AppExtension" = "App-utvidelse";
 "AutofillAccessibilityDescription" = "Use the Bitwarden accessibility service to autofill your logins across apps and the web.";
 "AutofillService" = "Autofill service";
-"SetBitwardenAsPasskeyManagerDescription" = "Set Bitwarden as your passkey provider in device settings.";
+"SetBitwardenAsPasskeyManagerDescription" = "Sett Bitwarden som din passnøkkelvelger i enhetsinnstillingene.";
 "AvoidAmbiguousCharacters" = "Unngå tvetydige tegn";
 "BitwardenAppExtension" = "Bitwarden App-utvidelse";
 "BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
@@ -175,7 +175,7 @@
 "SetPINDirection" = "Skriv inn en 4-sifret PIN-kode til å låse opp appen med.";
 "ItemUpdated" = "Element oppdatert.";
 "Submitting" = "Submitting…";
-"Syncing" = "Syncing…";
+"Syncing" = "Synkroniserer …";
 "SyncingLogins" = "Syncing logins…";
 "SyncingComplete" = "Synkronisering fullført.";
 "SyncingFailed" = "Synkronisering mislyktes.";
@@ -236,7 +236,7 @@
 "Attachments" = "Vedlegg";
 "UnableToDownloadFile" = "Kunne ikke laste ned filen.";
 "UnableToOpenFile" = "Enheten din kan ikke åpne denne filtypen.";
-"Downloading" = "Downloading…";
+"Downloading" = "Laster ned…";
 "AttachmentLargeWarning" = "Dette vedlegget er %1$@ stort. Er du sikker på at du vil laste det ned til enheten din?";
 "AuthenticatorKey" = "Autentiseringsnøkkel";
 "VerificationCodeTotp" = "Verifiseringskode (TOTP)";
@@ -387,7 +387,7 @@
 "Logins" = "Innlogginger";
 "SecureNotes" = "Sikre notater";
 "AllItems" = "Alle elementer";
-"CheckingPassword" = "Checking password…";
+"CheckingPassword" = "Sjekker passord ...";
 "CheckPassword" = "Sjekk om passordet har blitt eksponert.";
 "PasswordExposed" = "Dette passordet har blitt eksponert %1$@ gang(er) i datalekkasjer. Du bør endre det.";
 "PasswordSafe" = "Dette passordet ble ikke funnet i noen kjente datalekkasjer. Det bør være trygt å bruke.";
@@ -499,7 +499,7 @@
 "SoftDeleting" = "Sending to trash…";
 "ItemSoftDeleted" = "Elementet ble sendt til papirkurven.";
 "Restore" = "Gjenopprett";
-"Restoring" = "Restoring…";
+"Restoring" = "Gjenoppretter ...";
 "ItemRestored" = "Elementet har blitt gjenopprettet.";
 "Trash" = "Papirkurv";
 "SearchTrash" = "Søk i papirkurven";
@@ -810,7 +810,7 @@
 "AutoFillWillNotBeOfferedForTheseURIs" = "Autofill will not be offered for these URIs.";
 "NewBlockedURI" = "New blocked URI";
 "URISaved" = "URI saved";
-"InvalidFormatUseHttpsHttpOrAndroidApp" = "Invalid format. Use https://, http://, or androidapp://";
+"InvalidFormatUseHttpsHttpOrAndroidApp" = "Ugyldig format. Bruk https://, http://, eller androidapp://";
 "EditURI" = "Edit URI";
 "EnterURI" = "Enter URI";
 "FormatXSeparateMultipleURIsWithAComma" = "Format: %1$@. Separate multiple URIs with a comma.";
@@ -1086,7 +1086,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Importerer …";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Importering mislyktes";
 "ItemsSuccessfullyImported" = "%1$@ items successfully imported";
@@ -1222,7 +1222,7 @@
 "CreateVerificationCode" = "Create verification code";
 "Data" = "Data";
 "DefaultSaveOption" = "Default save option";
-"DownloadTheBitwardenApp" = "Download the Bitwarden app";
+"DownloadTheBitwardenApp" = "Last ned Bitwarden-appen";
 "EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
 "ExportItemsConfirmationTitle" = "Confirm items export";
 "ExportItemsWarning" = "This export contains your item data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
@@ -1262,7 +1262,7 @@
 "Skip" = "Hopp over";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";
-"SyncWithBitwardenApp" = "Sync with Bitwarden app";
+"SyncWithBitwardenApp" = "Synkroniser med Bitwarden-appen";
 "SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";
 "TakeMeToTheAppSettings" = "Take me to the app settings";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "The data format provided doesn’t match what’s expected. Please check your file and ensure the correct data types are used.";
@@ -1273,21 +1273,21 @@
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "YesSetDefault" = "Ja, sett som standard";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
-"SelectAccount" = "Select account";
+"SelectAccount" = "Velg en konto";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
-"Accounts" = "Accounts";
+"Accounts" = "Kontoer";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
-"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Starts with” is an advanced option with increased risk of exposing credentials.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "«Starter med» er et avansert alternativ som har økt risiko for å avsløre innloggingsdetaljer.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
 "StartsWithAdvanced" = "Starts with (advanced)";
 "RegularExpressionAdvanced" = "Regular expression (advanced)";
 "AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
 "KeepYourCredentialsSecure" = "Keep your credentials secure";
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";
-"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Starts with” is an advanced option with increased risk of exposing credentials.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Advarsel:** «Starter med» er et avansert alternativ som har en økt risiko for å avsløre innloggingsdetaljer.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
-"DefaultX" = "Default (%1$@)";
+"DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Oppdaterer...";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
