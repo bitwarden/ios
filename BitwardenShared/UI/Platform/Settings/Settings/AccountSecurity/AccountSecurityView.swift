@@ -29,6 +29,8 @@ struct AccountSecurityView: View {
 
             authenticatorSyncSection
 
+            remoteUnlockOptionsSection
+
             sessionTimeoutSection
 
             otherSection
@@ -218,6 +220,21 @@ struct AccountSecurityView: View {
                     perform: AccountSecurityEffect.toggleSyncWithAuthenticator,
                 ),
                 accessibilityIdentifier: Localizations.allowAuthenticatorSyncing,
+            )
+            .contentBlock()
+        }
+    }
+
+    /// The remote unlock options section.
+    @ViewBuilder private var remoteUnlockOptionsSection: some View {
+        SectionView(Localizations.remoteUnlockOptions) {
+            BitwardenToggle(
+                Localizations.unlockOtherDevicesWithThisDevice,
+                isOn: store.bindingAsync(
+                    get: \.isUnlockOtherDevicesOn,
+                    perform: AccountSecurityEffect.toggleUnlockOtherDevices
+                ),
+                accessibilityIdentifier: "UnlockOtherDevicesSwitch"
             )
             .contentBlock()
         }

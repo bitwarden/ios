@@ -1044,6 +1044,8 @@
 "GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
+"RemoteUnlockOptions" = "Remote Unlock Options";
+"UnlockOtherDevicesWithThisDevice" = "Unlock other devices with this device";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
 "ImportError" = "Import error";
 "NoLoginsWereImported" = "No logins were imported";

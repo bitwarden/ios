@@ -19,6 +19,10 @@ protocol AutofillCredentialService: AnyObject {
     ///
     func isAutofillCredentialsEnabled() async -> Bool
 
+    /// Returns whether unlocking other devices with this device is enabled.
+    ///
+    func isUnlockOtherDevicesEnabled() async -> Bool
+
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
     /// used for autofill.
     ///
@@ -398,6 +402,15 @@ class DefaultAutofillCredentialService {
 extension DefaultAutofillCredentialService: AutofillCredentialService {
     func isAutofillCredentialsEnabled() async -> Bool {
         await identityStore.isAutofillEnabled()
+    }
+
+    func isUnlockOtherDevicesEnabled() async -> Bool {
+        do {
+            return try await stateService.getUnlockOtherDevices()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func provideCredential(
