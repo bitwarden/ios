@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A field that displays a `CountdownDatePicker` when interacted with.
 ///
-struct SettingsPickerField: View {
+public struct SettingsPickerField: View {
     // MARK: Properties
 
     /// The accessibility label used for the custom timeout value.
@@ -28,7 +28,7 @@ struct SettingsPickerField: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             Button {
                 withAnimation {
@@ -83,7 +83,7 @@ struct SettingsPickerField: View {
     ///   - hasDivider: Whether or not the field has a bottom edge divider.
     ///   - customTimeoutAccessibilityLabel: The accessibility label used for the custom timeout value.
     ///
-    init(
+    public init(
         title: String,
         customTimeoutValue: String,
         pickerValue: Binding<Int>,

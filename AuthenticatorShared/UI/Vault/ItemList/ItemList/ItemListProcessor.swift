@@ -127,7 +127,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             guard let totpCode = item.totpCodeModel else { return }
 
             services.pasteboardService.copy(totpCode.code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -157,7 +157,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             if !state.searchText.isEmpty {
                 state.searchResults = await searchItems(for: state.searchText)
             }
-            state.toast = Toast(text: Localizations.itemDeleted)
+            state.toast = Toast(title: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -171,7 +171,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let code = try await services.totpService.getTotpCode(for: totpKey)
             services.pasteboardService.copy(code.code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -327,7 +327,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 state.showMoveToBitwarden = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
                 state.loadingState = .data(sectionList)
                 if showToast {
-                    state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
+                    state.toast = Toast(title: Localizations.accountsSyncedFromBitwardenApp)
                 }
                 if !state.searchText.isEmpty {
                     state.searchResults = await searchItems(for: state.searchText)
@@ -648,7 +648,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             await moveItemToBitwarden(item: newItem)
         } else {
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
+            state.toast = Toast(title: Localizations.verificationCodeAdded)
             await perform(.refresh)
         }
     }
@@ -672,6 +672,6 @@ enum MoreOptionsAction: Equatable {
 
 extension ItemListProcessor: AuthenticatorItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
     }
 }

@@ -4,8 +4,6 @@ import SwiftUI
 import ViewInspector
 import XCTest
 
-@testable import AuthenticatorShared
-
 class SettingsMenuFieldTests: BitwardenTestCase {
     // MARK: Types
 

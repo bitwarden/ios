@@ -1,9 +1,8 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
 import SnapshotTesting
 import SwiftUI
 import XCTest
-
-@testable import BitwardenShared
 
 final class ToastViewTests: BitwardenTestCase {
     // MARK: Snapshots

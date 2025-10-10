@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -6,7 +5,7 @@ import SwiftUI
 
 /// A list item that appears across settings screens.
 ///
-struct SettingsListItem<Content: View>: View {
+public struct SettingsListItem<Content: View>: View {
     // MARK: Properties
 
     /// The accessibility ID for the list item.
@@ -32,7 +31,7 @@ struct SettingsListItem<Content: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         Button {
             action()
         } label: {
@@ -83,7 +82,7 @@ struct SettingsListItem<Content: View>: View {
     ///
     /// - Returns: The list item.
     ///
-    init(
+    public init(
         _ name: String,
         accessibilityIdentifier: String? = nil,
         badgeValue: String? = nil,

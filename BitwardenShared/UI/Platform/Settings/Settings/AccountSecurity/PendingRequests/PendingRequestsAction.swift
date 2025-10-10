@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PendingRequestsAction
 
 /// Actions that can be processed by a `PendingRequestsProcessor`.
