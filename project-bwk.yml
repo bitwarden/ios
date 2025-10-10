@@ -37,11 +37,11 @@ schemes:
         - BitwardenKitSnapshotTests
         - BitwardenKitViewInspectorTests
       testPlans:
-        - path: TestPlans-bwk/TestPlan-Default.xctestplan
+        - path: TestPlans/BitwardenKit-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans-bwk/TestPlan-Unit.xctestplan
-        - path: TestPlans-bwk/TestPlan-Snapshot.xctestplan
-        - path: TestPlans-bwk/TestPlan-ViewInspector.xctestplan
+        - path: TestPlans/BitwardenKit-Unit.xctestplan
+        - path: TestPlans/BitwardenKit-Snapshot.xctestplan
+        - path: TestPlans/BitwardenKit-ViewInspector.xctestplan
   BitwardenResources:
     build:
       targets:

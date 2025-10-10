@@ -45,11 +45,11 @@ schemes:
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
       testPlans:
-        - path: TestPlans-bwa/TestPlan-Default.xctestplan
+        - path: TestPlans/Authenticator-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans-bwa/TestPlan-Unit.xctestplan
-        - path: TestPlans-bwa/TestPlan-Snapshot.xctestplan
-        - path: TestPlans-bwa/TestPlan-ViewInspector.xctestplan
+        - path: TestPlans/Authenticator-Unit.xctestplan
+        - path: TestPlans/Authenticator-Snapshot.xctestplan
+        - path: TestPlans/Authenticator-ViewInspector.xctestplan
   AuthenticatorShared:
     build:
       targets:
@@ -68,11 +68,11 @@ schemes:
         - AuthenticatorSharedSnapshotTests
         - AuthenticatorSharedViewInspectorTests
       testPlans:
-        - path: TestPlans-bwa/TestPlan-Default.xctestplan
+        - path: TestPlans/Authenticator-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans-bwa/TestPlan-Unit.xctestplan
-        - path: TestPlans-bwa/TestPlan-Snapshot.xctestplan
-        - path: TestPlans-bwa/TestPlan-ViewInspector.xctestplan
+        - path: TestPlans/Authenticator-Unit.xctestplan
+        - path: TestPlans/Authenticator-Snapshot.xctestplan
+        - path: TestPlans/Authenticator-ViewInspector.xctestplan
 targets:
   Authenticator:
     type: application

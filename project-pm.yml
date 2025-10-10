@@ -52,11 +52,11 @@ schemes:
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
       testPlans:
-        - path: TestPlans/TestPlan-Default.xctestplan
+        - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans/TestPlan-Unit.xctestplan
-        - path: TestPlans/TestPlan-Snapshot.xctestplan
-        - path: TestPlans/TestPlan-ViewInspector.xctestplan
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenActionExtension:
     build:
       targets:
@@ -71,9 +71,9 @@ schemes:
       targets:
         - BitwardenActionExtensionTests
       testPlans:
-        - path: TestPlans/TestPlan-Default.xctestplan
+        - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans/TestPlan-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenAutoFillExtension:
     build:
       targets:
@@ -88,9 +88,9 @@ schemes:
       targets:
         - BitwardenAutoFillExtensionTests
       testPlans:
-        - path: TestPlans/TestPlan-Default.xctestplan
+        - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans/TestPlan-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShareExtension:
     build:
       targets:
@@ -105,9 +105,9 @@ schemes:
       targets:
         - BitwardenShareExtensionTests
       testPlans:
-        - path: TestPlans/TestPlan-Default.xctestplan
+        - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans/TestPlan-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShared:
     build:
       targets:
@@ -128,11 +128,11 @@ schemes:
         - BitwardenSharedSnapshotTests
         - BitwardenSharedViewInspectorTests
       testPlans:
-        - path: TestPlans/TestPlan-Default.xctestplan
+        - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
-        - path: TestPlans/TestPlan-Unit.xctestplan
-        - path: TestPlans/TestPlan-Snapshot.xctestplan
-        - path: TestPlans/TestPlan-ViewInspector.xctestplan
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenWatchApp:
     build:
       targets:
