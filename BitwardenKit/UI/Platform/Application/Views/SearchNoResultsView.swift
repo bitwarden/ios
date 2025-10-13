@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A view that displays the no search results image and text.
 ///
-struct SearchNoResultsView<Content: View>: View {
+public struct SearchNoResultsView<Content: View>: View {
     // MARK: Properties
 
     /// An optional view to display at the top of the scroll view above the no results image and text.
@@ -13,7 +13,7 @@ struct SearchNoResultsView<Content: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 0) {
@@ -25,26 +25,27 @@ struct SearchNoResultsView<Content: View>: View {
                         Image(decorative: SharedAsset.Icons.search24)
                             .resizable()
                             .frame(width: 74, height: 74)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
                             .multilineTextAlignment(.center)
                             .styleGuide(.callout)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     }
                     .accessibilityIdentifier("NoSearchResultsLabel")
+                    .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                 }
             }
         }
-        .background(Color(asset: Asset.Colors.backgroundSecondary))
+        .background(Color(asset: SharedAsset.Colors.backgroundPrimary))
     }
 
     // MARK: Initialization
 
     /// Initialize a `SearchNoResultsView`.
     ///
-    init() where Content == EmptyView {
+    public init() where Content == EmptyView {
         headerView = nil
     }
 
@@ -53,7 +54,7 @@ struct SearchNoResultsView<Content: View>: View {
     /// - Parameter headerView: An optional view to display at the top of the scroll view above the
     ///     no results image and text.
     ///
-    init(headerView: () -> Content) {
+    public init(headerView: () -> Content) {
         self.headerView = headerView()
     }
 }

@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -6,7 +5,7 @@ import SwiftUI
 
 /// A section view.
 ///
-struct SectionView<Content: View>: View {
+public struct SectionView<Content: View>: View {
     // MARK: Properties
 
     /// Content displayed below section header view.
@@ -23,7 +22,7 @@ struct SectionView<Content: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: titleSpacing) {
             SectionHeaderView(title)
 
@@ -44,7 +43,7 @@ struct SectionView<Content: View>: View {
     ///   - content: The content displayed below the section title.
     ///   - contentSpacing: The spacing of content items.
     ///
-    init(
+    public init(
         _ title: String,
         titleSpacing: CGFloat = 8,
         contentSpacing: CGFloat = 16,

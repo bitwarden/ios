@@ -1,10 +1,9 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 /// A standardized view used to display some text into a row of a list. This is commonly used in
 /// forms.
-struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: View {
+public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: View {
     // MARK: Properties
 
     /// Whether the text selection is enabled.
@@ -42,7 +41,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         BitwardenField(
             title: title,
             titleAccessibilityIdentifier: titleAccessibilityIdentifier,
@@ -90,7 +89,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
-    init(
+    public init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
@@ -109,7 +108,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     }
 }
 
-extension BitwardenTextValueField where AccessoryContent == EmptyView {
+public extension BitwardenTextValueField where AccessoryContent == EmptyView {
     /// Creates a new `BitwardenTextValueField` without accessory content.
     ///
     /// - Parameters:
@@ -144,7 +143,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     }
 }
 
-extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
+public extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
     /// Creates a new `BitwardenTextValueField` with a button as accessory content.
     ///
     /// - Parameters:
