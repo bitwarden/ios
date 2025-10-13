@@ -44,8 +44,8 @@ env:
   MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
   MINT_PATH: .mint/lib # used by mint in bootstrap.sh
   _COVERAGE_PATH: build/coverage.xml
-  _BUILD_RESULT_BUNDLE_PATH: build/bwk-build.xcresult
-  _TESTS_RESULT_BUNDLE_PATH: build/bwk-tests.xcresult
+  _BUILD_RESULT_BUNDLE_PATH: build/bwpm-build.xcresult
+  _TESTS_RESULT_BUNDLE_PATH: build/bwpm-tests.xcresult
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -141,7 +141,7 @@ jobs:
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
             xcrun xcodebuild build-for-testing \
               -workspace Bitwarden.xcworkspace \
-              -scheme BitwardenKit \
+              -scheme Bitwarden \
               -configuration Debug \
               -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
               -derivedDataPath build/DerivedData \
@@ -154,7 +154,7 @@ jobs:
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
             xcrun xcodebuild test-without-building \
               -workspace Bitwarden.xcworkspace \
-              -scheme BitwardenKit \
+              -scheme Bitwarden \
               -configuration Debug \
               -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
               -resultBundlePath $_TESTS_RESULT_BUNDLE_PATH \
