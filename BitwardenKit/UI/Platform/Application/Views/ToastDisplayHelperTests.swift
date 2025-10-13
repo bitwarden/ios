@@ -5,6 +5,7 @@ import XCTest
 
 class ToastDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the toast in the parent view controller.
+    @MainActor
     func test_show() throws {
         let parentViewController = UIViewController()
         let window = UIWindow()
@@ -25,6 +26,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
     }
 
     /// `hide(from:)` hides the toast from the parent view controller.
+    @MainActor
     func test_hide() throws {
         let parentViewController = UIViewController()
         let window = UIWindow()
