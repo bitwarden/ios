@@ -34,7 +34,7 @@ struct BitwardenSliderType: BaseViewType {
     static var typePrefix: String = "BitwardenSlider"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenSlider",
+        "BitwardenKit.BitwardenSlider",
     ]
 }
 
@@ -45,7 +45,7 @@ struct BitwardenStepperType: BaseViewType {
     static var typePrefix: String = "BitwardenStepper"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenStepper",
+        "BitwardenKit.BitwardenStepper",
     ]
 }
 

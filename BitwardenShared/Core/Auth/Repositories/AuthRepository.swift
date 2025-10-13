@@ -1247,14 +1247,31 @@ extension DefaultAuthRepository: AuthRepository {
             await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
              .password:
-            // If the user has a pin, but requires master password after restart, set the pin
-            // protected user key in memory for future unlocks prior to app restart.
-            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
+            guard let encryptedPin = try await stateService.getEncryptedPin(),
+                  try await stateService.pinProtectedUserKeyEnvelope() == nil
+            else {
+                break
+            }
+
             let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
                 encryptedPin: encryptedPin,
             )
-            try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
-            await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
+            let pinProtectedUserKey = try await stateService.pinProtectedUserKey()
+            let pinUnlockRequiresPasswordAfterRestart = try await stateService.pinUnlockRequiresPasswordAfterRestart()
+
+            if pinProtectedUserKey != nil, !pinUnlockRequiresPasswordAfterRestart {
+                // The stored PIN-protected user key needs to be migrated to a PIN-protected user key envelope.
+                try await stateService.setPinKeys(
+                    enrollPinResponse: enrollPinResponse,
+                    requirePasswordAfterRestart: pinUnlockRequiresPasswordAfterRestart,
+                )
+                await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
+            } else {
+                // If the user has a PIN, but requires master password after restart, set the
+                // PIN-protected user key in memory for future unlocks prior to app restart.
+                try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
+                await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
+            }
         case .pinEnvelope:
             break
         }

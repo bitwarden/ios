@@ -5,8 +5,6 @@ import XCTest
 // MARK: - OTPAuthModelTests
 
 class OTPAuthModelTests: BitwardenTestCase {
-    // MARK: Tests
-
     // MARK: Init Success
 
     /// `init` parses an account if there is no issuer

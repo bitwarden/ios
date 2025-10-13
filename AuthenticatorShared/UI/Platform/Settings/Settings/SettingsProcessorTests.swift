@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import XCTest
@@ -251,8 +252,8 @@ class SettingsProcessorTests: BitwardenTestCase {
             """,
         )
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo)).text,
+            subject.state.toast?.title,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
         )
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// Actions that can be processed by a `VaultUnlockProcessor`.
 ///
 enum VaultUnlockAction: Equatable {
