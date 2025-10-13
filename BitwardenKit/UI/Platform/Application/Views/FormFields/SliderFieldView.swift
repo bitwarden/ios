@@ -81,10 +81,10 @@ public struct SliderFieldView<State>: View {
     let field: SliderField<State>
 
     /// A closure containing the action to take when the slider begins or ends editing.
-    let onEditingChanged: (Bool) -> Void
+    let onEditingChanged: @Sendable (Bool) -> Void
 
     /// A closure containing the action to take when a new value is selected.
-    let onValueChanged: (Double) -> Void
+    let onValueChanged: @Sendable (Double) -> Void
 
     /// The width of the three digit text "000" based on the current font.
     @SwiftUI.State private var minTextWidth: CGFloat = 14
@@ -144,8 +144,8 @@ public struct SliderFieldView<State>: View {
     ///
     public init(
         field: SliderField<State>,
-        onEditingChanged: @escaping (Bool) -> Void = { _ in },
-        onValueChanged: @escaping (Double) -> Void,
+        onEditingChanged: @Sendable @escaping (Bool) -> Void = { _ in },
+        onValueChanged: @Sendable @escaping (Double) -> Void,
     ) {
         self.field = field
         self.onEditingChanged = onEditingChanged
