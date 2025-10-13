@@ -25,6 +25,7 @@ public struct BitwardenMenuFooterTextModifier: ViewModifier {
 }
 
 public extension View {
+    /// A modifier for BitwardenMenu footers.
     func bitwardenMenuFooterText(topPadding: CGFloat = 0, bottomPadding: CGFloat = 12) -> some View {
         modifier(BitwardenMenuFooterTextModifier(topPadding: topPadding, bottomPadding: bottomPadding))
     }
