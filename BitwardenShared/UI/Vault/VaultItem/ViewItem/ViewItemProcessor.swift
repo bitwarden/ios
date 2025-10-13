@@ -118,8 +118,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             } else {
                 await showPermanentDeleteConfirmation(cipherState.cipher)
             }
-        case .restorePressed:
-            await showRestoreItemConfirmation()
         case .toggleDisplayMultipleCollections:
             toggleDisplayMultipleCollections()
         case .totpCodeExpired:
@@ -398,6 +396,8 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
+        case .restore:
+            showRestoreItemConfirmation()
         }
     }
 
@@ -466,7 +466,7 @@ private extension ViewItemProcessor {
 
     /// Shows restore cipher confirmation alert.
     ///
-    private func showRestoreItemConfirmation() async {
+    private func showRestoreItemConfirmation() {
         guard case let .data(cipherState) = state.loadingState else { return }
         let alert = Alert(
             title: Localizations.doYouReallyWantToRestoreCipher,

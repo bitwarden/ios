@@ -26,6 +26,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
             isCollectionsEnabled: true,
             isDeleteEnabled: true,
             isMoveToOrganizationEnabled: true,
+            isRestoreEnabled: true,
             store: store,
         )
     }
@@ -76,5 +77,13 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.moveToOrganization)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)
+    }
+
+    /// Tapping the restore option dispatches the `.restore` action.
+    @MainActor
+    func test_restore_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.restore)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .restore)
     }
 }
