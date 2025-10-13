@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A section header.
 ///
-struct SectionHeaderView: View {
+public struct SectionHeaderView: View {
     // MARK: Properties
 
     /// The section title.
@@ -13,7 +13,7 @@ struct SectionHeaderView: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         Text(title)
             .styleGuide(.caption1, weight: .bold)
             .accessibilityAddTraits(.isHeader)
@@ -29,7 +29,7 @@ struct SectionHeaderView: View {
     /// - Parameters:
     ///   - title: The section title.
     ///
-    init(_ title: String) {
+    public init(_ title: String) {
         self.title = title
     }
 }
