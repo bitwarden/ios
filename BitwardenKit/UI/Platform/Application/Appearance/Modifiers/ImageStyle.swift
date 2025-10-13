@@ -7,7 +7,7 @@ import SwiftUI
 /// A struct containing configuration properties for applying common properties to images across
 /// the app.
 ///
-public struct ImageStyle {
+public struct ImageStyle: Sendable {
     // MARK: Properties
 
     /// The foreground color of the image.
@@ -140,6 +140,7 @@ public extension Image {
     /// - Parameter style: The configuration used to set common image properties.
     /// - Returns: The wrapped view modified with the common image modifiers applied.
     ///
+    @MainActor
     func imageStyle(_ style: ImageStyle) -> some View {
         resizable()
             .frame(width: style.width, height: style.height, scaleWithFont: style.scaleWithFont)
