@@ -5,7 +5,7 @@ import Networking
 
 /// An error response returned from an API request.
 ///
-public struct ErrorResponseModel: Codable, Equatable {
+public struct ErrorResponseModel: Codable, Equatable, Sendable {
     // MARK: Properties
 
     /// Validation errors returned from the API request.
