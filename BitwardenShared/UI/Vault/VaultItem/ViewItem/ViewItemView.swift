@@ -61,25 +61,19 @@ struct ViewItemView: View {
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 closeToolbarButton {
                     store.send(.dismissPressed)
                 }
             }
 
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if isRestoredEnabled {
-                    toolbarButton(Localizations.restore) {
-                        await store.perform(.restorePressed)
-                    }
-                    .accessibilityIdentifier("RestoreButton")
-                }
-
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
                     isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
+                    isRestoreEnabled: isRestoredEnabled,
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
