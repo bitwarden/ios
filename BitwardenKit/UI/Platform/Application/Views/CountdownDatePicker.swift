@@ -6,9 +6,11 @@ import UIKit
 
 /// A SwiftUI wrapped `UIDatePicker` that is configured to allow picking hour and minute values.
 ///
+@MainActor
 struct CountdownDatePicker: UIViewRepresentable {
     // MARK: Coordinator
 
+    @MainActor
     class Coordinator: NSObject {
         // MARK: Properties
 
