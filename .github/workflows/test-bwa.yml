@@ -129,11 +129,16 @@ jobs:
         run: |
           echo "Listing simulator devices:"
           SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
-          echo "$DEVICES_LIST"
+          echo "$SIMULATORS"
           DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "--------------------------------"
-          echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
+          echo "👀 Updating dyld_shared_cache:"
+          xcrun simctl runtime dyld_shared_cache update --all
+          echo "--------------------------------"
+          echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
           xcrun simctl boot "$DEVICE_ID"
+          echo "--------------------------------"
+          echo "👀 Checking boot status:"
           xcrun simctl bootstatus "$DEVICE_ID"
 
       - name: Build
