@@ -132,9 +132,14 @@ jobs:
             echo "--------------------------------"
             echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
             xcrun simctl boot "$DEVICE_ID"
+            log stream --predicate 'subsystem contains "com.apple.CoreSimulator"' --level debug &
+            LOG_PID=$!
+
             echo "--------------------------------"
             echo "👀 Checking boot status:"
             xcrun simctl bootstatus "$DEVICE_ID"
+
+            kill $LOG_PID 2>/dev/null || true
 
       - name: Build
         run: |
