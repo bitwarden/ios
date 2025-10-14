@@ -282,7 +282,7 @@ extension View {
     func versionDependentOrderingToolbarItemGroup(
         placement: ToolbarItemPlacement = .topBarTrailing,
         @ViewBuilder alfa: () -> some View,
-        @ViewBuilder bravo: () -> some View
+        @ViewBuilder bravo: () -> some View,
     ) -> some ToolbarContent {
         ToolbarItemGroup(placement: placement) {
             if #unavailable(iOS 26) {

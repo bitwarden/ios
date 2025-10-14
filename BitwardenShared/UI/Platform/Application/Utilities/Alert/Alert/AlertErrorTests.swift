@@ -27,8 +27,8 @@ class AlertErrorTests: BitwardenTestCase {
     func test_inputValidationAlert() {
         let subject = Alert.inputValidationAlert(
             error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
-            )
+                message: Localizations.validationFieldRequired(Localizations.masterPassword),
+            ),
         )
 
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)

@@ -51,7 +51,7 @@ class ViewLoggingNavigationControllerTests: BitwardenTestCase {
         subject.navigationController(
             subject,
             didShow: UIHostingController(rootView: EmptyView()),
-            animated: false
+            animated: false,
         )
         XCTAssertEqual(logger.logs, ["[Navigation] View appeared: EmptyView"])
     }
@@ -86,7 +86,7 @@ class ViewLoggingNavigationControllerTests: BitwardenTestCase {
     func test_presentationControllerDidDismiss() {
         let presentationController = UIPresentationController(
             presentedViewController: UIHostingController(rootView: EmptyView()),
-            presenting: subject
+            presenting: subject,
         )
         subject.presentationControllerDidDismiss(presentationController)
         XCTAssertEqual(logger.logs, ["[Navigation] View dismissed interactively: EmptyView"])

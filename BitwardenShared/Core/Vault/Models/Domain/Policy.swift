@@ -28,7 +28,7 @@ extension Policy {
             enabled: responseModel.enabled,
             id: responseModel.id,
             organizationId: responseModel.organizationId,
-            type: responseModel.type
+            type: responseModel.type,
         )
     }
 

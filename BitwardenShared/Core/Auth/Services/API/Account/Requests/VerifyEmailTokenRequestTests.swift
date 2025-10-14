@@ -19,8 +19,8 @@ class VerifyEmailTokenRequestTests: BitwardenTestCase {
         subject = VerifyEmailTokenRequest(
             requestModel: VerifyEmailTokenRequestModel(
                 email: "example@email.com",
-                emailVerificationToken: "email-verification-token"
-            )
+                emailVerificationToken: "email-verification-token",
+            ),
         )
     }
 
@@ -52,13 +52,13 @@ class VerifyEmailTokenRequestTests: BitwardenTestCase {
     func test_validate_with400ExpiredLink() throws {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.verifyEmailTokenExpiredLink.data
+            body: APITestData.verifyEmailTokenExpiredLink.data,
         )
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
             XCTAssertEqual(
                 error as? VerifyEmailTokenRequestError,
-                .tokenExpired
+                .tokenExpired,
             )
         }
     }
@@ -67,7 +67,7 @@ class VerifyEmailTokenRequestTests: BitwardenTestCase {
     func test_validate_with400() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: Data("example data".utf8)
+            body: Data("example data".utf8),
         )
 
         XCTAssertNoThrow(try subject.validate(response))

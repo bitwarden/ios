@@ -82,7 +82,7 @@ class DefaultExportItemsService: ExportItemsService {
     init(
         authenticatorItemRepository: AuthenticatorItemRepository,
         errorReporter: ErrorReporter,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.authenticatorItemRepository = authenticatorItemRepository
         self.errorReporter = errorReporter
@@ -127,7 +127,7 @@ class DefaultExportItemsService: ExportItemsService {
 
     func writeToFile(
         name fileName: String,
-        content fileContent: String
+        content fileContent: String,
     ) throws -> URL {
         // Get the exports directory.
         let exportsDirectoryURL = try FileManager.default.exportedItemsUrl()
@@ -137,7 +137,7 @@ class DefaultExportItemsService: ExportItemsService {
             try FileManager.default.createDirectory(
                 at: exportsDirectoryURL,
                 withIntermediateDirectories: true,
-                attributes: nil
+                attributes: nil,
             )
         }
 

@@ -39,12 +39,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
     }
 
@@ -72,7 +72,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentURLsData,
-            EnvironmentURLData(base: .example)
+            EnvironmentURLData(base: .example),
         )
     }
 
@@ -87,7 +87,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentURLsData,
-            EnvironmentURLData(base: .example)
+            EnvironmentURLData(base: .example),
         )
     }
 
@@ -148,7 +148,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.appeared)
 
@@ -164,7 +164,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(
             subject.state.profileSwitcherState,
-            ProfileSwitcherState.empty(shouldAlwaysHideAddAccount: true)
+            ProfileSwitcherState.empty(shouldAlwaysHideAddAccount: true),
         )
     }
 
@@ -176,7 +176,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.appeared)
 
@@ -197,7 +197,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             message: Localizations.invalidEmail,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         ))
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
@@ -277,7 +277,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile],
             activeAccountId: nil,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.appeared)
 
@@ -289,8 +289,8 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
                 allowLockAndLogout: true,
                 isVisible: false,
                 shouldAlwaysHideAddAccount: true,
-                showPlaceholderToolbarIcon: true
-            )
+                showPlaceholderToolbarIcon: true,
+            ),
         )
     }
 
@@ -304,7 +304,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.appeared)
 
@@ -322,7 +322,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
@@ -339,7 +339,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
@@ -356,7 +356,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -373,12 +373,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_init_withoutRememberedEmail() {
         appSettingsStore.rememberedEmail = nil
         let services = ServiceContainer.withMocks(
-            appSettingsStore: appSettingsStore
+            appSettingsStore: appSettingsStore,
         )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: LandingState()
+            state: LandingState(),
         )
 
         XCTAssertEqual(subject.state.email, "")
@@ -390,12 +390,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_init_withRememberedEmail() {
         appSettingsStore.rememberedEmail = "email@example.com"
         let services = ServiceContainer.withMocks(
-            appSettingsStore: appSettingsStore
+            appSettingsStore: appSettingsStore,
         )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: LandingState()
+            state: LandingState(),
         )
 
         XCTAssertEqual(subject.state.email, "email@example.com")
@@ -492,7 +492,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
 
@@ -506,7 +506,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         // Verify the results.
         XCTAssertEqual(
             coordinator.events.last,
-            .action(.lockVault(userId: otherProfile.userId, isManuallyLocking: true))
+            .action(.lockVault(userId: otherProfile.userId, isManuallyLocking: true)),
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
@@ -526,7 +526,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = nil
 
@@ -557,7 +557,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
 
@@ -576,7 +576,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
         XCTAssertEqual(
             coordinator.events.last,
-            .action(.logout(userId: otherProfile.userId, userInitiated: true))
+            .action(.logout(userId: otherProfile.userId, userInitiated: true)),
         )
     }
 
@@ -596,7 +596,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = nil
 
@@ -629,13 +629,13 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -650,7 +650,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             coordinator.events,
             [
                 .action(.switchAccount(isAutomatic: false, userId: profile.userId)),
-            ]
+            ],
         )
     }
 
@@ -665,20 +665,20 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let account = Account.fixture(profile: .fixture(
-            userId: profile.userId
+            userId: profile.userId,
         ))
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -693,7 +693,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             coordinator.events,
             [
                 .action(.switchAccount(isAutomatic: false, userId: profile.userId)),
-            ]
+            ],
         )
     }
 
@@ -709,21 +709,21 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(
             profile: .fixture(
-                userId: profile.userId
-            )
+                userId: profile.userId,
+            ),
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -736,7 +736,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.events,
-            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))]
+            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))],
         )
     }
 
@@ -751,20 +751,20 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
         let account = Account.fixture(profile: .fixture(
-            userId: profile.userId
+            userId: profile.userId,
         ))
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -777,7 +777,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.events,
-            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))]
+            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))],
         )
     }
 
@@ -795,13 +795,13 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -814,7 +814,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.events,
-            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))]
+            [.action(.switchAccount(isAutomatic: false, userId: profile.userId))],
         )
     }
 
@@ -831,7 +831,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -858,7 +858,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             accounts: [active],
             activeAccountId: active.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {

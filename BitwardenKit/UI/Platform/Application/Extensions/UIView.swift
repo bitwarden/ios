@@ -17,7 +17,7 @@ public extension UIView {
         top: CGFloat? = 0,
         leading: CGFloat? = 0,
         bottom: CGFloat? = 0,
-        trailing: CGFloat? = 0
+        trailing: CGFloat? = 0,
     ) {
         subview.translatesAutoresizingMaskIntoConstraints = false
         addSubview(subview)

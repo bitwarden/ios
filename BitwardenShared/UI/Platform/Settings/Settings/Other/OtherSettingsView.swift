@@ -39,7 +39,7 @@ struct OtherSettingsView: View {
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
         .toast(store.binding(
             get: \.toast,
-            send: OtherSettingsAction.toastShown
+            send: OtherSettingsAction.toastShown,
         ))
         .task {
             await store.perform(.streamLastSyncTime)
@@ -57,9 +57,9 @@ struct OtherSettingsView: View {
             Localizations.enableSyncOnRefresh,
             isOn: store.binding(
                 get: \.isAllowSyncOnRefreshToggleOn,
-                send: OtherSettingsAction.toggleAllowSyncOnRefresh
+                send: OtherSettingsAction.toggleAllowSyncOnRefresh,
             ),
-            accessibilityIdentifier: "SyncOnRefreshSwitch"
+            accessibilityIdentifier: "SyncOnRefreshSwitch",
         ) {
             Text(Localizations.enableSyncOnRefreshDescription)
                 .styleGuide(.footnote)
@@ -74,9 +74,9 @@ struct OtherSettingsView: View {
             Localizations.allowUniversalClipboard,
             isOn: store.binding(
                 get: \.isAllowUniversalClipboardToggleOn,
-                send: OtherSettingsAction.toggleAllowUniversalClipboard
+                send: OtherSettingsAction.toggleAllowUniversalClipboard,
             ),
-            accessibilityIdentifier: "UniversalClipboardChooser"
+            accessibilityIdentifier: "UniversalClipboardChooser",
         ) {
             Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
                 .styleGuide(.footnote)
@@ -94,8 +94,8 @@ struct OtherSettingsView: View {
             options: ClearClipboardValue.allCases,
             selection: store.binding(
                 get: \.clearClipboardValue,
-                send: OtherSettingsAction.clearClipboardValueChanged
-            )
+                send: OtherSettingsAction.clearClipboardValueChanged,
+            ),
         )
     }
 
@@ -105,8 +105,8 @@ struct OtherSettingsView: View {
             Localizations.connectToWatch,
             isOn: store.binding(
                 get: \.isConnectToWatchToggleOn,
-                send: OtherSettingsAction.toggleConnectToWatch
-            )
+                send: OtherSettingsAction.toggleConnectToWatch,
+            ),
         )
         .contentBlock()
     }
@@ -117,9 +117,9 @@ struct OtherSettingsView: View {
             Localizations.siriAndShortcutsAccess,
             isOn: store.binding(
                 get: \.isSiriAndShortcutsAccessToggleOn,
-                send: OtherSettingsAction.toggleSiriAndShortcutsAccessToggleOn
+                send: OtherSettingsAction.toggleSiriAndShortcutsAccessToggleOn,
             ),
-            accessibilityIdentifier: "SiriAndShortcutsAccessSwitch"
+            accessibilityIdentifier: "SiriAndShortcutsAccessSwitch",
         ) {
             Text(Localizations.enableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents)
                 .styleGuide(.footnote)

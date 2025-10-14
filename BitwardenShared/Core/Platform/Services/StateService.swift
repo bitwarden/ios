@@ -44,6 +44,13 @@ protocol StateService: AnyObject {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
+    /// Gets the access token's expiration date for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the access token expiration date.
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate(userId: String) async -> Date?
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -429,6 +436,14 @@ protocol StateService: AnyObject {
     ///
     func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool
 
+    /// Sets the access token's expiration date for an account.
+    ///
+    /// - Parameters:
+    ///   - expirationDate: The user's access token expiration date.
+    ///   - userId: The user ID associated with the access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async
+
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
@@ -459,7 +474,7 @@ protocol StateService: AnyObject {
     ///
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async
 
     /// Sets the user's progress for setting up autofill.
@@ -671,7 +686,7 @@ protocol StateService: AnyObject {
     ///
     func setPinKeys(
         enrollPinResponse: EnrollPinResponse,
-        requirePasswordAfterRestart: Bool
+        requirePasswordAfterRestart: Bool,
     ) async throws
 
     /// Sets the pin protected user key to memory.
@@ -853,6 +868,14 @@ extension StateService {
         }
         actions.append(action)
         await setPendingAppIntentActions(actions: actions)
+    }
+
+    /// Gets the access token's expiration date for the active account.
+    ///
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate() async throws -> Date? {
+        try await getAccessTokenExpirationDate(userId: getActiveAccountId())
     }
 
     /// Gets the account encryptions keys for the active account.
@@ -1141,6 +1164,14 @@ extension StateService {
     ///
     func pinProtectedUserKeyEnvelope() async throws -> String? {
         try await pinProtectedUserKeyEnvelope(userId: nil)
+    }
+
+    /// Sets the access token's expiration date for the active account.
+    ///
+    /// - Parameter expirationDate: The user's access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?) async throws {
+        try await setAccessTokenExpirationDate(expirationDate, userId: getActiveAccountId())
     }
 
     /// Sets the account encryption keys for the active account.
@@ -1473,7 +1504,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
-        keychainRepository: KeychainRepository
+        keychainRepository: KeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
@@ -1542,6 +1573,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         }
     }
 
+    func getAccessTokenExpirationDate(userId: String) -> Date? {
+        appSettingsStore.accessTokenExpirationDate(userId: userId)
+    }
+
     func getAccount(userId: String?) throws -> Account {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1562,7 +1597,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return AccountEncryptionKeys(
             accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
+            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
 
@@ -1844,6 +1879,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
@@ -1876,6 +1912,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
     }
 
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        appSettingsStore.setAccessTokenExpirationDate(expirationDate, userId: userId)
+    }
+
     func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {
         try updateAccountProfile(userId: userId) { profile in
             profile.kdfType = kdfConfig.kdfType
@@ -1896,13 +1936,13 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].hasBeenUnlockedInteractively = value
     }
 
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async {
         guard var state = appSettingsStore.state,
               var profile = state.accounts[userId]?.profile
@@ -1913,7 +1953,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             ?? UserDecryptionOptions(
                 hasMasterPassword: true,
                 keyConnectorOption: nil,
-                trustedDeviceOption: nil
+                trustedDeviceOption: nil,
             )
         userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
         profile.userDecryptionOptions = userDecryptionOptions
@@ -2076,7 +2116,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
 
     func setPinKeys(
         enrollPinResponse: EnrollPinResponse,
-        requirePasswordAfterRestart: Bool
+        requirePasswordAfterRestart: Bool,
     ) async throws {
         let userId = try getActiveAccountUserId()
         if requirePasswordAfterRestart {
@@ -2084,7 +2124,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         } else {
             appSettingsStore.setPinProtectedUserKeyEnvelope(
                 key: enrollPinResponse.pinProtectedUserKeyEnvelope,
-                userId: userId
+                userId: userId,
             )
         }
         appSettingsStore.setEncryptedPin(enrollPinResponse.userKeyEncryptedPin, userId: userId)
@@ -2096,7 +2136,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
         try accountVolatileData[
             getActiveAccountUserId(),
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
@@ -2107,7 +2147,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentURLs(
             environmentURLData: urls,
-            email: email
+            email: email,
         )
     }
 
@@ -2307,9 +2347,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
-            .compactMap { $0 }
-            .filter { $0 != .complete }
-            .count
+            .compactMap(\.self)
+            .count(where: { $0 != .complete })
+
         if importLoginsSetupProgress == .setUpLater {
             badgeCount += 1
         }
@@ -2317,7 +2357,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
             importLoginsSetupProgress: importLoginsSetupProgress,
-            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress,
         )
     }
 }

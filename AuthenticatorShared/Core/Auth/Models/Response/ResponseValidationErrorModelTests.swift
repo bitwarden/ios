@@ -13,7 +13,7 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
         let subject = ResponseValidationErrorModel(
             error: "invalid_input",
             errorDescription: "invalid_username",
-            errorModel: ErrorModel(message: "error message", object: "error")
+            errorModel: ErrorModel(message: "error message", object: "error"),
         )
         XCTAssertEqual(subject.errorModel.message, "error message")
     }

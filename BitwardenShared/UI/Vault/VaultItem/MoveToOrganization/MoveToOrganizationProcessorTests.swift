@@ -29,9 +29,9 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: MoveToOrganizationState(cipher: .fixture())
+            state: MoveToOrganizationState(cipher: .fixture()),
         )
     }
 
@@ -121,8 +121,8 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection
-            )
+                message: Localizations.selectOneCollection,
+            ),
         )
     }
 

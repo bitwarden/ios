@@ -50,7 +50,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
         parentStore: Store<ParentState, ParentAction, ParentEffect>,
         state parentToChildState: @escaping (ParentState) -> State,
         mapAction: ((Action) -> ParentAction)?,
-        mapEffect: ((Effect) -> ParentEffect)?
+        mapEffect: ((Effect) -> ParentEffect)?,
     ) {
         state = parentToChildState(parentStore.state)
         receive = { action in
@@ -97,13 +97,13 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     open func child<ChildState, ChildAction, ChildEffect>(
         state: @escaping (State) -> ChildState,
         mapAction: ((ChildAction) -> Action)?,
-        mapEffect: ((ChildEffect) -> Effect)?
+        mapEffect: ((ChildEffect) -> Effect)?,
     ) -> Store<ChildState, ChildAction, ChildEffect> {
         Store<ChildState, ChildAction, ChildEffect>(
             parentStore: self,
             state: state,
             mapAction: mapAction,
-            mapEffect: mapEffect
+            mapEffect: mapEffect,
         )
     }
 
@@ -119,13 +119,13 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///
     open func binding<LocalState>(
         get: @escaping (State) -> LocalState,
-        send stateToAction: @escaping (LocalState) -> Action
+        send stateToAction: @escaping (LocalState) -> Action,
     ) -> Binding<LocalState> {
         Binding(
             get: { get(self.state) },
             set: { value, _ in
                 self.send(stateToAction(value))
-            }
+            },
         )
     }
 
@@ -141,7 +141,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///
     open func bindingAsync<LocalState>(
         get: @escaping (State) -> LocalState,
-        perform stateToEffect: @escaping (LocalState) -> Effect
+        perform stateToEffect: @escaping (LocalState) -> Effect,
     ) -> Binding<LocalState> {
         Binding(
             get: { get(self.state) },
@@ -149,7 +149,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
                 Task {
                     await self.perform(stateToEffect(value))
                 }
-            }
+            },
         )
     }
 
@@ -164,7 +164,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     open func binding<LocalState>(get: @escaping (State) -> LocalState) -> Binding<LocalState> {
         Binding(
             get: { get(self.state) },
-            set: { _ in }
+            set: { _ in },
         )
     }
 }

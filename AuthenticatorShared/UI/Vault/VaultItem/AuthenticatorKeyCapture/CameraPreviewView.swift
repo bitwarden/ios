@@ -44,7 +44,7 @@ public struct CameraPreviewView {
                 self,
                 selector: #selector(handleOrientationChange),
                 name: UIDevice.orientationDidChangeNotification,
-                object: nil
+                object: nil,
             )
         }
 

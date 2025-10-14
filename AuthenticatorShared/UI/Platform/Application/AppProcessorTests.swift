@@ -34,8 +34,8 @@ class AppProcessorTests: BitwardenTestCase {
                 appSettingsStore: appSettingsStore,
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenter,
-                timeProvider: timeProvider
-            )
+                timeProvider: timeProvider,
+            ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
     }

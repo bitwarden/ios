@@ -25,7 +25,7 @@ struct LoadingOverlayView: View {
                 Asset.Colors.materialRegularBlend.swiftUIColor
                     .blendMode(colorScheme == .light ? .colorDodge : .overlay)
             }
-            .compositingGroup()
+            .compositingGroup(),
         )
         .cornerRadius(14)
         .controlSize(.large)

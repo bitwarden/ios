@@ -59,7 +59,7 @@ extension StyleGuideFont {
     static let caption2Monospaced = StyleGuideFont(
         font: .system(.caption2, design: .monospaced),
         lineHeight: 13,
-        size: 11
+        size: 11,
     )
 }
 
@@ -125,7 +125,7 @@ extension Text {
         weight: SwiftUI.Font.Weight = .regular,
         isItalic: Bool = false,
         includeLineSpacing: Bool = true,
-        monoSpacedDigit: Bool = false
+        monoSpacedDigit: Bool = false,
     ) -> some View {
         var textWithFont = font(.styleGuide(style))
             .fontWeight(weight)

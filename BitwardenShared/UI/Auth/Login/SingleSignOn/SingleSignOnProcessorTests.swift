@@ -32,13 +32,13 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
             authService: authService,
             errorReporter: errorReporter,
             httpClient: client,
-            stateService: stateService
+            stateService: stateService,
         )
 
         subject = SingleSignOnProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: SingleSignOnState()
+            state: SingleSignOnState(),
         )
     }
 
@@ -99,7 +99,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -117,7 +117,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "")
     }
@@ -137,7 +137,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "BestOrganization")
     }
@@ -156,11 +156,11 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
             [
                 LoadingOverlayState(title: Localizations.loading),
                 LoadingOverlayState(title: Localizations.loggingIn),
-            ]
+            ],
         )
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -178,8 +178,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.validationFieldRequired(Localizations.orgIdentifier),
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)],
+            ),
         )
     }
 
@@ -214,7 +214,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
         )
     }
 
@@ -259,7 +259,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil),
         )
         subject.state.identifierText = "BestOrganization"
 
@@ -337,10 +337,10 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
                     .fixtureAccountLogin(),
                     animated: false,
                     attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
+                    didSwitchAccountAutomatically: false,
                 ),
                 .dismiss,
-            ]
+            ],
         )
     }
 
@@ -349,7 +349,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
-            keyConnectorURL: URL(string: "https://example.com")!
+            keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.identifierText = "BestOrganization"
 
@@ -372,7 +372,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey() async throws {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
-            keyConnectorURL: URL(string: "https://example.com")!
+            keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.identifierText = "BestOrganization"
         authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
@@ -410,7 +410,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         // Set up the mock data.
         let error = BitwardenTestError.example
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
-            keyConnectorURL: URL(string: "https://example.com")!
+            keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.identifierText = "BestOrganization"
         authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)

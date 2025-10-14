@@ -21,7 +21,7 @@ extension Alert {
     static func cipherDecryptionFailure(
         cipherIds: [String],
         isFromCipherTap: Bool = true,
-        copyAction: @escaping (String) -> Void
+        copyAction: @escaping (String) -> Void,
     ) -> Alert {
         let message = if isFromCipherTap {
             Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
@@ -42,7 +42,7 @@ extension Alert {
                     copyAction(stringToCopy)
                 }),
                 AlertAction(title: Localizations.close, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -56,7 +56,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -70,7 +70,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -86,7 +86,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -103,7 +103,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -122,7 +122,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -131,7 +131,7 @@ extension Alert {
     /// - Parameter handler: A block that is executed when one of the selections is made.
     ///
     static func fileSelectionOptions(
-        handler: @MainActor @escaping (FileSelectionRoute) -> Void
+        handler: @MainActor @escaping (FileSelectionRoute) -> Void,
     ) -> Alert {
         Alert(
             title: nil,
@@ -141,23 +141,23 @@ extension Alert {
                 AlertAction(
                     title: Localizations.photos,
                     style: .default,
-                    handler: { _ in await handler(.photo) }
+                    handler: { _ in await handler(.photo) },
                 ),
                 AlertAction(
                     title: Localizations.camera,
                     style: .default,
-                    handler: { _ in await handler(.camera) }
+                    handler: { _ in await handler(.camera) },
                 ),
                 AlertAction(
                     title: Localizations.browse,
                     style: .default,
-                    handler: { _ in await handler(.file) }
+                    handler: { _ in await handler(.file) },
                 ),
                 AlertAction(
                     title: Localizations.cancel,
-                    style: .cancel
+                    style: .cancel,
                 ),
-            ]
+            ],
         )
     }
 
@@ -175,7 +175,7 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -185,7 +185,7 @@ extension Alert {
     /// - Returns: An alert informing the user that no logins were imported.
     ///
     static func importLoginsEmpty(
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.importError,
@@ -195,7 +195,7 @@ extension Alert {
                 AlertAction(title: Localizations.importLoginsLater, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -214,7 +214,7 @@ extension Alert {
                 AlertAction(title: Localizations.confirm, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -235,7 +235,7 @@ extension Alert {
         cipherView: CipherView,
         id: String,
         showEdit: Bool,
-        action: @escaping (_ action: MoreOptionsAction) async -> Void
+        action: @escaping (_ action: MoreOptionsAction) async -> Void,
     ) -> Alert {
         // All the cipher types have the option to view the cipher.
         var alertActions = [
@@ -261,7 +261,7 @@ extension Alert {
                         value: number,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: nil
+                        cipherId: nil,
                     ))
                 })
             }
@@ -272,7 +272,7 @@ extension Alert {
                         value: code,
                         requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedCardCode,
-                        cipherId: cipherView.id
+                        cipherId: cipherView.id,
                     ))
                 })
             }
@@ -284,7 +284,7 @@ extension Alert {
                         value: username,
                         requiresMasterPasswordReprompt: false,
                         logEvent: nil,
-                        cipherId: nil
+                        cipherId: nil,
                     ))
                 })
             }
@@ -296,7 +296,7 @@ extension Alert {
                         value: password,
                         requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedPassword,
-                        cipherId: cipherView.id
+                        cipherId: cipherView.id,
                     ))
                 })
             }
@@ -323,7 +323,7 @@ extension Alert {
                         value: notes,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: nil
+                        cipherId: nil,
                     ))
                 })
             }
@@ -335,7 +335,7 @@ extension Alert {
                         value: sshKey.publicKey,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: cipherView.id
+                        cipherId: cipherView.id,
                     ))
                 })
                 if cipherView.viewPassword {
@@ -345,7 +345,7 @@ extension Alert {
                             value: sshKey.privateKey,
                             requiresMasterPasswordReprompt: true,
                             logEvent: nil,
-                            cipherId: cipherView.id
+                            cipherId: cipherView.id,
                         ))
                     })
                 }
@@ -355,7 +355,7 @@ extension Alert {
                         value: sshKey.fingerprint,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: cipherView.id
+                        cipherId: cipherView.id,
                     ))
                 })
             }
@@ -366,7 +366,7 @@ extension Alert {
             title: cipherView.name,
             message: nil,
             preferredStyle: .actionSheet,
-            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)],
         )
     }
 
@@ -377,7 +377,7 @@ extension Alert {
     static func passwordAutofillInformation() -> Alert {
         Alert.defaultAlert(
             title: Localizations.passwordAutofill,
-            message: Localizations.bitwardenAutofillAlert2
+            message: Localizations.bitwardenAutofillAlert2,
         )
     }
 
@@ -392,7 +392,7 @@ extension Alert {
             message: Localizations.pushNotificationAlert,
             alertActions: [
                 AlertAction(title: Localizations.okGotIt, style: .default) { _, _ in await action() },
-            ]
+            ],
         )
     }
 
@@ -403,7 +403,7 @@ extension Alert {
     ///     encryption settings.
     ///
     static func updateEncryptionSettings(
-        completion: @MainActor @escaping (String) async -> Void
+        completion: @MainActor @escaping (String) async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.updateYourEncryptionSettings,
@@ -412,7 +412,7 @@ extension Alert {
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(
                     title: Localizations.submit,
-                    style: .default
+                    style: .default,
                 ) { _, alertTextFields in
                     guard let password = alertTextFields.first(where: { $0.id == "password" })?.text else { return }
                     await completion(password)
@@ -424,9 +424,9 @@ extension Alert {
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
                     isSecureTextEntry: true,
-                    keyboardType: .default
+                    keyboardType: .default,
                 ),
-            ]
+            ],
         )
     }
 }

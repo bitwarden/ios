@@ -23,7 +23,7 @@ extension Alert {
                     }
                 },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -42,18 +42,18 @@ extension Alert {
         _ error: Error,
         isOfficialBitwardenServer: Bool = true,
         shareErrorDetails: (@MainActor () async -> Void)? = nil,
-        tryAgain: (() async -> Void)? = nil
+        tryAgain: (() async -> Void)? = nil,
     ) -> Alert {
         switch error {
         case let serverError as ServerError:
-            return defaultAlert(
+            defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: serverError.message
+                message: serverError.message,
             )
         case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
-            return internetConnectionError(tryAgain)
+            internetConnectionError(tryAgain)
         case let error as URLError where error.code == .timedOut:
-            return defaultAlert(
+            defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: error.localizedDescription,
                 alertActions: [
@@ -63,10 +63,10 @@ extension Alert {
                         }
                     },
                     AlertAction(title: Localizations.cancel, style: .cancel),
-                ]
+                ],
             )
         default:
-            return Alert(
+            Alert(
                 title: Localizations.anErrorHasOccurred,
                 message: isOfficialBitwardenServer ? nil : Localizations.thisIsNotARecognizedServerDescriptionLong,
                 alertActions: [
@@ -76,7 +76,7 @@ extension Alert {
                         }
                     },
                     AlertAction(title: Localizations.ok, style: .cancel),
-                ].compactMap { $0 }
+                ].compactMap(\.self),
             )
         }
     }

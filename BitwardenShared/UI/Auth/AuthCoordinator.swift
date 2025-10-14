@@ -120,7 +120,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         rootNavigator: RootNavigator?,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
@@ -145,7 +145,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
                 emailVerificationToken: emailVerificationToken,
-                userEmail: userEmail
+                userEmail: userEmail,
             )
         case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail):
             // Coming from an AppLink clear the current stack
@@ -154,7 +154,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 self.showCompleteRegistration(
                     emailVerificationToken: emailVerificationToken,
                     userEmail: userEmail,
-                    fromEmail: fromEmail
+                    fromEmail: fromEmail,
                 )
             }
         case let .completeWithRehydration(rehydratableTarget):
@@ -206,12 +206,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .removeMasterPassword(
             organizationName: organizationName,
             organizationId: organizationId,
-            keyConnectorUrl: keyConnectorUrl
+            keyConnectorUrl: keyConnectorUrl,
         ):
             showRemoveMasterPassword(
                 organizationName: organizationName,
                 organizationId: organizationId,
-                keyConnectorUrl: keyConnectorUrl
+                keyConnectorUrl: keyConnectorUrl,
             )
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
@@ -222,7 +222,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 callbackUrlScheme: callbackUrlScheme,
                 delegate: context as? SingleSignOnFlowDelegate,
                 state: state,
-                url: url
+                url: url,
             )
         case let .twoFactor(email, unlockMethod, authMethodsData, orgIdentifier, deviceVerificationRequired):
             showTwoFactorAuth(
@@ -230,7 +230,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 unlockMethod: unlockMethod,
                 authMethodsData: authMethodsData,
                 orgIdentifier: orgIdentifier,
-                deviceVerificationRequired: deviceVerificationRequired
+                deviceVerificationRequired: deviceVerificationRequired,
             )
         case .updateMasterPassword:
             showUpdateMasterPassword()
@@ -238,13 +238,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             account,
             animated,
             attemptAutomaticBiometricUnlock,
-            didSwitch
+            didSwitch,
         ):
             showVaultUnlock(
                 account: account,
                 animated: animated,
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitch
+                didSwitchAccountAutomatically: didSwitch,
             )
         case let .vaultUnlockSetup(accountSetupFlow):
             showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
@@ -252,7 +252,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             guard let handler = context as? ProfileSwitcherHandler else { return }
             showProfileSwitcher(
                 handler: handler,
-                module: module
+                module: module,
             )
         case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
             webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
@@ -260,7 +260,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 rpId: rpId,
                 challenge: challenge,
                 credentialIds: allowCredentialIds,
-                userVerificationPreference: userVerificationPreference
+                userVerificationPreference: userVerificationPreference,
             )
         case let .webAuthnSelfHosted(url):
             showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
@@ -317,7 +317,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         guard let stackNavigator else { return }
         let coordinator = module.makePasswordAutoFillCoordinator(
             delegate: self,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
@@ -331,9 +331,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             store: Store(
                 processor: CheckEmailProcessor(
                     coordinator: asAnyCoordinator(),
-                    state: CheckEmailState(email: email)
-                )
-            )
+                    state: CheckEmailState(email: email),
+                ),
+            ),
         )
         stackNavigator?.present(view)
     }
@@ -343,7 +343,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showCompleteRegistration(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool = false
+        fromEmail: Bool = false,
     ) {
         let view = CompleteRegistrationView(
             store: Store(
@@ -353,10 +353,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     state: CompleteRegistrationState(
                         emailVerificationToken: emailVerificationToken,
                         fromEmail: fromEmail,
-                        userEmail: userEmail
-                    )
-                )
-            )
+                        userEmail: userEmail,
+                    ),
+                ),
+            ),
         )
         stackNavigator?.present(view)
     }
@@ -369,11 +369,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     private func showDuo2FA(
         authURL url: URL,
-        delegate: DuoAuthenticationFlowDelegate?
+        delegate: DuoAuthenticationFlowDelegate?,
     ) {
         let session = ASWebAuthenticationSession(
             url: url,
-            callbackURLScheme: services.authService.callbackUrlScheme
+            callbackURLScheme: services.authService.callbackUrlScheme,
         ) { callbackURL, error in
             if let error {
                 delegate?.duoErrored(error: error)
@@ -382,7 +382,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             guard let callbackURL,
                   let components = URLComponents(
                       url: callbackURL,
-                      resolvingAgainstBaseURL: false
+                      resolvingAgainstBaseURL: false,
                   ),
                   let queryItems = components.queryItems,
                   let code = queryItems.first(where: { component in
@@ -411,9 +411,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             store: Store(
                 processor: ExpiredLinkProcessor(
                     coordinator: asAnyCoordinator(),
-                    state: ExpiredLinkState()
-                )
-            )
+                    state: ExpiredLinkState(),
+                ),
+            ),
         )
         stackNavigator?.present(view, isModalInPresentation: true)
     }
@@ -426,7 +426,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = SingleSignOnProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SingleSignOnState(email: email)
+            state: SingleSignOnState(email: email),
         )
         let store = Store(processor: processor)
         let view = SingleSignOnView(store: store)
@@ -439,7 +439,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = IntroCarouselProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: IntroCarouselState()
+            state: IntroCarouselState(),
         )
         let view = IntroCarouselView(store: Store(processor: processor))
         stackNavigator?.setNavigationBarHidden(true, animated: false)
@@ -459,8 +459,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 services: services,
                 state: LandingState(
                     email: email ?? "",
-                    isRememberMeOn: email != nil
-                )
+                    isRememberMeOn: email != nil,
+                ),
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
@@ -481,19 +481,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
         let environmentURLs = EnvironmentURLs(
-            environmentURLData: services.appSettingsStore.preAuthEnvironmentURLs ?? EnvironmentURLData()
+            environmentURLData: services.appSettingsStore.preAuthEnvironmentURLs ?? EnvironmentURLData(),
         )
 
         let state = LoginState(
             isNewAccount: isNewAccount,
             serverURLString: environmentURLs.webVaultURL.host ?? "",
-            username: username
+            username: username,
         )
 
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         let store = Store(processor: processor)
         let view = LoginView(store: store)
@@ -517,7 +517,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = LoginWithDeviceProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: LoginWithDeviceState(email: email, isAuthenticated: isAuthenticated, requestType: type)
+            state: LoginWithDeviceState(email: email, isAuthenticated: isAuthenticated, requestType: type),
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)
@@ -535,7 +535,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = LoginDecryptionOptionsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: LoginDecryptionOptionsState(orgIdentifier: organizationIdentifier)
+            state: LoginDecryptionOptionsState(orgIdentifier: organizationIdentifier),
         )
         let store = Store(processor: processor)
         let view = LoginDecryptionOptionsView(store: store)
@@ -554,7 +554,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = MasterPasswordGeneratorProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
-            services: services
+            services: services,
         )
         let store = Store(processor: processor)
         let view = MasterPasswordGeneratorView(store: store)
@@ -564,7 +564,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         topmostViewController?.navigationItem.backButtonTitle = Localizations.back
         topmostViewController?.navigationController?.push(
             viewController,
-            animated: true
+            animated: true,
         )
     }
 
@@ -573,7 +573,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showMasterPasswordGuidance(delegate: MasterPasswordUpdateDelegate?) {
         let processor = MasterPasswordGuidanceProcessor(
             coordinator: asAnyCoordinator(),
-            delegate: delegate
+            delegate: delegate,
         )
         let store = Store(processor: processor)
         let view = MasterPasswordGuidanceView(store: store)
@@ -588,7 +588,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = PasswordHintProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PasswordHintState(emailAddress: username)
+            state: PasswordHintState(emailAddress: username),
         )
         let store = Store(processor: processor)
         let view = PasswordHintView(store: store)
@@ -601,7 +601,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeSettingsCoordinator(
             delegate: nil, // Delegate not needed for pre-login settings.
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: .settings(.preLogin))
@@ -628,8 +628,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             state: RemoveMasterPasswordState(
                 organizationName: organizationName,
                 organizationId: organizationId,
-                keyConnectorUrl: keyConnectorUrl
-            )
+                keyConnectorUrl: keyConnectorUrl,
+            ),
         )
         let view = RemoveMasterPasswordView(store: Store(processor: processor))
         stackNavigator?.push(view)
@@ -652,14 +652,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 iconsServerUrl: preAuthEnvironmentURLs.icons?.sanitized.description ?? "",
                 identityServerUrl: preAuthEnvironmentURLs.identity?.sanitized.description ?? "",
                 serverUrl: preAuthEnvironmentURLs.base?.sanitized.description ?? "",
-                webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? ""
+                webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? "",
             )
         }
 
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
-            state: state
+            state: state,
         )
         let view = SelfHostedView(store: Store(processor: processor))
         stackNavigator?.present(view)
@@ -673,7 +673,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = SetMasterPasswordProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SetMasterPasswordState(organizationIdentifier: organizationIdentifier)
+            state: SetMasterPasswordState(organizationIdentifier: organizationIdentifier),
         )
         let view = SetMasterPasswordView(store: Store(processor: processor))
         stackNavigator?.present(view, isModalInPresentation: true)
@@ -692,11 +692,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         callbackUrlScheme: String,
         delegate: SingleSignOnFlowDelegate?,
         state: String,
-        url: URL
+        url: URL,
     ) {
         let session = ASWebAuthenticationSession(
             url: url,
-            callbackURLScheme: callbackUrlScheme
+            callbackURLScheme: callbackUrlScheme,
         ) { url, error in
             if let error {
                 delegate?.singleSignOnErrored(error: error)
@@ -733,13 +733,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: StartRegistrationState()
+            state: StartRegistrationState(),
         )
 
         let view = StartRegistrationView(
             store: Store(
-                processor: processor
-            )
+                processor: processor,
+            ),
         )
         stackNavigator?.present(view)
     }
@@ -752,7 +752,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             let processor = LandingProcessor(
                 coordinator: self.asAnyCoordinator(),
                 services: self.services,
-                state: LandingState()
+                state: LandingState(),
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
@@ -775,19 +775,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         unlockMethod: TwoFactorUnlockMethod?,
         authMethodsData: AuthMethodsData,
         orgIdentifier: String?,
-        deviceVerificationRequired: Bool?
+        deviceVerificationRequired: Bool?,
     ) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
             deviceVerificationRequired: deviceVerificationRequired ?? false,
             email: email,
             orgIdentifier: orgIdentifier,
-            unlockMethod: unlockMethod
+            unlockMethod: unlockMethod,
         )
         let processor = TwoFactorAuthProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
 
         let view = TwoFactorAuthView(store: Store(processor: processor))
@@ -799,7 +799,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = UpdateMasterPasswordProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: .init()
+            state: .init(),
         )
         let store = Store(processor: processor)
         let view = UpdateMasterPasswordView(store: store)
@@ -818,13 +818,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         account: Account,
         animated: Bool,
         attemptAutmaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     ) {
         let processor = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockState(account: account)
+            state: VaultUnlockState(account: account),
         )
         processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
@@ -843,7 +843,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultUnlockSetupState(accountSetupFlow: accountSetupFlow),
-            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services),
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
         switch accountSetupFlow {
@@ -878,11 +878,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             securityKeyRequest.allowedCredentials.append(
                 ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor(
                     credentialID: credentialId,
-                    transports: ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.allSupported
-                )
+                    transports: ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.allSupported,
+                ),
             )
             platformKeyRequest.allowedCredentials.append(ASAuthorizationPlatformPublicKeyCredentialDescriptor(
-                credentialID: credentialId
+                credentialID: credentialId,
             ))
         }
 
@@ -900,11 +900,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     private func showWebAuthnSelfHosted(
         authURL url: URL,
-        delegate: WebAuthnFlowDelegate?
+        delegate: WebAuthnFlowDelegate?,
     ) {
         guard let delegate else { return }
         let session = services.authService.webAuthenticationSession(
-            url: url
+            url: url,
         ) { callbackURL, error in
             if let error {
                 delegate.webAuthnErrored(error: error)
@@ -913,7 +913,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             guard let callbackURL,
                   let components = URLComponents(
                       url: callbackURL,
-                      resolvingAgainstBaseURL: false
+                      resolvingAgainstBaseURL: false,
                   ),
                   let queryItems = components.queryItems,
                   let token = queryItems.first(where: { component in
@@ -970,7 +970,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     /// Handle ASAuthorization flow where the attestation did complete with success
     func authorizationController(
         controller _: ASAuthorizationController,
-        didCompleteWithAuthorization authorization: ASAuthorization
+        didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
         if let credential = authorization.credential as? ASAuthorizationPublicKeyCredentialAssertion {
             let rawClientDataJSON = credential.rawClientDataJSON.base64EncodedString().urlEncoded()
@@ -984,8 +984,8 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
                 response: AttestationData(
                     authenticatorData: rawAuthenticatorData,
                     clientDataJson: rawClientDataJSON,
-                    signature: signature
-                )
+                    signature: signature,
+                ),
             )
 
             guard let jsonData = try? JSONEncoder().encode(request),
@@ -995,7 +995,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
             }
 
             webAuthnFlowDelegate?.webAuthnCompleted(
-                token: jsonString
+                token: jsonString,
             )
         }
     }

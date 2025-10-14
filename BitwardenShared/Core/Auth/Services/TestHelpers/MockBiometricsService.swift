@@ -9,7 +9,7 @@ class MockBiometricsService: BiometricsService {
 
     func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
-        for biometricAuthStatus: BitwardenShared.BiometricAuthorizationStatus
+        for biometricAuthStatus: BitwardenShared.BiometricAuthorizationStatus,
     ) async -> Bool {
         evaluationResult
     }

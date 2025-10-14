@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
@@ -49,13 +50,13 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
-            totpService: totpService
+            totpService: totpService,
         )
 
         subject = ItemListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: ItemListState()
+            state: ItemListState(),
         )
     }
 
@@ -83,7 +84,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.itemDeleted)
     }
 
     /// `perform(_:)` with `.addItemPressed` and authorized camera
@@ -135,9 +136,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "654321",
                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let resultSection = ItemListSection(id: "", items: [result], name: "Items")
 
@@ -178,14 +179,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let firstSection = ItemListSection(
             id: "",
             items: [firstItem],
-            name: "Items"
+            name: "Items",
         )
 
         let secondItem = ItemListItem.fixture(
@@ -193,25 +194,25 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "345678",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let secondSection = ItemListSection(
             id: "",
             items: [secondItem],
-            name: "Items"
+            name: "Items",
         )
 
         let thirdModel = TOTPCodeModel(
             code: "654321",
             codeGenerationDate: Date(),
-            period: 30
+            period: 30,
         )
         let thirdItem = ItemListItem.fixture(
             totp: .fixture(
-                totpCode: thirdModel
-            )
+                totpCode: thirdModel,
+            ),
         )
         let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items")
 
@@ -250,8 +251,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+            subject.state.toast?.title,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
 
@@ -293,8 +294,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+            subject.state.toast?.title,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
 
@@ -377,9 +378,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "654321",
                     codeGenerationDate: Date(year: 2024, month: 6, day: 28),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         authItemRepository.searchItemListSubject.send([result])
@@ -403,7 +404,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
     }
 
@@ -416,7 +417,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
@@ -430,9 +431,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
         subject.state.loadingState = .data([firstSection])
@@ -442,9 +443,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "345678",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         let thirdItem = ItemListItem.fixture(
@@ -452,9 +453,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "654321",
                     codeGenerationDate: Date(),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         authItemRepository.refreshTotpCodesResult = .success([secondItem])
@@ -565,7 +566,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountsSyncedFromBitwardenApp)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.accountsSyncedFromBitwardenApp)
         XCTAssertTrue(appSettingsStore.hasSyncedAccount(name: accountName))
     }
 
@@ -704,8 +705,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
-            )
+                ],
+            ),
         )
         XCTAssertEqual(authItemRepository.addAuthItemAuthItems, [])
         XCTAssertNil(subject.state.toast)
@@ -1067,8 +1068,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
-            )
+                ],
+            ),
         )
         XCTAssertEqual(authItemRepository.addAuthItemAuthItems, [])
         XCTAssertNil(subject.state.toast)

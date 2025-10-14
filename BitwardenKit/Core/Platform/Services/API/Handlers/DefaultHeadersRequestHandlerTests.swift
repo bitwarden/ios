@@ -18,7 +18,7 @@ class DefaultHeadersRequestHandlerTests: BitwardenTestCase {
             appName: "Bitwarden",
             appVersion: "2023.8.0",
             buildNumber: "123",
-            systemDevice: MockSystemDevice()
+            systemDevice: MockSystemDevice(),
         )
     }
 

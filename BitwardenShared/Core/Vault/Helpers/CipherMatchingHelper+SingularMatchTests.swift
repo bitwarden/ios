@@ -24,7 +24,7 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
 
         subject = DefaultCipherMatchingHelper(
             settingsService: settingsService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -43,8 +43,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         subject.uriToMatch = nil
         let result = subject.doesCipherMatch(
             cipher: .fixture(
-                type: .login(.fixture())
-            )
+                type: .login(.fixture()),
+            ),
         )
         XCTAssertEqual(result, .none)
     }
@@ -56,8 +56,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for type in noLoginTypes {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: type
-                )
+                    type: type,
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -68,8 +68,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         subject.uriToMatch = "example.com"
         let result = subject.doesCipherMatch(
             cipher: .fixture(
-                type: .login(.fixture())
-            )
+                type: .login(.fixture()),
+            ),
         )
         XCTAssertEqual(result, .none)
     }
@@ -80,8 +80,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         let result = subject.doesCipherMatch(
             cipher: .fixture(
                 type: .login(.fixture(uris: [.fixture()])),
-                deletedDate: .now
-            )
+                deletedDate: .now,
+            ),
         )
         XCTAssertEqual(result, .none)
     }
@@ -100,8 +100,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToSucceed {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
             )
             XCTAssertEqual(result, .exact)
         }
@@ -121,8 +121,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToFail {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -141,8 +141,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToSucceed {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
             )
             XCTAssertEqual(result, .exact, "On \(uri)")
         }
@@ -162,8 +162,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToSucceed {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
             )
             XCTAssertEqual(result, .fuzzy)
         }
@@ -182,8 +182,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToSucceed {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)])),
+                ),
             )
             XCTAssertEqual(result, .exact)
         }
@@ -205,8 +205,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
         for uri in loginUrisToFail {
             let result = subject.doesCipherMatch(
                 cipher: .fixture(
-                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)]))
-                )
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -228,8 +228,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                     type: .login(.fixture(uris: [
                         .fixture(uri: "noMatchExample.net", match: .startsWith),
                         .fixture(uri: uri, match: .startsWith),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .exact)
         }
@@ -252,8 +252,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                     type: .login(.fixture(uris: [
                         .fixture(uri: "noMatchExample.net", match: .startsWith),
                         .fixture(uri: uri, match: .startsWith),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -269,8 +269,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                 type: .login(.fixture(uris: [
                     .fixture(uri: "noMatchExample.net", match: .exact),
                     .fixture(uri: "https://vault.bitwarden.com", match: .exact),
-                ]))
-            )
+                ])),
+            ),
         )
         XCTAssertEqual(result, .exact)
     }
@@ -292,8 +292,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                     type: .login(.fixture(uris: [
                         .fixture(uri: "noMatchExample.net", match: .exact),
                         .fixture(uri: uri, match: .exact),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -315,8 +315,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                 cipher: .fixture(
                     type: .login(.fixture(uris: [
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .exact)
         }
@@ -337,8 +337,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                 cipher: .fixture(
                     type: .login(.fixture(uris: [
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }
@@ -359,8 +359,8 @@ class CipherMatchingHelperSingularMatchTests: BitwardenTestCase { // swiftlint:d
                 cipher: .fixture(
                     type: .login(.fixture(uris: [
                         .fixture(uri: uri, match: .never),
-                    ]))
-                )
+                    ])),
+                ),
             )
             XCTAssertEqual(result, .none)
         }

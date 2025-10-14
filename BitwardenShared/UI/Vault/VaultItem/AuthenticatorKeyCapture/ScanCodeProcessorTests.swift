@@ -24,9 +24,9 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: .init()
+            state: .init(),
         )
     }
 

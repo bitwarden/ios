@@ -53,10 +53,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
                 DecodingError.Context(
                     codingPath: [],
                     debugDescription: "No value associated with key " +
-                        "CodingKeys(stringValue: \"ciphers\", intValue: nil)."
-                )
+                        "CodingKeys(stringValue: \"ciphers\", intValue: nil).",
+                ),
             ),
-            callStack: exampleCallStack
+            callStack: exampleCallStack,
         )
         // swiftlint:disable line_length
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
@@ -94,7 +94,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     func test_buildShareErrorLog_noActiveUser() async {
         let errorReport = await subject.buildShareErrorLog(
             for: StateServiceError.noActiveAccount,
-            callStack: exampleCallStack
+            callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """
@@ -130,7 +130,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         let errorReport = await subject.buildShareErrorLog(
             for: StateServiceError.noActiveAccount,
-            callStack: exampleCallStack
+            callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """

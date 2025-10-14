@@ -47,8 +47,8 @@ class PasswordGenerationOptionsTests: BitwardenTestCase {
                 type: .passphrase,
                 uppercase: true,
                 wordSeparator: "-",
-                overridePasswordType: false
-            )
+                overridePasswordType: false,
+            ),
         )
     }
 

@@ -12,7 +12,7 @@ extension _MessagePackDecoder {
             let unkeyedContainer = UnkeyedContainer(
                 data: self.data.suffix(from: self.index),
                 codingPath: self.codingPath,
-                userInfo: self.userInfo
+                userInfo: self.userInfo,
             )
             if currentSpec != nil, currentSpec!.isObj {
                 unkeyedContainer.count = count
@@ -125,7 +125,7 @@ extension _MessagePackDecoder.KeyedContainer: KeyedDecodingContainerProtocol {
         default:
             let context = DecodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "cannot decode nil for key: \(key)"
+                debugDescription: "cannot decode nil for key: \(key)",
             )
             throw DecodingError.typeMismatch(Any?.self, context)
         }
@@ -157,7 +157,7 @@ extension _MessagePackDecoder.KeyedContainer: KeyedDecodingContainerProtocol {
             throw DecodingError.dataCorruptedError(
                 forKey: key,
                 in: self,
-                debugDescription: "cannot decode nested container for key: \(key)"
+                debugDescription: "cannot decode nested container for key: \(key)",
             )
         }
 
@@ -166,7 +166,7 @@ extension _MessagePackDecoder.KeyedContainer: KeyedDecodingContainerProtocol {
 
     func nestedContainer<NestedKey>(
         keyedBy _: NestedKey.Type,
-        forKey key: Key
+        forKey key: Key,
     ) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
         try checkCanDecodeValue(forKey: key)
 
@@ -175,7 +175,7 @@ extension _MessagePackDecoder.KeyedContainer: KeyedDecodingContainerProtocol {
             throw DecodingError.dataCorruptedError(
                 forKey: key,
                 in: self,
-                debugDescription: "cannot decode nested container for key: \(key)"
+                debugDescription: "cannot decode nested container for key: \(key)",
             )
         }
 

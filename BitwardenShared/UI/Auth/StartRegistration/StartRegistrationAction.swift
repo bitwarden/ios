@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - StartRegistrationAction
 
 /// Actions that can be processed by a `StartRegistrationProcessor`.

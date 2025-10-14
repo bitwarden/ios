@@ -26,13 +26,13 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         settingsRepository = MockSettingsRepository()
         let settings = ServiceContainer.withMocks(
             errorReporter: errorReporter,
-            settingsRepository: settingsRepository
+            settingsRepository: settingsRepository,
         )
         subject = AddEditFolderProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: settings,
-            state: AddEditFolderState(mode: .add)
+            state: AddEditFolderState(mode: .add),
         )
     }
 
@@ -136,8 +136,8 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.validationFieldRequired(Localizations.name),
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)],
+            ),
         )
     }
 

@@ -11,7 +11,7 @@ extension FlightRecorderLogMetadata {
         id: String = "1",
         isActiveLog: Bool = false,
         startDate: Date = Date(year: 2025, month: 4, day: 3),
-        url: URL = URL(string: "https://example.com")!
+        url: URL = URL(string: "https://example.com")!,
     ) -> FlightRecorderLogMetadata {
         FlightRecorderLogMetadata(
             duration: duration,
@@ -21,7 +21,7 @@ extension FlightRecorderLogMetadata {
             id: id,
             isActiveLog: isActiveLog,
             startDate: startDate,
-            url: url
+            url: url,
         )
     }
 }

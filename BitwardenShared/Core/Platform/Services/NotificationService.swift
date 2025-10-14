@@ -26,7 +26,7 @@ protocol NotificationService {
     func messageReceived(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async
 
     /// Gets the notification authorization for the device.
@@ -129,7 +129,7 @@ class DefaultNotificationService: NotificationService {
         notificationAPIService: NotificationAPIService,
         refreshableApiService: RefreshableAPIService,
         stateService: StateService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.appIdService = appIdService
         self.authRepository = authRepository
@@ -169,14 +169,14 @@ class DefaultNotificationService: NotificationService {
     func messageReceived( // swiftlint:disable:this function_body_length cyclomatic_complexity
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async {
         do {
             // First attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
-                notificationTapped: notificationTapped
+                notificationTapped: notificationTapped,
             ) { return }
 
             // Proceed to treat the message as new notification.
@@ -294,7 +294,7 @@ class DefaultNotificationService: NotificationService {
         // Assemble the data to add to the in-app banner notification.
         let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
             timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-            userId: loginSourceAccount.profile.userId
+            userId: loginSourceAccount.profile.userId,
         ))
 
         // Create an in-app banner notification to tell the user about the login request.
@@ -310,7 +310,7 @@ class DefaultNotificationService: NotificationService {
             identifier: "dismissableCategory",
             actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
             intentIdentifiers: [],
-            options: [.customDismissAction]
+            options: [.customDismissAction],
         )
         UNUserNotificationCenter.current().setNotificationCategories([category])
         let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
@@ -339,13 +339,13 @@ class DefaultNotificationService: NotificationService {
     private func handleLoginRequestResponse(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async -> Bool {
         if let content = message["notificationData"] as? String,
            let jsonData = content.data(using: .utf8),
            let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
                LoginRequestPushNotification.self,
-               from: jsonData
+               from: jsonData,
            ) {
             if notificationDismissed == true {
                 await handleNotificationDismissed()

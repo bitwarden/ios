@@ -43,7 +43,7 @@ struct DeleteAccountView: View {
                         .headline,
                         weight: .semibold,
                         includeLinePadding: false,
-                        includeLineSpacing: false
+                        includeLineSpacing: false,
                     )
 
                 Text(store.state.description)

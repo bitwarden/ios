@@ -118,7 +118,7 @@ class DefaultGeneratorRepository {
     init(
         clientService: ClientService,
         dataStore: GeneratorDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientService = clientService
         self.dataStore = dataStore
@@ -139,7 +139,7 @@ class DefaultGeneratorRepository {
             return false
         }
         let mostRecent = try await clientService.vault().passwordHistory().decryptList(
-            list: [mostRecentEncrypted]
+            list: [mostRecentEncrypted],
         ).first
         return mostRecent?.password == passwordHistory.password
     }
@@ -157,7 +157,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         guard try await !isDuplicateOfMostRecent(passwordHistory: passwordHistory, userId: userId) else { return }
 
         let encryptedPasswordHistory = try await clientService.vault().passwordHistory().encrypt(
-            passwordHistory: passwordHistory
+            passwordHistory: passwordHistory,
         )
         try await dataStore.insertPasswordHistory(userId: userId, passwordHistory: encryptedPasswordHistory)
 
@@ -189,8 +189,8 @@ extension DefaultGeneratorRepository: GeneratorRepository {
                 numWords: 3,
                 wordSeparator: "-",
                 capitalize: true,
-                includeNumber: true
-            )
+                includeNumber: true,
+            ),
         )
     }
 

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import InlineSnapshotTesting
@@ -40,9 +41,9 @@ class AboutProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
-                systemDevice: MockSystemDevice()
+                systemDevice: MockSystemDevice(),
             ),
-            state: AboutState()
+            state: AboutState(),
         )
     }
 
@@ -70,9 +71,9 @@ class AboutProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 appInfoService: appInfoService,
                 errorReporter: errorReporter,
-                systemDevice: MockSystemDevice()
+                systemDevice: MockSystemDevice(),
             ),
-            state: AboutState()
+            state: AboutState(),
         )
 
         XCTAssertEqual(subject.state.copyrightText, "© Bitwarden Inc. 2015–2025")
@@ -105,7 +106,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_perform_toggleFlightRecorder_off() async throws {
         subject.state.flightRecorderActiveLog = FlightRecorderData.LogMetadata(
             duration: .eightHours,
-            startDate: .now
+            startDate: .now,
         )
 
         await subject.perform(.toggleFlightRecorder(false))
@@ -179,7 +180,7 @@ class AboutProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(
             subject.state.appReviewUrl?.absoluteString,
-            "https://itunes.apple.com/us/app/id1137397744?action=write-review"
+            "https://itunes.apple.com/us/app/id1137397744?action=write-review",
         )
     }
 
@@ -220,7 +221,7 @@ class AboutProcessorTests: BitwardenTestCase {
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            """
+            """,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }

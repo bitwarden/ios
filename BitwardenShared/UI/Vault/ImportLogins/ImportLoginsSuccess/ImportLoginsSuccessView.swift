@@ -20,7 +20,7 @@ struct ImportLoginsSuccessView: View {
                 image: Asset.Images.Illustrations.devices,
                 style: .mediumImage,
                 title: Localizations.importSuccessful,
-                message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
+                message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop,
             )
 
             ContentBlock(dividerLeadingPadding: 48) {
@@ -28,19 +28,19 @@ struct ImportLoginsSuccessView: View {
                     image: SharedAsset.Icons.puzzle24,
                     title: Localizations.downloadTheBrowserExtension,
                     subtitle: Localizations
-                        .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience
+                        .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience,
                 )
 
                 rowView(
                     image: SharedAsset.Icons.desktop24,
                     title: Localizations.useTheWebApp,
-                    subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings
+                    subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings,
                 )
 
                 rowView(
                     image: SharedAsset.Icons.shield24,
                     title: Localizations.autofillPasswords,
-                    subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere
+                    subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere,
                 )
             }
 
@@ -77,7 +77,7 @@ struct ImportLoginsSuccessView: View {
     private func rowView(
         image: SharedImageAsset,
         title: String,
-        subtitle: String? = nil
+        subtitle: String? = nil,
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)

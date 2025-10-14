@@ -20,7 +20,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.requireLower.rawValue: .bool(true),
             PolicyOptionType.enforceOnLogin.rawValue: .bool(true),
         ],
-        type: .masterPassword
+        type: .masterPassword,
     )
 
     let policies: [PolicyResponseModel] = [
@@ -33,12 +33,12 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.minutes.rawValue: .int(60),
             PolicyOptionType.action.rawValue: .string("lock"),
         ],
-        type: .maximumVaultTimeout
+        type: .maximumVaultTimeout,
     )
 
     let maximumTimeoutPolicyNoAction = Policy.fixture(
         data: [PolicyOptionType.minutes.rawValue: .int(60)],
-        type: .maximumVaultTimeout
+        type: .maximumVaultTimeout,
     )
 
     let passwordGeneratorPolicy = Policy.fixture(
@@ -55,7 +55,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.useSpecial.rawValue: .bool(true),
             PolicyOptionType.useUpper.rawValue: .bool(false),
         ],
-        type: .passwordGenerator
+        type: .passwordGenerator,
     )
 
     // MARK: Setup & Teardown
@@ -72,7 +72,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             configService: configService,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -128,10 +128,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                         PolicyOptionType.minLength.rawValue: .int(20),
                         PolicyOptionType.minNumbers.rawValue: .int(5),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
                 passwordGeneratorPolicy,
-            ]
+            ],
         )
 
         var options = PasswordGenerationOptions()
@@ -152,8 +152,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: nil,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -170,16 +170,16 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                         PolicyOptionType.overridePasswordType.rawValue:
                             .string(PasswordGeneratorType.password.rawValue),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
                 .fixture(
                     data: [
                         PolicyOptionType.overridePasswordType.rawValue:
                             .string(PasswordGeneratorType.passphrase.rawValue),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
-            ]
+            ],
         )
 
         var options = PasswordGenerationOptions()
@@ -227,8 +227,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: nil,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -241,7 +241,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [:],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
             ])
 
@@ -266,7 +266,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             minSpecial: 5,
             special: false,
             type: .password,
-            uppercase: true
+            uppercase: true,
         )
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
@@ -285,8 +285,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: true,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -333,9 +333,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(true)],
-                    type: .sendOptions
+                    type: .sendOptions,
                 ),
-            ]
+            ],
         )
 
         let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
@@ -360,9 +360,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(false)],
-                    type: .sendOptions
+                    type: .sendOptions,
                 ),
-            ]
+            ],
         )
 
         let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
@@ -589,7 +589,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         try await subject.replacePolicies(
             [.fixture(type: .twoFactorAuthentication)],
-            userId: "1"
+            userId: "1",
         )
 
         policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)

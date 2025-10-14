@@ -9,7 +9,7 @@ class MockSharedCryptographyService: SharedCryptographyService {
     var errorToThrow: Error?
 
     func decryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataModel],
     ) async throws -> [AuthenticatorBridgeItemDataView] {
         if let errorToThrow {
             throw errorToThrow
@@ -23,13 +23,13 @@ class MockSharedCryptographyService: SharedCryptographyService {
                 id: model.id,
                 name: model.name,
                 totpKey: model.totpKey,
-                username: model.username
+                username: model.username,
             )
         }
     }
 
     func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataView]
+        _ items: [AuthenticatorBridgeItemDataView],
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
         if let errorToThrow {
             throw errorToThrow
@@ -43,7 +43,7 @@ class MockSharedCryptographyService: SharedCryptographyService {
                 id: view.id,
                 name: view.name,
                 totpKey: view.totpKey,
-                username: view.username
+                username: view.username,
             )
         }
     }

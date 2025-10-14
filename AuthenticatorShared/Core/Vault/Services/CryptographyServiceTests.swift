@@ -21,8 +21,8 @@ class CryptographyServiceTests: BitwardenTestCase {
 
         subject = DefaultCryptographyService(
             cryptographyKeyService: CryptographyKeyService(
-                stateService: stateService
-            )
+                stateService: stateService,
+            ),
         )
     }
 
@@ -46,7 +46,7 @@ class CryptographyServiceTests: BitwardenTestCase {
             id: "ID",
             name: "",
             totpKey: "",
-            username: ""
+            username: "",
         )
 
         let decrypted = try await subject.decrypt(item)
@@ -65,7 +65,7 @@ class CryptographyServiceTests: BitwardenTestCase {
             id: "ID",
             name: "Name",
             totpKey: "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30",
-            username: "john.doe@email.com"
+            username: "john.doe@email.com",
         )
 
         let encrypted = try await subject.encrypt(item)
@@ -90,7 +90,7 @@ class CryptographyServiceTests: BitwardenTestCase {
             id: "ID",
             name: "Name",
             totpKey: nil,
-            username: nil
+            username: nil,
         )
 
         let encrypted = try await subject.encrypt(item)
@@ -115,7 +115,7 @@ class CryptographyServiceTests: BitwardenTestCase {
             id: "ID",
             name: "",
             totpKey: nil,
-            username: nil
+            username: nil,
         )
 
         let encrypted = try await subject.encrypt(item)

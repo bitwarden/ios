@@ -13,7 +13,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_generator_image() {
         XCTAssertEqual(
             TabRoute.generator(.generator()).image?.pngData(),
-            SharedAsset.Icons.TabBar.generatorIdle.image.pngData()
+            SharedAsset.Icons.TabBar.generatorIdle.image.pngData(),
         )
     }
 
@@ -26,7 +26,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_generator_selectedImage() {
         XCTAssertEqual(
             TabRoute.generator(.generator()).selectedImage?.pngData(),
-            SharedAsset.Icons.TabBar.generatorActive.image.pngData()
+            SharedAsset.Icons.TabBar.generatorActive.image.pngData(),
         )
     }
 
@@ -39,7 +39,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_send_image() {
         XCTAssertEqual(
             TabRoute.send.image?.pngData(),
-            SharedAsset.Icons.TabBar.sendIdle.image.pngData()
+            SharedAsset.Icons.TabBar.sendIdle.image.pngData(),
         )
     }
 
@@ -52,7 +52,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_send_selectedImage() {
         XCTAssertEqual(
             TabRoute.send.selectedImage?.pngData(),
-            SharedAsset.Icons.TabBar.sendActive.image.pngData()
+            SharedAsset.Icons.TabBar.sendActive.image.pngData(),
         )
     }
 
@@ -65,7 +65,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_settings_image() {
         XCTAssertEqual(
             TabRoute.settings(.settings(.tab)).image?.pngData(),
-            SharedAsset.Icons.TabBar.settingsIdle.image.pngData()
+            SharedAsset.Icons.TabBar.settingsIdle.image.pngData(),
         )
     }
 
@@ -78,7 +78,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_settings_selectedImage() {
         XCTAssertEqual(
             TabRoute.settings(.settings(.tab)).selectedImage?.pngData(),
-            SharedAsset.Icons.TabBar.settingsActive.image.pngData()
+            SharedAsset.Icons.TabBar.settingsActive.image.pngData(),
         )
     }
 
@@ -86,7 +86,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_settings_title() {
         XCTAssertEqual(
             TabRoute.settings(.settings(.tab)).title,
-            Localizations.settings
+            Localizations.settings,
         )
     }
 
@@ -94,7 +94,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_vault_image() {
         XCTAssertEqual(
             TabRoute.vault(.list).image?.pngData(),
-            SharedAsset.Icons.TabBar.vaultIdle.image.pngData()
+            SharedAsset.Icons.TabBar.vaultIdle.image.pngData(),
         )
     }
 
@@ -107,7 +107,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_vault_selectedImage() {
         XCTAssertEqual(
             TabRoute.vault(.list).selectedImage?.pngData(),
-            SharedAsset.Icons.TabBar.vaultActive.image.pngData()
+            SharedAsset.Icons.TabBar.vaultActive.image.pngData(),
         )
     }
 
@@ -115,7 +115,7 @@ class TabRouteTests: BitwardenTestCase {
     func test_vault_title() {
         XCTAssertEqual(
             TabRoute.vault(.list).title,
-            Localizations.myVault
+            Localizations.myVault,
         )
     }
 }

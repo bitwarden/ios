@@ -9,7 +9,7 @@ class MockCryptoClient: CryptoClientProtocol {
     var derivePinKeyPin: String?
     var derivePinUserKey: String?
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
-        DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
+        DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: ""),
     )
 
     var derivePinUserKeyPin: String?
@@ -24,16 +24,16 @@ class MockCryptoClient: CryptoClientProtocol {
     var enrollPinResult: Result<EnrollPinResponse, Error> = .success(
         EnrollPinResponse(
             pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
-            userKeyEncryptedPin: "userKeyEncryptedPin"
-        )
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        ),
     )
 
     var enrollPinWithEncryptedPinEncryptedPin: String?
     var enrollPinWithEncryptedPinResult: Result<EnrollPinResponse, Error> = .success(
         EnrollPinResponse(
             pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
-            userKeyEncryptedPin: "userKeyEncryptedPin"
-        )
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        ),
     )
 
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
@@ -51,27 +51,27 @@ class MockCryptoClient: CryptoClientProtocol {
             masterPasswordAuthenticationData: MasterPasswordAuthenticationData(
                 kdf: .pbkdf2(iterations: NonZeroU32(600_000)),
                 salt: "AUTHENTICATION_SALT",
-                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH"
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
             ),
             masterPasswordUnlockData: MasterPasswordUnlockData(
                 kdf: .pbkdf2(iterations: NonZeroU32(600_000)),
                 masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
-                salt: "UNLOCK_SALT"
+                salt: "UNLOCK_SALT",
             ),
             oldMasterPasswordAuthenticationData: MasterPasswordAuthenticationData(
                 kdf: .pbkdf2(iterations: NonZeroU32(600_000)),
                 salt: "OLD_AUTHENTICATION_SALT",
-                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH"
-            )
-        )
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+            ),
+        ),
     )
 
     var updatePasswordNewPassword: String?
     var updatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
         UpdatePasswordResponse(
             passwordHash: "password hash",
-            newKey: "new key"
-        )
+            newKey: "new key",
+        ),
     )
 
     func deriveKeyConnector(request: DeriveKeyConnectorRequest) throws -> String {

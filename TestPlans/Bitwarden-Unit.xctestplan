@@ -1,0 +1,69 @@
+{
+  "configurations" : [
+    {
+      "id" : "7F1F3659-44A5-4DB0-8565-F699A65B2C7D",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      },
+      {
+        "key" : "SKIP_SIMULATOR_CHECK_FOR_TESTS",
+        "value" : "true"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "C026D25C368010616A94990A",
+        "name" : "BitwardenShareExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "1ACA591B401F3A38DB33C366",
+        "name" : "BitwardenSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "417A98C7A214F8B5F141E702",
+        "name" : "BitwardenAutoFillExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "2AA7964F64AD34FCAE257E17",
+        "name" : "BitwardenTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "8E852F2FEA58332906A444C6",
+        "name" : "BitwardenActionExtensionTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -13,21 +13,21 @@ final class TwoFasImporterTests: BitwardenTestCase {
                 id: "One",
                 name: "Name",
                 totpKey: "otpauth://totp/Name:person%40example%2Ecom?secret=Secret1One&issuer=Name&algorithm=SHA1&digits=6&period=30",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
             AuthenticatorItemView(
                 favorite: false,
                 id: "Two",
                 name: "Issuer2",
                 totpKey: "otpauth://totp/?secret=SecretTwo&issuer=Issuer2&algorithm=SHA256&digits=8&period=60",
-                username: nil
+                username: nil,
             ),
             AuthenticatorItemView(
                 favorite: false,
                 id: "Three",
                 name: "Steam",
                 totpKey: "steam://STEAMSECRET",
-                username: "addl"
+                username: "addl",
             ),
         ]
         let actual = try TwoFasImporter.importItems(data: data)

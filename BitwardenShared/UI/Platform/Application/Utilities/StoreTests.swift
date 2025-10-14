@@ -81,7 +81,7 @@ class StoreTests: BitwardenTestCase {
             get: { $0.isToggleOn },
             perform: { value in
                 .toggleFlipped(value)
-            }
+            },
         )
 
         XCTAssertEqual(binding.wrappedValue, false)

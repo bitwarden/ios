@@ -31,7 +31,7 @@ class PasswordsAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
         subject = PasswordsAutofillVaultListDirectorStrategy(
             builderFactory: vaultListSectionsBuilderFactory,
             cipherService: cipherService,
-            vaultListDataPreparator: vaultListDataPreparator
+            vaultListDataPreparator: vaultListDataPreparator,
         )
     }
 
@@ -81,13 +81,13 @@ class PasswordsAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                mode: .passwords
-            )
+                mode: .passwords,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -8,7 +9,7 @@ import Foundation
 final class FlightRecorderLogsProcessor: StateProcessor<
     FlightRecorderLogsState,
     FlightRecorderLogsAction,
-    FlightRecorderLogsEffect
+    FlightRecorderLogsEffect,
 > {
     // MARK: Types
 
@@ -35,7 +36,7 @@ final class FlightRecorderLogsProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: FlightRecorderLogsState
+        state: FlightRecorderLogsState,
     ) {
         self.coordinator = coordinator
         self.services = services

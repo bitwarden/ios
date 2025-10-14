@@ -69,7 +69,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     init(
         _ title: String,
         isOn: Binding<Bool>,
-        accessibilityIdentifier: String? = nil
+        accessibilityIdentifier: String? = nil,
     ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
@@ -91,7 +91,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
         _ title: String,
         footer: String,
         isOn: Binding<Bool>,
-        accessibilityIdentifier: String? = nil
+        accessibilityIdentifier: String? = nil,
     ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
@@ -113,7 +113,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
         _ title: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
-        @ViewBuilder footerContent: () -> FooterContent
+        @ViewBuilder footerContent: () -> FooterContent,
     ) where TitleContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
@@ -137,7 +137,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
         accessibilityLabel: String? = nil,
-        @ViewBuilder title titleContent: () -> TitleContent
+        @ViewBuilder title titleContent: () -> TitleContent,
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel

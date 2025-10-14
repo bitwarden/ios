@@ -32,14 +32,14 @@ extension UpdateKdfRequestModel {
     init(response: UpdateKdfResponse) {
         self.init(
             authenticationData: MasterPasswordAuthenticationDataRequestModel(
-                authenticationData: response.masterPasswordAuthenticationData
+                authenticationData: response.masterPasswordAuthenticationData,
             ),
             key: response.masterPasswordUnlockData.masterKeyWrappedUserKey,
             masterPasswordHash: response.oldMasterPasswordAuthenticationData.masterPasswordAuthenticationHash,
             newMasterPasswordHash: response.masterPasswordAuthenticationData.masterPasswordAuthenticationHash,
             unlockData: MasterPasswordUnlockDataRequestModel(
-                unlockData: response.masterPasswordUnlockData
-            )
+                unlockData: response.masterPasswordUnlockData,
+            ),
         )
     }
 }

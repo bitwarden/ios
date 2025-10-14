@@ -51,8 +51,8 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
                 serviceType: .simpleLogin,
                 simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
                 simpleLoginBaseUrl: "app.simplelogin.io",
-                type: .forwardedEmail
-            )
+                type: .forwardedEmail,
+            ),
         )
     }
 

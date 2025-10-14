@@ -1,6 +1,5 @@
 import AVFoundation
 import SwiftUI
-import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -33,9 +32,9 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
             module: module,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -87,13 +86,13 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
                 password: "SECRET",
                 uri: "bitwarden.com",
                 username: "user@bitwarden.com",
-                totpKey: .otpAuthUriKeyComplete
+                totpKey: .otpAuthUriKeyComplete,
             )
             subject.navigate(
                 to: .addItem(
                     newCipherOptions: newCipherOptions,
-                    type: .login
-                )
+                    type: .login,
+                ),
             )
         }
         waitFor(!stackNavigator.actions.isEmpty)
@@ -151,8 +150,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.navigate(
             to: .addItem(
                 group: .collection(id: "12345", name: "Test", organizationId: "org-12345"),
-                type: .login
-            )
+                type: .login,
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -172,8 +171,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.navigate(
             to: .addItem(
                 group: .folder(id: "12345", name: "Test"),
-                type: .login
-            )
+                type: .login,
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -192,8 +191,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.navigate(
             to: .addItem(
                 organizationId: "org-12345",
-                type: .login
-            )
+                type: .login,
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -408,7 +407,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(module.generatorCoordinator.isStarted)
         XCTAssertEqual(
             module.generatorCoordinator.routes.last,
-            .generator(staticType: .username, emailWebsite: "bitwarden.com")
+            .generator(staticType: .username, emailWebsite: "bitwarden.com"),
         )
     }
 
@@ -555,21 +554,21 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
 
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        with value: String,
     ) {
         capturedCoordinator = captureCoordinator
         capturedScan = value
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestCamera = true
         capturedCoordinator = captureCoordinator
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestManual = true
         capturedCoordinator = captureCoordinator

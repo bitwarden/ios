@@ -24,9 +24,9 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
                 authenticatorItemRepository: authItemRepository,
-                configService: configService
+                configService: configService,
             ),
-            state: DefaultEntryState(deviceSupportsCamera: true)
+            state: DefaultEntryState(deviceSupportsCamera: true),
         )
     }
 

@@ -25,23 +25,23 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     public var authCompletionRoute: AppRoute? {
         switch extensionMode {
         case .autofillCredential:
-            return nil
+            nil
         case .autofillOTP:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillOTPCredential:
-            return nil
+            nil
         case .autofillText:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillVaultList:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillFido2Credential:
-            return nil
+            nil
         case .autofillFido2VaultList:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .configureAutofill:
-            return AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
+            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
         case .registerFido2Credential:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         }
     }
 
@@ -59,13 +59,13 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     public var flowWithUserInteraction: Bool {
         switch extensionMode {
         case let .autofillCredential(_, userInteraction):
-            return userInteraction
+            userInteraction
         case let .autofillFido2Credential(_, userInteraction):
-            return userInteraction
+            userInteraction
         case let .autofillOTPCredential(_, userInteraction):
-            return userInteraction
+            userInteraction
         default:
-            return true
+            true
         }
     }
 
@@ -77,7 +77,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var serviceIdentifiers: [ASCredentialServiceIdentifier] {
-        return switch extensionMode {
+        switch extensionMode {
         case let .autofillOTP(serviceIdentifiers):
             serviceIdentifiers
         case let .autofillVaultList(serviceIdentifiers):

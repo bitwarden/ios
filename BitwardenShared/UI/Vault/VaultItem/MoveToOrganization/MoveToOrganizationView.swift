@@ -46,9 +46,9 @@ struct MoveToOrganizationView: View {
                             collection.name,
                             isOn: store.binding(
                                 get: { _ in store.state.collectionIds.contains(collectionId) },
-                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) },
                             ),
-                            accessibilityIdentifier: "CollectionItemSwitch"
+                            accessibilityIdentifier: "CollectionItemSwitch",
                         )
                     }
                 }
@@ -84,8 +84,8 @@ struct MoveToOrganizationView: View {
                 options: store.state.ownershipOptions,
                 selection: store.binding(
                     get: { _ in owner },
-                    send: MoveToOrganizationAction.ownerChanged
-                )
+                    send: MoveToOrganizationAction.ownerChanged,
+                ),
             )
         }
     }
@@ -100,10 +100,10 @@ struct MoveToOrganizationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: MoveToOrganizationState(
-                        cipher: .fixture()
-                    )
-                )
-            )
+                        cipher: .fixture(),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -119,19 +119,19 @@ struct MoveToOrganizationView: View {
                             .fixture(
                                 id: "1",
                                 name: "Design",
-                                organizationId: "1"
+                                organizationId: "1",
                             ),
                             .fixture(
                                 id: "2",
                                 name: "Engineering",
-                                organizationId: "1"
+                                organizationId: "1",
                             ),
                         ],
                         organizationId: "1",
-                        ownershipOptions: [.organization(id: "1", name: "Organization")]
-                    )
-                )
-            )
+                        ownershipOptions: [.organization(id: "1", name: "Organization")],
+                    ),
+                ),
+            ),
         )
     }
 }

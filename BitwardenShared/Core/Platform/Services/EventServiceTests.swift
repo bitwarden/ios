@@ -34,7 +34,7 @@ class EventServiceTests: XCTestCase {
             eventAPIService: eventAPIService,
             organizationService: organizationService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -71,7 +71,7 @@ class EventServiceTests: XCTestCase {
             [
                 EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
                 EventData(type: .userLoggedIn, cipherId: nil, date: timeProvider.presentTime),
-            ]
+            ],
         )
     }
 
@@ -89,7 +89,7 @@ class EventServiceTests: XCTestCase {
         let actual = stateService.events["1"]
         XCTAssertEqual(
             actual,
-            [EventData(type: .userLoggedIn, cipherId: "1", date: timeProvider.presentTime)]
+            [EventData(type: .userLoggedIn, cipherId: "1", date: timeProvider.presentTime)],
         )
     }
 
@@ -180,7 +180,7 @@ class EventServiceTests: XCTestCase {
             [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
                 EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
-            ]
+            ],
         )
         XCTAssertEqual(stateService.events["1"], [])
     }

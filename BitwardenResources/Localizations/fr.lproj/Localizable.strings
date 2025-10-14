@@ -530,7 +530,7 @@
 "PrivacyPolicy" = "Politique de confidentialité";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on “Draw-Over” in “Autofill Services” from Bitwarden Settings";
 "PasskeyManagement" = "Gestion des clés d'accès";
-"AutofillServices" = "Autofill services";
+"AutofillServices" = "Service de saisie automatique";
 "InlineAutofill" = "Utiliser le remplissage automatique intégré";
 "InlineAutofillDescription" = "Utilisez le remplissage automatique intégré si votre méthode de saisie (clavier) sélectionnée le supporte. Si votre configuration n'est pas prise en charge (ou si cette option est désactivée), le remplissage automatique par défaut sera utilisé.";
 "Accessibility" = "Utiliser l'accessibilité";
@@ -540,7 +540,7 @@
 "AccessibilityDescription4" = "Requis pour utiliser la tuile de remplissage automatique rapide ou pour améliorer le service de remplissage automatique en utilisant la superposition (si activée).";
 "DrawOver" = "Utiliser la superposition";
 "DrawOverDescription" = "Activer cette option permet au service d'accessibilité de Bitwarden d'afficher une popup lorsque les champs d'identifiants sont sélectionnés.";
-"DrawOverDescription2" = "If turned on, the Bitwarden Accessibility Service will display a popup when login fields are selected to assist with autofilling your logins.";
+"DrawOverDescription2" = "S'il est activé, le service d'accessibilité Bitwarden affichera une fenêtre popup lorsque les champs de connexion sont sélectionnés afin de faciliter la saisie automatique de vos identifiants.";
 "DrawOverDescription3" = "Si cette option est activée, l'accessibilité affichera un popup pour améliorer le service de remplissage automatique pour les anciennes applications qui ne prennent pas en charge les outils de remplissage automatique d'Android.";
 "PersonalOwnershipSubmitError" = "En raison d'une politique d'entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Changez l'option Propriétaire au profit d'une organisation et choisissez parmi les collections disponibles.";
 "PersonalOwnershipPolicyInEffect" = "Une politique d'organisation affecte vos options de Propriétaire.";
@@ -566,7 +566,7 @@
 "MaximumAccessCountReached" = "Nombre maximum d'accès atteint";
 "CurrentAccessCount" = "Nombre d'accès actuel";
 "NewPassword" = "Nouveau mot de passe";
-"PasswordInfo" = "Require this password to view the Send.";
+"PasswordInfo" = "Exiger ce mot de passe pour afficher le Send.";
 "RemovePassword" = "Supprimer le mot de passe";
 "AreYouSureRemoveSendPassword" = "Êtes-vous sûr de vouloir supprimer le mot de passe ?";
 "RemovingSendPassword" = "Suppression du mot de passe en cours";
@@ -577,7 +577,7 @@
 "SendLink" = "Lien du Send";
 "SearchSends" = "Rechercher dans les Sends";
 "EditSend" = "Modifier le Send";
-"NewSend" = "New send";
+"NewSend" = "Nouveau Send";
 "AreYouSureDeleteSend" = "Êtes-vous sûr de vouloir supprimer ce Send ?";
 "SendDeleted" = "Send supprimé";
 "SendUpdated" = "Send sauvegardé";
@@ -769,11 +769,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match “%1$@”";
 "SearchForAnItemOrAddANewItem" = "Rechercher un élément ou ajouter un nouvel élément";
 "ThereAreNoItemsThatMatchTheSearch" = "Il n'y a pas d'éléments qui correspondent à la recherche";
-"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
-"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
-"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
-"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
-"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
+"ThereAreNoLoginsInYourVault" = "Il n'y a pas d'identifiants dans votre coffre";
+"ThereAreNoCardsInYourVault" = "Il n'y a pas de carte de paiement dans votre coffre";
+"ThereAreNoNotesInYourVault" = "Il n'y a pas de note dans votre coffre";
+"ThereAreNoIdentitiesInYourVault" = "Il n'y a pas d'identité dans votre coffre";
+"ThereAreNoSSHKeysInYourVault" = "Il n'y a pas de clé SSH dans votre coffre";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Auto-hébergé";
@@ -806,7 +806,7 @@
 "TroubleLoggingIn" = "Problème pour vous connecter ?";
 "LoggingInAsX" = "Connecté en tant que %1$@";
 "VaultTimeoutActionChangedToLogOut" = "Délai d'expiration du coffre a été changé pour se déconnecter";
-"BlockAutoFill" = "Block autofill";
+"BlockAutoFill" = "Bloquer la saisie automatique";
 "AutoFillWillNotBeOfferedForTheseURIs" = "Autofill will not be offered for these URIs.";
 "NewBlockedURI" = "Nouveau URI bloqué";
 "URISaved" = "URI enregistré";
@@ -891,7 +891,7 @@
 "SetUpAutoFillDescriptionLong" = "Pour configurer le remplissage automatique des mots de passe et la gestion des clés d'accès, définissez Bitwarden comme fournisseur préféré dans les paramètres iOS.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device’s Settings > Passwords > Password Options";
 "SecondDotTurnOnAutoFill" = "2. Activer la saisie automatique";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Sélectionnez « Bitwarden » à utiliser pour les mots de passe et les clé d'accès";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Votre clé d'accès sera enregistrée dans votre coffre Bitwarden";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Votre clé d'accès sera enregistrée votre coffre Bitwarden pour %1$@";
 "PasskeysNotSupportedForThisApp" = "Clés d'accès non supportées par cette application";
@@ -926,7 +926,7 @@
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Les éléments d'organisation non assignés ne sont plus visibles dans la vue de Tous les coffres et sont uniquement accessibles via la Console d'administration. Assignez ces éléments à une collection à partir de la Console d'administration pour les rendre visibles.";
 "UnknownAccount" = "Compte inconnu";
-"UserVerificationForPasskey" = "User verification for passkey";
+"UserVerificationForPasskey" = "Vérification de l'utilisateur pour la clé d'accès";
 "NewItem" = "Nouvel élément";
 "ExploreTheGenerator" = "Découvrir le générateur";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Apprenez-en plus sur la génération d'identifiants de connexion sécurisés grâce à une visite guidée.";
@@ -990,7 +990,7 @@
 "Confirm" = "Confirmer";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Erreur de connexion avec le service Duo. Utilisez une méthode de connexion différente en deux étapes ou contactez Duo pour obtenir de l'aide.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
-"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
+"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "Depuis les paramètres de votre appareil, **activer/désactiver la saisie automatique des Mots de Passe et des Clés d'Accès.**";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Toggle off iCloud Keychain** to make Bitwarden your default autofill source.";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Toggle on Bitwarden** to use your saved passwords to log into your accounts.";
 "TurnOnAutoFill" = "Activer la saisie automatique";
@@ -1084,7 +1084,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Importez des mots de passe, des clé d'accès, des cartes de crédit et toute information d'identité personnelle depuis un autre gestionnaire de mots de passe.\n\nVos données ne seront **pas** supprimées de votre fournisseur précédent.";
 "ImportPasswords" = "Import passwords";
 "ImportingEllipsis" = "Importation…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1098,7 +1098,7 @@
 "ExportVaultToAFile" = "Export vault to a file";
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Exporter les éléments";
-"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
+"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportez les mots de passe, les clé d'accès, les cartes de crédit et toutes les informations d'identification personnelles.";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
@@ -1114,7 +1114,7 @@
 "XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "Une clé d'identification (passkey) existe déjà pour cette application.";
-"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Une clé d'accès existe déjà pour cette application mais une erreur est survenue lors de son chargement.";
 "ItemNameRequired" = "Nom de l'élément (requis)";
 "AutofillOptions" = "Options de saisie automatique";
 "WebsiteURI" = "Site web (URI)";

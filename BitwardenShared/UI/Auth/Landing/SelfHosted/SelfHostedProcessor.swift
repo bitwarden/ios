@@ -38,7 +38,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: SelfHostedProcessorDelegate?,
-        state: SelfHostedState
+        state: SelfHostedState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -94,7 +94,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         guard areURLsValid() else {
             coordinator.showAlert(Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.environmentPageUrlsError
+                message: Localizations.environmentPageUrlsError,
             ))
             return
         }
@@ -106,7 +106,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             icons: URL(string: state.iconsServerUrl)?.sanitized,
             identity: URL(string: state.identityServerUrl)?.sanitized,
             notifications: nil,
-            webVault: URL(string: state.webVaultServerUrl)?.sanitized
+            webVault: URL(string: state.webVaultServerUrl)?.sanitized,
         )
         await delegate?.didSaveEnvironment(urls: urls)
         coordinator.navigate(to: .dismissPresented)

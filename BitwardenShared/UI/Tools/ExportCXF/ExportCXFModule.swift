@@ -11,17 +11,17 @@ protocol ExportCXFModule {
     /// - Returns: A coordinator that can navigate to `ExportCXFRoute`s.
     ///
     func makeExportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExportCXFRoute, Void>
 }
 
 extension DefaultAppModule: ExportCXFModule {
     func makeExportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExportCXFRoute, Void> {
         ExportCXFCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

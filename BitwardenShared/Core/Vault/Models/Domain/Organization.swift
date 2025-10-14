@@ -61,7 +61,7 @@ extension Organization {
             useEvents: responseModel.useEvents,
             usePolicies: responseModel.usePolicies,
             userIsManagedByOrganization: responseModel.userIsManagedByOrganization,
-            usersGetPremium: responseModel.usersGetPremium
+            usersGetPremium: responseModel.usersGetPremium,
         )
     }
 

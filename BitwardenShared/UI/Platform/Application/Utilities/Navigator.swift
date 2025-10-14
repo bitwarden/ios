@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - Navigator
@@ -28,7 +29,7 @@ public protocol Navigator: AlertPresentable, AnyObject {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     )
 }
 
@@ -50,7 +51,7 @@ extension Navigator {
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion: (() -> Void)? = nil,
     ) {
         present(viewController, animated: animated, overFullscreen: overFullscreen, onCompletion: onCompletion)
     }
@@ -82,7 +83,7 @@ extension Navigator {
         ToastDisplayHelper.show(
             in: rootViewController,
             toast: toast,
-            additionalBottomPadding: additionalBottomPadding
+            additionalBottomPadding: additionalBottomPadding,
         )
     }
 }

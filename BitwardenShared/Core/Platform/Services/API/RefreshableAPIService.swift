@@ -9,6 +9,6 @@ protocol RefreshableAPIService { // sourcery: AutoMockable
 
 extension APIService: RefreshableAPIService {
     func refreshAccessToken() async throws {
-        try await accountTokenProvider.refreshToken()
+        _ = try await accountTokenProvider.refreshToken()
     }
 }

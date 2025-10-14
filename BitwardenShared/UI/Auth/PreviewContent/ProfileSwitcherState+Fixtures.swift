@@ -5,13 +5,13 @@ extension ProfileSwitcherItem {
     static let anneAccount = ProfileSwitcherItem.fixture(
         color: .purple,
         email: "anne.account@bitwarden.com",
-        userInitials: "AA"
+        userInitials: "AA",
     )
 
     static let beeAccount = ProfileSwitcherItem.fixture(
         color: .yellow,
         email: "bee.account@bitwarden.com",
-        userInitials: "BA"
+        userInitials: "BA",
     )
 
     static let fixtureLocked = ProfileSwitcherItem.fixture(
@@ -21,7 +21,7 @@ extension ProfileSwitcherItem {
         isUnlocked: false,
         userId: "2",
         userInitials: "AA",
-        webVault: "bitwarden.com"
+        webVault: "bitwarden.com",
     )
 
     static let fixtureLoggedOut = ProfileSwitcherItem.fixture(
@@ -31,7 +31,7 @@ extension ProfileSwitcherItem {
         isUnlocked: false,
         userId: "2",
         userInitials: "AA",
-        webVault: "bitwarden.com"
+        webVault: "bitwarden.com",
     )
 
     static let fixtureUnlocked = ProfileSwitcherItem.fixture(
@@ -41,7 +41,7 @@ extension ProfileSwitcherItem {
         isUnlocked: true,
         userId: "2",
         userInitials: "AA",
-        webVault: "bitwarden.com"
+        webVault: "bitwarden.com",
     )
 }
 
@@ -54,7 +54,7 @@ extension ProfileSwitcherItem {
         isUnlocked: Bool = false,
         userId: String = UUID().uuidString,
         userInitials: String? = nil,
-        webVault: String = "vault.bitwarden.com"
+        webVault: String = "vault.bitwarden.com",
     ) -> ProfileSwitcherItem {
         ProfileSwitcherItem(
             canBeLocked: canBeLocked,
@@ -64,7 +64,7 @@ extension ProfileSwitcherItem {
             isUnlocked: isUnlocked,
             userId: userId,
             userInitials: userInitials,
-            webVault: webVault
+            webVault: webVault,
         )
     }
 }
@@ -77,26 +77,26 @@ extension ProfileSwitcherState {
                 color: .yellow,
                 email: "bonus.bridge@bitwarden.com",
                 isUnlocked: true,
-                userInitials: "BB"
+                userInitials: "BB",
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 
     static let singleAccount = ProfileSwitcherState(
         accounts: [.anneAccount],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 
     static let singleAccountHidden = ProfileSwitcherState(
         accounts: [.anneAccount],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
         allowLockAndLogout: true,
-        isVisible: false
+        isVisible: false,
     )
 
     static let subMaximumAccounts = ProfileSwitcherState(
@@ -106,24 +106,24 @@ extension ProfileSwitcherState {
                 color: .yellow,
                 email: "bonus.bridge@bitwarden.com",
                 isUnlocked: true,
-                userInitials: "BB"
+                userInitials: "BB",
             ),
             .fixture(
                 color: .teal,
                 email: "concurrent.claim@bitarden.com",
                 isUnlocked: true,
-                userInitials: "CC"
+                userInitials: "CC",
             ),
             .fixture(
                 color: .indigo,
                 email: "double.dip@bitwarde.com",
                 isUnlocked: true,
-                userInitials: "DD"
+                userInitials: "DD",
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 
     static let maximumAccounts = ProfileSwitcherState(
@@ -133,30 +133,30 @@ extension ProfileSwitcherState {
                 color: .yellow,
                 email: "bonus.bridge@bitwarden.com",
                 isUnlocked: true,
-                userInitials: "BB"
+                userInitials: "BB",
             ),
             .fixture(
                 color: .teal,
                 email: "concurrent.claim@bitarden.com",
                 isUnlocked: true,
-                userInitials: "CC"
+                userInitials: "CC",
             ),
             .fixture(
                 color: .indigo,
                 email: "double.dip@bitwarde.com",
                 isUnlocked: true,
-                userInitials: "DD"
+                userInitials: "DD",
             ),
             .fixture(
                 color: .green,
                 email: "extra.edition@bitwarden.com",
                 isUnlocked: true,
-                userInitials: "EE"
+                userInitials: "EE",
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 }
 #endif

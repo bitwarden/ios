@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
+import Foundation
 
 /// A protocol for a `TokenService` which manages accessing and updating the active account's tokens.
 ///
@@ -9,6 +10,12 @@ protocol TokenService: AnyObject {
     /// - Returns: The access token for the current account.
     ///
     func getAccessToken() async throws -> String
+
+    /// Returns the access token's expiration date for the current account.
+    ///
+    /// - Returns: The access token's expiration date for the current account.
+    ///
+    func getAccessTokenExpirationDate() async throws -> Date?
 
     /// Returns whether the user is an external user.
     ///
@@ -27,8 +34,9 @@ protocol TokenService: AnyObject {
     /// - Parameters:
     ///   - accessToken: The account's updated access token.
     ///   - refreshToken: The account's updated refresh token.
+    ///   - expirationDate: The access token's expiration date.
     ///
-    func setTokens(accessToken: String, refreshToken: String) async throws
+    func setTokens(accessToken: String, refreshToken: String, expirationDate: Date) async throws
 }
 
 // MARK: - DefaultTokenService
@@ -59,7 +67,7 @@ actor DefaultTokenService: TokenService {
     init(
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -73,6 +81,10 @@ actor DefaultTokenService: TokenService {
         return try await keychainRepository.getAccessToken(userId: userId)
     }
 
+    func getAccessTokenExpirationDate() async throws -> Date? {
+        try await stateService.getAccessTokenExpirationDate()
+    }
+
     func getIsExternal() async throws -> Bool {
         let accessToken: String = try await getAccessToken()
         let tokenPayload = try TokenParser.parseToken(accessToken)
@@ -84,10 +96,11 @@ actor DefaultTokenService: TokenService {
         return try await keychainRepository.getRefreshToken(userId: userId)
     }
 
-    func setTokens(accessToken: String, refreshToken: String) async throws {
+    func setTokens(accessToken: String, refreshToken: String, expirationDate: Date) async throws {
         let userId = try await stateService.getActiveAccountId()
         try await keychainRepository.setAccessToken(accessToken, userId: userId)
         try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
+        await stateService.setAccessTokenExpirationDate(expirationDate, userId: userId)
     }
 }
 
@@ -98,6 +111,6 @@ extension DefaultTokenService: ClientManagedTokens {
     func getAccessToken() async -> String? {
         // TODO: PM-21846 Returning `nil` temporarily until we add validation
         // given that the SDK expects non-expired token.
-        return nil
+        nil
     }
 }

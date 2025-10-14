@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -77,7 +78,7 @@ struct ExpandableHeaderView<Content: View>: View {
         title: String,
         count: Int,
         buttonAccessibilityIdentifier: String = "ExpandSectionButton",
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.buttonAccessibilityIdentifier = buttonAccessibilityIdentifier
         self.content = content()
