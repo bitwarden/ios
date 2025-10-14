@@ -121,6 +121,8 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
+        env:
+          _SIMULATOR_BOOT_MAX_RETRIES: 5
         run: |
             echo "Listing simulator devices:"
             SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
@@ -128,8 +130,22 @@ jobs:
             DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
             echo "--------------------------------"
             echo "Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-            xcrun simctl boot "$DEVICE_ID"
-            xcrun simctl bootstatus "$DEVICE_ID"
+            for i in $(seq 0 $_SIMULATOR_BOOT_MAX_RETRIES); do
+              xcrun simctl bootstatus "$DEVICE_ID" -b 2>&1 | tee /tmp/bootstatus_output.txt &
+              BOOTSTATUS_PID=$!
+              sleep 60
+
+              LAST_LINE=$(tail -1 /tmp/bootstatus_output.txt)
+              if echo "$LAST_LINE" | grep -q "Waiting on BackBoard"; then
+                echo "⚠️ Simulator stuck on BackBoard, restarting..."
+                kill $BOOTSTATUS_PID 2>/dev/null || true
+                xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+                sleep 2
+              else
+                break
+              fi
+              [ $i -eq $_SIMULATOR_BOOT_MAX_RETRIES ] && { kill $BOOTSTATUS_PID 2>/dev/null || true; echo "❌ Failed to verify boot status after $_SIMULATOR_BOOT_MAX_RETRIES attempts"; exit 1; }
+            done
 
       - name: Build
         run: |
