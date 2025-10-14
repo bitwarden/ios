@@ -404,7 +404,7 @@ struct VaultListView: View {
         .onDisappear {
             store.send(.disappeared)
         }
-        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+        .requestReview(isEligible: store.state.isEligibleForAppReview, windowScene: windowScene) {
             store.send(.appReviewPromptShown)
         }
     }
