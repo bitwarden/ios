@@ -36,7 +36,7 @@
 ## Common Patterns
 
 - **UI changes**: Always follow Coordinator → Processor → State → View flow
-- **Data access**: UI layer mostly uses Repositories (never Stores directly and scarsely Services)
+- **Data access**: The UI layer mostly uses Repositories. It should never use Stores directly and rarely use Services.
 - **State mutations**: Only in Processors
 - **Navigation**: Coordinators handle navigation via Routes/Events enums
 - **Testing**: Test file goes in same folder as implementation (e.g., `FooProcessor.swift` + `FooProcessorTests.swift`)
