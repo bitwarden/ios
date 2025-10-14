@@ -131,7 +131,7 @@ jobs:
             xcrun simctl runtime dyld_shared_cache update --all
             echo "--------------------------------"
             echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-            xcrun simctl boot "$DEVICE_ID"
+            xcrun simctl bootstatus "$DEVICE_ID" -b
             log stream --predicate 'subsystem contains "com.apple.CoreSimulator"' --level debug &
             LOG_PID=$!
 
