@@ -345,6 +345,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
         super.setUp()
 
         fido2CredentialStore = MockFido2CredentialStore()
+        Fido2DebuggingReportBuilder.builder.report = Fido2DebuggingReport()
 
         subject = DebuggingFido2CredentialStoreService(
             fido2CredentialStore: fido2CredentialStore,
