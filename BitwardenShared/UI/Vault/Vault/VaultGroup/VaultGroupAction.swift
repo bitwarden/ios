@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - VaultGroupAction
 
 /// Actions that can be processed by a `VaultGroupProcessor`.

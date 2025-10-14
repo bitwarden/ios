@@ -28,10 +28,20 @@ schemes:
       targets:
         BitwardenKit: all
         BitwardenKitTests: [test]
+        BitwardenKitSnapshotTests: [test]
+        BitwardenKitViewInspectorTests: [test]
     test:
       gatherCoverageData: true
       targets:
         - BitwardenKitTests
+        - BitwardenKitSnapshotTests
+        - BitwardenKitViewInspectorTests
+      testPlans:
+        - path: TestPlans/BitwardenKit-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/BitwardenKit-Unit.xctestplan
+        - path: TestPlans/BitwardenKit-Snapshot.xctestplan
+        - path: TestPlans/BitwardenKit-ViewInspector.xctestplan
   BitwardenResources:
     build:
       targets:
@@ -154,12 +164,49 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
+    dependencies:
+      - target: AuthenticatorBridgeKitMocks
+      - target: BitwardenKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
+    randomExecutionOrder: true
+  BitwardenKitSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
       - package: SnapshotTesting
+    randomExecutionOrder: true
+  BitwardenKitViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: AuthenticatorBridgeKitMocks
+      - target: BitwardenKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
       - package: ViewInspector
     randomExecutionOrder: true
   BitwardenResources:

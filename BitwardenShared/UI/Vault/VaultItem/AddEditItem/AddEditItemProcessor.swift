@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
@@ -385,6 +386,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .editCollections(state.cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
+        case .restore:
+            // No-op: the restore button isn't shown when editing an item.
+            break
         }
     }
 

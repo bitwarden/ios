@@ -1,6 +1,5 @@
 import AVFoundation
 import SwiftUI
-import ViewInspector
 import XCTest
 
 @testable import BitwardenShared

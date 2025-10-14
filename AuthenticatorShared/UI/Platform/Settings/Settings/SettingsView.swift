@@ -93,20 +93,21 @@ struct SettingsView: View {
 
     /// The language picker view
     private var language: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsListItem(
-                Localizations.language,
-                hasDivider: false,
+        Button {
+            store.send(.languageTapped)
+        } label: {
+            BitwardenField(
+                title: Localizations.language,
+                footer: Localizations.languageChangeRequiresAppRestart,
             ) {
-                store.send(.languageTapped)
-            } trailingContent: {
                 Text(store.state.currentLanguage.title)
+                    .styleGuide(.body)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                    .multilineTextAlignment(.leading)
+            } accessoryContent: {
+                SharedAsset.Icons.chevronDown24.swiftUIImage
+                    .imageStyle(.rowIcon)
             }
-            .cornerRadius(10)
-
-            Text(Localizations.languageChangeRequiresAppRestart)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
         }
     }
 
@@ -115,27 +116,24 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             biometricsSetting
 
-            SectionView(Localizations.data, contentSpacing: 0) {
-                VStack(spacing: 0) {
-                    SettingsListItem(Localizations.import) {
-                        store.send(.importItemsTapped)
-                    }
-
-                    SettingsListItem(Localizations.export) {
-                        store.send(.exportItemsTapped)
-                    }
-
-                    SettingsListItem(Localizations.backup) {
-                        store.send(.backupTapped)
-                    }
-
-                    syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
-
-                    if store.state.shouldShowDefaultSaveOption {
-                        defaultSaveOption
-                    }
+            ContentBlock(dividerLeadingPadding: 16) {
+                SettingsListItem(Localizations.import) {
+                    store.send(.importItemsTapped)
                 }
-                .cornerRadius(10)
+
+                SettingsListItem(Localizations.export) {
+                    store.send(.exportItemsTapped)
+                }
+
+                SettingsListItem(Localizations.backup) {
+                    store.send(.backupTapped)
+                }
+
+                syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
+
+                if store.state.shouldShowDefaultSaveOption {
+                    defaultSaveOption
+                }
             }
             .padding(.bottom, 32)
 
@@ -145,30 +143,24 @@ struct SettingsView: View {
             }
             .padding(.bottom, 32)
 
-            SectionView(Localizations.help, contentSpacing: 0) {
-                VStack(spacing: 0) {
-                    SettingsListItem(Localizations.launchTutorial) {
-                        store.send(.tutorialTapped)
-                    }
-
-                    externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped, hasDivider: false)
+            ContentBlock(dividerLeadingPadding: 16) {
+                SettingsListItem(Localizations.launchTutorial) {
+                    store.send(.tutorialTapped)
                 }
-                .cornerRadius(10)
+
+                externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped)
             }
             .padding(.bottom, 32)
 
-            SectionView(Localizations.about, contentSpacing: 0) {
-                VStack(spacing: 0) {
-                    externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
+            ContentBlock(dividerLeadingPadding: 16) {
+                externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 
-                    SettingsListItem(store.state.version, hasDivider: false) {
-                        store.send(.versionTapped)
-                    } trailingContent: {
-                        SharedAsset.Icons.copy16.swiftUIImage
-                            .imageStyle(.rowIcon)
-                    }
+                SettingsListItem(store.state.version) {
+                    store.send(.versionTapped)
+                } trailingContent: {
+                    SharedAsset.Icons.copy24.swiftUIImage
+                        .imageStyle(.rowIcon)
                 }
-                .cornerRadius(10)
             }
             .padding(.bottom, 16)
 
@@ -193,23 +185,16 @@ struct SettingsView: View {
 
     /// The application's color theme picker view
     private var theme: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsMenuField(
-                title: Localizations.theme,
-                options: AppTheme.allCases,
-                hasDivider: false,
-                selection: store.binding(
-                    get: \.appTheme,
-                    send: SettingsAction.appThemeChanged,
-                ),
-            )
-            .cornerRadius(10)
-            .accessibilityIdentifier("ThemeChooser")
-
-            Text(Localizations.themeDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
+        BitwardenMenuField(
+            title: Localizations.theme,
+            footer: Localizations.themeDescription,
+            accessibilityIdentifier: "ThemeChooser",
+            options: AppTheme.allCases,
+            selection: store.binding(
+                get: \.appTheme,
+                send: SettingsAction.appThemeChanged,
+            ),
+        )
     }
 
     /// A toggle for the user's biometric unlock preference.
@@ -245,15 +230,11 @@ struct SettingsView: View {
     ///   - action: An action to send when the row is tapped.
     /// - Returns: A `SettingsListItem` configured for an external web link.
     ///
-    private func externalLinkRow(
-        _ name: String,
-        action: SettingsAction,
-        hasDivider: Bool = true,
-    ) -> some View {
-        SettingsListItem(name, hasDivider: hasDivider) {
+    private func externalLinkRow(_ name: String, action: SettingsAction) -> some View {
+        SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            SharedAsset.Icons.externalLink16.swiftUIImage
+            SharedAsset.Icons.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }

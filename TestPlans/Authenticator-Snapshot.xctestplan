@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "E4B9D2A7-5C8F-4E3B-9D6A-7F5E4C3B2A1D",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "FFECA5139B78B2961268F363",
+        "name" : "AuthenticatorSharedSnapshotTests"
+      }
+    }
+  ],
+  "version" : 1
+}

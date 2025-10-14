@@ -54,7 +54,7 @@ struct SettingsMenuFieldType: BaseViewType {
     static var typePrefix: String = "SettingsMenuField"
 
     static var namespacedPrefixes: [String] = [
-        "AuthenticatorShared.SettingsMenuField",
+        "BitwardenKit.SettingsMenuField",
     ]
 }
 
