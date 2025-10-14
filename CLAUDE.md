@@ -53,10 +53,10 @@
 
 ## Common File Locations
 
-- Dependency injection: [BitwardenShared/Core/Platform/Services/ServiceContainer.swift](BitwardenShared/Core/Platform/Services/ServiceContainer.swift)
-- App module (coordinator factory): [BitwardenShared/UI/Platform/Application/AppModule.swift](BitwardenShared/UI/Platform/Application/AppModule.swift)
-- Store (View-Processor bridge): [BitwardenShared/UI/Platform/Application/Utilities/Store.swift](BitwardenShared/UI/Platform/Application/Utilities/Store.swift)
-- Project generation
+- **Dependency injection**: [BitwardenShared/Core/Platform/Services/ServiceContainer.swift](BitwardenShared/Core/Platform/Services/ServiceContainer.swift)
+- **App module (coordinator factory)**: [BitwardenShared/UI/Platform/Application/AppModule.swift](BitwardenShared/UI/Platform/Application/AppModule.swift)
+- **Store (View-Processor bridge)**: [BitwardenShared/UI/Platform/Application/Utilities/Store.swift](BitwardenShared/UI/Platform/Application/Utilities/Store.swift)
+- **Project generation**
   - `project-pm.yml`: for main Password Manager
   - `project-bwa.yml`: for Authenticator
   - `project-bwk.yml`: for shared frameworks like Bitwarden Kit
