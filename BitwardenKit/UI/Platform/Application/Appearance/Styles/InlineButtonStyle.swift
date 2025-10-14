@@ -5,7 +5,7 @@ import SwiftUI
 /// The style for all inline buttons in this application.
 ///
 public struct InlineButtonStyle: ButtonStyle {
-    /// Public version of synthesized initializer.
+    /// Initializes an `InlineButtonStyle`.
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {

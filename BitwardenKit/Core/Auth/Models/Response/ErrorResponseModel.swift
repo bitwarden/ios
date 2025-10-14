@@ -16,7 +16,11 @@ public struct ErrorResponseModel: Codable, Equatable, Sendable {
 
     // MARK: Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes an `ErrorResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - validationErrors: Validation errors returned from the API request.
+    ///   - message: The error message.
     public init(validationErrors: [String: [String]]?, message: String) {
         self.validationErrors = validationErrors
         self.message = message

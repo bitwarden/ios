@@ -34,7 +34,7 @@ public final class MockHTTPClient: HTTPClient {
 
     // MARK: Initializer
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `MockHTTPClient`.
     public init() {}
 
     // MARK: Methods

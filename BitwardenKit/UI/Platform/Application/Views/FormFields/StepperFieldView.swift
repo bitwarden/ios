@@ -32,7 +32,7 @@ public struct StepperField<State>: Equatable, Identifiable {
 
     // MARK: Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `StepperField`.
     ///
     /// - Parameters:
     ///   - accessibilityId: The accessibility ID for the stepper.

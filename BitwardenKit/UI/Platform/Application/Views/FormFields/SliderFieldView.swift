@@ -39,7 +39,7 @@ public struct SliderField<State>: Equatable, Identifiable {
 
     // MARK: Initializer
 
-    /// Public version of synthesized initializer
+    /// Initializes a `SliderField`.
     ///
     /// - Parameters:
     ///   - keyPath: A key path for updating the backing value for the slider field.

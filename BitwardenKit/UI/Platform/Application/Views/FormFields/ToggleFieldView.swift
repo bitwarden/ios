@@ -35,7 +35,7 @@ public struct ToggleField<State>: Equatable, Identifiable {
 
     // MARK: Initializer
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `ToggleField`.
     ///
     /// - Parameters:
     ///   - accessibilityId: The accessibility ID for the toggle.

@@ -47,10 +47,11 @@ public struct BitwardenBadge: View {
 
     // MARK: Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `BitwardenBadge`.
     ///
     /// - Parameters:
     ///   - badgeValue: The value to display in the badge.
+    ///   
     public init(badgeValue: String) {
         self.badgeValue = badgeValue
     }

@@ -110,7 +110,10 @@ public struct ToastView: View {
         }
     }
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `ToastView`.
+    ///
+    /// - Parameters:
+    ///   - toast: A binding to the toast to show.
     public init(toast: Binding<Toast?>) {
         _toast = toast
     }
