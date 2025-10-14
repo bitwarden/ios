@@ -25,7 +25,7 @@
 
 ## Critical Rules
 
-- **NEVER** install third-party libaries unless explicitly told to.
+- **NEVER** install third-party libraries unless explicitly told to.
 - **CRITICAL**: new encryption logic should not be added to this repo.
 - **NEVER** send unencrypted vault data to API services
 - **NEVER** commit secrets, credentials, or sensitive information.
