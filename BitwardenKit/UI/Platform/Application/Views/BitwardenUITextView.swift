@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 import UIKit
@@ -7,12 +6,12 @@ import UIKit
 
 /// A custom `UITextView` wrapped in a `UIViewRepresentable` for use in SwiftUI.
 ///
-struct BitwardenUITextView: UIViewRepresentable {
+public struct BitwardenUITextView: UIViewRepresentable {
     // MARK: - Coordinator
 
     /// A coordinator to act as the delegate for `UITextView`, handling text changes and other events.
     ///
-    class Coordinator: NSObject, UITextViewDelegate {
+    public class Coordinator: NSObject, UITextViewDelegate {
         /// The parent view.
         var parent: BitwardenUITextView
 
@@ -29,7 +28,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         ///    - calculatedHeight: The height of the text view.
         ///    - isFocused: A binding for whether the text view has focus.
         ///
-        init(
+        public init(
             _ parent: BitwardenUITextView,
             calculatedHeight: Binding<CGFloat>,
             isFocused: Binding<Bool>,
@@ -39,11 +38,11 @@ struct BitwardenUITextView: UIViewRepresentable {
             _isFocused = isFocused
         }
 
-        func textViewDidBeginEditing(_ textView: UITextView) {
+        public func textViewDidBeginEditing(_ textView: UITextView) {
             isFocused = true
         }
 
-        func textViewDidChange(_ uiView: UITextView) {
+        public func textViewDidChange(_ uiView: UITextView) {
             parent.text = uiView.text
             parent.recalculateHeight(
                 view: uiView,
@@ -51,7 +50,7 @@ struct BitwardenUITextView: UIViewRepresentable {
             )
         }
 
-        func textViewDidEndEditing(_ textView: UITextView) {
+        public func textViewDidEndEditing(_ textView: UITextView) {
             isFocused = false
         }
     }
@@ -75,11 +74,34 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// A binding for whether the text view has focus.
     @Binding var isFocused: Bool
 
+    // MARK: - Initializers
+
+    /// Public version of synthesized initializer.
+    ///
+    /// - Parameters:
+    ///   - text: The text entered into the text field.
+    ///   - calculatedHeight: The calculated height of the `UITextView`. This value is dynamically updated
+    ///     based on the content size, and it helps to adjust the height of the view in SwiftUI.
+    ///   - isEditable: Indicates whether the `UITextView` is editable. When set to `true`, the user can edit the
+    ///     text. If `false`, the text view is read-only.
+    ///   - isFocused: A binding for whether the text view has focus.
+    public init(
+        text: Binding<String>,
+        calculatedHeight: Binding<CGFloat>,
+        isEditable: Bool,
+        isFocused: Binding<Bool>,
+    ) {
+        _text = text
+        _calculatedHeight = calculatedHeight
+        self.isEditable = isEditable
+        _isFocused = isFocused
+    }
+
     /// Creates and returns the coordinator for the `UITextView`.
     ///
     /// - Returns: A `Coordinator` instance to manage the `UITextView`'s events.
     ///
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         Coordinator(self, calculatedHeight: $calculatedHeight, isFocused: $isFocused)
     }
 
@@ -90,7 +112,7 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// - Parameter context: The context containing the coordinator for this view.
     /// - Returns: A configured `UITextView` instance.
     ///
-    func makeUIView(context: Context) -> UITextView {
+    public func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.adjustsFontForContentSizeCategory = true
         textView.autocapitalizationType = .sentences
@@ -118,7 +140,7 @@ struct BitwardenUITextView: UIViewRepresentable {
     ///   - uiView: The `UITextView` instance being updated.
     ///   - context: The context containing the coordinator for this view.
     ///
-    func updateUIView(
+    public func updateUIView(
         _ uiView: UITextView,
         context: Context,
     ) {
@@ -172,7 +194,7 @@ struct BitwardenUITextView: UIViewRepresentable {
     }
 
     @available(iOS 16, *)
-    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
+    public func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
         guard let width = proposal.width else { return nil }
         let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         return CGSize(width: width, height: size.height)

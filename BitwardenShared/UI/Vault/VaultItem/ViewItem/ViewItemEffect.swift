@@ -11,9 +11,6 @@ enum ViewItemEffect: Equatable {
     /// The delete option was pressed.
     case deletePressed
 
-    /// The restore button was pressed.
-    case restorePressed
-
     /// Toggles displaying one or multiple collections.
     case toggleDisplayMultipleCollections
 

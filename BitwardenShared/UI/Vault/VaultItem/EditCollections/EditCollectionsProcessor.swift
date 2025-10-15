@@ -87,8 +87,15 @@ class EditCollectionsProcessor: StateProcessor<
     ///
     private func fetchCipherOptions() async {
         do {
-            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+            let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
                 .filter { $0.organizationId == state.cipher.organizationId }
+
+            state.collections = collections.filter { collection in
+                guard let collectionId = collection.id else {
+                    return false
+                }
+                return collection.type != .defaultUserCollection || state.collectionIds.contains(collectionId)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }

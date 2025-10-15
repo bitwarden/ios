@@ -79,7 +79,7 @@ struct BitwardenUITextViewType: BaseViewType {
     static var typePrefix: String = "BitwardenUITextView"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenUITextView",
+        "BitwardenKit.BitwardenUITextView",
     ]
 }
 
@@ -112,7 +112,7 @@ struct SettingsMenuFieldType: BaseViewType {
     static var typePrefix: String = "SettingsMenuField"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.SettingsMenuField",
+        "BitwardenKit.SettingsMenuField",
     ]
 }
 

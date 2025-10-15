@@ -1,10 +1,11 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SectionHeaderView
 
 /// A section header.
 ///
-struct SectionHeaderView: View {
+public struct SectionHeaderView: View {
     // MARK: Properties
 
     /// The section title.
@@ -12,12 +13,13 @@ struct SectionHeaderView: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         Text(title)
-            .styleGuide(.footnote)
+            .styleGuide(.caption1, weight: .bold)
             .accessibilityAddTraits(.isHeader)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .textCase(.uppercase)
+            .padding(.leading, 12)
     }
 
     // MARK: Initialization
@@ -27,7 +29,7 @@ struct SectionHeaderView: View {
     /// - Parameters:
     ///   - title: The section title.
     ///
-    init(_ title: String) {
+    public init(_ title: String) {
         self.title = title
     }
 }
