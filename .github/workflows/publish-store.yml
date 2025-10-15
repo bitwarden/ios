@@ -1,6 +1,7 @@
 
 name: Publish to iOS App Store
-run-name: Publish ${{ inputs.product }} build ${{ inputs.build-number }} version ${{inputs.build-version}}
+run-name: >
+  ${{ inputs.dry-run && ' (Dry Run)' || '' }} Publish ${{ inputs.product }} build ${{ inputs.build-number }} version ${{ inputs.build-version }}
 
 on:
   workflow_dispatch:
@@ -30,6 +31,10 @@ on:
         description: "Automatically submit release for review"
         type: boolean
         default: true
+      dry-run:
+        description: "Dry-Run, Run the workflow without publishing to the store"
+        type: boolean
+        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,6 +44,7 @@ permissions:
   contents: read
   packages: read
   id-token: write
+  actions: write
 
 jobs:
     publish:
@@ -99,6 +105,8 @@ jobs:
             EOF
 
         - name: Upload app to with Fastlane
+          id: publish
+          if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
             VERSION_NAME: ${{inputs.build-version}}
@@ -128,3 +136,18 @@ jobs:
               changelog:"$CHANGELOG" \
               metadata_path:"$METADATA_PATH" \
               submit_release:"$SUBMIT_RELEASE"
+
+        - name: Enable Publish Github Release Workflow
+          if: ${{ steps.publish.conclusion == 'success' }}
+          env:
+            PRODUCT: ${{ inputs.product }}
+          run: |
+            if ${{ inputs.dry-run }} ; then
+              gh workflow view publish-github-release.yml
+              exit 0
+            fi
+            if [ "$PRODUCT" = "Password Manager" ]; then
+              gh workflow enable publish-github-release-bwpm.yml
+            elif [ "$PRODUCT" = "Authenticator" ]; then
+                gh workflow enable publish-github-release-bwa.yml
+            fi
