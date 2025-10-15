@@ -5,7 +5,7 @@ import XCTest
 
 class AlertErrorTests: BitwardenTestCase {
     /// `defaultAlert(title:message:)` constructs an `Alert` with the title, message, and an OK button.
-    func test_defaultAlert() throws {
+    func test_defaultAlert() {
         let subject = Alert.defaultAlert(title: "title", message: "message")
 
         XCTAssertEqual(subject.title, "title")
