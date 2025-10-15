@@ -15,7 +15,7 @@ public struct NavigationBarViewModifier: ViewModifier {
 
     // MARK: Initializer
 
-    /// Public version of synthesized initializer
+    /// Initializes a `NavigationBarViewModifier`.
     ///
     /// - Parameters:
     ///   - title: The navigation bar title.

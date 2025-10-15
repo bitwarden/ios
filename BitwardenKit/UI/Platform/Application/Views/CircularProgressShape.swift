@@ -17,7 +17,7 @@ public struct CircularProgressShape: Shape {
     /// A flag indicating whether the progress should be drawn in a clockwise direction.
     var clockwise: Bool
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `CircularProgressShape`.
     /// - Parameters:
     ///   - progress: Current progress of the task, between 0.0 and 1.0.
     ///   - clockwise: Whether the progress should be drawn in a clockwise direction.

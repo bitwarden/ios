@@ -76,7 +76,7 @@ public struct BitwardenUITextView: UIViewRepresentable {
 
     // MARK: - Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `BitwardenUITextView`.
     ///
     /// - Parameters:
     ///   - text: The text entered into the text field.

@@ -1,6 +1,8 @@
 import SwiftUI
 import UIKit
 
+/// An object to manage showing and hiding toasts.
+@MainActor
 public enum ToastDisplayHelper {
     // MARK: Type Properties
 
@@ -53,7 +55,9 @@ public enum ToastDisplayHelper {
 
         // Dismiss the toast after 3 seconds.
         Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
-            hide(viewController.view)
+            Task { @MainActor in
+                hide(viewController.view)
+            }
         }
     }
 

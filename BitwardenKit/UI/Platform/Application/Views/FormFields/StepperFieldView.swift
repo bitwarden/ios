@@ -32,7 +32,7 @@ public struct StepperField<State>: Equatable, Identifiable {
 
     // MARK: Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `StepperField`.
     ///
     /// - Parameters:
     ///   - accessibilityId: The accessibility ID for the stepper.
@@ -64,7 +64,7 @@ public struct StepperFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when a new value is selected.
-    let action: (Int) -> Void
+    let action: @Sendable (Int) -> Void
 
     /// The data for displaying the field.
     let field: StepperField<State>
@@ -89,7 +89,7 @@ public struct StepperFieldView<State>: View {
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when a new value is selected.
     ///
-    public init(field: StepperField<State>, action: @escaping (Int) -> Void) {
+    public init(field: StepperField<State>, action: @Sendable @escaping (Int) -> Void) {
         self.action = action
         self.field = field
     }

@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A `StyleGuideFont` contains the font to use for a specific style.
 ///
-public struct StyleGuideFont {
+public struct StyleGuideFont: Sendable {
     // MARK: Properties
 
     /// The font to use for the style.
@@ -224,6 +224,7 @@ public extension Text {
     ///   - monoSpacedDigit: If the text is monospaced for digits. Defaults to `false`.
     /// - Returns: The Text with adjusted line height & font.
     ///
+    @MainActor
     func styleGuide(
         _ style: StyleGuideFont,
         weight: SwiftUI.Font.Weight = .regular,
