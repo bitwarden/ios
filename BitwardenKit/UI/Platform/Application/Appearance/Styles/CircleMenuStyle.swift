@@ -32,7 +32,7 @@ public struct CircleMenuStyle: MenuStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `CircleMenuStyle`.
     ///
     /// - Parameters:
     ///   - diameter: The diameter of the button.

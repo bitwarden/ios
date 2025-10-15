@@ -17,7 +17,11 @@ public struct DebugMenuFeatureFlag: Equatable, Identifiable, Sendable {
     /// A boolean value indicating whether the feature is enabled or not.
     public let isEnabled: Bool
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `DebugMenuFeatureFlag`.
+    ///
+    /// - Parameters:
+    ///   - feature: The feature flag enum that this instance represents.
+    ///   - isEnabled: A boolean value indicating whether the feature is enabled or not.
     public init(feature: FeatureFlag, isEnabled: Bool) {
         self.feature = feature
         self.isEnabled = isEnabled

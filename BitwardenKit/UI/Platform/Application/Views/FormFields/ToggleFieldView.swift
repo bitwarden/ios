@@ -35,7 +35,7 @@ public struct ToggleField<State>: Equatable, Identifiable {
 
     // MARK: Initializer
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `ToggleField`.
     ///
     /// - Parameters:
     ///   - accessibilityId: The accessibility ID for the toggle.
@@ -71,7 +71,7 @@ public struct ToggleFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when the toggle is toggled.
-    let action: (Bool) -> Void
+    let action: @Sendable (Bool) -> Void
 
     /// The data for displaying the field.
     let field: ToggleField<State>
@@ -96,7 +96,7 @@ public struct ToggleFieldView<State>: View {
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when the toggle is toggled.
     ///
-    public init(field: ToggleField<State>, action: @escaping (Bool) -> Void) {
+    public init(field: ToggleField<State>, action: @Sendable @escaping (Bool) -> Void) {
         self.action = action
         self.field = field
     }

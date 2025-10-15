@@ -33,17 +33,26 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
 
     // MARK: Properties
 
-    /// The accessibility identifier for the text field.
-    let accessibilityIdentifier: String?
+    /// The title of the text field.
+    let title: String?
 
-    /// Whether the password can be viewed (only applies if a password exists in the field).
-    let canViewPassword: Bool
+    /// The text entered into the text field.
+    @Binding var text: String
+
+    /// Optional content view that is displayed on the trailing edge of the field value.
+    let trailingContent: TrailingContent?
 
     /// The footer text displayed below the text field.
     let footer: String?
 
     /// The (optional) footer content to display underneath the field.
     let footerContent: FooterContent?
+
+    /// The accessibility identifier for the text field.
+    let accessibilityIdentifier: String?
+
+    /// Whether the password can be viewed (only applies if a password exists in the field).
+    let canViewPassword: Bool
 
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
@@ -56,15 +65,6 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
 
     /// The accessibility identifier for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
-
-    /// The text entered into the text field.
-    @Binding var text: String
-
-    /// The title of the text field.
-    let title: String?
-
-    /// Optional content view that is displayed on the trailing edge of the field value.
-    let trailingContent: TrailingContent?
 
     // MARK: View
 
@@ -205,8 +205,8 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
-    ///   - footer: The footer text displayed below the text field.
     ///   - text: The text entered into the text field.
+    ///   - footer: The footer text displayed below the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
     ///   - canViewPassword: Whether the password can be viewed.

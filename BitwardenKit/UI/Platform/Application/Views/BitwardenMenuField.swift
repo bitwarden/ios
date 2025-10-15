@@ -5,11 +5,11 @@ import SwiftUI
 
 /// A protocol that defines an object that can be represented and selected in
 /// a `BitwardenMenuField`.
-public protocol Menuable: Equatable, Hashable {
-    ///  The custom localizable title value for this default case, defaults to  `Default`.
+public protocol Menuable: Equatable, Hashable, Sendable {
+    /// The custom localizable title value for this default case, defaults to `Default`.
     static var defaultValueLocalizedName: String { get }
 
-    /// The accessibility identifier for the menu option.
+    /// The accessibility identifier for the menu option, defaults to the `localizedName`.
     var accessibilityId: String { get }
 
     /// A localized name value. This value is displayed in the Menu when the user
@@ -18,10 +18,12 @@ public protocol Menuable: Equatable, Hashable {
 }
 
 public extension Menuable {
+    /// The custom localizable title value for this default case, defaults to `Default`.
     static var defaultValueLocalizedName: String {
         Localizations.default
     }
 
+    /// The accessibility identifier for the menu option, defaults to the `localizedName`.
     var accessibilityId: String {
         localizedName
     }

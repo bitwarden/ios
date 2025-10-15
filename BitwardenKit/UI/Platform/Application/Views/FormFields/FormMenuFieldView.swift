@@ -67,7 +67,7 @@ public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, Traili
     // MARK: Properties
 
     /// A closure containing the action to take when the menu selection is changed.
-    let action: (T) -> Void
+    let action: @Sendable (T) -> Void
 
     /// The data for displaying the field.
     let field: FormMenuField<State, T>
@@ -130,7 +130,7 @@ public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, Traili
     ///
     public init(
         field: FormMenuField<State, T>,
-        action: @escaping (T) -> Void,
+        action: @Sendable @escaping (T) -> Void,
     ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
         self.action = action
         self.field = field
@@ -147,7 +147,7 @@ public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, Traili
     ///
     public init(
         field: FormMenuField<State, T>,
-        action: @escaping (T) -> Void,
+        action: @Sendable @escaping (T) -> Void,
         trailingContent: @escaping () -> TrailingContent,
     ) where TitleAccessory == EmptyView {
         self.action = action
@@ -165,7 +165,7 @@ public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, Traili
     ///
     public init(
         field: FormMenuField<State, T>,
-        action: @escaping (T) -> Void,
+        action: @Sendable @escaping (T) -> Void,
         titleAccessoryContent: @escaping () -> TitleAccessory,
     ) where TrailingContent == EmptyView {
         self.action = action
@@ -184,7 +184,7 @@ public struct FormMenuFieldView<State, T: Menuable, TitleAccessory: View, Traili
     ///
     public init(
         field: FormMenuField<State, T>,
-        action: @escaping (T) -> Void,
+        action: @Sendable @escaping (T) -> Void,
         titleAccessoryContent: () -> TitleAccessory,
         trailingContent: @escaping () -> TrailingContent,
     ) {

@@ -23,6 +23,7 @@ public extension Label {
     ///   - scaleImageDimension: The height and width of the square image as the default size before
     ///     any scaling.
     ///
+    @MainActor
     init(_ title: String, image: Image, scaleImageDimension dimension: CGFloat) where Title == Text, Icon == AnyView {
         self.init {
             Text(title)

@@ -25,7 +25,14 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
 
     // MARK: Initializers
 
-    /// A public version of the standard synthesized initializer.
+    /// Initializes a `ConfigResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - environment: The environment URLs of the server.
+    ///   - featureStates: Feature flags to configure the client.
+    ///   - gitHash: The git hash of the server.
+    ///   - server: Third party server information.
+    ///   - version: The version of the server.
     public init(
         environment: EnvironmentServerConfigResponseModel?,
         featureStates: [String: AnyCodable]?,
@@ -43,15 +50,19 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
 
 /// API response model for third-party configuration in a configuration response.
 public struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
-    /// The name of the third party configuration.
+    /// The name of the third-party configuration.
     public let name: String
 
-    /// The URL of the third party configuration.
+    /// The URL of the third-party configuration.
     public let url: String
 
     // MARK: Initializers
 
-    /// A public version of the standard synthesized initializer.
+    /// Initializes a `ThirdPartyConfigResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the third-party configuration.
+    ///   - url: The URL of the third-party configuration.
     public init(
         name: String,
         url: String,
@@ -83,7 +94,15 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
 
     // MARK: Initializers
 
-    /// A public version of the standard synthesized initializer.
+    /// Initializes an `EnvironmentServerConfigResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - api: The API URL.
+    ///   - cloudRegion: The Cloud Region (e.g. "US").
+    ///   - identity: The Identity URL.
+    ///   - notifications: The Notifications URL.
+    ///   - sso: The SSO URL.
+    ///   - vault: The Vault URL.
     public init(
         api: String?,
         cloudRegion: String?,

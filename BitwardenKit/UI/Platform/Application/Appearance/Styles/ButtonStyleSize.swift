@@ -5,8 +5,13 @@ import Foundation
 /// The different size buttons which can be supported by button styles.
 ///
 public enum ButtonStyleSize {
+    /// A small button, with subheadline-sized text.
     case small
+
+    /// A medium-sized button, with callout-sized text.
     case medium
+
+    /// A large button, with body-sized text.
     case large
 
     /// The font style of the button label for this size.

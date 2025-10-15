@@ -28,11 +28,10 @@ public struct CircleButtonStyle: ButtonStyle {
             : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `CircleButtonStyle`
     ///
     /// - Parameters:
     ///   - diameter: The diameter of the button.
-    ///
     public init(diameter: CGFloat) {
         self.diameter = diameter
     }

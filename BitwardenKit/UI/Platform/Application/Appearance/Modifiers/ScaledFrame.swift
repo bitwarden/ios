@@ -90,6 +90,7 @@ public extension Image {
     ///   - width: The width of the image before scaling
     ///   - height: The height of the image before scaling.
     ///
+    @MainActor
     func scaledFrame(width: CGFloat, height: CGFloat) -> some View {
         resizable()
             .modifier(ScaledFrame(width: width, height: height))
