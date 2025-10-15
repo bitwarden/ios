@@ -4,6 +4,7 @@ import XCTest
 
 class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the loading overlay in the parent view controller.
+    @MainActor
     func test_show() throws {
         let parentViewController = UIViewController()
         let window = UIWindow()
@@ -24,6 +25,7 @@ class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
     }
 
     /// `hide(from:)` hides the loading overlay in the parent view controller.
+    @MainActor
     func test_hide() throws {
         let parentViewController = UIViewController()
         let window = UIWindow()
