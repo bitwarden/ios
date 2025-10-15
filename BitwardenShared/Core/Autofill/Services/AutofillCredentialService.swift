@@ -83,6 +83,9 @@ protocol AutofillCredentialService: AnyObject {
 class DefaultAutofillCredentialService {
     // MARK: Private Properties
 
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
+
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
@@ -135,6 +138,7 @@ class DefaultAutofillCredentialService {
     /// Initialize an `AutofillCredentialService`.
     ///
     /// - Parameters:
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - credentialIdentityFactory: The factory to create credential identities.
@@ -151,6 +155,7 @@ class DefaultAutofillCredentialService {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
         credentialIdentityFactory: CredentialIdentityFactory,
@@ -165,6 +170,7 @@ class DefaultAutofillCredentialService {
         totpService: TOTPService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
+        self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
         self.credentialIdentityFactory = credentialIdentityFactory
@@ -178,6 +184,10 @@ class DefaultAutofillCredentialService {
         self.timeProvider = timeProvider
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
+
+        guard appContextHelper.appContext == .mainApp else {
+            return
+        }
 
         Task {
             for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
