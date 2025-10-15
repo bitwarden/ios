@@ -11,7 +11,7 @@ import XCTest
 
 /// The tests for `DefaultAutofillCredentialService` when the app context is `.appExtension`.
 /// This new file is needed given that the app context is necesary on `DefaultAutofillCredentialService`
-/// initialization to see if the subscription to eht vault timeout service is necessary. So it's easier to test
+/// initialization to see if the subscription to the `VaultTimeoutService` is necessary. So it's easier to test
 /// having a new class test specifically for it.
 @MainActor
 class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
@@ -104,7 +104,6 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
     /// `syncIdentities(vaultLockStatus:)` doesn't update the credential identity store with the identities
     /// from the user's vault when the app context is `.appExtension`.
     func test_syncIdentities_appExtensionContext() { // swiftlint:disable:this function_body_length
-
         cipherService.fetchAllCiphersResult = .success([
             .fixture(
                 id: "1",
