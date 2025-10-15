@@ -3,6 +3,7 @@ import UIKit
 
 /// A helper to configure showing and hiding the `LoadingOverlayView` within a view controller.
 ///
+@MainActor
 public enum LoadingOverlayDisplayHelper {
     // MARK: Type Properties
 
