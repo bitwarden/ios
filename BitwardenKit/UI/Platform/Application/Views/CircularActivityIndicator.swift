@@ -3,7 +3,7 @@ import SwiftUI
 
 /// A spinning circular activity indicator.
 ///
-struct CircularActivityIndicator: View {
+public struct CircularActivityIndicator: View {
     // MARK: Properties
 
     /// Whether the activity indicator is spinning.
@@ -14,7 +14,7 @@ struct CircularActivityIndicator: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             Circle()
                 .stroke(SharedAsset.Colors.backgroundTertiary.swiftUIColor, style: strokeStyle)
@@ -31,6 +31,11 @@ struct CircularActivityIndicator: View {
         }
         .frame(width: 56, height: 56)
     }
+
+    // MARK: Initializers
+
+    /// Initializes a `CircularActivityIndicator`.
+    public init() {}
 }
 
 // MARK: - Previews
