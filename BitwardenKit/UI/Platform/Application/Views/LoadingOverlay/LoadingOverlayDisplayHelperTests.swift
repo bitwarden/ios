@@ -1,7 +1,6 @@
+import BitwardenKit
 import SwiftUI
 import XCTest
-
-@testable import AuthenticatorShared
 
 class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the loading overlay in the parent view controller.

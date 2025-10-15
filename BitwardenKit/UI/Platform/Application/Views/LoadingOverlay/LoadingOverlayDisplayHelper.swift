@@ -1,10 +1,9 @@
-import BitwardenKit
 import SwiftUI
 import UIKit
 
 /// A helper to configure showing and hiding the `LoadingOverlayView` within a view controller.
 ///
-enum LoadingOverlayDisplayHelper {
+public enum LoadingOverlayDisplayHelper {
     // MARK: Type Properties
 
     /// The duration in seconds of the show and hide transitions.
@@ -12,7 +11,7 @@ enum LoadingOverlayDisplayHelper {
 
     /// A value that is used to identify the loading overlay view within the view hierarchy in
     /// order to remove it.
-    static let overlayViewTag = 1000
+    public static let overlayViewTag = 1000
 
     // MARK: Type Methods
 
@@ -22,7 +21,7 @@ enum LoadingOverlayDisplayHelper {
     ///   - parentViewController: The parent view controller that the overlay should be shown above.
     ///   - state: State used to configure the display of the loading overlay view.
     ///
-    static func show(in parentViewController: UIViewController, state: LoadingOverlayState) {
+    public static func show(in parentViewController: UIViewController, state: LoadingOverlayState) {
         guard parentViewController.view.window?.viewWithTag(overlayViewTag) == nil,
               let window = parentViewController.view.window
         else {
@@ -46,7 +45,7 @@ enum LoadingOverlayDisplayHelper {
     ///
     /// - Parameter parentViewController: The parent view controller that the overlay is shown above.
     ///
-    static func hide(from parentViewController: UIViewController) {
+    public static func hide(from parentViewController: UIViewController) {
         guard let view = parentViewController.view.window?.viewWithTag(overlayViewTag) else { return }
 
         UIView.animate(withDuration: UI.duration(transitionDuration)) {
