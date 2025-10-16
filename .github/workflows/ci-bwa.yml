@@ -52,7 +52,7 @@ permissions:
 jobs:
   version:
     name: Calculate Version Name and Number
-    uses: bitwarden/ios/.github/workflows/_version.yml@main
+    uses: bitwarden/ios/.github/workflows/_version.yml@PM-21706-independent-version-names
     with:
       app_codename: "bwa"
       base_version_number: 30
