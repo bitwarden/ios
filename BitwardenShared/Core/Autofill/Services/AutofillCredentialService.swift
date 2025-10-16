@@ -76,6 +76,11 @@ protocol AutofillCredentialService: AnyObject {
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential
+
+    /// Updates all credential identities in the identity store with the current list of ciphers
+    /// for the current user.
+    ///
+    func updateCredentialsOnStore() async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -112,7 +117,7 @@ class DefaultAutofillCredentialService {
     private let identityStore: CredentialIdentityStore
 
     /// The last user ID that had their identities synced.
-    private var lastSyncedUserId: String?
+    private(set) var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -427,6 +432,15 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         )
 
         return ASOneTimeCodeCredential(code: code.code)
+    }
+
+    func updateCredentialsOnStore() async {
+        do {
+            let userId = try await stateService.getActiveAccountId()
+            await replaceAllIdentities(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     // MARK: Private

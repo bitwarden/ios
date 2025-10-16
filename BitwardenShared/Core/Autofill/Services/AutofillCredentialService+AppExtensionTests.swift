@@ -104,6 +104,53 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
     /// `syncIdentities(vaultLockStatus:)` doesn't update the credential identity store with the identities
     /// from the user's vault when the app context is `.appExtension`.
     func test_syncIdentities_appExtensionContext() { // swiftlint:disable:this function_body_length
+        prepareDataForIdentitiesReplacement()
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+
+        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
+        XCTAssertFalse(credentialIdentityFactory.createCredentialIdentitiesMocker.called)
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+        XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
+    }
+
+    /// `updateCredentialsOnStore()` replaces all identities in the identity Store correctly
+    /// for the active user ID.
+    func test_updateCredentialsOnStore_succeedsActiveUserId() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "50"))
+
+        await subject.updateCredentialsOnStore()
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return identityStore.replaceCredentialIdentitiesIdentities != nil
+        }
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
+                .password(PasswordCredentialIdentity(id: "3", uri: "example.com", username: "user@example.com")),
+            ],
+        )
+        XCTAssertEqual(subject.lastSyncedUserId, "50")
+    }
+
+    /// `updateCredentialsOnStore()` logs error when it throws.
+    func test_updateCredentialsOnStore_logOnThrow() async throws {
+        stateService.activeAccount = nil
+
+        await subject.updateCredentialsOnStore()
+
+        XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
+        XCTAssertEqual(subject.lastSyncedUserId, nil)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    // MARK: Private methods
+
+    /// Prepares fixture data for identities replacement tests.
+    func prepareDataForIdentitiesReplacement() {
         cipherService.fetchAllCiphersResult = .success([
             .fixture(
                 id: "1",
@@ -124,6 +171,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
             ),
             .fixture(deletedDate: .now, id: "4", type: .login),
         ])
+
         credentialIdentityFactory.createCredentialIdentitiesMocker
             .withResult { cipher in
                 if cipher.id == "1" {
@@ -150,12 +198,5 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
                     []
                 }
             }
-
-        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
-
-        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
-        XCTAssertFalse(credentialIdentityFactory.createCredentialIdentitiesMocker.called)
-        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
-        XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
     }
 }

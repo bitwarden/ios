@@ -5,11 +5,13 @@
 class ExtensionActivationProcessor: StateProcessor<
     ExtensionActivationState,
     ExtensionActivationAction,
-    Void,
+    ExtensionActivationEffect,
 > {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -39,6 +41,13 @@ class ExtensionActivationProcessor: StateProcessor<
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: ExtensionActivationEffect) async {
+        switch effect {
+        case .appeared:
+            await services.autofillCredentialService.updateCredentialsOnStore()
+        }
+    }
 
     override func receive(_ action: ExtensionActivationAction) {
         switch action {
