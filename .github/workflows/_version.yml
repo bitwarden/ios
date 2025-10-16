@@ -4,6 +4,9 @@ name: Calculate Version Name and Number
 on:
   workflow_dispatch:
     inputs:
+      app_codename:
+        description: "App Name - e.g. 'bwpm' or 'bwa'"
+        default: "bwpm"
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
@@ -21,6 +24,10 @@ on:
         type: boolean
   workflow_call:
     inputs:
+      app_codename:
+        description: "App Name - e.g. 'bwpm' or 'bwa'"
+        type: string
+        default: "bwpm"
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
@@ -95,8 +102,9 @@ jobs:
           current_month=$(date +%-m)
 
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
+          latest_tag_version=$(git tag -l --sort=-creatordate | grep "$app_codename" | head -n 1)
           if [[ -z "$latest_tag_version" ]]; then
-            version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}"
+            version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}-${{ inputs.app_codename }}"
             echo "::warning::No tags found, did you checkout? Calculating version from current date: $version_name"
             output "$version_name"
             exit 0
