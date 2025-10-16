@@ -20,6 +20,8 @@ extension BitwardenSdk.InitUserCryptoMethod {
             "PIN"
         case .pinEnvelope:
             "PIN Envelope"
+        case .masterPasswordUnlock:
+            "Master Password Unlock"
         }
     }
 }

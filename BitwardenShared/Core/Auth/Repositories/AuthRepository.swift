@@ -1131,6 +1131,7 @@ extension DefaultAuthRepository: AuthRepository {
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
+             .masterPasswordUnlock,
              .pin,
              .pinEnvelope:
             // No-op: nothing extra to do.
@@ -1272,7 +1273,8 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
                 await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
             }
-        case .pinEnvelope:
+        case .masterPasswordUnlock,
+             .pinEnvelope:
             break
         }
     }
