@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AnyCoordinator
 
 /// A type erased wrapper for a coordinator.
