@@ -24,30 +24,37 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     let vaultListDataPreparator: VaultListDataPreparator
 
     func make(filter: VaultListFilter) -> VaultListDirectorStrategy {
-        if filter.mode == .passwords {
+        switch filter.mode {
+        case .passwords:
             return PasswordsAutofillVaultListDirectorStrategy(
                 builderFactory: vaultListBuilderFactory,
                 cipherService: cipherService,
-                vaultListDataPreparator: vaultListDataPreparator
+                vaultListDataPreparator: vaultListDataPreparator,
             )
-        }
+        case .combinedSingleSection:
+            return CombinedSingleAutofillVaultListDirectorStrategy(
+                builderFactory: vaultListBuilderFactory,
+                cipherService: cipherService,
+                vaultListDataPreparator: vaultListDataPreparator,
+            )
+        default:
+            if filter.group != nil {
+                return MainVaultListGroupDirectorStrategy(
+                    builderFactory: vaultListBuilderFactory,
+                    cipherService: cipherService,
+                    collectionService: collectionService,
+                    folderService: folderService,
+                    vaultListDataPreparator: vaultListDataPreparator,
+                )
+            }
 
-        if filter.group != nil {
-            return MainVaultListGroupDirectorStrategy(
+            return MainVaultListDirectorStrategy(
                 builderFactory: vaultListBuilderFactory,
                 cipherService: cipherService,
                 collectionService: collectionService,
                 folderService: folderService,
-                vaultListDataPreparator: vaultListDataPreparator
+                vaultListDataPreparator: vaultListDataPreparator,
             )
         }
-
-        return MainVaultListDirectorStrategy(
-            builderFactory: vaultListBuilderFactory,
-            cipherService: cipherService,
-            collectionService: collectionService,
-            folderService: folderService,
-            vaultListDataPreparator: vaultListDataPreparator
-        )
     }
 }

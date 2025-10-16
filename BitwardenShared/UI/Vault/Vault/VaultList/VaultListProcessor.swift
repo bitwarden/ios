@@ -12,13 +12,14 @@ import SwiftUI
 final class VaultListProcessor: StateProcessor<
     VaultListState,
     VaultListAction,
-    VaultListEffect
+    VaultListEffect,
 > {
     // MARK: Types
 
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasChangeKdfService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -67,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -104,7 +105,7 @@ final class VaultListProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
@@ -205,6 +206,24 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+    }
+
+    /// Checks if the user needs to update their KDF settings.
+    private func checkIfForceKdfUpdateRequired() async {
+        guard await services.changeKdfService.needsKdfUpdateToMinimums() else { return }
+
+        coordinator.showAlert(.updateEncryptionSettings { password in
+            self.coordinator.showLoadingOverlay(title: Localizations.updating)
+            defer { self.coordinator.hideLoadingOverlay() }
+
+            do {
+                try await self.services.changeKdfService.updateKdfToMinimums(password: password)
+                self.coordinator.showToast(Localizations.encryptionSettingsUpdated)
+            } catch {
+                self.services.errorReporter.log(error: error)
+                await self.coordinator.showErrorAlert(error: error)
+            }
+        })
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -333,7 +352,7 @@ extension VaultListProcessor {
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
                 filter: state.vaultFilterType,
-                isPeriodic: syncWithPeriodicCheck
+                isPeriodic: syncWithPeriodicCheck,
             )
 
             if try await services.vaultRepository.isVaultEmpty() {
@@ -342,6 +361,8 @@ extension VaultListProcessor {
                 // will be published by the database, so it needs to be manually updated.
                 state.loadingState = .data([])
             }
+
+            await checkIfForceKdfUpdateRequired()
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
@@ -357,7 +378,7 @@ extension VaultListProcessor {
                     // If the vault needs a sync and there were no cached items,
                     // show the full screen error view.
                     state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
                     )
                 }
             } else {
@@ -394,7 +415,7 @@ extension VaultListProcessor {
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
-            }
+            },
         )
     }
 
@@ -410,7 +431,7 @@ extension VaultListProcessor {
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType)
+                filter: VaultListFilter(filterType: state.searchVaultFilterType),
             )
             for try await ciphers in result {
                 return ciphers
@@ -558,7 +579,7 @@ enum MoreOptionsAction: Equatable {
         value: String,
         requiresMasterPasswordReprompt: Bool,
         logEvent: EventType?,
-        cipherId: String?
+        cipherId: String?,
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.

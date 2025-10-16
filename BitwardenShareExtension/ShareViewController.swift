@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenShared
 import Social
 import UIKit
@@ -65,7 +66,7 @@ class ShareViewController: UIViewController {
                 appContext: .appExtension,
                 initialRoute: nil,
                 navigator: self,
-                window: nil
+                window: nil,
             )
         }
     }

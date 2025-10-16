@@ -47,19 +47,19 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .toast(store.binding(
             get: \.toast,
-            send: ItemListAction.toastShown
+            send: ItemListAction.toastShown,
         ))
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
         .toast(store.binding(
             get: \.toast,
-            send: ItemListAction.toastShown
+            send: ItemListAction.toastShown,
         ))
         .animation(.default, value: isSearching)
         .toast(store.binding(
             get: \.toast,
-            send: ItemListAction.toastShown
+            send: ItemListAction.toastShown,
         ))
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
@@ -135,7 +135,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             bodyText: Localizations.storeAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp,
             buttonText: Localizations.downloadTheBitwardenApp,
             leftImage: {
-                Image(decorative: Asset.Images.bwLogo)
+                Image(decorative: SharedAsset.Icons.shield24)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
@@ -147,7 +147,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 Task {
                     await store.perform(.closeCard(.passwordManagerDownload))
                 }
-            }
+            },
         )
         .padding(.top, 16)
     }
@@ -159,7 +159,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
-                Image(decorative: Asset.Images.syncArrow)
+                Image(decorative: SharedAsset.Icons.arrowSync24)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
@@ -175,7 +175,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             },
             secondaryActionTapped: {
                 openURL(ExternalLinksConstants.totpSyncHelp)
-            }
+            },
         )
         .padding(.top, 16)
     }
@@ -216,7 +216,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 HStack(spacing: 4) {
                     Text(Localizations.copy)
                     Spacer()
-                    Image(decorative: Asset.Images.copy)
+                    Image(decorative: SharedAsset.Icons.copy16)
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                 }
             }
@@ -228,7 +228,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     HStack(spacing: 4) {
                         Text(Localizations.edit)
                         Spacer()
-                        Image(decorative: Asset.Images.pencil)
+                        Image(decorative: SharedAsset.Icons.pencil24)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
@@ -240,7 +240,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         HStack(spacing: 4) {
                             Text(Localizations.copyToBitwardenVault)
                             Spacer()
-                            Image(decorative: Asset.Images.rightArrow)
+                            Image(decorative: SharedAsset.Icons.arrowRight16)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
                         }
                     }
@@ -254,7 +254,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     HStack(spacing: 4) {
                         Text(Localizations.delete)
                         Spacer()
-                        Image(decorative: Asset.Images.trash)
+                        Image(decorative: SharedAsset.Icons.trash16)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
@@ -262,7 +262,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
         } label: {
             itemListItemRow(
                 for: item,
-                isLastInSection: isLastInSection
+                isLastInSection: isLastInSection,
             )
         } primaryAction: {
             store.send(.itemPressed(item))
@@ -329,13 +329,13 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         iconBaseURL: state.iconBaseURL,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons
+                        showWebIcons: state.showWebIcons,
                     )
                 },
                 mapAction: nil,
-                mapEffect: nil
+                mapEffect: nil,
             ),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 }
@@ -355,9 +355,9 @@ struct ItemListView: View {
     /// How the screen title is displayed, which depends on iOS version.
     private var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
         if #available(iOS 26, *) {
-            return .inline
+            .inline
         } else {
-            return .large
+            .large
         }
     }
 
@@ -365,15 +365,15 @@ struct ItemListView: View {
         ZStack {
             SearchableItemListView(
                 store: store,
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
             .searchable(
                 text: store.binding(
                     get: \.searchText,
-                    send: ItemListAction.searchTextChanged
+                    send: ItemListAction.searchTextChanged,
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: Localizations.search,
             )
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
@@ -404,11 +404,11 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 store: Store(
                     processor: StateProcessor(
                         state: ItemListState(
-                            loadingState: .loading(nil)
-                        )
-                    )
+                            loadingState: .loading(nil),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("Loading")
 
@@ -417,11 +417,11 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 store: Store(
                     processor: StateProcessor(
                         state: ItemListState(
-                            loadingState: .data([])
-                        )
-                    )
+                            loadingState: .data([]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("Empty")
 
@@ -445,13 +445,13 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                         totpCode: TOTPCodeModel(
                                                             code: "123456",
                                                             codeGenerationDate: Date(),
-                                                            period: 30
-                                                        )
-                                                    )
-                                                )
+                                                            period: 30,
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                         ],
-                                        name: "Favorites"
+                                        name: "Favorites",
                                     ),
                                     ItemListSection(
                                         id: "Section",
@@ -466,10 +466,10 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                         totpCode: TOTPCodeModel(
                                                             code: "123456",
                                                             codeGenerationDate: Date(),
-                                                            period: 30
-                                                        )
-                                                    )
-                                                )
+                                                            period: 30,
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                             ItemListItem(
                                                 id: "Two",
@@ -481,20 +481,20 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                         totpCode: TOTPCodeModel(
                                                             code: "123456",
                                                             codeGenerationDate: Date(),
-                                                            period: 30
-                                                        )
-                                                    )
-                                                )
+                                                            period: 30,
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                         ],
-                                        name: "Personal"
+                                        name: "Personal",
                                     ),
-                                ]
-                            )
-                        )
-                    )
+                                ],
+                            ),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("Items with Favorite")
 
@@ -518,10 +518,10 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                         totpCode: TOTPCodeModel(
                                                             code: "123456",
                                                             codeGenerationDate: Date(),
-                                                            period: 30
-                                                        )
-                                                    )
-                                                )
+                                                            period: 30,
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                             ItemListItem(
                                                 id: "Two",
@@ -533,20 +533,20 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                         totpCode: TOTPCodeModel(
                                                             code: "123456",
                                                             codeGenerationDate: Date(),
-                                                            period: 30
-                                                        )
-                                                    )
-                                                )
+                                                            period: 30,
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                         ],
-                                        name: ""
+                                        name: "",
                                     ),
-                                ]
-                            )
-                        )
-                    )
+                                ],
+                            ),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("Items without Favorite")
 
@@ -556,11 +556,11 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                     processor: StateProcessor(
                         state: ItemListState(
                             searchResults: [],
-                            searchText: "Example"
-                        )
-                    )
+                            searchText: "Example",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("0 Search Results")
 
@@ -580,17 +580,17 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
-                                    )
+                                                period: 30,
+                                            ),
+                                        ),
+                                    ),
                                 ),
                             ],
-                            searchText: "One"
-                        )
-                    )
+                            searchText: "One",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("1 Search Result")
 
@@ -610,10 +610,10 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
-                                    )
+                                                period: 30,
+                                            ),
+                                        ),
+                                    ),
                                 ),
                                 ItemListItem(
                                     id: "Two",
@@ -625,10 +625,10 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
-                                    )
+                                                period: 30,
+                                            ),
+                                        ),
+                                    ),
                                 ),
                                 ItemListItem(
                                     id: "Three",
@@ -640,17 +640,17 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
-                                    )
+                                                period: 30,
+                                            ),
+                                        ),
+                                    ),
                                 ),
                             ],
-                            searchText: "One"
-                        )
-                    )
+                            searchText: "One",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("3 Search Results")
 
@@ -659,11 +659,11 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 store: Store(
                     processor: StateProcessor(
                         state: ItemListState(
-                            loadingState: .data([ItemListSection.digitsFixture(accountNames: true)])
-                        )
-                    )
+                            loadingState: .data([ItemListSection.digitsFixture(accountNames: true)]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("Digits")
 
@@ -677,13 +677,13 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                 ItemListSection(
                                     id: "",
                                     items: [.syncError()],
-                                    name: ""
+                                    name: "",
                                 ),
-                            ])
-                        )
-                    )
+                            ]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("SyncError")
 
@@ -707,19 +707,19 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                                     totpCode: TOTPCodeModel(
                                                         code: "123456",
                                                         codeGenerationDate: Date(),
-                                                        period: 30
-                                                    )
-                                                )
-                                            )
+                                                        period: 30,
+                                                    ),
+                                                ),
+                                            ),
                                         ),
                                     ],
                                     name: "example.com",
                                 ),
-                            ])
-                        )
-                    )
+                            ]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("SharedItems")
     }

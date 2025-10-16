@@ -1,3 +1,5 @@
+// swiftlint:disable:this file_name
+
 import BitwardenSdk
 
 /// A private key, encrypted with a symmetric key.

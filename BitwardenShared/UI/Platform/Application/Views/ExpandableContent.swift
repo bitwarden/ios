@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -48,7 +49,7 @@ struct ExpandableContent<Content: View>: View {
                 Text(title)
                     .styleGuide(.callout, weight: .semibold)
 
-                Asset.Images.chevronDown16.swiftUIImage
+                SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             }
@@ -56,7 +57,7 @@ struct ExpandableContent<Content: View>: View {
             .foregroundStyle(
                 isEnabled
                     ? SharedAsset.Colors.textInteraction.swiftUIColor
-                    : SharedAsset.Colors.textDisabled.swiftUIColor
+                    : SharedAsset.Colors.textDisabled.swiftUIColor,
             )
         }
         .accessibilityAddTraits(.isHeader)
@@ -79,7 +80,7 @@ struct ExpandableContent<Content: View>: View {
         title: String,
         isExpanded: Binding<Bool>,
         buttonAccessibilityIdentifier: String = "ExpandSectionButton",
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.buttonAccessibilityIdentifier = buttonAccessibilityIdentifier
         self.content = content()

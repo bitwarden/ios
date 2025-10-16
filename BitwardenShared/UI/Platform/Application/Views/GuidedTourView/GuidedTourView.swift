@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -86,7 +87,7 @@ struct GuidedTourView: View {
     @ViewBuilder private var arrowView: some View {
         let coachMarkVerticalPosition = calculateCoachMarkPosition()
         let shouldRotateArrow = coachMarkVerticalPosition == .top
-        Image(asset: Asset.Images.arrowUp)
+        Image(asset: SharedAsset.Icons.arrowUp)
             .opacity(isArrowVisible ? 1 : 0)
             .rotationEffect(.degrees(shouldRotateArrow ? 180 : 0))
             .animation(.smooth(duration: animationDuration), value: shouldRotateArrow)
@@ -96,7 +97,7 @@ struct GuidedTourView: View {
                     ? calculateArrowAbsoluteYPosition()
                     : (shouldRotateArrow
                         ? calculateArrowAbsoluteYPosition() - arrowSize.height
-                        : calculateArrowAbsoluteYPosition() + arrowSize.height)
+                        : calculateArrowAbsoluteYPosition() + arrowSize.height),
             )
             .smoothTransition(animation: .smooth(duration: animationDuration), value: store.state.currentIndex)
     }
@@ -110,7 +111,7 @@ struct GuidedTourView: View {
     private var spotlightMask: some View {
         Spotlight(
             spotlight: store.state.currentStepState.spotlightRegion,
-            spotlightShape: store.state.currentStepState.spotlightShape
+            spotlightShape: store.state.currentStepState.spotlightShape,
         )
         .fill(style: FillStyle(eoFill: true))
     }
@@ -128,7 +129,7 @@ struct GuidedTourView: View {
                     .dynamicTypeSize(...maxDynamicTypeSize)
                     .smoothTransition(
                         animation: .smooth(duration: animationDuration),
-                        value: store.state.currentStepState
+                        value: store.state.currentStepState,
                     )
 
                 Spacer()
@@ -136,7 +137,7 @@ struct GuidedTourView: View {
                 Button {
                     store.send(.dismissTapped)
                 } label: {
-                    Image(asset: Asset.Images.close16, label: Text(Localizations.dismiss))
+                    Image(asset: SharedAsset.Icons.close16, label: Text(Localizations.dismiss))
                         .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                 }
             }
@@ -147,7 +148,7 @@ struct GuidedTourView: View {
                 .styleGuide(.body)
                 .smoothTransition(
                     animation: .smooth(duration: animationDuration),
-                    value: store.state.currentStepState
+                    value: store.state.currentStepState,
                 )
 
             cardNavigationButtons()
@@ -173,7 +174,7 @@ struct GuidedTourView: View {
                 }
                 .smoothTransition(
                     animation: .smooth(duration: animationDuration),
-                    value: store.state.currentStepState
+                    value: store.state.currentStepState,
                 )
             }
 
@@ -188,7 +189,7 @@ struct GuidedTourView: View {
 
             } label: {
                 Text(
-                    store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done
+                    store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done,
                 )
                 .styleGuide(.callout, weight: .semibold)
                 .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
@@ -197,7 +198,7 @@ struct GuidedTourView: View {
             }
             .smoothTransition(
                 animation: .smooth(duration: animationDuration),
-                value: store.state.currentStepState
+                value: store.state.currentStepState,
             )
         }
         .padding(0)
@@ -227,7 +228,7 @@ struct GuidedTourView: View {
             .padding(.trailing, cardTrailingPadding)
             .smoothTransition(
                 animation: .smooth(duration: animationDuration),
-                value: store.state.currentStepState
+                value: store.state.currentStepState,
             )
 
             if calculateCoachMarkPosition() == .top {
@@ -240,7 +241,7 @@ struct GuidedTourView: View {
         .opacity(isCardVisible ? 1 : 0)
         .smoothTransition(
             animation: .smooth(duration: animationDuration),
-            value: store.state.currentStepState
+            value: store.state.currentStepState,
         )
     }
 }
@@ -410,10 +411,10 @@ struct GuidedTourView_Previews: PreviewProvider {
             processor: StateProcessor(
                 state: LoginItemState(
                     isTOTPAvailable: false,
-                    totpState: .none
-                )
-            )
-        )
+                    totpState: .none,
+                ),
+            ),
+        ),
     )
 
     static var previews: some View {
@@ -428,9 +429,9 @@ struct GuidedTourView_Previews: PreviewProvider {
                 GuidedTourView(
                     store: Store(
                         processor: StateProcessor(
-                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2])
-                        )
-                    )
+                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2]),
+                        ),
+                    ),
                 )
             }
             .transaction { transaction in
@@ -453,9 +454,9 @@ struct GuidedTourView_Previews: PreviewProvider {
                 GuidedTourView(
                     store: Store(
                         processor: StateProcessor(
-                            state: guidedTourViewState
-                        )
-                    )
+                            state: guidedTourViewState,
+                        ),
+                    ),
                 )
             }
             .transaction { transaction in

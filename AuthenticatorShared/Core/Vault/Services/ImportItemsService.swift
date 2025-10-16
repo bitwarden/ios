@@ -49,7 +49,7 @@ class DefaultImportItemsService: ImportItemsService {
     ///
     init(
         authenticatorItemRepository: AuthenticatorItemRepository,
-        errorReporter: ErrorReporter
+        errorReporter: ErrorReporter,
     ) {
         self.authenticatorItemRepository = authenticatorItemRepository
         self.errorReporter = errorReporter
@@ -58,18 +58,17 @@ class DefaultImportItemsService: ImportItemsService {
     // MARK: Methods
 
     func importItems(data: Data, format: ImportFileFormat) async throws {
-        let items: [AuthenticatorItemView]
-        switch format {
+        let items: [AuthenticatorItemView] = switch format {
         case .bitwardenJson:
-            items = try BitwardenImporter.importItems(data: data)
+            try BitwardenImporter.importItems(data: data)
         case .googleProtobuf:
-            items = try GoogleImporter.importItems(data: data)
+            try GoogleImporter.importItems(data: data)
         case .lastpassJson:
-            items = try LastpassImporter.importItems(data: data)
+            try LastpassImporter.importItems(data: data)
         case .raivoJson:
-            items = try RaivoImporter.importItems(data: data)
+            try RaivoImporter.importItems(data: data)
         case .twoFasJson:
-            items = try TwoFasImporter.importItems(data: data)
+            try TwoFasImporter.importItems(data: data)
         }
         try await items.asyncForEach { item in
             try await authenticatorItemRepository.addAuthenticatorItem(item)

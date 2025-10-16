@@ -12,7 +12,7 @@ extension CGRect {
             x: origin.x - value,
             y: origin.y - value,
             width: size.width + 2 * value,
-            height: size.height + 2 * value
+            height: size.height + 2 * value,
         )
     }
 }

@@ -43,7 +43,7 @@ enum CompleteRegistrationError: Error {
 class CompleteRegistrationProcessor: StateProcessor<
     CompleteRegistrationState,
     CompleteRegistrationAction,
-    CompleteRegistrationEffect
+    CompleteRegistrationEffect,
 > {
     // MARK: Types
 
@@ -75,7 +75,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: CompleteRegistrationState
+        state: CompleteRegistrationState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -114,7 +114,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         case .learnMoreTapped:
             coordinator.navigate(
                 to: .masterPasswordGuidance,
-                context: self
+                context: self,
             )
         case .preventAccountLockTapped:
             coordinator.navigate(to: .preventAccountLock)
@@ -175,19 +175,19 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     /// Performs an API request to create the user's account.
     private func createAccount() async throws {
-        let kdfConfig = KdfConfig()
+        let kdfConfig = KdfConfig.defaultKdfConfig
 
         let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
             email: state.userEmail,
             password: state.passwordText,
-            kdf: kdfConfig.sdkKdf
+            kdf: kdfConfig.sdkKdf,
         )
 
         let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
             email: state.userEmail,
             password: state.passwordText,
             kdfParams: kdfConfig.sdkKdf,
-            purpose: .serverAuthorization
+            purpose: .serverAuthorization,
         )
 
         _ = try await services.accountAPIService.registerFinish(
@@ -200,9 +200,9 @@ class CompleteRegistrationProcessor: StateProcessor<
                 userSymmetricKey: keys.encryptedUserKey,
                 userAsymmetricKeys: KeysRequestModel(
                     encryptedPrivateKey: keys.keys.private,
-                    publicKey: keys.keys.public
-                )
-            )
+                    publicKey: keys.keys.public,
+                ),
+            ),
         )
 
         state.didCreateAccount = true
@@ -230,7 +230,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                isNewAccount: true
+                isNewAccount: true,
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
@@ -291,7 +291,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         case .preAuthUrlsEmpty:
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
             ))
         }
     }
@@ -308,7 +308,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                 state.passwordStrengthScore = try await services.authRepository.passwordStrength(
                     email: state.userEmail,
                     password: state.passwordText,
-                    isPreAuth: true
+                    isPreAuth: true,
                 )
             } catch {
                 services.errorReporter.log(error: error)
@@ -328,7 +328,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             do {
                 try await services.accountAPIService.verifyEmailToken(
                     email: state.userEmail,
-                    emailVerificationToken: state.emailVerificationToken
+                    emailVerificationToken: state.emailVerificationToken,
                 )
                 state.toast = Toast(title: Localizations.emailVerified)
             } catch VerifyEmailTokenRequestError.tokenExpired {

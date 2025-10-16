@@ -24,7 +24,7 @@ struct FlightRecorderLogsView: View {
             .task { await store.perform(.loadData) }
             .toast(store.binding(
                 get: \.toast,
-                send: FlightRecorderLogsAction.toastShown
+                send: FlightRecorderLogsAction.toastShown,
             ))
             .toolbar {
                 closeToolbarItem {
@@ -55,7 +55,7 @@ struct FlightRecorderLogsView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
                 style: .mediumImage,
-                message: Localizations.noLogsRecorded
+                message: Localizations.noLogsRecorded,
             )
             .scrollView(centerContentVertically: true)
         }
@@ -107,7 +107,7 @@ struct FlightRecorderLogsView: View {
                 }
                 .disabled(log.isActiveLog)
             } label: {
-                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
             .accessibilityLabel(Localizations.more)
@@ -125,7 +125,7 @@ struct FlightRecorderLogsView: View {
 #Preview("Empty") {
     FlightRecorderLogsView(
         store: Store(processor: StateProcessor(state: FlightRecorderLogsState())),
-        timeProvider: PreviewTimeProvider()
+        timeProvider: PreviewTimeProvider(),
     )
     .navStackWrapped
 }
@@ -143,7 +143,7 @@ struct FlightRecorderLogsView: View {
                         id: "1",
                         isActiveLog: true,
                         startDate: Date(year: 2025, month: 4, day: 1),
-                        url: URL(string: "https://example.com")!
+                        url: URL(string: "https://example.com")!,
                     ),
                     FlightRecorderLogMetadata(
                         duration: .oneWeek,
@@ -153,7 +153,7 @@ struct FlightRecorderLogsView: View {
                         id: "2",
                         isActiveLog: false,
                         startDate: Date(year: 2025, month: 3, day: 7),
-                        url: URL(string: "https://example.com")!
+                        url: URL(string: "https://example.com")!,
                     ),
                     FlightRecorderLogMetadata(
                         duration: .oneHour,
@@ -163,7 +163,7 @@ struct FlightRecorderLogsView: View {
                         id: "3",
                         isActiveLog: false,
                         startDate: Date(year: 2025, month: 3, day: 3, hour: 12),
-                        url: URL(string: "https://example.com")!
+                        url: URL(string: "https://example.com")!,
                     ),
                     FlightRecorderLogMetadata(
                         duration: .twentyFourHours,
@@ -173,12 +173,12 @@ struct FlightRecorderLogsView: View {
                         id: "4",
                         isActiveLog: false,
                         startDate: Date(year: 2025, month: 3, day: 1),
-                        url: URL(string: "https://example.com")!
+                        url: URL(string: "https://example.com")!,
                     ),
-                ]
-            )
+                ],
+            ),
         )),
-        timeProvider: PreviewTimeProvider(fixedDate: Date(year: 2025, month: 4, day: 1))
+        timeProvider: PreviewTimeProvider(fixedDate: Date(year: 2025, month: 4, day: 1)),
     )
     .navStackWrapped
 }

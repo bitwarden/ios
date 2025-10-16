@@ -21,7 +21,7 @@ class TextAutofillOptionsHelperFactoryTests: BitwardenTestCase {
         vaultRepository = MockVaultRepository()
         subject = DefaultTextAutofillOptionsHelperFactory(
             errorReporter: errorReporter,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
     }
 

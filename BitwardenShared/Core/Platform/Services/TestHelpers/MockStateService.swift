@@ -7,6 +7,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
+    var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
@@ -89,6 +90,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
+    var setAccountKdfByUserId = [String: KdfConfig]()
     var setAccountSetupAutofillCalled = false
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
@@ -135,6 +137,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func getAccessTokenExpirationDate(userId: String) async -> Date? {
+        accessTokenExpirationDateByUserId[userId]
     }
 
     func didAccountSwitchInExtension() async throws -> Bool {
@@ -444,6 +450,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         pinUnlockRequiresPasswordAfterRestartValue
     }
 
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        accessTokenExpirationDateByUserId[userId] = expirationDate
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
@@ -454,9 +464,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try setAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {
+        setAccountKdfByUserId[userId] = kdfConfig
+    }
+
     func setAccountMasterPasswordUnlock(
         _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
-        userId: String
+        userId: String,
     ) async {
         masterPasswordUnlockByUserId[userId] = masterPasswordUnlock
     }
@@ -506,7 +520,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setAppRehydrationState(
         _ rehydrationState: BitwardenShared.AppRehydrationState?,
-        userId: String?
+        userId: String?,
     ) async throws {
         if let setAppRehydrationStateError {
             throw setAppRehydrationStateError
@@ -651,7 +665,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         if requirePasswordAfterRestart {
             accountVolatileData[
                 userId,
-                default: AccountVolatileData()
+                default: AccountVolatileData(),
             ].pinProtectedUserKey = enrollPinResponse.pinProtectedUserKeyEnvelope
         }
     }
@@ -660,7 +674,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(nil)
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pin
     }
 

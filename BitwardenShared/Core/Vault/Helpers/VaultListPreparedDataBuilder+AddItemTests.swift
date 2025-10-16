@@ -11,6 +11,7 @@ import XCTest
 class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -22,21 +23,24 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
         subject = DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         clientService = nil
         errorReporter = nil
         stateService = nil
@@ -226,7 +230,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(collectionIds: ["col1"])
         let preparedData = await subject.addItem(
             forGroup: .collection(id: "col1", name: "C1", organizationId: "1"),
-            with: cipher
+            with: cipher,
         ).build()
 
         XCTAssertEqual(preparedData.groupItems.count, 1)
@@ -239,7 +243,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(collectionIds: ["col2"])
         let preparedData = await subject.addItem(
             forGroup: .collection(id: "col1", name: "C1", organizationId: "1"),
-            with: cipher
+            with: cipher,
         ).build()
 
         XCTAssertTrue(preparedData.groupItems.isEmpty)
@@ -250,7 +254,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(folderId: "folder1")
         let preparedData = await subject.addItem(
             forGroup: .folder(id: "folder1", name: "F1"),
-            with: cipher
+            with: cipher,
         ).build()
 
         XCTAssertEqual(preparedData.groupItems.count, 1)
@@ -262,7 +266,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(folderId: "folder2")
         let preparedData = await subject.addItem(
             forGroup: .folder(id: "folder1", name: "F1"),
-            with: cipher
+            with: cipher,
         ).build()
 
         XCTAssertTrue(preparedData.groupItems.isEmpty)

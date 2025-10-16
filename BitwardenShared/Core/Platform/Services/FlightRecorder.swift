@@ -149,7 +149,7 @@ actor DefaultFlightRecorder {
         errorReporter: ErrorReporter,
         fileManager: FileManagerProtocol = FileManager.default,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.appInfoService = appInfoService
         self.errorReporter = errorReporter
@@ -195,18 +195,18 @@ actor DefaultFlightRecorder {
                         let components = Calendar.current.dateComponents(
                             [.second],
                             from: timeProvider.presentTime,
-                            to: nextLogLifecycleDate
+                            to: nextLogLifecycleDate,
                         )
                         guard let seconds = components.second else { return }
                         // Sleep for a minimum of 1 second to prevent continuous looping if the
                         // timer's sleep time is slightly off from the true expiration.
                         let sleepSeconds = max(Double(seconds), UI.duration(1))
 
-                        Logger.application.debug(
+                        Logger.flightRecorder.debug(
                             """
                             FlightRecorder: next log lifecycle: \(nextLogLifecycleDate), \
                             sleeping for \(sleepSeconds) seconds
-                            """
+                            """,
                         )
                         try await Task.sleep(forSeconds: sleepSeconds)
                         await self?.evaluateLogLifecycles()
@@ -217,7 +217,7 @@ actor DefaultFlightRecorder {
                     await self?.errorReporter.log(error: BitwardenError.generalError(
                         type: "Flight Recorder Log Lifecycle Timer Error",
                         message: "Error waiting for next flight recorder log lifecycle",
-                        error: error
+                        error: error,
                     ))
                 }
             }
@@ -252,15 +252,15 @@ actor DefaultFlightRecorder {
 
         // Check if the active log should be disabled after its duration has elapsed.
         if let activeLog = data.activeLog, activeLog.endDate <= timeProvider.presentTime {
-            Logger.application.debug("FlightRecorder: active log reached end date, deactivating")
+            Logger.flightRecorder.debug("FlightRecorder: active log reached end date, deactivating")
             data.activeLog = nil
         }
 
         for (index, log) in data.inactiveLogs.enumerated() {
             guard log.expirationDate <= timeProvider.presentTime else { continue }
 
-            Logger.application.debug(
-                "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)"
+            Logger.flightRecorder.debug(
+                "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)",
             )
 
             do {
@@ -269,7 +269,7 @@ actor DefaultFlightRecorder {
                 errorReporter.log(error: BitwardenError.generalError(
                     type: "Flight Recorder Remove Log Error",
                     message: "Unable to remove file for expired log",
-                    error: error
+                    error: error,
                 ))
             }
 
@@ -301,7 +301,7 @@ actor DefaultFlightRecorder {
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Flight Recorder File Size Error",
                 message: "Unable to determine the log's file size",
-                error: error
+                error: error,
             ))
             return ""
         }
@@ -421,7 +421,7 @@ extension DefaultFlightRecorder: FlightRecorder {
                 id: log.fileName,
                 isActiveLog: log.id == data.activeLog?.id,
                 startDate: log.startDate,
-                url: fileURL(for: log)
+                url: fileURL(for: log),
             )
         }
     }
@@ -433,6 +433,7 @@ extension DefaultFlightRecorder: FlightRecorder {
 
     func log(_ message: String, file: String, line: UInt) async {
         guard var data = await getFlightRecorderData(), let log = data.activeLog else { return }
+        Logger.flightRecorder.debug("\(message)")
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)
@@ -447,7 +448,7 @@ extension DefaultFlightRecorder: FlightRecorder {
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Flight Recorder Log Error",
                 message: "\(fileName):\(line) Unable to write message to log: \(message)",
-                error: error
+                error: error,
             ))
         }
     }

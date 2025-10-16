@@ -34,7 +34,7 @@ public class AlertAction {
         title: String,
         style: UIAlertAction.Style,
         handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil,
-        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
     ) {
         self.title = title
         self.shouldEnableAction = shouldEnableAction
@@ -55,7 +55,7 @@ public class AlertAction {
         title: String,
         style: UIAlertAction.Style,
         handler: @escaping (AlertAction) async -> Void,
-        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
     ) {
         self.title = title
         self.shouldEnableAction = shouldEnableAction

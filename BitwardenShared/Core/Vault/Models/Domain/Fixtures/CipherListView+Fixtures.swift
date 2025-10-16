@@ -24,7 +24,7 @@ extension CipherListView {
         revisionDate: Date = Date(),
         archivedDate: Date? = nil,
         copyableFields: [CopyableCipherFields] = [],
-        localData: LocalDataView? = nil
+        localData: LocalDataView? = nil,
     ) -> CipherListView {
         .init(
             id: id,
@@ -48,7 +48,7 @@ extension CipherListView {
             revisionDate: revisionDate,
             archivedDate: archivedDate,
             copyableFields: copyableFields,
-            localData: localData
+            localData: localData,
         )
     }
 
@@ -74,7 +74,7 @@ extension CipherListView {
         revisionDate: Date = Date(),
         archivedDate: Date? = nil,
         copyableFields: [CopyableCipherFields] = [],
-        localData: LocalDataView? = nil
+        localData: LocalDataView? = nil,
     ) -> CipherListView {
         .init(
             id: id,
@@ -98,7 +98,7 @@ extension CipherListView {
             revisionDate: revisionDate,
             archivedDate: archivedDate,
             copyableFields: copyableFields,
-            localData: localData
+            localData: localData,
         )
     }
 }

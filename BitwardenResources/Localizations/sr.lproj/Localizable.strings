@@ -12,7 +12,7 @@
 "Credits" = "Заслуге";
 "Delete" = "Обриши";
 "DeleteAll" = "Избриши све";
-"Deleting" = "Брисање...";
+"Deleting" = "Брисање…";
 "DoYouReallyWantToDelete" = "Да ли сигурно желите да избришете? Ово се не може поништити.";
 "Edit" = "Уреди";
 "EditFolder" = "Уреди фасциклу";
@@ -55,11 +55,11 @@
 "Name" = "Име";
 "No" = "Не";
 "Notes" = "Белешке";
-"Ok" = "У реду";
+"OK" = "У реду";
 "Password" = "Лозинка";
 "Save" = "Сачувај";
 "Move" = "Премести";
-"Saving" = "Чување...";
+"Saving" = "Чување…";
 "Settings" = "Подешавања";
 "Show" = "Прикажи";
 "ItemDeleted" = "Ставка је избрисана.";
@@ -107,7 +107,7 @@
 "Close" = "Затвори";
 "Continue" = "Настави";
 "CreateAccount" = "Креирај налог";
-"CreatingAccount" = "Креирање налога...";
+"CreatingAccount" = "Креирање налога…";
 "EditItem" = "Уреди ставку";
 "EnableAutomaticSyncing" = "Активирај аутоматску синхронизацију";
 "EnterEmailForHint" = "Унеси адресу Е-поште да би добио савет за твоју Главну Лозинку.";
@@ -137,7 +137,7 @@
 "VaultTimeout" = "Тајмаут сефа";
 "VaultTimeoutAction" = "Акција на тајмаут сефа";
 "VaultTimeoutLogOutConfirmation" = "Одјава ће уклонити сваки приступ вашем сефу и захтева мрежну потврду идентитета након истека тајмаута. Да ли сте сигурни да желите да користите ову поставку?";
-"LoggingIn" = "Пријављивање...";
+"LoggingIn" = "Пријављивање…";
 "LogInToBitwarden" = "Пријави се на Bitwarden";
 "Manage" = "Управљати";
 "MasterPasswordConfirmationValMessage" = "Потврђена лозинка није тачна.";
@@ -155,7 +155,7 @@
 "NoItems" = "У вашем сефу нема ставке.";
 "NoItemsTap" = "У вашем сефу нема ставке за ову веб локацију/апликацију. Додирните да бисте додали једну.";
 "NoUsernamePasswordConfigured" = "Ова пријава нема конфигурисано корисничко име или лозинку.";
-"OkGotIt" = "У реду, схватам!";
+"OKGotIt" = "У реду, схватам!";
 "OptionDefaults" = "Подразумеване опције се постављају у главној Bitwarden апликацији у генератору лозинке.";
 "Options" = "Опције";
 "Other" = "Остало";
@@ -174,9 +174,9 @@
 "SetPIN" = "Подесити PIN";
 "SetPINDirection" = "Унесите четвороцифрени ПИН за откључавање апликације.";
 "ItemUpdated" = "Ставка ажурирана.";
-"Submitting" = "Слање...";
-"Syncing" = "Синхронизација...";
-"SyncingLogins" = "Синхронизовање пријављивања...";
+"Submitting" = "Постављање…";
+"Syncing" = "Синхронизација…";
+"SyncingLogins" = "Синхронизовање пријављивања…";
 "SyncingComplete" = "Синхронизација је завршена.";
 "SyncingFailed" = "Синхронизација није успела.";
 "SyncVaultNow" = "Синхронизуј сеф одмах";
@@ -199,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "Када изабереш поље за унос и видиш Bitwarden прозор за аутоматско попуњавање, можеш да га додирнеш да би покренуо услугу аутоматског попуњавања.";
 "BitwardenAutofillServiceNotificationContent" = "Додирни ово обавештење да би аутоматски попунио ставку из сефа.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Отворити подешавања приступачности";
-"BitwardenAutofillServiceStep1" = "1. На екрану Подешавања Приступачности Android-а, додирните „Bitwarden“ под насловом Услуге.";
+"BitwardenAutofillServiceStep1" = "1. На екрану Подешавања Приступачности Android-а, додирни „Bitwarden“ под насловом Услуге.";
 "BitwardenAutofillServiceStep2" = "2. Укључите прекидач и притисните ОК да бисте прихватили.";
 "Disabled" = "Онемогућено";
 "Enabled" = "Омогућено";
@@ -236,7 +236,7 @@
 "Attachments" = "Прилози";
 "UnableToDownloadFile" = "Не могу да преузмем датотеку.";
 "UnableToOpenFile" = "Уређај не може да отвори ову врсту датотеке.";
-"Downloading" = "Преузимање...";
+"Downloading" = "Преузимање…";
 "AttachmentLargeWarning" = "Овај прилог има %1$@. Да ли сте сигурни да желите да га преузмете на свој уређај?";
 "AuthenticatorKey" = "Кључ аутентификатора";
 "VerificationCodeTotp" = "Једнократни код";
@@ -375,7 +375,7 @@
 "BitwardenAutofillDescription" = "Приступите сефу директно са тастатуре да бисте брзо ауто-пунили лозинке.";
 "AutofillTurnOn" = "Да бисте омогућили ауто-пуњење лозинке на уређају, пратите ова упутства:";
 "AutofillTurnOn1" = "1. Идите у „Подешавања“ iOS-а";
-"AutofillTurnOn2" = "2. Стисните „Лозинке & Рачуни“";
+"AutofillTurnOn2" = "2. Стисните „Лозинке“";
 "AutofillTurnOn3" = "3. Стисните „Ауто-Пуњење Лозинке“";
 "AutofillTurnOn4" = "4. Омогућите ауто-пуњење";
 "AutofillTurnOn5" = "5. Одаберите „Bitwarden“";
@@ -387,7 +387,7 @@
 "Logins" = "Пријаве";
 "SecureNotes" = "Сигурносне белешке";
 "AllItems" = "Све ставке";
-"CheckingPassword" = "Проверавање лозинке...";
+"CheckingPassword" = "Проверaвање лозинкe…";
 "CheckPassword" = "Проверите да ли је лозинка изложена.";
 "PasswordExposed" = "Ова лозинка је изложена %1$@ пута. Требали би да је промените.";
 "PasswordSafe" = "Ова лозинка није никада изложена. Треба да је сигурна за употребу.";
@@ -494,9 +494,9 @@
 "Open" = "Отвори";
 "UnableToSaveAttachment" = "Дошло је до проблема при чувању овог прилога. Ако се проблем настави, можете га сачувати из веб сефа.";
 "SaveAttachmentSuccess" = "Прилог успешно сачуван";
-"AutofillTileAccessibilityRequired" = "Омогућите „Ауто-пуњење услуге приступачности“ из подешавања Bitwarden-а да би употребили ауто-пуњење.";
+"AutofillTileAccessibilityRequired" = "Please turn on “Autofill Accessibility Service” from Bitwarden Settings to use the Autofill tile.";
 "AutofillTileUriNotFound" = "Поље са лозинком није нађен";
-"SoftDeleting" = "Слање у отпад...";
+"SoftDeleting" = "Слање у отпад…";
 "ItemSoftDeleted" = "Ставка је послата у отпад.";
 "Restore" = "Поврати";
 "Restoring" = "Враћање…";
@@ -884,7 +884,7 @@
 "ErrorReadingPasskey" = "Грешка у читању приступног кључа";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "Дошло је до проблема при креирању приступачког кључа за %1$@. Покушајте поново касније.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "Дошло је до проблема при читању приступачког кључа за %1$@. Покушајте поново касније.";
-"VerifyingIdentityEllipsis" = "Верификација идентитета...";
+"VerifyingIdentityEllipsis" = "Верификација идентитета…";
 "Passwords" = "Лозинке";
 "UnknownAccount" = "Непознат налог";
 "SetUpAutofill" = "Подесити ауто-пуњење";
@@ -1087,7 +1087,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можда ћете морати да омогућите шифру или биометрију уређаја.";
 "StartImportCXFDescriptionLong" = "Увезите лозинке, фразе, кредитне картице и сваки други вид идентификације из другог менаџера лозинки.\n\nВаши подаци **неће** бити обрисани из вашег ранијег провајдера.";
 "ImportPasswords" = "Увези лозинке";
-"ImportingEllipsis" = "Увожење...";
+"ImportingEllipsis" = "Увоз…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
 "ItemsSuccessfullyImported" = "%1$@ ставки је успешно увежено";
@@ -1288,3 +1288,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Пажња:** „Почиње са“ је напредна опција са повећаним ризиком од откривања акредитива.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Пажња:** „Регуларни израз“ је напредна опција са повећаним ризиком од откривања акредитива ако се неправилно користе.";
 "DefaultX" = "Подразумевано (%1$@)";
+"UpdateYourEncryptionSettings" = "Ажурирајте своје поставке за шифровање";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање.";
+"Updating" = "Ажурирање...";
+"EncryptionSettingsUpdated" = "Подешавања шифровања су ажурирани";

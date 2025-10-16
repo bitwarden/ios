@@ -34,7 +34,7 @@ public class AppProcessor {
     ///
     public init(
         appModule: AppModule,
-        services: ServiceContainer
+        services: ServiceContainer,
     ) {
         self.appModule = appModule
         self.services = services
@@ -77,7 +77,7 @@ public class AppProcessor {
         appContext: AppContext,
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
-        window: UIWindow?
+        window: UIWindow?,
     ) async {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()

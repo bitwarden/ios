@@ -59,7 +59,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         delegate: SendItemDelegate,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.module = module
@@ -98,7 +98,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
             guard let handler = context as? ProfileSwitcherHandler else { return }
             showProfileSwitcher(
                 handler: handler,
-                module: module
+                module: module,
             )
         }
     }
@@ -148,7 +148,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         let processor = AddEditSendItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
         stackNavigator?.replace(view)
@@ -165,7 +165,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
             let processor = AddEditSendItemProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: state
+                state: state,
             )
             let view = AddEditSendItemView(store: Store(processor: processor))
             stackNavigator.replace(view)
@@ -182,12 +182,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     ///
     private func showFileSelection(
         route: FileSelectionRoute,
-        delegate: FileSelectionDelegate
+        delegate: FileSelectionDelegate,
     ) {
         guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -201,7 +201,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     private func showShareSheet(for items: [Any]) {
         let viewController = UIActivityViewController(
             activityItems: items,
-            applicationActivities: nil
+            applicationActivities: nil,
         )
         stackNavigator?.present(viewController)
     }
@@ -215,7 +215,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         let processor = ViewSendItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         stackNavigator?.replace(ViewSendItemView(store: Store(processor: processor)))
     }

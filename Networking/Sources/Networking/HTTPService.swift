@@ -49,7 +49,7 @@ public final class HTTPService: Sendable {
         loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
-        tokenProvider: TokenProvider? = nil
+        tokenProvider: TokenProvider? = nil,
     ) {
         baseURLGetter = { baseURL }
         self.client = client
@@ -78,7 +78,7 @@ public final class HTTPService: Sendable {
         loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
-        tokenProvider: TokenProvider? = nil
+        tokenProvider: TokenProvider? = nil,
     ) {
         self.baseURLGetter = baseURLGetter
         self.client = client
@@ -106,7 +106,7 @@ public final class HTTPService: Sendable {
     /// - Returns: The response received for the request.
     ///
     public func send<R: Request>(
-        _ request: R
+        _ request: R,
     ) async throws -> R.Response where R.Response: Response {
         try await send(request, shouldRetryIfUnauthorized: true)
     }
@@ -131,7 +131,7 @@ public final class HTTPService: Sendable {
     public func send(
         _ httpRequest: HTTPRequest,
         validate: ((HTTPResponse) throws -> Void)? = nil,
-        shouldRetryIfUnauthorized: Bool = false
+        shouldRetryIfUnauthorized: Bool = false,
     ) async throws -> HTTPResponse {
         var httpRequest = httpRequest
         try await applyRequestHandlers(&httpRequest)
@@ -145,7 +145,7 @@ public final class HTTPService: Sendable {
         }
 
         if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
-            try await tokenProvider.refreshToken()
+            _ = try await tokenProvider.refreshToken()
 
             // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
             return try await send(httpRequest, validate: validate, shouldRetryIfUnauthorized: false)
@@ -167,14 +167,14 @@ public final class HTTPService: Sendable {
     ///
     private func send<R: Request>(
         _ request: R,
-        shouldRetryIfUnauthorized: Bool
+        shouldRetryIfUnauthorized: Bool,
     ) async throws -> R.Response where R.Response: Response {
         let httpRequest = try HTTPRequest(request: request, baseURL: baseURL)
 
         let httpResponse = try await send(
             httpRequest,
             validate: request.validate,
-            shouldRetryIfUnauthorized: shouldRetryIfUnauthorized
+            shouldRetryIfUnauthorized: shouldRetryIfUnauthorized,
         )
 
         return try R.Response(response: httpResponse)

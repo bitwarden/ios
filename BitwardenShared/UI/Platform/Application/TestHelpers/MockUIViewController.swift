@@ -11,7 +11,7 @@ class MockUIViewController: UIViewController {
     override func present(
         _ viewControllerToPresent: UIViewController,
         animated _: Bool,
-        completion _: (() -> Void)? = nil
+        completion _: (() -> Void)? = nil,
     ) {
         presentCalled = true
         presentedView = viewControllerToPresent

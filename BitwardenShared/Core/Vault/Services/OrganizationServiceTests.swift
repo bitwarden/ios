@@ -27,7 +27,7 @@ class OrganizationServiceTests: XCTestCase {
             clientService: clientService,
             errorReporter: errorReporter,
             organizationDataStore: organizationDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -89,7 +89,7 @@ class OrganizationServiceTests: XCTestCase {
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",
-            ])
+            ]),
         )
     }
 
@@ -116,7 +116,7 @@ class OrganizationServiceTests: XCTestCase {
 
         XCTAssertEqual(
             clientService.mockCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [:])
+            InitOrgCryptoRequest(organizationKeys: [:]),
         )
     }
 
@@ -135,7 +135,7 @@ class OrganizationServiceTests: XCTestCase {
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",
-            ])
+            ]),
         )
     }
 

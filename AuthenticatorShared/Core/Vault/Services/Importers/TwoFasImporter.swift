@@ -18,14 +18,14 @@ class TwoFasImporter {
                     digits: service.otp.digits ?? 6,
                     issuer: service.otp.issuer ?? service.name,
                     period: service.otp.period ?? 30,
-                    secret: service.secret
+                    secret: service.secret,
                 )
                 return AuthenticatorItemView(
                     favorite: false,
                     id: UUID().uuidString,
                     name: service.name,
                     totpKey: otp.otpAuthUri,
-                    username: service.otp.account
+                    username: service.otp.account,
                 )
             case "STEAM":
                 return AuthenticatorItemView(
@@ -33,7 +33,7 @@ class TwoFasImporter {
                     id: UUID().uuidString,
                     name: service.name,
                     totpKey: "steam://\(service.secret)",
-                    username: service.otp.account
+                    username: service.otp.account,
                 )
             default:
                 return nil

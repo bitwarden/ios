@@ -112,7 +112,7 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
         duo: Duo? = nil,
         organizationDuo: Duo? = nil,
         yubikey: Yubikey? = nil,
-        webAuthn: WebAuthn? = nil
+        webAuthn: WebAuthn? = nil,
     ) {
         self.authenticator = authenticator
         self.email = email

@@ -35,10 +35,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: "123",
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -56,7 +56,7 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             card: nil,
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -69,10 +69,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: nil,
                 code: "123",
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -91,10 +91,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "",
                 code: "123",
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -113,10 +113,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: "123",
-                number: nil
+                number: nil,
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -135,10 +135,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: "123",
-                number: ""
+                number: "",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -157,10 +157,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: nil,
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -179,10 +179,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: "",
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -201,10 +201,10 @@ class CardTextAutofillOptionsHelperTests: BitwardenTestCase {
             card: .fixture(
                 cardholderName: "Cardholder",
                 code: "123",
-                number: "1234 5678 1234 5678"
+                number: "1234 5678 1234 5678",
             ),
             type: .card,
-            viewPassword: false
+            viewPassword: false,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)

@@ -50,9 +50,9 @@ struct EditCollectionsView: View {
                             collection.name,
                             isOn: store.binding(
                                 get: { _ in store.state.collectionIds.contains(collectionId) },
-                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) },
                             ),
-                            accessibilityIdentifier: "CollectionItemSwitch"
+                            accessibilityIdentifier: "CollectionItemSwitch",
                         )
                     }
                 }
@@ -76,17 +76,17 @@ struct EditCollectionsView: View {
                             .fixture(
                                 id: "1",
                                 name: "Design",
-                                organizationId: "1"
+                                organizationId: "1",
                             ),
                             .fixture(
                                 id: "2",
                                 name: "Engineering",
-                                organizationId: "1"
+                                organizationId: "1",
                             ),
-                        ]
-                    )
-                )
-            )
+                        ],
+                    ),
+                ),
+            ),
         )
     }
 }

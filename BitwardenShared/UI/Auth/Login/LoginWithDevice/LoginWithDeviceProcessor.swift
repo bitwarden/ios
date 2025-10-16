@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
@@ -10,7 +11,7 @@ import Foundation
 final class LoginWithDeviceProcessor: StateProcessor<
     LoginWithDeviceState,
     LoginWithDeviceAction,
-    LoginWithDeviceEffect
+    LoginWithDeviceEffect,
 > {
     // MARK: Types
 
@@ -45,7 +46,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LoginWithDeviceState
+        state: LoginWithDeviceState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -84,7 +85,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
             let result = try await services.authService.initiateLoginWithDevice(
                 email: state.email,
-                type: state.requestType
+                type: state.requestType,
             )
             state.fingerprintPhrase = result.authRequestResponse.fingerprint
             state.requestId = result.requestId
@@ -109,14 +110,14 @@ final class LoginWithDeviceProcessor: StateProcessor<
             let (privateKey, key) = try await services.authService.loginWithDevice(
                 request,
                 email: state.email,
-                isAuthenticated: state.isAuthenticated
+                isAuthenticated: state.isAuthenticated,
             )
 
             // Attempt to unlock the vault.
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: request.masterPasswordHash
+                masterPasswordHash: request.masterPasswordHash,
             )
 
             // If login was successful, navigate to the vault.
@@ -169,7 +170,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     private func handleError(
         _ error: Error,
         _ request: LoginRequest? = nil,
-        _ tryAgain: (() async -> Void)? = nil
+        _ tryAgain: (() async -> Void)? = nil,
     ) async {
         coordinator.hideLoadingOverlay()
 
@@ -181,7 +182,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
                     TwoFactorUnlockMethod.loginWithDevice(
                         key: key,
                         masterPasswordHash: request?.masterPasswordHash,
-                        privateKey: authRequestResponse.privateKey
+                        privateKey: authRequestResponse.privateKey,
                     )
                 } else {
                     nil

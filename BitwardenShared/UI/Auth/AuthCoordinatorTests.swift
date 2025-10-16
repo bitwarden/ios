@@ -48,11 +48,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             authService: authService,
             errorReporter: errorReporter,
             stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
         authRouter = AuthRouter(
             isInAppExtension: false,
-            services: services
+            services: services,
         )
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
@@ -61,7 +61,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rootNavigator: rootNavigator,
             router: authRouter.asAnyRouter(),
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -163,7 +163,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_completeRegistration() throws {
         subject.navigate(to: .completeRegistration(
             emailVerificationToken: "thisisanamazingtoken",
-            userEmail: "email@example.com"
+            userEmail: "email@example.com",
         ))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -178,7 +178,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .completeRegistrationFromAppLink(
             emailVerificationToken: "thisisanamazingtoken",
             userEmail: "email@example.com",
-            fromEmail: true
+            fromEmail: true,
         ))
 
         let landingAction = try XCTUnwrap(stackNavigator.actions[1])
@@ -209,7 +209,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .completeRegistrationFromAppLink(
             emailVerificationToken: "thisisanamazingtoken",
             userEmail: "email@example.com",
-            fromEmail: true
+            fromEmail: true,
         ))
         subject.navigate(to: .expiredLink)
         subject.navigate(to: .startRegistrationFromExpiredLink)
@@ -333,7 +333,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.view as? UIHostingController<LoginView>
+            stackNavigator.actions.last?.view as? UIHostingController<LoginView>,
         )
         XCTAssertTrue(viewController.navigationItem.hidesBackButton)
 
@@ -351,7 +351,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.view as? UIHostingController<LoginView>
+            stackNavigator.actions.last?.view as? UIHostingController<LoginView>,
         )
         XCTAssertTrue(viewController.navigationItem.hidesBackButton)
 
@@ -371,7 +371,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .login(username: "username"))
 
         let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.view as? UIHostingController<LoginView>
+            stackNavigator.actions.last?.view as? UIHostingController<LoginView>,
         )
         let view = viewController.rootView
         let state = view.store.state
@@ -385,7 +385,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .loginWithDevice(
             email: "example@email.com",
             authRequestType: AuthRequestType.authenticateAndUnlock,
-            isAuthenticated: false
+            isAuthenticated: false,
         ))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -469,9 +469,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .removeMasterPassword(
             organizationName: "Example Org",
             organizationId: "ORG_ID",
-            keyConnectorUrl: "https://example.com"
-        )
-        )
+            keyConnectorUrl: "https://example.com",
+        ))
 
         XCTAssertTrue(stackNavigator.actions.last?.view is RemoveMasterPasswordView)
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
@@ -497,7 +496,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>
+            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>,
         )
         XCTAssertTrue(viewController.navigationItem.hidesBackButton)
 
@@ -613,8 +612,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(),
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
@@ -630,8 +629,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(),
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
+                didSwitchAccountAutomatically: true,
+            ),
         )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
@@ -639,7 +638,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         waitFor(view.store.state.toast != nil)
         XCTAssertEqual(
             view.store.state.toast,
-            Toast(title: Localizations.accountSwitchedAutomatically)
+            Toast(title: Localizations.accountSwitchedAutomatically),
         )
     }
 
@@ -768,7 +767,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             rootNavigator: rootNavigator!,
             router: MockRouter(routeForEvent: { _ in .landing }).asAnyRouter(),
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         XCTAssertNotNil(subject.rootNavigator)
 

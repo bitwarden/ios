@@ -35,7 +35,7 @@ struct AboutView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: AboutAction.toastShown
+            send: AboutAction.toastShown,
         ))
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
@@ -66,10 +66,10 @@ struct AboutView: View {
             BitwardenToggle(
                 isOn: store.bindingAsync(
                     get: { $0.flightRecorderActiveLog != nil },
-                    perform: AboutEffect.toggleFlightRecorder
+                    perform: AboutEffect.toggleFlightRecorder,
                 ),
                 accessibilityIdentifier: "FlightRecorderSwitch",
-                accessibilityLabel: store.state.flightRecorderToggleAccessibilityLabel
+                accessibilityLabel: store.state.flightRecorderToggleAccessibilityLabel,
             ) {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
@@ -78,7 +78,7 @@ struct AboutView: View {
                         Button {
                             openURL(ExternalLinksConstants.flightRecorderHelp)
                         } label: {
-                            Asset.Images.questionCircle16.swiftUIImage
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
                                 .scaledFrame(width: 16, height: 16)
                                 .accessibilityLabel(Localizations.learnMore)
                         }
@@ -113,7 +113,7 @@ struct AboutView: View {
             SettingsListItem(store.state.version) {
                 store.send(.versionTapped)
             } trailingContent: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -126,9 +126,9 @@ struct AboutView: View {
                 Localizations.submitCrashLogs,
                 isOn: store.binding(
                     get: \.isSubmitCrashLogsToggleOn,
-                    send: AboutAction.toggleSubmitCrashLogs
+                    send: AboutAction.toggleSubmitCrashLogs,
                 ),
-                accessibilityIdentifier: "SubmitCrashLogsSwitch"
+                accessibilityIdentifier: "SubmitCrashLogsSwitch",
             )
         }
     }
@@ -144,7 +144,7 @@ struct AboutView: View {
         SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink24.swiftUIImage
+            SharedAsset.Icons.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }
@@ -156,7 +156,7 @@ struct AboutView: View {
     AboutView(store: Store(processor: StateProcessor(state: AboutState(
         flightRecorderActiveLog: FlightRecorderData.LogMetadata(
             duration: .eightHours,
-            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4)
-        )
+            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4),
+        ),
     ))))
 }

@@ -46,7 +46,7 @@ struct AddEditItemView: View {
         .task { await store.perform(.streamFolders) }
         .toast(store.binding(
             get: \.toast,
-            send: AddEditItemAction.toastShown
+            send: AddEditItemAction.toastShown,
         ))
     }
 
@@ -68,8 +68,8 @@ struct AddEditItemView: View {
             store: store.child(
                 state: \.guidedTourViewState,
                 mapAction: AddEditItemAction.guidedTourViewAction,
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         ) {
             VStack(spacing: 16) {
                 if isPolicyEnabled {
@@ -86,7 +86,7 @@ struct AddEditItemView: View {
                         },
                         dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                             await store.perform(.dismissNewLoginActionCard)
-                        }
+                        },
                     )
                 }
 
@@ -102,7 +102,7 @@ struct AddEditItemView: View {
         .backport.dismissKeyboardImmediately()
         .background(
             SharedAsset.Colors.backgroundPrimary.swiftUIColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(),
         )
         .navigationBarTitleDisplayMode(.inline)
         .backport.scrollContentMargins(Edge.Set.bottom, 30.0)
@@ -123,18 +123,19 @@ struct AddEditItemView: View {
                             isCollectionsEnabled: store.state.canAssignToCollection,
                             isDeleteEnabled: store.state.canBeDeleted,
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
+                            isRestoreEnabled: false,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },
-                                mapEffect: { _ in .deletePressed }
-                            )
+                                mapEffect: { _ in .deletePressed },
+                            ),
                         )
                     },
                     bravo: {
                         saveToolbarButton {
                             await store.perform(.savePressed)
                         }
-                    }
+                    },
                 )
             }
     }
@@ -146,17 +147,17 @@ struct AddEditItemView: View {
                 title: Localizations.itemNameRequired,
                 text: store.binding(
                     get: \.name,
-                    send: AddEditItemAction.nameChanged
+                    send: AddEditItemAction.nameChanged,
                 ),
                 accessibilityIdentifier: "ItemNameEntry",
-                isTextFieldDisabled: store.state.isReadOnly
+                isTextFieldDisabled: store.state.isReadOnly,
             ) {
                 Button {
                     store.send(.favoriteChanged(!store.state.isFavoriteOn))
                 } label: {
                     store.state.isFavoriteOn
-                        ? Asset.Images.starFilled24.swiftUIImage
-                        : Asset.Images.star24.swiftUIImage
+                        ? SharedAsset.Icons.starFilled24.swiftUIImage
+                        : SharedAsset.Icons.star24.swiftUIImage
                 }
                 .buttonStyle(.accessory)
                 .accessibilityIdentifier("ItemFavoriteButton")
@@ -171,13 +172,13 @@ struct AddEditItemView: View {
                     options: store.state.folders,
                     selection: store.binding(
                         get: \.folder,
-                        send: AddEditItemAction.folderChanged
+                        send: AddEditItemAction.folderChanged,
                     ),
                     additionalMenu: {
                         Button(Localizations.newFolder) {
                             store.send(.addFolder)
                         }
-                    }
+                    },
                 )
                 .accessibilityIdentifier("FolderPicker")
 
@@ -189,8 +190,8 @@ struct AddEditItemView: View {
                             options: store.state.ownershipOptions,
                             selection: store.binding(
                                 get: { _ in owner },
-                                send: AddEditItemAction.ownerChanged
-                            )
+                                send: AddEditItemAction.ownerChanged,
+                            ),
                         )
 
                         ForEach(store.state.collectionsForOwner, id: \.id) { collection in
@@ -199,8 +200,8 @@ struct AddEditItemView: View {
                                     collection.name,
                                     isOn: store.binding(
                                         get: { _ in store.state.collectionIds.contains(collectionId) },
-                                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                                    )
+                                        send: { .collectionToggleChanged($0, collectionId: collectionId) },
+                                    ),
                                 )
                                 .accessibilityIdentifier("CollectionItemSwitch")
                             }
@@ -219,8 +220,8 @@ private extension AddEditItemView {
             title: Localizations.additionalOptions,
             isExpanded: store.binding(
                 get: \.isAdditionalOptionsExpanded,
-                send: AddEditItemAction.toggleAdditionalOptionsExpanded
-            )
+                send: AddEditItemAction.toggleAdditionalOptionsExpanded,
+            ),
         ) {
             if store.state.type != .secureNote {
                 notesField
@@ -229,7 +230,7 @@ private extension AddEditItemView {
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(
                     get: \.isMasterPasswordRePromptOn,
-                    send: AddEditItemAction.masterPasswordRePromptChanged
+                    send: AddEditItemAction.masterPasswordRePromptChanged,
                 )) {
                     HStack(alignment: .center, spacing: 8) {
                         Text(Localizations.passwordPrompt)
@@ -237,7 +238,7 @@ private extension AddEditItemView {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
-                            Asset.Images.questionCircle16.swiftUIImage
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
                         }
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                         .buttonStyle(.fieldLabelIcon)
@@ -259,8 +260,8 @@ private extension AddEditItemView {
             store: store.child(
                 state: { $0.customFieldsState },
                 mapAction: { .customField($0) },
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         )
         .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
@@ -271,9 +272,9 @@ private extension AddEditItemView {
             title: Localizations.notes,
             text: store.binding(
                 get: \.notes,
-                send: AddEditItemAction.notesChanged
+                send: AddEditItemAction.notesChanged,
             ),
-            isEditable: !store.state.isReadOnly
+            isEditable: !store.state.isReadOnly,
         )
         .disabled(store.state.isReadOnly)
     }
@@ -290,8 +291,8 @@ private extension AddEditItemView {
                 mapAction: { action in
                     .cardFieldChanged(action)
                 },
-                mapEffect: { $0 }
-            )
+                mapEffect: { $0 },
+            ),
         )
     }
 
@@ -305,8 +306,8 @@ private extension AddEditItemView {
                 mapAction: { action in
                     .identityFieldChanged(action)
                 },
-                mapEffect: { $0 }
-            )
+                mapEffect: { $0 },
+            ),
         )
     }
 
@@ -338,17 +339,17 @@ private extension AddEditItemView {
                     addEditState.loginState
                 },
                 mapAction: { $0 },
-                mapEffect: { $0 }
+                mapEffect: { $0 },
             ),
             didRenderFrame: { step, frame in
                 let enlargedFrame = frame.enlarged(by: 8)
                 store.send(
                     .guidedTourViewAction(.didRenderViewToSpotlight(
                         frame: enlargedFrame,
-                        step: step
-                    ))
+                        step: step,
+                    )),
                 )
-            }
+            },
         )
     }
 
@@ -359,8 +360,8 @@ private extension AddEditItemView {
             store: store.child(
                 state: { _ in store.state.sshKeyState },
                 mapAction: { .sshKeyItemAction($0) },
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         )
     }
 }
@@ -374,7 +375,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(
-                            creationDate: Date(timeIntervalSince1970: 1_710_494_110)
+                            creationDate: Date(timeIntervalSince1970: 1_710_494_110),
                         ),
                     ],
                     password: "changerdanger",
@@ -382,12 +383,12 @@ struct AddEditItemView_Previews: PreviewProvider {
                         .fixture(uri: "yahoo.com"),
                         .fixture(uri: "account.yahoo.com"),
                     ],
-                    username: "EddyEddity"
+                    username: "EddyEddity",
                 ),
                 name: "Edit Em",
-                type: .login
+                type: .login,
             ),
-            hasPremium: true
+            hasPremium: true,
         )!
         state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         return state
@@ -399,10 +400,10 @@ struct AddEditItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: CipherItemState(
-                            hasPremium: true
-                        ).addEditState
-                    )
-                )
+                            hasPremium: true,
+                        ).addEditState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Empty Add")
@@ -415,9 +416,9 @@ struct AddEditItemView_Previews: PreviewProvider {
                             var state = cipherState
                             state.notes = "This is a nice note"
                             return state
-                        }()
-                    )
-                )
+                        }(),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Edit Notes")
@@ -428,11 +429,11 @@ struct AddEditItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
-                            hasPremium: true
+                            hasPremium: true,
                         )
-                        .addEditState
-                    )
-                )
+                        .addEditState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Add Card")
@@ -451,7 +452,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                                 cardNumber: "123456789012345",
                                 cardSecurityCode: "123",
                                 expirationMonth: .custom(.feb),
-                                expirationYear: "3009"
+                                expirationYear: "3009",
                             )
                             copy.folderId = "1"
                             copy.folders = [
@@ -461,9 +462,9 @@ struct AddEditItemView_Previews: PreviewProvider {
                             copy.isMasterPasswordRePromptOn = true
                             copy.owner = .personal(email: "security@bitwarden.com")
                             return copy.addEditState
-                        }()
-                    )
-                )
+                        }(),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Edit Card")
@@ -472,9 +473,9 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: cipherState.addEditState
-                    )
-                )
+                        state: cipherState.addEditState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Edit Login")
@@ -488,9 +489,9 @@ struct AddEditItemView_Previews: PreviewProvider {
                             state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
                             state.toast = Toast(title: "Authenticator key added.")
                             return state
-                        }()
-                    )
-                )
+                        }(),
+                    ),
+                ),
             )
         }
         .previewDisplayName("Edit Login: Key Added")

@@ -25,7 +25,7 @@ extension ServiceContainer {
         pasteboardService: PasteboardService = MockPasteboardService(),
         stateService: StateService = MockStateService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
-        totpService: TOTPService = MockTOTPService()
+        totpService: TOTPService = MockTOTPService(),
     ) -> ServiceContainer {
         ServiceContainer(
             application: application,
@@ -46,7 +46,7 @@ extension ServiceContainer {
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
-            totpService: totpService
+            totpService: totpService,
         )
     }
 }

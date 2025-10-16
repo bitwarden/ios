@@ -39,7 +39,7 @@ class AuthenticatorItemDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -69,7 +69,7 @@ class AuthenticatorItemDataStoreTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             fetchAuthenticatorItems(userId: "1"),
-            authenticatorItems.filter { $0.id != "2" }
+            authenticatorItems.filter { $0.id != "2" },
         )
     }
 
@@ -140,7 +140,7 @@ class AuthenticatorItemDataStoreTests: BitwardenTestCase {
                 _ = try AuthenticatorItemData(
                     context: self.subject.backgroundContext,
                     userId: userId,
-                    authenticatorItem: authenticatorItem
+                    authenticatorItem: authenticatorItem,
                 )
             }
         }

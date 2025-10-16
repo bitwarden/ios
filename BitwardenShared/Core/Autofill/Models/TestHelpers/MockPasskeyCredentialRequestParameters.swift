@@ -17,7 +17,7 @@ class MockPasskeyCredentialRequestParameters: PasskeyCredentialRequestParameters
         relyingPartyIdentifier: String = "myApp.com",
         clientDataHash: Data = Data(repeating: 1, count: 32),
         userVerificationPreference: ASAuthorizationPublicKeyCredentialUserVerificationPreference = .preferred,
-        allowedCredentials: [Data] = []
+        allowedCredentials: [Data] = [],
     ) {
         self.relyingPartyIdentifier = relyingPartyIdentifier
         self.clientDataHash = clientDataHash

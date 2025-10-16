@@ -70,6 +70,9 @@ extension Constants {
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 
+    /// The minimum number of PBKDF2 iterations before a forced KDF update is required.
+    static let minimumPbkdf2IterationsForUpgrade = 600_000
+
     /// The minimum length when setting a pin.
     static let minimumPinLength = 4
 
@@ -84,6 +87,10 @@ extension Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
+
+    /// The number of seconds before an access token's expiration time at which the app will
+    /// preemptively refresh the token.
+    static let tokenRefreshThreshold: TimeInterval = 5 * 60 // 5 minutes
 }
 
 // MARK: Extension Constants

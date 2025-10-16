@@ -17,6 +17,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
+    var changeKdfService: MockChangeKdfService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
@@ -43,6 +44,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
+        changeKdfService = MockChangeKdfService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
@@ -59,6 +61,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
+            changeKdfService: changeKdfService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -67,7 +70,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reviewPromptService: reviewPromptService,
             stateService: stateService,
             timeProvider: timeProvider,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
 
         subject = VaultListProcessor(
@@ -75,7 +78,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(),
-            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
+            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
     }
 
@@ -84,6 +87,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
+        changeKdfService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
@@ -167,8 +171,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 canShowVaultFilter: true,
                 isPersonalOwnershipDisabled: false,
                 organizations: [],
-                searchVaultFilterType: .allVaults
-            )
+                searchVaultFilterType: .allVaults,
+            ),
         )
         XCTAssertEqual(subject.state.searchVaultFilterType, .allVaults)
         XCTAssertEqual(
@@ -177,8 +181,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 canShowVaultFilter: true,
                 isPersonalOwnershipDisabled: false,
                 organizations: [],
-                searchVaultFilterType: .allVaults
-            )
+                searchVaultFilterType: .allVaults,
+            ),
         )
         XCTAssertEqual(subject.state.vaultFilterType, .allVaults)
     }
@@ -222,6 +226,69 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Verify the results.
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
         XCTAssertNil(stateService.loginRequest)
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and logs
+    /// an error and shows an alert if updating the settings fails.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_error() async throws {
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+
+        let updateEncryptionSettingsAlert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(updateEncryptionSettingsAlert, .updateEncryptionSettings { _ in })
+
+        try updateEncryptionSettingsAlert.setText("password123!", forTextFieldWithId: "password")
+        try await updateEncryptionSettingsAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and does
+    /// nothing if they already meet the minimums.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_false() async {
+        notificationService.authorizationStatus = .denied
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and
+    /// shows an alert asking the user for their master password to update the KDF settings.
+    @MainActor
+    func test_perform_appeared_checkIfForceKdfUpdateRequired_true() async throws {
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+
+        let updateEncryptionSettingsAlert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(updateEncryptionSettingsAlert, .updateEncryptionSettings { _ in })
+
+        try await updateEncryptionSettingsAlert.tapCancel()
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+
+        try updateEncryptionSettingsAlert.setText("password123!", forTextFieldWithId: "password")
+        try await updateEncryptionSettingsAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertEqual(changeKdfService.updateKdfToMinimumsPassword, "password123!")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.updating)])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.encryptionSettingsUpdated)])
     }
 
     /// `perform(_:)` with `appeared` does not register the device for notifications
@@ -273,7 +340,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(
             stateService.notificationsLastRegistrationDates["1"],
-            timeProvider.presentTime.addingTimeInterval(-86399)
+            timeProvider.presentTime.addingTimeInterval(-86399),
         )
     }
 
@@ -352,7 +419,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.vaultFilterState.canShowVaultFilter)
         XCTAssertEqual(
             subject.state.vaultFilterState.vaultFilterOptions,
-            [.allVaults, .myVault, .organization(.fixture())]
+            [.allVaults, .myVault, .organization(.fixture())],
         )
     }
 
@@ -379,7 +446,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertEqual(
             [.alert, .sound, .badge],
-            notificationService.requestedOptions
+            notificationService.requestedOptions,
         )
         XCTAssertFalse(application.registerForRemoteNotificationsCalled)
         XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
@@ -433,7 +500,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertEqual(
             [.alert, .sound, .badge],
-            notificationService.requestedOptions
+            notificationService.requestedOptions,
         )
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
@@ -529,8 +596,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(
             subject.state.loadingState,
             .error(
-                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
-            )
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            ),
         )
     }
 
@@ -582,7 +649,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.refreshAccountProfiles)
 
@@ -597,7 +664,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile1],
             activeAccountId: profile1.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.refreshAccountProfiles)
 
@@ -612,7 +679,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile1],
             activeAccountId: nil,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.refreshAccountProfiles)
 
@@ -629,7 +696,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile1, profile2],
             activeAccountId: profile1.userId,
             allowLockAndLogout: true,
-            isVisible: false
+            isVisible: false,
         )
         await subject.perform(.refreshAccountProfiles)
 
@@ -669,7 +736,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
@@ -686,7 +753,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
@@ -703,7 +770,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
 
         let task = Task {
@@ -725,7 +792,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.searchResults.count, 1)
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))],
         )
     }
 
@@ -738,7 +805,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
@@ -750,7 +817,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
     }
 
@@ -881,13 +948,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
 
         vaultRepository.vaultListSubject.send(
-            VaultListData(cipherDecryptionFailureIds: ["1", "2"], sections: [])
+            VaultListData(cipherDecryptionFailureIds: ["1", "2"], sections: []),
         )
 
         try await waitForAsync { !self.coordinator.alertShown.isEmpty }
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .cipherDecryptionFailure(cipherIds: ["1", "2"], isFromCipherTap: false) { _ in }
+            .cipherDecryptionFailure(cipherIds: ["1", "2"], isFromCipherTap: false) { _ in },
         )
         try await coordinator.alertShown.last?.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
@@ -898,7 +965,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
             1
             2
-            """
+            """,
         )
         XCTAssertTrue(subject.hasShownCipherDecryptionFailureAlert)
 
@@ -907,8 +974,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository.vaultListSubject.send(
             VaultListData(
                 cipherDecryptionFailureIds: ["1", "2"],
-                sections: [VaultListSection(id: "", items: [.fixture()], name: "")]
-            )
+                sections: [VaultListSection(id: "", items: [.fixture()], name: "")],
+            ),
         )
         try await waitForAsync { self.subject.state.loadingState.data?.isEmpty == false }
         XCTAssertTrue(coordinator.alertShown.isEmpty)
@@ -928,7 +995,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let section = VaultListSection(
             id: "1",
             items: [.fixtureGroup(id: "1", group: .login, count: 1)],
-            name: "Section"
+            name: "Section",
         )
         vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
 
@@ -951,7 +1018,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let section = VaultListSection(
             id: "1",
             items: [.fixtureGroup(id: "1", group: .card, count: 1)],
-            name: "Section"
+            name: "Section",
         )
         vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
 
@@ -969,9 +1036,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 VaultListSection(
                     id: "1",
                     items: [vaultListItem],
-                    name: "Name"
+                    name: "Name",
                 ),
-            ]
+            ],
         ))
 
         let task = Task {
@@ -1070,9 +1137,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 VaultListSection(
                     id: "1",
                     items: [vaultListItem],
-                    name: "Name"
+                    name: "Name",
                 ),
-            ]
+            ],
         ))
         waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
@@ -1130,7 +1197,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
         authRepository.vaultTimeout = [
@@ -1165,7 +1232,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
         authRepository.vaultTimeout = [
@@ -1200,7 +1267,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         stateService.activeAccount = nil
 
@@ -1231,7 +1298,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
 
@@ -1266,7 +1333,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.activeAccount = .fixture()
         await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
@@ -1283,7 +1350,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Verify the results.
         XCTAssertEqual(
             coordinator.events.last,
-            .logout(userId: otherProfile.userId, userInitiated: true)
+            .logout(userId: otherProfile.userId, userInitiated: true),
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
     }
@@ -1304,7 +1371,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         authRepository.getAccountError = BitwardenTestError.example
 
@@ -1458,7 +1525,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             1
-            """
+            """,
         )
     }
 
@@ -1549,8 +1616,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 canShowVaultFilter: true,
                 isPersonalOwnershipDisabled: false,
                 organizations: [organization],
-                searchVaultFilterType: .organization(organization)
-            )
+                searchVaultFilterType: .organization(organization),
+            ),
         )
     }
 
@@ -1600,8 +1667,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 canShowVaultFilter: true,
                 isPersonalOwnershipDisabled: false,
                 organizations: [organization],
-                searchVaultFilterType: .organization(organization)
-            )
+                searchVaultFilterType: .organization(organization),
+            ),
         )
     }
 

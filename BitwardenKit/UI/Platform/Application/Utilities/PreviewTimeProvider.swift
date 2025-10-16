@@ -13,8 +13,8 @@ public class PreviewTimeProvider: TimeProvider {
 
     public init(
         fixedDate: Date = .init(
-            timeIntervalSinceReferenceDate: 1_695_000_011
-        )
+            timeIntervalSinceReferenceDate: 1_695_000_011,
+        ),
     ) {
         self.fixedDate = fixedDate
     }

@@ -19,7 +19,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         subject = SelfHostedProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
-            state: SelfHostedState()
+            state: SelfHostedState(),
         )
 
         super.setUp()
@@ -44,7 +44,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             delegate.savedUrls,
-            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!),
         )
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
@@ -69,8 +69,8 @@ class SelfHostedProcessorTests: BitwardenTestCase {
                 icons: URL(string: "https://icons.bitwarden.com")!,
                 identity: URL(string: "https://vault.bitwarden.com/identity"),
                 notifications: nil,
-                webVault: URL(string: "https://vault.bitwarden.com")!
-            )
+                webVault: URL(string: "https://vault.bitwarden.com")!,
+            ),
         )
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
@@ -87,8 +87,8 @@ class SelfHostedProcessorTests: BitwardenTestCase {
             alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.environmentPageUrlsError
-            )
+                message: Localizations.environmentPageUrlsError,
+            ),
         )
     }
 

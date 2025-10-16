@@ -27,10 +27,10 @@ struct VaultGroupView: View {
             .searchable(
                 text: store.binding(
                     get: \.searchText,
-                    send: VaultGroupAction.searchTextChanged
+                    send: VaultGroupAction.searchTextChanged,
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: Localizations.search,
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -47,9 +47,9 @@ struct VaultGroupView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: VaultGroupAction.toastShown
+                    send: VaultGroupAction.toastShown,
                 ),
-                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
     }
 
@@ -82,7 +82,7 @@ struct VaultGroupView: View {
             if let newItemButtonType = store.state.newItemButtonType {
                 let newItemLabel = Label(
                     store.state.addItemButtonTitle,
-                    image: Asset.Images.plus16.swiftUIImage
+                    image: SharedAsset.Icons.plus16.swiftUIImage,
                 )
 
                 Group {
@@ -155,7 +155,7 @@ struct VaultGroupView: View {
                         } label: {
                             vaultItemRow(
                                 for: item,
-                                isLastInSection: store.state.searchResults.last == item
+                                isLastInSection: store.state.searchResults.last == item,
                             )
                             .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
@@ -191,11 +191,11 @@ struct VaultGroupView: View {
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
-                        return .searchVaultFilterChanged(type)
+                        .searchVaultFilterChanged(type)
                     }
                 },
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         )
     }
 
@@ -235,23 +235,23 @@ struct VaultGroupView: View {
                         iconBaseURL: state.iconBaseURL,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons
+                        showWebIcons: state.showWebIcons,
                     )
                 },
                 mapAction: { action in
                     switch action {
                     case let .copyTOTPCode(code):
-                        return .copyTOTPCode(code)
+                        .copyTOTPCode(code)
                     }
                 },
                 mapEffect: { effect in
                     switch effect {
                     case .morePressed:
-                        return .morePressed(item)
+                        .morePressed(item)
                     }
-                }
+                },
             ),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 }
@@ -267,11 +267,11 @@ struct VaultGroupView: View {
                     state: VaultGroupState(
                         loadingState: .loading(nil),
                         searchVaultFilterType: .allVaults,
-                        vaultFilterType: .allVaults
-                    )
-                )
+                        vaultFilterType: .allVaults,
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -284,11 +284,11 @@ struct VaultGroupView: View {
                     state: VaultGroupState(
                         loadingState: .data([]),
                         searchVaultFilterType: .allVaults,
-                        vaultFilterType: .allVaults
-                    )
-                )
+                        vaultFilterType: .allVaults,
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -308,28 +308,28 @@ struct VaultGroupView: View {
                                         .init(cipherListView: .fixture(
                                             id: "1",
                                             login: .fixture(
-                                                username: "email@example.com"
+                                                username: "email@example.com",
                                             ),
-                                            name: "Example"
+                                            name: "Example",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: "2",
                                             login: .fixture(
-                                                username: "email2@example.com"
+                                                username: "email2@example.com",
                                             ),
-                                            name: "Example 2"
+                                            name: "Example 2",
                                         ))!,
                                     ],
-                                    name: "Items"
+                                    name: "Items",
                                 ),
-                            ]
+                            ],
                         ),
                         searchVaultFilterType: .allVaults,
-                        vaultFilterType: .allVaults
-                    )
-                )
+                        vaultFilterType: .allVaults,
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -343,11 +343,11 @@ struct VaultGroupView: View {
                         group: .trash,
                         loadingState: .data([]),
                         searchVaultFilterType: .allVaults,
-                        vaultFilterType: .allVaults
-                    )
-                )
+                        vaultFilterType: .allVaults,
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }

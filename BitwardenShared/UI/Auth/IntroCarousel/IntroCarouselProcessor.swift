@@ -30,7 +30,7 @@ class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAc
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: IntroCarouselState
+        state: IntroCarouselState,
     ) {
         self.coordinator = coordinator
         self.services = services

@@ -74,7 +74,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         client.result = .httpSuccess(testData: resultData)
 
         _ = try await subject.deleteAccount(
-            body: DeleteAccountRequestModel(masterPasswordHash: "1234")
+            body: DeleteAccountRequestModel(masterPasswordHash: "1234"),
         )
 
         let request = try XCTUnwrap(client.requests.first)
@@ -146,8 +146,8 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
                     masterPasswordHash: "1a2b3c",
                     masterPasswordHint: "hint",
                     userSymmetricKey: "key",
-                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-                )
+                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private"),
+                ),
             )
         }
     }
@@ -166,8 +166,8 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
                     masterPasswordHash: "1a2b3c",
                     masterPasswordHint: "hint",
                     userSymmetricKey: "key",
-                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-                )
+                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private"),
+                ),
             )
         }
     }
@@ -185,8 +185,8 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",
                 userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
+                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private"),
+            ),
         )
 
         let request = try XCTUnwrap(client.requests.first)
@@ -218,10 +218,10 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
                     key: "key",
                     keys: KeysRequestModel(
                         encryptedPrivateKey: "encrypted-private-key",
-                        publicKey: "public-key"
+                        publicKey: "public-key",
                     ),
-                    orgIdentifier: "org-id"
-                )
+                    orgIdentifier: "org-id",
+                ),
             )
         }
 
@@ -242,10 +242,10 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
                     key: "key",
                     keys: KeysRequestModel(
                         encryptedPrivateKey: "encrypted-private-key",
-                        publicKey: "public-key"
+                        publicKey: "public-key",
                     ),
-                    orgIdentifier: "org-id"
-                )
+                    orgIdentifier: "org-id",
+                ),
             )
         }
     }
@@ -257,7 +257,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         let requestModel = StartRegistrationRequestModel(
             email: "email@example.com",
             name: "name",
-            receiveMarketingEmails: true
+            receiveMarketingEmails: true,
         )
 
         _ = try await subject.startRegistration(requestModel: requestModel)
@@ -267,7 +267,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/identity/accounts/register/send-verification-email"
+            "https://example.com/identity/accounts/register/send-verification-email",
         )
     }
 
@@ -281,7 +281,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
             keys: KeysRequestModel(encryptedPrivateKey: "ENCRYPTED_PRIVATE_KEY", publicKey: "PUBLIC_KEY"),
             masterPasswordHash: "MASTER_PASSWORD_HASH",
             masterPasswordHint: "MASTER_PASSWORD_HINT",
-            orgIdentifier: "ORG_ID"
+            orgIdentifier: "ORG_ID",
         )
         try await subject.setPassword(requestModel)
 
@@ -289,6 +289,33 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+    }
+
+    /// `updateKdf()` performs the request to update a user's KDF settings.
+    func test_updateKdf() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = UpdateKdfRequestModel(
+            authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                kdf: KdfConfig(),
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+                salt: "AUTHENTICATION_SALT",
+            ),
+            key: "key",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HINT",
+            unlockData: MasterPasswordUnlockDataRequestModel(
+                kdf: KdfConfig(),
+                masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                salt: "UNLOCK_SALT",
+            ),
+        )
+        try await subject.updateKdf(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/kdf")
     }
 
     /// `updatePassword()` doesn't throw an error when receiving the empty response.
@@ -299,7 +326,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
             key: "KEY",
             masterPasswordHash: "MASTER_PASSWORD_HASH",
             masterPasswordHint: "MASTER_PASSWORD_HINT",
-            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
         )
         try await subject.updatePassword(requestModel)
 
@@ -316,7 +343,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         let requestModel = UpdateTempPasswordRequestModel(
             key: "KEY",
             masterPasswordHint: "MASTER_PASSWORD_HINT",
-            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
         )
         try await subject.updateTempPassword(requestModel)
 
@@ -332,7 +359,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
 
         try await subject.verifyEmailToken(
             email: "example@email.com",
-            emailVerificationToken: "verification-token"
+            emailVerificationToken: "verification-token",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -340,7 +367,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/identity/accounts/register/verification-email-clicked"
+            "https://example.com/identity/accounts/register/verification-email-clicked",
         )
     }
 
@@ -351,7 +378,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         await assertAsyncThrows {
             try await subject.verifyEmailToken(
                 email: "example@email.com",
-                emailVerificationToken: "verification-token"
+                emailVerificationToken: "verification-token",
             )
         }
     }

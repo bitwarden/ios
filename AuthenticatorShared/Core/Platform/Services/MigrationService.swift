@@ -39,7 +39,7 @@ class DefaultMigrationService {
     init(
         appSettingsStore: AppSettingsStore,
         errorReporter: ErrorReporter,
-        keychainRepository: KeychainRepository
+        keychainRepository: KeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.errorReporter = errorReporter

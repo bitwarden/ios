@@ -34,9 +34,9 @@ struct AddEditCardItemView: View {
                     title: Localizations.cardholderName,
                     text: store.binding(
                         get: \.cardholderName,
-                        send: AddEditCardItemAction.cardholderNameChanged
+                        send: AddEditCardItemAction.cardholderNameChanged,
                     ),
-                    accessibilityIdentifier: "CardholderNameEntry"
+                    accessibilityIdentifier: "CardholderNameEntry",
                 )
                 .focused($focusedField, equals: .cardholderName)
                 .textContentType(.creditCardNameOrName)
@@ -46,14 +46,14 @@ struct AddEditCardItemView: View {
                     title: Localizations.number,
                     text: store.binding(
                         get: \.cardNumber,
-                        send: AddEditCardItemAction.cardNumberChanged
+                        send: AddEditCardItemAction.cardNumberChanged,
                     ),
                     accessibilityIdentifier: "CardNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowCardNumberButton",
                     isPasswordVisible: store.binding(
                         get: \.isNumberVisible,
-                        send: AddEditCardItemAction.toggleNumberVisibilityChanged
-                    )
+                        send: AddEditCardItemAction.toggleNumberVisibilityChanged,
+                    ),
                 )
                 .textFieldConfiguration(.numeric(.creditCardNumber))
                 .focused($focusedField, equals: .number)
@@ -65,8 +65,8 @@ struct AddEditCardItemView: View {
                     options: DefaultableType<CardComponent.Brand>.allCases,
                     selection: store.binding(
                         get: \.brand,
-                        send: AddEditCardItemAction.brandChanged
-                    )
+                        send: AddEditCardItemAction.brandChanged,
+                    ),
                 )
                 .focused($focusedField, equals: .brand)
                 .onSubmit { focusNextField($focusedField) }
@@ -77,8 +77,8 @@ struct AddEditCardItemView: View {
                     options: DefaultableType<CardComponent.Month>.allCases,
                     selection: store.binding(
                         get: \.expirationMonth,
-                        send: AddEditCardItemAction.expirationMonthChanged
-                    )
+                        send: AddEditCardItemAction.expirationMonthChanged,
+                    ),
                 )
                 .focused($focusedField, equals: .expirationMonth)
                 .onSubmit { focusNextField($focusedField) }
@@ -87,12 +87,12 @@ struct AddEditCardItemView: View {
                     title: Localizations.expirationYear,
                     text: store.binding(
                         get: \.expirationYear,
-                        send: AddEditCardItemAction.expirationYearChanged
+                        send: AddEditCardItemAction.expirationYearChanged,
                     ),
-                    accessibilityIdentifier: "CardExpirationYearEntry"
+                    accessibilityIdentifier: "CardExpirationYearEntry",
                 )
                 .textFieldConfiguration(
-                    .numeric(.creditCardExpirationYearOrDateTime)
+                    .numeric(.creditCardExpirationYearOrDateTime),
                 )
                 .focused($focusedField, equals: .expirationYear)
                 .onSubmit { focusNextField($focusedField) }
@@ -101,14 +101,14 @@ struct AddEditCardItemView: View {
                     title: Localizations.securityCode,
                     text: store.binding(
                         get: \.cardSecurityCode,
-                        send: AddEditCardItemAction.cardSecurityCodeChanged
+                        send: AddEditCardItemAction.cardSecurityCodeChanged,
                     ),
                     accessibilityIdentifier: "CardSecurityCodeEntry",
                     passwordVisibilityAccessibilityId: "CardShowSecurityCodeButton",
                     isPasswordVisible: store.binding(
                         get: \.isCodeVisible,
-                        send: AddEditCardItemAction.toggleCodeVisibilityChanged
-                    )
+                        send: AddEditCardItemAction.toggleCodeVisibilityChanged,
+                    ),
                 )
                 .textFieldConfiguration(.numeric(.creditCardSecurityCodeOrPassword))
                 .focused($focusedField, equals: .securityCode)
@@ -126,9 +126,9 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 AddEditCardItemView(
                     store: Store(
                         processor: StateProcessor(
-                            state: CardItemState() as (any AddEditCardItemState)
-                        )
-                    )
+                            state: CardItemState() as (any AddEditCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -151,9 +151,9 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                                 state.expirationMonth = .custom(.aug)
                                 state.expirationYear = "1989"
                                 return state
-                            }() as (any AddEditCardItemState)
-                        )
-                    )
+                            }() as (any AddEditCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }
@@ -178,9 +178,9 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                                 state.isCodeVisible = true
                                 state.isNumberVisible = true
                                 return state
-                            }() as (any AddEditCardItemState)
-                        )
-                    )
+                            }() as (any AddEditCardItemState),
+                        ),
+                    ),
                 )
                 .padding(16)
             }

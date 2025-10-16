@@ -25,7 +25,7 @@ class EnvironmentServiceTests: XCTestCase {
         subject = DefaultEnvironmentService(
             errorReporter: errorReporter,
             stateService: stateService,
-            standardUserDefaults: standardUserDefaults
+            standardUserDefaults: standardUserDefaults,
         )
     }
 
@@ -119,7 +119,7 @@ class EnvironmentServiceTests: XCTestCase {
     func test_loadURLsForActiveAccount_managedConfig() async throws {
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
-            forKey: "com.apple.configuration.managed"
+            forKey: "com.apple.configuration.managed",
         )
 
         await subject.loadURLsForActiveAccount()
@@ -150,7 +150,7 @@ class EnvironmentServiceTests: XCTestCase {
         stateService.environmentURLs[account.profile.userId] = .defaultUS
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
-            forKey: "com.apple.configuration.managed"
+            forKey: "com.apple.configuration.managed",
         )
 
         await subject.loadURLsForActiveAccount()
@@ -221,8 +221,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(
             subject.setUpTwoFactorURL,
             URL(
-                string: "https://example.com/#/settings/security/two-factor"
-            )
+                string: "https://example.com/#/settings/security/two-factor",
+            ),
         )
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)

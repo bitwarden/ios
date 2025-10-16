@@ -37,21 +37,21 @@ extension DefaultValue: Decodable {
                     """
                     Cannot initialize \(T.self) from invalid Int value \(intValue, privacy: .private), \
                     defaulting to \(String(describing: T.defaultValue)).
-                    """
+                    """,
                 )
             } else if let stringValue = try? container.decode(String.self) {
                 Logger.application.warning(
                     """
                     Cannot initialize \(T.self) from invalid String value \(stringValue, privacy: .private), \
                     defaulting to \(String(describing: T.defaultValue))
-                    """
+                    """,
                 )
             } else {
                 Logger.application.warning(
                     """
                     Cannot initialize \(T.self) from invalid unknown valid, \
                     defaulting to \(String(describing: T.defaultValue))
-                    """
+                    """,
                 )
             }
             wrappedValue = T.defaultValue
@@ -91,7 +91,7 @@ extension KeyedDecodingContainer {
             return value
         } else {
             Logger.application.warning(
-                "Missing value for \(T.self), defaulting to \(String(describing: T.defaultValue))"
+                "Missing value for \(T.self), defaulting to \(String(describing: T.defaultValue))",
             )
             return DefaultValue(wrappedValue: T.defaultValue)
         }

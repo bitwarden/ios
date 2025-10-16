@@ -101,7 +101,7 @@ class DefaultCameraService: NSObject {
 extension DefaultCameraService: CameraService {
     func checkStatus() -> CameraAuthorizationStatus {
         CameraAuthorizationStatus(
-            avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video)
+            avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video),
         )
     }
 
@@ -133,7 +133,7 @@ extension DefaultCameraService: CameraService {
         let videoDevices = AVCaptureDevice.DiscoverySession(
             deviceTypes: acceptedDevices,
             mediaType: .video,
-            position: .unspecified
+            position: .unspecified,
         ).devices
 
         return !videoDevices.isEmpty
@@ -191,7 +191,7 @@ extension DefaultCameraService: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
-        from connection: AVCaptureConnection
+        from connection: AVCaptureConnection,
     ) {
         for metadata in metadataObjects {
             if let readableObject = metadata as? AVMetadataMachineReadableCodeObject,

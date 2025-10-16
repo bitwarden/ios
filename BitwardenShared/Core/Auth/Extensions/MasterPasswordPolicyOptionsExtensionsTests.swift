@@ -17,8 +17,8 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
                 requireLower: false,
                 requireNumbers: false,
                 requireSpecial: false,
-                enforceOnLogin: false
-            ).isInEffect
+                enforceOnLogin: false,
+            ).isInEffect,
         )
     }
 
@@ -32,8 +32,8 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
                 requireLower: false,
                 requireNumbers: false,
                 requireSpecial: false,
-                enforceOnLogin: false
-            ).isInEffect
+                enforceOnLogin: false,
+            ).isInEffect,
         )
 
         XCTAssertTrue(
@@ -44,8 +44,8 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
                 requireLower: true,
                 requireNumbers: true,
                 requireSpecial: false,
-                enforceOnLogin: false
-            ).isInEffect
+                enforceOnLogin: false,
+            ).isInEffect,
         )
     }
 
@@ -58,7 +58,7 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
             requireLower: false,
             requireNumbers: false,
             requireSpecial: false,
-            enforceOnLogin: false
+            enforceOnLogin: false,
         )
         XCTAssertNil(policy.policySummary)
     }
@@ -72,11 +72,11 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
             requireLower: true,
             requireNumbers: true,
             requireSpecial: true,
-            enforceOnLogin: true
+            enforceOnLogin: true,
         )
         try assertInlineSnapshot(
             of: XCTUnwrap(policy.policySummary),
-            as: .lines
+            as: .lines,
         ) {
             """
             One or more organization policies require your master password to meet the following requirements:
@@ -99,11 +99,11 @@ class MasterPasswordPolicyOptionsExtensionsTests: BitwardenTestCase {
             requireLower: false,
             requireNumbers: true,
             requireSpecial: true,
-            enforceOnLogin: true
+            enforceOnLogin: true,
         )
         try assertInlineSnapshot(
             of: XCTUnwrap(policy.policySummary),
-            as: .lines
+            as: .lines,
         ) {
             """
             One or more organization policies require your master password to meet the following requirements:

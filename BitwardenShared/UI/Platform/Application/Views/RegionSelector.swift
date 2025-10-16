@@ -31,7 +31,7 @@ struct RegionSelector: View {
                 .styleGuide(.footnote)
                 .multilineTextAlignment(.leading)
 
-                Image(decorative: Asset.Images.chevronDown16)
+                Image(decorative: SharedAsset.Icons.chevronDown16)
                     .scaledFrame(width: 12, height: 12)
                     .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
@@ -49,7 +49,7 @@ struct RegionSelector: View {
     init(
         selectorLabel: String,
         regionName: String,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) {
         self.action = action
         self.regionName = regionName

@@ -169,7 +169,7 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
@@ -285,7 +285,7 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        Client(settings: settings)
+        Client(tokenProvider: DefaultClientManagedTokensProvider(), settings: settings)
     }
 }
 
@@ -345,5 +345,16 @@ extension Client: BitwardenSdkClient {
 
     func vault() -> VaultClientService {
         vault() as VaultClient
+    }
+}
+
+// MARK: DefaultTokenProvider
+
+/// Default implementation of the SDK's `ClientManagedTokens`.
+/// Given that we are not performing authenticated API calls in BWA
+/// we just return `nil` for the access token.
+final class DefaultClientManagedTokensProvider: ClientManagedTokens {
+    func getAccessToken() async -> String? {
+        nil
     }
 }

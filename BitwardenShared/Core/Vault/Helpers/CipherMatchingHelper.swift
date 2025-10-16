@@ -36,7 +36,7 @@ protocol CipherMatchingHelper { // sourcery: AutoMockable
     /// - Parameters:
     ///   - cipher: The cipher to check if it matches the URI.
     func doesCipherMatch(
-        cipher: CipherListView
+        cipher: CipherListView,
     ) -> CipherMatchResult
 
     /// Prepares the cipher matching helper given the URI.
@@ -95,7 +95,7 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         defaultMatchType = await stateService.getDefaultUriMatchType()
 
         let matchingCiphers = ciphers.reduce(
-            into: (exact: [CipherListView], fuzzy: [CipherListView])([], [])
+            into: (exact: [CipherListView], fuzzy: [CipherListView])([], []),
         ) { result, cipher in
             let match = doesCipherMatch(cipher: cipher)
             switch match {
@@ -131,7 +131,7 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
                     isApp: URL(string: uriToMatch)?.isApp ?? false,
                     loginUri: uri,
                     matchingDomains: matchingDomains,
-                    matchingFuzzyDomains: matchingFuzzyDomains
+                    matchingFuzzyDomains: matchingFuzzyDomains,
                 )
             case .host:
                 let uriHost = URL(string: uri)?.hostWithPort
@@ -185,7 +185,7 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         isApp: Bool,
         loginUri: String,
         matchingDomains: Set<String>,
-        matchingFuzzyDomains: Set<String>
+        matchingFuzzyDomains: Set<String>,
     ) -> CipherMatchResult {
         let loginURL = URL(string: loginUri)
         let loginURLSanitized = isApp

@@ -9,11 +9,11 @@ class RehydratableTargetTests: BitwardenTestCase {
     func test_appRoute() {
         XCTAssertEqual(
             RehydratableTarget.viewCipher(cipherId: "1").appRoute,
-            AppRoute.tab(.vault(.viewItem(id: "1")))
+            AppRoute.tab(.vault(.viewItem(id: "1"))),
         )
         XCTAssertEqual(
             RehydratableTarget.editCipher(cipherId: "1").appRoute,
-            AppRoute.tab(.vault(.editItemFrom(id: "1")))
+            AppRoute.tab(.vault(.editItemFrom(id: "1"))),
         )
     }
 }

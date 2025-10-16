@@ -22,6 +22,7 @@ extension ServiceContainer {
         biometricsRepository: BiometricsRepository = MockBiometricsRepository(),
         biometricsService: BiometricsService = MockBiometricsService(),
         cameraService: CameraService = MockCameraService(),
+        changeKdfService: ChangeKdfService = MockChangeKdfService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
@@ -64,12 +65,12 @@ extension ServiceContainer {
         userVerificationHelperFactory: UserVerificationHelperFactory = MockUserVerificationHelperFactory(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
-        watchService: WatchService = MockWatchService()
+        watchService: WatchService = MockWatchService(),
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
                 client: httpClient,
-                environmentService: environmentService
+                environmentService: environmentService,
             ),
             appContextHelper: appContextHelper,
             appIdService: AppIdService(appSettingStore: appSettingsStore),
@@ -83,6 +84,7 @@ extension ServiceContainer {
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: cameraService,
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -124,7 +126,7 @@ extension ServiceContainer {
             userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
-            watchService: watchService
+            watchService: watchService,
         )
     }
 }

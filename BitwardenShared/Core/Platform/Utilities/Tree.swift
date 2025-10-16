@@ -79,7 +79,7 @@ struct TreeNode<T: TreeNodeModel>: Equatable {
         node: T,
         name: String,
         parent: T?,
-        children: [TreeNode<T>] = []
+        children: [TreeNode<T>] = [],
     ) {
         self.parent = parent
         self.node = node
@@ -122,7 +122,7 @@ extension TreeNode {
         atIndex partIndex: Int,
         parts: [String],
         parent: T?,
-        delimiter: Character
+        delimiter: Character,
     ) -> [TreeNode<T>] {
         guard parts.count > partIndex else {
             return nodeTree
@@ -142,7 +142,7 @@ extension TreeNode {
                     atIndex: partIndex + 1,
                     parts: parts,
                     parent: newTree[index].node,
-                    delimiter: delimiter
+                    delimiter: delimiter,
                 )
             }
         } else if end {
@@ -158,7 +158,7 @@ extension TreeNode {
                 atIndex: partIndex,
                 parts: newParts,
                 parent: parent,
-                delimiter: delimiter
+                delimiter: delimiter,
             )
         }
         return newTree
@@ -186,7 +186,7 @@ extension Array where Element: TreeNodeModel {
     ///  - Returns: A `Tree` containing the nested elements from the array.
     ///
     func asNestedNodes(
-        delimiter: Character = "/"
+        delimiter: Character = "/",
     ) -> Tree<Element> {
         var nodes = [TreeNode<Element>]()
         for item in self {
@@ -203,7 +203,7 @@ extension Array where Element: TreeNodeModel {
                 atIndex: 0,
                 parts: itemNameParts,
                 parent: nil,
-                delimiter: delimiter
+                delimiter: delimiter,
             )
         }
         return Tree(nodes: nodes)

@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -11,6 +12,7 @@ import XCTest
 class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -22,21 +24,24 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
         subject = DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         clientService = nil
         errorReporter = nil
         stateService = nil
@@ -90,6 +95,62 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.favorites.isEmpty)
     }
 
+    /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds
+    /// and Fido2 credentials exist.
+    func test_addFido2Item_succeeds() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        clientService.mockPlatform
+            .fido2Mock
+            .decryptFido2AutofillCredentialsMocker
+            .withResult([.fixture()])
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.fido2Items.count, 1)
+        XCTAssertEqual(preparedData.fido2Items[0].id, "1")
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when cipher id is nil.
+    func test_addFido2Item_nilCipherId() async {
+        let cipher = CipherListView.fixture(id: nil)
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when fetchCipher fails.
+    func test_addFido2Item_fetchCipherFails() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .failure(BitwardenTestError.example)
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when decryptFido2AutofillCredentials returns empty.
+    func test_addFido2Item_emptyFido2Credentials() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        clientService.mockPlatform
+            .fido2Mock
+            .decryptFido2AutofillCredentialsMocker
+            .withResult([])
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+        guard let fido2Error = errorReporter.errors[0] as? Fido2Error else {
+            XCTFail("No Fido2 error has been thrown")
+            return
+        }
+
+        XCTAssertEqual(fido2Error, Fido2Error.decryptFido2AutofillCredentialsEmpty)
+    }
+
     /// `addFolderItem(cipher:filter:folders:)` adds a folder to the prepared data when the cipher belongs
     /// to a folder that is in the list of folders and filtering by `.myVault`.
     func test_addFolderItem_succeeds() {
@@ -98,7 +159,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -115,7 +176,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -131,7 +192,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -149,22 +210,22 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "1", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "2", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "3", folderId: "40"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "4", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .build()
 
@@ -347,7 +408,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -368,7 +429,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
                     .fixture(id: "4", organizationId: "1"),
                     .fixture(id: "5", organizationId: "1"),
                 ],
-                filterType: .organization(.fixture(id: "1"))
+                filterType: .organization(.fixture(id: "1")),
             )
             .build()
 
@@ -382,7 +443,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .build()
 
@@ -394,7 +455,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -409,11 +470,11 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .organization(.fixture())
+                filterType: .organization(.fixture()),
             )
             .build()
 

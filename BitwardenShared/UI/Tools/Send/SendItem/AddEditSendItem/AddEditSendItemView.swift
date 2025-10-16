@@ -44,7 +44,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.navigationTitle,
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
@@ -67,8 +67,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             },
                             mapEffect: { effect in
                                 .profileSwitcher(effect)
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
             }
@@ -99,12 +99,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         await store.perform(.savePressed)
                     }
                     .disabled(store.state.isSendDisabled)
-                }
+                },
             )
         }
         .toast(store.binding(
             get: \.toast,
-            send: AddEditSendItemAction.toastShown
+            send: AddEditSendItemAction.toastShown,
         ))
         .animation(.easeInOut(duration: 0.2), value: store.state.type)
         .animation(.default, value: store.state.isOptionsExpanded)
@@ -119,37 +119,37 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: Localizations.additionalOptions,
             isExpanded: store.binding(
                 get: \.isOptionsExpanded,
-                send: { _ in AddEditSendItemAction.optionsPressed }
+                send: { _ in AddEditSendItemAction.optionsPressed },
             ),
-            buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
+            buttonAccessibilityIdentifier: "SendShowHideOptionsButton",
         ) {
             SendItemAccessCountStepper(
                 currentAccessCount: store.state.currentAccessCount,
                 maximumAccessCount: store.binding(
                     get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
-                )
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged,
+                ),
             )
 
             BitwardenTextField(
                 title: Localizations.newPassword,
                 text: store.binding(
                     get: \.password,
-                    send: AddEditSendItemAction.passwordChanged
+                    send: AddEditSendItemAction.passwordChanged,
                 ),
                 footer: Localizations.passwordInfo,
                 accessibilityIdentifier: "SendNewPasswordEntry",
                 isPasswordVisible: store.binding(
                     get: \.isPasswordVisible,
-                    send: AddEditSendItemAction.passwordVisibleChanged
-                )
+                    send: AddEditSendItemAction.passwordVisibleChanged,
+                ),
             )
             .textFieldConfiguration(.password)
 
             ContentBlock(dividerLeadingPadding: 16) {
                 BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
                     get: \.isHideMyEmailOn,
-                    send: AddEditSendItemAction.hideMyEmailChanged
+                    send: AddEditSendItemAction.hideMyEmailChanged,
                 ))
                 .accessibilityIdentifier("SendHideEmailSwitch")
                 .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
@@ -159,8 +159,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 title: Localizations.privateNote,
                 text: store.binding(
                     get: \.notes,
-                    send: AddEditSendItemAction.notesChanged
-                )
+                    send: AddEditSendItemAction.notesChanged,
+                ),
             )
         }
     }
@@ -170,7 +170,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         AsyncButton {
             await store.perform(.deletePressed)
         } label: {
-            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+            Label(Localizations.deleteSend, image: SharedAsset.Icons.trash16.swiftUIImage, scaleImageDimension: 16)
         }
         .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }
@@ -184,8 +184,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 options: store.state.availableDeletionDateTypes,
                 selection: store.binding(
                     get: \.deletionDate,
-                    send: AddEditSendItemAction.deletionDateChanged
-                )
+                    send: AddEditSendItemAction.deletionDateChanged,
+                ),
             )
 
             Text(Localizations.deletionDateInfo)
@@ -220,7 +220,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     }
 
                     Text(Localizations.requiredMaximumFileSizeIsX(
-                        ByteCountFormatter.string(fromByteCount: Int64(Constants.maxFileSizeBytes), countStyle: .binary)
+                        ByteCountFormatter.string(
+                            fromByteCount: Int64(Constants.maxFileSizeBytes),
+                            countStyle: .binary,
+                        ),
                     ))
                     .styleGuide(.subheadline)
                     .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
@@ -256,9 +259,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: Localizations.sendNameRequired,
             text: store.binding(
                 get: \.name,
-                send: AddEditSendItemAction.nameChanged
+                send: AddEditSendItemAction.nameChanged,
             ),
-            accessibilityIdentifier: "SendNameEntry"
+            accessibilityIdentifier: "SendNameEntry",
         )
     }
 
@@ -276,8 +279,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     },
                     mapEffect: { profileEffect in
                         .profileSwitcher(profileEffect)
-                    }
-                )
+                    },
+                ),
             )
         default: EmptyView()
         }
@@ -299,7 +302,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 ContentBlock {
                     BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
                         get: \.isHideTextByDefaultOn,
-                        send: AddEditSendItemAction.hideTextByDefaultChanged
+                        send: AddEditSendItemAction.hideTextByDefaultChanged,
                     ))
                     .accessibilityIdentifier("SendHideTextByDefaultToggle")
                 }
@@ -315,8 +318,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: Localizations.textToShare,
             text: store.binding(
                 get: \.text,
-                send: AddEditSendItemAction.textChanged
-            )
+                send: AddEditSendItemAction.textChanged,
+            ),
         )
         .accessibilityIdentifier("SendTextContentEntry")
     }
@@ -330,9 +333,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         AddEditSendItemView(
             store: Store(
                 processor: StateProcessor(
-                    state: AddEditSendItemState()
-                )
-            )
+                    state: AddEditSendItemState(),
+                ),
+            ),
         )
     }
 }
@@ -346,10 +349,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         fileName: "Example File",
                         isHideTextByDefaultOn: true,
                         name: "Sendy",
-                        type: .file
-                    )
-                )
-            )
+                        type: .file,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -363,10 +366,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         isHideTextByDefaultOn: true,
                         name: "Sendy",
                         text: "Example text",
-                        type: .text
-                    )
-                )
-            )
+                        type: .text,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -377,10 +380,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-                        isOptionsExpanded: true
-                    )
-                )
-            )
+                        isOptionsExpanded: true,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -399,10 +402,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         mode: .edit,
                         name: "Sendy",
                         text: "Example text",
-                        type: .text
-                    )
-                )
-            )
+                        type: .text,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -422,10 +425,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         isOptionsExpanded: true,
                         mode: .edit,
                         name: "Sendy",
-                        type: .file
-                    )
-                )
-            )
+                        type: .file,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -444,10 +447,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         mode: .shareExtension(.singleAccount),
                         name: "Sendy",
                         text: "Example text",
-                        type: .text
-                    )
-                )
-            )
+                        type: .text,
+                    ),
+                ),
+            ),
         )
     }
 }

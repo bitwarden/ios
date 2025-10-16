@@ -18,7 +18,7 @@ class ExpiredLinkProcessor: StateProcessor<ExpiredLinkState, ExpiredLinkAction, 
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        state: ExpiredLinkState
+        state: ExpiredLinkState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

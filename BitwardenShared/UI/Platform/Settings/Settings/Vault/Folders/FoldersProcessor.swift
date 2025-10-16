@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 
@@ -31,7 +32,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: FoldersState
+        state: FoldersState,
     ) {
         self.coordinator = coordinator
         self.services = services

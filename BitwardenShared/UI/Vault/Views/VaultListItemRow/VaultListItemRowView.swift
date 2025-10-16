@@ -21,7 +21,7 @@ struct VaultListItemRowView: View {
                 VaultItemDecorativeImageView(
                     item: store.state.item,
                     iconBaseURL: store.state.iconBaseURL,
-                    showWebIcons: store.state.showWebIcons
+                    showWebIcons: store.state.showWebIcons,
                 )
                 .imageStyle(.rowIcon)
                 .padding(.vertical, 19)
@@ -38,20 +38,20 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
-                                    Asset.Images.collections16.swiftUIImage
+                                    SharedAsset.Icons.collections16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.shared)
                                         .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
                                 if cipherItem.attachments > 0 {
-                                    Asset.Images.paperclip16.swiftUIImage
+                                    SharedAsset.Icons.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.attachments)
                                         .accessibilityIdentifier("CipherWithAttachmentsIcon")
@@ -83,7 +83,7 @@ struct VaultListItemRowView: View {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                                SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)
@@ -125,7 +125,7 @@ struct VaultListItemRowView: View {
     @ViewBuilder
     private func totpCodeRow(
         _ name: String,
-        _ model: VaultListTOTP
+        _ model: VaultListTOTP,
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(name)
@@ -144,7 +144,7 @@ struct VaultListItemRowView: View {
             TOTPCountdownTimerView(
                 timeProvider: timeProvider,
                 totpCode: model.totpCode,
-                onExpiration: nil
+                onExpiration: nil,
             )
         }
         if !model.requiresMasterPassword {
@@ -155,7 +155,7 @@ struct VaultListItemRowView: View {
                 Button {
                     store.send(.copyTOTPCode(model.totpCode.code))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                 }
                 .foregroundColor(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.copyTotp)

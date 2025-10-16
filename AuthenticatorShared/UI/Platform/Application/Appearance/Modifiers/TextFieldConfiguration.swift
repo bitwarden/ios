@@ -27,15 +27,7 @@ extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .emailAddress,
         textContentType: .emailAddress,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to password text fields.
-    static let password = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .default,
-        textContentType: .password,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
@@ -43,15 +35,7 @@ extension TextFieldConfiguration {
         isAutocorrectionDisabled: true,
         keyboardType: .URL,
         textContentType: .URL,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to username text fields.
-    static let username = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .default,
-        textContentType: .username,
-        textInputAutocapitalization: .never
+        textInputAutocapitalization: .never,
     )
 
     /// A `TextFieldConfiguration` for applying common properties to numeric text fields.
@@ -60,7 +44,7 @@ extension TextFieldConfiguration {
             isAutocorrectionDisabled: true,
             keyboardType: .numberPad,
             textContentType: textContentType,
-            textInputAutocapitalization: .never
+            textInputAutocapitalization: .never,
         )
     }
 
@@ -70,7 +54,7 @@ extension TextFieldConfiguration {
             isAutocorrectionDisabled: true,
             keyboardType: keyboardType,
             textContentType: .oneTimeCode,
-            textInputAutocapitalization: .never
+            textInputAutocapitalization: .never,
         )
     }
 }

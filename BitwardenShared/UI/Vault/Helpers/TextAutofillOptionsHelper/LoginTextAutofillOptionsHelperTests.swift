@@ -25,7 +25,7 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
         vaultRepository = MockVaultRepository()
         subject = LoginTextAutofillOptionsHelper(
             errorReporter: errorReporter,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
     }
 
@@ -46,10 +46,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -68,7 +68,7 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             login: nil,
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -81,10 +81,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: nil,
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -104,10 +104,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: "",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -127,10 +127,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: nil,
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -150,10 +150,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "",
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -173,10 +173,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: false
+            viewPassword: false,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("1234")
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -196,10 +196,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success(nil)
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
@@ -220,10 +220,10 @@ class LoginTextAutofillOptionsHelperTests: BitwardenTestCase {
             login: .fixture(
                 password: "password",
                 username: "username",
-                totp: "1234"
+                totp: "1234",
             ),
             type: .login,
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.getTOTPKeyIfAllowedToCopyResult = .failure(BitwardenTestError.example)
         let options = await subject.getTextAutofillOptions(cipherView: cipher)

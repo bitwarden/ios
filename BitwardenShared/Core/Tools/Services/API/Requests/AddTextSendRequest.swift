@@ -44,7 +44,7 @@ struct AddTextSendRequest: Request {
             notes: send.notes,
             password: send.password,
             text: send.text.map(SendTextModel.init),
-            type: .text
+            type: .text,
         )
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -30,9 +31,9 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,
-                pasteboardService: pasteboardService
+                pasteboardService: pasteboardService,
             ),
-            state: PasswordHistoryListState()
+            state: PasswordHistoryListState(),
         )
     }
 

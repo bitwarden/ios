@@ -13,6 +13,8 @@ protocol VaultListPreparedDataBuilderFactory { // sourcery: AutoMockable
 
 /// The default implementation of `VaultListPreparedDataBuilderFactory`.
 struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
+    /// The service used to manage syncing and updates to the user's ciphers.
+    let cipherService: CipherService
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
@@ -24,10 +26,11 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
 
     func make() -> VaultListPreparedDataBuilder {
         DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 }
@@ -40,18 +43,20 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func addCipherDecryptionFailure(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the prepared data.
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
+    /// Adds a Fido2 item to the prepared data.
+    func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder
     /// Adds a folder item to the prepared data.
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
-        folders: [Folder]
+        folders: [Folder],
     ) -> VaultListPreparedDataBuilder
     /// Adds an item for a specific group to the prepared data.
     func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
     /// Adds an item with a match result strength to the prepared data.
     func addItem( // sourcery: useSelectorName
         withMatchResult matchResult: CipherMatchResult,
-        cipher: CipherListView
+        cipher: CipherListView,
     ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
@@ -80,6 +85,8 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
 class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     // MARK: Properties
 
+    /// The service used to manage syncing and updates to the user's ciphers.
+    let cipherService: CipherService
     /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
     /// The service used by the application to report non-fatal errors.
@@ -100,16 +107,19 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     /// Initializes a `DefaultVaultListPreparedDataBuilder`.
     /// - Parameters:
+    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The service used to get the present time.
     init(
+        cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
+        self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -133,10 +143,42 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return self
     }
 
+    func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
+        do {
+            guard let id = cipher.id, let cipherRaw = try await cipherService.fetchCipher(withId: id) else {
+                return self
+            }
+            let cipherView = try await clientService.vault().ciphers().decrypt(cipher: cipherRaw)
+
+            let decryptedFido2Credentials = try await clientService
+                .platform()
+                .fido2()
+                .decryptFido2AutofillCredentials(cipherView: cipherView)
+
+            guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
+                errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)
+                return self
+            }
+
+            guard let fido2Item = VaultListItem(
+                cipherListView: cipher,
+                fido2CredentialAutofillView: fido2CredentialAutofillView,
+            ) else {
+                return self
+            }
+
+            preparedData.fido2Items.append(fido2Item)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        return self
+    }
+
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
-        folders: [Folder]
+        folders: [Folder],
     ) -> VaultListPreparedDataBuilder {
         if let folderId = cipher.folderId, let folder = folders.first(where: { $0.id == folderId }) {
             preparedData.foldersCount[folderId, default: 0] += 1
@@ -150,7 +192,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func addItem( // swiftlint:disable:this cyclomatic_complexity
         forGroup group: VaultListGroup,
-        with cipher: CipherListView
+        with cipher: CipherListView,
     ) async -> any VaultListPreparedDataBuilder {
         guard cipher.deletedDate == nil else {
             if group == .trash, let trashItem = VaultListItem(cipherListView: cipher) {
@@ -196,7 +238,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func addItem(
         withMatchResult matchResult: CipherMatchResult,
-        cipher: CipherListView
+        cipher: CipherListView,
     ) async -> VaultListPreparedDataBuilder {
         guard matchResult != .none, let vaultListItem = VaultListItem(cipherListView: cipher) else {
             return self
@@ -308,7 +350,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     private func totpItem(
-        for cipherListView: CipherListView
+        for cipherListView: CipherListView,
     ) async -> VaultListItem? {
         guard let id = cipherListView.id,
               cipherListView.type.loginListView?.totp != nil else {
@@ -316,11 +358,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         }
         guard let code = try? await clientService.vault().generateTOTPCode(
             for: cipherListView,
-            date: timeProvider.presentTime
+            date: timeProvider.presentTime,
         ) else {
             errorReporter.log(
                 error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)")
+                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)"),
             )
             return nil
         }
@@ -331,14 +373,14 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             id: id,
             cipherListView: cipherListView,
             requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
-            totpCode: code
+            totpCode: code,
         )
         return VaultListItem(
             id: id,
             itemType: .totp(
                 name: cipherListView.name,
-                totpModel: listModel
-            )
+                totpModel: listModel,
+            ),
         )
     }
 }

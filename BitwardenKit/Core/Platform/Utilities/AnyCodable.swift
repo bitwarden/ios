@@ -37,7 +37,7 @@ public enum AnyCodable: Codable, Equatable, Sendable {
         } else {
             throw DecodingError.dataCorruptedError(
                 in: container,
-                debugDescription: "Unable to decode AnyCodable value."
+                debugDescription: "Unable to decode AnyCodable value.",
             )
         }
     }

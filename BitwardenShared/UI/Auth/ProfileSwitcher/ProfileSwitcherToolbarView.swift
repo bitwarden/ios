@@ -39,7 +39,7 @@ struct ProfileSwitcherToolbarView: View {
                 textColor: store.state.showPlaceholderToolbarIcon
                     ? nil
                     : store.state.activeAccountProfile?.profileIconTextColor,
-                size: iconSize
+                size: iconSize,
             )
         }
         .backport.buttonStyleGlassProminent()
@@ -65,7 +65,7 @@ extension View {
         color: Color? = SharedAsset.Colors.backgroundTertiary.swiftUIColor,
         initials: String?,
         textColor: Color?,
-        size: ProfileSwitcherIconSize = .standard
+        size: ProfileSwitcherIconSize = .standard,
     ) -> some View {
         Text(initials ?? "  ")
             .styleGuide(size.textStyle, weight: size.fontWeight)
@@ -73,7 +73,7 @@ extension View {
             .frame(minWidth: 22, alignment: .center)
             .background {
                 if initials == nil {
-                    Asset.Images.horizontalDots16.swiftUIImage
+                    SharedAsset.Icons.horizontalDots16.swiftUIImage
                         .padding(.vertical, 10)
                         .padding(.horizontal, 14)
                         .opacity(initials == nil ? 1.0 : 0.0)
@@ -114,7 +114,7 @@ extension ProfileSwitcherIconSize {
         fontWeight: .regular,
         padding: 4,
         textStyle: .caption2Monospaced,
-        shouldClipToCircle: true
+        shouldClipToCircle: true,
     )
 
     /// A larger icon size for use as a toolbar icon on iOS 26+.
@@ -122,7 +122,7 @@ extension ProfileSwitcherIconSize {
         fontWeight: .semibold,
         padding: 0,
         textStyle: .bodyMonospaced,
-        shouldClipToCircle: false
+        shouldClipToCircle: false,
     )
 }
 
@@ -137,9 +137,9 @@ extension ProfileSwitcherIconSize {
                     ProfileSwitcherToolbarView(
                         store: Store(
                             processor: StateProcessor(
-                                state: .empty()
-                            )
-                        )
+                                state: .empty(),
+                            ),
+                        ),
                     )
                 }
             }
@@ -158,10 +158,10 @@ extension ProfileSwitcherIconSize {
                                     accounts: [.anneAccount],
                                     activeAccountId: nil,
                                     allowLockAndLogout: true,
-                                    isVisible: false
-                                )
-                            )
-                        )
+                                    isVisible: false,
+                                ),
+                            ),
+                        ),
                     )
                 }
             }
@@ -176,9 +176,9 @@ extension ProfileSwitcherIconSize {
                     ProfileSwitcherToolbarView(
                         store: Store(
                             processor: StateProcessor(
-                                state: .singleAccount
-                            )
-                        )
+                                state: .singleAccount,
+                            ),
+                        ),
                     )
                 }
             }
@@ -200,10 +200,10 @@ extension ProfileSwitcherIconSize {
                                     ],
                                     activeAccountId: "1",
                                     allowLockAndLogout: true,
-                                    isVisible: false
-                                )
-                            )
-                        )
+                                    isVisible: false,
+                                ),
+                            ),
+                        ),
                     )
                 }
             }

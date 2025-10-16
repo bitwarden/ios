@@ -28,9 +28,9 @@ struct ViewSendItemView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: ViewSendItemAction.toastShown
+                    send: ViewSendItemAction.toastShown,
                 ),
-                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
             .toolbar {
                 cancelToolbarItem {
@@ -46,7 +46,7 @@ struct ViewSendItemView: View {
         AsyncButton {
             await store.perform(.deleteSend)
         } label: {
-            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+            Label(Localizations.deleteSend, image: SharedAsset.Icons.trash16.swiftUIImage, scaleImageDimension: 16)
         }
         .buttonStyle(.secondary(isDestructive: true, size: .medium))
         .accessibilityIdentifier("ViewSendDeleteButton")
@@ -74,15 +74,15 @@ struct ViewSendItemView: View {
                 title: Localizations.additionalOptions,
                 isExpanded: store.binding(
                     get: \.isAdditionalOptionsExpanded,
-                    send: { _ in ViewSendItemAction.toggleAdditionalOptions }
+                    send: { _ in ViewSendItemAction.toggleAdditionalOptions },
                 ),
-                buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
+                buttonAccessibilityIdentifier: "SendShowHideOptionsButton",
             ) {
                 if let maxAccessCount = store.state.sendView.maxAccessCount {
                     SendItemAccessCountStepper(
                         currentAccessCount: Int(store.state.sendView.accessCount),
                         displayInfoText: false,
-                        maximumAccessCount: .constant(Int(maxAccessCount))
+                        maximumAccessCount: .constant(Int(maxAccessCount)),
                     )
                     .disabled(true)
                 }
@@ -95,7 +95,7 @@ struct ViewSendItemView: View {
                         copyButtonAccessibilityIdentifier: "CopyNotesButton",
                         copyButtonAction: {
                             store.send(.copyNotes)
-                        }
+                        },
                     )
                     .accessibilityIdentifier("ViewSendNotes")
                 }
@@ -125,7 +125,7 @@ struct ViewSendItemView: View {
                 Button {
                     store.send(.copyShareURL)
                 } label: {
-                    Label(Localizations.copy, image: Asset.Images.copy16.swiftUIImage, scaleImageDimension: 16)
+                    Label(Localizations.copy, image: SharedAsset.Icons.copy16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.primary(size: .medium))
                 .accessibilityIdentifier("ViewSendCopyButton")
@@ -133,7 +133,7 @@ struct ViewSendItemView: View {
                 Button {
                     store.send(.shareSend)
                 } label: {
-                    Label(Localizations.share, image: Asset.Images.share16.swiftUIImage, scaleImageDimension: 16)
+                    Label(Localizations.share, image: SharedAsset.Icons.share16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.secondary(size: .medium))
                 .accessibilityIdentifier("ViewSendShareButton")
@@ -148,7 +148,7 @@ struct ViewSendItemView: View {
             BitwardenTextValueField(
                 title: Localizations.sendNameRequired,
                 value: store.state.sendView.name,
-                valueAccessibilityIdentifier: "ViewSendNameField"
+                valueAccessibilityIdentifier: "ViewSendNameField",
             )
 
             switch store.state.sendView.type {
@@ -177,7 +177,7 @@ struct ViewSendItemView: View {
                     BitwardenTextValueField(
                         title: Localizations.textToShare,
                         value: text,
-                        valueAccessibilityIdentifier: "ViewSendContentText"
+                        valueAccessibilityIdentifier: "ViewSendContentText",
                     )
                 }
             }
@@ -185,7 +185,7 @@ struct ViewSendItemView: View {
             BitwardenTextValueField(
                 title: Localizations.deletionDate,
                 value: store.state.sendView.deletionDate.dateTimeDisplay,
-                valueAccessibilityIdentifier: "ViewSendDeletionDateField"
+                valueAccessibilityIdentifier: "ViewSendDeletionDateField",
             )
         }
     }
@@ -198,9 +198,9 @@ struct ViewSendItemView: View {
     ViewSendItemView(store: Store(processor: StateProcessor(state: ViewSendItemState(
         sendView: .fixture(
             name: "My text send",
-            text: .fixture(text: "Some text to send")
+            text: .fixture(text: "Some text to send"),
         ),
-        shareURL: URL(string: "https://send.bitwarden.com/39ngaol3")
+        shareURL: URL(string: "https://send.bitwarden.com/39ngaol3"),
     ))))
     .navStackWrapped
 }
@@ -208,7 +208,7 @@ struct ViewSendItemView: View {
 #Preview("File") {
     ViewSendItemView(store: Store(processor: StateProcessor(state: ViewSendItemState(
         sendView: .fixture(type: .file, file: .fixture(fileName: "photo_123.jpg", sizeName: "3.25 MB")),
-        shareURL: URL(string: "https://send.bitwarden.com/39ngaol3")
+        shareURL: URL(string: "https://send.bitwarden.com/39ngaol3"),
     ))))
     .navStackWrapped
 }

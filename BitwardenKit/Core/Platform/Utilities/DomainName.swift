@@ -194,7 +194,7 @@ public class DomainName {
         return DomainNameResult(
             topLevelDomain: topLevelDomain,
             secondLevelDomain: String(secondLevelDomain ?? ""),
-            subDomain: String(subDomain)
+            subDomain: String(subDomain),
         )
     }
 
@@ -245,7 +245,7 @@ public class DomainName {
         return DataSet(
             exceptions: Set(exceptions),
             normals: Set(normals),
-            wildcards: Set(wildcards)
+            wildcards: Set(wildcards),
         )
     }
 }

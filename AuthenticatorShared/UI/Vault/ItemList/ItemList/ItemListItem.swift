@@ -51,11 +51,11 @@ extension ItemListItem {
     var totpCodeModel: TOTPCodeModel? {
         switch itemType {
         case let .sharedTotp(model):
-            return model.totpCode
+            model.totpCode
         case .syncError:
-            return nil
+            nil
         case let .totp(model):
-            return model.totpCode
+            model.totpCode
         }
     }
 
@@ -126,7 +126,7 @@ extension ItemListItem {
             id: "syncError",
             name: Localizations.unableToSyncCodesFromTheBitwardenApp,
             accountName: nil,
-            itemType: .syncError
+            itemType: .syncError,
         )
     }
 
@@ -145,7 +145,7 @@ extension ItemListItem {
                 id: id,
                 name: name,
                 accountName: accountName,
-                itemType: .sharedTotp(model: updatedModel)
+                itemType: .sharedTotp(model: updatedModel),
             )
         case .syncError:
             return self
@@ -156,7 +156,7 @@ extension ItemListItem {
                 id: id,
                 name: name,
                 accountName: accountName,
-                itemType: .totp(model: updatedModel)
+                itemType: .totp(model: updatedModel),
             )
         }
     }

@@ -69,8 +69,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     if customField.type == .boolean {
                         HStack(spacing: 16) {
                             let image = customField.booleanValue
-                                ? Asset.Images.checkSquare16.swiftUIImage
-                                : Asset.Images.square16.swiftUIImage
+                                ? SharedAsset.Icons.checkSquare16.swiftUIImage
+                                : SharedAsset.Icons.square16.swiftUIImage
                             image
                                 .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.textSecondary.swiftUIColor))
 
@@ -91,7 +91,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 if let value = customField.value {
                                     PasswordText(
                                         password: value,
-                                        isPasswordVisible: customField.isPasswordVisible
+                                        isPasswordVisible: customField.isPasswordVisible,
                                     )
                                 } else {
                                     Text(" ") // Placeholder so the field's title is positioned correctly.
@@ -106,9 +106,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
-                                        Asset.Images.link16.swiftUIImage
+                                        SharedAsset.Icons.link16.swiftUIImage
                                             .imageStyle(
-                                                .accessoryIcon16(color: SharedAsset.Colors.textSecondary.swiftUIColor)
+                                                .accessoryIcon16(color: SharedAsset.Colors.textSecondary.swiftUIColor),
                                             )
                                         Text(linkedIdType.localizedName)
                                             .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
@@ -122,14 +122,14 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 case .hidden:
                                     PasswordVisibilityButton(
                                         accessibilityIdentifier: "HiddenCustomFieldShowValueButton",
-                                        isPasswordVisible: customField.isPasswordVisible
+                                        isPasswordVisible: customField.isPasswordVisible,
                                     ) {
                                         store.send(.customFieldVisibilityPressed(customField))
                                     }
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
-                                        Asset.Images.copy24.swiftUIImage
+                                        SharedAsset.Icons.copy24.swiftUIImage
                                             .imageStyle(.accessoryIcon24)
                                     }
                                     .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
@@ -137,7 +137,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
-                                        Asset.Images.copy24.swiftUIImage
+                                        SharedAsset.Icons.copy24.swiftUIImage
                                             .imageStyle(.accessoryIcon24)
                                     }
                                     .accessibilityIdentifier("TextCustomFieldCopyValueButton")
@@ -157,8 +157,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         VStack(alignment: .leading, spacing: 8) {
             if store.state.shouldDisplayNoFolder {
                 belongingView(
-                    icon: Asset.Images.folder16,
-                    name: Localizations.folderNone
+                    icon: SharedAsset.Icons.folder16,
+                    name: Localizations.folderNone,
                 )
                 .padding(.leading, 8)
                 .accessibilityLabel(Localizations.folderX(Localizations.folderNone))
@@ -186,8 +186,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         VStack(alignment: .leading, spacing: 8) {
             if let organizationName = store.state.organizationName {
                 belongingView(
-                    icon: Asset.Images.business16,
-                    name: organizationName
+                    icon: SharedAsset.Icons.business16,
+                    name: organizationName,
                 )
                 .accessibilityLabel(Localizations.ownerX(organizationName))
                 .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
@@ -197,8 +197,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ForEachIndexed(store.state.cipherCollectionsToDisplay) { index, collection in
                     VStack(alignment: .leading, spacing: 0) {
                         belongingView(
-                            icon: Asset.Images.collections16,
-                            name: collection.name
+                            icon: SharedAsset.Icons.collections16,
+                            name: collection.name,
                         )
                         .accessibilityLabel(Localizations.collectionX(collection.name))
                         .accessibilityHint(Localizations.itemXOfY(index + 2, store.state.totalHeaderAdditionalItems))
@@ -212,15 +212,15 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
 
             if store.state.shouldDisplayFolder, let folderName = store.state.folderName {
                 belongingView(
-                    icon: Asset.Images.folder16,
-                    name: folderName
+                    icon: SharedAsset.Icons.folder16,
+                    name: folderName,
                 )
                 .accessibilityLabel(Localizations.folderX(folderName))
                 .accessibilityHint(
                     Localizations.itemXOfY(
                         store.state.totalHeaderAdditionalItems,
-                        store.state.totalHeaderAdditionalItems
-                    )
+                        store.state.totalHeaderAdditionalItems,
+                    ),
                 )
             }
         }
@@ -232,7 +232,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             VaultItemDecorativeImageView(
                 item: store.state,
                 iconBaseURL: store.state.iconBaseURL,
-                showWebIcons: store.state.showWebIcons
+                showWebIcons: store.state.showWebIcons,
             ) { placeholderIconAsset in
                 Image(decorative: placeholderIconAsset)
                     .resizable()
@@ -243,7 +243,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     .withCircularBackground(
                         color: SharedAsset.Colors.illustrationBgPrimary.swiftUIColor,
                         width: 36,
-                        height: 36
+                        height: 36,
                     )
             }
             .imageStyle(.viewIcon())
@@ -259,8 +259,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             let image = store.state.isFavoriteOn
-                ? Asset.Images.starFilled24.swiftUIImage
-                : Asset.Images.star24.swiftUIImage
+                ? SharedAsset.Icons.starFilled24.swiftUIImage
+                : SharedAsset.Icons.star24.swiftUIImage
             image
                 .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.favorite)
@@ -296,25 +296,25 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 store: store.child(
                     state: { _ in store.state.cardItemViewState },
                     mapAction: { $0 },
-                    mapEffect: nil
-                )
+                    mapEffect: nil,
+                ),
             )
         case .identity:
             ViewIdentityItemView(
                 store: store.child(
                     state: { _ in store.state.identityState },
                     mapAction: { $0 },
-                    mapEffect: nil
-                )
+                    mapEffect: nil,
+                ),
             )
         case .login:
             ViewLoginItemView(
                 store: store.child(
                     state: { _ in store.state.loginState },
                     mapAction: { $0 },
-                    mapEffect: { $0 }
+                    mapEffect: { $0 },
                 ),
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
         case .secureNote:
             EmptyView()
@@ -324,8 +324,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 store: store.child(
                     state: { _ in store.state.sshKeyState },
                     mapAction: { .sshKeyItemAction($0) },
-                    mapEffect: nil
-                )
+                    mapEffect: nil,
+                ),
             )
         }
     }
@@ -340,7 +340,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 useUIKitTextView: true,
                 copyButtonAccessibilityIdentifier: "CopyNotesButton",
                 copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes))
-                }
+                },
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")
@@ -399,13 +399,13 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         BitwardenTextValueField(
                             title: Localizations.websiteURI,
                             value: URL(string: uri.uri)?.host ?? uri.uri,
-                            valueAccessibilityIdentifier: "LoginUriEntry"
+                            valueAccessibilityIdentifier: "LoginUriEntry",
                         ) {
                             if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                                 Button {
                                     openURL(url)
                                 } label: {
-                                    Asset.Images.externalLink24.swiftUIImage
+                                    SharedAsset.Icons.externalLink24.swiftUIImage
                                         .imageStyle(.accessoryIcon24)
                                 }
                                 .accessibilityLabel(Localizations.launch)
@@ -414,7 +414,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             Button {
                                 store.send(.copyPressed(value: uri.uri, field: .uri))
                             } label: {
-                                Asset.Images.copy24.swiftUIImage
+                                SharedAsset.Icons.copy24.swiftUIImage
                                     .imageStyle(.accessoryIcon24)
                             }
                             .accessibilityLabel(Localizations.copy)
@@ -456,7 +456,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Button {
                     store.send(.downloadAttachment(attachment))
                 } label: {
-                    Image(asset: Asset.Images.download24)
+                    Image(asset: SharedAsset.Icons.download24)
                         .imageStyle(.rowIcon(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
@@ -472,7 +472,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     ///   - name: The name to display.
     /// - Returns: A view with an icon and a name stating where the item belongs to.
     @ViewBuilder
-    private func belongingView(icon: ImageAsset, name: String) -> some View {
+    private func belongingView(icon: SharedImageAsset, name: String) -> some View {
         HStack(alignment: .top) {
             Image(decorative: icon)
                 .resizable()

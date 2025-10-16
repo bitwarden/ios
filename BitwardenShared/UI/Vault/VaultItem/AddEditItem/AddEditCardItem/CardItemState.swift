@@ -44,7 +44,7 @@ extension CardItemState {
                 guard case let .custom(brand) = brand else { return nil }
                 return brand.rawValue
             }(),
-            number: cardNumber.nilIfEmpty
+            number: cardNumber.nilIfEmpty,
         )
     }
 }

@@ -10,7 +10,7 @@ public class MockSystemDevice: SystemDevice {
         model: String = "iPhone",
         modelIdentifier: String = "iPhone14,2",
         systemName: String = "iOS",
-        systemVersion: String = "16.4"
+        systemVersion: String = "16.4",
     ) {
         self.model = model
         self.modelIdentifier = modelIdentifier

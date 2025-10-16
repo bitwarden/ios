@@ -11,7 +11,7 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 }

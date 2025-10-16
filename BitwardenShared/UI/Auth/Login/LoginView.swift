@@ -46,14 +46,14 @@ struct LoginView: View {
                 title: Localizations.masterPassword,
                 text: store.binding(
                     get: \.masterPassword,
-                    send: LoginAction.masterPasswordChanged
+                    send: LoginAction.masterPasswordChanged,
                 ),
                 accessibilityIdentifier: "LoginMasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
-                    send: LoginAction.revealMasterPasswordFieldPressed
+                    send: LoginAction.revealMasterPasswordFieldPressed,
                 ),
                 footerContent: {
                     Button(Localizations.getMasterPasswordwordHint) {
@@ -62,7 +62,7 @@ struct LoginView: View {
                     .buttonStyle(.bitwardenBorderless)
                     .padding(.vertical, 14)
                     .accessibilityIdentifier("GetMasterPasswordHintLabel")
-                }
+                },
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -88,7 +88,7 @@ struct LoginView: View {
                     store.send(.loginWithDevicePressed)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(decorative: Asset.Images.mobile16)
+                        Image(decorative: SharedAsset.Icons.mobile16)
                             .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
@@ -101,7 +101,7 @@ struct LoginView: View {
                 store.send(.enterpriseSingleSignOnPressed)
             } label: {
                 HStack(spacing: 8) {
-                    Image(decorative: Asset.Images.provider16)
+                    Image(decorative: SharedAsset.Icons.provider16)
                         .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }
@@ -116,7 +116,7 @@ struct LoginView: View {
         VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggedInAsOn(
                 store.state.username,
-                store.state.serverURLString
+                store.state.serverURLString,
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
@@ -141,9 +141,9 @@ struct LoginView: View {
         LoginView(
             store: Store(
                 processor: StateProcessor(
-                    state: LoginState()
-                )
-            )
+                    state: LoginState(),
+                ),
+            ),
         )
     }
 }
@@ -154,10 +154,10 @@ struct LoginView: View {
             store: Store(
                 processor: StateProcessor(
                     state: LoginState(
-                        isLoginWithDeviceVisible: true
-                    )
-                )
-            )
+                        isLoginWithDeviceVisible: true,
+                    ),
+                ),
+            ),
         )
     }
 }

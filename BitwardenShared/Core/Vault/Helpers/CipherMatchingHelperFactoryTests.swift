@@ -37,7 +37,7 @@ class CipherMatchingHelperFactoryTests: BitwardenTestCase {
     func test_make() async {
         subject = DefaultCipherMatchingHelperFactory(
             settingsService: settingsService,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let result = await subject.make(uri: "https://example.com")
@@ -50,7 +50,7 @@ class CipherMatchingHelperFactoryTests: BitwardenTestCase {
         subject = DefaultCipherMatchingHelperFactory(
             settingsService: settingsService,
             stateService: stateService,
-            testCipherMatchingHelper: cipherMatchingHelper
+            testCipherMatchingHelper: cipherMatchingHelper,
         )
 
         let result = await subject.make(uri: "https://example.com")

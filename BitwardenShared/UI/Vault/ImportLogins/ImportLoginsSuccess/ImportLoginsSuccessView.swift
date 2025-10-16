@@ -20,27 +20,27 @@ struct ImportLoginsSuccessView: View {
                 image: Asset.Images.Illustrations.devices,
                 style: .mediumImage,
                 title: Localizations.importSuccessful,
-                message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
+                message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop,
             )
 
             ContentBlock(dividerLeadingPadding: 48) {
                 rowView(
-                    image: Asset.Images.puzzle24,
+                    image: SharedAsset.Icons.puzzle24,
                     title: Localizations.downloadTheBrowserExtension,
                     subtitle: Localizations
-                        .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience
+                        .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience,
                 )
 
                 rowView(
-                    image: Asset.Images.desktop24,
+                    image: SharedAsset.Icons.desktop24,
                     title: Localizations.useTheWebApp,
-                    subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings
+                    subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings,
                 )
 
                 rowView(
-                    image: Asset.Images.shield24,
+                    image: SharedAsset.Icons.shield24,
                     title: Localizations.autofillPasswords,
-                    subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere
+                    subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere,
                 )
             }
 
@@ -75,9 +75,9 @@ struct ImportLoginsSuccessView: View {
     ///
     @ViewBuilder
     private func rowView(
-        image: ImageAsset,
+        image: SharedImageAsset,
         title: String,
-        subtitle: String? = nil
+        subtitle: String? = nil,
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)

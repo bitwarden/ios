@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -6,6 +7,7 @@ import XCTest
 class TokenServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultTokenService!
@@ -15,15 +17,21 @@ class TokenServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
-        subject = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
+        subject = DefaultTokenService(
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        errorReporter = nil
         keychainRepository = nil
         stateService = nil
         subject = nil
@@ -35,12 +43,12 @@ class TokenServiceTests: BitwardenTestCase {
     func test_getAccessToken() async throws {
         stateService.activeAccount = .fixture()
 
-        let accessToken = try await subject.getAccessToken()
+        let accessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(accessToken, "ACCESS_TOKEN")
 
         keychainRepository.getAccessTokenResult = .success("🔑")
 
-        let updatedAccessToken = try await subject.getAccessToken()
+        let updatedAccessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(updatedAccessToken, "🔑")
     }
 
@@ -49,7 +57,31 @@ class TokenServiceTests: BitwardenTestCase {
         stateService.activeAccount = nil
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getAccessToken()
+            let accessToken: String = try await subject.getAccessToken()
+        }
+    }
+
+    /// `getAccessToken()` returns the access token stored in the state service for the active account
+    /// for the `ClientManagedTokens` function. Now it temporarily returns `nil` until the expired validation is added
+    /// as the SDK always expect a valid token.
+    func test_getAccessToken_sdk() async throws {
+        let accessToken: String? = await subject.getAccessToken()
+        XCTAssertNil(accessToken)
+    }
+
+    /// `getAccessTokenExpirationDate()` returns the access token's expiration date.
+    func test_getAccessTokenExpirationDate() async throws {
+        stateService.accessTokenExpirationDateByUserId["1"] = Date(year: 2025, month: 10, day: 2)
+        stateService.activeAccount = .fixture()
+
+        let expirationDate = try await subject.getAccessTokenExpirationDate()
+        XCTAssertEqual(expirationDate, Date(year: 2025, month: 10, day: 2))
+    }
+
+    /// `getAccessTokenExpirationDate()` throws an error if there isn't an active account.
+    func test_getAccessTokenExpirationDate_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccessTokenExpirationDate()
         }
     }
 
@@ -128,15 +160,17 @@ class TokenServiceTests: BitwardenTestCase {
     func test_setTokens() async throws {
         stateService.activeAccount = .fixture()
 
-        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
+        let expirationDate = Date(year: 2025, month: 10, day: 1)
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒", expirationDate: expirationDate)
 
         XCTAssertEqual(
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "1"))],
-            "🔑"
+            "🔑",
         )
         XCTAssertEqual(
             keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "1"))],
-            "🔒"
+            "🔒",
         )
+        XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["1"], expirationDate)
     }
 }

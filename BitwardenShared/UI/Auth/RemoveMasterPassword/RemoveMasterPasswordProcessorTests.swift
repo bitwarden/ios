@@ -27,13 +27,13 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
             state: RemoveMasterPasswordState(
                 organizationName: "Example Org",
                 organizationId: "ORG_ID",
-                keyConnectorUrl: "https://example.com"
-            )
+                keyConnectorUrl: "https://example.com",
+            ),
         )
     }
 
@@ -72,8 +72,8 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             alert,
             Alert.inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
-            ))
+                message: Localizations.validationFieldRequired(Localizations.masterPassword),
+            )),
         )
     }
 
@@ -81,7 +81,11 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_continueFlow_invalidPassword() async throws {
         authRepository.migrateUserToKeyConnectorResult = .failure(
-            BitwardenSdk.BitwardenError.E(message: "invalid master password")
+            BitwardenSdk.BitwardenError.AuthValidate(
+                AuthValidateError.WrongPassword(
+                    message: "invalid master password",
+                ),
+            ),
         )
         subject.state.masterPassword = "password"
 
@@ -92,8 +96,8 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
             alert,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword
-            )
+                message: Localizations.invalidMasterPassword,
+            ),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
@@ -140,7 +144,7 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
-            Alert.leaveOrganizationConfirmation(orgName: "Example Org") {}
+            Alert.leaveOrganizationConfirmation(orgName: "Example Org") {},
         )
 
         try await alert.tapAction(title: Localizations.yes)

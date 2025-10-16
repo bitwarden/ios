@@ -173,7 +173,7 @@ extension View {
         Menu {
             content()
         } label: {
-            Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }
@@ -282,7 +282,7 @@ extension View {
     func versionDependentOrderingToolbarItemGroup(
         placement: ToolbarItemPlacement = .topBarTrailing,
         @ViewBuilder alfa: () -> some View,
-        @ViewBuilder bravo: () -> some View
+        @ViewBuilder bravo: () -> some View,
     ) -> some ToolbarContent {
         ToolbarItemGroup(placement: placement) {
             if #unavailable(iOS 26) {

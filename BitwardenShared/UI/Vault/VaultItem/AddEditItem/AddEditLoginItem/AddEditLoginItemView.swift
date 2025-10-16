@@ -56,12 +56,12 @@ struct AddEditLoginItemView: View {
             BitwardenTextValueField(
                 title: Localizations.passkey,
                 value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),
-                valueAccessibilityIdentifier: "LoginPasskeyEntry"
+                valueAccessibilityIdentifier: "LoginPasskeyEntry",
             ) {
                 if store.state.canViewPassword, store.state.editView {
                     AccessoryButton(
-                        asset: Asset.Images.minusCircle24,
-                        accessibilityLabel: Localizations.removePasskey
+                        asset: SharedAsset.Icons.minusCircle24,
+                        accessibilityLabel: Localizations.removePasskey,
                     ) {
                         store.send(.removePasskeyPressed)
                     }
@@ -77,18 +77,21 @@ struct AddEditLoginItemView: View {
             title: Localizations.password,
             text: store.binding(
                 get: \.password,
-                send: AddEditItemAction.passwordChanged
+                send: AddEditItemAction.passwordChanged,
             ),
             accessibilityIdentifier: "LoginPasswordEntry",
             passwordVisibilityAccessibilityId: "ViewPasswordButton",
             canViewPassword: store.state.canViewPassword,
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            )
+                send: AddEditItemAction.togglePasswordVisibilityChanged,
+            ),
         ) {
             if store.state.canViewPassword {
-                AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
+                AccessoryButton(
+                    asset: SharedAsset.Icons.generate24,
+                    accessibilityLabel: Localizations.generatePassword,
+                ) {
                     store.send(.generatePasswordPressed)
                 }
                 .guidedTourStep(.step1) { frame in
@@ -119,17 +122,17 @@ struct AddEditLoginItemView: View {
                 title: Localizations.authenticatorKey,
                 text: store.binding(
                     get: \.authenticatorKey,
-                    send: AddEditItemAction.totpKeyChanged
+                    send: AddEditItemAction.totpKeyChanged,
                 ),
                 accessibilityIdentifier: "LoginTotpEntry",
                 canViewPassword: store.state.canViewPassword,
                 isPasswordVisible: store.binding(
                     get: \.isAuthKeyVisible,
-                    send: AddEditItemAction.authKeyVisibilityTapped
+                    send: AddEditItemAction.authKeyVisibilityTapped,
                 ),
                 trailingContent: {
                     if !store.state.authenticatorKey.isEmpty {
-                        AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
+                        AccessoryButton(asset: SharedAsset.Icons.copy24, accessibilityLabel: Localizations.copyTotp) {
                             await store.perform(.copyTotpPressed)
                         }
                     }
@@ -138,12 +141,12 @@ struct AddEditLoginItemView: View {
                     AsyncButton {
                         await store.perform(.setupTotpPressed)
                     } label: {
-                        Label(Localizations.setUpAuthenticatorKey, image: Asset.Images.camera16.swiftUIImage)
+                        Label(Localizations.setUpAuthenticatorKey, image: SharedAsset.Icons.camera16.swiftUIImage)
                     }
                     .accessibilityIdentifier("SetupTotpButton")
                     .buttonStyle(.bitwardenBorderless)
                     .padding(.vertical, 14)
-                }
+                },
             )
             .disabled(!store.state.canViewPassword)
             .focused($focusedField, equals: .totp)
@@ -167,15 +170,15 @@ struct AddEditLoginItemView: View {
                         title: Localizations.websiteURI,
                         text: store.binding(
                             get: { _ in uriState.uri },
-                            send: { AddEditItemAction.uriChanged($0, index: index) }
+                            send: { AddEditItemAction.uriChanged($0, index: index) },
                         ),
-                        accessibilityIdentifier: "LoginUriEntry"
+                        accessibilityIdentifier: "LoginUriEntry",
                     ) {
                         Menu {
                             Menu(Localizations.matchDetection) {
                                 Picker(Localizations.matchDetection, selection: store.binding(
                                     get: { _ in uriState.matchType },
-                                    send: { .uriTypeChanged($0, index: index) }
+                                    send: { .uriTypeChanged($0, index: index) },
                                 )) {
                                     ForEach(store.state.uriMatchTypeOptions, id: \.hashValue) { option in
                                         if option == DefaultableType<UriMatchType>.default {
@@ -192,7 +195,7 @@ struct AddEditLoginItemView: View {
                                 }
                             }
                         } label: {
-                            Asset.Images.cog24.swiftUIImage
+                            SharedAsset.Icons.cog24.swiftUIImage
                                 .imageStyle(.accessoryIcon24)
                         }
                         .accessibilityIdentifier("LoginUriOptionsButton")
@@ -205,7 +208,7 @@ struct AddEditLoginItemView: View {
                         store.send(.newUriPressed)
                     }
                 } label: {
-                    Label(Localizations.addWebsite, image: Asset.Images.plus16.swiftUIImage)
+                    Label(Localizations.addWebsite, image: SharedAsset.Icons.plus16.swiftUIImage)
                 }
                 .accessibilityIdentifier("LoginAddNewUriButton")
                 .buttonStyle(.bitwardenBorderless)
@@ -224,13 +227,13 @@ struct AddEditLoginItemView: View {
             title: Localizations.username,
             text: store.binding(
                 get: \.username,
-                send: AddEditItemAction.usernameChanged
+                send: AddEditItemAction.usernameChanged,
             ),
-            accessibilityIdentifier: "LoginUsernameEntry"
+            accessibilityIdentifier: "LoginUsernameEntry",
         ) {
             AccessoryButton(
-                asset: Asset.Images.generate24,
-                accessibilityLabel: Localizations.generateUsername
+                asset: SharedAsset.Icons.generate24,
+                accessibilityLabel: Localizations.generateUsername,
             ) {
                 store.send(.generateUsernamePressed)
             }
@@ -258,10 +261,10 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                             processor: StateProcessor(
                                 state: LoginItemState(
                                     isTOTPAvailable: false,
-                                    totpState: .none
-                                )
-                            )
-                        )
+                                    totpState: .none,
+                                ),
+                            ),
+                        ),
                     )
                 }
                 .padding(16)
@@ -279,10 +282,10 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                             processor: StateProcessor(
                                 state: LoginItemState(
                                     isTOTPAvailable: true,
-                                    totpState: .init(key)
-                                )
-                            )
-                        )
+                                    totpState: .init(key),
+                                ),
+                            ),
+                        ),
                     )
                 }
                 .padding(16)

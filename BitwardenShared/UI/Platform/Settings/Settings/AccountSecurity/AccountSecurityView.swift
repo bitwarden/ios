@@ -69,7 +69,7 @@ struct AccountSecurityView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissSetUpUnlockActionCard)
-                }
+                },
             ) {
                 BitwardenBadge(badgeValue: "1")
             }
@@ -82,7 +82,7 @@ struct AccountSecurityView: View {
             ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(
                     Localizations.accountFingerprintPhrase,
-                    accessibilityIdentifier: "AccountFingerprintPhraseLabel"
+                    accessibilityIdentifier: "AccountFingerprintPhraseLabel",
                 ) {
                     Task {
                         await store.perform(.accountFingerprintPhrasePressed)
@@ -91,18 +91,18 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.twoStepLogin,
-                    accessibilityIdentifier: "TwoStepLoginLinkItemView"
+                    accessibilityIdentifier: "TwoStepLoginLinkItemView",
                 ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
-                    Image(asset: Asset.Images.externalLink24)
+                    Image(asset: SharedAsset.Icons.externalLink24)
                         .imageStyle(.rowIcon)
                 }
 
                 if store.state.isLockNowVisible {
                     SettingsListItem(
                         Localizations.lockNow,
-                        accessibilityIdentifier: "LockNowLabel"
+                        accessibilityIdentifier: "LockNowLabel",
                     ) {
                         Task {
                             await store.perform(.lockVault)
@@ -112,14 +112,14 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.logOut,
-                    accessibilityIdentifier: "LogOutLabel"
+                    accessibilityIdentifier: "LogOutLabel",
                 ) {
                     store.send(.logout)
                 }
 
                 SettingsListItem(
                     Localizations.deleteAccount,
-                    accessibilityIdentifier: "DeleteAccountLabel"
+                    accessibilityIdentifier: "DeleteAccountLabel",
                 ) {
                     store.send(.deleteAccountPressed)
                 }
@@ -132,11 +132,11 @@ struct AccountSecurityView: View {
         SectionView(Localizations.approveLoginRequests) {
             SettingsListItem(
                 Localizations.pendingLogInRequests,
-                accessibilityIdentifier: "PendingLogInRequestsLabel"
+                accessibilityIdentifier: "PendingLogInRequestsLabel",
             ) {
                 store.send(.pendingLoginRequestsTapped)
             } trailingContent: {
-                Image(asset: Asset.Images.chevronRight16)
+                Image(asset: SharedAsset.Icons.chevronRight16)
                     .imageStyle(.accessoryIcon16)
             }
             .contentBlock()
@@ -158,8 +158,8 @@ struct AccountSecurityView: View {
                         options: store.state.availableTimeoutOptions,
                         selection: store.binding(
                             get: \.sessionTimeoutValue,
-                            send: AccountSecurityAction.sessionTimeoutValueChanged
-                        )
+                            send: AccountSecurityAction.sessionTimeoutValueChanged,
+                        ),
                     )
 
                     if store.state.isShowingCustomTimeout {
@@ -168,10 +168,10 @@ struct AccountSecurityView: View {
                             customTimeoutValue: store.state.customTimeoutString,
                             pickerValue: store.binding(
                                 get: \.customTimeoutValueSeconds,
-                                send: AccountSecurityAction.customTimeoutValueSecondsChanged
+                                send: AccountSecurityAction.customTimeoutValueSecondsChanged,
                             ),
                             hasDivider: false,
-                            customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
+                            customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel,
                         )
                     }
 
@@ -181,8 +181,8 @@ struct AccountSecurityView: View {
                         options: store.state.availableTimeoutActions,
                         selection: store.binding(
                             get: \.sessionTimeoutAction,
-                            send: AccountSecurityAction.sessionTimeoutActionChanged
-                        )
+                            send: AccountSecurityAction.sessionTimeoutActionChanged,
+                        ),
                     )
                     .disabled(store.state.isSessionTimeoutActionDisabled)
                 }
@@ -201,8 +201,8 @@ struct AccountSecurityView: View {
                         Localizations.unlockWithPIN,
                         isOn: store.bindingAsync(
                             get: \.isUnlockWithPINCodeOn,
-                            perform: AccountSecurityEffect.toggleUnlockWithPINCode
-                        )
+                            perform: AccountSecurityEffect.toggleUnlockWithPINCode,
+                        ),
                     )
                     .accessibilityIdentifier("UnlockWithPinSwitch")
                 }
@@ -217,9 +217,9 @@ struct AccountSecurityView: View {
                 Localizations.allowAuthenticatorSyncing,
                 isOn: store.bindingAsync(
                     get: \.isAuthenticatorSyncEnabled,
-                    perform: AccountSecurityEffect.toggleSyncWithAuthenticator
+                    perform: AccountSecurityEffect.toggleSyncWithAuthenticator,
                 ),
-                accessibilityIdentifier: Localizations.allowAuthenticatorSyncing
+                accessibilityIdentifier: Localizations.allowAuthenticatorSyncing,
             )
             .contentBlock()
         }
@@ -245,8 +245,8 @@ struct AccountSecurityView: View {
             toggleText,
             isOn: store.bindingAsync(
                 get: { _ in enabled },
-                perform: AccountSecurityEffect.toggleUnlockWithBiometrics
-            )
+                perform: AccountSecurityEffect.toggleUnlockWithBiometrics,
+            ),
         )
         .accessibilityIdentifier("UnlockWithBiometricsSwitch")
         .accessibilityLabel(toggleText)
@@ -255,13 +255,13 @@ struct AccountSecurityView: View {
     private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
         switch biometryType {
         case .faceID:
-            return Localizations.unlockWith(Localizations.faceID)
+            Localizations.unlockWith(Localizations.faceID)
         case .opticID:
-            return Localizations.unlockWith(Localizations.opticID)
+            Localizations.unlockWith(Localizations.opticID)
         case .touchID:
-            return Localizations.unlockWith(Localizations.touchID)
+            Localizations.unlockWith(Localizations.touchID)
         case .unknown:
-            return Localizations.unlockWithUnknownBiometrics
+            Localizations.unlockWithUnknownBiometrics
         }
     }
 }
@@ -272,7 +272,7 @@ struct AccountSecurityView: View {
 #Preview {
     NavigationView {
         AccountSecurityView(
-            store: Store(processor: StateProcessor(state: AccountSecurityState()))
+            store: Store(processor: StateProcessor(state: AccountSecurityState())),
         )
     }
 }
@@ -280,7 +280,7 @@ struct AccountSecurityView: View {
 #Preview("Vault Unlock Action Card") {
     NavigationView {
         AccountSecurityView(store: Store(processor: StateProcessor(state: AccountSecurityState(
-            badgeState: .fixture(vaultUnlockSetupProgress: .setUpLater)
+            badgeState: .fixture(vaultUnlockSetupProgress: .setUpLater),
         ))))
     }
 }

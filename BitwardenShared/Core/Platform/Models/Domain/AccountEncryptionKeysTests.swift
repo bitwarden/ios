@@ -12,8 +12,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             responseModel: ProfileResponseModel.fixture(
                 accountKeys: accountKeys,
                 key: "KEY",
-                privateKey: "PRIVATE_KEY"
-            )
+                privateKey: "PRIVATE_KEY",
+            ),
         )
 
         XCTAssertEqual(
@@ -21,8 +21,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             AccountEncryptionKeys(
                 accountKeys: accountKeys,
                 encryptedPrivateKey: "WRAPPED_PRIVATE_KEY",
-                encryptedUserKey: "KEY"
-            )
+                encryptedUserKey: "KEY",
+            ),
         )
     }
 
@@ -33,8 +33,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             responseModel: IdentityTokenResponseModel.fixture(
                 accountKeys: nil,
                 key: "KEY",
-                privateKey: "PRIVATE_KEY"
-            )
+                privateKey: "PRIVATE_KEY",
+            ),
         )
 
         XCTAssertEqual(
@@ -42,15 +42,15 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             AccountEncryptionKeys(
                 accountKeys: nil,
                 encryptedPrivateKey: "PRIVATE_KEY",
-                encryptedUserKey: "KEY"
-            )
+                encryptedUserKey: "KEY",
+            ),
         )
     }
 
     /// `init(responseModel:)` returns `nil` if the response model doesn't contain encryption keys.
     func test_init_responseModel_missingKeys() {
         let subject = AccountEncryptionKeys(
-            responseModel: IdentityTokenResponseModel.fixture(accountKeys: nil, key: nil, privateKey: nil)
+            responseModel: IdentityTokenResponseModel.fixture(accountKeys: nil, key: nil, privateKey: nil),
         )
         XCTAssertNil(subject)
     }

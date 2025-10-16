@@ -22,7 +22,7 @@ protocol PendingAppIntentActionMediatorDelegate: AnyObject {
     ///   - data: Additional data if necessary.
     func onPendingAppIntentActionSuccess(
         _ pendingAppIntentAction: PendingAppIntentAction,
-        data: Any?
+        data: Any?,
     ) async
 }
 
@@ -51,7 +51,7 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
     init(
         authRepository: AuthRepository,
         errorReporter: ErrorReporter,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.authRepository = authRepository
         self.errorReporter = errorReporter

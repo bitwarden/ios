@@ -17,7 +17,7 @@ enum TOTPExpirationCalculator {
     ///
     static func hasCodeExpired(
         _ codeModel: TOTPCodeModel,
-        timeProvider: any TimeProvider
+        timeProvider: any TimeProvider,
     ) -> Bool {
         let period = codeModel.period
         let codeGenerationDate = codeModel.codeGenerationDate
@@ -45,7 +45,7 @@ enum TOTPExpirationCalculator {
     ///
     static func listItemsByExpiration(
         _ items: [VaultListItem],
-        timeProvider: any TimeProvider
+        timeProvider: any TimeProvider,
     ) -> [Bool: [VaultListItem]] {
         let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
             guard case let .totp(_, model) = item.itemType else { return false }

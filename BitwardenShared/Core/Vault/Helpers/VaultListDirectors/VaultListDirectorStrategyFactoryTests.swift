@@ -20,7 +20,7 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
             collectionService: MockCollectionService(),
             folderService: MockFolderService(),
             vaultListBuilderFactory: MockVaultListSectionsBuilderFactory(),
-            vaultListDataPreparator: MockVaultListDataPreparator()
+            vaultListDataPreparator: MockVaultListDataPreparator(),
         )
     }
 
@@ -31,6 +31,13 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `make(filter:)` returns `CombinedSingleAutofillVaultListDirectorStrategy` when
+    /// filtering by mode `.combinedSingleSection`.
+    func test_make_returnsCombinedSingleAutofillVaultListDirectorStrategy() {
+        let stragegy = subject.make(filter: VaultListFilter(mode: .combinedSingleSection))
+        XCTAssertTrue(stragegy is CombinedSingleAutofillVaultListDirectorStrategy)
+    }
 
     /// `make(filter:)` returns `MainVaultListDirectorStrategy` when not filtering by group.
     func test_make_returnsMainVaultStrategy() {

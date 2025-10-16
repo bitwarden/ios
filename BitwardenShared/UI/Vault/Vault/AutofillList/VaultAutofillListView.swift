@@ -32,10 +32,10 @@ struct VaultAutofillListView: View {
             view.searchable(
                 text: store.binding(
                     get: \.searchText,
-                    send: VaultAutofillListAction.searchTextChanged
+                    send: VaultAutofillListAction.searchTextChanged,
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: Localizations.search,
             )
         }
         .toolbar {
@@ -48,8 +48,8 @@ struct VaultAutofillListView: View {
                     store: store.child(
                         state: \.profileSwitcherState,
                         mapAction: VaultAutofillListAction.profileSwitcher,
-                        mapEffect: VaultAutofillListEffect.profileSwitcher
-                    )
+                        mapEffect: VaultAutofillListEffect.profileSwitcher,
+                    ),
                 )
             }
         }
@@ -63,8 +63,8 @@ struct VaultAutofillListView: View {
             store: store.child(
                 state: \.profileSwitcherState,
                 mapAction: VaultAutofillListAction.profileSwitcher,
-                mapEffect: VaultAutofillListEffect.profileSwitcher
-            )
+                mapEffect: VaultAutofillListEffect.profileSwitcher,
+            ),
         )
     }
 }
@@ -115,9 +115,9 @@ private struct VaultAutofillListSearchableView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: VaultAutofillListAction.toastShown
+                    send: VaultAutofillListAction.toastShown,
                 ),
-                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
     }
 
@@ -146,7 +146,7 @@ private struct VaultAutofillListSearchableView: View {
             ForEach(sections) { section in
                 VaultListSectionView(
                     section: section,
-                    showCount: !store.state.isCreatingFido2Credential
+                    showCount: !store.state.isCreatingFido2Credential,
                 ) { item in
                     AsyncButton {
                         await store.perform(.vaultItemTapped(item))
@@ -191,13 +191,13 @@ private struct VaultAutofillListSearchableView: View {
                         item: item,
                         hasDivider: !isLastInSection,
                         showTotpCopyButton: false,
-                        showWebIcons: state.showWebIcons
+                        showWebIcons: state.showWebIcons,
                     )
                 },
                 mapAction: nil,
-                mapEffect: nil
+                mapEffect: nil,
             ),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -213,7 +213,7 @@ private struct VaultAutofillListSearchableView: View {
                 if store.state.vaultListSections.isEmpty {
                     IllustratedMessageView(
                         image: Asset.Images.Illustrations.items.swiftUIImage,
-                        message: store.state.emptyViewMessage
+                        message: store.state.emptyViewMessage,
                     ) {
                         if store.state.isAutofillingTotpList
                             || store.state.isAutofillingTextToInsertList {
@@ -225,10 +225,10 @@ private struct VaultAutofillListSearchableView: View {
                                 Label {
                                     Text(store.state.emptyViewButtonText)
                                 } icon: {
-                                    Asset.Images.plus16.swiftUIImage
+                                    SharedAsset.Icons.plus16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
-                                            scaleWithFont: true
+                                            scaleWithFont: true,
                                         ))
                                 }
                             }
@@ -271,10 +271,10 @@ private struct VaultAutofillListSearchableView: View {
         VaultAutofillListView(
             store: Store(
                 processor: StateProcessor(
-                    state: VaultAutofillListState()
-                )
+                    state: VaultAutofillListState(),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -293,18 +293,18 @@ private struct VaultAutofillListSearchableView: View {
                                         cipherListView: .fixture(
                                             id: String(id),
                                             login: .fixture(),
-                                            name: "Bitwarden"
-                                        )
+                                            name: "Bitwarden",
+                                        ),
                                     )!
                                 },
-                                name: "Passwords"
+                                name: "Passwords",
                             ),
                         ],
-                        searchText: "Test"
-                    )
-                )
+                        searchText: "Test",
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -323,17 +323,17 @@ private struct VaultAutofillListSearchableView: View {
                                         cipherListView: .fixture(
                                             id: String(id),
                                             login: .fixture(),
-                                            name: "Bitwarden"
-                                        )
+                                            name: "Bitwarden",
+                                        ),
                                     )!
                                 },
-                                name: "Passwords"
+                                name: "Passwords",
                             ),
-                        ]
-                    )
-                )
+                        ],
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }
@@ -352,35 +352,35 @@ private struct VaultAutofillListSearchableView: View {
                                     .init(cipherListView: .fixture(
                                         id: "1",
                                         login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Apple"
+                                        name: "Apple",
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "apple.com",
-                                        userNameForUi: "user"
+                                        userNameForUi: "user",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "4",
                                         login: .fixture(
                                             fido2Credentials: [.fixture()],
-                                            username: "user@bitwarden.com"
+                                            username: "user@bitwarden.com",
                                         ),
-                                        name: "myApp.com"
+                                        name: "myApp.com",
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "myApp.com",
-                                        userNameForUi: "user"
+                                        userNameForUi: "user",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "5",
                                         login: .fixture(
                                             fido2Credentials: [.fixture()],
-                                            username: "user@test.com"
+                                            username: "user@test.com",
                                         ),
                                         name: "Testing something really long to see how it looks",
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "someApp",
-                                        userNameForUi: "user"
+                                        userNameForUi: "user",
                                     ))!,
                                 ],
-                                name: "Passkeys for myApp.com"
+                                name: "Passkeys for myApp.com",
                             ),
                             VaultListSection(
                                 id: "Passwords for myApp.com",
@@ -388,37 +388,37 @@ private struct VaultAutofillListSearchableView: View {
                                     .init(cipherListView: .fixture(
                                         id: "1",
                                         login: .fixture(
-                                            username: "user@bitwarden.com"
+                                            username: "user@bitwarden.com",
                                         ),
-                                        name: "Apple"
+                                        name: "Apple",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "2",
                                         login: .fixture(
-                                            username: "user@bitwarden.com"
+                                            username: "user@bitwarden.com",
                                         ),
                                         name: "Bitwarden",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "3",
-                                        name: "Company XYZ"
+                                        name: "Company XYZ",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "4",
-                                        name: "Company XYZ"
+                                        name: "Company XYZ",
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "5",
-                                        name: "Company XYZ"
+                                        name: "Company XYZ",
                                     ))!,
                                 ],
-                                name: "Passwords for myApp.com"
+                                name: "Passwords for myApp.com",
                             ),
-                        ]
-                    )
-                )
+                        ],
+                    ),
+                ),
             ),
-            timeProvider: PreviewTimeProvider()
+            timeProvider: PreviewTimeProvider(),
         )
     }
 }

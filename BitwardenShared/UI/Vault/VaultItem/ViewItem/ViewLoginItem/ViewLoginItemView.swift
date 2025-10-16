@@ -69,7 +69,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -94,7 +94,7 @@ struct ViewLoginItemView: View {
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(
             title: Localizations.authenticatorKey,
-            titleAccessibilityIdentifier: "ItemName"
+            titleAccessibilityIdentifier: "ItemName",
         ) {
             Text(Localizations.premiumSubscriptionRequired)
                 .styleGuide(.footnote)
@@ -111,12 +111,12 @@ struct ViewLoginItemView: View {
         BitwardenTextValueField(
             title: Localizations.username,
             value: username,
-            valueAccessibilityIdentifier: "LoginUsernameEntry"
+            valueAccessibilityIdentifier: "LoginUsernameEntry",
         ) {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.accessoryIcon24)
             }
             .accessibilityLabel(Localizations.copy)
@@ -132,7 +132,7 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay)
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),
         )
         .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
@@ -162,17 +162,17 @@ struct ViewLoginItemView: View {
                         Task {
                             await store.perform(.totpCodeExpired)
                         }
-                    }
+                    },
                 )
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyTotpValueButton")
-            }
+            },
         )
         .accessibilityElement(children: .contain)
     }

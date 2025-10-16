@@ -70,12 +70,12 @@ extension VaultUnlockState {
     ///
     init(
         account: Account,
-        profileSwitcherState: ProfileSwitcherState = .empty()
+        profileSwitcherState: ProfileSwitcherState = .empty(),
     ) {
         self.init(
             email: account.profile.email,
             profileSwitcherState: profileSwitcherState,
-            webVaultHost: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
+            webVaultHost: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost,
         )
     }
 }

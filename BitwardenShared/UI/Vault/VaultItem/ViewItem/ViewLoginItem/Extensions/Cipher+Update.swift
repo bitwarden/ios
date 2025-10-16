@@ -37,7 +37,7 @@ extension Cipher {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
-            archivedDate: archivedDate
+            archivedDate: archivedDate,
         )
     }
 
@@ -74,7 +74,7 @@ extension Cipher {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
-            archivedDate: archivedDate
+            archivedDate: archivedDate,
         )
     }
 }

@@ -43,6 +43,13 @@ protocol PolicyService: AnyObject {
     ///
     func isSendHideEmailDisabledByPolicy() async -> Bool
 
+    /// Gets the organizations IDs that are applying the policy to the active user.
+    ///
+    /// - Parameter policyType: The policy to check.
+    /// - Returns: The organizations applying the policy to the active user.
+    ///
+    func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String]
+
     /// Determines whether a policy applies to the active user.
     ///
     /// - Parameter policyType: The policy to check.
@@ -96,7 +103,7 @@ actor DefaultPolicyService: PolicyService {
         configService: ConfigService,
         organizationService: OrganizationService,
         policyDataStore: PolicyDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.configService = configService
         self.organizationService = organizationService
@@ -175,7 +182,7 @@ actor DefaultPolicyService: PolicyService {
     private func policiesForUser(
         userId: String,
         type: PolicyType,
-        filter: ((Policy) -> Bool)? = nil
+        filter: ((Policy) -> Bool)? = nil,
     ) async throws -> [Policy] {
         let policies: [Policy]
         if let cachedPolicies = policiesByUserId[userId] {
@@ -333,7 +340,7 @@ extension DefaultPolicyService {
             requireLower: requireLower,
             requireNumbers: requireNumbers,
             requireSpecial: requireSpecial,
-            enforceOnLogin: enforceOnLogin
+            enforceOnLogin: enforceOnLogin,
         )
     }
 
@@ -356,6 +363,11 @@ extension DefaultPolicyService {
         await policyAppliesToUser(.sendOptions) { policy in
             policy[.disableHideEmail]?.boolValue == true
         }
+    }
+
+    func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String] {
+        let policies = await policiesApplyingToUser(policyType, filter: nil)
+        return policies.map(\.organizationId)
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

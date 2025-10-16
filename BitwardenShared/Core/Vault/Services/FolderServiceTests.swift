@@ -26,7 +26,7 @@ class FolderServiceTests: XCTestCase {
         subject = DefaultFolderService(
             folderAPIService: folderAPIService,
             folderDataStore: folderDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -49,7 +49,7 @@ class FolderServiceTests: XCTestCase {
         let folder = Folder(
             id: "123456789",
             name: "Something Clever",
-            revisionDate: Date(year: 2023, month: 12, day: 25)
+            revisionDate: Date(year: 2023, month: 12, day: 25),
         )
 
         let addedFolder = try await subject.addFolderWithServer(name: folder.name)
@@ -87,7 +87,7 @@ class FolderServiceTests: XCTestCase {
         let folder = Folder(
             id: "123456789",
             name: "Something Clever",
-            revisionDate: Date(year: 2023, month: 12, day: 25)
+            revisionDate: Date(year: 2023, month: 12, day: 25),
         )
 
         try await subject.editFolderWithServer(id: XCTUnwrap(folder.id), name: folder.name)

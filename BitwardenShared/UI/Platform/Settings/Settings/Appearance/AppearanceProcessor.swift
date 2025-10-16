@@ -29,7 +29,7 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: AppearanceState
+        state: AppearanceState,
     ) {
         self.coordinator = coordinator
         self.services = services

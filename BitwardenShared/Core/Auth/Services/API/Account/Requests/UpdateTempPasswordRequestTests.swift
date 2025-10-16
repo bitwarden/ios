@@ -16,8 +16,8 @@ class UpdateTempPasswordRequestTests: BitwardenTestCase {
             requestModel: UpdateTempPasswordRequestModel(
                 key: "KEY",
                 masterPasswordHint: "MASTER_PASSWORD_HINT",
-                newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
-            )
+                newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
+            ),
         )
     }
 
@@ -40,7 +40,7 @@ class UpdateTempPasswordRequestTests: BitwardenTestCase {
               "masterPasswordHint" : "MASTER_PASSWORD_HINT",
               "newMasterPasswordHash" : "NEW_MASTER_PASSWORD_HASH"
             }
-            """
+            """,
         )
     }
 

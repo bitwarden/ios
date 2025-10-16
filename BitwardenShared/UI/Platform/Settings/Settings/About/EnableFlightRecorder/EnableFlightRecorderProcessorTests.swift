@@ -1,5 +1,4 @@
 import BitwardenKitMocks
-import SnapshotTesting
 import TestHelpers
 import XCTest
 
@@ -26,9 +25,9 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                flightRecorder: flightRecorder
+                flightRecorder: flightRecorder,
             ),
-            state: EnableFlightRecorderState()
+            state: EnableFlightRecorderState(),
         )
     }
 

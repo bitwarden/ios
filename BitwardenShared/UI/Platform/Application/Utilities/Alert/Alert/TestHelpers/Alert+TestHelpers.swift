@@ -32,7 +32,7 @@ extension Alert {
     func tapAction(
         byIndex: Int,
         withTitle: String,
-        _ alertTextFields: [AlertTextField]? = nil
+        _ alertTextFields: [AlertTextField]? = nil,
     ) async throws {
         let alertAction = alertActions[byIndex]
         guard alertAction.title == withTitle else {
@@ -49,7 +49,7 @@ extension Alert {
     /// - Throws: Throws an `AlertError` if the alert action cannot be found.
     func tapAction(
         title: String,
-        alertTextFields: [AlertTextField]? = nil
+        alertTextFields: [AlertTextField]? = nil,
     ) async throws {
         guard let alertAction = alertActions.first(where: { $0.title == title }) else {
             throw AlertError.alertActionNotFound(title: title)
@@ -63,9 +63,10 @@ extension Alert {
     ///   - text: The text to set in the alert text field.
     ///   - id: The identifier of the alert text field to set the text for.
     /// - Throws: Throws an `AlertError` if the alert text field cannot be found.
+    @MainActor
     func setText(
         _ text: String,
-        forTextFieldWithId id: String
+        forTextFieldWithId id: String,
     ) throws {
         guard let textField = alertTextFields.first(where: { $0.id == id }) else {
             throw AlertError.alertTextFieldNotFound(id: id)
@@ -84,9 +85,9 @@ extension Alert {
             alertTextFields: [
                 AlertTextField(
                     id: "password",
-                    text: password
+                    text: password,
                 ),
-            ]
+            ],
         )
     }
 }

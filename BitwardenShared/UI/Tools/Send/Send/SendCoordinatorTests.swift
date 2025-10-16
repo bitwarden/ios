@@ -30,9 +30,9 @@ class SendCoordinatorTests: BitwardenTestCase {
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -139,7 +139,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .pushed)
 
         let view = try XCTUnwrap(
-            (action.view as? UIHostingController<BitwardenShared.SendListView>)?.rootView
+            (action.view as? UIHostingController<BitwardenShared.SendListView>)?.rootView,
         )
         XCTAssertEqual(view.store.state.type, .file)
     }

@@ -31,7 +31,7 @@ struct SearchVaultFilterRowView: View {
                     Menu {
                         Picker(selection: store.binding(
                             get: \.searchVaultFilterType,
-                            send: SearchVaultFilterRowAction.searchVaultFilterChanged
+                            send: SearchVaultFilterRowAction.searchVaultFilterChanged,
                         )) {
                             ForEach(store.state.vaultFilterOptions) { filter in
                                 Text(filter.title)
@@ -41,7 +41,7 @@ struct SearchVaultFilterRowView: View {
                             EmptyView()
                         }
                     } label: {
-                        Asset.Images.ellipsisHorizontal24.swiftUIImage
+                        SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                             .imageStyle(.rowIcon)
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
@@ -74,7 +74,7 @@ struct SearchVaultFilterRowView: View {
     init(
         hasDivider: Bool,
         accessibilityID: String? = nil,
-        store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
+        store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>,
     ) {
         self.hasDivider = hasDivider
         self.accessibilityID = accessibilityID

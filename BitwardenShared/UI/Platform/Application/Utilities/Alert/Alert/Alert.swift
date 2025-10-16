@@ -42,7 +42,7 @@ public class Alert {
         message: String?,
         preferredStyle: UIAlertController.Style = .alert,
         alertActions: [AlertAction] = [],
-        alertTextFields: [AlertTextField] = []
+        alertTextFields: [AlertTextField] = [],
     ) {
         self.title = title
         self.message = message
@@ -118,7 +118,7 @@ public class Alert {
                 textField.addTarget(
                     alertTextField,
                     action: #selector(AlertTextField.textChanged(in:)),
-                    for: .editingChanged
+                    for: .editingChanged,
                 )
             }
 
