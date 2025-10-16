@@ -715,6 +715,7 @@
 "CombineThoseWordsTogetherDescriptionLong" = "Put the words together in any order to form your passphrase. **Use hyphens, spaces, or leave them as one long word**—your choice!";
 "MakeItYours" = "Make it yours";
 "MakeItYoursDescriptionLong" = "**Add a number or symbol** to make it even stronger. Now you have a unique, secure, and memorable passphrase!";
+"NeedSomeInspiration?" = "Need some inspiration?";
 "CheckOutThePassphraseGenerator" = "Check out the passphrase generator";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
 "PreventAccountLockout" = "Prevent account lockout";
