@@ -100,7 +100,7 @@ jobs:
           current_year=$(date +%Y)
           current_month=$(date +%-m)
 
-          latest_tag_version=$(git tag -l --sort=-creatordate | grep "${{ env.APP_CODENAME }}" | head -n 1)
+          latest_tag_version=$(git tag -l --sort=-creatordate | grep "$APP_CODENAME" | head -n 1)
           if [[ -z "$latest_tag_version" ]]; then
             version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}"
             echo "::warning::No tags found, did you checkout? Calculating version from current date: $version_name"
