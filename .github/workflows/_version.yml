@@ -104,7 +104,7 @@ jobs:
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
           latest_tag_version=$(git tag -l --sort=-creatordate | grep "$app_codename" | head -n 1)
           if [[ -z "$latest_tag_version" ]]; then
-            version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}-${{ inputs.app_codename }}"
+            version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}"
             echo "::warning::No tags found, did you checkout? Calculating version from current date: $version_name"
             output "$version_name"
             exit 0
