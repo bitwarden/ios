@@ -38,9 +38,9 @@ class ImportCXFProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 importCiphersRepository: importCiphersRepository,
                 policyService: policyService,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: state
+            state: state,
         )
     }
 
@@ -310,9 +310,9 @@ class ImportCXFProcessorTests: BitwardenTestCase {
                 [
                     .defaultAlert(
                         title: Localizations.importError,
-                        message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice
+                        message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice,
                     ),
-                ]
+                ],
             )
             return false
         }

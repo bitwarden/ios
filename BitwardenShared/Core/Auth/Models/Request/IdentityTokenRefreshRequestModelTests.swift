@@ -13,7 +13,7 @@ class IdentityTokenRefreshRequestModelTests: BitwardenTestCase {
         super.setUp()
 
         subject = IdentityTokenRefreshRequestModel(
-            refreshToken: "REFRESH_TOKEN"
+            refreshToken: "REFRESH_TOKEN",
         )
     }
 
@@ -33,7 +33,7 @@ class IdentityTokenRefreshRequestModelTests: BitwardenTestCase {
                 URLQueryItem(name: "client_id", value: "mobile"),
                 URLQueryItem(name: "grant_type", value: "refresh_token"),
                 URLQueryItem(name: "refresh_token", value: "REFRESH_TOKEN"),
-            ]
+            ],
         )
     }
 }

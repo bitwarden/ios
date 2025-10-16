@@ -15,7 +15,7 @@ class CipherListViewModel: ObservableObject {
 
     @Published var searchTerm: String = ""
 
-    var debugText: String? = nil
+    var debugText: String?
 
     private var subscriber: AnyCancellable?
 
@@ -44,10 +44,10 @@ class CipherListViewModel: ObservableObject {
                             login: LoginDTO(
                                 totp: "",
                                 uris: nil,
-                                username: ""
+                                username: "",
                             ),
-                            name: "NoItemsFound"
-                        )
+                            name: "NoItemsFound",
+                        ),
                     )
                 }
 

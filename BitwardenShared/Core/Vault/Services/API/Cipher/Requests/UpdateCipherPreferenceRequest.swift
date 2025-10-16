@@ -39,7 +39,7 @@ struct UpdateCipherPreferenceRequest: Request {
         self.id = id
         requestModel = UpdateCipherPreferenceRequestModel(
             favorite: cipher.favorite,
-            folderId: cipher.folderId
+            folderId: cipher.folderId,
         )
     }
 }

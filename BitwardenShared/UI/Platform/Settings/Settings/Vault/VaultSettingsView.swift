@@ -49,7 +49,7 @@ struct VaultSettingsView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissImportLoginsActionCard)
-                }
+                },
             ) {
                 BitwardenBadge(badgeValue: "1")
             }

@@ -24,7 +24,7 @@ public struct FeatureFlag: Codable, Equatable, Sendable {
     ///   - initialValue: The initial value of the feature flag (if any).
     public init(
         rawValue: String,
-        initialValue: AnyCodable? = nil
+        initialValue: AnyCodable? = nil,
     ) {
         self.initialValue = initialValue
         self.rawValue = rawValue

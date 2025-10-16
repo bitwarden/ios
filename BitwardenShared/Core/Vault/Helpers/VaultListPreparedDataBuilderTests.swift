@@ -34,7 +34,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -95,7 +95,8 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.favorites.isEmpty)
     }
 
-     /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds and Fido2 credentials exist.
+    /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds
+    /// and Fido2 credentials exist.
     func test_addFido2Item_succeeds() async {
         let cipher = CipherListView.fixture(id: "1")
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
@@ -158,7 +159,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -175,7 +176,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -191,7 +192,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -209,22 +210,22 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "1", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "2", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "3", folderId: "40"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "4", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .build()
 
@@ -407,7 +408,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -428,7 +429,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
                     .fixture(id: "4", organizationId: "1"),
                     .fixture(id: "5", organizationId: "1"),
                 ],
-                filterType: .organization(.fixture(id: "1"))
+                filterType: .organization(.fixture(id: "1")),
             )
             .build()
 
@@ -442,7 +443,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .build()
 
@@ -454,7 +455,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -469,11 +470,11 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .organization(.fixture())
+                filterType: .organization(.fixture()),
             )
             .build()
 

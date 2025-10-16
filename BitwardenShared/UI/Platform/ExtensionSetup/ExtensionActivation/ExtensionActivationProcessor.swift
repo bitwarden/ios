@@ -5,7 +5,7 @@
 class ExtensionActivationProcessor: StateProcessor<
     ExtensionActivationState,
     ExtensionActivationAction,
-    Void
+    Void,
 > {
     // MARK: Types
 
@@ -31,7 +31,7 @@ class ExtensionActivationProcessor: StateProcessor<
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         services: Services,
-        state: ExtensionActivationState
+        state: ExtensionActivationState,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.services = services

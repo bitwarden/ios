@@ -31,25 +31,25 @@ struct TutorialView: View {
             TabView(
                 selection: store.binding(
                     get: \.page,
-                    send: TutorialAction.pageChanged
-                )
+                    send: TutorialAction.pageChanged,
+                ),
             ) {
                 slide(
                     image: Asset.Images.recoveryCodesBig,
                     titleText: Localizations.secureYourAssetsWithBitwardenAuthenticator,
-                    bodyText: Localizations.getVerificationCodesForAllYourAccounts
+                    bodyText: Localizations.getVerificationCodesForAllYourAccounts,
                 ).tag(TutorialPage.intro)
 
                 slide(
                     image: Asset.Images.qrIllustration,
                     titleText: Localizations.useYourDeviceCameraToScanCodes,
-                    bodyText: Localizations.scanTheQRCodeInYourSettings
+                    bodyText: Localizations.scanTheQRCodeInYourSettings,
                 ).tag(TutorialPage.qrScanner)
 
                 slide(
                     image: Asset.Images.verificationCode,
                     titleText: Localizations.signInUsingUniqueCodes,
-                    bodyText: Localizations.whenUsingTwoStepVerification
+                    bodyText: Localizations.whenUsingTwoStepVerification,
                 ).tag(TutorialPage.uniqueCodes)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
@@ -118,9 +118,9 @@ struct TutorialView_Previews: PreviewProvider {
             TutorialView(
                 store: Store(
                     processor: StateProcessor(
-                        state: TutorialState(page: .intro)
-                    )
-                )
+                        state: TutorialState(page: .intro),
+                    ),
+                ),
             )
         }.previewDisplayName("Intro")
 
@@ -128,9 +128,9 @@ struct TutorialView_Previews: PreviewProvider {
             TutorialView(
                 store: Store(
                     processor: StateProcessor(
-                        state: TutorialState(page: .qrScanner)
-                    )
-                )
+                        state: TutorialState(page: .qrScanner),
+                    ),
+                ),
             )
         }.previewDisplayName("QR Scanner")
 
@@ -138,9 +138,9 @@ struct TutorialView_Previews: PreviewProvider {
             TutorialView(
                 store: Store(
                     processor: StateProcessor(
-                        state: TutorialState(page: .uniqueCodes)
-                    )
-                )
+                        state: TutorialState(page: .uniqueCodes),
+                    ),
+                ),
             )
         }.previewDisplayName("Unique Codes")
     }

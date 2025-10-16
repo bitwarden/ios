@@ -20,7 +20,7 @@ protocol TabModule: AnyObject {
     func makeTabCoordinator(
         errorReporter: ErrorReporter,
         rootNavigator: RootNavigator,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
     ) -> AnyCoordinator<TabRoute, Void>
 }
 
@@ -30,13 +30,13 @@ extension DefaultAppModule: TabModule {
     func makeTabCoordinator(
         errorReporter: ErrorReporter,
         rootNavigator: RootNavigator,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
     ) -> AnyCoordinator<TabRoute, Void> {
         TabCoordinator(
             errorReporter: errorReporter,
             module: self,
             rootNavigator: rootNavigator,
-            tabNavigator: tabNavigator
+            tabNavigator: tabNavigator,
         ).asAnyCoordinator()
     }
 }

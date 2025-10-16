@@ -14,7 +14,7 @@ struct LoginDecryptionOptionsView: View {
     @ObservedObject var store: Store<
         LoginDecryptionOptionsState,
         LoginDecryptionOptionsAction,
-        LoginDecryptionOptionsEffect
+        LoginDecryptionOptionsEffect,
     >
     var body: some View {
         VStack(alignment: .center, spacing: 24) {
@@ -42,8 +42,8 @@ struct LoginDecryptionOptionsView: View {
             Localizations.rememberThisDevice,
             isOn: store.binding(
                 get: \.isRememberDeviceToggleOn,
-                send: LoginDecryptionOptionsAction.toggleRememberDevice
-            )
+                send: LoginDecryptionOptionsAction.toggleRememberDevice,
+            ),
         ) {
             Text(Localizations.turnOffUsingPublicDevice)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
@@ -112,7 +112,7 @@ struct LoginDecryptionOptionsView: View {
     @ViewBuilder var loggedInAs: some View {
         VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggingInAsX(
-                store.state.email
+                store.state.email,
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
@@ -137,8 +137,8 @@ struct LoginDecryptionOptionsView: View {
             state: LoginDecryptionOptionsState(
                 shouldShowContinueButton: true,
                 email: "user@example.com",
-                shouldShowAdminApprovalButton: true
-            )
+                shouldShowAdminApprovalButton: true,
+            ),
         )))
     }
 }

@@ -52,7 +52,7 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
         delegate: ImportLoginsCoordinatorDelegate,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.module = module
@@ -90,7 +90,7 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
         let processor = ImportLoginsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ImportLoginsState(mode: mode)
+            state: ImportLoginsState(mode: mode),
         )
         let view = ImportLoginsView(store: Store(processor: processor))
         stackNavigator?.push(view)

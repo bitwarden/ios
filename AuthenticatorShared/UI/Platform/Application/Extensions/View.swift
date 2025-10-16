@@ -70,11 +70,11 @@ extension View {
     ///
     func navigationBar(
         title: String,
-        titleDisplayMode: NavigationBarItem.TitleDisplayMode
+        titleDisplayMode: NavigationBarItem.TitleDisplayMode,
     ) -> some View {
         modifier(NavigationBarViewModifier(
             title: title,
-            navigationBarTitleDisplayMode: titleDisplayMode
+            navigationBarTitleDisplayMode: titleDisplayMode,
         ))
     }
 

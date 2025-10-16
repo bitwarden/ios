@@ -12,7 +12,7 @@ public protocol AppModule: AnyObject {
     ///
     func makeAppCoordinator(
         appContext: AppContext,
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent>
 }
 
@@ -39,7 +39,7 @@ public class DefaultAppModule {
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
-        services: ServiceContainer
+        services: ServiceContainer,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.services = services
@@ -49,14 +49,14 @@ public class DefaultAppModule {
 extension DefaultAppModule: AppModule {
     public func makeAppCoordinator(
         appContext: AppContext,
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         AppCoordinator(
             appContext: appContext,
             appExtensionDelegate: appExtensionDelegate,
             module: self,
             rootNavigator: navigator,
-            services: services
+            services: services,
         ).asAnyCoordinator()
     }
 }

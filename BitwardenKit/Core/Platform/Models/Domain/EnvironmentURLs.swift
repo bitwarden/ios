@@ -41,7 +41,21 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for the web vault.
     public let webVaultURL: URL
 
-    /// Public version of synthesized initializer.
+    /// Initializes an `Environment URLs`.
+    ///
+    /// - Parameters:
+    ///   - apiURL: The URL for the API.
+    ///   - baseURL: The base URL.
+    ///   - changeEmailURL: The URL for changing email address.
+    ///   - eventsURL: The URL for the events API.
+    ///   - iconsURL: The URL for the icons API.
+    ///   - identityURL: The URL for the identity API.
+    ///   - importItemsURL: The URL for importing items.
+    ///   - recoveryCodeURL: The URL for the recovery code help page.
+    ///   - sendShareURL: The URL for sharing a send.
+    ///   - settingsURL: The URL for vault settings.
+    ///   - setUpTwoFactorURL: The URL for setting up two-factor login.
+    ///   - webVaultURL: The URL for the web vault.
     public init(
         apiURL: URL,
         baseURL: URL,
@@ -54,7 +68,7 @@ public struct EnvironmentURLs: Equatable {
         sendShareURL: URL,
         settingsURL: URL,
         setUpTwoFactorURL: URL,
-        webVaultURL: URL
+        webVaultURL: URL,
     ) {
         self.apiURL = apiURL
         self.baseURL = baseURL
@@ -101,7 +115,7 @@ public extension EnvironmentURLs {
         }
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
-            string: "https://vault.bitwarden.com/#/recover-2fa"
+            string: "https://vault.bitwarden.com/#/recover-2fa",
         )!
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL

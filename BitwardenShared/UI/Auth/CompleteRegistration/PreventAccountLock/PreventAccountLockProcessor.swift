@@ -5,7 +5,7 @@
 class PreventAccountLockProcessor: StateProcessor<
     Void,
     PreventAccountLockAction,
-    Void
+    Void,
 > {
     // MARK: Private Properties
 

@@ -29,7 +29,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             cipherAPIService: cipherAPIService,
             cipherDataStore: cipherDataStore,
             fileAPIService: fileAPIService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -214,7 +214,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let cipherResponse = try await subject.saveAttachmentWithServer(
             cipher: Cipher.fixture(id: "123"),
-            attachment: .init(attachment: .fixture(), contents: Data())
+            attachment: .init(attachment: .fixture(), contents: Data()),
         )
 
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherResponse)
@@ -233,7 +233,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let cipherResponse = try await subject.saveAttachmentWithServer(
             cipher: Cipher.fixture(collectionIds: ["1", "2"], id: "123"),
-            attachment: .init(attachment: .fixture(), contents: Data())
+            attachment: .init(attachment: .fixture(), contents: Data()),
         )
 
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherResponse)
@@ -247,7 +247,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             _ = try await subject.saveAttachmentWithServer(
                 cipher: .fixture(id: nil),
-                attachment: .init(attachment: .fixture(), contents: Data())
+                attachment: .init(attachment: .fixture(), contents: Data()),
             )
         }
     }
@@ -261,7 +261,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         try await subject.shareCipherWithServer(cipher, encryptedFor: "1")
 
         var cipherResponse = try CipherDetailsResponseModel(
-            response: .success(body: APITestData.cipherResponse.data)
+            response: .success(body: APITestData.cipherResponse.data),
         )
         cipherResponse.collectionIds = ["1", "2"]
         XCTAssertEqual(cipherDataStore.upsertCipherValue, Cipher(responseModel: cipherResponse))
@@ -331,15 +331,15 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 edit: false,
                 favorite: true,
                 folderId: "folderId",
-                id: "123"
+                id: "123",
             ),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/api/ciphers/123/partial"
+            "https://example.com/api/ciphers/123/partial",
         )
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
         let favorite = try XCTUnwrap(cipherDataStore.upsertCipherValue?.favorite)

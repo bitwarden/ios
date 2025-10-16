@@ -45,7 +45,7 @@ public class AlertTextField {
         isSecureTextEntry: Bool = false,
         keyboardType: UIKeyboardType = .default,
         placeholder: String? = nil,
-        text: String? = nil
+        text: String? = nil,
     ) {
         self.id = id
         self.autocapitalizationType = autocapitalizationType

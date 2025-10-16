@@ -25,13 +25,13 @@ struct FlightRecorderData: Codable, Equatable {
 
     /// The full list of logs containing the active and any inactive logs.
     var allLogs: [LogMetadata] {
-        ([activeLog] + inactiveLogs).compactMap { $0 }
+        ([activeLog] + inactiveLogs).compactMap(\.self)
     }
 
     /// The upcoming date in which either the active log needs to end logging or an inactive log
     /// expires and needs to be removed.
     var nextLogLifecycleDate: Date? {
-        let dates = [activeLog?.endDate].compactMap { $0 } + inactiveLogs.map(\.expirationDate)
+        let dates = [activeLog?.endDate].compactMap(\.self) + inactiveLogs.map(\.expirationDate)
         return dates.min()
     }
 }
@@ -64,7 +64,7 @@ extension FlightRecorderData {
             Calendar.current.date(
                 byAdding: .day,
                 value: Constants.flightRecorderLogExpirationDays,
-                to: endDate
+                to: endDate,
             ) ?? endDate
         }
 

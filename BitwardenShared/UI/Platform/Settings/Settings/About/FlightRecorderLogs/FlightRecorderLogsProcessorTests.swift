@@ -1,6 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
-import SnapshotTesting
 import TestHelpers
 import XCTest
 
@@ -27,9 +27,9 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                flightRecorder: flightRecorder
+                flightRecorder: flightRecorder,
             ),
-            state: FlightRecorderLogsState()
+            state: FlightRecorderLogsState(),
         )
     }
 
@@ -171,7 +171,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
             .shareURLs([
                 URL(fileURLWithPath: "/FlightRecorderLogs/1.txt"),
                 URL(fileURLWithPath: "/FlightRecorderLogs/2.txt"),
-            ])
+            ]),
         )
     }
 

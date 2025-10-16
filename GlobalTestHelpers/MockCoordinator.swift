@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
@@ -45,7 +46,7 @@ class MockCoordinator<Route, Event>: Coordinator {
     func showErrorAlert(
         error: any Error,
         tryAgain: (() async -> Void)?,
-        onDismissed: (() -> Void)?
+        onDismissed: (() -> Void)?,
     ) async {
         if let tryAgain {
             errorAlertsWithRetryShown.append((error, tryAgain))

@@ -1289,5 +1289,5 @@
 "DefaultX" = "Domyślne (%1$@)";
 "UpdateYourEncryptionSettings" = "Zaktualizuj ustawienia szyfrowania";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
-"Updating" = "Updating...";
+"Updating" = "Aktualizowanie…";
 "EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";

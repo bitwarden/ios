@@ -21,7 +21,7 @@ extension SendView {
         hideEmail: Bool = false,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        expirationDate: DateTime? = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        expirationDate: DateTime? = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
     ) -> SendView {
         SendView(
             id: id,
@@ -40,7 +40,7 @@ extension SendView {
             hideEmail: hideEmail,
             revisionDate: revisionDate,
             deletionDate: deletionDate,
-            expirationDate: expirationDate
+            expirationDate: expirationDate,
         )
     }
 }
@@ -50,13 +50,13 @@ extension SendFileView {
         id: String? = nil,
         fileName: String = "fileName",
         size: String? = nil,
-        sizeName: String? = nil
+        sizeName: String? = nil,
     ) -> SendFileView {
         SendFileView(
             id: id,
             fileName: fileName,
             size: size,
-            sizeName: sizeName
+            sizeName: sizeName,
         )
     }
 }
@@ -64,11 +64,11 @@ extension SendFileView {
 extension SendTextView {
     static func fixture(
         hidden: Bool = false,
-        text: String = "text"
+        text: String = "text",
     ) -> SendTextView {
         SendTextView(
             text: text,
-            hidden: hidden
+            hidden: hidden,
         )
     }
 }

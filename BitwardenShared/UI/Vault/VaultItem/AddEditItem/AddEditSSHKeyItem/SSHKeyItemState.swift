@@ -25,7 +25,7 @@ struct SSHKeyItemState: Equatable, Sendable {
         SshKeyView(
             privateKey: privateKey,
             publicKey: publicKey,
-            fingerprint: keyFingerprint
+            fingerprint: keyFingerprint,
         )
     }
 }

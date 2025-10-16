@@ -3,16 +3,15 @@
 import BitwardenResources
 
 extension Alert {
-
     // MARK: Methods
-    
+
     /// Creates an alert asking if the user wants to use an advanced matching detection option.
     ///
     /// - Parameters:
     ///   - action: The action to perform if the user selects "Yes".
     /// - Returns: An alert prompting the user about advanced matching detection.
     static func confirmRegularExpressionMatchDetectionAlert(
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
@@ -22,7 +21,7 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -32,7 +31,7 @@ extension Alert {
     ///   - action: The action to perform if the user selects "Yes".
     /// - Returns: An alert prompting the user about advanced matching detection.
     static func confirmStartsWithMatchDetectionAlert(
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
@@ -42,7 +41,7 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -54,7 +53,7 @@ extension Alert {
     /// - Returns: An alert prompting the user with additional information about advanced matching detection.
     static func learnMoreAdvancedMatchingDetection(
         _ matchingType: String,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.keepYourCredentialsSecure,
@@ -64,7 +63,7 @@ extension Alert {
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 }

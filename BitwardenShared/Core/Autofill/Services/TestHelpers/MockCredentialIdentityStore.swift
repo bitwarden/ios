@@ -58,34 +58,34 @@ enum CredentialIdentity: Equatable {
     var asCredentialIdentity: ASCredentialIdentity? {
         switch self {
         case let .password(passwordIdentity):
-            return ASPasswordCredentialIdentity(
+            ASPasswordCredentialIdentity(
                 serviceIdentifier: ASCredentialServiceIdentifier(
                     identifier: passwordIdentity.uri,
-                    type: .URL
+                    type: .URL,
                 ),
                 user: passwordIdentity.username,
-                recordIdentifier: passwordIdentity.id
+                recordIdentifier: passwordIdentity.id,
             )
         case let .passkey(passkeyIdentity):
-            return ASPasskeyCredentialIdentity(
+            ASPasskeyCredentialIdentity(
                 relyingPartyIdentifier: passkeyIdentity.relyingPartyIdentifier,
                 userName: passkeyIdentity.userName,
                 credentialID: passkeyIdentity.credentialID,
                 userHandle: passkeyIdentity.userHandle,
-                recordIdentifier: passkeyIdentity.recordIdentifier
+                recordIdentifier: passkeyIdentity.recordIdentifier,
             )
         default:
             if #available(iOS 18, *), case let .oneTimeCode(oneTimeCodeIdentity) = self {
-                return ASOneTimeCodeCredentialIdentity(
+                ASOneTimeCodeCredentialIdentity(
                     serviceIdentifier: ASCredentialServiceIdentifier(
                         identifier: oneTimeCodeIdentity.serviceIdentifier,
-                        type: .URL
+                        type: .URL,
                     ),
                     label: oneTimeCodeIdentity.label,
-                    recordIdentifier: oneTimeCodeIdentity.recordIdentifier
+                    recordIdentifier: oneTimeCodeIdentity.recordIdentifier,
                 )
             } else {
-                return nil
+                nil
             }
         }
     }

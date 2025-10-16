@@ -19,7 +19,7 @@ struct VaultUnlockSetupView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.biometricsPhone,
                 title: Localizations.setUpUnlock,
-                message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+                message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
             )
             .padding(.top, 12)
 
@@ -27,7 +27,7 @@ struct VaultUnlockSetupView: View {
                 ForEach(store.state.unlockMethods) { unlockMethod in
                     Toggle(isOn: store.bindingAsync(
                         get: { $0[keyPath: unlockMethod.keyPath] },
-                        perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) }
+                        perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) },
                     )) {
                         Text(unlockMethod.title)
                             .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
@@ -68,14 +68,14 @@ struct VaultUnlockSetupView: View {
 #if DEBUG
 #Preview("Create Account Flow") {
     VaultUnlockSetupView(store: Store(processor: StateProcessor(state: VaultUnlockSetupState(
-        accountSetupFlow: .createAccount
+        accountSetupFlow: .createAccount,
     ))))
     .navStackWrapped
 }
 
 #Preview("Settings Flow") {
     VaultUnlockSetupView(store: Store(processor: StateProcessor(state: VaultUnlockSetupState(
-        accountSetupFlow: .settings
+        accountSetupFlow: .settings,
     ))))
     .navStackWrapped
 }

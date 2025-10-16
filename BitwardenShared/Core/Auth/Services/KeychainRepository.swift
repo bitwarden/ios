@@ -252,7 +252,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
     init(
         appIdService: AppIdService,
-        keychainService: KeychainService
+        keychainService: KeychainService,
     ) {
         self.appIdService = appIdService
         self.keychainService = keychainService
@@ -283,8 +283,8 @@ class DefaultKeychainRepository: KeychainRepository {
                     kSecMatchLimit: kSecMatchLimitOne,
                     kSecReturnData: true,
                     kSecReturnAttributes: true,
-                ]
-            )
+                ],
+            ),
         )
 
         if let resultDictionary = foundItem as? [String: Any],
@@ -305,7 +305,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     func keychainQueryValues(
         for item: KeychainItem,
-        adding additionalPairs: [CFString: Any] = [:]
+        adding additionalPairs: [CFString: Any] = [:],
     ) async -> CFDictionary {
         // Prepare a formatted `kSecAttrAccount` value.
         let formattedSecAttrAccount = await formattedKey(for: item)
@@ -335,14 +335,14 @@ class DefaultKeychainRepository: KeychainRepository {
     func setValue(_ value: String, for item: KeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
             protection: item.protection,
-            for: item.accessControlFlags ?? []
+            for: item.accessControlFlags ?? [],
         )
         let query = await keychainQueryValues(
             for: item,
             adding: [
                 kSecAttrAccessControl: accessControl as Any,
                 kSecValueData: Data(value.utf8),
-            ]
+            ],
         )
 
         // Delete the previous secret, if it exists,
@@ -351,7 +351,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
         // Add the new key.
         try keychainService.add(
-            attributes: query
+            attributes: query,
         )
     }
 }
@@ -372,7 +372,7 @@ extension DefaultKeychainRepository {
 
     func deleteAuthenticatorVaultKey(userId: String) async throws {
         try await keychainService.delete(
-            query: keychainQueryValues(for: .authenticatorVaultKey(userId: userId))
+            query: keychainQueryValues(for: .authenticatorVaultKey(userId: userId)),
         )
     }
 
@@ -394,19 +394,19 @@ extension DefaultKeychainRepository {
 
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         try await keychainService.delete(
-            query: keychainQueryValues(for: item)
+            query: keychainQueryValues(for: item),
         )
     }
 
     func deleteDeviceKey(userId: String) async throws {
         try await keychainService.delete(
-            query: keychainQueryValues(for: .deviceKey(userId: userId))
+            query: keychainQueryValues(for: .deviceKey(userId: userId)),
         )
     }
 
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
-            query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId))
+            query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
         )
     }
 

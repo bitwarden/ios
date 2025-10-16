@@ -20,7 +20,7 @@ struct ExportCXFView: View {
                 image: Image(decorative: store.state.mainIcon),
                 style: .largeTextTintedIcon,
                 title: store.state.title,
-                message: store.state.message
+                message: store.state.message,
             )
             .padding(.horizontal, 30)
             .frame(maxWidth: .infinity)
@@ -107,9 +107,9 @@ struct ExportCXFView: View {
     ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ExportCXFState()
-            )
-        )
+                state: ExportCXFState(),
+            ),
+        ),
     )
     .navStackWrapped
 }
@@ -124,11 +124,11 @@ struct ExportCXFView: View {
                             CXFCredentialsResult(count: 13, type: .password),
                             CXFCredentialsResult(count: 7, type: .passkey),
                             CXFCredentialsResult(count: 10, type: .card),
-                        ]
-                    )
-                )
-            )
-        )
+                        ],
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -138,11 +138,11 @@ struct ExportCXFView: View {
             processor: StateProcessor(
                 state: ExportCXFState(
                     status: .failure(
-                        message: "Something went wrong"
-                    )
-                )
-            )
-        )
+                        message: "Something went wrong",
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 

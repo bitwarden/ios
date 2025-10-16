@@ -29,9 +29,9 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
         )
     }
 

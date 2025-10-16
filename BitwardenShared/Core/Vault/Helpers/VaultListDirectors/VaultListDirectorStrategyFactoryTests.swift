@@ -20,7 +20,7 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
             collectionService: MockCollectionService(),
             folderService: MockFolderService(),
             vaultListBuilderFactory: MockVaultListSectionsBuilderFactory(),
-            vaultListDataPreparator: MockVaultListDataPreparator()
+            vaultListDataPreparator: MockVaultListDataPreparator(),
         )
     }
 

@@ -14,7 +14,7 @@ class AccountRevisionDateResponseModelTests: BitwardenTestCase {
     /// `init(response:)` parses the date from the plain text response.
     func test_init_validDate() throws {
         let subject = try AccountRevisionDateResponseModel(
-            response: .success(body: Data("1704067200000".utf8))
+            response: .success(body: Data("1704067200000".utf8)),
         )
         XCTAssertEqual(subject.date, Date(timeIntervalSince1970: 1_704_067_200))
     }

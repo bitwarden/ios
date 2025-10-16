@@ -1140,7 +1140,7 @@
 "FlightRecorder" = "Letový zapisovač";
 "EnableFlightRecorder" = "Povolit letový zapisovač";
 "ExperiencingAnIssue" = "Máte problém?";
-"EnableTemporaryLoggingDescriptionLong" = "Povolte dočasné logování pro shromažďování a prohlížení logů lokálně. Pokud je povoleno, stav aplikací a síťových hovorů mohou být zaznamenány - ale nikdy citlivé informace o trezoru.";
+"EnableTemporaryLoggingDescriptionLong" = "Povolte dočasné logování, abyste mohli shromažďovat a kontrolovat logy lokálně. Po povolení mohou být logovány stavy aplikací a síťová volání, nikdy však citlivé informace z trezoru.";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "Chcete-li začít, nastavte dobu trvání logování. Logování se po tomto období automaticky vypne, což Vám poskytne čas pro zachycení aktivity při opakování problémů.";
 "LoggingDuration" = "Doba logování";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logy budou automaticky smazány po 30 dnech. Bitwarden má přístup k Vašim logům jen pokud je sdílíte.";

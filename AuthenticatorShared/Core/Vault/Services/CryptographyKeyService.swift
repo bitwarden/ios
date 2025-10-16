@@ -40,7 +40,7 @@ actor CryptographyKeyService {
             let key = SymmetricKey(size: .bits256)
             try await stateService.setSecretKey(
                 key.base64EncodedString(),
-                userId: userId
+                userId: userId,
             )
             return key
         }

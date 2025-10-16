@@ -45,7 +45,7 @@ class FileManagerTests: BitwardenTestCase {
             line2
             line3
 
-            """
+            """,
         )
     }
 

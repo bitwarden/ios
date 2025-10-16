@@ -10,7 +10,7 @@ extension CipherLoginModel {
         passwordRevisionDate: Date? = nil,
         totp: String? = nil,
         uris: [CipherLoginUriModel]? = nil,
-        username: String? = nil
+        username: String? = nil,
     ) -> CipherLoginModel {
         self.init(
             autofillOnPageLoad: autofillOnPageLoad,
@@ -19,7 +19,7 @@ extension CipherLoginModel {
             passwordRevisionDate: passwordRevisionDate,
             totp: totp,
             uris: uris,
-            username: username
+            username: username,
         )
     }
 }

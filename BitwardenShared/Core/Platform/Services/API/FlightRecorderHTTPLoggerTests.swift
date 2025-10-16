@@ -38,7 +38,7 @@ class FlightRecorderHTTPLoggerTests: BitwardenTestCase {
         await subject.logRequest(request)
         XCTAssertEqual(
             flightRecorder.logMessages,
-            ["Request 773CC135-A878-4851-A28D-180FD7D945FA: GET https://example.com"]
+            ["Request 773CC135-A878-4851-A28D-180FD7D945FA: GET https://example.com"],
         )
     }
 
@@ -49,7 +49,7 @@ class FlightRecorderHTTPLoggerTests: BitwardenTestCase {
         await subject.logRequest(request)
         XCTAssertEqual(
             flightRecorder.logMessages,
-            ["Request 773CC135-A878-4851-A28D-180FD7D945FA: POST https://example.com"]
+            ["Request 773CC135-A878-4851-A28D-180FD7D945FA: POST https://example.com"],
         )
     }
 
@@ -61,12 +61,12 @@ class FlightRecorderHTTPLoggerTests: BitwardenTestCase {
             statusCode: 200,
             headers: [:],
             body: Data(),
-            requestID: requestID
+            requestID: requestID,
         )
         await subject.logResponse(response)
         XCTAssertEqual(
             flightRecorder.logMessages,
-            ["Response 773CC135-A878-4851-A28D-180FD7D945FA: https://example.com 200"]
+            ["Response 773CC135-A878-4851-A28D-180FD7D945FA: https://example.com 200"],
         )
     }
 
@@ -78,12 +78,12 @@ class FlightRecorderHTTPLoggerTests: BitwardenTestCase {
             statusCode: 400,
             headers: [:],
             body: Data(),
-            requestID: requestID
+            requestID: requestID,
         )
         await subject.logResponse(response)
         XCTAssertEqual(
             flightRecorder.logMessages,
-            ["Response 773CC135-A878-4851-A28D-180FD7D945FA: https://example.com 400"]
+            ["Response 773CC135-A878-4851-A28D-180FD7D945FA: https://example.com 400"],
         )
     }
 }

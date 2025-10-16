@@ -48,7 +48,7 @@ extension DataStore: OrganizationDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \OrganizationData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.compactMap(Organization.init) }
         .eraseToAnyPublisher()
@@ -66,7 +66,7 @@ extension DataStore: OrganizationDataStore {
         let insertRequest = try OrganizationData.batchInsertRequest(objects: organizations, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 }

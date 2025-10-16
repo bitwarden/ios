@@ -72,7 +72,7 @@ struct RegisterFinishRequestModel: Equatable {
         organizationUserId: String? = nil,
         token: String? = nil,
         userSymmetricKey: String? = nil,
-        userAsymmetricKeys: KeysRequestModel? = nil
+        userAsymmetricKeys: KeysRequestModel? = nil,
     ) {
         self.email = email
         self.emailVerificationToken = emailVerificationToken

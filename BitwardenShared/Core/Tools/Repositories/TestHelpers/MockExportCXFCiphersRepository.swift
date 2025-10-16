@@ -18,7 +18,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
     @available(iOS 26.0, *)
     func exportCredentials(
         data: ASImportableAccount,
-        presentationAnchor: () async -> ASPresentationAnchor
+        presentationAnchor: () async -> ASPresentationAnchor,
     ) async throws {
         exportCredentialsData = data
         if let exportCredentialsError {

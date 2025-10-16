@@ -51,8 +51,8 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 collectionsCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
         collectionHelper.orderReturnValue = [
             .fixture(id: "4", name: "zcollection9", organizationId: "1", type: .defaultUserCollection),
@@ -87,8 +87,8 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 collectionsCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
         collectionHelper.orderReturnValue = [
             .fixture(id: "2", name: "acollection2", organizationId: "1"),
@@ -105,7 +105,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         }
         XCTAssertEqual(
             errorReporter.errors.first as? NSError,
-            BitwardenError.dataError("Received a collection from the API with a missing ID.")
+            BitwardenError.dataError("Received a collection from the API with a missing ID."),
         )
     }
 
@@ -121,8 +121,8 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 collectionsCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
         collectionHelper.orderReturnValue = [
             .fixture(id: nil, name: "acollection2", organizationId: "1"),
@@ -137,7 +137,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         }
         XCTAssertEqual(
             errorReporter.errors.first as? NSError,
-            BitwardenError.dataError("Received a collection from the API with a missing ID.")
+            BitwardenError.dataError("Received a collection from the API with a missing ID."),
         )
     }
 
@@ -156,8 +156,8 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                 collectionsCount: [
                     "3": 15,
                     "4": 6,
-                ]
-            )
+                ],
+            ),
         )
         collectionHelper.orderReturnValue = [
             .fixture(id: "2", name: "col2", organizationId: "1"),
@@ -186,7 +186,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             clientService: clientService,
             collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: withData
+            withData: withData,
         )
     }
 }

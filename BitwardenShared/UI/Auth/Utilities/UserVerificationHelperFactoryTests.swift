@@ -24,7 +24,7 @@ class UserVerificationHelperFactoryTests: BitwardenTestCase {
         subject = DefaultUserVerificationHelperFactory(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            localAuthService: localAuthService
+            localAuthService: localAuthService,
         )
     }
 

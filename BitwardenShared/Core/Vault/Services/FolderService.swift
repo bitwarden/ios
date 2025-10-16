@@ -98,7 +98,7 @@ class DefaultFolderService: FolderService {
     init(
         folderAPIService: FolderAPIService,
         folderDataStore: FolderDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.folderAPIService = folderAPIService
         self.folderDataStore = folderDataStore

@@ -167,7 +167,7 @@ extension AddEditSendItemState {
             originalSendView: sendView,
             password: "",
             text: sendView.text?.text ?? "",
-            type: SendType(sendType: sendView.type)
+            type: SendType(sendType: sendView.type),
         )
     }
 
@@ -194,7 +194,7 @@ extension AddEditSendItemState {
             deletionDate: deletionDate,
             // If the send has an expiration date, reset it to the deletion date to prevent a server
             // error which disallows editing a send after it has expired.
-            expirationDate: expirationDate != nil ? deletionDate : nil
+            expirationDate: expirationDate != nil ? deletionDate : nil,
         )
     }
 
@@ -203,7 +203,7 @@ extension AddEditSendItemState {
     private func newTextView() -> SendTextView {
         SendTextView(
             text: text,
-            hidden: isHideTextByDefaultOn
+            hidden: isHideTextByDefaultOn,
         )
     }
 
@@ -214,7 +214,7 @@ extension AddEditSendItemState {
             id: nil,
             fileName: fileName ?? "",
             size: nil,
-            sizeName: nil
+            sizeName: nil,
         )
     }
 }

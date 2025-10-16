@@ -4,16 +4,16 @@ import BitwardenSdk
 
 class MockClientFido2Client: ClientFido2ClientProtocol {
     var authenticateResult: Result<BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse, Error> = .success(
-        .fixture()
+        .fixture(),
     )
     var register: Result<BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse, Error> = .success(
-        .fixture()
+        .fixture(),
     )
 
     func authenticate(
         origin: BitwardenSdk.Origin,
         request: String,
-        clientData: BitwardenSdk.ClientData
+        clientData: BitwardenSdk.ClientData,
     ) async throws -> BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
         try authenticateResult.get()
     }
@@ -21,7 +21,7 @@ class MockClientFido2Client: ClientFido2ClientProtocol {
     func register(
         origin: BitwardenSdk.Origin,
         request: String,
-        clientData: BitwardenSdk.ClientData
+        clientData: BitwardenSdk.ClientData,
     ) async throws -> BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
         try register.get()
     }

@@ -36,8 +36,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
             .mockTime(
-                .init(year: 2024, month: 1, day: 1)
-            )
+                .init(year: 2024, month: 1, day: 1),
+            ),
         )
         subject = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
@@ -46,7 +46,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -323,7 +323,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.timeoutAction["1"] = .lock
         stateService.userHasMasterPassword["1"] = false
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true)
+            .available(.faceID, enabled: true),
         )
 
         var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
@@ -555,7 +555,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 VaultLockStatus(isVaultLocked: false, userId: "2"),
                 VaultLockStatus(isVaultLocked: true, userId: "2"),
                 nil,
-            ]
+            ],
         )
     }
 } // swiftlint:disable:this file_length

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -30,9 +31,9 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
             ),
-            state: ViewSendItemState(sendView: .fixture())
+            state: ViewSendItemState(sendView: .fixture()),
         )
     }
 
@@ -148,7 +149,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual((coordinator.errorAlertsShown.last as? NSError)?.domain, "Data Error")
         XCTAssertEqual(
             (coordinator.errorAlertsShown.last as? NSError)?.userInfo["ErrorMessage"] as? String,
-            errorMessage
+            errorMessage,
         )
     }
 
@@ -163,7 +164,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.copiedString, notes)
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.privateNote))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.privateNote)),
         )
     }
 
@@ -177,7 +178,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.copiedString, URL.example.absoluteString)
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
         )
     }
 

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -40,7 +41,7 @@ struct AppearanceView: View {
         } label: {
             BitwardenField(
                 title: Localizations.language,
-                footer: Localizations.languageChangeRequiresAppRestart
+                footer: Localizations.languageChangeRequiresAppRestart,
             ) {
                 Text(store.state.currentLanguage.title)
                     .styleGuide(.body)
@@ -62,8 +63,8 @@ struct AppearanceView: View {
             options: AppTheme.allCases,
             selection: store.binding(
                 get: \.appTheme,
-                send: AppearanceAction.appThemeChanged
-            )
+                send: AppearanceAction.appThemeChanged,
+            ),
         )
     }
 
@@ -73,9 +74,9 @@ struct AppearanceView: View {
             footer: Localizations.showWebsiteIconsDescription,
             isOn: store.binding(
                 get: \.isShowWebsiteIconsToggleOn,
-                send: AppearanceAction.toggleShowWebsiteIcons
+                send: AppearanceAction.toggleShowWebsiteIcons,
             ),
-            accessibilityIdentifier: "ShowWebsiteIconsSwitch"
+            accessibilityIdentifier: "ShowWebsiteIconsSwitch",
         ) {
             HStack(spacing: 8) {
                 Text(Localizations.showWebsiteIcons)

@@ -1285,5 +1285,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

@@ -24,10 +24,10 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                         name: context.loginTitle,
                         password: context.password,
                         uri: context.urlString,
-                        username: context.username
+                        username: context.username,
                     ),
-                    type: .login
-                )
+                    type: .login,
+                ),
             )
         } else {
             AppRoute.vault(.autofillList)
@@ -120,7 +120,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
     public func itemDataToCompleteRequest(
         username: String,
         password: String,
-        fields: [(String, String)]
+        fields: [(String, String)],
     ) -> [String: Any] {
         var itemData = [String: Any]()
 
@@ -129,7 +129,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 pageDetails: context.pageDetails,
                 fillUsername: username,
                 fillPassword: password,
-                fillFields: fields
+                fillFields: fields,
             )
             do {
                 let scriptJsonData = try JSONEncoder().encode(fillScript)
@@ -150,7 +150,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 pageDetails: context.pageDetails,
                 fillUsername: username,
                 fillPassword: password,
-                fillFields: fields
+                fillFields: fields,
             )
             do {
                 let scriptJsonData = try JSONEncoder().encode(fillScript)
@@ -181,7 +181,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
             Logger.appExtension.error(
                 """
                 Error unable to find JSON string for the \(Constants.appExtensionWebViewPageDetails) key.
-                """
+                """,
             )
             return nil
         }
@@ -234,7 +234,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 self.context.username = dictionary[Constants.appExtensionUsernameKey] as? String
 
                 Logger.appExtension.debug("Processed change password provider")
-            }
+            },
         )
     }
 
@@ -275,7 +275,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 """
                 Processed find login browser provider. \
                 URL: \(String(describing: self.context.urlString), privacy: .public)")
-                """
+                """,
             )
         } urlHandler: { url in
             defer { self.context.didFinishLoadingItem = true }
@@ -285,7 +285,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
             Logger.appExtension.debug(
                 """
                 Processed find login browser provider. URL: \(url.absoluteString, privacy: .public)
-                """
+                """,
             )
         }
     }
@@ -308,9 +308,9 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                     """
                     Processed find login provider. \
                     URL: \(String(describing: self.context.urlString), privacy: .public)")
-                    """
+                    """,
                 )
-            }
+            },
         )
     }
 
@@ -329,7 +329,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         _ itemProvider: NSItemProvider,
         type: String,
         dictionaryHandler: (([String: Any]) -> Void)? = nil,
-        urlHandler: ((URL) -> Void)? = nil
+        urlHandler: ((URL) -> Void)? = nil,
     ) -> Bool {
         guard itemProvider.hasItemConformingToTypeIdentifier(type) else { return false }
         itemProvider.loadItem(forTypeIdentifier: type) { item, error in
@@ -343,7 +343,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
             Logger.appExtension.debug(
                 """
                 Loaded item for type \(type). Item: \(String(describing: item), privacy: .public)
-                """
+                """,
             )
 
             switch item {
@@ -379,7 +379,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 self.context.username = dictionary[Constants.appExtensionUsernameKey] as? String
 
                 Logger.appExtension.debug("Processed save login browser provider")
-            }
+            },
         )
     }
 
@@ -402,7 +402,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
             Logger.appExtension.debug(
                 """
                 Processing web URL provider. URL: \(self.context.urlString ?? "nil", privacy: .public)
-                """
+                """,
             )
         })
     }

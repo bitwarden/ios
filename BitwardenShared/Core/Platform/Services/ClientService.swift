@@ -174,7 +174,7 @@ actor DefaultClientService: ClientService {
         errorReporter: ErrorReporter,
         sdkRepositoryFactory: SdkRepositoryFactory,
         settings: ClientSettings? = nil,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
@@ -273,8 +273,8 @@ actor DefaultClientService: ClientService {
                     type: "Missing isPreAuth",
                     message: "DefaultClientService.client(for:) was called without the isPreAuth " +
                         "flag set and there's no active account. Consider if isPreAuth should be " +
-                        "set in this scenario."
-                )
+                        "set in this scenario.",
+                ),
             )
             return clientBuilder.buildClient()
         }
@@ -286,7 +286,7 @@ actor DefaultClientService: ClientService {
     ///   - userId: The user ID the SDK client instance belongs to.
     func configureNewClient(_ client: BitwardenSdkClient, for userId: String) async {
         client.platform().state().registerCipherRepository(
-            repository: sdkRepositoryFactory.makeCipherRepository(userId: userId)
+            repository: sdkRepositoryFactory.makeCipherRepository(userId: userId),
         )
 
         // Get the current config and load the flags.
@@ -314,7 +314,7 @@ actor DefaultClientService: ClientService {
             }
 
             let cipherKeyEncryptionFlagEnabled: Bool = await configService.getFeatureFlag(
-                .cipherKeyEncryption
+                .cipherKeyEncryption,
             )
             let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
 
@@ -365,7 +365,7 @@ class DefaultClientBuilder: ClientBuilder {
     init(
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
-        tokenProvider: ClientManagedTokens
+        tokenProvider: ClientManagedTokens,
     ) {
         self.errorReporter = errorReporter
         self.settings = settings

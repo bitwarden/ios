@@ -12,7 +12,7 @@ protocol OrganizationUserAPIService {
     func organizationUserResetPasswordEnrollment(
         organizationId: String,
         requestModel: OrganizationUserResetPasswordEnrollmentRequestModel,
-        userId: String
+        userId: String,
     ) async throws
 }
 
@@ -20,14 +20,14 @@ extension APIService: OrganizationUserAPIService {
     func organizationUserResetPasswordEnrollment(
         organizationId: String,
         requestModel: OrganizationUserResetPasswordEnrollmentRequestModel,
-        userId: String
+        userId: String,
     ) async throws {
         _ = try await apiService.send(
             OrganizationUserResetPasswordEnrollmentRequest(
                 organizationId: organizationId,
                 requestModel: requestModel,
-                userId: userId
-            )
+                userId: userId,
+            ),
         )
     }
 }

@@ -71,7 +71,7 @@ extension DataStore: GeneratorDataStore {
             _ = PasswordHistoryData(
                 context: self.backgroundContext,
                 userId: userId,
-                passwordHistory: passwordHistory
+                passwordHistory: passwordHistory,
             )
             try self.backgroundContext.saveIfChanged()
         }
@@ -84,7 +84,7 @@ extension DataStore: GeneratorDataStore {
         ]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(PasswordHistory.init) }
         .eraseToAnyPublisher()

@@ -24,7 +24,7 @@ class ProfileSwitcherCoordinatorTests: BitwardenTestCase {
         subject = ProfileSwitcherCoordinator(
             handler: handler,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

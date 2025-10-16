@@ -42,7 +42,7 @@ class SearchVaultFilterRowStateTests: BitwardenTestCase {
                 .organization(Organization.fixture(id: "3", name: "ABC Org")),
                 .organization(Organization.fixture(id: "1", name: "Org 1")),
                 .organization(Organization.fixture(id: "2", name: "Test Org")),
-            ]
+            ],
         )
     }
 
@@ -72,7 +72,7 @@ class SearchVaultFilterRowStateTests: BitwardenTestCase {
                 .organization(Organization.fixture(id: "3", name: "ABC Org")),
                 .organization(Organization.fixture(id: "1", name: "Org 1")),
                 .organization(Organization.fixture(id: "2", name: "Test Org")),
-            ]
+            ],
         )
     }
 }

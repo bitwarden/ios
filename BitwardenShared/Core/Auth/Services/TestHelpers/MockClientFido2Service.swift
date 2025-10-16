@@ -12,14 +12,14 @@ class MockClientFido2Service: ClientFido2Service {
 
     func authenticator(
         userInterface: any BitwardenSdk.Fido2UserInterface,
-        credentialStore: any BitwardenSdk.Fido2CredentialStore
+        credentialStore: any BitwardenSdk.Fido2CredentialStore,
     ) -> BitwardenSdk.ClientFido2AuthenticatorProtocol {
         clientFido2AuthenticatorMock
     }
 
     func client(
         userInterface: any BitwardenSdk.Fido2UserInterface,
-        credentialStore: any BitwardenSdk.Fido2CredentialStore
+        credentialStore: any BitwardenSdk.Fido2CredentialStore,
     ) -> BitwardenSdk.ClientFido2ClientProtocol {
         clientFido2ClientMock
     }

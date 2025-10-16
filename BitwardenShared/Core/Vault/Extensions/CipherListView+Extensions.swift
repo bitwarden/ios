@@ -38,8 +38,8 @@ extension CipherListView {
                     hasFido2: cipher.login?.fido2Credentials != nil,
                     username: nil,
                     totp: nil,
-                    uris: nil
-                )
+                    uris: nil,
+                ),
             )
         case .secureNote:
             .secureNote
@@ -69,7 +69,7 @@ extension CipherListView {
             revisionDate: cipher.revisionDate,
             archivedDate: cipher.archivedDate,
             copyableFields: [],
-            localData: nil
+            localData: nil,
         )
     }
 }

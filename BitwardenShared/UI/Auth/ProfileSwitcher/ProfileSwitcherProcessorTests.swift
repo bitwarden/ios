@@ -26,7 +26,7 @@ class ProfileSwitcherProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             handler: handler,
             services: services,
-            state: ProfileSwitcherState.empty()
+            state: ProfileSwitcherState.empty(),
         )
     }
 

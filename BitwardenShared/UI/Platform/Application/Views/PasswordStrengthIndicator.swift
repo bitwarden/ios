@@ -73,7 +73,7 @@ struct PasswordStrengthIndicator: View {
     init(
         passwordStrengthScore: UInt8? = nil,
         passwordTextCount: Int = 0,
-        requiredTextCount: Int = 0
+        requiredTextCount: Int = 0,
     ) {
         passwordStrength = PasswordStrength(score: passwordStrengthScore)
         self.passwordTextCount = passwordTextCount
@@ -144,25 +144,25 @@ extension PasswordStrengthIndicator {
         VStack {
             PasswordStrengthIndicator(
                 passwordStrengthScore: nil,
-                passwordTextCount: 0
+                passwordTextCount: 0,
             )
 
             ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                 PasswordStrengthIndicator(
                     passwordStrengthScore: score,
-                    passwordTextCount: 0
+                    passwordTextCount: 0,
                 )
             }
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(4),
-                passwordTextCount: 0
+                passwordTextCount: 0,
             )
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(12),
                 passwordTextCount: 5,
-                requiredTextCount: 12
+                requiredTextCount: 12,
             )
         }
         .padding()

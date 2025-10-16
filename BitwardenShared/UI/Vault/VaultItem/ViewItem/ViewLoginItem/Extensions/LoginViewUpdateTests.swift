@@ -28,7 +28,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     func test_update_nilLoginView() {
         let comparison = BitwardenSdk.LoginView(
             loginView: nil,
-            loginState: loginState
+            loginState: loginState,
         )
         XCTAssertEqual(comparison, subject)
     }
@@ -37,7 +37,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     func test_update_loginView() {
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
-            loginState: loginState
+            loginState: loginState,
         )
         XCTAssertEqual(comparison, subject)
     }
@@ -50,7 +50,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
         loginState.uris = [UriState(uri: "example.com")]
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
-            loginState: loginState
+            loginState: loginState,
         )
         XCTAssertEqual(comparison.username, loginState.username)
         XCTAssertEqual(comparison.password, loginState.password)
@@ -68,7 +68,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
         loginState.uris = [UriState(uri: "example.com")]
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
-            loginState: loginState
+            loginState: loginState,
         )
         XCTAssertEqual(comparison.username, loginState.username)
         XCTAssertEqual(comparison.password, loginState.password)

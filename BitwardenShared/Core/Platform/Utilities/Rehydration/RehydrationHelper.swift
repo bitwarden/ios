@@ -88,9 +88,9 @@ actor DefaultRehydrationHelper: RehydrationHelper {
                 AppRehydrationState(
                     target: state.target,
                     expirationTime: timeProvider.presentTime.addingTimeInterval(
-                        Self.rehydrationTimeoutInSecs
-                    )
-                )
+                        Self.rehydrationTimeoutInSecs,
+                    ),
+                ),
             )
         } catch {
             errorReporter.log(error: error)

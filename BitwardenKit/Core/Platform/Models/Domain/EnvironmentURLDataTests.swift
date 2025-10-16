@@ -21,7 +21,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_changeEmailURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(subject.changeEmailURL?.absoluteString, "https://web.vault.example.com/#/settings/account")
     }
@@ -38,8 +38,8 @@ class EnvironmentURLDataTests: XCTestCase {
                 icons: URL(string: "https://icons.bitwarden.net")!,
                 identity: URL(string: "https://identity.bitwarden.com")!,
                 notifications: URL(string: "https://notifications.bitwarden.com")!,
-                webVault: URL(string: "https://vault.bitwarden.com")!
-            )
+                webVault: URL(string: "https://vault.bitwarden.com")!,
+            ),
         )
     }
 
@@ -55,8 +55,8 @@ class EnvironmentURLDataTests: XCTestCase {
                 icons: URL(string: "https://icons.bitwarden.eu")!,
                 identity: URL(string: "https://identity.bitwarden.eu")!,
                 notifications: URL(string: "https://notifications.bitwarden.eu")!,
-                webVault: URL(string: "https://vault.bitwarden.eu")!
-            )
+                webVault: URL(string: "https://vault.bitwarden.eu")!,
+            ),
         )
     }
 
@@ -76,7 +76,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_importItemsURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(subject.importItemsURL?.absoluteString, "https://web.vault.example.com/#/tools/import")
     }
@@ -113,7 +113,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_recoveryCodeURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(subject.recoveryCodeURL?.absoluteString, "https://web.vault.example.com/#/recover-2fa")
     }
@@ -164,7 +164,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_sendShareURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://web.vault.example.com/#/send")
     }
@@ -185,7 +185,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_settingsURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(subject.settingsURL?.absoluteString, "https://web.vault.example.com/#/settings")
     }
@@ -195,7 +195,7 @@ class EnvironmentURLDataTests: XCTestCase {
         let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))
         XCTAssertEqual(
             subject.setUpTwoFactorURL?.absoluteString,
-            "https://vault.example.com/#/settings/security/two-factor"
+            "https://vault.example.com/#/settings/security/two-factor",
         )
     }
 
@@ -209,11 +209,11 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_setUpTwoFactorURL_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
-            webVault: URL(string: "https://web.vault.example.com")
+            webVault: URL(string: "https://web.vault.example.com"),
         )
         XCTAssertEqual(
             subject.setUpTwoFactorURL?.absoluteString,
-            "https://web.vault.example.com/#/settings/security/two-factor"
+            "https://web.vault.example.com/#/settings/security/two-factor",
         )
     }
 
@@ -227,7 +227,7 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_webVaultHost_webVaultURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.bitwarden.com"),
-            webVault: URL(string: "https://web.vault.bitwarden.com")
+            webVault: URL(string: "https://web.vault.bitwarden.com"),
         )
         XCTAssertEqual(subject.webVaultHost, "web.vault.bitwarden.com")
     }

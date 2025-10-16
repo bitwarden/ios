@@ -58,10 +58,10 @@ class SendAPIServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: SendTextModel(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
     }
 
@@ -98,12 +98,12 @@ class SendAPIServiceTests: BitwardenTestCase {
                     revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                     text: SendTextModel(
                         hidden: false,
-                        text: "encrypted text"
+                        text: "encrypted text",
                     ),
-                    type: .text
+                    type: .text,
                 ),
-                url: URL(string: "https://example.com?sv=2024-01-19")!
-            )
+                url: URL(string: "https://example.com?sv=2024-01-19")!,
+            ),
         )
     }
 
@@ -138,10 +138,10 @@ class SendAPIServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: SendTextModel(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
     }
 }

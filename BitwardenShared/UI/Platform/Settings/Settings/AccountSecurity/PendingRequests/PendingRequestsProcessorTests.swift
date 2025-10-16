@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
@@ -26,9 +27,9 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authService: authService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: PendingRequestsState()
+            state: PendingRequestsState(),
         )
     }
 

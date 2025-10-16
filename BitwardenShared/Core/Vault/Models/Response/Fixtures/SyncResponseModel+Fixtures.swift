@@ -9,7 +9,7 @@ extension SyncResponseModel {
         policies: [PolicyResponseModel] = [],
         profile: ProfileResponseModel? = nil,
         sends: [SendResponseModel] = [],
-        userDecryption: UserDecryptionResponseModel? = nil
+        userDecryption: UserDecryptionResponseModel? = nil,
     ) -> SyncResponseModel {
         self.init(
             ciphers: ciphers,
@@ -19,7 +19,7 @@ extension SyncResponseModel {
             policies: policies,
             profile: profile,
             sends: sends,
-            userDecryption: userDecryption
+            userDecryption: userDecryption,
         )
     }
 }

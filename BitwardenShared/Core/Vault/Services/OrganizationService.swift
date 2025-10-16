@@ -79,7 +79,7 @@ class DefaultOrganizationService: OrganizationService {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         organizationDataStore: OrganizationDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientService = clientService
         self.errorReporter = errorReporter
@@ -110,7 +110,7 @@ extension DefaultOrganizationService {
             }
         do {
             try await clientService.crypto().initializeOrgCrypto(
-                req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
+                req: InitOrgCryptoRequest(organizationKeys: organizationKeysById),
             )
         } catch {
             errorReporter.log(error: error)

@@ -7,7 +7,7 @@ import Foundation
 final class EnableFlightRecorderProcessor: StateProcessor<
     EnableFlightRecorderState,
     EnableFlightRecorderAction,
-    EnableFlightRecorderEffect
+    EnableFlightRecorderEffect,
 > {
     // MARK: Types
 
@@ -34,7 +34,7 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: EnableFlightRecorderState
+        state: EnableFlightRecorderState,
     ) {
         self.coordinator = coordinator
         self.services = services

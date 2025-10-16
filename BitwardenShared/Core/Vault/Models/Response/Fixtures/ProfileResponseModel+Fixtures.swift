@@ -21,7 +21,7 @@ extension ProfileResponseModel {
         privateKey: String? = nil,
         securityStamp: String? = nil,
         twoFactorEnabled: Bool = false,
-        usesKeyConnector: Bool = false
+        usesKeyConnector: Bool = false,
     ) -> ProfileResponseModel {
         self.init(
             accountKeys: accountKeys,
@@ -41,7 +41,7 @@ extension ProfileResponseModel {
             privateKey: privateKey,
             securityStamp: securityStamp,
             twoFactorEnabled: twoFactorEnabled,
-            usesKeyConnector: usesKeyConnector
+            usesKeyConnector: usesKeyConnector,
         )
     }
 }

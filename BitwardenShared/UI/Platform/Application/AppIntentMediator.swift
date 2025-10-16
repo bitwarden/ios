@@ -22,7 +22,7 @@ public protocol AppIntentMediator {
 }
 
 /// The default implementation of the `AppIntentMediator`.
-struct DefaultAppIntentMediator: AppIntentMediator {
+class DefaultAppIntentMediator: AppIntentMediator {
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
     /// The service to get server-specified configuration.
@@ -45,7 +45,7 @@ struct DefaultAppIntentMediator: AppIntentMediator {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.authRepository = authRepository
         self.configService = configService
@@ -69,7 +69,7 @@ struct DefaultAppIntentMediator: AppIntentMediator {
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
         try await generatorRepository.generatePassphrase(
             settings: settings,
-            isPreAuth: true
+            isPreAuth: true,
         )
     }
 

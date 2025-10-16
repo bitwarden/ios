@@ -20,7 +20,7 @@ struct BitwardenTextFieldType: BaseViewType {
     static var typePrefix: String = "BitwardenTextField"
 
     static var namespacedPrefixes: [String] = [
-        "AuthenticatorShared.BitwardenTextField",
+        "BitwardenKit.BitwardenTextField",
     ]
 }
 
@@ -31,7 +31,7 @@ struct BitwardenMenuFieldType: BaseViewType {
     static var typePrefix: String = "BitwardenMenuField"
 
     static var namespacedPrefixes: [String] = [
-        "AuthenticatorShared.BitwardenMenuField",
+        "BitwardenKit.BitwardenMenuField",
     ]
 }
 
@@ -54,7 +54,7 @@ struct SettingsMenuFieldType: BaseViewType {
     static var typePrefix: String = "SettingsMenuField"
 
     static var namespacedPrefixes: [String] = [
-        "AuthenticatorShared.SettingsMenuField",
+        "BitwardenKit.SettingsMenuField",
     ]
 }
 
@@ -73,7 +73,7 @@ extension InspectableView {
     ///
     func find(
         asyncButton title: String,
-        locale _: Locale = .testsDefault
+        locale _: Locale = .testsDefault,
     ) throws -> InspectableView<AsyncButtonType> {
         try find(AsyncButtonType.self, containing: title)
     }
@@ -88,7 +88,7 @@ extension InspectableView {
     ///
     func find(
         asyncButtonWithAccessibilityLabel accessibilityLabel: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<AsyncButtonType> {
         try find(AsyncButtonType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
@@ -105,7 +105,7 @@ extension InspectableView {
     ///
     func find(
         bitwardenMenuField title: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<BitwardenMenuFieldType> {
         try find(BitwardenMenuFieldType.self, containing: title, locale: locale)
     }
@@ -120,7 +120,7 @@ extension InspectableView {
     ///
     func find(
         bitwardenMultilineTextField title: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<BitwardenMultilineTextFieldType> {
         try find(BitwardenMultilineTextFieldType.self, containing: title, locale: locale)
     }
@@ -135,7 +135,7 @@ extension InspectableView {
     ///
     func find(
         bitwardenTextField title: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<BitwardenTextFieldType> {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
     }
@@ -150,7 +150,7 @@ extension InspectableView {
     ///
     func find(
         bitwardenTextFieldWithAccessibilityLabel accessibilityLabel: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<BitwardenTextFieldType> {
         try find(BitwardenTextFieldType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
@@ -177,7 +177,7 @@ extension InspectableView {
     ///
     func find(
         buttonWithAccessibilityLabel accessibilityLabel: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<ViewType.Button> {
         try find(ViewType.Button.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
@@ -191,7 +191,7 @@ extension InspectableView {
     /// - Throws: Throws an error if a picker was unable to be located.
     ///
     func find(
-        picker label: String
+        picker label: String,
     ) throws -> InspectableView<ViewType.Picker> {
         try find(ViewType.Picker.self, containing: label)
     }
@@ -226,7 +226,7 @@ extension InspectableView {
     ///
     func find(
         settingsMenuField title: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<SettingsMenuFieldType> {
         try find(SettingsMenuFieldType.self, containing: title, locale: locale)
     }
@@ -239,7 +239,7 @@ extension InspectableView {
     ///
     func find(
         sliderWithAccessibilityLabel accessibilityLabel: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<ViewType.Slider> {
         try find(ViewType.Slider.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
@@ -254,7 +254,7 @@ extension InspectableView {
     ///
     func find(
         toggleWithAccessibilityLabel accessibilityLabel: String,
-        locale: Locale = .testsDefault
+        locale: Locale = .testsDefault,
     ) throws -> InspectableView<ViewType.Toggle> {
         try find(ViewType.Toggle.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
@@ -287,7 +287,7 @@ extension InspectableView where View == AsyncButtonType {
         } else {
             throw InspectionError.attributeNotFound(
                 label: "action",
-                type: String(describing: AsyncButtonType.self)
+                type: String(describing: AsyncButtonType.self),
             )
         }
     }
@@ -303,7 +303,7 @@ extension InspectableView where View == BitwardenTextFieldType {
         } else {
             throw InspectionError.attributeNotFound(
                 label: "_text",
-                type: String(describing: BitwardenTextFieldType.self)
+                type: String(describing: BitwardenTextFieldType.self),
             )
         }
     }
@@ -319,7 +319,7 @@ extension InspectableView where View == BitwardenMultilineTextFieldType {
         } else {
             throw InspectionError.attributeNotFound(
                 label: "_text",
-                type: String(describing: BitwardenMultilineTextFieldType.self)
+                type: String(describing: BitwardenMultilineTextFieldType.self),
             )
         }
     }

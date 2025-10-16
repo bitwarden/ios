@@ -25,9 +25,9 @@ class DebugMenuProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: DebugMenuState(featureFlags: [])
+            state: DebugMenuState(featureFlags: []),
         )
     }
 
@@ -56,7 +56,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         let flag = DebugMenuFeatureFlag(
             feature: .testFeatureFlag,
-            isEnabled: false
+            isEnabled: false,
         )
 
         configService.debugFeatureFlags = [flag]
@@ -78,14 +78,14 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     func test_perform_toggleFeatureFlag() async {
         let flag = DebugMenuFeatureFlag(
             feature: .testFeatureFlag,
-            isEnabled: true
+            isEnabled: true,
         )
 
         await subject.perform(
             .toggleFeatureFlag(
                 flag.feature.rawValue,
-                false
-            )
+                false,
+            ),
         )
 
         XCTAssertTrue(configService.toggleDebugFeatureFlagCalled)
@@ -98,12 +98,12 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             errorReporter.errors[0] as? BitwardenSdk.BitwardenError,
             BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
-                message: "Generated error report from debug view."
-            ))
+                message: "Generated error report from debug view.",
+            )),
         )
         XCTAssertEqual(
             errorReporter.errors[1] as? KeychainServiceError,
-            KeychainServiceError.osStatusError(1)
+            KeychainServiceError.osStatusError(1),
         )
     }
 }
