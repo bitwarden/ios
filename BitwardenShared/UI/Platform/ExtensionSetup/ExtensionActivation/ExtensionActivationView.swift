@@ -12,7 +12,7 @@ struct ExtensionActivationView: View {
     @ObservedObject var store: Store<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void,
+        ExtensionActivationEffect,
     >
 
     /// An action that opens URLs.
@@ -31,6 +31,9 @@ struct ExtensionActivationView: View {
         .scrollView()
         .navigationTitle(store.state.navigationBarTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Views
