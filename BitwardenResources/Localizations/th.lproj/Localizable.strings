@@ -183,9 +183,11 @@
 "SyncVaultNow" = "ซิงค์ตู้นิรภัยเดี๋ยวนี้";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "เข้าสู่ระบบแบบสองขั้นตอน";
-"UnlockWith" = "ปลดล็อก ด้วย %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "ปลดล็อก ด้วยรหัส PIN";
-"UnlockWithUnknownBiometrics" = "ปลดล็อกด้วยไบโอเมตริก";
 "Validating" = "กำลังตรวจสอบ...";
 "VerificationCode" = "รหัสยืนยัน";
 "ViewItem" = "ดูรายการ";
@@ -210,15 +212,15 @@
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
 "AutofillOrView" = "Do you want to autofill or view this item?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to auto-fill this login? It is not a complete match for \"%1$@\".";
 "MatchingItems" = "รายการที่ตรงกัน";
 "PossibleMatchingItems" = "รายการที่ตรงกันที่เป็นไปได้";
 "Search" = "ค้นหา";
-"BitwardenAutofillServiceSearch" = "You are searching for an autofill item for “%1$@”.";
+"BitwardenAutofillServiceSearch" = "You are searching for an auto-fill login for \"%1$@\".";
 "LearnAboutNewLogins" = "Learn about new logins";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "เรียนรู้เพิ่มเติมเกี่ยวกับองค์กร";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "ไม่สามารถเปิดแอป \"%1$@\".";
 "AuthenticatorAppTitle" = "แอป Authenticator";
 "EnterVerificationCodeApp" = "ป้อนรหัสยืนยัน 6 หลักจากคุณแอป authenticator";
 "EnterVerificationCodeEmail" = "ป้อนรหัสยืนยัน6หลักที่ส่งอีเมลไปที่ %1$@";
@@ -550,7 +552,7 @@
 "Send" = "Send";
 "AllSends" = "Sends ทั้งหมด";
 "Sends" = "Sends";
-"Text" = "Text";
+"Text" = "ข้อความ";
 "TypeText" = "ข้อความ";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
 "TypeFile" = "ไฟล์";
@@ -669,7 +671,7 @@
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
-"ScanQRCode" = "Scan QR Code";
+"ScanQRCode" = "สแกน QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
@@ -1292,5 +1294,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

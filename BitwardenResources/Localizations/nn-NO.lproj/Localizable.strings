@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Synkroniser kvelvet no";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tostegsinnskriving";
-"UnlockWith" = "Lås opp med %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Lås opp med PIN-kode";
-"UnlockWithUnknownBiometrics" = "Lås opp med biometri";
 "Validating" = "Ser på gildskapen";
 "VerificationCode" = "Stadfestingskode";
 "ViewItem" = "Sjå oppføring";
@@ -209,15 +211,15 @@
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
 "AutofillOrView" = "Do you want to autofill or view this item?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Er du trygg på at du vil fylla ut denne oppføringa ubede? Det samsvarar ikkje heilt med \"%1$@\".";
 "MatchingItems" = "Samsvarande oppføringar";
 "PossibleMatchingItems" = "Moglege samsvarande oppføringar";
 "Search" = "Leita";
-"BitwardenAutofillServiceSearch" = "You are searching for an autofill item for “%1$@”.";
+"BitwardenAutofillServiceSearch" = "Du leitar etter ei sjølvutfyllande oppføring for \"%1$@\".";
 "LearnAboutNewLogins" = "Learn about new logins";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Lær om samskipnader";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "Kan ikkje opne appen \"%1$@\".";
 "AuthenticatorAppTitle" = "Authenticator app";
 "EnterVerificationCodeApp" = "Enter the 6 digit verification code from your authenticator app.";
 "EnterVerificationCodeEmail" = "Enter the 6 digit verification code that was emailed to %1$@.";
@@ -666,7 +668,7 @@
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
-"ScanQRCode" = "Scan QR Code";
+"ScanQRCode" = "Skann QR-kode";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
@@ -752,7 +754,7 @@
 "Language" = "Language";
 "LanguageChangeXDescription" = "The language has been changed to %1$@. Please restart the app to see the change";
 "LanguageChangeRequiresAppRestart" = "Language change requires app restart";
-"DefaultSystem" = "Default (System)";
+"DefaultSystem" = "Standard (System)";
 "Important" = "Important";
 "WeakMasterPassword" = "Weak Master Password";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?";
@@ -1086,7 +1088,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
 "ImportPasswords" = "Importer passord";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
 "ImportFailed" = "Import feila";
 "ItemsSuccessfullyImported" = "%1$@ element blei importert";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

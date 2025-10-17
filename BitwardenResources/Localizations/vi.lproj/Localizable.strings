@@ -136,7 +136,7 @@
 "Immediately" = "Tức thì";
 "VaultTimeout" = "Đóng kho sau";
 "VaultTimeoutAction" = "Hành động sau khi đóng kho";
-"VaultTimeoutLogOutConfirmation" = "Đăng xuất sẽ xóa toàn bộ quyền truy cập vào kho của bạn và yêu cầu xác minh lại sau khi đóng kho. Bạn có chắc chắn muốn sử dụng cài đặt này không?";
+"VaultTimeoutLogOutConfirmation" = "Đăng xuất sẽ xóa toàn bộ quyền truy cập vào kho của bạn và yêu cầu xác thực trực tuyến sau khi hết thời gian chờ. Bạn có chắc chắn muốn sử dụng cài đặt này không?";
 "LoggingIn" = "Đang đăng nhập…";
 "LogInToBitwarden" = "Đăng nhập Bitwarden";
 "Manage" = "Quản lý";
@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Đồng bộ kho lưu trữ ngay";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Đăng nhập hai bước";
-"UnlockWith" = "Mở khóa bằng %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Mở khóa bằng mã PIN";
-"UnlockWithUnknownBiometrics" = "Mở khóa bằng sinh trắc học";
 "Validating" = "Đang xác nhận";
 "VerificationCode" = "Mã xác minh";
 "ViewItem" = "Xem mục";
@@ -528,7 +530,7 @@
 "Loading" = "Đang tải";
 "AcceptPoliciesError" = "Bạn chưa đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật.";
 "PrivacyPolicy" = "Chính sách Bảo mật";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden cần bạn kiểm tra - Bật “Vẽ chồng lên” trong “Dịch vụ Tự động điền” từ Cài đặt Bitwarden";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden cần bạn thiết lập - Bật “Hiển thị trên các ứng dụng khác” từ phần “Dịch vụ Tự động điền” trong cài đặt Bitwarden";
 "PasskeyManagement" = "Quản lý mã khóa";
 "AutofillServices" = "Dịch vụ tự động điền";
 "InlineAutofill" = "Tự động điền cùng dòng";
@@ -844,7 +846,7 @@
 "AutofillServicesExplanationLong" = "Khung Tự động điền của Android được sử dụng để hỗ trợ việc điền thông tin đăng nhập vào các ứng dụng khác trên thiết bị của bạn.";
 "UseInlineAutofillExplanationLong" = "Sử dụng tính năng tự động điền cùng dòng nếu bàn phím bạn sử dụng hỗ trợ tính năng này. Nếu không, dùng giao diện phủ mặc định.";
 "AdditionalOptions" = "Tùy chọn bổ sung";
-"ContinueToWebApp" = "Tiếp tục tới bản web?";
+"ContinueToWebApp" = "Tiếp tục tới ứng dụng web?";
 "ContinueToX" = "Đi đến %1$@?";
 "ContinueToHelpCenter" = "Tiếp tục tới Trung tâm trợ giúp?";
 "ContinueToContactSupport" = "Tiếp tục liên hệ với bộ phận hỗ trợ?";
