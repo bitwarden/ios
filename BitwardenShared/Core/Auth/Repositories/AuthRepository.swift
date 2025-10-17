@@ -1131,6 +1131,7 @@ extension DefaultAuthRepository: AuthRepository {
         case .decryptedKey,
              .deviceKey,
              .keyConnector,
+             .masterPasswordUnlock,
              .pin,
              .pinEnvelope:
             // No-op: nothing extra to do.
@@ -1246,6 +1247,7 @@ extension DefaultAuthRepository: AuthRepository {
             )
             await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
+             .masterPasswordUnlock,
              .password:
             guard let encryptedPin = try await stateService.getEncryptedPin(),
                   try await stateService.pinProtectedUserKeyEnvelope() == nil
@@ -1272,7 +1274,7 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
                 await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
             }
-        case .pinEnvelope:
+        case.pinEnvelope:
             break
         }
     }
