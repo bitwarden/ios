@@ -28,7 +28,7 @@ class FlightRecorderLoggingDurationTests: BitwardenTestCase {
         XCTAssertEqual(FlightRecorderLoggingDuration.oneHour.localizedName, Localizations.oneHour)
         XCTAssertEqual(FlightRecorderLoggingDuration.eightHours.localizedName, Localizations.xHours(8))
         XCTAssertEqual(FlightRecorderLoggingDuration.twentyFourHours.localizedName, Localizations.xHours(24))
-        XCTAssertEqual(FlightRecorderLoggingDuration.oneWeek.localizedName, Localizations.oneWeek)
+        XCTAssertEqual(FlightRecorderLoggingDuration.oneWeek.localizedName, Localizations.xWeeks(1))
     }
 
     /// `shortDescription` returns a short string representation of the logging duration.

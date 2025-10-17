@@ -18,5 +18,21 @@
 			<string>%d minutes</string>
 		</dict>
 	</dict>
+	<key>XWeeks</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@weeks@</string>
+		<key>weeks</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d week</string>
+			<key>other</key>
+			<string>%d weeks</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
