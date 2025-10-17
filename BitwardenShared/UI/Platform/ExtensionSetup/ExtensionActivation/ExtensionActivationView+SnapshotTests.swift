@@ -13,7 +13,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void,
+        ExtensionActivationEffect,
     >!
     var subject: ExtensionActivationView!
 
