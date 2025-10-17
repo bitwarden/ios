@@ -1,8 +1,10 @@
+import BitwardenResources
+
 // MARK: - SessionTimeoutValue
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: Codable, RawRepresentable, Equatable, Hashable, Sendable {
+public enum SessionTimeoutValue: Codable, RawRepresentable, Equatable, Hashable, Menuable, Sendable {
     /// Time out immediately.
     case immediately
 
@@ -36,6 +38,32 @@ public enum SessionTimeoutValue: Codable, RawRepresentable, Equatable, Hashable,
     /// The session timeout value in seconds.
     public var seconds: Int {
         rawValue * 60
+    }
+
+    /// The localized string representation of a `SessionTimeoutValue`.
+    public var localizedName: String {
+        switch self {
+        case .immediately:
+            Localizations.immediately
+        case .oneMinute:
+            Localizations.xMinutes(1)
+        case .fiveMinutes:
+            Localizations.xMinutes(5)
+        case .fifteenMinutes:
+            Localizations.xMinutes(15)
+        case .thirtyMinutes:
+            Localizations.xMinutes(30)
+        case .oneHour:
+            Localizations.xHours(1)
+        case .fourHours:
+            Localizations.xHours(4)
+        case .onAppRestart:
+            Localizations.onRestart
+        case .never:
+            Localizations.never
+        case .custom:
+            Localizations.custom
+        }
     }
 
     /// The session timeout value in minutes.

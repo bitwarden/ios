@@ -131,8 +131,6 @@
 "LastSync" = "Last sync:";
 "Length" = "Length";
 "Lock" = "Lock";
-"OneHour" = "1 hour";
-"FourHours" = "4 hours";
 "Immediately" = "Immediately";
 "VaultTimeout" = "Vault timeout";
 "VaultTimeoutAction" = "Vault timeout action";
@@ -584,11 +582,6 @@
 "SendDeleted" = "Send deleted";
 "SendUpdated" = "Send saved";
 "NewSendCreated" = "Send created";
-"OneDay" = "1 day";
-"TwoDays" = "2 days";
-"ThreeDays" = "3 days";
-"SevenDays" = "7 days";
-"ThirtyDays" = "30 days";
 "Custom" = "Custom";
 "ShareOnSave" = "Share this Send upon save";
 "SendDisabledWarning" = "Due to an enterprise policy, you are only able to delete an existing Send.";
@@ -841,7 +834,6 @@
 "OneHourAndXMinute" = "One hour and %1$@ minutes";
 "XHoursAndOneMinute" = "%1$@ hours and one minute";
 "XHoursAndYMinutes" = "%1$@ hours and %2$@ minutes";
-"XHours" = "%1$@ hours";
 "PasskeyManagementExplanationLong" = "Use Bitwarden to save new passkeys and log in with passkeys stored in your vault.";
 "AutofillServicesExplanationLong" = "The Android Autofill Framework is used to assist in filling login information into other apps on your device.";
 "UseInlineAutofillExplanationLong" = "Use inline autofill if your selected keyboard supports it. Otherwise, use the default overlay.";
