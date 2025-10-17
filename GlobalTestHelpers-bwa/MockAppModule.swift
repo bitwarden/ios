@@ -23,7 +23,7 @@ class MockAppModule:
 
     func makeAppCoordinator(
         appContext _: AppContext,
-        navigator _: RootNavigator
+        navigator _: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         appCoordinator.asAnyCoordinator()
     }
@@ -31,7 +31,7 @@ class MockAppModule:
     func makeAuthCoordinator(
         delegate _: AuthCoordinatorDelegate,
         rootNavigator _: RootNavigator,
-        stackNavigator _: StackNavigator
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         authCoordinator.asAnyCoordinator()
     }
@@ -41,21 +41,21 @@ class MockAppModule:
     }
 
     func makeDebugMenuCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
         debugMenuCoordinator.asAnyCoordinator()
     }
 
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator _: StackNavigator
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, FileSelectionEvent> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
     }
 
     func makeItemListCoordinator(
-        stackNavigator _: AuthenticatorShared.StackNavigator
+        stackNavigator _: AuthenticatorShared.StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         itemListCoordinator.asAnyCoordinator()
     }
@@ -63,13 +63,13 @@ class MockAppModule:
     func makeTabCoordinator(
         errorReporter _: ErrorReporter,
         rootNavigator _: RootNavigator,
-        tabNavigator _: TabNavigator
+        tabNavigator _: TabNavigator,
     ) -> AnyCoordinator<TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeTutorialCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<TutorialRoute, TutorialEvent> {
         tutorialCoordinator.asAnyCoordinator()
     }

@@ -60,7 +60,7 @@ class DefaultMigrationService {
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
         keychainServiceName: String = Bundle.main.appIdentifier,
-        standardUserDefaults: UserDefaults = .standard
+        standardUserDefaults: UserDefaults = .standard,
     ) {
         self.appGroupUserDefaults = appGroupUserDefaults
         self.appSettingsStore = appSettingsStore
@@ -158,7 +158,7 @@ class DefaultMigrationService {
                    account.contains("userKeyBiometricUnlock_"),
                    let accessControl = try? keychainService.accessControl(
                        protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                       for: .biometryCurrentSet
+                       for: .biometryCurrentSet,
                    ) {
                     attributesToUpdate[kSecAttrAccessControl] = accessControl
                 }
@@ -196,17 +196,17 @@ class DefaultMigrationService {
         for (accountId, _) in state.accounts {
             let appIdentifier = Bundle.main.appIdentifier
             appGroupUserDefaults.removeObject(
-                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier)"
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier)",
             )
             appGroupUserDefaults.removeObject(
-                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).autofill"
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).autofill",
             )
             appGroupUserDefaults.removeObject(
-                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).find-login-action-extension"
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).find-login-action-extension",
                 // swiftlint:disable:previous line_length
             )
             appGroupUserDefaults.removeObject(
-                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).share-extension"
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).share-extension",
             )
         }
     }

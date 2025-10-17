@@ -9,7 +9,7 @@ protocol TextAutofillOptionsHelper {
     /// - Returns: The localized option title and the value to insert if that's selected.
     func getTextAutofillOptions(cipherView: CipherView) async -> [(
         localizedOption: String,
-        textToInsert: String
+        textToInsert: String,
     )]
 }
 

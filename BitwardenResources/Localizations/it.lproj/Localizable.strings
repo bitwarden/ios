@@ -12,7 +12,7 @@
 "Credits" = "Crediti";
 "Delete" = "Elimina";
 "DeleteAll" = "Elimina tutto";
-"Deleting" = "Deleting…";
+"Deleting" = "Eliminazione…";
 "DoYouReallyWantToDelete" = "Sei sicuro di volerlo eliminare? Questa operazione è irreversibile.";
 "Edit" = "Modifica";
 "EditFolder" = "Modifica cartella";
@@ -59,7 +59,7 @@
 "Password" = "Password";
 "Save" = "Salva";
 "Move" = "Sposta";
-"Saving" = "Saving…";
+"Saving" = "Salvataggio…";
 "Settings" = "Impostazioni";
 "Show" = "Mostra";
 "ItemDeleted" = "Elemento eliminato";
@@ -69,7 +69,7 @@
 "Tools" = "Strumenti";
 "UseFingerprintToUnlock" = "Usa l'impronta digitale per sbloccare";
 "UseThisButtonToGenerateANewUniquePassword" = "Usa questo pulsante per generare una nuova parola d'accesso univoca.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You’ll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Dovrai solo impostare la chiave di autenticazione per gli accessi che richiedono l'autenticazione a due fattori con un codice. La chiave genera continuamente codici a sei cifre che puoi usare per accedere.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Usa il generatore per creare parole d'accesso sicure, espressioni d'accesso e nomi utente.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Le frasi d'accesso sono spesso più facili da ricordare e digitare delle parole d'accesso casuali. Possono essere utili quando è necessario accedere ad account in cui il riempimento automatico non è disponibile, come un servizio di streaming sulla TV.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "I nomi utente unici aggiungono un ulteriore livello di sicurezza e possono aiutare a impedire agli hacker di trovare i tuoi account.";
@@ -176,15 +176,17 @@
 "ItemUpdated" = "Elemento salvato";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Syncing logins…";
+"SyncingLogins" = "Sincronizzazione dei login...";
 "SyncingComplete" = "Sincronizzazione completata";
 "SyncingFailed" = "Sincronizzazione fallita";
 "SyncVaultNow" = "Sincronizza cassaforte";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verifica in due passaggi";
-"UnlockWith" = "Sblocca con %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Sblocca con codice PIN";
-"UnlockWithUnknownBiometrics" = "Sblocca con dati biometrici";
 "Validating" = "Verifica in corso...";
 "VerificationCode" = "Codice di verifica";
 "ViewItem" = "Visualizza elemento";
@@ -206,18 +208,18 @@
 "Off" = "No";
 "On" = "Sì";
 "Status" = "Stato";
-"BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
+"BitwardenAutofillServiceAlert2" = "Puoi aggiungere facilmente nuove credenziali di login alla tua cassaforte dal servizio di riempimento automatico. Scopri di più sul riempimento automatico nel menu Impostazioni.";
 "Autofill" = "Riempimento automatico";
 "AutofillOrView" = "Vuoi visualizzare i dati di accesso o riempire il modulo?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Sei sicuro di voler riempire automaticamente questo elemento? Non è una corrispondenza completa per \"%1$@\".";
 "MatchingItems" = "Elementi corrispondenti";
 "PossibleMatchingItems" = "Possibili elementi corrispondenti";
 "Search" = "Cerca";
-"BitwardenAutofillServiceSearch" = "You are searching for an autofill item for “%1$@”.";
+"BitwardenAutofillServiceSearch" = "Stai cercando un elemento di riempimento automatico per \"%1$@\".";
 "LearnAboutNewLogins" = "Scopri sui nuovi accessi";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Ti guideremo attraverso le funzioni chiave per aggiungere un nuovo accesso.";
 "LearnOrg" = "Ulteriori informazioni sulle organizzazioni";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "Impossibile aprire l'app \"%1$@\".";
 "AuthenticatorAppTitle" = "App di autenticazione";
 "EnterVerificationCodeApp" = "Inserisci il codice di verifica a 6 cifre dalla tua app di autenticazione.";
 "EnterVerificationCodeEmail" = "Digita il codice di verifica a 6 cifre ricevuto per email su %1$@.";
@@ -461,7 +463,7 @@
 "AskToAddLogin" = "Chiedi di aggiungere nuovi login";
 "AskToAddLoginDescription" = "Ask to add an item if one isn’t found in your vault.";
 "OnRestart" = "Al riavvio dell'app";
-"AutofillServiceNotEnabled" = "Autofill makes it easy to securely access your Bitwarden vault from other websites and apps. It looks like you have not set up an autofill service for Bitwarden. Set up autofill for Bitwarden from the “Settings” screen.";
+"AutofillServiceNotEnabled" = "Il riempimento automatico rende semplice l'accesso alla tua cassaforte da altri siti e app. Ti consigliamo di attivarlo dalle Impostazioni.";
 "ThemeAppliedOnRestart" = "Le modifiche al tema saranno applicate al riavvio dell'app.";
 "Capitalize" = "Rendi maiuscolo";
 "IncludeNumber" = "Includi numero";
@@ -472,7 +474,7 @@
 "BiometricsDirection" = "Autenticazione biometrica";
 "Biometrics" = "Dati biometrici";
 "UseBiometricsToUnlock" = "Sblocca con dati biometrici";
-"AccessibilityOverlayPermissionAlert" = "Bitwarden needs attention - See “Autofill Accessibility Service” from Bitwarden settings";
+"AccessibilityOverlayPermissionAlert" = "Autorizzazione in sospeso per Bitwarden: vai alla sezione 'Servizio di Accessibilità per il riempimento automatico' nelle Impostazioni";
 "BitwardenAutofillServiceOverlayPermission" = "3. On the Android App Settings screen for Bitwarden, go to the “Display over other apps” options (under Advanced) and tap the toggle to allow overlay support.";
 "OverlayPermission" = "Permessi";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Apri le impostazioni di permesso alla sovrapposizione";
@@ -494,7 +496,7 @@
 "Open" = "Apri";
 "UnableToSaveAttachment" = "Si è verificato un problema salvando questo allegato. Se il problema persiste, prova a salvarlo dalla cassaforte web.";
 "SaveAttachmentSuccess" = "Allegato salvato";
-"AutofillTileAccessibilityRequired" = "Please turn on “Autofill Accessibility Service” from Bitwarden Settings to use the Autofill tile.";
+"AutofillTileAccessibilityRequired" = "Attiva l'opzione 'Servizio di Accessibilità per il riempimento automatico' per usare la funzionalità indicata.";
 "AutofillTileUriNotFound" = "Nessun campo password rilevato";
 "SoftDeleting" = "Sending to trash…";
 "ItemSoftDeleted" = "L'elemento è stato eliminato.";
@@ -528,13 +530,13 @@
 "Loading" = "Caricamento";
 "AcceptPoliciesError" = "I Termini di Servizio e l'Informativa sulla Privacy non sono stati accettati.";
 "PrivacyPolicy" = "Informativa sulla Privacy";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on “Draw-Over” in “Autofill Services” from Bitwarden Settings";
+"AccessibilityDrawOverPermissionAlert" = "Autorizzazione in sospeso per Bitwarden: abilita 'Mostra sopra le altre app' dalle Impostazioni";
 "PasskeyManagement" = "Gestione delle passkey";
 "AutofillServices" = "Servizi di riempimento automatico";
 "InlineAutofill" = "Usa il riempimento automatico in linea";
 "InlineAutofillDescription" = "Usa il riempimento automatico in linea se la tua tastiera lo supporta. Se la tua configurazione non è supportata (o questa opzione è disattivata), sarà usato il pop-up di riempimento automatico predefinito.";
 "Accessibility" = "Usa il servizio di accessibilità";
-"AccessibilityDescription" = "Use the Bitwarden Accessibility Service to autofill your logins across apps and the web. When set up, we’ll display a popup when login fields are selected.";
+"AccessibilityDescription" = "Usa il servizio di Accessibilità di Bitwarden per riempire automaticamente i campi nome utente e password nelle app e sul Web. Una volta configurato, un riquadro popup apparirà ogni volta che toccherai un campo di autenticazione.";
 "AccessibilityDescription2" = "Usa il servizio di Accessibilità di Bitwarden per riempire automaticamente i campi nome utente e password nelle app e sul Web. È richiesta anche l'autorizzazione 'Mostra sopra le altre app'";
 "AccessibilityDescription3" = "Abilita il servizio di accessibilità di Bitwarden per usare il riquadro di riempimento automatico rapido, e/o mostra un pop-up se \"Mostra sopra altre app\" è abilitato.";
 "AccessibilityDescription4" = "Necessario per usare il riquadro di riempimento automatico rapido o per migliorare il servizio di riempimento automatico se \"Mostra sopra altre app\" è abilitato.";
@@ -766,7 +768,7 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Password debole e trovata in una violazione dei dati. Usa una password forte e unica per proteggere il tuo account. Sei sicuro di voler usare questa password?";
 "OrganizationSsoIdentifierRequired" = "Identificatore SSO dell'organizzazione obbligatorio.";
 "AddTheKeyToAnExistingOrNewItem" = "Aggiungi la chiave a un elemento nuovo o esistente";
-"ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match “%1$@”";
+"ThereAreNoItemsInYourVaultThatMatchX" = "Nessun elemento nella tua cassaforte corrisponde a \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Cerca un elemento o aggiungi un nuovo elemento";
 "ThereAreNoItemsThatMatchTheSearch" = "Nessun elemento corrisponde alla ricerca";
 "ThereAreNoLoginsInYourVault" = "La cassaforte non contiene dati di accesso";
@@ -889,7 +891,7 @@
 "SetUpAutofill" = "Configura il riempimento automatico";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Ottieni accesso immediato alle tue password e passkey!";
 "SetUpAutoFillDescriptionLong" = "Per impostare il riempimento automatico e la gestione delle passkey, scegli Bitwarden come provider predefinito nelle Impostazioni di sistema.";
-"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device’s Settings > Passwords > Password Options";
+"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Vai alle Impostazioni del tuo dispositivo > Password > Opzioni delle Password";
 "SecondDotTurnOnAutoFill" = "2. Attiva il riempimento automatico";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "La tua passkey sarà salvata nella tua cassaforte di Bitwarden";
@@ -1001,7 +1003,7 @@
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "Puoi completare questo passaggio in seguito tornando nelle Impostazioni.";
 "ContinueToBitwarden" = "Prosegui su Bitwarden";
 "BackToSettings" = "Torna alle impostazioni";
-"YoureAllSet" = "You’re all set!";
+"YoureAllSet" = "Tutto pronto!";
 "AutoFillActivatedDescriptionLong" = "Ora puoi usare il riempimento automatico per accedere ad app e siti web usando le tue password salvate. Puoi esplorare tutto ciò che Bitwarden ha da offrire.";
 "GetStarted" = "Per iniziare";
 "Dismiss" = "Ignora";
@@ -1086,7 +1088,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Importazione...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ItemsSuccessfullyImported" = "%1$@ elementi importati con successo";
@@ -1198,7 +1200,7 @@
 "LoggingEndsOnDateAtTime" = "La registrazione termina il %1$@ alle %2$@";
 "YouMustAttachAFileToSaveThisSend" = "È necessario allegare un file per salvare questo Send";
 "SendUpdated" = "Send aggiornato";
-"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don’t recognize this device. Enter the code sent to your email to verify your identity.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Dispositivo non riconosciuto. Inserisci il codice che è stato inviato alla tua email.";
 "Created" = "Creazione: %1$@";
 "LastEdited" = "Ultima modifica: %1$@";
 "PasswordLastUpdated" = "Ultimo aggiornamento della password: %1$@";
@@ -1273,7 +1275,7 @@
 "WhenUsingTwoStepVerification" = "Quando si utilizza la verifica in 2 passaggi, inserirai nome utente e password e un codice generato in questa app.";
 "YesSetDefault" = "Sì, imposta predefinito";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "È possibile aggiornare il valore predefinito in qualsiasi momento nelle impostazioni.";
-"SelectAccount" = "Select account";
+"SelectAccount" = "Scegli un account";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "Accounts";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.";
@@ -1287,3 +1289,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Inizia con' è un'opzione con un maggior rischio di esporre le credenziali.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "'Espressione regolare' è un'opzione avanzata con un rischio maggiore di esporre le credenziali se usato senza cognizione di causa.";
 "DefaultX" = "Predefinito (%1$@)";
+"UpdateYourEncryptionSettings" = "Aggiorna le impostazioni di crittografia";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare.";
+"Updating" = "Updating…";
+"EncryptionSettingsUpdated" = "Impostazioni di crittografia aggiornate";

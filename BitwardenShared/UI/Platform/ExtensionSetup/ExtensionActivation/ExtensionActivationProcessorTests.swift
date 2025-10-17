@@ -22,7 +22,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         subject = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
             services: ServiceContainer.withMocks(configService: configService),
-            state: ExtensionActivationState(extensionType: .autofillExtension)
+            state: ExtensionActivationState(extensionType: .autofillExtension),
         )
     }
 

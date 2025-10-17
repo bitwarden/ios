@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportFormatType
 
 /// An enum describing the format of the imported items file by provider.
@@ -41,11 +43,11 @@ enum ImportFormatType: Menuable {
         case .bitwardenJson,
              .lastpassJson,
              .raivoJson:
-            return .jsonFile
+            .jsonFile
         case .googleQr:
-            return nil
+            nil
         case .twoFasJason:
-            return .file
+            .file
         }
     }
 

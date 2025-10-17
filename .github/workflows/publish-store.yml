@@ -1,6 +1,7 @@
 
 name: Publish to iOS App Store
-run-name: Publish ${{ inputs.product }} build ${{ inputs.build-number }} version ${{inputs.build-version}}
+run-name: >
+  ${{ inputs.dry-run && ' (Dry Run)' || '' }} Publish ${{ inputs.product }} build ${{ inputs.build-number }} version ${{ inputs.build-version }}
 
 on:
   workflow_dispatch:
@@ -30,6 +31,10 @@ on:
         description: "Automatically submit release for review"
         type: boolean
         default: true
+      dry-run:
+        description: "Dry-Run, Run the workflow without publishing to the store"
+        type: boolean
+        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,6 +44,7 @@ permissions:
   contents: read
   packages: read
   id-token: write
+  actions: write
 
 jobs:
     publish:
@@ -53,6 +59,8 @@ jobs:
 
         - name: Check out repo
           uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+          with:
+            persist-credentials: false
 
         - name: Configure Ruby
           uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
@@ -84,21 +92,25 @@ jobs:
             CONTAINER_NAME: mobile
             FILE: appstoreconnect-fastlane.json
           run: |
-            mkdir -p $HOME/secrets
-            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-              --file $HOME/secrets/$FILE --output none
+            mkdir -p "$HOME/secrets"
+            az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" --name "$FILE" \
+              --file "$HOME/secrets/$FILE" --output none
 
         - name: Log out from Azure
           uses: bitwarden/gh-actions/azure-logout@main
 
         - name: Set up private auth key
+          env:
+            AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           run: |
             mkdir ~/private_keys
             cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-            ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+            $AUTH_KEY
             EOF
 
         - name: Upload app to with Fastlane
+          id: publish
+          if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
             VERSION_NAME: ${{inputs.build-version}}
@@ -128,3 +140,18 @@ jobs:
               changelog:"$CHANGELOG" \
               metadata_path:"$METADATA_PATH" \
               submit_release:"$SUBMIT_RELEASE"
+
+        - name: Enable Publish Github Release Workflow
+          if: ${{ steps.publish.conclusion == 'success' }}
+          env:
+            PRODUCT: ${{ inputs.product }}
+          run: |
+            if ${{ inputs.dry-run }} ; then
+              gh workflow view publish-github-release.yml
+              exit 0
+            fi
+            if [ "$PRODUCT" = "Password Manager" ]; then
+              gh workflow enable publish-github-release-bwpm.yml
+            elif [ "$PRODUCT" = "Authenticator" ]; then
+                gh workflow enable publish-github-release-bwa.yml
+            fi

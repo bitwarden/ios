@@ -21,7 +21,7 @@ class PasswordAutoFillCoordinatorTests: BitwardenTestCase {
         subject = PasswordAutoFillCoordinator(
             delegate: delegate,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

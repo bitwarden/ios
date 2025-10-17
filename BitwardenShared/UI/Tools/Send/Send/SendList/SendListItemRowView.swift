@@ -13,13 +13,13 @@ struct SendListItemRowState: Equatable {
     var accessibilityIdentifier: String {
         switch item.itemType {
         case .send:
-            return "SendCell"
+            "SendCell"
         case let .group(type, _):
             switch type {
             case .text:
-                return "SendTextFilter"
+                "SendTextFilter"
             case .file:
-                return "SendFileFilter"
+                "SendFileFilter"
             }
         }
     }
@@ -220,15 +220,15 @@ struct SendListItemRowView: View {
     }
 
     private func icons(
-        for sendView: SendView
+        for sendView: SendView,
     ) -> [[SendListItemIcon]] {
         var icons: [SendListItemIcon] = []
         if sendView.disabled {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "DisabledSendIcon",
-                    asset: SharedAsset.Icons.warning16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.warning16.swiftUIImage,
+                ),
             )
         }
 
@@ -236,8 +236,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PasswordProtectedSendIcon",
-                    asset: SharedAsset.Icons.key16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.key16.swiftUIImage,
+                ),
             )
         }
 
@@ -246,8 +246,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "MaxAccessSendIcon",
-                    asset: SharedAsset.Icons.doNot16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.doNot16.swiftUIImage,
+                ),
             )
         }
 
@@ -255,8 +255,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "ExpiredSendIcon",
-                    asset: SharedAsset.Icons.clock16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.clock16.swiftUIImage,
+                ),
             )
         }
 
@@ -264,8 +264,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PendingDeletionSendIcon",
-                    asset: SharedAsset.Icons.trash16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.trash16.swiftUIImage,
+                ),
             )
         }
 
@@ -319,20 +319,20 @@ struct SendListItemIcon: Hashable {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.text, 42)),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.file, 42)),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
@@ -349,13 +349,13 @@ struct SendListItemIcon: Hashable {
                                 accessCount: 1,
                                 disabled: true,
                                 deletionDate: Date(),
-                                expirationDate: Date().advanced(by: -1)
-                            ))
+                                expirationDate: Date().advanced(by: -1),
+                            )),
                         ),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
@@ -367,13 +367,13 @@ struct SendListItemIcon: Hashable {
                                 id: "4",
                                 name: "No Status",
                                 deletionDate: Date().advanced(by: 100),
-                                expirationDate: Date().advanced(by: 100)
-                            ))
+                                expirationDate: Date().advanced(by: 100),
+                            )),
                         ),
-                        hasDivider: false
-                    )
-                )
-            )
+                        hasDivider: false,
+                    ),
+                ),
+            ),
         )
     }
 }

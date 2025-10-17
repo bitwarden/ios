@@ -14,8 +14,8 @@ class KdfConfigTests: BitwardenTestCase {
                 kdfType: .argon2id,
                 iterations: 3,
                 memory: 64,
-                parallelism: 4
-            )
+                parallelism: 4,
+            ),
         )
     }
 
@@ -28,8 +28,8 @@ class KdfConfigTests: BitwardenTestCase {
                 kdfType: .pbkdf2sha256,
                 iterations: 600_000,
                 memory: nil,
-                parallelism: nil
-            )
+                parallelism: nil,
+            ),
         )
     }
 }

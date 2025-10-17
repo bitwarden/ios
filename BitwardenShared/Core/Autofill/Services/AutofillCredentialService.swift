@@ -32,7 +32,7 @@ protocol AutofillCredentialService: AnyObject {
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASPasswordCredential
 
     /// Provides a Fido2 credential for a passkey request
@@ -45,7 +45,7 @@ protocol AutofillCredentialService: AnyObject {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential
 
     /// Provides a Fido2 credential for Fido2 request parameters.
@@ -56,7 +56,7 @@ protocol AutofillCredentialService: AnyObject {
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential
 
     /// Returns a `ASOneTimeCodeCredential` that matches the user-requested credential which can be
@@ -74,7 +74,7 @@ protocol AutofillCredentialService: AnyObject {
     func provideOTPCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential
 }
 
@@ -163,7 +163,7 @@ class DefaultAutofillCredentialService {
         stateService: StateService,
         timeProvider: TimeProvider,
         totpService: TOTPService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -255,7 +255,7 @@ class DefaultAutofillCredentialService {
                 let fido2Identities = try await clientService.platform().fido2()
                     .authenticator(
                         userInterface: fido2UserInterfaceHelper,
-                        credentialStore: fido2CredentialStore
+                        credentialStore: fido2CredentialStore,
                     )
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
@@ -316,11 +316,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASPasswordCredential {
         let cipher = try await checkUnlockAndGetCipherToProvideCredential(
             for: id,
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
         )
         guard cipher.type == .login,
               cipher.login != nil,
@@ -342,7 +342,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         await eventService.collect(
             eventType: .cipherClientAutofilled,
-            cipherId: cipher.id
+            cipherId: cipher.id,
         )
 
         return ASPasswordCredential(user: username, password: password)
@@ -352,7 +352,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         guard let credentialIdentity = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
@@ -364,27 +364,27 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         }
 
         let request = GetAssertionRequest(
-            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity
+            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
 
         return try await provideFido2Credential(
             with: request,
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             rpId: credentialIdentity.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash
+            clientDataHash: passkeyRequest.clientDataHash,
         )
     }
 
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         try await provideFido2Credential(
             with: GetAssertionRequest(fido2RequestParameters: fido2RequestParameters),
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             rpId: fido2RequestParameters.relyingPartyIdentifier,
-            clientDataHash: fido2RequestParameters.clientDataHash
+            clientDataHash: fido2RequestParameters.clientDataHash,
         )
     }
 
@@ -392,11 +392,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideOTPCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential {
         let cipher = try await checkUnlockAndGetCipherToProvideCredential(
             for: id,
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
         )
         guard cipher.type == .login, let totpKey = cipher.login?.totp else {
             throw ASExtensionError(.credentialIdentityNotFound)
@@ -413,7 +413,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         await eventService.collect(
             eventType: .cipherClientAutofilled,
-            cipherId: cipher.id
+            cipherId: cipher.id,
         )
 
         return ASOneTimeCodeCredential(code: code.code)
@@ -429,7 +429,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     /// - Returns: The decrypted cipher to provide the credential.
     private func checkUnlockAndGetCipherToProvideCredential(
         for id: String,
-        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
     ) async throws -> CipherView {
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
@@ -455,13 +455,13 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         with request: GetAssertionRequest,
         fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
         rpId: String,
-        clientDataHash: Data
+        clientDataHash: Data,
     ) async throws -> ASPasskeyAssertionCredential {
         await fido2UserInterfaceHelper.setupDelegate(
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
         await fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-            userVerificationPreference: request.options.uv
+            userVerificationPreference: request.options.uv,
         )
 
         #if DEBUG
@@ -472,7 +472,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             let assertionResult = try await clientService.platform().fido2()
                 .authenticator(
                     userInterface: fido2UserInterfaceHelper,
-                    credentialStore: fido2CredentialStore
+                    credentialStore: fido2CredentialStore,
                 )
                 .getAssertion(request: request)
 
@@ -492,7 +492,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 signature: assertionResult.signature,
                 clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
+                credentialID: assertionResult.credentialId,
             )
         } catch {
             #if DEBUG

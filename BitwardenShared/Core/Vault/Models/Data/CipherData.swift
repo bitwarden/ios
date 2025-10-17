@@ -31,7 +31,7 @@ class CipherData: NSManagedObject, ManagedUserObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        cipher: Cipher
+        cipher: Cipher,
     ) throws {
         self.init(context: context)
         id = cipher.id
@@ -65,7 +65,7 @@ extension CipherData {
             #keyPath(CipherData.userId),
             userId,
             #keyPath(CipherData.id),
-            id
+            id,
         )
     }
 }

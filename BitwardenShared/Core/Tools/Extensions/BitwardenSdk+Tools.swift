@@ -11,7 +11,7 @@ extension SendFileModel {
             fileName: sendFile.fileName,
             id: sendFile.id,
             size: sendFile.size,
-            sizeName: sendFile.sizeName
+            sizeName: sendFile.sizeName,
         )
     }
 }
@@ -35,7 +35,7 @@ extension SendResponseModel {
             password: send.password,
             revisionDate: send.revisionDate,
             text: send.text.map(SendTextModel.init),
-            type: SendType(sendType: send.type)
+            type: SendType(sendType: send.type),
         )
     }
 }
@@ -44,7 +44,7 @@ extension SendTextModel {
     init(sendText: SendText) {
         self.init(
             hidden: sendText.hidden,
-            text: sendText.text
+            text: sendText.text,
         )
     }
 }
@@ -87,7 +87,7 @@ extension BitwardenSdk.Send {
             hideEmail: model.hideEmail,
             revisionDate: model.revisionDate,
             deletionDate: model.deletionDate,
-            expirationDate: model.expirationDate
+            expirationDate: model.expirationDate,
         )
     }
 }
@@ -109,7 +109,7 @@ extension BitwardenSdk.SendFile {
             id: model.id,
             fileName: model.fileName,
             size: model.size,
-            sizeName: model.sizeName
+            sizeName: model.sizeName,
         )
     }
 }
@@ -118,7 +118,7 @@ extension BitwardenSdk.SendText {
     init(sendTextModel model: SendTextModel) {
         self.init(
             text: model.text,
-            hidden: model.hidden
+            hidden: model.hidden,
         )
     }
 }

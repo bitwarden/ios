@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import UIKit
 
@@ -23,10 +24,10 @@ public enum AppTheme: String, Menuable, Sendable {
     // MARK: Properties
 
     /// Specify the text for the default option.
-    static var defaultValueLocalizedName: String { Localizations.defaultSystem }
+    public static var defaultValueLocalizedName: String { Localizations.defaultSystem }
 
     /// The name of the type to display in the dropdown menu.
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .dark:
             Localizations.dark

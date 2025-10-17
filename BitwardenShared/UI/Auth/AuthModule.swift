@@ -16,7 +16,7 @@ protocol AuthModule {
     func makeAuthCoordinator(
         delegate: AuthCoordinatorDelegate?,
         rootNavigator: RootNavigator?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AuthRoute, AuthEvent>
 
     /// Initializes a router for converting AuthEvents into AuthRoutes.
@@ -32,7 +32,7 @@ extension DefaultAppModule: AuthModule {
     func makeAuthCoordinator(
         delegate: AuthCoordinatorDelegate?,
         rootNavigator: RootNavigator?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         AuthCoordinator(
             appExtensionDelegate: appExtensionDelegate,
@@ -41,14 +41,14 @@ extension DefaultAppModule: AuthModule {
             rootNavigator: rootNavigator,
             router: makeAuthRouter(),
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         AuthRouter(
             isInAppExtension: appExtensionDelegate != nil,
-            services: services
+            services: services,
         ).asAnyRouter()
     }
 }

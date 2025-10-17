@@ -21,7 +21,7 @@ final class SessionTimeoutValueTests: BitwardenTestCase {
                 .fourHours,
                 .onAppRestart,
                 .never,
-            ]
+            ],
         )
     }
 

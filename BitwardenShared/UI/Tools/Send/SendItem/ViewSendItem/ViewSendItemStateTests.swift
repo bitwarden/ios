@@ -10,7 +10,7 @@ class ViewSendItemStateTests: BitwardenTestCase {
     func test_displayShareURL() {
         let subject = ViewSendItemState(
             sendView: .fixture(),
-            shareURL: URL(string: "https://send.bitwarden.com/39ngaol3")
+            shareURL: URL(string: "https://send.bitwarden.com/39ngaol3"),
         )
         XCTAssertEqual(subject.displayShareURL, "send.bitwarden.com/39ngaol3")
     }

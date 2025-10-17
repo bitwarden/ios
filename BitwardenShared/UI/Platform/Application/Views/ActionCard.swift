@@ -94,8 +94,8 @@ struct ActionCard<LeadingContent: View>: View {
                 .strokeBorder(SharedAsset.Colors.strokeBorder.swiftUIColor)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(SharedAsset.Colors.backgroundTertiary.swiftUIColor)
-                )
+                        .fill(SharedAsset.Colors.backgroundTertiary.swiftUIColor),
+                ),
         )
     }
 
@@ -115,7 +115,7 @@ struct ActionCard<LeadingContent: View>: View {
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil,
-        @ViewBuilder leadingContent: () -> LeadingContent
+        @ViewBuilder leadingContent: () -> LeadingContent,
     ) {
         self.actionButtonState = actionButtonState
         self.dismissButtonState = dismissButtonState
@@ -136,7 +136,7 @@ struct ActionCard<LeadingContent: View>: View {
         title: String,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
-        dismissButtonState: ButtonState? = nil
+        dismissButtonState: ButtonState? = nil,
     ) where LeadingContent == EmptyView {
         self.actionButtonState = actionButtonState
         self.dismissButtonState = dismissButtonState
@@ -153,26 +153,26 @@ struct ActionCard<LeadingContent: View>: View {
     VStack {
         ActionCard(
             title: "Title",
-            message: "Message"
+            message: "Message",
         )
 
         ActionCard(
             title: "Title",
             message: "Message",
             actionButtonState: ActionCard.ButtonState(title: "Tap me!") {},
-            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {}
+            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {},
         )
 
         ActionCard(
             title: "Title",
-            message: "Message"
+            message: "Message",
         ) {
             SharedAsset.Icons.warning24.swiftUIImage
         }
 
         ActionCard(
             title: "Title",
-            message: "Message"
+            message: "Message",
         ) {
             BitwardenBadge(badgeValue: "1")
         }

@@ -44,7 +44,7 @@ struct CipherItemView: View {
             RoundedRectangle(cornerRadius: 5)
                 .foregroundColor(Color.ui.itemBackground)
                 .frame(width: maxWidth,
-                       alignment: .leading)
+                       alignment: .leading),
         )
         .frame(width: maxWidth,
                alignment: .leading)

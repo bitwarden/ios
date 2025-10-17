@@ -13,14 +13,14 @@ final class LastpassImporterTests: BitwardenTestCase {
                 id: "One",
                 name: "Name",
                 totpKey: "otpauth://totp/Name:person%40example%2Ecom?secret=Secret1One&issuer=Name&algorithm=SHA1&digits=6&period=30",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
             AuthenticatorItemView(
                 favorite: true,
                 id: "Two",
                 name: "Issuer2",
                 totpKey: "otpauth://totp/Issuer2:name?secret=SecretTwo&issuer=Issuer2&algorithm=SHA512&digits=8&period=60",
-                username: "name"
+                username: "name",
             ),
         ]
         let actual = try LastpassImporter.importItems(data: data)

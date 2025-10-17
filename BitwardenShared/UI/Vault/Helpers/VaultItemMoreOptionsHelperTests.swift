@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -41,8 +42,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
-                vaultRepository: vaultRepository
-            )
+                vaultRepository: vaultRepository,
+            ),
         )
     }
 
@@ -75,7 +76,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -88,7 +89,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // A card with data should show the copy actions.
         let cardWithData = CipherView.cardFixture(card: .fixture(
             code: "123",
-            number: "123456789"
+            number: "123456789",
         ))
         vaultRepository.fetchCipherResult = .success(cardWithData)
         item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
@@ -96,7 +97,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -143,9 +144,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             login: .fixture(
                 password: "secretPassword",
                 uris: [.fixture(uri: URL.example.relativeString, match: nil)],
-                username: "username"
+                username: "username",
             ),
-            reprompt: .password
+            reprompt: .password,
         )
         vaultRepository.fetchCipherResult = .success(loginWithData)
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
@@ -153,7 +154,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -193,12 +194,12 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
         let cipherView = CipherView.fixture(
             login: .fixture(totp: "totpKey"),
-            reprompt: .password
+            reprompt: .password,
         )
         vaultRepository.fetchCipherResult = .success(cipherView)
 
@@ -208,7 +209,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { toastToDisplay = $0 },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -223,7 +224,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
             toastToDisplay,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)),
         )
     }
 
@@ -237,13 +238,13 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
 
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(totp: "totpKey"),
-            organizationUseTotp: true
+            organizationUseTotp: true,
 
         ))
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
@@ -252,7 +253,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { toastToDisplay = $0 },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -261,7 +262,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
             toastToDisplay,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)),
         )
     }
 
@@ -271,7 +272,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     func test_showMoreOptionsAlert_copyTotp_refreshTOTPEmpty() async throws {
         stateService.activeAccount = .fixture()
         vaultRepository.refreshTOTPCodeResult = .success(
-            LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey))
+            LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey)),
         )
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
@@ -281,7 +282,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -304,7 +305,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -328,7 +329,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         authRepository.validatePasswordResult = .success(true)
@@ -360,7 +361,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -396,7 +397,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -421,7 +422,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -441,15 +442,15 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30),
+            ),
         )
 
         let loginWithData = CipherView.loginFixture(login: .fixture(
             password: "password",
             uris: [.fixture(uri: URL.example.relativeString, match: nil)],
             username: "username",
-            totp: "totpKey"
+            totp: "totpKey",
         ))
         vaultRepository.fetchCipherResult = .success(loginWithData)
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
@@ -458,7 +459,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { urlToOpen = $0 }
+            handleOpenURL: { urlToOpen = $0 },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -520,7 +521,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -551,7 +552,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -569,7 +570,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -607,7 +608,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         XCTAssertTrue(coordinator.alertShown.isEmpty)
@@ -622,7 +623,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
+            handleOpenURL: { _ in },
         )
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
@@ -639,7 +640,7 @@ class MockVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     func showMoreOptionsAlert(
         for item: VaultListItem,
         handleDisplayToast: @escaping (Toast) -> Void,
-        handleOpenURL: @escaping (URL) -> Void
+        handleOpenURL: @escaping (URL) -> Void,
     ) async {
         showMoreOptionsAlertCalled = true
         showMoreOptionsAlertHandleDisplayToast = handleDisplayToast

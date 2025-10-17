@@ -27,7 +27,7 @@ class StackNavigatorTests: BitwardenTestCase {
         waitFor(subject.presentedViewController?.presentedViewController != nil)
         XCTAssertTrue(
             subject.presentedViewController?.presentedViewController
-                is UIHostingController<ScrollView<EmptyView>>
+                is UIHostingController<ScrollView<EmptyView>>,
         )
     }
 

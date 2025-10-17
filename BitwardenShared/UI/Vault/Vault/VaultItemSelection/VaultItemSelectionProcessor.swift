@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 // MARK: - VaultItemSelectionProcessor
@@ -7,7 +8,7 @@ import BitwardenResources
 class VaultItemSelectionProcessor: StateProcessor<
     VaultItemSelectionState,
     VaultItemSelectionAction,
-    VaultItemSelectionEffect
+    VaultItemSelectionEffect,
 > {
     // MARK: Types
 
@@ -48,7 +49,7 @@ class VaultItemSelectionProcessor: StateProcessor<
         services: Services,
         state: VaultItemSelectionState,
         userVerificationHelper: UserVerificationHelper,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -71,7 +72,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
@@ -97,11 +98,11 @@ class VaultItemSelectionProcessor: StateProcessor<
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
-                        totpKey: state.totpKeyModel.rawAuthenticatorKey
+                        totpKey: state.totpKeyModel.rawAuthenticatorKey,
                     ),
-                    type: .login
+                    type: .login,
                 ),
-                context: self
+                context: self,
             )
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
@@ -175,7 +176,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: .login,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             )
             for try await items in searchPublisher {
                 state.searchResults = items
@@ -233,7 +234,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             for try await items in try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchName,
                 group: .login,
-                filter: VaultListFilter(filterType: .allVaults)
+                filter: VaultListFilter(filterType: .allVaults),
             ) {
                 guard !items.isEmpty else {
                     state.vaultListSections = []
@@ -244,7 +245,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                     VaultListSection(
                         id: Localizations.matchingItems,
                         items: items,
-                        name: Localizations.matchingItems
+                        name: Localizations.matchingItems,
                     ),
                 ]
             }

@@ -21,7 +21,7 @@ extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
     ]
 
     /// The localized string representation of a `SessionTimeoutValue`.
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .immediately:
             Localizations.immediately

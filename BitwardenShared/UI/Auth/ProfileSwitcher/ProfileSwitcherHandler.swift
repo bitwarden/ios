@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -139,7 +140,7 @@ extension ProfileSwitcherHandler {
             allowLockAndLogout: allowLockAndLogout,
             isVisible: profileSwitcherState.isVisible,
             shouldAlwaysHideAddAccount: shouldHideAddAccount,
-            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon,
         )
     }
 }
@@ -158,7 +159,7 @@ private extension ProfileSwitcherHandler {
                     self.dismissProfileSwitcher()
                 }
                 await logout(profile)
-            }
+            },
         )
     }
 
@@ -174,7 +175,7 @@ private extension ProfileSwitcherHandler {
                     self.dismissProfileSwitcher()
                 }
                 await removeAccount(profile)
-            }
+            },
         )
     }
 
@@ -204,8 +205,8 @@ private extension ProfileSwitcherHandler {
                 },
                 removeAccountAction: {
                     self.confirmRemoveAccount(account)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -329,9 +330,9 @@ private extension ProfileSwitcherHandler {
                 .switchAccount(
                     isAutomatic: false,
                     userId: account.userId,
-                    authCompletionRoute: switchAccountAuthCompletionRoute
-                )
-            )
+                    authCompletionRoute: switchAccountAuthCompletionRoute,
+                ),
+            ),
         )
     }
 }

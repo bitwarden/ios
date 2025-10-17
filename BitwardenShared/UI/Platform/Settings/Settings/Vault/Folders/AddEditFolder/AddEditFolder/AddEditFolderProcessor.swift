@@ -51,7 +51,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
         coordinator: AnyCoordinator<AddEditFolderRoute, Void>,
         delegate: AddEditFolderDelegate?,
         services: Services,
-        state: AddEditFolderState
+        state: AddEditFolderState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

@@ -41,11 +41,11 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         let cipher = CipherView.fixture()
         let result = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-            hint: .informExcludedCredentialFound(cipher)
+            hint: .informExcludedCredentialFound(cipher),
         )
         XCTAssertEqual(
             fido2UserInterfaceHelperDelegate.informExcludedCredentialFoundCalledWith?.id,
-            cipher.id
+            cipher.id,
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertFalse(result.userVerified)
@@ -57,10 +57,10 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     func test_checkUser_informNoCredentialsFound() async throws {
         _ = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-            hint: .informNoCredentialsFound
+            hint: .informNoCredentialsFound,
         )
         throw XCTSkip(
-            "informNoCredentialsFound should never be invoked given iOS the view will appear only with passwords"
+            "informNoCredentialsFound should never be invoked given iOS the view will appear only with passwords",
         )
     }
 
@@ -70,7 +70,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.checkUser(
                 options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-                hint: .requestExistingCredential(.fixture())
+                hint: .requestExistingCredential(.fixture()),
             )
         }
     }
@@ -78,11 +78,11 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// `checkUser(options:hint:)` returns present and verified when has been verified
     func test_checkUser_requestExistingCredentialHint_verified() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: true)
+            CheckUserResult(userPresent: true, userVerified: true),
         )
         let result = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-            hint: .requestExistingCredential(.fixture())
+            hint: .requestExistingCredential(.fixture()),
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertTrue(result.userVerified)
@@ -91,11 +91,11 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// `checkUser(options:hint:)` returns present and not verified when has not been verified.
     func test_checkUser_requestExistingCredentialHint_notVerified() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         let result = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-            hint: .requestExistingCredential(.fixture())
+            hint: .requestExistingCredential(.fixture()),
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertFalse(result.userVerified)
@@ -105,12 +105,12 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// returns present and verified when has been verified.
     func test_checkUser_verified() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: true)
+            CheckUserResult(userPresent: true, userVerified: true),
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
             credential: MockFido2UserVerifiableCipherView(),
-            shouldThrowEnforcingRequiredVerification: false
+            shouldThrowEnforcingRequiredVerification: false,
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertTrue(result.userVerified)
@@ -120,12 +120,12 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// returns present but not verified when has not been verified and should not enforce required verification.
     func test_checkUser_notVerifiedWithoutEnforcing() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
             credential: MockFido2UserVerifiableCipherView(),
-            shouldThrowEnforcingRequiredVerification: false
+            shouldThrowEnforcingRequiredVerification: false,
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertFalse(result.userVerified)
@@ -136,12 +136,12 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// and should enforce required verification.
     func test_checkUser_discouragedNotVerifiedEnforcing() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .discouraged,
             credential: MockFido2UserVerifiableCipherView(),
-            shouldThrowEnforcingRequiredVerification: true
+            shouldThrowEnforcingRequiredVerification: true,
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertFalse(result.userVerified)
@@ -152,13 +152,13 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// and should enforce required verification.
     func test_checkUser_requiredNotVerifiedEnforcingThrows() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         await assertAsyncThrows(error: Fido2UserVerificationError.requiredEnforcementFailed) {
             _ = try await subject.checkUser(
                 userVerificationPreference: .required,
                 credential: MockFido2UserVerifiableCipherView(),
-                shouldThrowEnforcingRequiredVerification: true
+                shouldThrowEnforcingRequiredVerification: true,
             )
         }
     }
@@ -168,7 +168,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     /// and should enforce required verification.
     func test_checkUser_preferredNotVerifiedEnforcingThrows() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         subject.setupCurrentUserVerificationPreference(userVerificationPreference: .preferred)
         fido2UserVerificationMediator.isPreferredVerificationEnabledResult = true
@@ -176,7 +176,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
             _ = try await subject.checkUser(
                 userVerificationPreference: .preferred,
                 credential: MockFido2UserVerifiableCipherView(),
-                shouldThrowEnforcingRequiredVerification: true
+                shouldThrowEnforcingRequiredVerification: true,
             )
         }
     }
@@ -186,14 +186,14 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     ///  the verification is not enabled and should enforce required verification.
     func test_checkUser_preferredNotVerifiedEnforcingDoesntThrow() async throws {
         fido2UserVerificationMediator.checkUserResult = .success(
-            CheckUserResult(userPresent: true, userVerified: false)
+            CheckUserResult(userPresent: true, userVerified: false),
         )
         fido2UserVerificationMediator.isPreferredVerificationEnabledResult = false
 
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
             credential: MockFido2UserVerifiableCipherView(),
-            shouldThrowEnforcingRequiredVerification: true
+            shouldThrowEnforcingRequiredVerification: true,
         )
         XCTAssertTrue(result.userPresent)
         XCTAssertFalse(result.userVerified)
@@ -207,7 +207,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
             _ = try await subject.checkUser(
                 userVerificationPreference: .preferred,
                 credential: MockFido2UserVerifiableCipherView(),
-                shouldThrowEnforcingRequiredVerification: false
+                shouldThrowEnforcingRequiredVerification: false,
             )
         }
     }
@@ -217,13 +217,13 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     func test_checkUserAndPickCredentialForCreation_returnsPickedCipher() async throws {
         let expectedOptions = CheckUserOptions(
             requirePresence: true,
-            requireVerification: .discouraged
+            requireVerification: .discouraged,
         )
         let expectedFido2NewCredential = Fido2CredentialNewView.fixture()
         let task = Task {
             try await subject.checkUserAndPickCredentialForCreation(
                 options: expectedOptions,
-                newCredential: expectedFido2NewCredential
+                newCredential: expectedFido2NewCredential,
             )
         }
 
@@ -241,10 +241,9 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
             .success(
                 CheckUserAndPickCredentialForCreationResult(
                     cipher: CipherViewWrapper(cipher: expectedResult),
-                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
-                )
-            )
-        )
+                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true),
+                ),
+            ))
 
         let result = try await task.value
         XCTAssertEqual(result.cipher.cipher, expectedResult)
@@ -259,9 +258,9 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
             try await subject.checkUserAndPickCredentialForCreation(
                 options: CheckUserOptions(
                     requirePresence: true,
-                    requireVerification: .discouraged
+                    requireVerification: .discouraged,
                 ),
-                newCredential: .fixture()
+                newCredential: .fixture(),
             )
         }
 
@@ -297,7 +296,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
         let task = Task {
             try await subject.pickCredentialForAuthentication(
-                availableCredentials: expectedAvailableCredentials
+                availableCredentials: expectedAvailableCredentials,
             )
         }
 
@@ -326,7 +325,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
         let task = Task {
             try await subject.pickCredentialForAuthentication(
-                availableCredentials: [CipherView.fixture(id: "1"), CipherView.fixture(id: "2")]
+                availableCredentials: [CipherView.fixture(id: "1"), CipherView.fixture(id: "2")],
             )
         }
 

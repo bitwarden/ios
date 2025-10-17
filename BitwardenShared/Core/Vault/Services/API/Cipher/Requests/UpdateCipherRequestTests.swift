@@ -21,8 +21,8 @@ class UpdateCipherRequestTests: BitwardenTestCase {
         XCTAssertThrowsError(
             try UpdateCipherRequest(
                 cipher: .fixture(id: nil, revisionDate: Date(year: 2023, month: 10, day: 31)),
-                encryptedFor: "1"
-            )
+                encryptedFor: "1",
+            ),
         ) { error in
             XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
         }
@@ -34,10 +34,10 @@ class UpdateCipherRequestTests: BitwardenTestCase {
             try UpdateCipherRequest(
                 cipher: .fixture(
                     id: "",
-                    revisionDate: Date(year: 2023, month: 10, day: 31)
+                    revisionDate: Date(year: 2023, month: 10, day: 31),
                 ),
-                encryptedFor: "1"
-            )
+                encryptedFor: "1",
+            ),
         ) { error in
             XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
         }
@@ -48,9 +48,9 @@ class UpdateCipherRequestTests: BitwardenTestCase {
         subject = try UpdateCipherRequest(
             cipher: .fixture(
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
+                revisionDate: Date(year: 2023, month: 10, day: 31),
             ),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
         XCTAssertNotNil(subject)
         guard let subject else { return }
@@ -73,9 +73,9 @@ class UpdateCipherRequestTests: BitwardenTestCase {
         subject = try UpdateCipherRequest(
             cipher: .fixture(
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
+                revisionDate: Date(year: 2023, month: 10, day: 31),
             ),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
         XCTAssertEqual(subject?.method, .put)
     }
@@ -85,9 +85,9 @@ class UpdateCipherRequestTests: BitwardenTestCase {
         subject = try UpdateCipherRequest(
             cipher: .fixture(
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
+                revisionDate: Date(year: 2023, month: 10, day: 31),
             ),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
         XCTAssertEqual(subject?.path, "/ciphers/123")
     }

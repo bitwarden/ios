@@ -18,9 +18,9 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: .distantPast,
-                period: 30
+                period: 30,
             ),
-            onExpiration: {}
+            onExpiration: {},
         )
     }
 
@@ -37,11 +37,11 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: .distantPast,
-                period: 3
+                period: 3,
             ),
             onExpiration: {
                 didExpire = true
-            }
+            },
         )
         waitFor(didExpire)
         XCTAssertTrue(didExpire)

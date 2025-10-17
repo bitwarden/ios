@@ -14,7 +14,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
-            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
+            Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong,
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.copyErrorReport)
@@ -30,7 +30,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             123abc
-            """
+            """,
         )
     }
 
@@ -40,7 +40,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         var copyString: String?
         let subject = Alert.cipherDecryptionFailure(
             cipherIds: ["123abc"],
-            isFromCipherTap: false
+            isFromCipherTap: false,
         ) { stringToCopy in
             copyString = stringToCopy
         }
@@ -64,7 +64,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             \(Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(1))
 
             123abc
-            """
+            """,
         )
     }
 
@@ -74,7 +74,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         var copyString: String?
         let subject = Alert.cipherDecryptionFailure(
             cipherIds: ["123abc", "789xyz"],
-            isFromCipherTap: false
+            isFromCipherTap: false,
         ) { stringToCopy in
             copyString = stringToCopy
         }
@@ -82,7 +82,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.title, Localizations.decryptionError)
         XCTAssertEqual(
             subject.message,
-            Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2)
+            Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(2),
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.copyErrorReport)
@@ -99,7 +99,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
 
             123abc
             789xyz
-            """
+            """,
         )
     }
 
@@ -112,7 +112,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.title, Localizations.passkeyWillNotBeCopied)
         XCTAssertEqual(
             subject.message,
-            Localizations.thePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem
+            Localizations.thePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem,
         )
         XCTAssertEqual(subject.alertActions.count, 2)
 
@@ -235,14 +235,14 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             name: "Test Cipher",
             sshKey: .fixture(),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let alert = Alert.moreOptions(
             canCopyTotp: false,
             cipherView: cipher,
             id: cipher.id!,
             showEdit: true,
-            action: action
+            action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
         XCTAssertEqual(alert.preferredStyle, .actionSheet)
@@ -255,7 +255,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher)
+            .edit(cipherView: cipher),
         )
         capturedAction = nil
 
@@ -267,8 +267,8 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
                 value: "publicKey",
                 requiresMasterPasswordReprompt: true,
                 logEvent: nil,
-                cipherId: "123"
-            )
+                cipherId: "123",
+            ),
         )
         capturedAction = nil
 
@@ -280,8 +280,8 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
                 value: "privateKey",
                 requiresMasterPasswordReprompt: true,
                 logEvent: nil,
-                cipherId: "123"
-            )
+                cipherId: "123",
+            ),
         )
         capturedAction = nil
 
@@ -293,8 +293,8 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
                 value: "fingerprint",
                 requiresMasterPasswordReprompt: true,
                 logEvent: nil,
-                cipherId: "123"
-            )
+                cipherId: "123",
+            ),
         )
         capturedAction = nil
 

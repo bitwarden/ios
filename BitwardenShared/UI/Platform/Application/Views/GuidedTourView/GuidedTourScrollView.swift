@@ -62,7 +62,7 @@ struct GuidedTourScrollView<Content: View>: View {
     @ViewBuilder
     private func guidedTourView() -> some View {
         GuidedTourView(
-            store: store
+            store: store,
         )
     }
 

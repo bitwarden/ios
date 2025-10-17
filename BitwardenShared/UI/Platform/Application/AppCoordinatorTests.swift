@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -32,7 +33,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         rootNavigator = MockRootNavigator()
         services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
-            rehydrationHelper: rehydrationHelper
+            rehydrationHelper: rehydrationHelper,
         )
 
         subject = AppCoordinator(
@@ -40,7 +41,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             appExtensionDelegate: appExtensionDelegate,
             module: module,
             rootNavigator: rootNavigator,
-            services: services
+            services: services,
         )
     }
 
@@ -75,7 +76,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             appExtensionDelegate: appExtensionDelegate,
             module: module,
             rootNavigator: rootNavigator,
-            services: services
+            services: services,
         )
 
         appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
@@ -145,7 +146,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             router.events,
             [
                 .didDeleteAccount,
-            ]
+            ],
         )
 
         let alert = try XCTUnwrap(rootNavigator.alerts.last)
@@ -165,7 +166,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             router.events,
             [
                 .action(.lockVault(userId: account.profile.userId, isManuallyLocking: false)),
-            ]
+            ],
         )
     }
 
@@ -182,7 +183,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             router.events,
             [
                 .action(.lockVault(userId: account.profile.userId, isManuallyLocking: true)),
-            ]
+            ],
         )
     }
 
@@ -202,7 +203,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(
             router.events,
-            [expectedEvent]
+            [expectedEvent],
         )
     }
 
@@ -217,10 +218,10 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 .action(
                     .switchAccount(
                         isAutomatic: false,
-                        userId: "123"
-                    )
+                        userId: "123",
+                    ),
                 ),
-            ]
+            ],
         )
     }
 
@@ -254,14 +255,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleEvent(.switchAccounts(userId: "1", isAutomatic: false))
         XCTAssertEqual(
             router.events,
-            [.action(.switchAccount(isAutomatic: false, userId: "1", authCompletionRoute: nil))]
+            [.action(.switchAccount(isAutomatic: false, userId: "1", authCompletionRoute: nil))],
         )
         router.events.removeAll()
 
         await subject.handleEvent(.switchAccounts(userId: "2", isAutomatic: true))
         XCTAssertEqual(
             router.events,
-            [.action(.switchAccount(isAutomatic: true, userId: "2", authCompletionRoute: nil))]
+            [.action(.switchAccount(isAutomatic: true, userId: "2", authCompletionRoute: nil))],
         )
     }
 
@@ -270,7 +271,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleEvent_accountBecameActive() async {
         let account = Account.fixtureAccountLogin()
         await subject.handleEvent(
-            .accountBecameActive(account, attemptAutomaticBiometricUnlock: true, didSwitchAccountAutomatically: true)
+            .accountBecameActive(account, attemptAutomaticBiometricUnlock: true, didSwitchAccountAutomatically: true),
         )
         XCTAssertEqual(
             router.events,
@@ -279,9 +280,9 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     account,
                     animated: true,
                     attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: true
+                    didSwitchAccountAutomatically: true,
                 ),
-            ]
+            ],
         )
     }
 
@@ -357,7 +358,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(
             module.extensionSetupCoordinator.routes,
-            [.extensionActivation(type: .autofillExtension), .extensionActivation(type: .autofillExtension)]
+            [.extensionActivation(type: .autofillExtension), .extensionActivation(type: .autofillExtension)],
         )
     }
 
@@ -377,7 +378,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         // Validate.
         XCTAssertTrue(
-            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
         )
         XCTAssertTrue(module.loginRequestCoordinator.isStarted)
         XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
@@ -392,7 +393,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
         XCTAssertEqual(
             module.sendItemCoordinator.routes,
-            [.add(content: nil)]
+            [.add(content: nil)],
         )
     }
 
@@ -409,7 +410,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             [
                 .add(content: nil),
                 .add(content: .text("test")),
-            ]
+            ],
         )
     }
 
@@ -446,7 +447,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         // Validate.
         XCTAssertTrue(
-            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
         )
         XCTAssertTrue(module.loginRequestCoordinator.isStarted)
         XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
@@ -498,14 +499,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.switchAccount(
             userId: "1",
             isAutomatic: true,
-            authCompletionRoute: authCompletionRoute
+            authCompletionRoute: authCompletionRoute,
         )
 
         waitFor(!module.authCoordinator.routes.isEmpty)
         XCTAssertEqual(subject.authCompletionRoute, authCompletionRoute)
         XCTAssertEqual(
             router.events,
-            [.action(.switchAccount(isAutomatic: true, userId: "1", authCompletionRoute: authCompletionRoute))]
+            [.action(.switchAccount(isAutomatic: true, userId: "1", authCompletionRoute: authCompletionRoute))],
         )
         XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
     }

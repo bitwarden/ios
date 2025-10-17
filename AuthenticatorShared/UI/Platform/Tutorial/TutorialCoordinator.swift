@@ -38,7 +38,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -70,7 +70,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     private func showTutorial() {
         let processor = TutorialProcessor(
             coordinator: asAnyCoordinator(),
-            state: TutorialState()
+            state: TutorialState(),
         )
         let view = TutorialView(store: Store(processor: processor))
         stackNavigator?.push(view)

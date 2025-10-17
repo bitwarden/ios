@@ -43,11 +43,11 @@ extension View {
     ///
     func navigationBar(
         title: String,
-        titleDisplayMode: NavigationBarItem.TitleDisplayMode
+        titleDisplayMode: NavigationBarItem.TitleDisplayMode,
     ) -> some View {
         modifier(NavigationBarViewModifier(
             title: title,
-            navigationBarTitleDisplayMode: titleDisplayMode
+            navigationBarTitleDisplayMode: titleDisplayMode,
         ))
     }
 
@@ -60,12 +60,12 @@ extension View {
     ///
     func addItemFloatingActionButton(
         hidden: Bool = false,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
             image: SharedAsset.Icons.plus32.swiftUIImage,
-            action: action
+            action: action,
         )
         .accessibilityLabel(Localizations.add)
         .accessibilityIdentifier("AddItemFloatingActionButton")
@@ -81,7 +81,7 @@ extension View {
     ///
     func addSendItemFloatingActionMenu(
         hidden: Bool = false,
-        action: @escaping (SendType) async -> Void
+        action: @escaping (SendType) async -> Void,
     ) -> some View {
         FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             ForEach(SendType.allCases) { type in
@@ -108,7 +108,7 @@ extension View {
         hidden: Bool = false,
         availableItemTypes: [CipherType] = CipherType.canCreateCases,
         addItem: @escaping (CipherType) -> Void,
-        addFolder: (() -> Void)? = nil
+        addFolder: (() -> Void)? = nil,
     ) -> some View {
         FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             // The items in the menu are added in reverse order so that when the context menu
@@ -141,12 +141,12 @@ extension View {
     ///
     func editItemFloatingActionButton(
         hidden: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
             image: SharedAsset.Icons.pencil32.swiftUIImage,
-            action: action
+            action: action,
         )
         .accessibilityLabel(Localizations.edit)
         .accessibilityIdentifier("EditItemFloatingActionButton")
@@ -163,11 +163,11 @@ extension View {
     func floatingActionButton(
         hidden: Bool = false,
         image: Image,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> some View {
         FloatingActionButton(
             image: image,
-            action: action
+            action: action,
         )
         .padding([.trailing, .bottom], 16)
         .hidden(hidden)

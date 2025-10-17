@@ -92,7 +92,7 @@
 "AccountCreated" = "A sua nova conta foi criada! Pode agora iniciar sessão.";
 "AddAnItem" = "Adicionar um item";
 "AppExtension" = "Extensão da app";
-"AutofillAccessibilityDescription" = "Utilize o serviço de acessibilidade Bitwarden para preencher automaticamente as suas credenciais entre as aplicações e a web.";
+"AutofillAccessibilityDescription" = "Utilize o serviço de acessibilidade Bitwarden para preencher automaticamente as suas credenciais entre as apps e a Web.";
 "AutofillService" = "Serviço de preenchimento automático";
 "SetBitwardenAsPasskeyManagerDescription" = "Defina o Bitwarden como o seu fornecedor de chaves de acesso nas definições do dispositivo.";
 "AvoidAmbiguousCharacters" = "Evitar caracteres ambíguos";
@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Sincronizar o cofre agora";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verificação de dois passos";
-"UnlockWith" = "Desbloquear com %1$@";
+"UnlockWithBiometrics" = "Desbloquear com biometria";
+"UnlockWithFaceID" = "Desbloquear com Face ID";
+"UnlockWithTouchID" = "Desbloquear com Touch ID";
+"UnlockWithOpticID" = "Desbloquear com Optic ID";
 "UnlockWithPIN" = "Desbloquear com código PIN";
-"UnlockWithUnknownBiometrics" = "Desbloquear com biometria";
 "Validating" = "A validar";
 "VerificationCode" = "Código de verificação";
 "ViewItem" = "Ver item";
@@ -217,7 +219,7 @@
 "LearnAboutNewLogins" = "Saiba mais sobre as novas credenciais";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Iremos explicar-lhe as principais características para adicionar uma nova credencial.";
 "LearnOrg" = "Saiba mais sobre as organizações";
-"CannotOpenApp" = "Não é possível abrir a aplicação “%1$@”.";
+"CannotOpenApp" = "Não é possível abrir a app “%1$@”.";
 "AuthenticatorAppTitle" = "Aplicação de autenticação";
 "EnterVerificationCodeApp" = "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação.";
 "EnterVerificationCodeEmail" = "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para %1$@.";
@@ -534,8 +536,8 @@
 "InlineAutofill" = "Utilizar o preenchimento automático em linha";
 "InlineAutofillDescription" = "Utilize o preenchimento automático em linha se o IME (teclado) selecionado o suportar. Se a sua configuração não for suportada (ou se esta opção estiver desativada), será utilizada a sobreposição de preenchimento automático predefinida.";
 "Accessibility" = "Utilizar a acessibilidade";
-"AccessibilityDescription" = "Utilize o Serviço de acessibilidade do Bitwarden para preencher automaticamente as suas credenciais em aplicações e na web. Quando configurado, exibiremos um pop-up quando os campos de início de sessão forem selecionados.";
-"AccessibilityDescription2" = "Utilize o Serviço de acessibilidade do Bitwarden para preencher automaticamente as suas credenciais em aplicações e na Web. (Requer que a definição \"Aparecer sobre outras\" também esteja ativada)";
+"AccessibilityDescription" = "Utilize o serviço de acessibilidade Bitwarden para preencher automaticamente as suas credenciais entre as apps e a Web. Quando configurado, apresentaremos um pop-up quando os campos de início de sessão forem selecionados.";
+"AccessibilityDescription2" = "Utilize o serviço de acessibilidade Bitwarden para preencher automaticamente as suas credenciais entre as apps e a Web. (Requer que a definição \"Aparecer sobre outras\" também esteja ativada)";
 "AccessibilityDescription3" = "Utilize o Serviço de acessibilidade do Bitwarden para utilizar o botão de preenchimento automático do Painel instantâneo e/ou mostrar um pop-up utilizando a definição \"Aparecer sobre outras\" (se estiver ativada).";
 "AccessibilityDescription4" = "Necessário para utilizar o botão de preenchimento automático do Painel instantâneo, ou para aumentar o serviço de preenchimento automático utilizando a definição \"Aparecer sobre outras\" (se estiver ativada).";
 "DrawOver" = "Utilizar a definição \"Aparecer sobre outras\"";
@@ -1287,3 +1289,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** “Começa com” é uma opção avançada com um risco acrescido de exposição de credenciais.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Aviso:** A “Expressão regular” é uma opção avançada com um risco acrescido de expor credenciais se for utilizada incorretamente.";
 "DefaultX" = "Predefinido (%1$@)";
+"UpdateYourEncryptionSettings" = "Atualize as suas definições de encriptação";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora.";
+"Updating" = "A atualizar…";
+"EncryptionSettingsUpdated" = "Definições de encriptação atualizadas";

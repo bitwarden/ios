@@ -50,7 +50,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         appContext: AppContext,
         module: Module,
         rootNavigator: RootNavigator,
-        services: Services
+        services: Services,
     ) {
         self.appContext = appContext
         self.module = module
@@ -110,7 +110,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
-                stackNavigator: navigationController
+                stackNavigator: navigationController,
             )
 
             coordinator.start()
@@ -133,7 +133,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
-                tabNavigator: tabNavigator
+                tabNavigator: tabNavigator,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -149,7 +149,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     private func showTutorial() {
         let navigationController = UINavigationController()
         let coordinator = module.makeTutorialCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -177,7 +177,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
-            completion: { feedbackGenerator.impactOccurred() }
+            completion: { feedbackGenerator.impactOccurred() },
         )
     }
     #endif

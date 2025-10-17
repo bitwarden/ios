@@ -82,7 +82,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>> {
         authenticatorItemDetailsSubject.eraseToAnyPublisher().values
     }
@@ -92,7 +92,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
         searchItemListSubject.eraseToAnyPublisher().values
     }

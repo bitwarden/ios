@@ -18,7 +18,7 @@ public class ShakeWindow: UIWindow {
     ///
     public init(
         windowScene: UIWindowScene,
-        onShakeDetected: (() -> Void)?
+        onShakeDetected: (() -> Void)?,
     ) {
         self.onShakeDetected = onShakeDetected
         super.init(windowScene: windowScene)
@@ -44,7 +44,7 @@ public class ShakeWindow: UIWindow {
     ///
     override public func motionEnded(
         _ motion: UIEvent.EventSubtype,
-        with event: UIEvent?
+        with event: UIEvent?,
     ) {
         #if DEBUG_MENU
         if motion == .motionShake {

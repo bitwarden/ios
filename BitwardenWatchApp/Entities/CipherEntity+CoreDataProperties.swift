@@ -28,10 +28,10 @@ extension CipherEntity: Identifiable {
             login: LoginDTO(
                 totp: totp,
                 uris: loginUrisArray,
-                username: username
+                username: username,
             ),
             name: name,
-            userId: userId
+            userId: userId,
         )
     }
 }

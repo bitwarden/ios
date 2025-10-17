@@ -137,7 +137,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeDeleted_cannotManageAnyCollection() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -153,7 +153,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeDeleted_canManageAnyCollection() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -170,8 +170,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeDeleted)
@@ -184,8 +184,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: false,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeDeleted)
@@ -197,7 +197,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             collectionIds: ["1", "2"],
             deletedDate: nil,
             login: .fixture(),
-            permissions: nil
+            permissions: nil,
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
@@ -206,7 +206,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             collectionIds: ["1", "2"],
             deletedDate: Date(),
             login: .fixture(),
-            permissions: nil
+            permissions: nil,
         )
         state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeRestored)
@@ -220,8 +220,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeRestored)
@@ -235,8 +235,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: false
-            )
+                restore: false,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
@@ -408,6 +408,129 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
     }
 
+    /// `setter:owner` adds the default user collection to the collection IDs
+    /// when it's adding, there's a default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned on.
+    func test_owner_addsDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "2"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.owner = .organization(id: "1", name: "Org")
+        XCTAssertEqual(subject.collectionIds, ["1"])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` adds the default user collection to the collection IDs
+    /// when it's adding, there's a default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned on.
+    func test_selectDefaultCollectionIfNeeded_addsDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, ["1"])
+
+        // added this to check that the collection doesn't get duplicated
+        // when the function is called twice.
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, ["1"])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's editing.
+    func test_selectDefaultCollectionIfNeeded_editing() throws {
+        var subject = try XCTUnwrap(CipherItemState(existing: .fixture(id: "1"), hasPremium: false))
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's adding, but there's no default user collection for the owner organization.
+    func test_selectDefaultCollectionIfNeeded_noDefaultCollection() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1"),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["1", "2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
+    /// `selectDefaultCollectionIfNeeded()` doesn't add the default user collection to the collection IDs
+    /// when it's adding, there's  default user collection for the owner organization and such
+    /// organization has the `.personalOwnership` policy turned off.
+    func test_selectDefaultCollectionIfNeeded_personalOwnershipOff() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .organization(id: "1", name: "Org"),
+            .organization(id: "2", name: "Org2"),
+            .organization(id: "3", name: "Org3"),
+        ]
+        subject.allUserCollections = [
+            .fixture(id: "1", organizationId: "1", type: .defaultUserCollection),
+            .fixture(id: "2", organizationId: "1"),
+            .fixture(id: "3", organizationId: "2"),
+            .fixture(id: "4", organizationId: "2", type: .defaultUserCollection),
+        ]
+        subject.organizationsWithPersonalOwnershipPolicy = ["2"]
+        subject.collectionIds = []
+
+        subject.selectDefaultCollectionIfNeeded()
+        XCTAssertEqual(subject.collectionIds, [])
+    }
+
     /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.
     func test_shouldShowLearnNewLoginActionCard_true() {
         let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))
@@ -420,7 +543,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_shouldShowLearnNewLoginActionCard_false() {
         let cipher = CipherView.cardFixture(card: .fixture(
             code: "123",
-            number: "123456789"
+            number: "123456789",
         ))
         var state = CipherItemState(cloneItem: cipher, hasPremium: true)
         state.isLearnNewLoginActionCardEligible = true
@@ -431,7 +554,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_shouldShowLearnNewLoginActionCard_false_config() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.isLearnNewLoginActionCardEligible = true
@@ -454,7 +577,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             card: .fixture(cardholderName: "Bitwarden User", code: "123", number: "1111222233334444"),
             id: "123",
             name: "Card",
-            type: .card
+            type: .card,
         )
         subject?.update(from: updatedCipher)
 
@@ -470,7 +593,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             identity: .fixture(firstName: "First", lastName: "Last"),
             name: "Identity",
-            type: .identity
+            type: .identity,
         )
         subject?.update(from: updatedCipher)
 
@@ -494,7 +617,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             notes: "Secure notes",
             organizationId: "organization-1",
             revisionDate: Date(year: 2025, month: 6, day: 1),
-            type: .login
+            type: .login,
         )
         subject?.update(from: updatedCipher)
 
@@ -510,7 +633,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             name: "Identity",
             notes: "Secure note text",
-            type: .secureNote
+            type: .secureNote,
         )
         subject?.update(from: updatedCipher)
 
@@ -526,7 +649,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             name: "SSH Key",
             sshKey: .fixture(),
-            type: .sshKey
+            type: .sshKey,
         )
         subject?.update(from: updatedCipher)
 

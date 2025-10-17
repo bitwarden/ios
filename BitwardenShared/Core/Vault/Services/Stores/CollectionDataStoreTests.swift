@@ -40,7 +40,7 @@ class CollectionDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -70,7 +70,7 @@ class CollectionDataStoreTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             fetchCollections(userId: "1"),
-            collections.filter { $0.id != "2" }
+            collections.filter { $0.id != "2" },
         )
     }
 

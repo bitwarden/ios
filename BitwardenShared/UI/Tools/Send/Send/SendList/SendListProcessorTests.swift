@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -38,9 +39,9 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 sendRepository: sendRepository,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: SendListState()
+            state: SendListState(),
         )
     }
 
@@ -76,7 +77,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             coordinator.alertShown,
-            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
+            [.defaultAlert(title: Localizations.sendFilePremiumRequired)],
         )
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
@@ -216,7 +217,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
         )
     }
 
@@ -257,7 +258,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.deleting
+            Localizations.deleting,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendDeleted))
     }
@@ -276,7 +277,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.removingSendPassword
+            Localizations.removingSendPassword,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
@@ -302,7 +303,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
-            Localizations.removingSendPassword
+            Localizations.removingSendPassword,
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
@@ -536,7 +537,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.sendItemCompleted(with: sendView)
 
         waitFor(
-            sendRepository.shareURLSendView != nil && !coordinator.routes.isEmpty
+            sendRepository.shareURLSendView != nil && !coordinator.routes.isEmpty,
         )
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)

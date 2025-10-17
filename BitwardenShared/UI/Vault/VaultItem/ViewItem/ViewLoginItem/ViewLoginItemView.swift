@@ -94,7 +94,7 @@ struct ViewLoginItemView: View {
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(
             title: Localizations.authenticatorKey,
-            titleAccessibilityIdentifier: "ItemName"
+            titleAccessibilityIdentifier: "ItemName",
         ) {
             Text(Localizations.premiumSubscriptionRequired)
                 .styleGuide(.footnote)
@@ -111,7 +111,7 @@ struct ViewLoginItemView: View {
         BitwardenTextValueField(
             title: Localizations.username,
             value: username,
-            valueAccessibilityIdentifier: "LoginUsernameEntry"
+            valueAccessibilityIdentifier: "LoginUsernameEntry",
         ) {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
@@ -132,7 +132,7 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay)
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),
         )
         .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
@@ -162,7 +162,7 @@ struct ViewLoginItemView: View {
                         Task {
                             await store.perform(.totpCodeExpired)
                         }
-                    }
+                    },
                 )
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
@@ -172,7 +172,7 @@ struct ViewLoginItemView: View {
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyTotpValueButton")
-            }
+            },
         )
         .accessibilityElement(children: .contain)
     }

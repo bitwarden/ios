@@ -1,3 +1,4 @@
+import BitwardenKit
 import UIKit
 
 // MARK: - AlertPresentable
@@ -33,7 +34,7 @@ public extension AlertPresentable {
                 x: parent.view.bounds.midX,
                 y: parent.view.bounds.midY,
                 width: 0,
-                height: 0
+                height: 0,
             )
             alertController.popoverPresentationController?.permittedArrowDirections = []
         }

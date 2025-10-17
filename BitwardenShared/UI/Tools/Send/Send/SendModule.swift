@@ -10,18 +10,18 @@ protocol SendModule {
     /// - Returns: A coordinator that can navigate to `SendRoute`s.
     ///
     func makeSendCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SendRoute, Void>
 }
 
 extension DefaultAppModule: SendModule {
     func makeSendCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SendRoute, Void> {
         SendCoordinator(
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

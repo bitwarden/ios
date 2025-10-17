@@ -18,7 +18,7 @@ class CipherService {
     func getCipher(_ id: String) -> CipherDTO? {
         let predicate = NSPredicate(
             format: "id = %@",
-            id as CVarArg
+            id as CVarArg,
         )
         let result = dbHelper.fetchFirst(CipherEntity.self, predicate: predicate)
         switch result {
@@ -37,7 +37,7 @@ extension CipherService: CipherServiceProtocol {
         let result: Result<[CipherEntity], Error> = dbHelper.fetch(
             CipherEntity.self,
             "CipherEntity",
-            predicate: withUserId == nil ? nil : NSPredicate(format: "userId = %@", withUserId!)
+            predicate: withUserId == nil ? nil : NSPredicate(format: "userId = %@", withUserId!),
         )
         switch result {
         case let .success(success):

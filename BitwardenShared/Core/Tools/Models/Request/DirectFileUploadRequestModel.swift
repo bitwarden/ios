@@ -32,7 +32,7 @@ struct DirectFileUploadRequestModel: MultipartFormRequestBody {
             .file(
                 data: data,
                 name: "data",
-                fileName: fileName
+                fileName: fileName,
             ),
         ]
     }

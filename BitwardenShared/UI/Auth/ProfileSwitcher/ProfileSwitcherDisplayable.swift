@@ -8,12 +8,12 @@ protocol ProfileSwitcherDisplayable: HasStackNavigator {}
 extension ProfileSwitcherDisplayable {
     func showProfileSwitcher(
         handler: any ProfileSwitcherHandler,
-        module: any NavigatorBuilderModule & ProfileSwitcherModule
+        module: any NavigatorBuilderModule & ProfileSwitcherModule,
     ) {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeProfileSwitcherCoordinator(
             handler: handler,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: .open, context: nil)

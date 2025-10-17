@@ -62,7 +62,7 @@ class DefaultWatchService: NSObject, WatchService {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -123,7 +123,7 @@ class DefaultWatchService: NSObject, WatchService {
         let userData = UserDTO(
             email: account.profile.email,
             id: account.profile.userId,
-            name: account.profile.name
+            name: account.profile.name,
         )
 
         // If the user isn't set up to use the watch, sync the invalid state to the watch.
@@ -204,8 +204,8 @@ class DefaultWatchService: NSObject, WatchService {
             userData: userData,
             environmentData: .init(
                 base: environmentService.apiURL.absoluteString,
-                icons: environmentService.iconsURL.absoluteString
-            )
+                icons: environmentService.iconsURL.absoluteString,
+            ),
         )
         try session.sendDataToWatch(watchData)
     }
@@ -261,7 +261,7 @@ extension DefaultWatchService: WCSessionDelegate {
     func session(
         _: WCSession,
         didReceiveMessage message: [String: Any],
-        replyHandler _: @escaping ([String: Any]) -> Void
+        replyHandler _: @escaping ([String: Any]) -> Void,
     ) {
         handleMessage(message)
     }
@@ -306,9 +306,9 @@ extension CipherDTO {
             login: .init(
                 totp: cipherView.login?.totp,
                 uris: cipherView.login?.uris?.compactMap { .init(uri: $0.uri) },
-                username: cipherView.login?.username
+                username: cipherView.login?.username,
             ),
-            name: cipherView.name
+            name: cipherView.name,
         )
     }
 }

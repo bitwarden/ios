@@ -14,7 +14,7 @@ class PushNotificationDataTests: BitwardenTestCase {
             "RevisionDate": "2023-12-21T00:00:00.000Z"
             }
             """,
-            type: .syncCipherCreate
+            type: .syncCipherCreate,
         )
 
         let data: SyncCipherNotification? = subject.data()
@@ -26,8 +26,8 @@ class PushNotificationDataTests: BitwardenTestCase {
                 id: "90eeb69a-722f-48be-8ab1-b0df01105e2a",
                 organizationId: nil,
                 revisionDate: Date(year: 2023, month: 12, day: 21),
-                userId: "0efb0a6a-691e-490d-85d4-af5800dd267a"
-            )
+                userId: "0efb0a6a-691e-490d-85d4-af5800dd267a",
+            ),
         )
     }
 

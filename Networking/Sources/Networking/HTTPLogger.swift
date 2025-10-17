@@ -33,22 +33,20 @@ public final class OSLogHTTPLogger: HTTPLogger {
         let formattedBody = formattedBody(httpRequest.body)
         let formattedHeaders = formattedHeaders(httpRequest.headers)
         Logger.networking.info("""
-            Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)
-            Headers: \(formattedHeaders)
-            Body: \(formattedBody)
-            """
-        )
+        Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)
+        Headers: \(formattedHeaders)
+        Body: \(formattedBody)
+        """)
     }
 
     public func logResponse(_ httpResponse: HTTPResponse) async {
         let formattedBody = formattedBody(httpResponse.body)
         let formattedHeaders = formattedHeaders(httpResponse.headers)
         Logger.networking.info("""
-            Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)
-            Headers: \(formattedHeaders)
-            Body: \(formattedBody)
-            """
-        )
+        Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)
+        Headers: \(formattedHeaders)
+        Body: \(formattedBody)
+        """)
     }
 
     // MARK: Private

@@ -11,7 +11,7 @@ extension Fido2CredentialAutofillView {
             userName: safeUsernameForUi,
             credentialID: credentialId,
             userHandle: userHandle,
-            recordIdentifier: cipherId
+            recordIdentifier: cipherId,
         )
     }
 }

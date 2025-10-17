@@ -27,7 +27,7 @@ struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
             clientService: clientService,
             collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: preparedData
+            withData: preparedData,
         )
     }
 }

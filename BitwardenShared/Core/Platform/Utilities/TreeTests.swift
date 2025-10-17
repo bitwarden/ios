@@ -28,7 +28,7 @@ final class TreeTests: BitwardenTestCase {
         XCTAssertNil(nested.getTreeNodeObject(with: "4"))
         XCTAssertEqual(
             thirdLayer,
-            nested.getTreeNodeObject(with: "3")?.node
+            nested.getTreeNodeObject(with: "3")?.node,
         )
     }
 
@@ -61,21 +61,21 @@ final class TreeTests: BitwardenTestCase {
                             TreeNode(
                                 node: thirdLayer,
                                 name: "third",
-                                parent: secondLayer
+                                parent: secondLayer,
                             ),
-                        ]
+                        ],
                     ),
-                ]
+                ],
             ),
             TreeNode(
                 node: oneSlash,
                 name: oneSlash.name,
-                parent: nil
+                parent: nil,
             ),
             TreeNode(
                 node: fakeSecondLayer,
                 name: fakeSecondLayer.name,
-                parent: nil
+                parent: nil,
             ),
         ]
         XCTAssertEqual(nested, Tree(nodes: expectedNodes))
@@ -96,9 +96,9 @@ final class TreeTests: BitwardenTestCase {
                     TreeNode(
                         node: testModelExistingChild,
                         name: testModelExistingChild.name,
-                        parent: testModelParent
+                        parent: testModelParent,
                     ),
-                ]
+                ],
             ),
         ]
 
@@ -109,7 +109,7 @@ final class TreeTests: BitwardenTestCase {
             atIndex: 1,
             parts: parts,
             parent: testModelParent,
-            delimiter: "/"
+            delimiter: "/",
         )
         XCTAssertEqual(
             newNodeTree,
@@ -122,11 +122,11 @@ final class TreeTests: BitwardenTestCase {
                         TreeNode(
                             node: testModelExistingChild,
                             name: testModelExistingChild.name,
-                            parent: testModelParent
+                            parent: testModelParent,
                         ),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         )
     }
 
@@ -152,9 +152,9 @@ final class TreeTests: BitwardenTestCase {
                         parent: first,
                         children: [
                             TreeNode(node: firstABC, name: "b/c", parent: firstA),
-                        ]
+                        ],
                     ),
-                ]
+                ],
             ),
         ]
         XCTAssertEqual(nested, Tree(nodes: expectedNodes))
@@ -175,9 +175,9 @@ final class TreeTests: BitwardenTestCase {
                     TreeNode(
                         node: testModelExistingChild,
                         name: testModelExistingChild.name,
-                        parent: testModelParent
+                        parent: testModelParent,
                     ),
-                ]
+                ],
             ),
         ]
 
@@ -188,7 +188,7 @@ final class TreeTests: BitwardenTestCase {
             atIndex: 0,
             parts: parts,
             parent: testModelParent,
-            delimiter: "/"
+            delimiter: "/",
         )
 
         XCTAssertEqual(newNodeTree.first?.children.count, 2)

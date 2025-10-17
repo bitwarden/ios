@@ -17,7 +17,7 @@ protocol AuthenticatorItemOperationDelegate: AnyObject {
 final class EditAuthenticatorItemProcessor: StateProcessor<
     EditAuthenticatorItemState,
     EditAuthenticatorItemAction,
-    EditAuthenticatorItemEffect
+    EditAuthenticatorItemEffect,
 > {
     // MARK: Types
 
@@ -48,7 +48,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         coordinator: AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>,
         delegate: AuthenticatorItemOperationDelegate?,
         services: Services,
-        state: EditAuthenticatorItemState
+        state: EditAuthenticatorItemState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -152,7 +152,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                         id: authenticatorItemView.id,
                         name: state.issuer,
                         totpKey: "steam://\(secret)",
-                        username: state.accountName
+                        username: state.accountName,
                     )
                 case .totp:
                     let newOtpUri = OTPAuthModel(
@@ -161,7 +161,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                         digits: state.digits,
                         issuer: state.issuer.nilIfEmpty,
                         period: state.period.rawValue,
-                        secret: secret
+                        secret: secret,
                     )
 
                     newAuthenticatorItemView = AuthenticatorItemView(
@@ -169,7 +169,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                         id: authenticatorItemView.id,
                         name: state.issuer,
                         totpKey: newOtpUri.otpAuthUri,
-                        username: state.accountName
+                        username: state.accountName,
                     )
                 }
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)

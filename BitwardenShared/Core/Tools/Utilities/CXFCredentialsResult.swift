@@ -21,7 +21,7 @@ struct CXFCredentialsResult: Equatable, Sendable {
 
     /// The localized type in plural.
     var localizedTypePlural: String {
-        return switch type {
+        switch type {
         case .card:
             Localizations.cards
         case .identity:

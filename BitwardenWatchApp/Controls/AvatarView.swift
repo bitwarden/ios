@@ -84,8 +84,8 @@ struct AvatarView_Previews: PreviewProvider {
             UserDTO(
                 email: "asdfasdf@gmail.com",
                 id: "zxc",
-                name: "John Snow"
-            )
+                name: "John Snow",
+            ),
         )
     }
 }

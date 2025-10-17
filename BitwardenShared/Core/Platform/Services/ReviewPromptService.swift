@@ -54,7 +54,7 @@ class DefaultReviewPromptService: ReviewPromptService {
     init(
         appVersion: String,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.appVersion = appVersion
         self.stateService = stateService

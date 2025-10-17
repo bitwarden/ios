@@ -33,7 +33,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
             configService: configService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -84,7 +84,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
             numWords: 6,
             wordSeparator: "-",
             capitalize: false,
-            includeNumber: true
+            includeNumber: true,
         )
         generatorRepository.passphraseResult = .success("this-is-1-test-passphrase-result")
         let result = try await subject.generatePassphrase(settings: request)
@@ -99,7 +99,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
             numWords: 6,
             wordSeparator: "-",
             capitalize: false,
-            includeNumber: true
+            includeNumber: true,
         )
         generatorRepository.passphraseResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {

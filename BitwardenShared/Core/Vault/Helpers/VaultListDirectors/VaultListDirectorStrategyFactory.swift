@@ -29,13 +29,13 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
             return PasswordsAutofillVaultListDirectorStrategy(
                 builderFactory: vaultListBuilderFactory,
                 cipherService: cipherService,
-                vaultListDataPreparator: vaultListDataPreparator
+                vaultListDataPreparator: vaultListDataPreparator,
             )
         case .combinedSingleSection:
             return CombinedSingleAutofillVaultListDirectorStrategy(
                 builderFactory: vaultListBuilderFactory,
                 cipherService: cipherService,
-                vaultListDataPreparator: vaultListDataPreparator
+                vaultListDataPreparator: vaultListDataPreparator,
             )
         default:
             if filter.group != nil {
@@ -44,7 +44,7 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
                     cipherService: cipherService,
                     collectionService: collectionService,
                     folderService: folderService,
-                    vaultListDataPreparator: vaultListDataPreparator
+                    vaultListDataPreparator: vaultListDataPreparator,
                 )
             }
 
@@ -53,7 +53,7 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
                 cipherService: cipherService,
                 collectionService: collectionService,
                 folderService: folderService,
-                vaultListDataPreparator: vaultListDataPreparator
+                vaultListDataPreparator: vaultListDataPreparator,
             )
         }
     }

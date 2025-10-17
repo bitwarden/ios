@@ -42,9 +42,9 @@ class CXFCredentialsResultBuilderTests: BitwardenTestCase {
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
         ]
         let result = subject.build(from: ciphers)

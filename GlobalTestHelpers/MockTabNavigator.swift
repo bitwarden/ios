@@ -21,7 +21,7 @@ final class MockTabNavigator: TabNavigator {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     ) {}
 
     func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {

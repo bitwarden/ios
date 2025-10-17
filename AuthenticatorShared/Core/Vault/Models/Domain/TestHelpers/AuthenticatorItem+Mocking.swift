@@ -7,7 +7,7 @@ extension AuthenticatorItem {
             id: authenticatorItemView.id,
             name: authenticatorItemView.name,
             totpKey: authenticatorItemView.totpKey,
-            username: authenticatorItemView.username
+            username: authenticatorItemView.username,
         )
     }
 }
@@ -19,7 +19,7 @@ extension AuthenticatorItemView {
             id: authenticatorItem.id,
             name: authenticatorItem.name,
             totpKey: authenticatorItem.totpKey,
-            username: authenticatorItem.username
+            username: authenticatorItem.username,
         )
     }
 }

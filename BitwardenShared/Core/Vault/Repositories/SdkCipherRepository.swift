@@ -18,7 +18,7 @@ final class SdkCipherRepository: BitwardenSdk.CipherRepository {
     init(
         cipherDataStore: CipherDataStore,
         errorReporter: ErrorReporter,
-        userId: String
+        userId: String,
     ) {
         self.cipherDataStore = cipherDataStore
         self.errorReporter = errorReporter

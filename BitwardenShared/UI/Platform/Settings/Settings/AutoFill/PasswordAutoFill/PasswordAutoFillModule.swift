@@ -14,19 +14,19 @@ protocol PasswordAutoFillModule {
     ///
     func makePasswordAutoFillCoordinator(
         delegate: PasswordAutoFillCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>
 }
 
 extension DefaultAppModule: PasswordAutoFillModule {
     func makePasswordAutoFillCoordinator(
         delegate: PasswordAutoFillCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent> {
         PasswordAutoFillCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         .asAnyCoordinator()
     }

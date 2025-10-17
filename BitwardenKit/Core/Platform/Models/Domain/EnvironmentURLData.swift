@@ -2,7 +2,7 @@ import Foundation
 
 /// Domain model containing the environment URLs for an account.
 ///
-public struct EnvironmentURLData: Codable, Equatable, Hashable {
+public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     // MARK: Properties
 
     /// The URL for the API.
@@ -46,7 +46,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable {
         icons: URL? = nil,
         identity: URL? = nil,
         notifications: URL? = nil,
-        webVault: URL? = nil
+        webVault: URL? = nil,
     ) {
         self.api = api
         self.base = base
@@ -150,7 +150,7 @@ public extension EnvironmentURLData {
         icons: URL(string: "https://icons.bitwarden.net")!,
         identity: URL(string: "https://identity.bitwarden.com")!,
         notifications: URL(string: "https://notifications.bitwarden.com")!,
-        webVault: URL(string: "https://vault.bitwarden.com")!
+        webVault: URL(string: "https://vault.bitwarden.com")!,
     )
 
     /// The default URLs for the EU region.
@@ -161,6 +161,6 @@ public extension EnvironmentURLData {
         icons: URL(string: "https://icons.bitwarden.eu")!,
         identity: URL(string: "https://identity.bitwarden.eu")!,
         notifications: URL(string: "https://notifications.bitwarden.eu")!,
-        webVault: URL(string: "https://vault.bitwarden.eu")!
+        webVault: URL(string: "https://vault.bitwarden.eu")!,
     )
 }

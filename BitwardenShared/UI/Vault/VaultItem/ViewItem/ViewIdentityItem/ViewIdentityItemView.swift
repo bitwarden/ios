@@ -30,7 +30,7 @@ struct ViewIdentityItemView: View {
                             value: identityName,
                             valueAccessibilityIdentifier: "ItemNameEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyNameButton",
-                            copyButtonAction: { store.send(.copyPressed(value: identityName, field: .identityName)) }
+                            copyButtonAction: { store.send(.copyPressed(value: identityName, field: .identityName)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -42,7 +42,7 @@ struct ViewIdentityItemView: View {
                             value: username,
                             valueAccessibilityIdentifier: "IdentityUsernameEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyUsernameButton",
-                            copyButtonAction: { store.send(.copyPressed(value: username, field: .username)) }
+                            copyButtonAction: { store.send(.copyPressed(value: username, field: .username)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -54,7 +54,7 @@ struct ViewIdentityItemView: View {
                             value: company,
                             valueAccessibilityIdentifier: "IdentityCompanyEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyCompanyButton",
-                            copyButtonAction: { store.send(.copyPressed(value: company, field: .company)) }
+                            copyButtonAction: { store.send(.copyPressed(value: company, field: .company)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -78,10 +78,10 @@ struct ViewIdentityItemView: View {
                             copyButtonAction: { store.send(
                                 .copyPressed(
                                     value: socialSecurityNumber,
-                                    field: .socialSecurityNumber
-                                )
+                                    field: .socialSecurityNumber,
+                                ),
                             )
-                            }
+                            },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -95,7 +95,7 @@ struct ViewIdentityItemView: View {
                             copyButtonAccessibilityIdentifier: "IdentityCopyPassportNumberButton",
                             copyButtonAction: {
                                 store.send(.copyPressed(value: passportNumber, field: .passportNumber))
-                            }
+                            },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -110,10 +110,10 @@ struct ViewIdentityItemView: View {
                             copyButtonAction: { store.send(
                                 .copyPressed(
                                     value: licenseNumber,
-                                    field: .licenseNumber
-                                )
+                                    field: .licenseNumber,
+                                ),
                             )
-                            }
+                            },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -134,7 +134,7 @@ struct ViewIdentityItemView: View {
                             value: email,
                             valueAccessibilityIdentifier: "IdentityEmailEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyEmailButton",
-                            copyButtonAction: { store.send(.copyPressed(value: email, field: .email)) }
+                            copyButtonAction: { store.send(.copyPressed(value: email, field: .email)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -146,7 +146,7 @@ struct ViewIdentityItemView: View {
                             value: phone,
                             valueAccessibilityIdentifier: "IdentityPhoneEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyPhoneButton",
-                            copyButtonAction: { store.send(.copyPressed(value: phone, field: .phone)) }
+                            copyButtonAction: { store.send(.copyPressed(value: phone, field: .phone)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -158,7 +158,7 @@ struct ViewIdentityItemView: View {
                             value: fullAddress,
                             valueAccessibilityIdentifier: "IdentityAddressOneEntry",
                             copyButtonAccessibilityIdentifier: "IdentityCopyFullAddressButton",
-                            copyButtonAction: { store.send(.copyPressed(value: fullAddress, field: .fullAddress)) }
+                            copyButtonAction: { store.send(.copyPressed(value: fullAddress, field: .fullAddress)) },
                         )
                         .accessibilityElement(children: .contain)
                     }
@@ -188,10 +188,10 @@ struct ViewIdentityItemView: View {
                                 cityOrTown: "City",
                                 state: "State",
                                 postalCode: "123",
-                                country: "USA"
-                            )
-                        )
-                    )
+                                country: "USA",
+                            ),
+                        ),
+                    ),
                 )
             }
             .padding(16)

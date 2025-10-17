@@ -42,7 +42,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
     }
 
@@ -247,13 +247,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cát"
+                name: "A picture of a cute cát",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[2])
@@ -272,13 +272,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cat"
+                name: "A picture of a cute cat",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[0])
@@ -297,13 +297,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cat"
+                name: "A picture of a cute cat",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[2])
@@ -336,12 +336,12 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 name: "encrypted name",
                 text: .init(hidden: false, text: "encrypted text"),
-                type: .text
+                type: .text,
             ),
             .fixture(
                 file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
                 name: "encrypted name",
-                type: .file
+                type: .file,
             ),
         ])
 

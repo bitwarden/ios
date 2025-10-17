@@ -19,7 +19,7 @@ class PostKeyConnectorUserKeyRequestTests: BitwardenTestCase {
             {
               "key" : "🔑"
             }
-            """
+            """,
         )
     }
 

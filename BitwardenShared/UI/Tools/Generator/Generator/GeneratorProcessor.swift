@@ -67,7 +67,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     init(
         coordinator: AnyCoordinator<GeneratorRoute, Void>,
         services: Services,
-        state: GeneratorState
+        state: GeneratorState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -122,8 +122,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             coordinator.navigate(
                 to: .complete(
                     type: state.generatorType,
-                    value: state.generatedValue
-                )
+                    value: state.generatedValue,
+                ),
             )
             Task {
                 await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
@@ -208,7 +208,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async {
         do {
             let passphrase = try await services.generatorRepository.generatePassphrase(
-                settings: settings
+                settings: settings,
             )
             try Task.checkCancellation()
             try await setGeneratedValue(passphrase)
@@ -228,7 +228,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func generatePassword(settings: PasswordGeneratorRequest, shouldSavePassword: Bool) async {
         do {
             let password = try await services.generatorRepository.generatePassword(
-                settings: settings
+                settings: settings,
             )
             try Task.checkCancellation()
             try await setGeneratedValue(password, shouldSavePassword: shouldSavePassword)
@@ -250,7 +250,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
 
             let username = try await services.generatorRepository.generateUsername(
-                settings: usernameGeneratorRequest
+                settings: usernameGeneratorRequest,
             )
             try Task.checkCancellation()
             try await setGeneratedValue(username)
@@ -283,7 +283,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 case .password:
                     await generatePassword(
                         settings: passwordState.passwordGeneratorRequest,
-                        shouldSavePassword: shouldSavePassword
+                        shouldSavePassword: shouldSavePassword,
                     )
                 case .username:
                     // We shouldn't get here since validating the password options shouldn't switch
@@ -304,7 +304,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func loadGeneratorOptions() async throws {
         var passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
         state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
-            options: &passwordOptions
+            options: &passwordOptions,
         )
         state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
         state.passwordState.update(with: passwordOptions)
@@ -348,8 +348,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         try await services.generatorRepository.addPasswordHistory(
             PasswordHistoryView(
                 password: value,
-                lastUsedDate: Date()
-            )
+                lastUsedDate: Date(),
+            ),
         )
     }
 
@@ -363,7 +363,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 try await services.generatorRepository.setPasswordGenerationOptions(passwordOptions)
             case .username:
                 try await services.generatorRepository.setUsernameGenerationOptions(
-                    state.usernameState.usernameGenerationOptions
+                    state.usernameState.usernameGenerationOptions,
                 )
             }
         } catch {

@@ -11,7 +11,7 @@ protocol ExtensionSetupModule {
     /// - Returns: A coordinator that can navigate to `ExtensionSetupRoute`s.
     ///
     func makeExtensionSetupCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExtensionSetupRoute, Void>
 }
 
@@ -19,12 +19,12 @@ protocol ExtensionSetupModule {
 
 extension DefaultAppModule: ExtensionSetupModule {
     func makeExtensionSetupCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExtensionSetupRoute, Void> {
         ExtensionSetupCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }
