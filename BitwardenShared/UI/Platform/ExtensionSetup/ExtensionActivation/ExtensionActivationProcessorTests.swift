@@ -47,7 +47,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
     func test_perform_appeared() async throws {
         await subject.perform(.appeared)
 
-        XCTAssertTrue(autofillCredentialService.updateCredentialsOnStoreCalled)
+        XCTAssertTrue(autofillCredentialService.updateCredentialsInStoreCalled)
     }
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.

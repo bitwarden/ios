@@ -114,13 +114,13 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
         XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
     }
 
-    /// `updateCredentialsOnStore()` replaces all identities in the identity Store correctly
+    /// `updateCredentialsInStore()` replaces all identities in the identity Store correctly
     /// for the active user ID.
-    func test_updateCredentialsOnStore_succeedsActiveUserId() async throws {
+    func test_updateCredentialsInStore_succeedsActiveUserId() async throws {
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "50"))
 
-        await subject.updateCredentialsOnStore()
+        await subject.updateCredentialsInStore()
         try await waitForAsync { [weak self] in
             guard let self else { return false }
             return identityStore.replaceCredentialIdentitiesIdentities != nil
@@ -136,11 +136,11 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
         XCTAssertEqual(subject.lastSyncedUserId, "50")
     }
 
-    /// `updateCredentialsOnStore()` logs error when it throws.
-    func test_updateCredentialsOnStore_logOnThrow() async throws {
+    /// `updateCredentialsInStore()` logs error when it throws.
+    func test_updateCredentialsInStore_logOnThrow() async throws {
         stateService.activeAccount = nil
 
-        await subject.updateCredentialsOnStore()
+        await subject.updateCredentialsInStore()
 
         XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
         XCTAssertEqual(subject.lastSyncedUserId, nil)

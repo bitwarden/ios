@@ -45,7 +45,7 @@ class ExtensionActivationProcessor: StateProcessor<
     override func perform(_ effect: ExtensionActivationEffect) async {
         switch effect {
         case .appeared:
-            await services.autofillCredentialService.updateCredentialsOnStore()
+            await services.autofillCredentialService.updateCredentialsInStore()
         }
     }
 

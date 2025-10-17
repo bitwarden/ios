@@ -12,7 +12,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideCredentialError: Error?
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
     var provideOTPCredentialResult: Result<OneTimeCodeCredential, Error> = .failure(BitwardenTestError.example)
-    var updateCredentialsOnStoreCalled = false
+    var updateCredentialsInStoreCalled = false
 
     func isAutofillCredentialsEnabled() async -> Bool {
         isAutofillCredentialsEnabled
@@ -67,8 +67,8 @@ class MockAutofillCredentialService: AutofillCredentialService {
         return credential
     }
 
-    func updateCredentialsOnStore() async {
-        updateCredentialsOnStoreCalled = true
+    func updateCredentialsInStore() async {
+        updateCredentialsInStoreCalled = true
     }
 }
 

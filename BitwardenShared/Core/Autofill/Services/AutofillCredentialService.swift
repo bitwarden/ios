@@ -80,7 +80,7 @@ protocol AutofillCredentialService: AnyObject {
     /// Updates all credential identities in the identity store with the current list of ciphers
     /// for the current user.
     ///
-    func updateCredentialsOnStore() async
+    func updateCredentialsInStore() async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -434,7 +434,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         return ASOneTimeCodeCredential(code: code.code)
     }
 
-    func updateCredentialsOnStore() async {
+    func updateCredentialsInStore() async {
         do {
             let userId = try await stateService.getActiveAccountId()
             await replaceAllIdentities(userId: userId)
