@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Sync vault now";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Two-step login";
-"UnlockWith" = "Unlock with %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Unlock with PIN code";
-"UnlockWithUnknownBiometrics" = "ජෛව විද්යාව සමඟ අගුළු ඇරීම";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "View item";
@@ -550,7 +552,7 @@
 "Text" = "Text";
 "TypeText" = "Text";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
-"TypeFile" = "File";
+"TypeFile" = "ගොනුව";
 "FileTypeIsSelected" = "File type is selected.";
 "FileTypeIsNotSelected" = "File type is not selected, tap to select.";
 "TextTypeIsSelected" = "Text type is selected.";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Сінхранізаваць сховішча зараз.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двухэтапны ўваход";
-"UnlockWith" = "Разблакіраваць з %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Разблакіраваць PIN-кодам";
-"UnlockWithUnknownBiometrics" = "Разблакіраваць з дапамогай біяметрыі";
 "Validating" = "Праверка";
 "VerificationCode" = "Праверачны код";
 "ViewItem" = "Прагледзець элемент";
@@ -209,15 +211,15 @@
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
 "AutofillOrView" = "Do you want to autofill or view this item?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Вы сапраўды хочаце выкарыстоўваць для аўтазапаўнення гэты элемент? Ён не дакладна адпавядае \"%1$@\".";
 "MatchingItems" = "Адпаведныя элементы";
 "PossibleMatchingItems" = "Магчымыя адпаведныя элементы";
 "Search" = "Пошук";
-"BitwardenAutofillServiceSearch" = "You are searching for an autofill item for “%1$@”.";
+"BitwardenAutofillServiceSearch" = "Вы шукаеце элемент аўтазапаўнення для \"%1$@\".";
 "LearnAboutNewLogins" = "Learn about new logins";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Даведацца пра арганізацыі";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "Немагчыма адкрыць праграму \"%1$@\".";
 "AuthenticatorAppTitle" = "Праграма аўтэнтыфікацыі";
 "EnterVerificationCodeApp" = "Увядзіце 6 лічбаў праверачнага кода з вашай праграмы аўтэнтыфікацыі.";
 "EnterVerificationCodeEmail" = "Увядзіце 6 лічбаў праверачнага кода, які быў адпраўлены на %1$@.";
@@ -766,7 +768,7 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Вызначаны ненадзейны пароль, які знойдзены ва ўцечках даных. Выкарыстоўвайце надзейныя і ўнікальныя паролі для абароны свайго ўліковага запісу. Вы сапраўды хочаце выкарыстоўваць гэты пароль?";
 "OrganizationSsoIdentifierRequired" = "Неабходны ідэнтыфікатар SSO арганізацыі.";
 "AddTheKeyToAnExistingOrNewItem" = "Дадаць ключ да існуючага або новага элемента";
-"ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match “%1$@”";
+"ThereAreNoItemsInYourVaultThatMatchX" = "У вашым сховішчы адсутнічаюць элементы, якія адпавядаюць \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Пошук або дабаўленне новага элемента";
 "ThereAreNoItemsThatMatchTheSearch" = "Адсутнічаюць элементы, якія адпавядаюць пошуку";
 "ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
@@ -822,7 +824,7 @@
 "CannotEditMultipleURIsAtOnce" = "Немагчыма рэдагаваць некалькі URI адначасова";
 "LoginApproved" = "Уваход ухвалены";
 "LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "Log in with device must be set up in the settings of the Bitwarden app. Need another option?";
-"LogInWithDevice" = "Log in with device";
+"LogInWithDevice" = "Увайсці з іншай прылады";
 "LoggingInOn" = "Увайсці на";
 "Vault" = "Сховішча";
 "Appearance" = "Знешні выгляд";
@@ -1086,7 +1088,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Імпартаванне...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ItemsSuccessfullyImported" = "%1$@ items successfully imported";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

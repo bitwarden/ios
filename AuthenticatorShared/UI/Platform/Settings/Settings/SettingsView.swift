@@ -217,9 +217,9 @@ struct SettingsView: View {
     private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
         switch biometryType {
         case .faceID:
-            Localizations.unlockWith(Localizations.faceID)
+            Localizations.unlockWithFaceID
         case .touchID:
-            Localizations.unlockWith(Localizations.touchID)
+            Localizations.unlockWithTouchID
         }
     }
 

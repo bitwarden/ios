@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Cysoni'r gell nawr";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Mewngofnodi dau gam";
-"UnlockWith" = "Datgloi â %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Datgloi â chod PIN";
-"UnlockWithUnknownBiometrics" = "Datgloi â biometreg";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "Gweld yr eitem";
@@ -209,7 +211,7 @@
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
 "AutofillOrView" = "Do you want to autofill or view this item?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Ydych chi'n siŵr eich bod am lenwi'r eitem hon? Dyw hi ddim yn cyfateb yn llwyr i \"%1$@\".";
 "MatchingItems" = "Eitemau sy'n cyfateb";
 "PossibleMatchingItems" = "Possible matching items";
 "Search" = "Chwilio";
@@ -217,7 +219,7 @@
 "LearnAboutNewLogins" = "Learn about new logins";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Dysgu am sefydliadau";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "Methu agor yr ap \"%1$@\".";
 "AuthenticatorAppTitle" = "Ap dilysu";
 "EnterVerificationCodeApp" = "Rhowch y cod dilysu 6 nod o'ch ap dilysu.";
 "EnterVerificationCodeEmail" = "Rhowch y cod dilysu 6 nod anfonwyd i %1$@.";
@@ -666,7 +668,7 @@
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
-"ScanQRCode" = "Scan QR Code";
+"ScanQRCode" = "Sganio cod QR";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
@@ -1086,7 +1088,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importing…";
+"ImportingEllipsis" = "Yn mewnforio...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ItemsSuccessfullyImported" = "%1$@ items successfully imported";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
