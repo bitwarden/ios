@@ -172,8 +172,8 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             )
 
             coordinator.hideLoadingOverlay()
+            await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: false)))
             coordinator.navigate(to: .dismiss)
-            await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
