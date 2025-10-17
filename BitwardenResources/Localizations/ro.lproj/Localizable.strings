@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Sincronizare seif acum";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Autentificare în doi pași";
-"UnlockWith" = "Deblocare cu %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Deblocare cu codul PIN";
-"UnlockWithUnknownBiometrics" = "Deblocare folosind biometria";
 "Validating" = "Validare";
 "VerificationCode" = "Cod de verificare";
 "ViewItem" = "Vizualizare articol";
@@ -209,15 +211,15 @@
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
 "AutofillOrView" = "Do you want to autofill or view this item?";
-"BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
+"BitwardenAutofillServiceMatchConfirm" = "Sigur doriți să auto-completați aceste date de conectare? Nu este o potrivire completă pentru \"%1$@\".";
 "MatchingItems" = "Articole care se potrivesc";
 "PossibleMatchingItems" = "Articole care se pot potrivi";
 "Search" = "Căutare";
-"BitwardenAutofillServiceSearch" = "You are searching for an autofill item for “%1$@”.";
+"BitwardenAutofillServiceSearch" = "Căutați o autentificare automată pentru \"%1$@\".";
 "LearnAboutNewLogins" = "Learn about new logins";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Aflați mai multe despre organizații";
-"CannotOpenApp" = "Cannot open the app “%1$@”.";
+"CannotOpenApp" = "Nu se poate deschide aplicația \"%1$@\".";
 "AuthenticatorAppTitle" = "Aplicația Autentificator";
 "EnterVerificationCodeApp" = "Introducere cod de verificare din 6 cifre din aplicația de autentificare.";
 "EnterVerificationCodeEmail" = "Introducere cod de verificare din 6 cifre, care a fost trimis prin e-mail la %1$@.";
@@ -766,7 +768,7 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Parolă slabă identificată și găsită într-o baza de date expusa. Folosiți o parolă puternică și unică pentru a vă proteja contul. Sigur doriți să utilizați această parolă?";
 "OrganizationSsoIdentifierRequired" = "Necesită identificator Organizație SSO.";
 "AddTheKeyToAnExistingOrNewItem" = "Adăugați cheia la un articol existent sau nou";
-"ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match “%1$@”";
+"ThereAreNoItemsInYourVaultThatMatchX" = "Nu există elemente în seiful dvs. care se potrivesc \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Căutați un articol sau adăugați un articol nou";
 "ThereAreNoItemsThatMatchTheSearch" = "Nu există lucruri care să corespundă căutării";
 "ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
@@ -1198,7 +1200,7 @@
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
 "SendUpdated" = "Send updated";
-"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don’t recognize this device. Enter the code sent to your email to verify your identity.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Dispozitiv nerecunoscut. Introdu codul trimis pe email pentru a verifica identitatea.";
 "Created" = "Created: %1$@";
 "LastEdited" = "Last edited: %1$@";
 "PasswordLastUpdated" = "Password last updated: %1$@";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

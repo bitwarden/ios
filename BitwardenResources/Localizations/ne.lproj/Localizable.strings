@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Sync vault now";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Two-step login";
-"UnlockWith" = "Unlock with %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Unlock with PIN code";
-"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "View item";
@@ -281,7 +283,7 @@
 "SecurityCode" = "Security code";
 "TypeCard" = "Card";
 "TypeIdentity" = "Identity";
-"TypeLogin" = "Login";
+"TypeLogin" = "लग इन";
 "TypeSecureNote" = "Secure note";
 "Address1" = "Address 1";
 "Address2" = "Address 2";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

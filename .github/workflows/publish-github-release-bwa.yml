@@ -1,4 +1,4 @@
-name: Publish GitHub Release as newest
+name: Publish Authenticator GitHub Release as newest
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
   id-token: write
 
 jobs:

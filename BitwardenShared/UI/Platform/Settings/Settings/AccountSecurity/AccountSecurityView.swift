@@ -255,13 +255,13 @@ struct AccountSecurityView: View {
     private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
         switch biometryType {
         case .faceID:
-            Localizations.unlockWith(Localizations.faceID)
+            Localizations.unlockWithFaceID
         case .opticID:
-            Localizations.unlockWith(Localizations.opticID)
+            Localizations.unlockWithOpticID
         case .touchID:
-            Localizations.unlockWith(Localizations.touchID)
+            Localizations.unlockWithTouchID
         case .unknown:
-            Localizations.unlockWithUnknownBiometrics
+            Localizations.unlockWithBiometrics
         }
     }
 }

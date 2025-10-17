@@ -3,7 +3,7 @@
 "AddFolder" = "添加文件夹";
 "AddItem" = "添加项目";
 "AnErrorHasOccurred" = "发生错误。";
-"Back" = "后退";
+"Back" = "返回";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "复制";
@@ -114,13 +114,13 @@
 "ReactivateAppExtension" = "重新激活 App 扩展";
 "ExtensionAlmostDone" = "就差一步！";
 "ExtensionEnable" = "激活 App 扩展";
-"ExtensionInSafari" = "在 Safari 中，使用共享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
+"ExtensionInSafari" = "在 Safari 中，使用分享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
 "ExtensionInstantAccess" = "即时访问您的密码！";
 "ExtensionReady" = "您已经准备好登录了！";
-"ExtensionSetup" = "现在，您可以从 Safari、Chrome 以及其他支持的 App 中方便地访问您的登录了。";
+"ExtensionSetup" = "现在可以在 Safari、Chrome 以及其他支持的 App 中方便地访问您的登录项目了。";
 "ExtensionSetup2" = "在 Safari 和 Chrome 中，使用共享图标寻找 Bitwarden（提示：在菜单最下面一行的右边）。";
 "ExtensionTapIcon" = "点击菜单中的 Bitwarden 图标以启动此扩展。";
-"ExtensionTurnOn" = "要在 Safari 和其他 App 中打开 Bitwarden ，请在菜单底部点击「更多」图标。";
+"ExtensionTurnOn" = "要在 Safari 和其他 App 中打开 Bitwarden ，请点击菜单底部的「更多」图标。";
 "Favorite" = "收藏";
 "Fingerprint" = "指纹";
 "GeneratePassword" = "生成密码";
@@ -182,9 +182,11 @@
 "SyncVaultNow" = "立即同步";
 "TouchID" = "触控 ID";
 "TwoStepLogin" = "两步登录";
-"UnlockWith" = "使用 %1$@ 解锁";
+"UnlockWithBiometrics" = "使用生物识别解锁";
+"UnlockWithFaceID" = "使用面容 ID 解锁";
+"UnlockWithTouchID" = "使用触控 ID 解锁";
+"UnlockWithOpticID" = "使用视控 ID 解锁";
 "UnlockWithPIN" = "使用 PIN 码解锁";
-"UnlockWithUnknownBiometrics" = "使用生物识别解锁";
 "Validating" = "正在验证";
 "VerificationCode" = "验证码";
 "ViewItem" = "查看项目";
@@ -320,7 +322,7 @@
 "SSN" = "社会保障号码";
 "StateProvince" = "州 / 省";
 "Title" = "称呼";
-"ZipPostalCode" = "邮政编码";
+"ZipPostalCode" = "ZIP / 邮政编码";
 "Address" = "地址";
 "Expiration" = "有效期";
 "ShowWebsiteIcons" = "显示网站图标";
@@ -411,7 +413,7 @@
 "SelectOneCollection" = "您必须至少选择一个集合。";
 "Share" = "分享";
 "ShareAll" = "分享所有";
-"ShareItem" = "分享项目";
+"ShareItem" = "共享项目";
 "MoveToOrganization" = "移动到组织";
 "NoOrgsToList" = "没有可列出的组织。";
 "MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。";
@@ -423,7 +425,7 @@
 "NoFoldersToList" = "没有可列出的文件夹。";
 "FingerprintPhrase" = "指纹短语";
 "YourAccountsFingerprint" = "您的账户指纹短语";
-"LearnOrgConfirmation" = "Bitwarden 允许您通过使用组织账户与他人分享您的密码库项目。要访问 bitwarden.com 网站了解更多信息吗？";
+"LearnOrgConfirmation" = "Bitwarden 允许您通过使用组织账户与他人共享您的密码库项目。要访问 bitwarden.com 网站了解更多信息吗？";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "我们无法处理您的请求。请重试或联系我们。";
 "Export" = "导出";
 "ExportVault" = "导出密码库";
@@ -494,7 +496,7 @@
 "Open" = "打开";
 "UnableToSaveAttachment" = "保存此附件时出现问题。如果问题仍然存在，您可以从网页版密码库中保存它。";
 "SaveAttachmentSuccess" = "附件保存成功";
-"AutofillTileAccessibilityRequired" = "请从 Bitwarden 设置中启用「自动填充无障碍服务」以使用自动填充磁贴。";
+"AutofillTileAccessibilityRequired" = "请从 Bitwarden 设置中开启「自动填充无障碍服务」以使用自动填充磁贴。";
 "AutofillTileUriNotFound" = "未检测到密码字段";
 "SoftDeleting" = "正在发送到回收站…";
 "ItemSoftDeleted" = "项目已发送到回收站。";
@@ -528,7 +530,7 @@
 "Loading" = "加载中";
 "AcceptPoliciesError" = "尚未同意服务条款和隐私政策。";
 "PrivacyPolicy" = "隐私政策";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden 需要注意 - 请在 Bitwarden 设置的「自动填充服务」中启用「Draw-Over」";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden 需要注意 - 请在 Bitwarden 设置的「自动填充服务」中开启「Draw-Over」";
 "PasskeyManagement" = "通行密钥管理";
 "AutofillServices" = "自动填充服务";
 "InlineAutofill" = "使用内嵌自动填充";
@@ -537,7 +539,7 @@
 "AccessibilityDescription" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。设置后，选中登录字段时将显示一个弹出窗口。";
 "AccessibilityDescription2" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。（需同时启用 Draw-Over）";
 "AccessibilityDescription3" = "使用 Bitwarden 无障碍服务来使用自动填充快速操作磁贴，和/或使用 Draw-Over（若已启用）来显示弹出窗口。";
-"AccessibilityDescription4" = "要求使用自动填充快速操作磁贴，或通过使用 Draw-Over （若已启用）来增强自动填充服务。";
+"AccessibilityDescription4" = "要求使用自动填充快速操作磁贴，或通过使用 Draw-Over （若已开启）来增强自动填充服务。";
 "DrawOver" = "使用 Draw-Over";
 "DrawOverDescription" = "允许 Bitwarden 无障碍服务在登录字段选中时显示弹出窗口。";
 "DrawOverDescription2" = "启用后，当登录字段被选中时，Bitwarden 无障碍服务将显示一个弹出窗口以协助自动填充您的登录信息。";
@@ -841,7 +843,7 @@
 "XHoursAndYMinutes" = "%1$@ 小时 %2$@ 分钟";
 "XHours" = "%1$@ 小时";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
-"AutofillServicesExplanationLong" = "Android 自动填充框架用于协助将登录信息填充到您设备上的其他 App 中。";
+"AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
 "UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
 "AdditionalOptions" = "附加选项";
 "ContinueToWebApp" = "前往网页 App 吗？";
@@ -1031,7 +1033,7 @@
 "ImportLoginsDescriptionLong" = "在您的计算机上，按照以下说明从浏览器或其他密码管理器中导出已保存的密码。然后，将它们安全地导入到 Bitwarden。";
 "ImportLoginsLater" = "稍后导入登录信息";
 "ImportLoginsLaterQuestion" = "稍后导入登录信息吗？";
-"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "您可以随时回到「设置」下的「密码库」来完成此步骤。";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "您可以随时回到「设置」中的「密码库」来完成此步骤。";
 "DoYouHaveAComputerAvailable" = "您是否有可用的计算机？";
 "DoYouHaveAComputerAvailableDescriptionLong" = "以下说明将指导您从台式或笔记本计算机导入登录信息。";
 "StepXOfY" = "步骤 %1$@ / %2$@";
@@ -1086,7 +1088,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
 "StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据**不会**从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "正在导入…";
+"ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
@@ -1143,7 +1145,7 @@
 "EnableTemporaryLoggingDescriptionLong" = "启用临时日志记录，以在本地收集和检查日志。启用后，可能会记录应用程序状态和网络调用，但绝不会记录敏感的密码库信息。";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "要开始使用，请设置日志记录持续时间，以便您在复现问题时捕获相关活动。日志记录将在该时间段后自动停用。";
 "LoggingDuration" = "日志记录持续时间";
-"LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您共享它时，Bitwarden 才能访问您的日志数据。";
+"LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您分享它时，Bitwarden 才能访问您的日志数据。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "要了解哪些内容会被记录、哪些不会被记录，请访问 **[Bitwarden 帮助中心](%1$@)**。";
 "OneWeek" = "1 周";
 "ShowMore" = "显示更多";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "默认 (%1$@)";
 "UpdateYourEncryptionSettings" = "更新您的加密设置";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的推荐加密设置将提高您的账户安全性。输入您的主密码以立即更新。";
-"Updating" = "正在更新...";
+"Updating" = "正在更新…";
 "EncryptionSettingsUpdated" = "加密设置已更新";

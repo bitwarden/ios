@@ -68,6 +68,8 @@ jobs:
 
       - name: Check out repo
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
 
       - name: Optimize macOS Runner
         uses: ./.github/actions/macos-runner-tuneup
@@ -112,7 +114,7 @@ jobs:
 
       - name: Update local config
         run: |
-          ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
+          ./Scripts/update_test_local_config.sh "${_COMPILER_FLAGS}"
 
       - name: Install Homebrew Dependencies and run bootstrap.sh
         run: |
@@ -142,9 +144,9 @@ jobs:
               -configuration Debug \
               -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
               -derivedDataPath build/DerivedData \
-              -resultBundlePath $_BUILD_RESULT_BUNDLE_PATH \
+              -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
               -quiet
-            kill $PYEETD_PID
+            kill "$PYEETD_PID"
 
       - name: Test
         run: |
@@ -167,8 +169,8 @@ jobs:
         if: always()
         run: |
           xcresultparser -o cli "$_TESTS_RESULT_BUNDLE_PATH"
-          echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
-          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
+          echo "# Test Summary" >> "$GITHUB_STEP_SUMMARY"
+          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Convert coverage to Cobertura
         run: |
@@ -202,6 +204,7 @@ jobs:
         with:
           sparse-checkout: .github/codecov.yml
           sparse-checkout-cone-mode: false
+          persist-credentials: false
 
       - name: Download test artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
@@ -223,10 +226,10 @@ jobs:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             RUN_ACTOR: ${{ github.triggering_actor }}
         run: |
-          echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
-          echo "> Uploading code coverage report failed. Please check the \"Upload to codecov.io\" step of \"Process Test Reports\" job for more details." >> $GITHUB_STEP_SUMMARY
+          echo "> [!WARNING]" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Uploading code coverage report failed. Please check the \"Upload to codecov.io\" step of \"Process Test Reports\" job for more details." >> "$GITHUB_STEP_SUMMARY"
 
           if [ ! -z "$PR_NUMBER" ]; then
             message=$'> [!WARNING]\n> @'$RUN_ACTOR' Uploading code coverage report failed. Please check the "Upload to codecov.io" step of [Process Test Reports job]('$_GITHUB_ACTION_RUN_URL') for more details.'
-            gh pr comment --repo $GITHUB_REPOSITORY $PR_NUMBER --body "$message"
+            gh pr comment --repo "$GITHUB_REPOSITORY" "$PR_NUMBER" --body "$message"
           fi
