@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -6,7 +5,7 @@ import Foundation
 
 /// The time after which the clipboard should be cleared.
 ///
-enum ClearClipboardValue: Int, Menuable {
+public enum ClearClipboardValue: Int, Menuable {
     /// Do not clear the clipboard.
     case never = -1
 
@@ -29,7 +28,7 @@ enum ClearClipboardValue: Int, Menuable {
     case fiveMinutes = 300
 
     /// All of the cases to show in the menu, in order.
-    static let allCases: [Self] = [
+    public static let allCases: [Self] = [
         .never,
         .tenSeconds,
         .twentySeconds,
@@ -40,16 +39,16 @@ enum ClearClipboardValue: Int, Menuable {
     ]
 
     /// The name of the value to display in the menu.
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .never:
             Localizations.never
         case .tenSeconds:
-            Localizations.tenSeconds
+            Localizations.xSeconds(10)
         case .twentySeconds:
-            Localizations.twentySeconds
+            Localizations.xSeconds(20)
         case .thirtySeconds:
-            Localizations.thirtySeconds
+            Localizations.xSeconds(30)
         case .oneMinute:
             Localizations.xMinutes(1)
         case .twoMinutes:
