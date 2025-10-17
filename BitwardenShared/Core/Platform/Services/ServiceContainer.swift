@@ -689,6 +689,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appIdService: appIdService,
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationAPIService: apiService,
             refreshableApiService: apiService,

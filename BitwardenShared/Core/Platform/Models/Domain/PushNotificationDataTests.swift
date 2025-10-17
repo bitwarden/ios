@@ -39,4 +39,69 @@ class PushNotificationDataTests: BitwardenTestCase {
 
         XCTAssertNil(data)
     }
+
+    /// `data()` decodes a logout notification.
+    func test_data_logoutNotification() throws {
+        let subject = PushNotificationData(
+            contextId: nil,
+            payload: """
+            {
+                "Date": "2025-10-01T00:00:00.000Z",
+                "UserId": "12345",
+            }
+            """,
+            type: .logOut,
+        )
+
+        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        XCTAssertEqual(data, LogoutNotification(
+            date: Date(year: 2025, month: 10, day: 1),
+            reason: .unknown,
+            userId: "12345",
+        ))
+    }
+
+    /// `data()` decodes a logout notification with a reason.
+    func test_data_logoutNotification_withReason() throws {
+        let subject = PushNotificationData(
+            contextId: nil,
+            payload: """
+            {
+                "Date": "2025-10-01T00:00:00.000Z",
+                "Reason": 0,
+                "UserId": "12345",
+            }
+            """,
+            type: .logOut,
+        )
+
+        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        XCTAssertEqual(data, LogoutNotification(
+            date: Date(year: 2025, month: 10, day: 1),
+            reason: .kdfChange,
+            userId: "12345",
+        ))
+    }
+
+    /// `data()` decodes a logout notification with an unknown reason.
+    func test_data_logoutNotification_withReasonUnknown() throws {
+        let subject = PushNotificationData(
+            contextId: nil,
+            payload: """
+            {
+                "Date": "2025-10-01T00:00:00.000Z",
+                "Reason": -2,
+                "UserId": "12345",
+            }
+            """,
+            type: .logOut,
+        )
+
+        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        XCTAssertEqual(data, LogoutNotification(
+            date: Date(year: 2025, month: 10, day: 1),
+            reason: .unknown,
+            userId: "12345",
+        ))
+    }
 }
