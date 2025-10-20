@@ -248,7 +248,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.updateMasterPasswordPasswordHint, "NEW_PASSWORD_HINT")
         XCTAssertEqual(authRepository.updateMasterPasswordReason, .weakMasterPasswordOnLogin)
 
-        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
