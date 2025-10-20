@@ -1,0 +1,64 @@
+{
+  "github-mcp-config.json": {
+    "mcpServers": {
+      "github": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-github"
+        ],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+        },
+        "settings": {
+          "default_owner": "your-github-username",
+          "default_repo": "your-project-name",
+          "default_branch": "main",
+          "auto_labels": [
+            "multi-agent",
+            "automated"
+          ],
+          "label_mapping": {
+            "READY_FOR_DEVELOPMENT": [
+              "ready-for-dev",
+              "requirements-complete"
+            ],
+            "READY_FOR_IMPLEMENTATION": [
+              "architecture-complete",
+              "ready-to-code"
+            ],
+            "READY_FOR_TESTING": [
+              "implementation-complete",
+              "needs-testing"
+            ],
+            "TESTING_COMPLETE": [
+              "tests-passing",
+              "ready-to-merge"
+            ],
+            "DOCUMENTATION_COMPLETE": [
+              "documented",
+              "ready-to-close"
+            ]
+          },
+          "issue_templates": {
+            "feature": {
+              "labels": [
+                "enhancement",
+                "feature"
+              ],
+              "template": "## Description\n\n{description}\n\n## Acceptance Criteria\n\n{acceptance_criteria}\n\n## Technical Notes\n\n{technical_notes}\n\n---\n*Created by multi-agent workflow*"
+            },
+            "bug": {
+              "labels": [
+                "bug",
+                "automated"
+              ],
+              "template": "## Bug Description\n\n{description}\n\n## Expected Behavior\n\n{expected}\n\n## Actual Behavior\n\n{actual}\n\n---\n*Created by multi-agent workflow*"
+            }
+          },
+          "pr_template": "## Summary\n\n{summary}\n\n## Changes\n\n{changes}\n\n## Testing\n\n{testing_notes}\n\nCloses #{issue_number}\n\n---\n*Created by multi-agent workflow*"
+        }
+      }
+    }
+  }
+}

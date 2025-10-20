@@ -1,0 +1,183 @@
+{
+  "templates": {
+    "new_feature_development": {
+      "name": "New Feature Development",
+      "description": "Complete workflow for implementing a new feature",
+      "steps": [
+        {
+          "agent": "requirements-analyst",
+          "task": "Analyze feature requirements",
+          "description": "Break down feature requirements into implementable components",
+          "estimated_duration": "1-2 hours",
+          "deliverables": ["Feature specification", "Implementation plan", "Technical constraints"]
+        },
+        {
+          "agent": "architect",
+          "task": "Design system architecture",
+          "description": "Design technical architecture and specifications",
+          "estimated_duration": "2-3 hours",
+          "deliverables": ["Architecture design", "API specifications", "Integration plan"]
+        },
+        {
+          "agent": "implementer",
+          "task": "Implement feature code",
+          "description": "Write production code based on architectural design",
+          "estimated_duration": "4-6 hours",
+          "deliverables": ["Production code", "Code documentation", "Integration complete"]
+        },
+        {
+          "agent": "tester",
+          "task": "Comprehensive testing",
+          "description": "Test all components and integration points",
+          "estimated_duration": "2-3 hours",
+          "deliverables": ["Test suite", "Test results", "Quality validation"]
+        },
+        {
+          "agent": "documenter",
+          "task": "Update documentation",
+          "description": "Document new feature for users and developers",
+          "estimated_duration": "1-2 hours",
+          "deliverables": ["User documentation", "API documentation", "Examples"]
+        }
+      ]
+    },
+    "bugfix_workflow": {
+      "name": "Bug Fix Workflow",
+      "description": "Workflow for fixing identified bugs",
+      "steps": [
+        {
+          "agent": "requirements-analyst",
+          "task": "Analyze bug report",
+          "description": "Understand bug scope, impact, and root cause",
+          "estimated_duration": "30 minutes",
+          "deliverables": ["Root cause analysis", "Fix strategy"]
+        },
+        {
+          "agent": "architect",
+          "task": "Design fix approach",
+          "description": "Design solution that prevents similar issues",
+          "estimated_duration": "30 minutes",
+          "deliverables": ["Fix design", "Prevention strategy"]
+        },
+        {
+          "agent": "implementer",
+          "task": "Implement bug fix",
+          "description": "Implement fix following architectural design",
+          "estimated_duration": "1-2 hours",
+          "deliverables": ["Fixed code", "Regression prevention"]
+        },
+        {
+          "agent": "tester",
+          "task": "Validate fix",
+          "description": "Ensure bug is fixed and no regressions introduced",
+          "estimated_duration": "1 hour",
+          "deliverables": ["Test validation", "Regression test results"]
+        }
+      ]
+    },
+    "hotfix_workflow": {
+      "name": "Critical Hotfix",
+      "description": "Fast-track workflow for critical issues",
+      "steps": [
+        {
+          "agent": "implementer",
+          "task": "Implement hotfix",
+          "description": "Quick fix for critical issues",
+          "estimated_duration": "1-2 hours",
+          "priority": "critical"
+        },
+        {
+          "agent": "tester",
+          "task": "Emergency validation",
+          "description": "Critical path testing only",
+          "estimated_duration": "30 minutes",
+          "priority": "critical"
+        }
+      ]
+    },
+    "performance_optimization": {
+      "name": "Performance Optimization",
+      "description": "Workflow for optimizing system performance",
+      "steps": [
+        {
+          "agent": "tester",
+          "task": "Profile current performance",
+          "description": "Establish baseline performance metrics",
+          "estimated_duration": "1 hour"
+        },
+        {
+          "agent": "architect",
+          "task": "Design optimization strategy",
+          "description": "Identify bottlenecks and design improvements",
+          "estimated_duration": "1-2 hours"
+        },
+        {
+          "agent": "implementer",
+          "task": "Implement optimizations",
+          "description": "Improve performance based on architectural guidance",
+          "estimated_duration": "3-4 hours"
+        },
+        {
+          "agent": "tester",
+          "task": "Validate improvements",
+          "description": "Measure performance gains and ensure stability",
+          "estimated_duration": "1-2 hours"
+        }
+      ]
+    },
+    "documentation_update": {
+      "name": "Documentation Update",
+      "description": "Workflow for updating project documentation",
+      "steps": [
+        {
+          "agent": "requirements-analyst",
+          "task": "Audit documentation needs",
+          "description": "Identify gaps and outdated information",
+          "estimated_duration": "1 hour"
+        },
+        {
+          "agent": "documenter",
+          "task": "Update documentation",
+          "description": "Update docs, examples, and guides",
+          "estimated_duration": "2-4 hours"
+        },
+        {
+          "agent": "tester",
+          "task": "Validate documentation accuracy",
+          "description": "Test examples and verify technical accuracy",
+          "estimated_duration": "1 hour"
+        }
+      ]
+    },
+    "refactoring_workflow": {
+      "name": "Code Refactoring",
+      "description": "Workflow for refactoring existing code",
+      "steps": [
+        {
+          "agent": "architect",
+          "task": "Design refactoring strategy",
+          "description": "Plan refactoring approach and design improvements",
+          "estimated_duration": "1-2 hours"
+        },
+        {
+          "agent": "implementer",
+          "task": "Implement refactoring",
+          "description": "Refactor code following architectural guidance",
+          "estimated_duration": "3-5 hours"
+        },
+        {
+          "agent": "tester",
+          "task": "Regression testing",
+          "description": "Ensure refactoring didn't break functionality",
+          "estimated_duration": "1-2 hours"
+        },
+        {
+          "agent": "documenter",
+          "task": "Update technical documentation",
+          "description": "Update docs to reflect new code structure",
+          "estimated_duration": "1 hour"
+        }
+      ]
+    }
+  }
+}

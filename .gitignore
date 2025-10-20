@@ -85,4 +85,4 @@ Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result
 *.bak
 
 # AI
-.claude
+.claude/settings.local.json

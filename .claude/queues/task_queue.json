@@ -1,0 +1,371 @@
+{
+  "queue_metadata": {
+    "created": "2024-09-26T18:00:00Z",
+    "version": "1.0",
+    "description": "Task queue for 6502 Kernel multi-agent system"
+  },
+  "active_workflows": [
+    {
+      "id": "task_1759767225_5128",
+      "title": "Add BYE command to EhBASIC interpreter",
+      "assigned_agent": "assembly-implementer",
+      "priority": "high",
+      "task_type": "implementation",
+      "description": "You are in IMPLEMENTER MODE. Implement Milestone 4 Step 4.1-4.3 from implementation-plan.md. Use Edit to modify src/kernel/basic.asm: 1) Add TK_BYE token\n   definition after TK_NMI (line ~361): TK_BYE = TK_NMI+1. 2) Add LAB_BYE handler after LAB_NMI (line ~7517) that does JMP $FF12. 3) Add .word LAB_BYE-1 to \n  LAB_CTBL jump table after LAB_NMI entry (line ~8162). 4) Find and add BYE keyword string to keyword table (search for where NMI keyword is stored - may be \n  encoded/compact format). After changes, rebuild with ninja basic_rom in cmake-build-debug directory and test that BYE command returns from BASIC to monitor.\n   Make actual file changes - do not create planning documents.",
+      "source_file": "enhancements/add-basic-interpreter/implementation-plan.md",
+      "created": "2025-10-06T16:13:45Z",
+      "status": "active",
+      "started": "2025-10-06T16:13:58Z",
+      "completed": null,
+      "result": null
+    }
+  ],
+  "pending_tasks": [],
+  "completed_tasks": [
+    {
+      "id": "task_1758907245_4922",
+      "title": "Test task for requirements analysis",
+      "assigned_agent": "requirements-analyst",
+      "priority": "high",
+      "description": "This is a test task to verify queue functionality",
+      "created": "2025-09-26T17:20:45Z",
+      "status": "completed",
+      "started": "2025-09-29T15:41:49Z",
+      "completed": "2025-09-29T15:43:49Z",
+      "result": "Old test completed, proceeding to demo workflow"
+    },
+    {
+      "id": "task_1759160255_23715",
+      "title": "Analyze test workflow demo enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "high",
+      "description": "Process test-workflow-demo.md through requirements analysis phase",
+      "created": "2025-09-29T15:37:35Z",
+      "status": "completed",
+      "started": "2025-09-29T15:44:00Z",
+      "completed": "2025-09-29T15:57:44Z",
+      "result": "READY_FOR_DEVELOPMENT - Requirements analysis complete, implementation plan created, next: assembly-developer (architect role)"
+    },
+    {
+      "id": "task_1759161885_24168",
+      "title": "Architecture design for test workflow demo",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Design demonstration file structure and content (architect role)",
+      "created": "2025-09-29T16:04:45Z",
+      "status": "completed",
+      "started": "2025-09-29T16:05:54Z",
+      "completed": "2025-09-29T16:12:00Z",
+      "result": "READY_FOR_IMPLEMENTATION - Architecture design complete, file structure planned, implementation guidance provided"
+    },
+    {
+      "id": "task_1759162574_24382",
+      "title": "Implementation of test workflow demo",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Create demonstration files following architecture design (implementer role)",
+      "created": "2025-09-29T16:16:14Z",
+      "status": "completed",
+      "started": "2025-09-29T16:20:16Z",
+      "completed": "2025-09-29T16:38:17Z",
+      "result": "READY_FOR_INTEGRATION - Implementation complete, all demonstration files created with comprehensive 6502 patterns and examples"
+    },
+    {
+      "id": "task_1759164036_24740",
+      "title": "Validate test workflow demo completion",
+      "assigned_agent": "testing-agent",
+      "priority": "critical",
+      "description": "Test workflow system validation and comprehensive verification",
+      "created": "2025-09-29T16:40:36Z",
+      "status": "completed",
+      "started": "2025-09-29T16:41:36Z",
+      "completed": "2025-09-29T16:50:32Z",
+      "result": "TESTING_COMPLETE - Multi-agent workflow system fully validated, all components operational, ready for production use"
+    },
+    {
+      "id": "task_1759178186_26385",
+      "title": "Test auto-chain enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "normal",
+      "description": "Test the auto-chain functionality",
+      "created": "2025-09-29T20:36:26Z",
+      "status": "completed",
+      "started": "2025-09-29T20:36:47Z",
+      "completed": "2025-09-29T20:47:33Z",
+      "result": "READY_FOR_DEVELOPMENT - Auto-chain test requirements complete, ready for architecture design"
+    },
+    {
+      "id": "task_1759179205_26608",
+      "title": "Analyze auto-chain-test enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "normal",
+      "description": "Test the auto-chain functionality with proper naming",
+      "created": "2025-09-29T20:53:25Z",
+      "status": "completed",
+      "started": "2025-09-29T20:53:37Z",
+      "completed": "2025-09-29T20:53:47Z",
+      "result": "READY_FOR_DEVELOPMENT - Requirements analysis complete for auto-chain-test, ready for architecture design"
+    },
+    {
+      "id": "task_1759309921_62971",
+      "title": "Analyze add-basic-interpreter enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "high",
+      "description": "Process add-basic-interpreter.md through requirements analysis phase",
+      "created": "2025-10-01T09:12:01Z",
+      "status": "completed",
+      "started": "2025-10-01T09:12:04Z",
+      "completed": "2025-10-01T09:31:54Z",
+      "result": "READY_FOR_DEVELOPMENT"
+    },
+    {
+      "id": "task_1759336300_69556",
+      "title": "Analyze add-basic-interpreter enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "high",
+      "description": "Analyze the updated add-basic-interpreter enhancement which includes simplified memory overlap approach where monitor command buffer can overlap with BASIC variables since they're mutually exclusive, monitor variables relocated to -DE, and cleanup requirements for when the user exits BASIC.",
+      "created": "2025-10-01T16:31:40Z",
+      "status": "completed",
+      "started": "2025-10-01T16:31:58Z",
+      "completed": "2025-10-01T16:43:57Z",
+      "result": "READY_FOR_DEVELOPMENT"
+    },
+    {
+      "id": "task_1759348065_71462",
+      "title": "Architecture design for add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Design architecture with updated requirements: 1) Critical example of HEX_LOOKUP_TABLE vs BASIC Decss/Decssp1 conflict at -, 2) Mandatory metadata headers for all documents including enhancement name, task_id, agent name, and timestamp",
+      "created": "2025-10-01T19:47:45Z",
+      "status": "completed",
+      "started": "2025-10-01T19:47:50Z",
+      "completed": "2025-10-01T20:15:43Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759413581_76642",
+      "title": "Implementation of add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Implement the add-basic-interpreter enhancement following the architecture design. Relocate monitor zero page variables to -F, implement B: command, integrate BASIC I/O vectors, and create build system integration. Use the detailed implementation plan from the architecture phase.",
+      "created": "2025-10-02T13:59:41Z",
+      "status": "completed",
+      "started": "2025-10-02T13:59:45Z",
+      "completed": "2025-10-02T14:39:48Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759417756_77601",
+      "title": "Implementation of add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Implement the add-basic-interpreter enhancement following the architecture design. Relocate monitor zero page variables to -F, implement B: command, integrate BASIC I/O vectors, and create build system integration. Use the detailed implementation plan from the architecture phase.",
+      "created": "2025-10-02T15:09:16Z",
+      "status": "completed",
+      "started": "2025-10-02T15:09:18Z",
+      "completed": "2025-10-02T15:43:17Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759419803_77614",
+      "title": "Implementation of add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Implement add-basic-interpreter following architectural design",
+      "created": "2025-10-02T15:43:23Z",
+      "status": "completed",
+      "started": "2025-10-02T15:43:34Z",
+      "completed": "2025-10-02T15:48:52Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759420271_78842",
+      "title": "Execute implementation plan for add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "Execute the detailed implementation \n  plan created in previous phases. Relocate monitor zero page variables to -F as specified, implement B: command handler in kernel.asm, create \n  basic_memory.cfg in src/kernel/, modify basic.asm I/O vectors, and update build system. Follow all technical specifications from architecture and \n  implementation planning phases. Use mandatory document headers for any new files created.",
+      "created": "2025-10-02T15:51:11Z",
+      "status": "completed",
+      "started": "2025-10-02T15:51:29Z",
+      "completed": "2025-10-02T16:02:19Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759421498_79482",
+      "title": "IMPLEMENT CODE CHANGES for add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "STOP PLANNING - IMPLEMENT NOW. Use \n  MultiEdit tool to modify files as necessary and the Write tool to create new ones if needed.  Follow the milestones found in implementation-plan.md.  DO NOT create planning documents - MAKE ACTUAL CODE CHANGES NOW.",
+      "created": "2025-10-02T16:11:38Z",
+      "status": "completed",
+      "started": "2025-10-02T16:11:42Z",
+      "completed": "2025-10-02T17:18:35Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759425520_80511",
+      "title": "IMPLEMENTER MODE: Execute code changes for add-basic-interpreter",
+      "assigned_agent": "assembly-developer",
+      "priority": "high",
+      "description": "YOU ARE NOW IN IMPLEMENTER\n   MODE - NOT ARCHITECT MODE. Your job is to execute the existing implementation plan, not create new plans. Use MultiEdit/Edit/Write tools to make actual \n  code changes. Read implementation-plan.md and execute the milestones. DO NOT analyze, DO NOT plan, DO NOT create documents - ONLY CREATE OR MODIFY CODE FILES.",
+      "created": "2025-10-02T17:18:40Z",
+      "status": "completed",
+      "started": "2025-10-02T17:18:44Z",
+      "completed": "2025-10-02T18:05:20Z",
+      "result": "READY_FOR_DEVELOPMENT"
+    },
+    {
+      "id": "task_1759432458_82784",
+      "title": "Execute BASIC interpreter implementation changes",
+      "assigned_agent": "assembly-implementer",
+      "priority": "high",
+      "description": "You are in IMPLEMENTER MODE. Execute the\n   implementation plan in implementation-plan.md. Use MultiEdit to modify src/kernel/kernel.asm: relocate zero page variables from $00-$10,$F0-$FF to \n  $14-$3F as specified in the memory conflict analysis, add B: command handler. Use Write to create src/kernel/basic_memory.cfg file. Use Edit to modify \n  src/kernel/basic.asm I/O vectors. Use Edit to update CMakeLists.txt for BASIC build target. Make actual file changes - do not create more planning \n  documents.",
+      "enhancement": "add-basic-interpreter",
+      "created": "2025-10-02T19:14:18Z",
+      "status": "completed",
+      "started": "2025-10-02T19:14:30Z",
+      "completed": "2025-10-02T20:23:15Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759481741_85602",
+      "title": "Write assembly code changes per implementation plan",
+      "assigned_agent": "assembly-writer",
+      "priority": "high",
+      "description": "ONLY WRITE CODE. Read \n  implementation-plan.md and execute ONLY the code changes specified. Use MultiEdit on src/kernel/kernel.asm to relocate zero page variables from \n  $00-$10,$F0-$FF to $14-$3F. Add B: command handler code. Use Write to create src/kernel/basic_memory.cfg. Use Edit on src/kernel/basic.asm to update \n  I/O vectors. Use Edit on CMakeLists.txt to add BASIC build target. DO NOT CREATE DOCUMENTS. DO NOT ANALYZE. ONLY MODIFY CODE FILES AS SPECIFIED.",
+      "enhancement": "add-basic-interpreter",
+      "created": "2025-10-03T08:55:41Z",
+      "status": "completed",
+      "started": "2025-10-03T09:26:24Z",
+      "completed": "2025-10-03T09:36:39Z",
+      "result": "READY_FOR_IMPLEMENTATION"
+    },
+    {
+      "id": "task_1759512286_92127",
+      "title": "Implement Milestone 2: B: Command Framework",
+      "assigned_agent": "assembly-implementer",
+      "priority": "high",
+      "task_type": "implementation",
+      "description": "Focus on Milestone 2 implementation - add B: command recognition and basic framework. Modify \n  kernel.asm to add B: command parsing in the monitor command dispatcher, create the initial B: command handler routine, and implement proper integration with\n   existing monitor system. Follow the step-by-step instructions in the implementation plan.",
+      "source_file": "enhancements/add-basic-interpreter/implementation-plan.md",
+      "created": "2025-10-03T17:24:46Z",
+      "status": "completed",
+      "started": "2025-10-03T17:25:04Z",
+      "completed": "2025-10-05T15:20:28Z",
+      "result": "READY_FOR_TESTING"
+    },
+    {
+      "id": "task_1759677697_4009",
+      "title": "Implement Milestone 4: BASIC Integration",
+      "assigned_agent": "assembly-implementer",
+      "priority": "high",
+      "task_type": "implementation",
+      "description": "Focus on Milestone 4 implementation - add RETURN_FROM_BASIC handler at $FF12 in kernel.asm, update B: command to jump to $C000 instead of stub return, \n  and implement complete BASIC launch/return cycle. Follow the step-by-step instructions in the implementation plan (Steps 4.1-4.11). DO NOT create documents \n  - make actual code changes to complete the integration.",
+      "source_file": "enhancements/add-basic-interpreter/implementation-plan.md",
+      "created": "2025-10-05T15:21:37Z",
+      "status": "completed",
+      "started": "2025-10-05T15:21:58Z",
+      "completed": "2025-10-05T16:18:43Z",
+      "result": "READY_FOR_TESTING"
+    },
+    {
+      "id": "task_1759681636_5235",
+      "title": "Test Milestone 4: BASIC Integration",
+      "assigned_agent": "testing-agent",
+      "priority": "critical",
+      "task_type": "testing",
+      "description": "Execute comprehensive testing of Milestone 4 BASIC integration. Follow the test plan to verify B: command launches BASIC, BASIC programs execute \n  correctly, BYE command returns to monitor, and no memory corruption occurs. Test all scenarios in the test plan including state management, I/O integration,\n   and repeated entry/exit cycles. Document test results and any issues found.",
+      "source_file": "enhancements/add-basic-interpreter/milestone4_test_plan.md",
+      "created": "2025-10-05T16:27:16Z",
+      "status": "completed",
+      "started": "2025-10-05T16:27:30Z",
+      "completed": "2025-10-05T18:25:09Z",
+      "result": "COMPLETED"
+    }
+  ],
+  "failed_tasks": [
+    {
+      "id": "task_1759183012_28361",
+      "title": "Analyze add-basic-interpreter enhancement",
+      "assigned_agent": "requirements-analyst",
+      "priority": "high",
+      "description": "Process add-basic-interpreter.md through requirements analysis phase",
+      "created": "2025-09-29T21:56:52Z",
+      "status": "failed",
+      "started": "2025-09-29T21:57:27Z",
+      "completed": "2025-09-30T06:32:46Z",
+      "result": "Agent stuck - no progress for 12+ hours, resetting for retry"
+    }
+  ],
+  "agent_status": {
+    "requirements-analyst": {
+      "status": "idle",
+      "last_activity": "2025-10-01T16:43:57Z",
+      "current_task": null,
+      "queue_position": null
+    },
+    "cpp-developer": {
+      "status": "idle",
+      "last_activity": null,
+      "current_task": null,
+      "queue_position": null
+    },
+    "assembly-developer": {
+      "status": "idle",
+      "last_activity": "2025-10-02T18:05:20Z",
+      "current_task": null,
+      "queue_position": null
+    },
+    "testing-agent": {
+      "status": "idle",
+      "last_activity": "2025-10-06T15:58:27Z",
+      "current_task": null,
+      "queue_position": null
+    },
+    "assembly-implementer": {
+      "status": "active",
+      "last_activity": "2025-10-06T16:13:58Z",
+      "current_task": "task_1759767225_5128"
+    },
+    "assembly-writer": {
+      "status": "idle",
+      "last_activity": "2025-10-03T09:36:39Z",
+      "current_task": null
+    }
+  },
+  "workflow_chains": {
+    "sequential_development": {
+      "name": "Sequential Development Flow",
+      "steps": [
+        "requirements-analyst",
+        "cpp-developer",
+        "assembly-developer",
+        "testing-agent"
+      ],
+      "current_step": 0,
+      "status": "ready"
+    },
+    "parallel_development": {
+      "name": "Parallel Development Flow",
+      "steps": [
+        "requirements-analyst",
+        [
+          "cpp-developer",
+          "assembly-developer"
+        ],
+        "testing-agent"
+      ],
+      "current_step": 0,
+      "status": "ready"
+    },
+    "hotfix_flow": {
+      "name": "Hotfix Flow",
+      "steps": [
+        "assembly-developer",
+        "testing-agent"
+      ],
+      "current_step": 0,
+      "status": "ready"
+    }
+  }
+}
