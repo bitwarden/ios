@@ -1,5 +1,5 @@
 import BitwardenKit
-import CoreData
+@preconcurrency import CoreData
 
 // MARK: - AuthenticatorStoreType
 
