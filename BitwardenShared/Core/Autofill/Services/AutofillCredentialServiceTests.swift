@@ -11,6 +11,7 @@ import XCTest
 class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appContextHelper: MockAppContextHelper!
     var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
     var cipherService: MockCipherService!
     var clientService: MockClientService!
@@ -33,6 +34,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     override func setUp() {
         super.setUp()
 
+        appContextHelper = MockAppContextHelper()
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
@@ -50,6 +52,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAutofillCredentialService(
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             credentialIdentityFactory: credentialIdentityFactory,
@@ -75,6 +78,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     override func tearDown() async throws {
         try await super.tearDown()
 
+        appContextHelper = nil
         autofillCredentialServiceDelegate = nil
         cipherService = nil
         clientService = nil

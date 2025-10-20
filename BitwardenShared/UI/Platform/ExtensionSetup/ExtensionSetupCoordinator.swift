@@ -5,7 +5,8 @@
 final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 

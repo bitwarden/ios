@@ -689,6 +689,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appIdService: appIdService,
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationAPIService: apiService,
             refreshableApiService: apiService,
@@ -807,6 +808,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             credentialIdentityFactory: credentialIdentityFactory,

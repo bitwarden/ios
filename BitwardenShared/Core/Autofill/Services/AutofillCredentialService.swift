@@ -76,12 +76,20 @@ protocol AutofillCredentialService: AnyObject {
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential
+
+    /// Updates all credential identities in the identity store with the current list of ciphers
+    /// for the current user.
+    ///
+    func updateCredentialsInStore() async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
     // MARK: Private Properties
+
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
@@ -109,7 +117,7 @@ class DefaultAutofillCredentialService {
     private let identityStore: CredentialIdentityStore
 
     /// The last user ID that had their identities synced.
-    private var lastSyncedUserId: String?
+    private(set) var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -135,6 +143,7 @@ class DefaultAutofillCredentialService {
     /// Initialize an `AutofillCredentialService`.
     ///
     /// - Parameters:
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - credentialIdentityFactory: The factory to create credential identities.
@@ -151,6 +160,7 @@ class DefaultAutofillCredentialService {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
         credentialIdentityFactory: CredentialIdentityFactory,
@@ -165,6 +175,7 @@ class DefaultAutofillCredentialService {
         totpService: TOTPService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
+        self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
         self.credentialIdentityFactory = credentialIdentityFactory
@@ -178,6 +189,10 @@ class DefaultAutofillCredentialService {
         self.timeProvider = timeProvider
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
+
+        guard appContextHelper.appContext == .mainApp else {
+            return
+        }
 
         Task {
             for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
@@ -417,6 +432,15 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         )
 
         return ASOneTimeCodeCredential(code: code.code)
+    }
+
+    func updateCredentialsInStore() async {
+        do {
+            let userId = try await stateService.getActiveAccountId()
+            await replaceAllIdentities(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     // MARK: Private

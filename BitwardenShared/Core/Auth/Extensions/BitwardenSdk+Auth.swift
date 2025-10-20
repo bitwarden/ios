@@ -8,14 +8,16 @@ extension BitwardenSdk.InitUserCryptoMethod {
         switch self {
         case .authRequest:
             "Auth Request"
-        case .password:
-            "Password"
         case .decryptedKey:
             "Decrypted Key (Never Lock/Biometrics)"
         case .deviceKey:
             "Device Key"
         case .keyConnector:
             "Key Connector"
+        case .masterPasswordUnlock:
+            "Master Password Unlock"
+        case .password:
+            "Password"
         case .pin:
             "PIN"
         case .pinEnvelope:
