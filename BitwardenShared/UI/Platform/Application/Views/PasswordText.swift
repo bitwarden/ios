@@ -18,7 +18,7 @@ struct PasswordText: View {
         (
             isPasswordVisible
                 ? Text(colorCodedText(for: password))
-                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength))
+                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength)),
         )
         .styleGuide(.bodyMonospaced)
     }
@@ -59,27 +59,27 @@ struct PasswordText: View {
     VStack(spacing: 16) {
         PasswordText(
             password: "1234",
-            isPasswordVisible: false
+            isPasswordVisible: false,
         )
 
         PasswordText(
             password: "Password1234!",
-            isPasswordVisible: false
+            isPasswordVisible: false,
         )
 
         PasswordText(
             password: "Password1234!",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
 
         PasswordText(
             password: "!@#$%^&*()_+-=.<>,:;\"'?/\\|`~",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
 
         PasswordText(
             password: "1234567890",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
     }
 }

@@ -25,10 +25,10 @@ class CipherListViewExtensionsTests: BitwardenTestCase {
     /// cipher type is `.card` but cipher doesn't belong to an organization or such organization has empty ID.
     func test_passesRestrictItemTypesPolicy_noCipherOrganizationId() {
         XCTAssertFalse(
-            CipherListView.fixture(organizationId: nil, type: .card(.fixture())).passesRestrictItemTypesPolicy(["1"])
+            CipherListView.fixture(organizationId: nil, type: .card(.fixture())).passesRestrictItemTypesPolicy(["1"]),
         )
         XCTAssertFalse(
-            CipherListView.fixture(organizationId: "", type: .card(.fixture())).passesRestrictItemTypesPolicy(["1"])
+            CipherListView.fixture(organizationId: "", type: .card(.fixture())).passesRestrictItemTypesPolicy(["1"]),
         )
     }
 
@@ -37,7 +37,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase {
     func test_passesRestrictItemTypesPolicy_restrictedOrganizationId() {
         XCTAssertFalse(
             CipherListView.fixture(organizationId: "2", type: .card(.fixture()))
-                .passesRestrictItemTypesPolicy(["1", "2", "3"])
+                .passesRestrictItemTypesPolicy(["1", "2", "3"]),
         )
     }
 
@@ -46,7 +46,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase {
     func test_passesRestrictItemTypesPolicy_passOnNonRestrictedOrganizationId() {
         XCTAssertTrue(
             CipherListView.fixture(organizationId: "5", type: .card(.fixture()))
-                .passesRestrictItemTypesPolicy(["1", "2", "3"])
+                .passesRestrictItemTypesPolicy(["1", "2", "3"]),
         )
     }
 }

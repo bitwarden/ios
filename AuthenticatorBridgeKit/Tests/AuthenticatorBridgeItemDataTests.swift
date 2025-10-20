@@ -25,13 +25,13 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         dataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
             groupIdentifier: accessGroup,
-            storeType: .memory
+            storeType: .memory,
         )
         itemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: MockSharedKeychainRepository(),
-            sharedTimeoutService: MockSharedTimeoutService()
+            sharedTimeoutService: MockSharedTimeoutService(),
         )
     }
 
@@ -59,8 +59,8 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
                 id: "is",
                 name: "name",
                 totpKey: "TOTP Key",
-                username: "username"
-            )
+                username: "username",
+            ),
         )
 
         let modelData = try XCTUnwrap(subject.modelData)
@@ -110,7 +110,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         XCTAssertTrue(cryptoService.encryptCalled)
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(
-            userId: "nonexistent userId"
+            userId: "nonexistent userId",
         )
         let result = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
 

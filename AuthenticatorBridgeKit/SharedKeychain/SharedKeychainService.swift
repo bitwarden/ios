@@ -40,7 +40,7 @@ public enum SharedKeychainServiceError: Error, Equatable, CustomNSError {
     public var errorUserInfo: [String: Any] {
         switch self {
         case let .keyNotFound(keychainItem):
-            return ["Keychain Item": keychainItem.unformattedKey]
+            ["Keychain Item": keychainItem.unformattedKey]
         }
     }
 }

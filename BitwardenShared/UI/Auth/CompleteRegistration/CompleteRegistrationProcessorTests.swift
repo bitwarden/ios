@@ -48,12 +48,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
-                stateService: stateService
+                stateService: stateService,
             ),
             state: CompleteRegistrationState(
                 emailVerificationToken: "emailVerificationToken",
-                userEmail: "example@email.com"
-            )
+                userEmail: "example@email.com",
+            ),
         )
     }
 
@@ -107,8 +107,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.alertShown[0],
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
-            )
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
+            ),
         )
         XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
     }
@@ -148,7 +148,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             .httpFailure(
                 statusCode: 400,
                 headers: [:],
-                data: APITestData.verifyEmailTokenExpiredLink.data
+                data: APITestData.verifyEmailTokenExpiredLink.data,
             ),
         ]
         subject.state.fromEmail = true
@@ -176,10 +176,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.emailVerified))
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(
-            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+            string: "https://example.com/identity/accounts/register/verification-email-clicked",
         ))
         XCTAssertEqual(client.requests[1].url, URL(
-            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+            string: "https://example.com/identity/accounts/register/verification-email-clicked",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -188,7 +188,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.verifying),
                 LoadingOverlayState(title: Localizations.verifying),
-            ]
+            ],
         )
     }
 
@@ -220,7 +220,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -247,7 +247,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -256,7 +256,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -283,7 +283,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -292,7 +292,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -305,7 +305,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             isCheckDataBreachesToggleOn: false,
             passwordText: "unexposed123",
             passwordStrengthScore: 2,
-            retypePasswordText: "unexposed123"
+            retypePasswordText: "unexposed123",
         )
 
         client.results = [.httpSuccess(testData: .registerFinishRequest)]
@@ -323,7 +323,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -339,7 +339,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             isCheckDataBreachesToggleOn: true,
             passwordText: "unexposed123",
             passwordStrengthScore: 2,
-            retypePasswordText: "unexposed123"
+            retypePasswordText: "unexposed123",
         )
 
         client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
@@ -358,7 +358,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -367,7 +367,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -378,7 +378,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.registerFinishAccountAlreadyExists.data
+            body: APITestData.registerFinishAccountAlreadyExists.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -418,7 +418,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.registerFinishHintTooLong.data
+            body: APITestData.registerFinishHintTooLong.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -441,7 +441,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.registerFinishInvalidEmailFormat.data
+            body: APITestData.registerFinishInvalidEmailFormat.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -476,7 +476,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.count, 1)
         guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
@@ -507,7 +507,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.count, 1)
         guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
@@ -550,7 +550,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -614,7 +614,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 

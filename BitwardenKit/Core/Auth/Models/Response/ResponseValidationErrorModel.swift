@@ -5,7 +5,7 @@ import Networking
 
 /// An Response validation error returned from an API request.
 ///
-public struct ResponseValidationErrorModel: Codable, Equatable {
+public struct ResponseValidationErrorModel: Codable, Equatable, Sendable {
     // MARK: Properties
 
     /// A string that represents the error code.
@@ -25,7 +25,7 @@ public struct ResponseValidationErrorModel: Codable, Equatable {
     }
 }
 
-public struct ErrorModel: Codable, Equatable {
+public struct ErrorModel: Codable, Equatable, Sendable {
     // MARK: Properties
 
     /// A string that provides a message about the error.

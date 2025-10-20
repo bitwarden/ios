@@ -31,7 +31,7 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
         let responseModel = CipherDetailsResponseModel.fixture(
             id: "1",
             sshKey: .fixture(),
-            type: .sshKey
+            type: .sshKey,
         )
         let cipher = Cipher(responseModel: responseModel)
         XCTAssertEqual(cipher.id, responseModel.id)
@@ -50,7 +50,7 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
     /// `init(cipher:)` Inits a cipher details response model from an SDK cipher without id throws.
     func test_init_fromSdkNoIdThrows() throws {
         let cipher = Cipher.fixture(
-            id: nil
+            id: nil,
         )
         XCTAssertThrowsError(try CipherDetailsResponseModel(cipher: cipher))
     }
@@ -60,7 +60,7 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
         let cipher = Cipher.fixture(
             id: "1",
             sshKey: .fixture(),
-            type: .sshKey
+            type: .sshKey,
         )
         let responseModel = try CipherDetailsResponseModel(cipher: cipher)
         XCTAssertEqual(responseModel.id, cipher.id)
@@ -89,7 +89,7 @@ class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
         let expectedResult = LoginListView.fixture(fido2Credentials: [.fixture()], hasFido2: true)
         XCTAssertEqual(
             CipherListViewType.login(expectedResult).loginListView,
-            expectedResult
+            expectedResult,
         )
         XCTAssertNil(CipherListViewType.card(.init(brand: nil)).loginListView)
         XCTAssertNil(CipherListViewType.identity.loginListView)
@@ -109,8 +109,8 @@ class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
             sshKey: .init(
                 privateKey: "privateKey",
                 publicKey: "publicKey",
-                fingerprint: "fingerprint"
-            )
+                fingerprint: "fingerprint",
+            ),
         )
 
         XCTAssertEqual(model.privateKey, "privateKey")
@@ -190,7 +190,7 @@ class CipherViewTests: BitwardenTestCase {
                     ],
                     totp: nil,
                     autofillOnPageLoad: nil,
-                    fido2Credentials: nil
+                    fido2Credentials: nil,
                 ),
                 identity: nil,
                 card: nil,
@@ -209,8 +209,8 @@ class CipherViewTests: BitwardenTestCase {
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
-                archivedDate: nil
-            )
+                archivedDate: nil,
+            ),
         )
     }
 
@@ -218,7 +218,7 @@ class CipherViewTests: BitwardenTestCase {
     func test_init_fido2CredentialNewView_rpNameUsername() {
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(
             userName: "username",
-            rpName: "MyApp"
+            rpName: "MyApp",
         )
         let subject = CipherView(fido2CredentialNewView: fido2CredentialNewView, timeProvider: timeProvider)
         XCTAssertEqual(
@@ -241,7 +241,7 @@ class CipherViewTests: BitwardenTestCase {
                     ],
                     totp: nil,
                     autofillOnPageLoad: nil,
-                    fido2Credentials: nil
+                    fido2Credentials: nil,
                 ),
                 identity: nil,
                 card: nil,
@@ -260,8 +260,8 @@ class CipherViewTests: BitwardenTestCase {
                 creationDate: timeProvider.presentTime,
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
-                archivedDate: nil
-            )
+                archivedDate: nil,
+            ),
         )
     }
 }

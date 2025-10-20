@@ -4,13 +4,13 @@ extension SettingsBadgeState {
         autofillSetupProgress: AccountSetupProgress? = nil,
         badgeValue: String? = nil,
         importLoginsSetupProgress: AccountSetupProgress? = nil,
-        vaultUnlockSetupProgress: AccountSetupProgress? = nil
+        vaultUnlockSetupProgress: AccountSetupProgress? = nil,
     ) -> SettingsBadgeState {
         SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeValue,
             importLoginsSetupProgress: importLoginsSetupProgress,
-            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress,
         )
     }
 }

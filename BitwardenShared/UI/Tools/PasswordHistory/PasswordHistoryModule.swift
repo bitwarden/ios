@@ -11,17 +11,17 @@ protocol PasswordHistoryModule {
     /// - Returns: A coordinator that can navigate to `PasswordHistoryRoute`s.
     ///
     func makePasswordHistoryCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<PasswordHistoryRoute, Void>
 }
 
 extension DefaultAppModule: PasswordHistoryModule {
     func makePasswordHistoryCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<PasswordHistoryRoute, Void> {
         PasswordHistoryCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

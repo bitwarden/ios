@@ -26,7 +26,7 @@ struct SendItemAccessCountStepper: View {
                 value: $maximumAccessCount,
                 in: 0 ... Int.max,
                 allowTextFieldInput: true,
-                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
+                textFieldAccessibilityIdentifier: "MaxAccessCountTextField",
             ) {
                 Text(Localizations.maximumAccessCount)
                     .styleGuide(.body)

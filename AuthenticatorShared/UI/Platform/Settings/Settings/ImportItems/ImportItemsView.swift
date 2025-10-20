@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -34,7 +35,7 @@ struct ImportItemsView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: ImportItemsAction.toastShown
+            send: ImportItemsAction.toastShown,
         ))
         .toolbar {
             cancelToolbarItem {
@@ -62,8 +63,8 @@ struct ImportItemsView: View {
             options: ImportFormatType.allCases,
             selection: store.binding(
                 get: \.fileFormat,
-                send: ImportItemsAction.fileFormatTypeChanged
-            )
+                send: ImportItemsAction.fileFormatTypeChanged,
+            ),
         )
     }
 }

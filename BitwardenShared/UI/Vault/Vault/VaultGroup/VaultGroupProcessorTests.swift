@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -56,13 +57,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 policyService: policyService,
                 stateService: stateService,
                 timeProvider: timeProvider,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: VaultGroupState(
                 searchVaultFilterType: .allVaults,
-                vaultFilterType: .allVaults
+                vaultFilterType: .allVaults,
             ),
-            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
+            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
     }
 
@@ -206,7 +207,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(subject.state.vaultFilterState.canShowVaultFilter)
         XCTAssertEqual(
             subject.state.vaultFilterState.vaultFilterOptions,
-            [.allVaults, .myVault, .organization(.fixture())]
+            [.allVaults, .myVault, .organization(.fixture())],
         )
     }
 
@@ -259,11 +260,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(!subject.state.searchResults.isEmpty)
         XCTAssertEqual(
             vaultRepository.searchVaultListFilterType?.filterType,
-            .organization(.fixture(id: "id1"))
+            .organization(.fixture(id: "id1")),
         )
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))],
         )
 
         task.cancel()
@@ -278,7 +279,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
@@ -298,15 +299,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     totpCode: .init(
                         code: "654321",
                         codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
-                )
-            )
+                        period: 30,
+                    ),
+                ),
+            ),
         )
         vaultRepository.refreshTOTPCodesResult = .success(
             [
                 refreshed,
-            ]
+            ],
         )
         let task = Task {
             await subject.perform(.search("example"))
@@ -323,10 +324,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                         code: "098765",
                         codeGenerationDate: timeProvider.presentTime
                             .addingTimeInterval(-1.5),
-                        period: 30
-                    )
-                )
-            )
+                        period: 30,
+                    ),
+                ),
+            ),
         )
         let stable = VaultListItem(
             id: "2",
@@ -339,10 +340,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     totpCode: .init(
                         code: "111222",
                         codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
-                )
-            )
+                        period: 30,
+                    ),
+                ),
+            ),
         )
         vaultRepository.searchVaultListSubject.send([
             expired,
@@ -354,7 +355,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         XCTAssertEqual(
             vaultRepository.refreshedTOTPCodes,
-            [expired]
+            [expired],
         )
         let expectedRefresh = [
             refreshed,
@@ -383,10 +384,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                         code: "098765",
                         codeGenerationDate: timeProvider.presentTime
                             .addingTimeInterval(-1.5),
-                        period: 30
-                    )
-                )
-            )
+                        period: 30,
+                    ),
+                ),
+            ),
         )
         let stable = VaultListItem(
             id: "2",
@@ -399,10 +400,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     totpCode: .init(
                         code: "111222",
                         codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
-                )
-            )
+                        period: 30,
+                    ),
+                ),
+            ),
         )
         vaultRepository.searchVaultListSubject.send([
             expired,
@@ -414,7 +415,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         XCTAssertEqual(
             vaultRepository.refreshedTOTPCodes,
-            [expired]
+            [expired],
         )
 
         // Ensure that even after a delay, the searchResults are not refreshed,
@@ -432,7 +433,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             [
                 expired,
                 stable,
-            ]
+            ],
         )
     }
 
@@ -443,7 +444,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
     }
 
@@ -531,9 +532,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "",
                     codeGenerationDate: .init(year: 2023, month: 12, day: 31),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let resultSection = VaultListSection(id: "", items: [result], name: "Items")
         let newResult = VaultListItem.fixtureTOTP(
@@ -541,9 +542,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "345678",
                     codeGenerationDate: Date(),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let newResultSection = VaultListSection(id: "", items: [newResult], name: "Items")
         vaultRepository.refreshTOTPCodesResult = .success([newResult])
@@ -569,13 +570,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 timeProvider: timeProvider,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: VaultGroupState(
                 searchVaultFilterType: .allVaults,
-                vaultFilterType: .allVaults
+                vaultFilterType: .allVaults,
             ),
-            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
+            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
         let olderThanIntervalResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -583,9 +584,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "olderThanIntervalResult",
                     codeGenerationDate: fixedDate.addingTimeInterval(-31.0),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let shortExpirationResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -593,9 +594,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "shortExpirationResult",
                     codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 24),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let veryOldResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -603,9 +604,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "veryOldResult",
                     codeGenerationDate: fixedDate.addingTimeInterval(-40.0),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let expectedUpdate1 = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -613,9 +614,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "olderThanIntervalResult",
                     codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let expectedUpdate2 = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -623,9 +624,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "shortExpirationResult",
                     codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let expectedUpdate3 = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -633,9 +634,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "veryOldResult",
                     codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let newResults: [VaultListItem] = [
             expectedUpdate1,
@@ -647,9 +648,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     totpCode: .init(
                         code: "New Result",
                         codeGenerationDate: fixedDate,
-                        period: 30
-                    )
-                )
+                        period: 30,
+                    ),
+                ),
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .success(newResults)
@@ -662,9 +663,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "stableResult",
                     codeGenerationDate: fixedDate.addingTimeInterval(2.0),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let vaultListSection = VaultListSection(
             id: "",
@@ -674,7 +675,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 veryOldResult,
                 stableResult,
             ],
-            name: "Items"
+            name: "Items",
         )
         vaultRepository.vaultListSubject.send(VaultListData(sections: [vaultListSection]))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
@@ -688,7 +689,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 veryOldResult,
             ],
             vaultRepository.refreshedTOTPCodes
-                .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
+                .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending },
         )
     }
 
@@ -707,7 +708,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(pasteboardService.copiedString, "123456")
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode)),
         )
     }
 
@@ -742,7 +743,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
 
             1
-            """
+            """,
         )
     }
 
@@ -837,13 +838,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: VaultGroupState(
                 searchVaultFilterType: .allVaults,
-                vaultFilterType: .allVaults
+                vaultFilterType: .allVaults,
             ),
-            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
+            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
         struct TestError: Error, Equatable {}
         let result = VaultListItem.fixtureTOTP(
@@ -851,16 +852,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpCode: .init(
                     code: "",
                     codeGenerationDate: .distantPast,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         vaultRepository.refreshTOTPCodesResult = .failure(TestError())
         let task = Task {
             await subject.perform(.appeared)
         }
         vaultRepository.vaultListSubject.send(VaultListData(
-            sections: [VaultListSection(id: "1", items: [result], name: "")]
+            sections: [VaultListSection(id: "1", items: [result], name: "")],
         ))
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)

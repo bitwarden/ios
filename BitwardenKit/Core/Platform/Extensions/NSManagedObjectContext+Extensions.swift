@@ -12,12 +12,12 @@ public extension NSManagedObjectContext {
     func executeAndMergeChanges(
         batchDeleteRequest: NSBatchDeleteRequest? = nil,
         batchInsertRequest: NSBatchInsertRequest? = nil,
-        additionalContexts: [NSManagedObjectContext] = []
+        additionalContexts: [NSManagedObjectContext] = [],
     ) throws {
         try executeAndMergeChanges(
             batchDeleteRequests: batchDeleteRequest.map { [$0] } ?? [],
             batchInsertRequests: batchInsertRequest.map { [$0] } ?? [],
-            additionalContexts: additionalContexts
+            additionalContexts: additionalContexts,
         )
     }
 
@@ -32,7 +32,7 @@ public extension NSManagedObjectContext {
     func executeAndMergeChanges(
         batchDeleteRequests: [NSBatchDeleteRequest] = [],
         batchInsertRequests: [NSBatchInsertRequest] = [],
-        additionalContexts: [NSManagedObjectContext] = []
+        additionalContexts: [NSManagedObjectContext] = [],
     ) throws {
         var changes: [AnyHashable: [NSManagedObjectID]] = [:]
 

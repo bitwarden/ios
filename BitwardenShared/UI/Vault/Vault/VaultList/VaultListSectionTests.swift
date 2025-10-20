@@ -54,7 +54,7 @@ class VaultListSectionTests: BitwardenTestCase {
                 items: [
                     .fixture(cipherListView: .fixture(login: .fixture())),
                 ],
-                name: "Items"
+                name: "Items",
             ),
         ]
         XCTAssertTrue(subjectWithCipher.hasLoginItems)

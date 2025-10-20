@@ -23,7 +23,7 @@ public enum VaultRoute: Equatable, Hashable {
         group: VaultListGroup? = nil,
         newCipherOptions: NewCipherOptions? = nil,
         organizationId: String? = nil,
-        type: CipherType
+        type: CipherType,
     )
 
     /// A route to the autofill list screen.

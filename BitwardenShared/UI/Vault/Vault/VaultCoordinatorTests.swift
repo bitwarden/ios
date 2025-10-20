@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import SwiftUI
 import TestHelpers
@@ -36,9 +37,9 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -73,7 +74,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await subject.handleEvent(.switchAccount(
             isAutomatic: true,
             userId: "1",
-            authCompletionRoute: route
+            authCompletionRoute: route,
         ))
 
         XCTAssertTrue(delegate.switchedAccounts)
@@ -237,10 +238,10 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             to: .importCXF(
                 .importCredentials(
                     credentialImportToken: UUID(
-                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
-                    )!
-                )
-            )
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
+                    )!,
+                ),
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -251,9 +252,9 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             module.importCXFCoordinator.routes.last,
             .importCredentials(
                 credentialImportToken: UUID(
-                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
-                )!
-            )
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec",
+                )!,
+            ),
         )
     }
 
@@ -414,55 +415,5 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
-    }
-}
-
-class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
-    var addAccountTapped = false
-    var accountTapped = [String]()
-    var hasManuallyLocked = false
-    var lockVaultId: String?
-    var logoutTapped = false
-    var logoutUserId: String?
-    var presentLoginRequestRequest: LoginRequest?
-    var switchAccountAuthCompletionRoute: AppRoute?
-    var switchAccountIsAutomatic = false
-    var switchAccountUserId: String?
-    var switchedAccounts = false
-    var switchToSettingsTabRoute: SettingsRoute?
-    var userInitiated: Bool?
-
-    func lockVault(userId: String?, isManuallyLocking: Bool) {
-        lockVaultId = userId
-        hasManuallyLocked = isManuallyLocking
-    }
-
-    func logout(userId: String?, userInitiated: Bool) {
-        self.userInitiated = userInitiated
-        logoutUserId = userId
-        logoutTapped = true
-    }
-
-    func didTapAddAccount() {
-        addAccountTapped = true
-    }
-
-    func didTapAccount(userId: String) {
-        accountTapped.append(userId)
-    }
-
-    func presentLoginRequest(_ loginRequest: LoginRequest) {
-        presentLoginRequestRequest = loginRequest
-    }
-
-    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?) {
-        switchAccountAuthCompletionRoute = authCompletionRoute
-        switchAccountIsAutomatic = isAutomatic
-        switchAccountUserId = userId
-        switchedAccounts = true
-    }
-
-    func switchToSettingsTab(route: SettingsRoute) {
-        switchToSettingsTabRoute = route
     }
 } // swiftlint:disable:this file_length

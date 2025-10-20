@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import Foundation
@@ -100,7 +101,7 @@ struct LoginItemState: Equatable {
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
             totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
-            fido2Credentials: nil
+            fido2Credentials: nil,
         )
     }
 }

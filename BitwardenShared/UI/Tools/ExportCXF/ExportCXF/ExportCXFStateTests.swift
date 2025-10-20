@@ -62,13 +62,13 @@ class ExportCXFStateTests: BitwardenTestCase {
         subject.status = .start
         XCTAssertEqual(
             subject.message,
-            Localizations.exportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation
+            Localizations.exportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation,
         )
 
         subject.status = .prepared(itemsToExport: [])
         XCTAssertEqual(
             subject.message,
-            Localizations.exportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation
+            Localizations.exportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation,
         )
 
         subject.status = .failure(message: "Something went wrong")

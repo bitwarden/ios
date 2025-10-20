@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 // MARK: - ViewSendItemProcessor
@@ -31,7 +32,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     init(
         coordinator: AnyCoordinator<SendItemRoute, AuthAction>,
         services: Services,
-        state: ViewSendItemState
+        state: ViewSendItemState,
     ) {
         self.coordinator = coordinator
         self.services = services

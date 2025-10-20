@@ -12,7 +12,7 @@ import SwiftUI
 final class VaultListProcessor: StateProcessor<
     VaultListState,
     VaultListAction,
-    VaultListEffect
+    VaultListEffect,
 > {
     // MARK: Types
 
@@ -68,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -105,7 +105,7 @@ final class VaultListProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
@@ -352,7 +352,7 @@ extension VaultListProcessor {
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
                 filter: state.vaultFilterType,
-                isPeriodic: syncWithPeriodicCheck
+                isPeriodic: syncWithPeriodicCheck,
             )
 
             if try await services.vaultRepository.isVaultEmpty() {
@@ -378,7 +378,7 @@ extension VaultListProcessor {
                     // If the vault needs a sync and there were no cached items,
                     // show the full screen error view.
                     state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
                     )
                 }
             } else {
@@ -415,7 +415,7 @@ extension VaultListProcessor {
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
-            }
+            },
         )
     }
 
@@ -431,7 +431,7 @@ extension VaultListProcessor {
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType)
+                filter: VaultListFilter(filterType: state.searchVaultFilterType),
             )
             for try await ciphers in result {
                 state.searchResults = ciphers
@@ -578,7 +578,7 @@ enum MoreOptionsAction: Equatable {
         value: String,
         requiresMasterPasswordReprompt: Bool,
         logEvent: EventType?,
-        cipherId: String?
+        cipherId: String?,
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.

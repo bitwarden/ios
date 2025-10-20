@@ -45,7 +45,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             errorReporter: errorReporter,
             sharedItemService: sharedItemService,
             timeProvider: timeProvider,
-            totpService: totpService
+            totpService: totpService,
         )
     }
 
@@ -71,7 +71,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(cryptographyService.encryptedAuthenticatorItems, [item])
         XCTAssertEqual(
             authItemService.addAuthenticatorItemAuthenticatorItems.last,
-            AuthenticatorItem(authenticatorItemView: item)
+            AuthenticatorItem(authenticatorItemView: item),
         )
     }
 
@@ -154,7 +154,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
         XCTAssertEqual(
             error,
-            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)")
+            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"),
         )
         XCTAssertEqual(actual.id, item.id)
         XCTAssertEqual(actual.name, item.name)
@@ -171,7 +171,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
         XCTAssertEqual(
             error,
-            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)")
+            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"),
         )
         XCTAssertEqual(actual.id, item.id)
         XCTAssertEqual(actual.name, item.name)
@@ -184,7 +184,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let newCodeModel = TOTPCodeModel(
             code: newCode,
             codeGenerationDate: timeProvider.presentTime,
-            period: 30
+            period: 30,
         )
         totpService.getTotpCodeResult = .success(newCodeModel)
 
@@ -285,7 +285,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let codeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: timeProvider.presentTime,
-            period: 30
+            period: 30,
         )
         totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
@@ -294,8 +294,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: codeModel
-                )
+                    totpCode: codeModel,
+                ),
             )
         }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         authItemService.authenticatorItemsSubject.send(items)
@@ -309,7 +309,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "Unorganized",
                                 items: expected,
                                 name: ""),
-            ]
+            ],
         )
     }
 
@@ -329,9 +329,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let favoritedItem = ItemListItem.fixture(
             id: items[1].id,
@@ -341,9 +341,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         authItemService.authenticatorItemsSubject.send(items)
@@ -360,7 +360,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "Unorganized",
                                 items: [unorganizedItem],
                                 name: ""),
-            ]
+            ],
         )
     }
 
@@ -398,7 +398,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "SyncError",
                                 items: [.syncError()],
                                 name: ""),
-            ]
+            ],
         )
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
@@ -438,7 +438,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "SyncError",
                                 items: [.syncError()],
                                 name: ""),
-            ]
+            ],
         )
     }
 
@@ -460,9 +460,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let favoritedItem = ItemListItem.fixture(
             id: items[1].id,
@@ -472,9 +472,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         authItemService.authenticatorItemsSubject.send(items)
@@ -491,7 +491,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "Unorganized",
                                 items: [unorganizedItem],
                                 name: ""),
-            ]
+            ],
         )
     }
 
@@ -533,7 +533,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "shared@example.com | Domain",
                                 items: [sharedListItem],
                                 name: "shared@example.com | Domain"),
-            ]
+            ],
         )
 
         XCTAssertEqual(sharedItemService.storedItems, ["userId": [sharedItem]])
@@ -587,7 +587,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 ItemListSection(id: "shared@example.com | Domain",
                                 items: [fullListItem],
                                 name: "shared@example.com | Domain"),
-            ]
+            ],
         )
     }
 
@@ -603,7 +603,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let sharedItem = AuthenticatorBridgeItemDataView.fixture(
             accountDomain: "Domain",
             accountEmail: "shared@example.com",
-            totpKey: "totpKey"
+            totpKey: "totpKey",
         )
         sharedItemService.storedItems = ["userId": [sharedItem]]
 
@@ -624,7 +624,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let codeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: timeProvider.presentTime,
-            period: 30
+            period: 30,
         )
         totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
@@ -633,8 +633,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: codeModel
-                )
+                    totpCode: codeModel,
+                ),
             )
         }
 
@@ -656,7 +656,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let codeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: timeProvider.presentTime,
-            period: 30
+            period: 30,
         )
         totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
@@ -665,8 +665,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: codeModel
-                )
+                    totpCode: codeModel,
+                ),
             )
         }
 
@@ -694,9 +694,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
     }
 
@@ -716,9 +716,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
     }
 } // swiftlint:disable:this file_length

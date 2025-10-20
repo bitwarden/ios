@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import XCTest
@@ -36,9 +37,9 @@ class SettingsProcessorTests: BitwardenTestCase {
                 authenticatorItemRepository: authItemRepository,
                 biometricsRepository: biometricsRepository,
                 configService: configService,
-                pasteboardService: pasteboardService
+                pasteboardService: pasteboardService,
             ),
-            state: SettingsState()
+            state: SettingsState(),
         )
     }
 
@@ -88,7 +89,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_vaultTimeout_biometricsDisabled() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: false, hasValidIntegrity: true)
+            .available(.faceID, enabled: false, hasValidIntegrity: true),
         )
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
         await subject.perform(.loadData)
@@ -99,7 +100,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_vaultTimeout_fifteenMinutes() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
         await subject.perform(.loadData)
@@ -119,7 +120,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_vaultTimeout_nilWithBiometrics() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
         await subject.perform(.loadData)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .onAppRestart)
@@ -131,7 +132,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_sessionTimeoutValueChanged_biometricsDisabled() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
         subject.state.sessionTimeoutValue = .never
@@ -146,7 +147,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_sessionTimeoutValueChanged_success() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
         subject.state.sessionTimeoutValue = .oneHour
@@ -162,7 +163,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     func test_perform_toggleUnlockWithBiometrics_off() async throws {
         biometricsRepository.capturedUserAuthKey = "key"
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
         subject.state.sessionTimeoutValue = .fifteenMinutes
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
@@ -178,7 +179,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_on() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true)
+            .available(.faceID, enabled: true, hasValidIntegrity: true),
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(true))
@@ -248,11 +249,11 @@ class SettingsProcessorTests: BitwardenTestCase {
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            """
+            """,
         )
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo)).text
+            subject.state.toast?.title,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
         )
     }
 }

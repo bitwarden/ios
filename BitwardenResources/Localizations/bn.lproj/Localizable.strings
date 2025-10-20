@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Sync vault now";
 "TouchID" = "টাচ আইডি";
 "TwoStepLogin" = "Two-step login";
-"UnlockWith" = "Unlock with %1$@";
+"UnlockWithBiometrics" = "Unlock with biometrics";
+"UnlockWithFaceID" = "Unlock with Face ID";
+"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Unlock with PIN code";
-"UnlockWithUnknownBiometrics" = "বায়োমেট্রিক্স দিয়ে আনলক করুন";
 "Validating" = "কার্যকর করা হচ্ছে";
 "VerificationCode" = "যাচাইকরণ কোড";
 "ViewItem" = "View item";
@@ -666,7 +668,7 @@
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
-"ScanQRCode" = "Scan QR Code";
+"ScanQRCode" = "QR কোড স্ক্যান করুন";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Default (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating...";
+"Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

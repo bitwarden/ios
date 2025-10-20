@@ -17,19 +17,19 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
             authenticationMethod: .authorizationCode(
                 code: "code",
                 codeVerifier: "codeVerifier",
-                redirectUri: "redirectUri"
+                redirectUri: "redirectUri",
             ),
             deviceInfo: .fixture(),
-            loginRequestId: nil
+            loginRequestId: nil,
         )
 
         subjectPassword = IdentityTokenRequestModel(
             authenticationMethod: .password(
                 username: "ramen@delicious.com",
-                password: "password"
+                password: "password",
             ),
             deviceInfo: .fixture(),
-            loginRequestId: nil
+            loginRequestId: nil,
         )
     }
 
@@ -84,13 +84,13 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         let subject = IdentityTokenRequestModel(
             authenticationMethod: .password(
                 username: "user@example.com",
-                password: "password"
+                password: "password",
             ),
             deviceInfo: .fixture(),
             loginRequestId: nil,
             twoFactorCode: "hi_im_a_lil_code",
             twoFactorMethod: .email,
-            twoFactorRemember: true
+            twoFactorRemember: true,
         )
         let valuesByKey = valuesByKey(subject.values)
 
@@ -104,11 +104,11 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         let subject = IdentityTokenRequestModel(
             authenticationMethod: .password(
                 username: "user@example.com",
-                password: "password"
+                password: "password",
             ),
             deviceInfo: .fixture(),
             loginRequestId: nil,
-            newDeviceOtp: "onetimepass"
+            newDeviceOtp: "onetimepass",
         )
         let valuesByKey = valuesByKey(subject.values)
 

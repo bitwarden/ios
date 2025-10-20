@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -41,7 +42,7 @@ struct AboutState {
 
             accessibilityLabelComponents.append(Localizations.loggingEndsOnDateAtTime(
                 dateFormatter.string(from: log.endDate),
-                log.formattedEndTime
+                log.formattedEndTime,
             ))
         }
         return accessibilityLabelComponents.joined(separator: ", ")

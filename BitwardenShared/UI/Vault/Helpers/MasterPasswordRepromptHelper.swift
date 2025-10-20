@@ -16,7 +16,7 @@ protocol MasterPasswordRepromptHelper {
     ///
     func repromptForMasterPasswordIfNeeded(
         cipherId: String,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async
 
     /// Reprompts the user for their master password if the cipher has master password reprompt
@@ -29,7 +29,7 @@ protocol MasterPasswordRepromptHelper {
     ///
     func repromptForMasterPasswordIfNeeded(
         cipherListView: CipherListView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async
 
     /// Reprompts the user for their master password if the cipher has master password reprompt
@@ -42,7 +42,7 @@ protocol MasterPasswordRepromptHelper {
     ///
     func repromptForMasterPasswordIfNeeded(
         cipherView: CipherView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async
 }
 
@@ -80,7 +80,7 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
     init(
         coordinator: AnyCoordinator<Route, Event>,
         services: Services,
-        userVerificationHelper: UserVerificationHelper
+        userVerificationHelper: UserVerificationHelper,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -91,7 +91,7 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
 
     func repromptForMasterPasswordIfNeeded(
         cipherId: String,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         do {
             guard let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
@@ -106,14 +106,14 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
 
     func repromptForMasterPasswordIfNeeded(
         cipherListView: CipherListView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         await repromptForMasterPasswordIfNeeded(reprompt: cipherListView.reprompt, completion: completion)
     }
 
     func repromptForMasterPasswordIfNeeded(
         cipherView: CipherView,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         await repromptForMasterPasswordIfNeeded(reprompt: cipherView.reprompt, completion: completion)
     }
@@ -130,7 +130,7 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
     ///
     private func repromptForMasterPasswordIfNeeded(
         reprompt: BitwardenSdk.CipherRepromptType,
-        completion: @escaping @MainActor () async -> Void
+        completion: @escaping @MainActor () async -> Void,
     ) async {
         do {
             guard try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: reprompt) else {

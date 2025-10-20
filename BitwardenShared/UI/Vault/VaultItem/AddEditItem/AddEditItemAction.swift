@@ -1,5 +1,6 @@
 // MARK: - AddEditItemAction
 
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 import SwiftUI

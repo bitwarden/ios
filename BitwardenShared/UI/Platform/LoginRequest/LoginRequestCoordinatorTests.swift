@@ -18,7 +18,7 @@ class LoginRequestCoordinatorTests: BitwardenTestCase {
 
         subject = LoginRequestCoordinator(
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

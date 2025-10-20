@@ -40,7 +40,7 @@ struct RemoveMasterPasswordView: View {
                 title: Localizations.masterPassword,
                 text: store.binding(
                     get: \.masterPassword,
-                    send: RemoveMasterPasswordAction.masterPasswordChanged
+                    send: RemoveMasterPasswordAction.masterPasswordChanged,
                 ),
                 footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
@@ -48,8 +48,8 @@ struct RemoveMasterPasswordView: View {
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
-                    send: RemoveMasterPasswordAction.revealMasterPasswordFieldPressed
-                )
+                    send: RemoveMasterPasswordAction.revealMasterPasswordFieldPressed,
+                ),
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -86,10 +86,10 @@ struct RemoveMasterPasswordView: View {
                     masterPassword: "password",
                     organizationName: "Example Org",
                     organizationId: "Mock-Id",
-                    keyConnectorUrl: "www.example.com"
-                )
-            )
-        )
+                    keyConnectorUrl: "www.example.com",
+                ),
+            ),
+        ),
     )
     .navStackWrapped
 }

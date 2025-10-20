@@ -87,6 +87,10 @@ extension Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
+
+    /// The number of seconds before an access token's expiration time at which the app will
+    /// preemptively refresh the token.
+    static let tokenRefreshThreshold: TimeInterval = 5 * 60 // 5 minutes
 }
 
 // MARK: Extension Constants

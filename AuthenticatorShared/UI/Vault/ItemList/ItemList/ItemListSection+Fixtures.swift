@@ -17,10 +17,10 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "12345",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
                 ItemListItem(
                     id: "6",
@@ -32,10 +32,10 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "123456",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
                 ItemListItem(
                     id: "7",
@@ -47,10 +47,10 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "1234567",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
                 ItemListItem(
                     id: "8",
@@ -62,10 +62,10 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "12345678",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
                 ItemListItem(
                     id: "9",
@@ -77,10 +77,10 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "123456789",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
                 ItemListItem(
                     id: "10",
@@ -92,13 +92,13 @@ extension ItemListSection {
                             totpCode: TOTPCodeModel(
                                 code: "1234567890",
                                 codeGenerationDate: Date(),
-                                period: 30
-                            )
-                        )
-                    )
+                                period: 30,
+                            ),
+                        ),
+                    ),
                 ),
             ],
-            name: "Digits"
+            name: "Digits",
         )
     }
 }

@@ -24,7 +24,7 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         subject = SdkCipherRepository(
             cipherDataStore: cipherDataStore,
             errorReporter: errorReporter,
-            userId: expectedUserId
+            userId: expectedUserId,
         )
     }
 
@@ -92,7 +92,7 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         } catch {
             XCTAssertEqual(
                 (error as NSError).userInfo["ErrorMessage"] as? String,
-                "CipherRepository: Trying to update a cipher with mismatch IDs"
+                "CipherRepository: Trying to update a cipher with mismatch IDs",
             )
         }
 

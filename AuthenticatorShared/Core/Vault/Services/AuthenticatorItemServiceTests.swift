@@ -16,7 +16,7 @@ class AuthenticatorItemServiceTests: BitwardenTestCase {
         authenticatorItemDataStore = MockAuthenticatorItemDataStore()
 
         subject = DefaultAuthenticatorItemService(
-            authenticatorItemDataStore: authenticatorItemDataStore
+            authenticatorItemDataStore: authenticatorItemDataStore,
         )
     }
 

@@ -15,7 +15,7 @@ extension LoginRequest {
         requestApproved: Bool? = nil,
         requestDeviceType: String = "iOS",
         requestIpAddress: String = "11.22.333.444",
-        responseDate: Date? = nil
+        responseDate: Date? = nil,
     ) -> LoginRequest {
         LoginRequest(
             creationDate: creationDate,
@@ -29,7 +29,7 @@ extension LoginRequest {
             requestApproved: requestApproved,
             requestDeviceType: requestDeviceType,
             requestIpAddress: requestIpAddress,
-            responseDate: responseDate
+            responseDate: responseDate,
         )
     }
 }

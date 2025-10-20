@@ -17,7 +17,7 @@ struct CombinedSingleAutofillVaultListDirectorStrategy: VaultListDirectorStrateg
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
@@ -36,11 +36,11 @@ struct CombinedSingleAutofillVaultListDirectorStrategy: VaultListDirectorStrateg
     /// - Returns: Sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
-        filter: VaultListFilter
+        filter: VaultListFilter,
     ) async throws -> VaultListData {
         guard let preparedData = try await vaultListDataPreparator.prepareAutofillCombinedSingleData(
             from: ciphers,
-            filter: filter
+            filter: filter,
         ) else {
             return VaultListData()
         }

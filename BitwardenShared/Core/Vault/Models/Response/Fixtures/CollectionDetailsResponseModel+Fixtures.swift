@@ -12,7 +12,7 @@ extension CollectionDetailsResponseModel {
         organizationId: String = UUID().uuidString,
         readOnly: Bool = false,
         defaultUserCollectionEmail: String? = nil,
-        type: CollectionType = .sharedCollection
+        type: CollectionType = .sharedCollection,
     ) -> CollectionDetailsResponseModel {
         self.init(
             defaultUserCollectionEmail: defaultUserCollectionEmail,
@@ -23,7 +23,7 @@ extension CollectionDetailsResponseModel {
             name: name,
             organizationId: organizationId,
             readOnly: readOnly,
-            type: type
+            type: type,
         )
     }
 }

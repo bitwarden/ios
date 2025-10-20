@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenKit
 import BitwardenKitMocks
 import SwiftUI
 import XCTest
@@ -28,9 +29,9 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         cameraService.cameraAuthorizationStatus = .authorized
         cameraService.startResult = .success(AVCaptureSession())
@@ -157,22 +158,6 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
     @MainActor
-    func test_navigateTo_scanCode() throws {
-        cameraService.deviceHasCamera = true
-        let task = Task {
-            await subject.handleEvent(.showScanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
-    }
-
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    @MainActor
     func test_navigateTo_scanCode_nonEmptyStack() throws {
         stackNavigator.isEmpty = false
         cameraService.deviceHasCamera = true
@@ -198,74 +183,6 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         subject.hideLoadingOverlay()
         waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
-    }
-
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    @MainActor
-    func test_navigateAsyncTo_scanCode() throws {
-        cameraService.deviceHasCamera = true
-        let task = Task {
-            await subject.handleEvent(.showScanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
-    }
-
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    @MainActor
-    func test_navigateAsyncTo_scanCode_cameraSessionError() throws {
-        cameraService.deviceHasCamera = true
-        struct TestError: Error, Equatable {}
-        cameraService.startResult = .failure(TestError())
-        let task = Task {
-            await subject.handleEvent(.showScanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(errorReporter.errors.last as? TestError, TestError())
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
-    }
-
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    @MainActor
-    func test_navigateAsyncTo_scanCode_declineAuthorization() throws {
-        cameraService.deviceHasCamera = true
-        cameraService.cameraAuthorizationStatus = .denied
-        let task = Task {
-            await subject.handleEvent(.showScanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
-    }
-
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    @MainActor
-    func test_navigateAsyncTo_scanCode_noCamera() throws {
-        cameraService.deviceHasCamera = false
-        let task = Task {
-            await subject.handleEvent(.showScanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
@@ -313,7 +230,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String?
+        name: String?,
     ) {
         didCompleteCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -323,7 +240,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     ) {
         didCompleteAutomaticCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -334,7 +251,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     ) {
         didCompleteManualCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
@@ -344,14 +261,14 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestCamera = true
         capturedCaptureCoordinator = captureCoordinator
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         didRequestManual = true
         capturedCaptureCoordinator = captureCoordinator

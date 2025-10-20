@@ -182,9 +182,11 @@
 "SyncVaultNow" = "Synchronizuj sejf";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Logowanie dwustopniowe";
-"UnlockWith" = "Odblokuj przez %1$@";
+"UnlockWithBiometrics" = "Odblokuj biometrią";
+"UnlockWithFaceID" = "Odblokuj przez Face ID";
+"UnlockWithTouchID" = "Odblokuj przez Touch ID";
+"UnlockWithOpticID" = "Odblokuj przez Optic ID";
 "UnlockWithPIN" = "Odblokuj kodem PIN";
-"UnlockWithUnknownBiometrics" = "Odblokuj biometrią";
 "Validating" = "Weryfikuję";
 "VerificationCode" = "Kod weryfikacyjny";
 "ViewItem" = "Pokaż element";
@@ -461,7 +463,7 @@
 "AskToAddLogin" = "Proponuj zapisywanie danych logowania";
 "AskToAddLoginDescription" = "Proponuj zapisywanie danych logowania, jeśli nie ma ich w sejfie.";
 "OnRestart" = "Po uruchomieniu aplikacji";
-"AutofillServiceNotEnabled" = "Autouzupełnianie ułatwia bezpieczne logowanie do innych stron internetowych i aplikacji. Skonfiguruj usługę autouzupełniania dla aplikacji Bitwarden na ekranie „Ustawienia”.";
+"AutofillServiceNotEnabled" = "Autouzupełnianie ułatwia bezpieczne logowanie do innych stron internetowych i aplikacji. Skonfiguruj usługę autouzupełniania w ustawieniach.";
 "ThemeAppliedOnRestart" = "Zmiana motywu zostanie zastosowana po uruchomieniu ponownym.";
 "Capitalize" = "Wielkie litery";
 "IncludeNumber" = "Uwzględnij cyfry";
@@ -1289,5 +1291,5 @@
 "DefaultX" = "Domyślne (%1$@)";
 "UpdateYourEncryptionSettings" = "Zaktualizuj ustawienia szyfrowania";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
-"Updating" = "Updating...";
+"Updating" = "Aktualizowanie…";
 "EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";

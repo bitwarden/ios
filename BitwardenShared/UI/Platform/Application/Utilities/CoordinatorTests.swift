@@ -48,8 +48,8 @@ class CoordinatorTests: BitwardenTestCase {
         subject = TestCoordinator(
             mockStackNavigator: stackNavigator,
             services: ServiceContainer.withMocks(
-                errorReportBuilder: errorReportBuilder
-            )
+                errorReportBuilder: errorReportBuilder,
+            ),
         )
     }
 
@@ -75,7 +75,7 @@ class CoordinatorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             stackNavigator.alerts,
-            [Alert.networkResponseError(BitwardenTestError.example, shareErrorDetails: {})]
+            [Alert.networkResponseError(BitwardenTestError.example, shareErrorDetails: {})],
         )
 
         let alert = try XCTUnwrap(stackNavigator.alerts.first)
@@ -96,12 +96,12 @@ class CoordinatorTests: BitwardenTestCase {
         await subject.showErrorAlert(
             error: URLError(.timedOut),
             tryAgain: { tryAgainCalled = true },
-            onDismissed: nil
+            onDismissed: nil,
         )
 
         XCTAssertEqual(
             stackNavigator.alerts,
-            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})]
+            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})],
         )
         let alert = stackNavigator.alerts[0]
         try await alert.tapAction(title: Localizations.tryAgain)
@@ -115,12 +115,12 @@ class CoordinatorTests: BitwardenTestCase {
         await subject.showErrorAlert(
             error: URLError(.timedOut),
             tryAgain: nil,
-            onDismissed: { onDismissedCalled = true }
+            onDismissed: { onDismissedCalled = true },
         )
 
         XCTAssertEqual(
             stackNavigator.alerts,
-            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})]
+            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})],
         )
         XCTAssertNotNil(stackNavigator.alertOnDismissed)
 

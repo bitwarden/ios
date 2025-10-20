@@ -9,6 +9,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var subject: ExtensionActivationProcessor!
 
@@ -18,11 +19,15 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         subject = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
-            services: ServiceContainer.withMocks(configService: configService),
-            state: ExtensionActivationState(extensionType: .autofillExtension)
+            services: ServiceContainer.withMocks(
+                autofillCredentialService: autofillCredentialService,
+                configService: configService,
+            ),
+            state: ExtensionActivationState(extensionType: .autofillExtension),
         )
     }
 
@@ -30,11 +35,20 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         appExtensionDelegate = nil
+        autofillCredentialService = nil
         configService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.appeared` updates the credentials on the identity store.
+    @MainActor
+    func test_perform_appeared() async throws {
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(autofillCredentialService.updateCredentialsInStoreCalled)
+    }
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.
     @MainActor

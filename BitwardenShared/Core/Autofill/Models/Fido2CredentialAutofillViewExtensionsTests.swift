@@ -15,7 +15,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
             rpId: "myApp.com",
             userNameForUi: "username",
             userHandle: Data(repeating: 1, count: 16),
-            hasCounter: false
+            hasCounter: false,
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -23,7 +23,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
                 && identity.userName == subject.userNameForUi
                 && identity.credentialID == subject.credentialId
                 && identity.userHandle == subject.userHandle
-                && identity.recordIdentifier == subject.cipherId
+                && identity.recordIdentifier == subject.cipherId,
         )
     }
 
@@ -36,7 +36,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
             rpId: "myApp.com",
             userNameForUi: nil,
             userHandle: Data(repeating: 1, count: 16),
-            hasCounter: false
+            hasCounter: false,
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -44,7 +44,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
                 && identity.userName == Localizations.unknownAccount
                 && identity.credentialID == subject.credentialId
                 && identity.userHandle == subject.userHandle
-                && identity.recordIdentifier == subject.cipherId
+                && identity.recordIdentifier == subject.cipherId,
         )
     }
 }

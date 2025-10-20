@@ -98,7 +98,7 @@ protocol CipherAPIService {
         cipherId: String,
         fileName: String?,
         fileSize: Int?,
-        key: String?
+        key: String?,
     ) async throws -> SaveAttachmentResponse
 
     /// Performs an API request to share a cipher with an organization.
@@ -177,13 +177,13 @@ extension APIService: CipherAPIService {
         cipherId: String,
         fileName: String?,
         fileSize: Int?,
-        key: String?
+        key: String?,
     ) async throws -> SaveAttachmentResponse {
         try await apiService.send(SaveAttachmentRequest(
             cipherId: cipherId,
             fileName: fileName,
             fileSize: fileSize,
-            key: key
+            key: key,
         ))
     }
 

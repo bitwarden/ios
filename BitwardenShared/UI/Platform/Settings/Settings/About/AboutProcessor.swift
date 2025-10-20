@@ -35,7 +35,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: AboutState
+        state: AboutState,
     ) {
         self.coordinator = coordinator
         self.services = services

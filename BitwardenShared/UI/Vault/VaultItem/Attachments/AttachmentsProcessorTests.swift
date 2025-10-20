@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
@@ -26,9 +27,9 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: AttachmentsState()
+            state: AttachmentsState(),
         )
     }
 
@@ -104,7 +105,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .inputValidationAlert(error: .init(message: Localizations.validationFieldRequired(Localizations.file)))
+            .inputValidationAlert(error: .init(message: Localizations.validationFieldRequired(Localizations.file))),
         )
     }
 
@@ -120,8 +121,8 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.premiumRequired
-            )
+                message: Localizations.premiumRequired,
+            ),
         )
     }
 
@@ -136,7 +137,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .defaultAlert(title: Localizations.anErrorHasOccurred, message: Localizations.maxFileSize)
+            .defaultAlert(title: Localizations.anErrorHasOccurred, message: Localizations.maxFileSize),
         )
     }
 

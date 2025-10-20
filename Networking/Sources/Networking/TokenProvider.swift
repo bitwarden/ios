@@ -9,5 +9,7 @@ public protocol TokenProvider: Sendable {
 
     /// Refreshes the access token by using the refresh token to acquire a new access token.
     ///
-    func refreshToken() async throws
+    /// - Returns: A new access token.
+    ///
+    func refreshToken() async throws -> String
 }

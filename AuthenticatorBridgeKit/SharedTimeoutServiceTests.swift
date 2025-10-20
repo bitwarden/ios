@@ -22,7 +22,7 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
 
         subject = DefaultSharedTimeoutService(
             sharedKeychainRepository: sharedKeychainRepository,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -86,11 +86,11 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
         try await subject.updateTimeout(
             forUserId: "1",
             lastActiveDate: timeProvider.presentTime,
-            timeoutLength: .fourHours
+            timeoutLength: .fourHours,
         )
         XCTAssertEqual(
             sharedKeychainRepository.accountAutoLogoutTime["1"],
-            timeProvider.presentTime.addingTimeInterval(TimeInterval(SessionTimeoutValue.fourHours.seconds))
+            timeProvider.presentTime.addingTimeInterval(TimeInterval(SessionTimeoutValue.fourHours.seconds)),
         )
     }
 
@@ -108,7 +108,7 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
             try await self.subject.updateTimeout(
                 forUserId: "1",
                 lastActiveDate: timeProvider.presentTime,
-                timeoutLength: .fourHours
+                timeoutLength: .fourHours,
             )
         }
     }

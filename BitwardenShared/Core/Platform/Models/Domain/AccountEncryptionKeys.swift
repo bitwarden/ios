@@ -29,7 +29,7 @@ extension AccountEncryptionKeys {
         self.init(
             accountKeys: responseModel.accountKeys,
             encryptedPrivateKey: privateKey,
-            encryptedUserKey: responseModel.key
+            encryptedUserKey: responseModel.key,
         )
     }
 }

@@ -20,19 +20,19 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 authenticationMethod: .authorizationCode(
                     code: "code",
                     codeVerifier: "codeVerifier",
-                    redirectUri: "redirectUri"
+                    redirectUri: "redirectUri",
                 ),
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
 
         subjectPassword = IdentityTokenRequest(
             requestModel: IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "user@example.com", password: "password"),
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
     }
 
@@ -52,7 +52,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=authorization%5Fcode&code=code&" +
-                "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri"
+                "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri",
         )
     }
 
@@ -63,7 +63,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=password&" +
-                "username=user%40example%2Ecom&password=password"
+                "username=user%40example%2Ecom&password=password",
         )
     }
 
@@ -99,7 +99,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400Error() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: Data("example data".utf8)
+            body: Data("example data".utf8),
         )
 
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
@@ -110,7 +110,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400NewDeviceError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenNewDeviceError.data
+            body: APITestData.identityTokenNewDeviceError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -123,7 +123,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400EncryptionKeyMigrationError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenEncryptionKeyMigrationError.data
+            body: APITestData.identityTokenEncryptionKeyMigrationError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -136,7 +136,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400TwoFactorError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenTwoFactorError.data
+            body: APITestData.identityTokenTwoFactorError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -145,8 +145,8 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 .twoFactorRequired(
                     AuthMethodsData.fixture(),
                     nil,
-                    "exampleToken"
-                )
+                    "exampleToken",
+                ),
             )
         }
     }
@@ -154,7 +154,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.identityTokenSuccess.data
+            body: APITestData.identityTokenSuccess.data,
         )
 
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))

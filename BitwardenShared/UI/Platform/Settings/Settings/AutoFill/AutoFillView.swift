@@ -53,7 +53,7 @@ struct AutoFillView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissSetUpAutofillActionCard)
-                }
+                },
             ) {
                 BitwardenBadge(badgeValue: "1")
             }
@@ -68,9 +68,9 @@ struct AutoFillView: View {
                 footer: Localizations.copyTotpAutomaticallyDescription,
                 isOn: store.binding(
                     get: \.isCopyTOTPToggleOn,
-                    send: AutoFillAction.toggleCopyTOTPToggle
+                    send: AutoFillAction.toggleCopyTOTPToggle,
                 ),
-                accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
+                accessibilityIdentifier: "CopyTotpAutomaticallySwitch",
             )
             .contentBlock()
 
@@ -80,21 +80,21 @@ struct AutoFillView: View {
                 options: store.state.uriMatchTypeOptions,
                 selection: store.binding(
                     get: \.defaultUriMatchType,
-                    send: AutoFillAction.defaultUriMatchTypeChanged
-                )
+                    send: AutoFillAction.defaultUriMatchTypeChanged,
+                ),
             ) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
                         .bitwardenMenuFooterText(
                             topPadding: 12,
-                            bottomPadding: store.state.warningMessage == nil ? 12 : 4
+                            bottomPadding: store.state.warningMessage == nil ? 12 : 4,
                         )
 
                     store.state.warningMessage.map { warningMessage in
                         Text(LocalizedStringKey(warningMessage))
                             .bitwardenMenuFooterText(
                                 topPadding: 0,
-                                bottomPadding: 12
+                                bottomPadding: 12,
                             )
                     }
                 }
@@ -130,7 +130,7 @@ struct AutoFillView: View {
 #Preview("Autofill Action Card") {
     NavigationView {
         AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState(
-            badgeState: .fixture(autofillSetupProgress: .setUpLater)
+            badgeState: .fixture(autofillSetupProgress: .setUpLater),
         ))))
     }
 }

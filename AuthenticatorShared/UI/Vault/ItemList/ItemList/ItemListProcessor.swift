@@ -53,7 +53,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     init(
         coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
-        state: ItemListState
+        state: ItemListState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -122,7 +122,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             guard let totpCode = item.totpCodeModel else { return }
 
             services.pasteboardService.copy(totpCode.code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -149,7 +149,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
-            state.toast = Toast(text: Localizations.itemDeleted)
+            if !state.searchText.isEmpty {
+                await searchItems(for: state.searchText)
+            }
+            state.toast = Toast(title: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -191,7 +194,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let code = try await services.totpService.getTotpCode(for: totpKey)
             services.pasteboardService.copy(code.code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -294,7 +297,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
         do {
             let result = try await services.authenticatorItemRepository.searchItemListPublisher(
-                searchText: searchText
+                searchText: searchText,
             )
             for try await items in result {
                 state.searchResults = try await services.authenticatorItemRepository.refreshTotpCodes(for: items)
@@ -361,7 +364,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 state.showMoveToBitwarden = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
                 state.loadingState = .data(sectionList)
                 if showToast {
-                    state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
+                    state.toast = Toast(title: Localizations.accountsSyncedFromBitwardenApp)
                 }
             }
         } catch {
@@ -395,12 +398,12 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     ) {
         Task {
             guard await services.authenticatorItemRepository.isPasswordManagerSyncActive() else {
                 captureCoordinator.navigate(
-                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false))
+                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)),
                 )
                 return
             }
@@ -415,13 +418,13 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                     coordinator.showAlert(.determineScanSaveLocation(
                         saveLocallyAction: { [weak self] in
                             captureCoordinator.navigate(
-                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false)),
                             )
                         }, sendToBitwardenAction: { [weak self] in
                             captureCoordinator.navigate(
-                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true)),
                             )
-                        }
+                        },
                     ))
                 }
             } else {
@@ -436,7 +439,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                             self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
                         })
                         captureCoordinator.navigate(to: .dismiss(dismissAction))
-                    }
+                    },
                 ))
             }
         }
@@ -457,7 +460,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 id: UUID().uuidString,
                 name: itemName,
                 totpKey: key,
-                username: accountName
+                username: accountName,
             )
             try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
@@ -469,7 +472,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
@@ -501,7 +504,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 id: UUID().uuidString,
                 name: itemName,
                 totpKey: key,
-                username: nil
+                username: nil,
             )
             try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
@@ -510,7 +513,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
@@ -523,7 +526,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
@@ -555,7 +558,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             }, noAction: { [weak self] in
                 self?.services.appSettingsStore.defaultSaveOption = .none
                 await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
-            }
+            },
         ))
     }
 
@@ -589,7 +592,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             await moveItemToBitwarden(item: newItem)
         } else {
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
+            state.toast = Toast(title: Localizations.verificationCodeAdded)
             await perform(.refresh)
         }
     }
@@ -613,7 +616,7 @@ enum MoreOptionsAction: Equatable {
 
 extension ItemListProcessor: AuthenticatorItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
     }
 }
 

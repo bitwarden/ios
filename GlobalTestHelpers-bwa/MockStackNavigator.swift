@@ -43,7 +43,7 @@ final class MockStackNavigator: StackNavigator {
             type: .pushed,
             view: view,
             animated: animated,
-            hidesBottomBar: hidesBottomBar
+            hidesBottomBar: hidesBottomBar,
         ))
     }
 
@@ -51,7 +51,7 @@ final class MockStackNavigator: StackNavigator {
         actions.append(NavigationAction(
             type: .pushed,
             view: viewController,
-            animated: animated
+            animated: animated,
         ))
     }
 
@@ -75,7 +75,7 @@ final class MockStackNavigator: StackNavigator {
         _ view: Content,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     ) {
         onCompletion?()
         actions.append(
@@ -83,8 +83,8 @@ final class MockStackNavigator: StackNavigator {
                 type: .presented,
                 view: view,
                 animated: animated,
-                overFullscreen: overFullscreen
-            )
+                overFullscreen: overFullscreen,
+            ),
         )
     }
 
@@ -92,7 +92,7 @@ final class MockStackNavigator: StackNavigator {
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
-        onCompletion: (() -> Void)?
+        onCompletion: (() -> Void)?,
     ) {
         onCompletion?()
         actions.append(
@@ -100,8 +100,8 @@ final class MockStackNavigator: StackNavigator {
                 type: .presented,
                 view: viewController,
                 animated: animated,
-                overFullscreen: overFullscreen
-            )
+                overFullscreen: overFullscreen,
+            ),
         )
     }
 

@@ -5,7 +5,8 @@
 final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
@@ -36,7 +37,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.services = services
@@ -62,7 +63,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
         let processor = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
             services: services,
-            state: ExtensionActivationState(extensionType: extensionType)
+            state: ExtensionActivationState(extensionType: extensionType),
         )
         let view = ExtensionActivationView(store: Store(processor: processor))
         stackNavigator?.replace(view)

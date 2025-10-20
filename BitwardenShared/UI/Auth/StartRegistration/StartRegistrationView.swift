@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -20,7 +21,7 @@ struct StartRegistrationView: View {
         mainContent
             .navigationBar(
                 title: Localizations.createAccount,
-                titleDisplayMode: .inline
+                titleDisplayMode: .inline,
             )
             .onDisappear {
                 store.send(.disappeared)
@@ -36,8 +37,8 @@ struct StartRegistrationView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: StartRegistrationAction.toastShown
-                )
+                    send: StartRegistrationAction.toastShown,
+                ),
             )
     }
 
@@ -62,18 +63,18 @@ struct StartRegistrationView: View {
             title: Localizations.emailAddress,
             text: store.binding(
                 get: \.emailText,
-                send: StartRegistrationAction.emailTextChanged
+                send: StartRegistrationAction.emailTextChanged,
             ),
             accessibilityIdentifier: "EmailAddressEntry",
             footerContent: {
                 RegionSelector(
                     selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseURLDescription
+                    regionName: store.state.region.baseURLDescription,
                 ) {
                     await store.perform(.regionTapped)
                 }
                 .padding(.vertical, 14)
-            }
+            },
         )
         .textFieldConfiguration(.email)
     }
@@ -108,9 +109,9 @@ struct StartRegistrationView: View {
             title: Localizations.name,
             text: store.binding(
                 get: \.nameText,
-                send: StartRegistrationAction.nameTextChanged
+                send: StartRegistrationAction.nameTextChanged,
             ),
-            accessibilityIdentifier: "NameEntry"
+            accessibilityIdentifier: "NameEntry",
         )
         .textFieldConfiguration(.username)
     }
@@ -120,7 +121,7 @@ struct StartRegistrationView: View {
         if store.state.showReceiveMarketingToggle {
             BitwardenToggle(isOn: store.binding(
                 get: \.isReceiveMarketingToggleOn,
-                send: StartRegistrationAction.toggleReceiveMarketing
+                send: StartRegistrationAction.toggleReceiveMarketing,
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
                     .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
@@ -169,9 +170,9 @@ struct StartRegistrationView: View {
     StartRegistrationView(
         store: Store(
             processor: StateProcessor(
-                state: StartRegistrationState()
-            )
-        )
+                state: StartRegistrationState(),
+            ),
+        ),
     )
 }
 #endif

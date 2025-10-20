@@ -47,7 +47,7 @@ enum ExternalLinksConstants {
 
     /// A markdown link to Bitwarden's help page about protecting individual items.
     static let protectIndividualItems = URL(
-        string: "https://bitwarden.com/help/managing-items/#protect-individual-items"
+        string: "https://bitwarden.com/help/managing-items/#protect-individual-items",
     )!
 
     /// A link to Bitwarden's recovery code help page.

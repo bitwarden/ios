@@ -83,7 +83,7 @@ public class DefaultAppInfoService: AppInfoService {
         appAdditionalInfo: AppAdditionalInfo = DefaultAppAdditionalInfo(),
         bundle: BundleProtocol = Bundle.main,
         systemDevice: SystemDevice = UIDevice.current,
-        timeProvider: TimeProvider = CurrentTime()
+        timeProvider: TimeProvider = CurrentTime(),
     ) {
         self.appAdditionalInfo = appAdditionalInfo
         self.bundle = bundle
@@ -109,7 +109,7 @@ public extension DefaultAppInfoService {
             systemOSString,
             additionalInfoString,
         ]
-        .compactMap { $0 }
+        .compactMap(\.self)
         .joined(separator: "\n")
     }
 
@@ -125,7 +125,7 @@ public extension DefaultAppInfoService {
             systemOSString,
             additionalInfoString,
         ]
-        .compactMap { $0 }
+        .compactMap(\.self)
         .joined(separator: "\n")
     }
 

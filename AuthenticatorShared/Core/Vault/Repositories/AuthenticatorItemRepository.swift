@@ -80,7 +80,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///            which will be notified as details of the item change
     ///
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>>
 
     /// A publisher for the list of a user's items, which returns a list of sections
@@ -97,7 +97,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     /// - Returns: A publisher searching for the user's ciphers.
     ///
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>>
 }
 
@@ -157,7 +157,7 @@ class DefaultAuthenticatorItemRepository {
         errorReporter: ErrorReporter,
         sharedItemService: AuthenticatorBridgeItemService,
         timeProvider: TimeProvider,
-        totpService: TOTPService
+        totpService: TOTPService,
     ) {
         self.application = application
         self.authenticatorItemService = authenticatorItemService
@@ -184,7 +184,7 @@ class DefaultAuthenticatorItemRepository {
     ///
     private func combinedSections(
         localSections: [ItemListSection],
-        sharedItems: [AuthenticatorBridgeItemDataView]
+        sharedItems: [AuthenticatorBridgeItemDataView],
     ) async -> [ItemListSection] {
         guard await isPasswordManagerSyncActive() else {
             return localSections
@@ -194,7 +194,7 @@ class DefaultAuthenticatorItemRepository {
             sections.append(ItemListSection(
                 id: "SyncError",
                 items: [.syncError()],
-                name: ""
+                name: "",
             ))
             return sections
         }
@@ -205,7 +205,7 @@ class DefaultAuthenticatorItemRepository {
                 [item.accountEmail, item.accountDomain]
                     .compactMap { $0?.nilIfEmpty }
                     .joined(separator: " | ")
-            }
+            },
         )
 
         var sections = localSections
@@ -230,7 +230,7 @@ class DefaultAuthenticatorItemRepository {
     /// - Returns: A list of the sections to display in the item list
     ///
     private func itemListSections(
-        from authenticatorItems: [AuthenticatorItem]
+        from authenticatorItems: [AuthenticatorItem],
     ) async throws -> [ItemListSection] {
         let items = try await authenticatorItems.asyncMap { item in
             try await self.cryptographyService.decrypt(item)
@@ -363,7 +363,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             id: item.id,
             name: item.name,
             totpKey: item.totpKey,
-            username: item.username
+            username: item.username,
         ))
     }
 
@@ -375,7 +375,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     // MARK: Publishers
 
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>> {
         try await authenticatorItemService.authenticatorItemsPublisher()
             .asyncTryMap { items -> AuthenticatorItemView? in
@@ -391,7 +391,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
         try await itemListSectionPublisher().map { sections -> [ItemListItem] in
             let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)

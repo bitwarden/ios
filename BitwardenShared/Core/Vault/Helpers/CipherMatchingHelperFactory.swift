@@ -22,7 +22,7 @@ struct DefaultCipherMatchingHelperFactory: CipherMatchingHelperFactory {
     init(
         settingsService: SettingsService,
         stateService: StateService,
-        testCipherMatchingHelper: CipherMatchingHelper? = nil
+        testCipherMatchingHelper: CipherMatchingHelper? = nil,
     ) {
         self.settingsService = settingsService
         self.stateService = stateService
@@ -34,7 +34,7 @@ struct DefaultCipherMatchingHelperFactory: CipherMatchingHelperFactory {
     func make(uri: String) async -> CipherMatchingHelper {
         let helper = testCipherMatchingHelper ?? DefaultCipherMatchingHelper(
             settingsService: settingsService,
-            stateService: stateService
+            stateService: stateService,
         )
         await helper.prepare(uri: uri)
         return helper

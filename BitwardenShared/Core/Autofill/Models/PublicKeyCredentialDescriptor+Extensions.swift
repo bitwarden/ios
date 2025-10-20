@@ -10,7 +10,7 @@ extension PublicKeyCredentialDescriptor {
         self.init(
             ty: Constants.defaultFido2PublicKeyCredentialType,
             id: asDescriptor.credentialID,
-            transports: nil
+            transports: nil,
         )
     }
 }

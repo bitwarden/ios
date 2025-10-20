@@ -24,13 +24,13 @@ final class FlightRecorderHTTPLogger: HTTPLogger {
 
     func logRequest(_ httpRequest: HTTPRequest) async {
         await flightRecorder.log(
-            "Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)"
+            "Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)",
         )
     }
 
     func logResponse(_ httpResponse: HTTPResponse) async {
         await flightRecorder.log(
-            "Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)"
+            "Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)",
         )
     }
 }

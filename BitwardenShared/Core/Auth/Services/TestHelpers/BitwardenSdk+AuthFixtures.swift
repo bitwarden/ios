@@ -10,13 +10,13 @@ extension BitwardenSdk.AuthenticatorAssertionResponse {
         clientDataJson: Data = Data(capacity: 37),
         authenticatorData: Data = Data(capacity: 37),
         signature: Data = Data(capacity: 64),
-        userHandle: Data = Data(capacity: 64)
+        userHandle: Data = Data(capacity: 64),
     ) -> BitwardenSdk.AuthenticatorAssertionResponse {
         .init(
             clientDataJson: clientDataJson,
             authenticatorData: authenticatorData,
             signature: signature,
-            userHandle: userHandle
+            userHandle: userHandle,
         )
     }
 }
@@ -28,7 +28,7 @@ extension BitwardenSdk.AuthenticatorAttestationResponse {
         publicKey: Data? = nil,
         publicKeyAlgorithm: Int64 = -7,
         attestationObject: Data = Data(capacity: 64),
-        transports: [String]? = nil
+        transports: [String]? = nil,
     ) -> BitwardenSdk.AuthenticatorAttestationResponse {
         .init(
             clientDataJson: clientDataJson,
@@ -36,14 +36,14 @@ extension BitwardenSdk.AuthenticatorAttestationResponse {
             publicKey: publicKey,
             publicKeyAlgorithm: publicKeyAlgorithm,
             attestationObject: attestationObject,
-            transports: transports
+            transports: transports,
         )
     }
 }
 
 extension BitwardenSdk.ClientExtensionResults {
     static func fixture(
-        credProps: BitwardenSdk.CredPropsResult? = nil
+        credProps: BitwardenSdk.CredPropsResult? = nil,
     ) -> BitwardenSdk.ClientExtensionResults {
         .init(credProps: credProps)
     }
@@ -55,14 +55,14 @@ extension BitwardenSdk.GetAssertionResult {
         authenticatorData: Data = Data(capacity: 37),
         signature: Data = Data(capacity: 64),
         userHandle: Data = Data(capacity: 64),
-        selectedCredential: SelectedCredential = .fixture()
+        selectedCredential: SelectedCredential = .fixture(),
     ) -> BitwardenSdk.GetAssertionResult {
         .init(
             credentialId: credentialId,
             authenticatorData: authenticatorData,
             signature: signature,
             userHandle: userHandle,
-            selectedCredential: selectedCredential
+            selectedCredential: selectedCredential,
         )
     }
 }
@@ -71,12 +71,12 @@ extension BitwardenSdk.MakeCredentialResult {
     static func fixture(
         authenticatorData: Data = Data(capacity: 37),
         attestationObject: Data = Data(capacity: 37),
-        credentialId: Data = Data(capacity: 16)
+        credentialId: Data = Data(capacity: 16),
     ) -> BitwardenSdk.MakeCredentialResult {
         .init(
             authenticatorData: authenticatorData,
             attestationObject: attestationObject,
-            credentialId: credentialId
+            credentialId: credentialId,
         )
     }
 }
@@ -89,7 +89,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
         authenticatorAttachment: String? = nil,
         clientExtensionResults: ClientExtensionResults = .fixture(),
         response: AuthenticatorAssertionResponse = .fixture(),
-        selectedCredential: SelectedCredential = .fixture()
+        selectedCredential: SelectedCredential = .fixture(),
     ) -> BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
         .init(
             id: id,
@@ -98,7 +98,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
             authenticatorAttachment: authenticatorAttachment,
             clientExtensionResults: clientExtensionResults,
             response: response,
-            selectedCredential: selectedCredential
+            selectedCredential: selectedCredential,
         )
     }
 }
@@ -111,7 +111,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
         authenticatorAttachment: String? = nil,
         clientExtensionResults: ClientExtensionResults = .fixture(),
         response: AuthenticatorAttestationResponse = .fixture(),
-        selectedCredential: SelectedCredential = .fixture()
+        selectedCredential: SelectedCredential = .fixture(),
     ) -> BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
         .init(
             id: id,
@@ -120,7 +120,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
             authenticatorAttachment: authenticatorAttachment,
             clientExtensionResults: clientExtensionResults,
             response: response,
-            selectedCredential: selectedCredential
+            selectedCredential: selectedCredential,
         )
     }
 }
@@ -128,7 +128,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
 extension BitwardenSdk.SelectedCredential {
     static func fixture(
         cipherView: CipherView = .fixture(),
-        credential: Fido2CredentialView = .fixture()
+        credential: Fido2CredentialView = .fixture(),
     ) -> BitwardenSdk.SelectedCredential {
         .init(cipher: .fixture(), credential: .fixture())
     }
@@ -143,7 +143,7 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
         rpId: String = defaultRpId,
         userNameForUi: String? = nil,
         userHandle: Data = Data(capacity: 64),
-        hasCounter: Bool = false
+        hasCounter: Bool = false,
     ) -> BitwardenSdk.Fido2CredentialAutofillView {
         .init(
             credentialId: credentialId,
@@ -151,7 +151,7 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
             rpId: rpId,
             userNameForUi: userNameForUi,
             userHandle: userHandle,
-            hasCounter: hasCounter
+            hasCounter: hasCounter,
         )
     }
 }
@@ -170,7 +170,7 @@ extension BitwardenSdk.Fido2CredentialNewView {
         counter: String = "0",
         rpName: String? = nil,
         userDisplayName: String? = nil,
-        creationDate: DateTime = DateTime.distantPast
+        creationDate: DateTime = DateTime.distantPast,
     ) -> BitwardenSdk.Fido2CredentialNewView {
         .init(
             credentialId: credentialId,
@@ -183,7 +183,7 @@ extension BitwardenSdk.Fido2CredentialNewView {
             counter: counter,
             rpName: rpName,
             userDisplayName: userDisplayName,
-            creationDate: creationDate
+            creationDate: creationDate,
         )
     }
 }

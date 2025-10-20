@@ -13,14 +13,14 @@ class KeychainServiceErrorTests: BitwardenTestCase {
 
         let accessControl = try subject.accessControl(
             protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            for: []
+            for: [],
         )
         var error: Unmanaged<CFError>?
         let expected = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             [],
-            &error
+            &error,
         )
         XCTAssertEqual(accessControl, expected)
     }
@@ -31,14 +31,14 @@ class KeychainServiceErrorTests: BitwardenTestCase {
 
         let accessControl = try subject.accessControl(
             protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            for: .biometryCurrentSet
+            for: .biometryCurrentSet,
         )
         var error: Unmanaged<CFError>?
         let expected = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             .biometryCurrentSet,
-            &error
+            &error,
         )
         XCTAssertEqual(accessControl, expected)
     }
@@ -49,14 +49,14 @@ class KeychainServiceErrorTests: BitwardenTestCase {
 
         let accessControl = try subject.accessControl(
             protection: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-            for: []
+            for: [],
         )
         var error: Unmanaged<CFError>?
         let expected = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
             [],
-            &error
+            &error,
         )
         XCTAssertEqual(accessControl, expected)
     }

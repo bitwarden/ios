@@ -9,7 +9,7 @@ import Foundation
 final class VaultGroupProcessor: StateProcessor<
     VaultGroupState,
     VaultGroupAction,
-    VaultGroupEffect
+    VaultGroupEffect,
 >, HasTOTPCodesSections {
     // MARK: Types
 
@@ -65,7 +65,7 @@ final class VaultGroupProcessor: StateProcessor<
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultGroupState,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -80,7 +80,7 @@ final class VaultGroupProcessor: StateProcessor<
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
-            }
+            },
         )
         searchTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
@@ -89,7 +89,7 @@ final class VaultGroupProcessor: StateProcessor<
                 Task {
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
-            }
+            },
         )
     }
 
@@ -114,7 +114,7 @@ final class VaultGroupProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case .refresh:
             await refreshVaultGroup()
@@ -209,7 +209,7 @@ final class VaultGroupProcessor: StateProcessor<
             let updatedSections = try await refreshTOTPCodes(
                 for: items,
                 in: currentSections,
-                using: groupTotpExpirationManager
+                using: groupTotpExpirationManager,
             )
             state.loadingState = .data(updatedSections)
         } catch {
@@ -227,7 +227,7 @@ final class VaultGroupProcessor: StateProcessor<
                 in: [
                     VaultListSection(id: "", items: currentSearchResults, name: ""),
                 ],
-                using: searchTotpExpirationManager
+                using: searchTotpExpirationManager,
             )
             state.searchResults = updatedSections[0].items
         } catch {
@@ -242,7 +242,7 @@ final class VaultGroupProcessor: StateProcessor<
             try await services.vaultRepository.fetchSync(
                 forceSync: true,
                 filter: state.vaultFilterType,
-                isPeriodic: false
+                isPeriodic: false,
             )
         } catch {
             await coordinator.showErrorAlert(error: error)
@@ -263,7 +263,7 @@ final class VaultGroupProcessor: StateProcessor<
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: state.group,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType)
+                filter: VaultListFilter(filterType: state.searchVaultFilterType),
             )
             for try await ciphers in result {
                 state.searchResults = ciphers
@@ -289,7 +289,7 @@ final class VaultGroupProcessor: StateProcessor<
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
+                filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group),
             ) {
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.sections.flatMap(\.items))
                 state.loadingState = .data(vaultList.sections)

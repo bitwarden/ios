@@ -54,7 +54,7 @@ class ViewLoggingNavigationController: UINavigationController,
     func navigationController(
         _ navigationController: UINavigationController,
         didShow viewController: UIViewController,
-        animated: Bool
+        animated: Bool,
     ) {
         logger.log("[Navigation] View appeared: \(resolveLoggingViewName(for: viewController))")
     }

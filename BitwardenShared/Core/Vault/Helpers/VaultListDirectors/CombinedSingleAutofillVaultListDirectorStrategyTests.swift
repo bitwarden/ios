@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - CombinedSingleAutofillVaultListDirectorStrategyTests
 
-class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
+class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase { // swiftlint:disable:this type_name
     // MARK: Properties
 
     var cipherService: MockCipherService!
@@ -30,7 +30,7 @@ class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
         subject = CombinedSingleAutofillVaultListDirectorStrategy(
             builderFactory: vaultListSectionsBuilderFactory,
             cipherService: cipherService,
-            vaultListDataPreparator: vaultListDataPreparator
+            vaultListDataPreparator: vaultListDataPreparator,
         )
     }
 
@@ -70,13 +70,13 @@ class CombinedSingleAutofillVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                mode: .combinedSingleSection
-            )
+                mode: .combinedSingleSection,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)

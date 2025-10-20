@@ -59,7 +59,7 @@ struct VaultUnlockView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: VaultUnlockAction.toastShown
+            send: VaultUnlockAction.toastShown,
         ))
     }
 
@@ -99,8 +99,8 @@ struct VaultUnlockView: View {
                 },
                 mapEffect: { effect in
                     .profileSwitcher(effect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -128,8 +128,8 @@ struct VaultUnlockView: View {
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -141,14 +141,14 @@ struct VaultUnlockView: View {
                 title: Localizations.masterPassword,
                 text: store.binding(
                     get: \.masterPassword,
-                    send: VaultUnlockAction.masterPasswordChanged
+                    send: VaultUnlockAction.masterPasswordChanged,
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
-                    send: VaultUnlockAction.revealMasterPasswordFieldPressed
+                    send: VaultUnlockAction.revealMasterPasswordFieldPressed,
                 ),
                 footerContent: {
                     Text(footerText)
@@ -156,7 +156,7 @@ struct VaultUnlockView: View {
                         .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
                         .padding(.vertical, 12)
-                }
+                },
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -170,14 +170,14 @@ struct VaultUnlockView: View {
                 title: Localizations.pin,
                 text: store.binding(
                     get: \.pin,
-                    send: VaultUnlockAction.pinChanged
+                    send: VaultUnlockAction.pinChanged,
                 ),
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
-                    send: VaultUnlockAction.revealPinFieldPressed
+                    send: VaultUnlockAction.revealPinFieldPressed,
                 ),
                 footerContent: {
                     Text(footerText)
@@ -185,7 +185,7 @@ struct VaultUnlockView: View {
                         .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
                         .padding(.vertical, 12)
-                }
+                },
             )
             .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
@@ -223,10 +223,10 @@ struct VaultUnlockView: View {
                         email: "user@bitwarden.com",
                         profileSwitcherState: .empty(),
                         unlockMethod: .password,
-                        webVaultHost: "vault.bitwarden.com"
-                    )
-                )
-            )
+                        webVaultHost: "vault.bitwarden.com",
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -240,10 +240,10 @@ struct VaultUnlockView: View {
                         email: "user@bitwarden.com",
                         profileSwitcherState: .singleAccountHidden,
                         unlockMethod: .pin,
-                        webVaultHost: "vault.bitwarden.com"
-                    )
-                )
-            )
+                        webVaultHost: "vault.bitwarden.com",
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -257,10 +257,10 @@ struct VaultUnlockView: View {
                         email: "user@bitwarden.com",
                         profileSwitcherState: .singleAccount,
                         unlockMethod: .password,
-                        webVaultHost: "vault.bitwarden.com"
-                    )
-                )
-            )
+                        webVaultHost: "vault.bitwarden.com",
+                    ),
+                ),
+            ),
         )
     }
 }

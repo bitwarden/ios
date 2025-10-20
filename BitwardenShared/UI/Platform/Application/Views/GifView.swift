@@ -33,7 +33,7 @@ struct GifView: UIViewRepresentable {
             gif.data.data,
             mimeType: "image/gif",
             characterEncodingName: "UTF-8",
-            baseURL: Bundle.main.bundleURL
+            baseURL: Bundle.main.bundleURL,
         )
 
         return webView

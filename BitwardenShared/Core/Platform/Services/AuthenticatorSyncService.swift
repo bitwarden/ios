@@ -118,7 +118,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         organizationService: OrganizationService,
         sharedKeychainRepository: SharedKeychainRepository,
         stateService: StateService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.authBridgeItemService = authBridgeItemService
         self.authenticatorClientService = authenticatorClientService
@@ -240,7 +240,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
                 totpKey: cipher.login?.totp,
-                username: cipher.login?.username
+                username: cipher.login?.username,
             )
         }
     }
@@ -353,7 +353,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 result[organization.id] = key
             }
         try await authenticatorClientService.crypto().initializeOrgCrypto(
-            req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
+            req: InitOrgCryptoRequest(organizationKeys: organizationKeysById),
         )
     }
 
@@ -370,7 +370,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         try await authenticatorClientService.crypto().initializeUserCrypto(
             account: account,
             encryptionKeys: encryptionKeys,
-            method: .decryptedKey(decryptedUserKey: authenticatorKey)
+            method: .decryptedKey(decryptedUserKey: authenticatorKey),
         )
         try await initializeOrganizationCrypto(userId: userId)
     }

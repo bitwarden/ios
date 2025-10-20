@@ -73,7 +73,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         errorReporter: ErrorReporter,
         exportVaultService: ExportVaultService,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -96,7 +96,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     @available(iOS 26.0, *)
     func exportCredentials(
         data: ASImportableAccount,
-        presentationAnchor: () async -> ASPresentationAnchor
+        presentationAnchor: () async -> ASPresentationAnchor,
     ) async throws {
         let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
         try await manager.exportCredentials(importableAccount: data)
@@ -114,7 +114,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         let sdkAccount = BitwardenSdk.Account(
             id: account.profile.userId,
             email: account.profile.email,
-            name: account.profile.name
+            name: account.profile.name,
         )
         let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
         return try JSONDecoder.cxfDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))

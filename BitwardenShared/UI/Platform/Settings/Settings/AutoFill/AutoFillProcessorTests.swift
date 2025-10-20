@@ -32,9 +32,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: AutoFillState()
+            state: AutoFillState(),
         )
     }
 
@@ -207,7 +207,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.yes)
 
@@ -231,7 +231,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.cancel)
 
@@ -258,7 +258,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.close, style: .cancel),
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in },
-            ]
+            ],
         ))
 
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
@@ -280,7 +280,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.yes)
 
@@ -304,7 +304,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
         try await alert.tapAction(title: Localizations.cancel)
 
@@ -324,16 +324,16 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .startsWith)
         let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
-        
+
         XCTAssertEqual(alertLearnMore, Alert(
             title: Localizations.keepYourCredentialsSecure,
             message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.startsWith),
             alertActions: [
                 AlertAction(title: Localizations.close, style: .cancel),
                 AlertAction(title: Localizations.learnMore, style: .default) { _ in },
-            ]
+            ],
         ))
-        
+
         try await alertLearnMore.tapAction(title: Localizations.learnMore)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
     }

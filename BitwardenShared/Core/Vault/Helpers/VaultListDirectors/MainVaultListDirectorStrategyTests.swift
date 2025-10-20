@@ -37,7 +37,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             cipherService: cipherService,
             collectionService: collectionService,
             folderService: folderService,
-            vaultListDataPreparator: vaultListDataPreparator
+            vaultListDataPreparator: vaultListDataPreparator,
         )
     }
 
@@ -95,14 +95,14 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
                 addTOTPGroup: true,
-                addTrashGroup: true
-            )
+                addTrashGroup: true,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)
@@ -132,14 +132,14 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
                 addTOTPGroup: true,
-                addTrashGroup: false
-            )
+                addTrashGroup: false,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)
@@ -169,14 +169,14 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
                 addTOTPGroup: false,
-                addTrashGroup: true
-            )
+                addTrashGroup: true,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)
@@ -205,14 +205,14 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
                 VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
                 VaultListSection(id: "TestID2", items: [.fixture()], name: "Test2"),
                 VaultListSection(id: "TestID3", items: [.fixture()], name: "Test3"),
-            ]
+            ],
         )
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
                 addTOTPGroup: false,
-                addTrashGroup: false
-            )
+                addTrashGroup: false,
+            ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)

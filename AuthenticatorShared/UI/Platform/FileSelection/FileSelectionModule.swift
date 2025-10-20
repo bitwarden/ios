@@ -13,19 +13,19 @@ protocol FileSelectionModule {
     ///
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, FileSelectionEvent>
 }
 
 extension DefaultAppModule: FileSelectionModule {
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, FileSelectionEvent> {
         FileSelectionCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

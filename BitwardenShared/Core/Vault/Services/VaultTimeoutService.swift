@@ -144,7 +144,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         errorReporter: ErrorReporter,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
@@ -233,7 +233,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await updateSharedTimeout(
             lastActiveTime: now,
             timeoutValue: vaultTimeout,
-            userId: userId
+            userId: userId,
         )
     }
 
@@ -244,7 +244,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await updateSharedTimeout(
             lastActiveTime: lastActiveTime,
             timeoutValue: value,
-            userId: userId
+            userId: userId,
         )
     }
 
@@ -265,7 +265,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 guard let activeAccountId else { return nil }
                 return VaultLockStatus(
                     isVaultLocked: lockStatusByAccount[activeAccountId] ?? true,
-                    userId: activeAccountId
+                    userId: activeAccountId,
                 )
             }
             .removeDuplicates()
@@ -278,7 +278,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private func updateSharedTimeout(
         lastActiveTime: Date?,
         timeoutValue: SessionTimeoutValue,
-        userId: String
+        userId: String,
     ) async throws {
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         switch vaultTimeout {
@@ -296,7 +296,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 try await sharedTimeoutService.updateTimeout(
                     forUserId: userId,
                     lastActiveDate: lastActiveTime,
-                    timeoutLength: timeoutValue
+                    timeoutLength: timeoutValue,
                 )
             }
         }

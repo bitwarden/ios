@@ -169,7 +169,7 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService

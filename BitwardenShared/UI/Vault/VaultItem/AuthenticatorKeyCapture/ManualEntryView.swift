@@ -16,7 +16,7 @@ struct ManualEntryView: View {
         content
             .navigationBar(
                 title: Localizations.authenticatorKey,
-                titleDisplayMode: .inline
+                titleDisplayMode: .inline,
             )
             .toolbar {
                 cancelToolbarItem {
@@ -25,7 +25,7 @@ struct ManualEntryView: View {
 
                 saveToolbarItem {
                     store.send(
-                        ManualEntryAction.addPressed(code: store.state.authenticatorKey)
+                        ManualEntryAction.addPressed(code: store.state.authenticatorKey),
                     )
                 }
             }
@@ -50,16 +50,16 @@ struct ManualEntryView: View {
                 title: Localizations.authenticatorKey,
                 text: store.binding(
                     get: \.authenticatorKey,
-                    send: ManualEntryAction.authenticatorKeyChanged
+                    send: ManualEntryAction.authenticatorKeyChanged,
                 ),
-                accessibilityIdentifier: "AddTOTPManuallyField"
+                accessibilityIdentifier: "AddTOTPManuallyField",
             )
 
             footerButtonContainer
         }
         .background(
             SharedAsset.Colors.backgroundPrimary.swiftUIColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(),
         )
         .padding(.top, 12)
         .scrollView()
@@ -109,9 +109,9 @@ struct ManualEntryView_Previews: PreviewProvider {
             ManualEntryView(
                 store: Store(
                     processor: StateProcessor(
-                        state: PreviewState().manualEntryState
-                    )
-                )
+                        state: PreviewState().manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Empty")
@@ -123,10 +123,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: PreviewState(
-                            authenticatorKey: "manualEntry"
-                        ).manualEntryState
-                    )
-                )
+                            authenticatorKey: "manualEntry",
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Text Added")

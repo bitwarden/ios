@@ -137,7 +137,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeDeleted_cannotManageAnyCollection() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -153,7 +153,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeDeleted_canManageAnyCollection() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -170,8 +170,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeDeleted)
@@ -184,8 +184,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: false,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeDeleted)
@@ -197,7 +197,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             collectionIds: ["1", "2"],
             deletedDate: nil,
             login: .fixture(),
-            permissions: nil
+            permissions: nil,
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
@@ -206,7 +206,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             collectionIds: ["1", "2"],
             deletedDate: Date(),
             login: .fixture(),
-            permissions: nil
+            permissions: nil,
         )
         state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeRestored)
@@ -220,8 +220,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: true
-            )
+                restore: true,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeRestored)
@@ -235,8 +235,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(),
             permissions: CipherPermissions(
                 delete: true,
-                restore: false
-            )
+                restore: false,
+            ),
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.canBeRestored)
@@ -543,7 +543,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_shouldShowLearnNewLoginActionCard_false() {
         let cipher = CipherView.cardFixture(card: .fixture(
             code: "123",
-            number: "123456789"
+            number: "123456789",
         ))
         var state = CipherItemState(cloneItem: cipher, hasPremium: true)
         state.isLearnNewLoginActionCardEligible = true
@@ -554,7 +554,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_shouldShowLearnNewLoginActionCard_false_config() throws {
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
-            login: .fixture()
+            login: .fixture(),
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.isLearnNewLoginActionCardEligible = true
@@ -577,7 +577,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             card: .fixture(cardholderName: "Bitwarden User", code: "123", number: "1111222233334444"),
             id: "123",
             name: "Card",
-            type: .card
+            type: .card,
         )
         subject?.update(from: updatedCipher)
 
@@ -593,7 +593,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             identity: .fixture(firstName: "First", lastName: "Last"),
             name: "Identity",
-            type: .identity
+            type: .identity,
         )
         subject?.update(from: updatedCipher)
 
@@ -617,7 +617,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             notes: "Secure notes",
             organizationId: "organization-1",
             revisionDate: Date(year: 2025, month: 6, day: 1),
-            type: .login
+            type: .login,
         )
         subject?.update(from: updatedCipher)
 
@@ -633,7 +633,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             name: "Identity",
             notes: "Secure note text",
-            type: .secureNote
+            type: .secureNote,
         )
         subject?.update(from: updatedCipher)
 
@@ -649,7 +649,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "123",
             name: "SSH Key",
             sshKey: .fixture(),
-            type: .sshKey
+            type: .sshKey,
         )
         subject?.update(from: updatedCipher)
 

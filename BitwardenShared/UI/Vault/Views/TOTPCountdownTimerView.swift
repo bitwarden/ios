@@ -39,9 +39,9 @@ struct TOTPCountdownTimerView: View {
                 .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                 .animation(
                     .smooth(
-                        duration: TOTPCountdownTimerView.timerInterval
+                        duration: TOTPCountdownTimerView.timerInterval,
                     ),
-                    value: timer.remainingFraction
+                    value: timer.remainingFraction,
                 )
         }
     }
@@ -57,14 +57,14 @@ struct TOTPCountdownTimerView: View {
     init(
         timeProvider: any TimeProvider,
         totpCode: TOTPCodeModel,
-        onExpiration: (() -> Void)?
+        onExpiration: (() -> Void)?,
     ) {
         self.totpCode = totpCode
         timer = .init(
             timeProvider: timeProvider,
             timerInterval: TOTPCountdownTimerView.timerInterval,
             totpCode: totpCode,
-            onExpiration: onExpiration
+            onExpiration: onExpiration,
         )
     }
 }
