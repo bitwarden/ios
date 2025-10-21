@@ -24,7 +24,7 @@ private let authenticatorBridgeModelName = "Bitwarden-Authenticator"
 /// property. Once we have a minimum version of iOS 16 or higher, we can migrate to the `Synchronization` framework
 /// and make this more properly `Sendable`.
 ///
-public final class AuthenticatorBridgeDataStore: @unchecked Sendable {
+public final nonisolated class AuthenticatorBridgeDataStore: @unchecked Sendable {
     // MARK: Type Properties
 
     /// The managed object model representing the entities in the database schema. CoreData throws
