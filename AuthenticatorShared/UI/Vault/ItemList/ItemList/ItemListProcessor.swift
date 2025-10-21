@@ -160,7 +160,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     ///
-    private func initTOTPExpirationManagers(groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil, searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil) {
+    private func initTOTPExpirationManagers(
+        groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
+        searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil
+    ) {
         if let groupTotpExpirationManagerForTests, let searchTotpExpirationManagerForTests {
             groupTotpExpirationManager = groupTotpExpirationManagerForTests
             groupTotpExpirationManager?.onExpiration = { [weak self] expiredItems in
