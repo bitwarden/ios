@@ -13,6 +13,7 @@ extension Cipher {
         Cipher(
             id: id,
             organizationId: organizationId,
+            deviceBound: deviceBound,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -51,6 +52,7 @@ extension Cipher {
         Cipher(
             id: id,
             organizationId: organizationId,
+            deviceBound: deviceBound,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,

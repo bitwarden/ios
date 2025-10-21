@@ -601,6 +601,7 @@ extension CipherItemState {
         CipherView(
             id: nil,
             organizationId: organizationId,
+            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: nil,

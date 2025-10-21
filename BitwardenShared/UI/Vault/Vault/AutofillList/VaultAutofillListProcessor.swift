@@ -648,7 +648,7 @@ extension VaultAutofillListProcessor {
                 extensions: extensions,
             )
             let createdCredential = try await services.clientService.platform().fido2()
-                .authenticator(
+                .vaultAuthenticator(
                     userInterface: services.fido2UserInterfaceHelper,
                     credentialStore: services.fido2CredentialStore,
                 )

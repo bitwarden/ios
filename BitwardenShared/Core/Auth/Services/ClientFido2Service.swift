@@ -14,6 +14,18 @@ protocol ClientFido2Service: AnyObject {
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2AuthenticatorProtocol
+    
+    /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks on keychain items.
+    /// - Parameters:
+    ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
+    ///   - credentialStore: `Fido2CredentialStore` with necessary platform side logic related to credential storage.
+    ///   - deviceKey: `SymmetricKey` used to encrypt data on the device.
+    /// - Returns: Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks
+    func deviceAuthenticator(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore,
+        deviceKey: SymmetricKey
+    ) -> ClientFido2AuthenticatorProtocol
 
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
     /// - Parameters:
