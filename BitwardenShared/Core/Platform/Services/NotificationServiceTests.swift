@@ -12,6 +12,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var delegate: MockNotificationServiceDelegate!
     var errorReporter: MockErrorReporter!
     var notificationAPIService: NotificationAPIService!
@@ -28,6 +29,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
+        configService = MockConfigService()
         delegate = MockNotificationServiceDelegate()
         errorReporter = MockErrorReporter()
         notificationAPIService = APIService(client: client)
@@ -39,6 +41,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
             refreshableApiService: refreshableApiService,
@@ -54,6 +57,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         appSettingsStore = nil
         authService = nil
         client = nil
+        configService = nil
         delegate = nil
         errorReporter = nil
         notificationAPIService = nil
@@ -494,6 +498,60 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // Test.
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+        XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
+        XCTAssertTrue(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
+    /// to the landing screen if the logged-out account was the currently active account.
+    @MainActor
+    func test_messageReceived_logout_activeUser_kdfChange() async throws {
+        let activeAccount = Account.fixture()
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
+        stateService.setIsAuthenticated()
+        stateService.accounts = [activeAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(activeAccount.profile.userId)",
+                    "Reason": 0
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(authRepository.logoutUserId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
+    /// to the landing screen if the logged-out account was the currently active account.
+    @MainActor
+    func test_messageReceived_logout_activeUser_kdfChange_forceUpdateKdfSettingsOff() async throws {
+        let activeAccount = Account.fixture()
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
+        stateService.setIsAuthenticated()
+        stateService.accounts = [activeAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(activeAccount.profile.userId)",
+                    "Reason": 0
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
         XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
         XCTAssertTrue(delegate.routeToLandingCalled)
     }
