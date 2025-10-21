@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2025-10-08_12-46-28_UTC
-// COMMIT: ee7dec4a99602baaf51879dd8469b6642881a494
+// VERSION: 2025-10-16_17-43-33_UTC
+// COMMIT: 399792921792cacc483219997697443b49b6976f
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -12449,6 +12449,8 @@ cafjs.com
 canva-apps.cn
 my.canvasite.cn
 canva-apps.com
+canva-hosted-embed.com
+canvacode.com
 rice-labs.com
 canva.run
 my.canva.site
@@ -12774,6 +12776,7 @@ icp1.io
 *.raw.icp1.io
 *.icp.net
 caffeine.site
+caffeine.xyz
 
 // dhosting.pl Sp. z o.o. : https://dhosting.pl/
 // Submitted by Michal Kokoszkiewicz <bok@dhosting.pl>
@@ -14088,8 +14091,9 @@ myjino.ru
 // Submitted by Daniel Fariña <ingenieria@jotelulu.com>
 jote.cloud
 jotelulu.cloud
-jote-dr-lt1.com
-jote-rd-lt1.com
+eu1-plenit.com
+la1-plenit.com
+us1-plenit.com
 
 // JouwWeb B.V. : https://www.jouwweb.nl
 // Submitted by Camilo Sperberg <tech@webador.com>
@@ -14714,6 +14718,7 @@ simplesite.gr
 123website.nl
 123hjemmeside.no
 service.one
+website.one
 simplesite.pl
 123paginaweb.pt
 123minsida.se
