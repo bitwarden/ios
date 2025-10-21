@@ -133,7 +133,27 @@ jobs:
             xcrun simctl runtime dyld_shared_cache update --all
             echo "--------------------------------"
             echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-            xcrun simctl bootstatus "$DEVICE_ID" -b
+
+            i=1
+            max=10
+            while [ $i -le $max ]; do
+                echo "👀 Launching Simulator (Attempt $i/$max)"
+                # Brewfile installs coreutils which includes gtimeout
+                if gtimeout -s SIGKILL 3m xcrun simctl bootstatus "$DEVICE_ID" -b; then
+                    echo "✅ Simulator booted successfully"
+                    exit 0
+                else
+                    echo "❌ Simulator boot timed out. Shutting down..."
+                    xcrun simctl shutdown "$DEVICE_ID" || true # prevents "Unable to shutdown device in current state: Shutdown" error
+
+                    echo "🔁 Retrying in 5s..."
+                    i=$((i + 1))
+                    sleep 5
+                fi
+            done
+
+            echo "::error::Failed to boot simulator after $max attempts."
+            exit 1
 
       - name: Build
         run: |
