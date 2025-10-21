@@ -9,7 +9,7 @@ protocol TOTPExpirationManager {
 
     /// A closure to call on expiration
     ///
-    var onExpiration: (([ItemListItem]) -> Void)? { get }
+    var onExpiration: (([ItemListItem]) -> Void)? { get set }
 
     // MARK: Methods
 
@@ -22,12 +22,11 @@ protocol TOTPExpirationManager {
     /// - Parameter items: The vault list items that may require code expiration tracking.
     ///
     func configureTOTPRefreshScheduling(for items: [ItemListItem])
-
 }
 
 /// A class to manage TOTP code expirations for the ItemListProcessor and batch refresh calls.
 ///
-class DefaultTOTPExpirationManager {
+class DefaultTOTPExpirationManager: TOTPExpirationManager {
     // MARK: Private Properties
 
     /// A cancellable object used to manage the publisher subscription.
@@ -110,7 +109,7 @@ class DefaultTOTPExpirationManager {
         itemsByInterval.forEach { period, items in
             let sortedItems: [Bool: [ItemListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
                 items,
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
             expired.append(contentsOf: sortedItems[true] ?? [])
             notExpired[period] = sortedItems[false]

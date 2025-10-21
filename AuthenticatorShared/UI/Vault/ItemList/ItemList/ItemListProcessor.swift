@@ -36,10 +36,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private var services: Services
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
-    private var groupTotpExpirationManager: DefaultTOTPExpirationManager?
+    private var groupTotpExpirationManager: TOTPExpirationManager?
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
-    private var searchTotpExpirationManager: DefaultTOTPExpirationManager?
+    private var searchTotpExpirationManager: TOTPExpirationManager?
 
     // MARK: Initialization
 
@@ -54,12 +54,15 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
         state: ItemListState,
+        groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
+        searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
     ) {
         self.coordinator = coordinator
         self.services = services
 
         super.init(state: state)
-        initTOTPExpirationManagers()
+        initTOTPExpirationManagers(groupTotpExpirationManagerForTests: groupTotpExpirationManagerForTests,
+                                   searchTotpExpirationManagerForTests: searchTotpExpirationManagerForTests)
         setupForegroundNotification()
     }
 
@@ -149,9 +152,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
-            if !state.searchText.isEmpty {
-                await searchItems(for: state.searchText)
-            }
             state.toast = Toast(title: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
@@ -160,7 +160,27 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     ///
-    private func initTOTPExpirationManagers(){
+    private func initTOTPExpirationManagers(groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil, searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil) {
+        if let groupTotpExpirationManagerForTests, let searchTotpExpirationManagerForTests {
+            groupTotpExpirationManager = groupTotpExpirationManagerForTests
+            groupTotpExpirationManager?.onExpiration = { [weak self] expiredItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(for: expiredItems)
+                }
+            }
+
+            searchTotpExpirationManager = searchTotpExpirationManagerForTests
+            searchTotpExpirationManager?.onExpiration = { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
+                }
+            }
+
+            return
+        }
+
         groupTotpExpirationManager = DefaultTOTPExpirationManager(
             itemPublisher: statePublisher.map(\.loadingState.data).eraseToAnyPublisher(),
             onExpiration: { [weak self] expiredItems in
@@ -169,7 +189,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
             },
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         searchTotpExpirationManager = DefaultTOTPExpirationManager(
             itemPublisher: statePublisher
@@ -182,7 +202,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
             },
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
     }
 
@@ -231,7 +251,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let refreshedItems = try await refreshTOTPCodes(
                 for: items,
-                in: currentSections
+                in: currentSections,
             )
             state.loadingState = .data(refreshedItems)
         } catch {
@@ -247,7 +267,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 for: searchItems,
                 in: [
                     ItemListSection(id: "", items: state.searchResults, name: ""),
-                ]
+                ],
             )
             state.searchResults = refreshedItems[0].items
         } catch {
