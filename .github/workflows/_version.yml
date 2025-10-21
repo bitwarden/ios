@@ -146,10 +146,13 @@ jobs:
           _VERSION_NUMBER: ${{ steps.calc-version-number.outputs.version_number }}
           _VERSION_NAME: ${{ steps.calc-version-name.outputs.version_name }}
         run: |
-          json='{
+          json=$(cat <<EOF
+          {
             "version_number": "${_VERSION_NUMBER}",
             "version_name": "${_VERSION_NAME}"
-          }'
+          }
+          EOF
+          )
           echo "$json" > version_info.json
 
           echo "## version-info.json" >> "$GITHUB_STEP_SUMMARY"
