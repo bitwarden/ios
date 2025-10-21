@@ -60,6 +60,20 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
                 return record!
             }
         }
+        let userId = try await stateService.getActiveAccountId()
+        // TODO: SUPER HACK; co-opting device key from TDE for this purpose is no good. This should not be merged.
+        let deviceKey: SymmetricKey
+        if let deviceKeyB64 = try? await keychainRepository.getDeviceKey(userId: userId) {
+            deviceKey = SymmetricKey(data: Data(base64Encoded: deviceKeyB64)!)
+        }
+        else {
+            deviceKey = SymmetricKey(size: SymmetricKeySize(bitCount: 512))
+            let key = deviceKey.withUnsafeBytes {
+                Data(Array($0)).base64EncodedString()
+            }
+            try await keychainRepository.setDeviceKey(key, userId: userId)
+        }
+        Logger.application.debug("Device key: \(deviceKey.withUnsafeBytes { Data(Array($0)).base64EncodedString() })")
         let response = try await authAPIService.getCredentialCreationOptions(SecretVerificationRequestModel(passwordHash: masterPasswordHash))
         let options = response.options
         let token = response.token
@@ -80,7 +94,6 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         let clientDataJson = #"{"type":"webauthn.create","challenge":"\#(options.challenge)","origin":"\#(origin)"}"#
         let clientDataHash = Data(SHA256.hash(data: clientDataJson.data(using: .utf8)!))
         
-        let userId = try await stateService.getActiveAccountId()
         let credentialStore = DevicePasskeyCredentialStore(
             clientService: clientService,
             keychainRepository: keychainRepository,
@@ -90,7 +103,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
         let authenticator = try await clientService
             .platform()
             .fido2()
-            .authenticator(userInterface: userInterface, credentialStore: credentialStore)
+            .deviceAuthenticator(userInterface: userInterface, credentialStore: credentialStore, deviceKey: deviceKey)
         let credRequest = MakeCredentialRequest(
             clientDataHash: clientDataHash,
             rp: PublicKeyCredentialRpEntity(id: options.rp.id, name: options.rp.name),
@@ -154,6 +167,7 @@ struct DefaultDevicePasskeyService : DevicePasskeyService {
                     using: .utf8
                 )!
             )
+            Logger.application.debug("Record: \(json) })")
             return record
         }
         else { return nil }
@@ -172,6 +186,7 @@ struct DevicePasskeyRecord: Decodable, Encodable {
     let cipherId: String
     let cipherName: String
     let credentialId: String
+    let deviceBound: Bool
     let keyType: String
     let keyAlgorithm: String
     let keyCurve: String
@@ -190,6 +205,7 @@ struct DevicePasskeyRecord: Decodable, Encodable {
         CipherView(
             id: self.cipherId,
             organizationId: nil,
+            deviceBound: true,
             folderId: nil,
             collectionIds: [],
             key: nil,
@@ -244,6 +260,7 @@ struct DevicePasskeyRecord: Decodable, Encodable {
             Cipher(
                 id: self.cipherId,
                 organizationId: nil,
+                deviceBound: true,
                 folderId: nil,
                 collectionIds: [],
                 key: nil,
@@ -318,9 +335,10 @@ final class DevicePasskeyCredentialStore : Fido2CredentialStore {
         let encryptedCipher = record.toCipher()
         let cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
         
+        let deviceKey = try await SymmetricKey(data: Data(base64Encoded: keychainRepository.getDeviceKey(userId: userId)!)!)
         let fido2CredentialAutofillViews = try await clientService.platform()
             .fido2()
-            .decryptFido2AutofillCredentials(cipherView: cipherView)
+            .decryptFido2AutofillCredentials(cipherView: cipherView, encryptionKey: deviceKey)
 
         guard let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0],
               ripId == fido2CredentialAutofillView.rpId else {
@@ -341,7 +359,8 @@ final class DevicePasskeyCredentialStore : Fido2CredentialStore {
         if let record = try? await getDevicePasskey() {
             // record contains encrypted values; we need to decrypt them
             let encryptedCipherView = record.toCipherView()
-            let decrypted = try await clientService.vault().ciphers().decryptFido2Credentials(cipherView: encryptedCipherView)[0]
+            let deviceKey = try await Data(base64Encoded: keychainRepository.getDeviceKey(userId: userId)!)!
+            let decrypted = try await clientService.vault().ciphers().decryptFido2Credentials(cipherView: encryptedCipherView, encryptionKey: deviceKey)[0]
             
             let fido2View = Fido2CredentialListView(
                 credentialId: decrypted.credentialId,
@@ -397,6 +416,7 @@ final class DevicePasskeyCredentialStore : Fido2CredentialStore {
                 cipherId: UUID().uuidString,
                 cipherName: cred.cipher.name,
                 credentialId: fido2cred.credentialId,
+                deviceBound: cred.cipher.deviceBound,
                 keyType: fido2cred.keyType,
                 keyAlgorithm: fido2cred.keyAlgorithm,
                 keyCurve: fido2cred.keyCurve,

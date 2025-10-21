@@ -332,6 +332,7 @@ extension BitwardenSdk.Cipher {
         self.init(
             id: model.id,
             organizationId: model.organizationId,
+            deviceBound: false,
             folderId: model.folderId,
             collectionIds: model.collectionIds ?? [],
             key: model.key,
@@ -403,6 +404,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
         self = CipherView(
             id: nil,
             organizationId: nil,
+            deviceBound: false,
             folderId: nil,
             collectionIds: [],
             key: nil,

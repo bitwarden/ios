@@ -136,7 +136,7 @@ class DefaultAutofillCredentialService {
 
     /// The repository to interact with keychain items.
     private let keychainRepository: KeychainRepository
-    
+
     /// The last user ID that had their identities synced.
     private(set) var lastSyncedUserId: String?
 
@@ -330,7 +330,7 @@ class DefaultAutofillCredentialService {
                 }
 
                 let fido2Identities = try await clientService.platform().fido2()
-                    .authenticator(
+                    .vaultAuthenticator(
                         userInterface: fido2UserInterfaceHelper,
                         credentialStore: fido2CredentialStore,
                     )
@@ -338,19 +338,23 @@ class DefaultAutofillCredentialService {
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
                 
-                let deviceIdentities = try await clientService.platform().fido2().authenticator(
-                    userInterface: DevicePasskeyUserInterface(),
-                    credentialStore: DevicePasskeyCredentialStore(
-                        clientService: clientService,
-                        keychainRepository: keychainRepository,
-                        userId: userId
+                if let deviceKeyB64 = try? await keychainRepository.getDeviceKey(userId: userId) {
+                    let deviceKey = SymmetricKey(data: Data(base64Encoded: deviceKeyB64)!)
+                    let deviceIdentities = try await clientService.platform().fido2().deviceAuthenticator(
+                        userInterface: DevicePasskeyUserInterface(),
+                        credentialStore: DevicePasskeyCredentialStore(
+                            clientService: clientService,
+                            keychainRepository: keychainRepository,
+                            userId: userId,
+                        ),
+                        deviceKey: deviceKey,
                     )
-                )
-                    .credentialsForAutofill()
-                    .compactMap {
-                        $0.toFido2CredentialIdentity()
-                    }
-                identities.append(contentsOf: deviceIdentities)
+                        .credentialsForAutofill()
+                        .compactMap {
+                            $0.toFido2CredentialIdentity()
+                        }
+                    identities.append(contentsOf: deviceIdentities)
+                }
                 
                 try await identityStore.replaceCredentialIdentities(identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
@@ -458,14 +462,36 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw AppProcessorError.invalidOperation
         }
 
+        let request = GetAssertionRequest(
+            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
+        )
+
+        // Before trying to unlock the device, try to satisfy credential with device passkey.
+        // TODO: Change this only to use device passkey if the device passkey cipher ID matches the passkeyRequest.credentialIdentity.recordIdentifier
+        // That way, this will only be selected if the user explicitly selects it.
+        if let deviceKeyB64 = try? await keychainRepository.getDeviceKey(userId: stateService.getActiveAccountId()) {
+            let deviceKey = SymmetricKey(data: Data(base64Encoded: deviceKeyB64)!)
+            if let devicePasskeyAssertionResult = try? await clientService.platform().fido2().deviceAuthenticator(
+                userInterface: DevicePasskeyUserInterface(),
+                credentialStore: DevicePasskeyCredentialStore(
+                    clientService: clientService,
+                    keychainRepository: keychainRepository,
+                    userId: stateService.getActiveAccountId()
+                ),
+                deviceKey: deviceKey
+            ).getAssertion(request: request) {
+                return ASPasskeyAssertionCredential(
+                    assertionResult: devicePasskeyAssertionResult,
+                    rpId: request.rpId,
+                    clientDataHash: request.clientDataHash
+                )
+            }
+        }
+
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
             throw Fido2Error.userInteractionRequired
         }
-
-        let request = GetAssertionRequest(
-            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
-        )
 
         return try await provideFido2Credential(
             with: request,
@@ -564,7 +590,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         identities.append(contentsOf: newIdentities)
 
         let fido2Identities = try await clientService.platform().fido2()
-            .authenticator(
+            .vaultAuthenticator(
                 userInterface: fido2UserInterfaceHelper,
                 credentialStore: fido2CredentialStore,
             )
@@ -599,26 +625,12 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         #endif
 
         do {
-            let devicePasskeyAssertionResult = try? await clientService.platform().fido2().authenticator(
-                userInterface: DevicePasskeyUserInterface(),
-                credentialStore: DevicePasskeyCredentialStore(
-                    clientService: clientService,
-                    keychainRepository: keychainRepository,
-                    userId: stateService.getActiveAccountId()
+            let assertionResult = try await clientService.platform().fido2()
+                .vaultAuthenticator(
+                    userInterface: fido2UserInterfaceHelper,
+                    credentialStore: fido2CredentialStore
                 )
-            ).getAssertion(request: request)
-            
-            var assertionResult: GetAssertionResult
-            if devicePasskeyAssertionResult != nil {
-                assertionResult = devicePasskeyAssertionResult!
-            } else {
-               assertionResult = try await clientService.platform().fido2()
-                    .authenticator(
-                        userInterface: fido2UserInterfaceHelper,
-                        credentialStore: fido2CredentialStore
-                    )
-                    .getAssertion(request: request)
-            }
+                .getAssertion(request: request)
 
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
@@ -630,27 +642,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 errorReporter.log(error: error)
             }
 
-            if #available(iOSApplicationExtension 18.0, *) {
-                return ASPasskeyAssertionCredential(
-                    userHandle: assertionResult.userHandle,
-                    relyingParty: rpId,
-                    signature: assertionResult.signature,
-                    clientDataHash: clientDataHash,
-                    authenticatorData: assertionResult.authenticatorData,
-                    credentialID: assertionResult.credentialId,
-                    extensionOutput: assertionResult.extensions.toNative()
-                )
-            }
-            else {
-                return ASPasskeyAssertionCredential(
-                    userHandle: assertionResult.userHandle,
-                    relyingParty: rpId,
-                    signature: assertionResult.signature,
-                    clientDataHash: clientDataHash,
-                    authenticatorData: assertionResult.authenticatorData,
-                    credentialID: assertionResult.credentialId
-                )
-            }
+            return ASPasskeyAssertionCredential(assertionResult: assertionResult, rpId: rpId, clientDataHash: clientDataHash)
         } catch {
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
