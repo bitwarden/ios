@@ -65,6 +65,35 @@ extension GetAssertionRequest {
     }
 }
 
+// MARK: - ASPasskeyAssertionCredential
+
+@available(iOS 17.0, *)
+extension ASPasskeyAssertionCredential {
+    convenience init(assertionResult: GetAssertionResult, rpId: String, clientDataHash: Data) {
+        if #available(iOSApplicationExtension 18.0, *) {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId,
+                extensionOutput: assertionResult.extensions.toNative()
+            )
+        }
+        else {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId
+            )
+        }
+    }
+}
+
 // MARK: - MakeCredentialRequest
 
 extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConvertible {
