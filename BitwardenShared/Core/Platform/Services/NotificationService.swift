@@ -93,6 +93,9 @@ class DefaultNotificationService: NotificationService {
     /// The service used by the application to handle authentication tasks.
     private let authService: AuthService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -116,6 +119,7 @@ class DefaultNotificationService: NotificationService {
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - notificationAPIService: The API service used to make notification requests.
     ///   - refreshableApiService: The API service used to refresh tokens.
@@ -125,6 +129,7 @@ class DefaultNotificationService: NotificationService {
         appIdService: AppIdService,
         authRepository: AuthRepository,
         authService: AuthService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         notificationAPIService: NotificationAPIService,
         refreshableApiService: RefreshableAPIService,
@@ -134,6 +139,7 @@ class DefaultNotificationService: NotificationService {
         self.appIdService = appIdService
         self.authRepository = authRepository
         self.authService = authService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.notificationAPIService = notificationAPIService
         self.refreshableApiService = refreshableApiService
@@ -217,7 +223,16 @@ class DefaultNotificationService: NotificationService {
                 try await refreshableApiService.refreshAccessToken()
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                guard let data: UserNotification = notificationData.data() else { return }
+                guard let data: LogoutNotification = notificationData.data() else { return }
+
+                if data.reason == .kdfChange,
+                   // TODO: PM-26960 Remove user ID check with forceUpdateKdfSettings feature flag.
+                   data.userId == userId,
+                   await configService.getFeatureFlag(.forceUpdateKdfSettings) {
+                    // Don't log the user out for KDF changes.
+                    break
+                }
+
                 try await authRepository.logout(userId: data.userId, userInitiated: true)
                 // Only route to landing page if the current active user was logged out.
                 if data.userId == userId {
