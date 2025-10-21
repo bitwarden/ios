@@ -1,10 +1,9 @@
 import BitwardenKit
 import BitwardenKitMocks
-import Combine
 @testable import BitwardenShared
 
 class MockProfileSwitcherHandlerProcessor:
-    Processor,
+    MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>,
     ProfileSwitcherHandler {
     var alertsShown = [BitwardenShared.Alert]()
     var allowLockAndLogout = true
@@ -19,8 +18,7 @@ class MockProfileSwitcherHandlerProcessor:
     init(services: ProfileServices, state: ProfileSwitcherState) {
         profileSwitcherState = state
         profileServices = services
-//        super.init(state: state)
-        stateSubject = CurrentValueSubject(state)
+        super.init(state: state)
     }
 
     func dismissProfileSwitcher() {
@@ -39,30 +37,5 @@ class MockProfileSwitcherHandlerProcessor:
 
     func showProfileSwitcher() {
         showProfileSwitcherCalled = true
-    }
-
-    public var dispatchedActions = [ProfileSwitcherAction]()
-    public var effects: [ProfileSwitcherEffect] = []
-    let stateSubject: CurrentValueSubject<ProfileSwitcherState, Never>
-
-    public var state: ProfileSwitcherState {
-        get { stateSubject.value }
-        set { stateSubject.value = newValue }
-    }
-
-    public var statePublisher: AnyPublisher<ProfileSwitcherState, Never> {
-        stateSubject.eraseToAnyPublisher()
-    }
-
-//    public init(state: ProfileSwitcherState) {
-//        stateSubject = CurrentValueSubject(state)
-//    }
-//
-    public func receive(_ action: ProfileSwitcherAction) {
-        dispatchedActions.append(action)
-    }
-
-    public func perform(_ effect: ProfileSwitcherEffect) async {
-        effects.append(effect)
     }
 }

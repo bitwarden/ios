@@ -1,7 +1,7 @@
 import BitwardenKit
 import Combine
 
-public open class MockProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: Processor {
+open class MockProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: Processor {
     public var dispatchedActions = [Action]()
     public var effects: [Effect] = []
     let stateSubject: CurrentValueSubject<State, Never>
