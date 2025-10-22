@@ -38,7 +38,7 @@ runs:
                 echo "✅ Simulator booted successfully"
                 exit 0
             else
-                echo "❌ Simulator boot timed out. Shutting down..."
+                echo "::warning::Simulator boot timed out (attempt $i/$max). Shutting down..."
                 xcrun simctl shutdown "$DEVICE_ID" || true # prevents "Unable to shutdown device in current state: Shutdown" error
 
                 echo "🔁 Retrying in 5s..."
