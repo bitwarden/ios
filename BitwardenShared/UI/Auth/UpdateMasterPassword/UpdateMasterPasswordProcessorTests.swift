@@ -249,7 +249,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.updateMasterPasswordReason, .weakMasterPasswordOnLogin)
 
         XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `receive(_:)` with `.currentMasterPasswordChanged` updates the state to reflect the changes.
