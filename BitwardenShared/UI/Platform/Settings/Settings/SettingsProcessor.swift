@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SettingsProcessorDelegate
 
 /// A delegate of `SettingsProcessor` that is notified when the settings tab badge needs to be updated.

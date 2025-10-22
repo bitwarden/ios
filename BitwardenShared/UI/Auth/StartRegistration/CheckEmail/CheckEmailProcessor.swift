@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - CheckEmailProcessor
 
 /// The processor used to manage state and handle actions for the check email screen.
