@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
