@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenKit
 import SwiftUI
 
 // MARK: - AuthenticatorKeyCaptureDelegate
