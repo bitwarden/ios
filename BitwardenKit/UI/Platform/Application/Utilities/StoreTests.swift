@@ -1,8 +1,7 @@
+import BitwardenKit
 import BitwardenKitMocks
 import Foundation
 import XCTest
-
-@testable import BitwardenShared
 
 // MARK: - StoreTests
 
