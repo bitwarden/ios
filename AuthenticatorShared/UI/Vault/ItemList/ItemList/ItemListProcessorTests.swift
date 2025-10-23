@@ -57,7 +57,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         groupTotpExpirationManagerForTests = MockTOTPExpirationManager()
         searchTotpExpirationManagerForTests = MockTOTPExpirationManager()
-        
+
         subject = ItemListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,

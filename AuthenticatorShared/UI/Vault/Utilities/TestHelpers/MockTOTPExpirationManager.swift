@@ -1,3 +1,5 @@
+@testable import AuthenticatorShared
+
 class MockTOTPExpirationManager: TOTPExpirationManager {
     var cleanupCalled = false
     var configuredTOTPRefreshSchedulingItems: [ItemListItem]?

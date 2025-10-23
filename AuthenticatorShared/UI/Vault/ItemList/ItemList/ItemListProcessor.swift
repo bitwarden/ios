@@ -61,6 +61,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
+        // TODO: PM-27253
+        // We should be using TOTPExpirationManagerFactory
+        // This will be implemented in PM-27253
         initTOTPExpirationManagers(groupTotpExpirationManagerForTests: groupTotpExpirationManagerForTests,
                                    searchTotpExpirationManagerForTests: searchTotpExpirationManagerForTests)
         setupForegroundNotification()
