@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Kasayı şimdi eşitle";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki aşamalı giriş";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Kilidi biyometri ile aç";
+"UnlockWithFaceID" = "Kilidi Face ID ile aç";
+"UnlockWithTouchID" = "Kilidi Touch ID ile aç";
+"UnlockWithOpticID" = "Kilidi Optic ID ile aç";
 "UnlockWithPIN" = "Kilidi PIN koduyla aç";
 "Validating" = "Doğrulanıyor";
 "VerificationCode" = "Doğrulama kodu";

@@ -145,8 +145,8 @@
 "MasterPasswordHint" = "Petunjuk sandi utama";
 "NewMasterPasswordHint" = "Petunjuk sandi utama baru";
 "MasterPasswordLengthValMessageX" = "Sandi utama sedikitnya harus %1$@ karakter.";
-"MinNumbers" = "Minimum angka";
-"MinSpecial" = "Minimum karakter spesial";
+"MinNumbers" = "Angka minimum";
+"MinSpecial" = "Karakter khusus minimum";
 "MoreSettings" = "Setelan lainnya";
 "MustLogInMainApp" = "Anda harus masuk ke aplikasi utama Bitwarden sebelum Anda dapat menggunakan ekstensi.";
 "Never" = "Jangan pernah";
@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Sinkronkan brankas sekarang";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Login dua langkah";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Buka kunci dengan biometrik";
+"UnlockWithFaceID" = "Buka kunci dengan Touch ID";
+"UnlockWithTouchID" = "Buka kunci dengan Touch ID";
+"UnlockWithOpticID" = "Buka kunci dengan Optic ID";
 "UnlockWithPIN" = "Buka dengan kode PIN";
 "Validating" = "Memvalidasi";
 "VerificationCode" = "Kode verifikasi";

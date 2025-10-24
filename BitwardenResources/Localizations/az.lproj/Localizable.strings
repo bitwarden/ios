@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Seyfi indi sinxronlaşdır";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Kilidi biometriklə aç";
+"UnlockWithFaceID" = "Kilidi Face ID ilə aç";
+"UnlockWithTouchID" = "Kilidi Touch ID ilə aç";
+"UnlockWithOpticID" = "Kilidi Optic ID ilə aç";
 "UnlockWithPIN" = "Kilidi PIN kodla aç";
 "Validating" = "Doğrulanır";
 "VerificationCode" = "Doğrulama kodu";
