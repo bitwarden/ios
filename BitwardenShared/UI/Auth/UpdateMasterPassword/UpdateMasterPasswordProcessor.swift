@@ -92,7 +92,6 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         let alert = Alert.logoutConfirmation { [weak self] in
             guard let self else { return }
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
-            coordinator.navigate(to: .dismiss)
         }
         coordinator.showAlert(alert)
     }
@@ -173,7 +172,6 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: false)))
-            coordinator.navigate(to: .dismiss)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {

@@ -18,7 +18,7 @@ extension UIViewController {
     ) {
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
-        while presentedChild != nil {
+        while presentedChild != nil, presentedChild?.isBeingDismissed == false {
             availablePresenter = presentedChild
             presentedChild = presentedChild?.presentedViewController
         }

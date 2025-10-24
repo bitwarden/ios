@@ -112,7 +112,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// auth has completed.
     @MainActor
     func test_navigate_complete_withPresented() {
-        subject.navigate(to: .updateMasterPassword)
+        stackNavigator.isPresenting = true
         subject.navigate(to: .complete)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
         XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
@@ -151,7 +151,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// auth has completed passing the rehydratable target.
     @MainActor
     func test_navigate_completeWithRehydrationWithPresented() {
-        subject.navigate(to: .updateMasterPassword)
+        stackNavigator.isPresenting = true
         subject.navigate(to: .completeWithRehydration(.viewCipher(cipherId: "1")))
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
         XCTAssertEqual(authDelegate.didCompleteAuthRehydratableTarget, .viewCipher(cipherId: "1"))
@@ -228,7 +228,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.dismiss` dismisses all presented view.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .preLoginSettings)
+        stackNavigator.isPresenting = true
         subject.navigate(to: .dismiss)
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)
@@ -323,6 +323,20 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LandingView)
         XCTAssertEqual(view.store.state.email, "user@bitwarden.com")
+    }
+
+    /// `navigate(to:)` with `.landing` pops back to the landing view and dismisses any presented views.
+    @MainActor
+    func test_navigate_landing_withPresentedView() {
+        stackNavigator.isPresenting = true
+
+        subject.navigate(to: .landing)
+
+        XCTAssertEqual(stackNavigator.actions.count, 3)
+        XCTAssertEqual(stackNavigator.actions[0].type, .poppedToRoot)
+        XCTAssertEqual(stackNavigator.actions[1].type, .replaced)
+        XCTAssertTrue(stackNavigator.actions[1].view is LandingView)
+        XCTAssertEqual(stackNavigator.actions[2].type, .dismissed)
     }
 
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
