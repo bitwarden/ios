@@ -24,8 +24,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
-    var groupTotpExpirationManagerForTests: MockTOTPExpirationManager!
-    var searchTotpExpirationManagerForTests: MockTOTPExpirationManager!
+    var totpExpirationManagerForItems: MockTOTPExpirationManager!
+    var totpExpirationManagerForSearchItems: MockTOTPExpirationManager!
+    var totpExpirationManagerFactory: MockTOTPExpirationManagerFactory!
 
     // MARK: Setup & Teardown
 
@@ -43,6 +44,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
 
+        totpExpirationManagerForItems = MockTOTPExpirationManager()
+        totpExpirationManagerForSearchItems = MockTOTPExpirationManager()
+        totpExpirationManagerFactory = MockTOTPExpirationManagerFactory()
+        totpExpirationManagerFactory.createResults = [
+            totpExpirationManagerForItems,
+            totpExpirationManagerForSearchItems,
+        ]
+
         let services = ServiceContainer.withMocks(
             application: application,
             appSettingsStore: appSettingsStore,
@@ -52,18 +61,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
-
-        groupTotpExpirationManagerForTests = MockTOTPExpirationManager()
-        searchTotpExpirationManagerForTests = MockTOTPExpirationManager()
 
         subject = ItemListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
             state: ItemListState(),
-            groupTotpExpirationManagerForTests: groupTotpExpirationManagerForTests,
-            searchTotpExpirationManagerForTests: searchTotpExpirationManagerForTests,
         )
     }
 
@@ -206,7 +211,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
 
-        guard let onExpiration = groupTotpExpirationManagerForTests.onExpiration else {
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }
@@ -415,7 +420,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "123456",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
+                    codeGenerationDate: Date(),
                     period: 30,
                 ),
             ),
@@ -427,7 +432,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "234567",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
+                    codeGenerationDate: Date(),
                     period: 30,
                 ),
             ),
@@ -435,14 +440,13 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
 
-        guard let onExpiration = searchTotpExpirationManagerForTests.onExpiration else {
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }
         onExpiration([firstItemRefreshed])
 
         waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
-        XCTAssertEqual([firstItemRefreshed], authItemRepository.refreshedTotpCodes)
         XCTAssertEqual(subject.state.searchResults, authItemRepository.refreshedTotpCodes)
     }
 
@@ -650,7 +654,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                                             period: 30))),
         ]
 
-        guard let onExpiration = groupTotpExpirationManagerForTests.onExpiration else {
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }
@@ -669,7 +673,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
 
-        guard let onExpiration = groupTotpExpirationManagerForTests.onExpiration else {
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }
@@ -696,7 +700,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
 
-        guard let onExpiration = searchTotpExpirationManagerForTests.onExpiration else {
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }

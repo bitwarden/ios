@@ -21,8 +21,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasErrorReporter
         & HasNotificationCenterService
         & HasPasteboardService
-        & HasTOTPService
         & HasTimeProvider
+        & HasTOTPExpirationManagerFactory
+        & HasTOTPService
 
     // MARK: Private Properties
 
@@ -54,24 +55,21 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
         state: ItemListState,
-        groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
-        searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
     ) {
         self.coordinator = coordinator
         self.services = services
 
         super.init(state: state)
-        // TODO: PM-27253
-        // We should be using TOTPExpirationManagerFactory
-        // This will be implemented in PM-27253
-        initTOTPExpirationManagers(groupTotpExpirationManagerForTests: groupTotpExpirationManagerForTests,
-                                   searchTotpExpirationManagerForTests: searchTotpExpirationManagerForTests)
+        initTotpExpirationManagers()
         setupForegroundNotification()
     }
 
     deinit {
         groupTotpExpirationManager?.cleanup()
         groupTotpExpirationManager = nil
+
+        searchTotpExpirationManager?.cleanup()
+        searchTotpExpirationManager = nil
     }
 
     // MARK: Methods
@@ -163,41 +161,18 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     ///
-    private func initTOTPExpirationManagers(
-        groupTotpExpirationManagerForTests: TOTPExpirationManager? = nil,
-        searchTotpExpirationManagerForTests: TOTPExpirationManager? = nil
-    ) {
-        if let groupTotpExpirationManagerForTests, let searchTotpExpirationManagerForTests {
-            groupTotpExpirationManager = groupTotpExpirationManagerForTests
-            groupTotpExpirationManager?.onExpiration = { [weak self] expiredItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(for: expiredItems)
-                }
-            }
-
-            searchTotpExpirationManager = searchTotpExpirationManagerForTests
-            searchTotpExpirationManager?.onExpiration = { [weak self] expiredSearchItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
-                }
-            }
-
-            return
-        }
-
-        groupTotpExpirationManager = DefaultTOTPExpirationManager(
-            itemPublisher: statePublisher.map(\.loadingState.data).eraseToAnyPublisher(),
+    func initTotpExpirationManagers() {
+        groupTotpExpirationManager = services.totpExpirationManagerFactory.create(
+            itemPublisher: statePublisher.map(\.loadingState.data)
+                .eraseToAnyPublisher(),
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
                     await self.refreshTOTPCodes(for: expiredItems)
                 }
             },
-            timeProvider: services.timeProvider,
         )
-        searchTotpExpirationManager = DefaultTOTPExpirationManager(
+        searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
             itemPublisher: statePublisher
                 .map { state in [ItemListSection(id: "", items: state.searchResults, name: "")]
                 }
@@ -208,7 +183,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     await self.refreshTOTPCodes(searchItems: expiredSearchItems)
                 }
             },
-            timeProvider: services.timeProvider,
         )
     }
 
@@ -250,7 +224,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
-        guard case let .data(currentSections) = state.loadingState
+        guard case let .data(currentSections) = state.loadingState, !currentSections.isEmpty
         else {
             return
         }
@@ -450,7 +424,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                             captureCoordinator.navigate(
                                 to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true)),
                             )
-                        },
+                        }
                     ))
                 }
             } else {

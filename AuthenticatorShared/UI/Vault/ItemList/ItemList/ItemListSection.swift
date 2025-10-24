@@ -19,7 +19,7 @@ public struct ItemListSection: Equatable, Identifiable {
 ///
 extension ItemListSection: TOTPUpdatableSection {
     // MARK: Types
-    
+
     /// The type of item in the list section.
     public typealias Item = ItemListItem
 

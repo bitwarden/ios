@@ -13,6 +13,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasTimeProvider
         & ItemListProcessor.Services
+        & HasTOTPExpirationManagerFactory
 
     // MARK: - Private Properties
 

@@ -59,7 +59,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
     init(
         itemPublisher: AnyPublisher<[ItemListSection]?, Never>,
         onExpiration: (([ItemListItem]) -> Void)?,
-        timeProvider: any TimeProvider
+        timeProvider: any TimeProvider,
     ) {
         self.timeProvider = timeProvider
         self.onExpiration = onExpiration
@@ -68,7 +68,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
             repeats: true,
             block: { _ in
                 self.checkForExpirations()
-            }
+            },
         )
         cancellable = itemPublisher.sink { [weak self] sections in
             self?.configureTOTPRefreshScheduling(for: sections?.flatMap(\.items) ?? [])
