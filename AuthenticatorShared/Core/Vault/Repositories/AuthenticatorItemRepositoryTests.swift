@@ -144,12 +144,12 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(syncActive)
     }
 
-    /// `refreshTotpCodes(on:)` logs an error when it can't update the TOTP code on a
+    /// `refreshTOTPCodes(on:)` logs an error when it can't update the TOTP code on a
     /// .sharedTotp item, and returns the item as-is.
-    func test_refreshTotpCodes_errorSharedTotp() async throws {
+    func test_refreshTOTPCodes_errorSharedTotp() async throws {
         let item = ItemListItem.fixtureShared(totp: .fixture(itemView: .fixture(totpKey: nil)))
 
-        let result = try await subject.refreshTotpCodes(on: [item])
+        let result = try await subject.refreshTOTPCodes(for: [item])
         let actual = try XCTUnwrap(result[0])
         let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
         XCTAssertEqual(
@@ -161,12 +161,12 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(actual.accountName, item.accountName)
     }
 
-    /// `refreshTotpCodes(on:)` logs an error when it can't update the TOTP code on a
+    /// `refreshTOTPCodes(on:)` logs an error when it can't update the TOTP code on a
     /// .totp item, and returns the item as-is.
-    func test_refreshTotpCodes_errorTotp() async throws {
+    func test_refreshTOTPCodes_errorTotp() async throws {
         let item = ItemListItem.fixture(totp: .fixture(itemView: .fixture(totpKey: nil)))
 
-        let result = try await subject.refreshTotpCodes(on: [item])
+        let result = try await subject.refreshTOTPCodes(for: [item])
         let actual = try XCTUnwrap(result[0])
         let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
         XCTAssertEqual(
@@ -178,8 +178,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(actual.accountName, item.accountName)
     }
 
-    /// `refreshTotpCodes(on:)` updates the TOTP codes on items.
-    func test_refreshTotpCodes_success() async throws {
+    /// `refreshTOTPCodes(on:)` updates the TOTP codes on items.
+    func test_refreshTOTPCodes_success() async throws {
         let newCode = "987654"
         let newCodeModel = TOTPCodeModel(
             code: newCode,
@@ -191,7 +191,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         let item = ItemListItem.fixture()
         let sharedItem = ItemListItem.fixtureShared()
 
-        let result = try await subject.refreshTotpCodes(on: [item, sharedItem, .syncError()])
+        let result = try await subject.refreshTOTPCodes(for: [item, sharedItem, .syncError()])
         let actual = try XCTUnwrap(result[0])
 
         XCTAssertEqual(actual.id, item.id)

@@ -16,8 +16,9 @@ typealias Services = HasAppInfoService
     & HasNotificationCenterService
     & HasPasteboardService
     & HasStateService
-    & HasTOTPService
     & HasTimeProvider
+    & HasTOTPExpirationManagerFactory
+    & HasTOTPService
 
 /// Protocol for an object that provides an `Application`
 ///
@@ -121,4 +122,11 @@ protocol HasTOTPService {
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
+}
+
+/// Protocol for an object that provides a `TOTPExpirationManagerFactory`.
+///
+protocol HasTOTPExpirationManagerFactory {
+    /// Factory to create TOTP expiration managers.
+    var totpExpirationManagerFactory: TOTPExpirationManagerFactory { get }
 }
