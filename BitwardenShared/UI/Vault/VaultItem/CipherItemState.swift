@@ -343,7 +343,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             organizationId: organizationId,
             showWebIcons: false,
             type: type,
-        )
+            )
     }
 
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
@@ -353,7 +353,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             iconBaseURL: nil,
             showWebIcons: false,
             type: .init(type: cipherView.type),
-        )
+            )
         apply(
             cipherView: cipherView,
             overrideName: "\(cipherView.name) - \(Localizations.clone)",
@@ -374,7 +374,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             iconBaseURL: iconBaseURL,
             showWebIcons: showWebIcons,
             type: .init(type: cipherView.type),
-        )
+            )
         apply(cipherView: cipherView)
     }
 

@@ -158,7 +158,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 
             result.append(cipherView)
         }
-        
+
         return result
     }
 
@@ -172,7 +172,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
             errorReporter.log(error: error)
             return false
         }
-    } 
+    }
 }
 
 private extension Cipher {

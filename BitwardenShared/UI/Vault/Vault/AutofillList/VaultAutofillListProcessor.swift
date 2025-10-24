@@ -9,74 +9,74 @@ import Combine
 /// The processor used to manage state and handle actions for the autofill list screen.
 ///
 class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_body_length
-    VaultAutofillListState,
-    VaultAutofillListAction,
-    VaultAutofillListEffect,
+VaultAutofillListState,
+VaultAutofillListAction,
+VaultAutofillListEffect,
 >, HasTOTPCodesSections {
     // MARK: Types
-
+    
     typealias Services = HasAuthRepository
-        & HasAutofillCredentialService
-        & HasClientService
-        & HasConfigService
-        & HasErrorReporter
-        & HasEventService
-        & HasFido2CredentialStore
-        & HasFido2UserInterfaceHelper
-        & HasPasteboardService
-        & HasSearchProcessorMediatorFactory
-        & HasStateService
-        & HasTOTPExpirationManagerFactory
-        & HasTextAutofillHelperFactory
-        & HasTimeProvider
-        & HasUserVerificationHelperFactory
-        & HasVaultRepository
-
+    & HasAutofillCredentialService
+    & HasClientService
+    & HasConfigService
+    & HasErrorReporter
+    & HasEventService
+    & HasFido2CredentialStore
+    & HasFido2UserInterfaceHelper
+    & HasPasteboardService
+    & HasSearchProcessorMediatorFactory
+    & HasStateService
+    & HasTOTPExpirationManagerFactory
+    & HasTextAutofillHelperFactory
+    & HasTimeProvider
+    & HasUserVerificationHelperFactory
+    & HasVaultRepository
+    
     // MARK: Private Properties
-
+    
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
-
+    
     /// A helper that handles autofill for a selected cipher.
     private let autofillHelper: AutofillHelper
-
+    
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
-
+    
     /// An object to manage TOTP code expirations and batch refresh calls for the vault list items.
     private var vaultItemsTotpExpirationManager: TOTPExpirationManager?
-
+    
     /// The mediator between processors and search publisher/subscription behavior.
     private let searchProcessorMediator: SearchProcessorMediator
-
+    
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
-
+    
     /// The services used by this processor.
     private var services: Services
-
+    
     /// The helper to be used when autofilling text to insert.
     private var textAutofillHelper: TextAutofillHelper?
-
+    
     // MARK: Calculated properties
-
+    
     /// Gets the mode in which this autofill list should run.
     private var autofillListMode: AutofillListMode {
         autofillAppExtensionDelegate?.autofillListMode ?? .passwords
     }
-
+    
     /// A delegate that is used to handle actions and retrieve information from within an Autofill extension
     /// on Fido2 flows.
     private var autofillAppExtensionDelegate: AutofillAppExtensionDelegate? {
         appExtensionDelegate as? AutofillAppExtensionDelegate
     }
-
+    
     var vaultRepository: VaultRepository {
         services.vaultRepository
     }
-
+    
     // MARK: Initialization
-
+    
     /// Initialize a `VaultAutofillListProcessor`.
     ///
     /// - Parameters:
@@ -100,9 +100,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.services = services
         searchProcessorMediator = services.searchProcessorMediatorFactory.make()
-
+        
         super.init(state: state)
-
+        
         switch autofillListMode {
         case .all:
             self.state.isAutofillingTextToInsertList = true
@@ -115,17 +115,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             break
         }
     }
-
+    
     deinit {
         vaultItemsTotpExpirationManager?.cleanup()
         vaultItemsTotpExpirationManager = nil
-
+        
         searchTotpExpirationManager?.cleanup()
         searchTotpExpirationManager = nil
     }
-
+    
     // MARK: Methods
-
+    
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
         case .excludedCredentialFoundChaged:
@@ -176,12 +176,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         }
     }
-
+    
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
         case let .addTapped(fromFAB):
             state.profileSwitcherState.setIsVisible(false)
-
+            
             guard #available(iOSApplicationExtension 17.0, *),
                   !fromFAB,
                   let autofillAppExtensionDelegate,
@@ -195,7 +195,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 )
                 return
             }
-
+            
             Task {
                 await saveFido2CredentialAsNewLogin()
             }
@@ -222,9 +222,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.toast = newValue
         }
     }
-
+    
     // MARK: Private Methods
-
+    
     /// Creates a `NewCipherOptions` based on the context flow.
     func createNewCipherOptions() -> NewCipherOptions {
         if let autofillAppExtensionDelegate,
@@ -238,7 +238,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
     }
-
+    
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
     /// - Parameter action: The `ProfileSwitcherAction` to handle.
@@ -255,7 +255,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             handleProfileSwitcherAction(profileSwitcherAction)
         }
     }
-
+    
     /// Handles receiving a `ProfileSwitcherEffect`.
     ///
     /// - Parameter action: The `ProfileSwitcherEffect` to handle.
@@ -274,7 +274,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             await handleProfileSwitcherEffect(profileSwitcherEffect)
         }
     }
-
+    
     /// Handles text autofill for cipher.
     /// - Parameter cipher: The cipher selected to autofill some text from it.
     private func handleCipherForTextAutofill(cipher: CipherListView) async {
@@ -290,7 +290,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
     }
-
+    
     /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
         vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
@@ -310,14 +310,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             },
         )
     }
-
+    
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
         guard !state.vaultListSections.isEmpty else {
             return
         }
-
+        
         do {
             state.vaultListSections = try await refreshTOTPCodes(
                 for: items,
@@ -328,7 +328,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             services.errorReporter.log(error: error)
         }
     }
-
+    
     /// Refreshes TOTP Codes for the search results.
     ///
     private func refreshTOTPCodes(searchItems: [VaultListItem]) async {
@@ -345,7 +345,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             services.errorReporter.log(error: error)
         }
     }
-
+    
     /// Function to be called when new search results are received.
     /// - Parameters:
     ///     - data: The new search results data.
@@ -358,7 +358,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
         }
     }
-
+    
     /// Searches the list of ciphers for those matching the search term.
     ///
     private func searchVault(for searchText: String) async {
@@ -367,7 +367,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.showNoResults = false
             return
         }
-
+        
         let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
         searchProcessorMediator.updateFilter(
             VaultListFilter(
@@ -379,7 +379,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             ),
         )
     }
-
+    
     /// Streams the list of autofill items.
     ///
     private func streamAutofillItems() async {
@@ -390,7 +390,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                let rpID = autofillAppExtensionDelegate.rpID {
                 uri = "https://\(rpID)"
             }
-
+            
             for try await vaultListData in try await services.vaultRepository.ciphersAutofillPublisher(
                 availableFido2CredentialsPublisher: services
                     .fido2UserInterfaceHelper
@@ -403,7 +403,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 guard state.excludedCredentialIdFound == nil else {
                     break
                 }
-
+                
                 let sections = vaultListData.sections
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
@@ -415,7 +415,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             services.errorReporter.log(error: error)
         }
     }
-
+    
     /// Updates the vault list sections with the section including the excluded credential found.
     /// This is necessary in case the user edits the item so we get the new value from the publisher.
     ///
@@ -428,12 +428,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     break
                 }
                 guard let cipher else { continue }
-
+                
                 guard cipher.hasFido2Credentials else {
                     state.excludedCredentialIdFound = nil
                     break
                 }
-
+                
                 let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
                     from: cipher,
                 )
@@ -460,11 +460,11 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     var allowLockAndLogout: Bool {
         false
     }
-
+    
     var profileServices: ProfileServices {
         services
     }
-
+    
     var profileSwitcherState: ProfileSwitcherState {
         get {
             state.profileSwitcherState
@@ -473,11 +473,11 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
             state.profileSwitcherState = newValue
         }
     }
-
+    
     var shouldHideAddAccount: Bool {
         true
     }
-
+    
     var toast: Toast? {
         get {
             state.toast
@@ -486,24 +486,24 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
             state.toast = newValue
         }
     }
-
+    
     func dismissProfileSwitcher() {
         coordinator.navigate(to: .dismiss)
     }
-
+    
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
     }
-
+    
     func showAddAccount() {
         // No-Op for the VaultAutofillListProcessor.
     }
-
+    
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
-
+    
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
@@ -513,21 +513,21 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
 
 extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
     // MARK: Properties
-
+    
     var isAutofillingFromList: Bool {
         autofillAppExtensionDelegate?.isAutofillingFido2CredentialFromList == true
     }
-
+    
     // MARK: Methods
-
+    
     func informExcludedCredentialFound(cipherView: CipherView) async {
         state.excludedCredentialIdFound = cipherView.id
     }
-
+    
     func onNeedsUserInteraction() async throws {
         // No-Op for this processor.
     }
-
+    
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator.showAlert(alert, onDismissed: onDismissed)
     }
@@ -538,13 +538,13 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
 @available(iOSApplicationExtension 17.0, *)
 extension VaultAutofillListProcessor {
     // MARK: Methods
-
+    
     /// Initializes Fido2 state and flows if needed.
     private func initFido2State() async {
         guard let autofillAppExtensionDelegate else {
             return
         }
-
+        
         switch autofillAppExtensionDelegate.extensionMode {
         case let .registerFido2Credential(request):
             if let request = request as? ASPasskeyCredentialRequest,
@@ -553,11 +553,11 @@ extension VaultAutofillListProcessor {
                 state.emptyViewMessage = Localizations.noItemsForUri(credentialIdentity.relyingPartyIdentifier)
                 state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
                 services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
-
+                
                 guard state.excludedCredentialIdFound == nil else {
                     return
                 }
-
+                
                 await handleFido2CredentialCreation(
                     autofillAppExtensionDelegate: autofillAppExtensionDelegate,
                     request: request,
@@ -566,7 +566,7 @@ extension VaultAutofillListProcessor {
             }
         case let .autofillFido2VaultList(serviceIdentifiers, fido2RequestParameters):
             state.isAutofillingFido2List = true
-
+            
             await handleFido2CredentialAutofill(
                 autofillAppExtensionDelegate: autofillAppExtensionDelegate,
                 serviceIdentifiers: serviceIdentifiers,
@@ -576,7 +576,7 @@ extension VaultAutofillListProcessor {
             break
         }
     }
-
+    
     /// Handles Fido2 credential creation flow starting a request and completing the registration.
     /// - Parameters:
     ///   - autofillAppExtensionDelegate: The app extension delegate from the Autofill extension.
@@ -592,14 +592,14 @@ extension VaultAutofillListProcessor {
                 for: fido2RequestParameters,
                 fido2UserInterfaceHelperDelegate: self,
             )
-
+            
             autofillAppExtensionDelegate.completeAssertionRequest(assertionCredential: assertionCredential)
         } catch {
             services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(result: .failure(error))
             services.errorReporter.log(error: error)
         }
     }
-
+    
     /// Handles Fido2 credential creation flow starting a request and completing the registration.
     /// - Parameters:
     ///   - autofillAppExtensionDelegate: The app extension delegate from the Autofill extension.
@@ -615,17 +615,9 @@ extension VaultAutofillListProcessor {
             let extensions: MakeCredentialExtensionsInput? = if #available(
                 iOSApplicationExtension 18.0,
                 *
-            ), case let .registration(
-                extInput
-            ) = request.extensionInput, let saltInput1 = extInput.prf?.inputValues?.saltInput1 {
-
-                MakeCredentialExtensionsInput(
-                    prf: MakeCredentialPrfInput(
-                        eval: PrfValues(first: saltInput1, second: extInput.prf?.inputValues?.saltInput2)
-                    )
-                )
-            }
-            else {
+            ), case let .registration(extInput) = request.extensionInput {
+                MakeCredentialExtensionsInput(passkeyExtensionInput: extInput)
+            } else {
                 nil
             }
             let request = MakeCredentialRequest(
@@ -653,43 +645,32 @@ extension VaultAutofillListProcessor {
                     credentialStore: services.fido2CredentialStore,
                 )
                 .makeCredential(request: request)
-
+            
             // Add extension output if supported by platform
-            let credential = if #available(iOSApplicationExtension 18.0, *) {
-                ASPasskeyRegistrationCredential(
-                    relyingParty: credentialIdentity.relyingPartyIdentifier,
-                    clientDataHash: request.clientDataHash,
-                    credentialID: createdCredential.credentialId,
-                    attestationObject: createdCredential.attestationObject,
-                    extensionOutput: createdCredential.extensions.toNative()
-                )
-            } else {
-                ASPasskeyRegistrationCredential(
-                    relyingParty: credentialIdentity.relyingPartyIdentifier,
-                    clientDataHash: request.clientDataHash,
-                    credentialID: createdCredential.credentialId,
-                    attestationObject: createdCredential.attestationObject
-                )
-            }
-
+            let credential = ASPasskeyRegistrationCredential(
+                result: createdCredential,
+                clientDataHash: request.clientDataHash,
+                rpId: credentialIdentity.relyingPartyIdentifier
+            )
+            
             autofillAppExtensionDelegate.completeRegistrationRequest(asPasskeyRegistrationCredential: credential)
         } catch {
             guard state.excludedCredentialIdFound == nil else {
                 return
             }
-
+            
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
             services.errorReporter.log(error: error)
         }
     }
-
+    
     /// Picks a cipher to use for the Fido2 process
     /// - Parameter cipher: Cipher to use.
     func onCipherForFido2CredentialPicked(cipher: CipherListView) async {
         guard let autofillAppExtensionDelegate else {
             return
         }
-
+        
         if autofillAppExtensionDelegate.isCreatingFido2Credential {
             guard state.excludedCredentialIdFound == nil else {
                 guard let cipherId = state.vaultListSections.first?.items.first?.id else {
@@ -699,12 +680,12 @@ extension VaultAutofillListProcessor {
                 coordinator.navigate(to: .viewItem(id: cipherId), context: self)
                 return
             }
-
+            
             guard let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions else {
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 return
             }
-
+            
             if cipher.type.loginListView?.hasFido2 == true {
                 let alert = Alert.confirmation(
                     title: Localizations.thisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey,
@@ -717,7 +698,7 @@ extension VaultAutofillListProcessor {
                 coordinator.showAlert(alert)
                 return
             }
-
+            
             await checkUserAndDoPickedCredentialForCreation(for: cipher, fido2CreationOptions: fido2CreationOptions)
         } else if autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList {
             do {
@@ -740,7 +721,7 @@ extension VaultAutofillListProcessor {
             }
         }
     }
-
+    
     /// Saves the new Fido2 credential as a new default cipher login.
     func saveFido2CredentialAsNewLogin() async {
         guard let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions,
@@ -748,15 +729,15 @@ extension VaultAutofillListProcessor {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }
-
+        
         let newCipher = CipherView(
             fido2CredentialNewView: fido2CredentialNewView,
             timeProvider: services.timeProvider,
         )
-
+        
         await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
     }
-
+    
     /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.
     /// - Parameters:
     ///   - cipher: Cipher to verify and pick.
@@ -776,7 +757,7 @@ extension VaultAutofillListProcessor {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
-
+    
     /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.
     /// - Parameters:
     ///   - cipher: Cipher to verify and pick.
@@ -791,7 +772,7 @@ extension VaultAutofillListProcessor {
                 credential: cipher,
                 shouldThrowEnforcingRequiredVerification: true,
             )
-
+            
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(

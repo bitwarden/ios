@@ -1,7 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
-import CryptoKit
 import BitwardenSdk
+import CryptoKit
 import OSLog
 
 // swiftlint:disable file_length
@@ -360,7 +360,7 @@ class DefaultAutofillCredentialService {
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
-                
+
                 if let deviceKeyB64 = try? await keychainRepository.getDeviceKey(userId: userId) {
                     let deviceKey = SymmetricKey(data: Data(base64Encoded: deviceKeyB64)!)
                     let deviceIdentities = try await clientService.platform().fido2().deviceAuthenticator(
@@ -368,17 +368,15 @@ class DefaultAutofillCredentialService {
                         credentialStore: DevicePasskeyCredentialStore(
                             clientService: clientService,
                             keychainRepository: keychainRepository,
-                            userId: userId,
+                            userId: userId
                         ),
-                        deviceKey: deviceKey,
+                        deviceKey: deviceKey
                     )
-                        .credentialsForAutofill()
-                        .compactMap {
-                            $0.toFido2CredentialIdentity()
-                        }
+                    .credentialsForAutofill()
+                    .compactMap { $0.toFido2CredentialIdentity() }
                     identities.append(contentsOf: deviceIdentities)
                 }
-                
+
                 try await identityStore.replaceCredentialIdentities(identities)
                 await flightRecorder.log(
                     "[AutofillCredentialService] Replaced \(identities.count) credential identities",
@@ -672,7 +670,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 errorReporter.log(error: error)
             }
 
-            return ASPasskeyAssertionCredential(assertionResult: assertionResult, rpId: rpId, clientDataHash: clientDataHash)
+            return ASPasskeyAssertionCredential(
+                assertionResult: assertionResult,
+                rpId: rpId,
+                clientDataHash: clientDataHash
+            )
         } catch {
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))

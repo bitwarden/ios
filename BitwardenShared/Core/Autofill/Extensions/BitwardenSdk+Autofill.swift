@@ -12,9 +12,9 @@ extension GetAssertionRequest {
         let extensions: GetAssertionExtensionsInput? = if
             #available(iOSApplicationExtension 18.0, *),
             let extInput = fido2RequestParameters.extensionInput {
-                GetAssertionExtensionsInput(passkeyExtensionInput: extInput)
-            } else { nil }
-                
+            GetAssertionExtensionsInput(passkeyExtensionInput: extInput)
+        } else { nil }
+
         self = .init(
             rpId: fido2RequestParameters.relyingPartyIdentifier,
             clientDataHash: fido2RequestParameters.clientDataHash,
@@ -80,8 +80,7 @@ extension ASPasskeyAssertionCredential {
                 credentialID: assertionResult.credentialId,
                 extensionOutput: assertionResult.extensions.toNative()
             )
-        }
-        else {
+        } else {
             self.init(
                 userHandle: assertionResult.userHandle,
                 relyingParty: rpId,
@@ -101,8 +100,7 @@ extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConv
         let rpName = rp.name ?? "nil"
         let excludeList = excludeList?.description ?? "nil"
         // TODO: !!
-        let extensions = if extensions == nil { "nil" } else { "MakeCredentialExtensionsInput { ... } "}
-
+        let extensions = if extensions == nil { "nil" } else { "MakeCredentialExtensionsInput { ... } " }
 
         return [
             "ClientDataHash: \(clientDataHash.asHexString())",

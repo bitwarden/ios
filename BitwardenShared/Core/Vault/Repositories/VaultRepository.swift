@@ -780,7 +780,7 @@ extension DefaultVaultRepository: VaultRepository {
                   let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
             var updatedModel = model

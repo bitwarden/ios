@@ -2,14 +2,31 @@ import CryptoKit
 import Foundation
 
 public extension Data {
+    // MARK: Initializers
+
+    /// Parses bytes from a base64url-encoded string.
+    init?(base64UrlEncoded str: String) throws {
+        try self.init(base64Encoded: str.urlDecoded())
+    }
+
+    // MARK: Functions
+
+    /// Encodes bytes in Data as a base64url string.
     func base64UrlEncodedString(trimPadding shouldTrim: Bool) -> String {
-        let encoded = base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
+        let encoded = base64EncodedString().replacingOccurrences(
+            of: "+",
+            with: "-"
+        ).replacingOccurrences(
+            of: "/",
+            with: "_"
+        )
         if shouldTrim {
             return encoded.trimmingCharacters(in: CharacterSet(["="]))
         } else {
             return encoded
         }
     }
+
     /// Generates a hash value for the provided data.
     ///
     /// - Parameter using: The type of cryptographically secure hashing being performed.
@@ -39,11 +56,7 @@ public extension Data {
         let digest = hashFunction.hash(data: self)
         return Data(digest).base64EncodedString()
     }
-    
-    init?(base64UrlEncoded str: String) throws {
-        self.init(base64Encoded: try str.urlDecoded())
-    }
-    
+
     /// Transforms this Data in a hex formatted string.
     /// - Returns: Hex formatted string.
     func asHexString() -> String {
