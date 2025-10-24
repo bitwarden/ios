@@ -83,3 +83,6 @@ Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result
 
 # Backup files
 *.bak
+
+# AI
+.claude/settings.local.json
