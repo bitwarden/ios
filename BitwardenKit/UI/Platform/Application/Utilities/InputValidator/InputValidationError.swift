@@ -1,8 +1,20 @@
+// MARK: - InputValidationError
+
 /// An error thrown by an `InputValidator` for invalid input in a field.
 ///
-struct InputValidationError: Error, Equatable {
+public struct InputValidationError: Error, Equatable {
     // MARK: Properties
 
     /// A localized error message describing the validation error.
-    let message: String
+    public let message: String
+
+    // MARK: Initialization
+
+    /// Initialize an input validation error.
+    ///
+    /// - Parameters:
+    ///   - message: A localized error message describing the validation error.
+    public init(message: String) {
+        self.message = message
+    }
 }
