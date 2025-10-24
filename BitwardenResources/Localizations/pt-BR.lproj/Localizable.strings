@@ -12,13 +12,13 @@
 "Credits" = "Créditos";
 "Delete" = "Excluir";
 "DeleteAll" = "Apagar tudo";
-"Deleting" = "Deleting…";
+"Deleting" = "Apagando…";
 "DoYouReallyWantToDelete" = "Você realmente quer excluir? Isto não pode ser desfeito.";
 "Edit" = "Editar";
 "EditFolder" = "Editar pasta";
 "Email" = "E-Mail";
-"EmailAddress" = "Endereço de email";
-"EmailUs" = "Envie-nos um email";
+"EmailAddress" = "Endereço de E-mail";
+"EmailUs" = "Envie-nos um e-mail";
 "EmailUsDescription" = "Envie-nos um e-mail diretamente para obter ajuda ou deixar feedback.";
 "EnterPIN" = "Digite o seu código PIN.";
 "Favorites" = "Favoritos";
