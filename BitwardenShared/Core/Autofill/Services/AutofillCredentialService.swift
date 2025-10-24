@@ -227,7 +227,10 @@ class DefaultAutofillCredentialService {
         }
 
         Task {
-            for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
+            for await (vaultLockStatus, _) in await self.vaultTimeoutService
+                .vaultLockStatusPublisher()
+                .combineLatest(self.stateService.unlockPasskeyPublisher())
+                .values {
                 syncIdentities(vaultLockStatus: vaultLockStatus)
             }
         }
