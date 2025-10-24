@@ -118,7 +118,7 @@
 "ExtensionInstantAccess" = "即时访问您的密码！";
 "ExtensionReady" = "您已经准备好登录了！";
 "ExtensionSetup" = "现在可以在 Safari、Chrome 以及其他支持的 App 中方便地访问您的登录项目了。";
-"ExtensionSetup2" = "在 Safari 和 Chrome 中，使用共享图标寻找 Bitwarden（提示：在菜单最下面一行的右边）。";
+"ExtensionSetup2" = "在 Safari 和 Chrome 中，使用分享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
 "ExtensionTapIcon" = "点击菜单中的 Bitwarden 图标以启动此扩展。";
 "ExtensionTurnOn" = "要在 Safari 和其他 App 中打开 Bitwarden ，请点击菜单底部的「更多」图标。";
 "Favorite" = "收藏";

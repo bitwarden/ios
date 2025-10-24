@@ -181,7 +181,7 @@
 "SyncingFailed" = "Ha fallat la sincronització.";
 "SyncVaultNow" = "Sincronitza la caixa forta ara";
 "TouchID" = "Touch ID";
-"TwoStepLogin" = "Inici de sessió en dues passes";
+"TwoStepLogin" = "Inici de sessió en dos passos";
 "UnlockWithBiometrics" = "Unlock with biometrics";
 "UnlockWithFaceID" = "Unlock with Face ID";
 "UnlockWithTouchID" = "Unlock with Touch ID";
@@ -224,12 +224,12 @@
 "EnterVerificationCodeApp" = "Introduïu el codi de verificació de 6 dígits de l'aplicació autenticadora.";
 "EnterVerificationCodeEmail" = "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a %1$@.";
 "LoginUnavailable" = "Inici de sessió no disponible";
-"NoTwoStepAvailable" = "Aquest compte té l'inici de sessió en dues passes habilitat, però, cap dels proveïdors de dues passes configurats és compatible amb aquest dispositiu. Utilitzeu un dispositiu compatible i afegiu proveïdors addicionals que s'adapten millor als dispositius (com ara una aplicació d'autenticació).";
+"NoTwoStepAvailable" = "Aquest compte té l'inici de sessió en dos passos habilitat, però, cap dels proveïdors configurats és compatible amb aquest dispositiu. Utilitzeu un dispositiu compatible i afegiu proveïdors addicionals que s'adapten millor als dispositius (com ara una aplicació d'autenticació).";
 "RecoveryCodeTitle" = "Codi de recuperació";
 "RememberMe" = "Recorda'm";
 "SendVerificationCodeAgain" = "Envia el codi de verificació altra vegada";
-"TwoStepLoginOptions" = "Opcions d'inici de sessió en dues passes";
-"UseAnotherTwoStepMethod" = "Utilitzeu un altre mètode d'inici de sessió en dues passes";
+"TwoStepLoginOptions" = "Opcions d'inici de sessió en dos passos";
+"UseAnotherTwoStepMethod" = "Utilitzeu un altre mètode d'inici de sessió en dos passos";
 "VerificationEmailNotSent" = "No s'ha pogut enviar el correu electrònic de verificació. Torneu-ho a provar.";
 "VerificationEmailSent" = "Correu de verificació enviat";
 "YubiKeyInstruction" = "To continue, hold your YubiKey NEO against the back of the device or insert your YubiKey into your device’s USB port, then touch its button.";

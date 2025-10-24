@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Синхронизировать";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двухэтапная аутентификация";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Разблокировать с помощью биометрии";
+"UnlockWithFaceID" = "Разблокировать с помощью Face ID";
+"UnlockWithTouchID" = "Разблокировать с помощью Touch ID";
+"UnlockWithOpticID" = "Разблокировать с помощью Optic ID";
 "UnlockWithPIN" = "Разблокировка PIN-кодом";
 "Validating" = "Проверка";
 "VerificationCode" = "Код подтверждения";
