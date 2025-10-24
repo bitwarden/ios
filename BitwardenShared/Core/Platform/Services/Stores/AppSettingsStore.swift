@@ -619,7 +619,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func twoFactorToken(email: String) -> String?
 
-
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -655,12 +654,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The userId `String` of the active account
     ///
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never>
-    
+
     /// A publisher for whether an unlock passkey is enabled.
     ///
     /// - Returns: The userId `String` of the active account
     func unlockPasskeyPublisher() -> AnyPublisher<[String: Bool], Never>
-        
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -675,7 +673,7 @@ class DefaultAppSettingsStore {
 
     /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
-    
+
     /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
     let unlockPasskeySubject = CurrentValueSubject<[String: Bool], Never>([:])
 
@@ -1388,11 +1386,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     }
 
     // MARK: Publishers
-    
+
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeAccountIdSubject.eraseToAnyPublisher()
     }
-    
+
     func unlockPasskeyPublisher() -> AnyPublisher<[String: Bool], Never> {
         unlockPasskeySubject.eraseToAnyPublisher()
     }

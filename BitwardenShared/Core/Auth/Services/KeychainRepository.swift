@@ -17,7 +17,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
 
     /// The keychain item for device key.
     case deviceKey(userId: String)
-    
+
     /// The keychain item for the device passkey
     case devicePasskey(userId: String)
 

@@ -1,56 +1,59 @@
-//
-//  WebAuthnLoginSaveCredentialRequestModel.swift
-//  Bitwarden
-//
-//  Created by Isaiah Inuwa on 2025-10-03.
-//
-
-
 import Foundation
 import Networking
 
-// MARK: - SaveCredentialRequestModel
+// MARK: WebAuthnLoginSaveCredentialRequestModel
 
-/// The request body for an answer login request request.
-///
+/// The request body for a request to save a WebAuthn credential.
 struct WebAuthnLoginSaveCredentialRequestModel: JSONRequestBody, Equatable {
-    static let encoder = JSONEncoder()
-
     // MARK: Properties
-    // The response received from the authenticator.
-    // This contains all information needed for future authentication flows.
+
+    /// The response received from the authenticator.
+    /// This contains all information needed for future authentication flows.
     let deviceResponse: WebAuthnLoginAttestationResponseRequest
 
-    // Nickname chosen by the user to identify this credential
-    let name: String
-
-    // Token required by the server to complete the creation.
-    // It contains encrypted information that the server needs to verify the credential.
-    let token: String
-
-    // True if the credential was created with PRF support.
-    let supportsPrf: Bool
-
-    // Used for vault encryption. See {@link RotateableKeySet.encryptedUserKey }
+    /// Encapsulated user key in rotateable key set.
     let encryptedUserKey: String?
 
-    // Used for vault encryption. See {@link RotateableKeySet.encryptedPublicKey }
+    /// Encrypted public key in rotateable key set.
     let encryptedPublicKey: String?
 
-    // Used for vault encryption. See {@link RotateableKeySet.encryptedPrivateKey }
+    /// Encrypted private key in rotatable key set.
     let encryptedPrivateKey: String?
+
+    /// Nickname chosen by the user to identify this credential
+    let name: String
+
+    /// `true` if the credential was created with PRF support.
+    let supportsPrf: Bool
+
+    /// Token required by the server to complete the creation.
+    /// It contains encrypted information that the server needs to verify the credential.
+    let token: String
 }
 
+// MARK: WebAuthnLoginAttestationResponseRequest
+
+/// Fields corresponding to a WebAuthn PublicKeyCredential with an AuthenticatorAttestationResponse.
+///
+/// [Link to specification](https://www.w3.org/TR/webauthn-3/#iface-pkcredential)
 struct WebAuthnLoginAttestationResponseRequest: Encodable, Equatable {
     let id: String
     let rawId: String
-    let type: String
-    // let extensions: [String: Any]
     let response: WebAuthnLoginAttestationResponseRequestInner
+    let type: String
+    // We are currently not sending back any extension results to the server, so we are omitting this slot.
+    // let clientExtensionsResults: [String: Any]
 }
 
+// MARK: WebAuthnLoginAttestationResponseRequestInner
+
+/// Fields corresponding to a WebAuthn AuthenticatorAttestationResponse.
+///
+/// [Link to specification](https://www.w3.org/TR/webauthn-3/#authenticatorattestationresponse)
 struct WebAuthnLoginAttestationResponseRequestInner: Encodable, Equatable {
+    /// Attestation object received from the authenticator, encoded in base64url.
     let attestationObject: String
+
+    /// JSON object of Client Data used for the request.
     let clientDataJson: String
-    
 }

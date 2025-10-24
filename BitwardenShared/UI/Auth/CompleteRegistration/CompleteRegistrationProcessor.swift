@@ -235,7 +235,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
-            
+
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch let error as CompleteRegistrationError {

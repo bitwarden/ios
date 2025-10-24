@@ -89,7 +89,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 
             result.append(cipherView)
         }
-        
+
         return result
     }
 
@@ -101,7 +101,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         } else {
             try await cipherService.updateCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
         }
-    } 
+    }
 }
 
 private extension Cipher {

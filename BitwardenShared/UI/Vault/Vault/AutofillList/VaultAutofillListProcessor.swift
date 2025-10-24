@@ -602,17 +602,9 @@ extension VaultAutofillListProcessor {
             let extensions: MakeCredentialExtensionsInput? = if #available(
                 iOSApplicationExtension 18.0,
                 *
-            ), case let .registration(
-                extInput
-            ) = request.extensionInput, let saltInput1 = extInput.prf?.inputValues?.saltInput1 {
-                
-                MakeCredentialExtensionsInput(
-                    prf: MakeCredentialPrfInput(
-                        eval: PrfValues(first: saltInput1, second: extInput.prf?.inputValues?.saltInput2)
-                    )
-                )
-            }
-            else {
+            ), case let .registration(extInput) = request.extensionInput {
+                MakeCredentialExtensionsInput(passkeyExtensionInput: extInput)
+            } else {
                 nil
             }
             let request = MakeCredentialRequest(
@@ -642,22 +634,11 @@ extension VaultAutofillListProcessor {
                 .makeCredential(request: request)
 
             // Add extension output if supported by platform
-            let credential = if #available(iOSApplicationExtension 18.0, *) {
-                ASPasskeyRegistrationCredential(
-                    relyingParty: credentialIdentity.relyingPartyIdentifier,
-                    clientDataHash: request.clientDataHash,
-                    credentialID: createdCredential.credentialId,
-                    attestationObject: createdCredential.attestationObject,
-                    extensionOutput: createdCredential.extensions.toNative()
-                )
-            } else {
-                ASPasskeyRegistrationCredential(
-                    relyingParty: credentialIdentity.relyingPartyIdentifier,
-                    clientDataHash: request.clientDataHash,
-                    credentialID: createdCredential.credentialId,
-                    attestationObject: createdCredential.attestationObject
-                )
-            }
+            let credential = ASPasskeyRegistrationCredential(
+                result: createdCredential,
+                clientDataHash: request.clientDataHash,
+                rpId: credentialIdentity.relyingPartyIdentifier
+            )
 
             autofillAppExtensionDelegate.completeRegistrationRequest(asPasskeyRegistrationCredential: credential)
         } catch {

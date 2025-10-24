@@ -857,7 +857,7 @@ protocol StateService: AnyObject {
     /// - Returns: A publisher for the sync to authenticator value.
     ///
     func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never>
-    
+
     /// A publisher for the unlock passkey presence for logged in accounts.
     ///
     ///  - Returns: A publisher for the unlock passkey presence for logged in accounts.
@@ -1604,7 +1604,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
         let userId = try userId ?? getActiveAccountUserId()
         guard let account = accounts
-            .first(where: { $0.value.profile.userId == userId })?.value else {
+                .first(where: { $0.value.profile.userId == userId })?.value else {
             throw StateServiceError.noAccounts
         }
         return account
@@ -2340,7 +2340,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
         .eraseToAnyPublisher()
     }
-    
+
     func unlockPasskeyPublisher() async -> AnyPublisher<UnlockPasskeyStatus?, Never> {
         activeAccountIdPublisher()
             .combineLatest(appSettingsStore.unlockPasskeyPublisher())

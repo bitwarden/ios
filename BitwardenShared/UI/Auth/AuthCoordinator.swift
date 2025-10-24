@@ -382,15 +382,15 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             }
             guard let callbackURL,
                   let components = URLComponents(
-                      url: callbackURL,
-                      resolvingAgainstBaseURL: false,
+                    url: callbackURL,
+                    resolvingAgainstBaseURL: false
                   ),
                   let queryItems = components.queryItems,
                   let code = queryItems.first(where: { component in
-                      component.name == DuoCallbackURLComponent.code.rawValue
+                    component.name == DuoCallbackURLComponent.code.rawValue
                   })?.value,
                   let state = queryItems.first(where: { component in
-                      component.name == DuoCallbackURLComponent.state.rawValue
+                    component.name == DuoCallbackURLComponent.state.rawValue
                   })?.value else {
                 delegate?.duoErrored(error: AuthError.unableToDecodeDuoResponse)
                 return
@@ -917,12 +917,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             }
             guard let callbackURL,
                   let components = URLComponents(
-                      url: callbackURL,
-                      resolvingAgainstBaseURL: false,
+                    url: callbackURL,
+                    resolvingAgainstBaseURL: false
                   ),
                   let queryItems = components.queryItems,
                   let token = queryItems.first(where: { component in
-                      component.name == "data"
+                    component.name == "data"
                   })?.value else {
                 delegate.webAuthnErrored(error: WebAuthnError.unableToDecodeCredential)
                 return
