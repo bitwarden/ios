@@ -19,10 +19,10 @@ enum FlightRecorderLoggingDuration: CaseIterable, Codable, Menuable {
 
     var localizedName: String {
         switch self {
-        case .oneHour: Localizations.oneHour
+        case .oneHour: Localizations.xHours(1)
         case .eightHours: Localizations.xHours(8)
         case .twentyFourHours: Localizations.xHours(24)
-        case .oneWeek: Localizations.oneWeek
+        case .oneWeek: Localizations.xWeeks(1)
         }
     }
 
