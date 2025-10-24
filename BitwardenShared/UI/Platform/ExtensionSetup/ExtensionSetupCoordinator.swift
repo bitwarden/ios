@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExtensionSetupCoordinator
 
 /// A coordinator that manages navigation in the vault tab.
