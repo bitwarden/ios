@@ -141,7 +141,7 @@ jobs:
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=26.0.1" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
             -quiet
