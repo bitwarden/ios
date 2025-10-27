@@ -10,10 +10,16 @@ inputs:
     description: 'iOS version for the simulator (e.g., 26.0)'
     required: true
 
+outputs:
+  simulator-id:
+    description: 'The UDID of the booted simulator device'
+    value: ${{ steps.boot.outputs.device-id }}
+
 runs:
   using: 'composite'
   steps:
     - name: Boot Simulator
+      id: boot
       shell: bash
       env:
         _SIMULATOR_NAME: ${{ inputs.simulator-name }}
@@ -28,6 +34,7 @@ runs:
         xcrun simctl runtime dyld_shared_cache update --all
         echo "--------------------------------"
         echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
+        echo "device-id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
 
         i=1
         max=5

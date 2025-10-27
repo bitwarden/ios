@@ -128,6 +128,7 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
+        id: boot-simulator
         uses: ./.github/actions/boot-simulator
         with:
           simulator-name: ${{ env._SIMULATOR_NAME }}
@@ -147,13 +148,15 @@ jobs:
           kill "$PYEETD_PID"
 
       - name: Test
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
           python Scripts/pyeetd/main.py & PYEETD_PID=$!
           xcrun xcodebuild test-without-building \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
