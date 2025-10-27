@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - MasterPasswordGuidanceProcessor
 
 /// The processor used to manage state and handle actions for the master password guidance screen.

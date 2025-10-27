@@ -14,7 +14,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
 
     /// The current state of the store. This is updated from a `Processor` and is able to be
     /// observed by a view.
-    @Published private(set) var state: State
+    @Published public private(set) var state: State
 
     /// A closure that is called when an effect is performed by the view.
     private var perform: ((Effect) async -> Void)?

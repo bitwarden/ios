@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 @testable import BitwardenShared
 
 class MockProfileSwitcherHandlerProcessor:

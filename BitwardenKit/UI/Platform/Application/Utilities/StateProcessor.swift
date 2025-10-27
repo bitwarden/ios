@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 
@@ -33,6 +34,12 @@ open class StateProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: 
     /// - Parameter state: The initial state of the processor.
     public init(state: State) {
         stateSubject = CurrentValueSubject(state)
+    }
+
+    /// Initializes a `StateProcessor` with an unused (`Void`) state.
+    ///
+    public init() where State == Void {
+        stateSubject = CurrentValueSubject(())
     }
 
     /// Performs an asynchronous effect.

@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Синхронизиране сега";
 "TouchID" = "Удостоверяване с докосване (Touch ID)";
 "TwoStepLogin" = "Двустепенно удостоверяване";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Отключване с биометрични данни";
+"UnlockWithFaceID" = "Отключване с лицево разпознаване";
+"UnlockWithTouchID" = "Отключване с пръстов отпечатък";
+"UnlockWithOpticID" = "Отключване с проверка на ириса";
 "UnlockWithPIN" = "Отключване с ПИН";
 "Validating" = "Потвърждаване";
 "VerificationCode" = "Код за потвърждаване";

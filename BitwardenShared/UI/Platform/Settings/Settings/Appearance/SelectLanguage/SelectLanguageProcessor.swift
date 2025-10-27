@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SelectLanguageDelegate
 
 /// The delegate for updating the parent view after a language has been selected.
