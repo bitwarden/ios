@@ -72,8 +72,8 @@ class AlertTests: BitwardenTestCase {
     func test_debugDescription() {
         XCTAssertEqual(
             subject!.debugDescription,
-            "Alert(title: 🍎, message: 🥝, alertActions: [BitwardenShared.AlertAction, BitwardenShared.AlertAction],"
-                + " alertTextFields: [BitwardenShared.AlertTextField])",
+            "Alert(title: 🍎, message: 🥝, alertActions: [BitwardenKit.AlertAction, BitwardenKit.AlertAction],"
+                + " alertTextFields: [BitwardenKit.AlertTextField])",
         )
     }
 
