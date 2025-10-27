@@ -9,22 +9,22 @@ public class Alert {
     // MARK: Properties
 
     /// A list of actions that the user can tap on in the alert.
-    var alertActions: [AlertAction] = []
+    public var alertActions: [AlertAction] = []
 
     /// A list of text fields that the user can use to enter text.
-    var alertTextFields: [AlertTextField] = []
+    public var alertTextFields: [AlertTextField] = []
 
     /// The message that is displayed in the alert.
-    let message: String?
+    public let message: String?
 
     /// The preferred action for the user to take in the alert, which emphasis is given.
-    var preferredAction: AlertAction?
+    public var preferredAction: AlertAction?
 
     /// The alert's style.
-    let preferredStyle: UIAlertController.Style
+    public let preferredStyle: UIAlertController.Style
 
     /// The title of the message that is displayed at the top of the alert.
-    let title: String?
+    public let title: String?
 
     // MARK: Initialization
 

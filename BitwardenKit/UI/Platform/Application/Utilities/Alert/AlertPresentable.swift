@@ -64,7 +64,9 @@ public extension AlertPresentable {
             alertController.popoverPresentationController?.permittedArrowDirections = []
         }
 
-        parent.present(alertController, animated: UI.animated)
+        let foo = UI.animated
+
+        parent.present(alertController, animated: foo)
     }
 }
 

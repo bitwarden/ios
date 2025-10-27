@@ -9,16 +9,16 @@ public class AlertAction {
     // MARK: Properties
 
     /// An optional handler that is called when the user taps on the action from the alert.
-    let handler: ((AlertAction, [AlertTextField]) async -> Void)?
+    public let handler: ((AlertAction, [AlertTextField]) async -> Void)?
 
     /// Condition that determines if the action should be enabled. Defaults to always enabled.
     var shouldEnableAction: (([AlertTextField]) -> Bool)?
 
     /// The style of the action.
-    let style: UIAlertAction.Style
+    public let style: UIAlertAction.Style
 
     /// The title of the alert action to display in the alert.
-    let title: String
+    public let title: String
 
     // MARK: Initialization
 
