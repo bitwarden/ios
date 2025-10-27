@@ -60,7 +60,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func add(_ action: AlertAction) -> Self {
+    public func add(_ action: AlertAction) -> Self {
         alertActions.append(action)
         return self
     }
@@ -72,7 +72,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func add(_ textField: AlertTextField) -> Self {
+    public func add(_ textField: AlertTextField) -> Self {
         alertTextFields.append(textField)
         return self
     }
@@ -86,7 +86,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func addPreferred(_ action: AlertAction) -> Self {
+    public func addPreferred(_ action: AlertAction) -> Self {
         alertActions.append(action)
         preferredAction = action
         return self
@@ -98,7 +98,7 @@ public class Alert {
     /// - Returns An initialized `UIAlertController` that has the `AlertAction`s added.
     ///
     @MainActor
-    func createAlertController(onDismissed: (() -> Void)? = nil) -> UIAlertController {
+    public func createAlertController(onDismissed: (() -> Void)? = nil) -> UIAlertController {
         let alertController = AlertController(title: title, message: message, preferredStyle: preferredStyle)
         alertController.onDismissed = onDismissed
 
