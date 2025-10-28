@@ -1,5 +1,5 @@
+import BitwardenKitMocks
 import BitwardenResources
-//import BitwardenSdk
 import XCTest
 
 @testable import BitwardenKit
@@ -58,7 +58,7 @@ class AlertTests: BitwardenTestCase {
     func test_createAlertController_onDismissed() {
         var dismissedCalled = false
         let alertController = subject.createAlertController { dismissedCalled = true }
-        let rootViewController = UIViewController()
+        let rootViewController = MockUIViewController()
         setKeyWindowRoot(viewController: rootViewController)
 
         rootViewController.present(alertController, animated: false)

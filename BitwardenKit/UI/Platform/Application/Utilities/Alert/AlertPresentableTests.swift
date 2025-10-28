@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenKit
@@ -14,7 +15,7 @@ class AlertPresentableTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        rootViewController = UIViewController()
+        rootViewController = MockUIViewController()
         subject = AlertPresentableSubject()
         subject.rootViewController = rootViewController
         setKeyWindowRoot(viewController: rootViewController)
