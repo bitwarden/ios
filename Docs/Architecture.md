@@ -31,7 +31,7 @@
 
 ## Overview
 
-The iOS repository contains two main apps:
+The iOS repository contains two main apps: Bitwarden Password Manager and Bitwarden Authenticator.
 
 ### Password Manager App Targets
 
