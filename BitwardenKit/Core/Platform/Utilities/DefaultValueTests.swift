@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class DefaultValueTests: BitwardenTestCase {
     // MARK: Types
