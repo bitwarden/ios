@@ -30,9 +30,6 @@ enum AuthError: Error {
     /// The user doesn't have a master password set; one needs to be set before continuing.
     case requireSetPassword
 
-    /// The user needs to update the temporary password; one needs to be set before continuing.
-    case requireUpdatePassword
-
     /// The user needs to choose a decryption option before continuing to vault.
     case requireDecryptionOptions
 
@@ -659,11 +656,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                    trustedDeviceOption.encryptedUserKey == nil {
                     try await trustDeviceService.removeTrustedDevice()
                     throw AuthError.requireDecryptionOptions
-                }
-
-                // User need to update password
-                if response.forcePasswordReset {
-                    throw AuthError.requireUpdatePassword
                 }
 
                 // Device is trusted and user unlock with device key
