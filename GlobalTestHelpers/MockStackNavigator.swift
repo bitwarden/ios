@@ -28,7 +28,7 @@ final class MockStackNavigator: StackNavigator {
     var alerts: [BitwardenShared.Alert] = []
     var isEmpty = true
     var isNavigationBarHidden = false
-    var isPresenting: Bool { actions.last?.type == .presented }
+    var isPresenting = false
     var rootViewController: UIViewController?
 
     var viewControllersToPop: [UIViewController] = []
