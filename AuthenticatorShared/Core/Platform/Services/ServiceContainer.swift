@@ -71,6 +71,9 @@ public class ServiceContainer: Services {
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
+    /// The factory to create TOTP expiration managers.
+    let totpExpirationManagerFactory: TOTPExpirationManagerFactory
+
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
 
@@ -98,6 +101,7 @@ public class ServiceContainer: Services {
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
+    ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
@@ -119,6 +123,7 @@ public class ServiceContainer: Services {
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
+        totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -139,6 +144,7 @@ public class ServiceContainer: Services {
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
         self.stateService = stateService
+        self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
     }
 
@@ -181,6 +187,7 @@ public class ServiceContainer: Services {
         )
 
         let timeProvider = CurrentTime()
+        let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -244,7 +251,7 @@ public class ServiceContainer: Services {
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository,
+            sharedKeychainRepository: sharedKeychainRepository
         )
 
         let sharedDataStore = AuthenticatorBridgeDataStore(
@@ -306,6 +313,7 @@ public class ServiceContainer: Services {
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
     }
