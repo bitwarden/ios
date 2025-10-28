@@ -4,46 +4,52 @@ import XCTest
 
 // MARK: - MockUIViewController
 
+/// A mock UIViewController that can be used in tests that normally rely on the existence of a host app
+/// because of details about how UIViewControllers present/dismiss other UIViewControllers.
 public class MockUIViewController: UIViewController {
-    // MARK: - Presentation Tracking
+    // MARK: Presentation Tracking
 
     public var presentCalled = false
     public var presentedView: UIViewController?
     public var presentAnimated = false
     public var presentCompletion: (() -> Void)?
 
-    // MARK: - Dismissal Tracking
+    // MARK: Dismissal Tracking
 
     public var dismissCalled = false
     public var dismissAnimated = false
     public var dismissCompletion: (() -> Void)?
 
-    // MARK: - Navigation Tracking
+    // MARK: Navigation Tracking
 
     public var pushViewControllerCalled = false
     public var pushedViewController: UIViewController?
     public var popViewControllerCalled = false
 
-    // MARK: - Mock Window and View Hierarchy
+    // MARK: Mock Window and View Hierarchy
 
     private var mockWindow: UIWindow?
     private var mockView: UIView?
 
-    // MARK: - Initialization
+    /// A size for the `mockWindow` and `mockView` objects to have.
+    /// This happens to be the size of the iPhone 5, 5C, 5S, and SE.
+    private static var mockWindowSize = CGRect(x: 0, y: 0, width: 320, height: 568)
+
+    // MARK: Initialization
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        setupMockHierarchy()
+        setUpMockHierarchy()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setupMockHierarchy()
+        setUpMockHierarchy()
     }
 
-    private func setupMockHierarchy() {
+    private func setUpMockHierarchy() {
         // Create a mock window to avoid issues with view hierarchy
-        mockWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 568))
+        mockWindow = UIWindow(frame: MockUIViewController.mockWindowSize)
         mockWindow?.rootViewController = self
 
         // Create a mock view
@@ -51,7 +57,7 @@ public class MockUIViewController: UIViewController {
         view = mockView
     }
 
-    // MARK: - UIViewController Overrides
+    // MARK: UIViewController Overrides
 
     public override func present(
         _ viewControllerToPresent: UIViewController,
@@ -110,18 +116,18 @@ public class MockUIViewController: UIViewController {
         super.viewDidLoad()
         // Ensure we have a view even if loadView wasn't called
         if view == nil {
-            view = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 568))
+            view = UIView(frame: MockUIViewController.mockWindowSize)
         }
     }
 
     public override func loadView() {
         if mockView == nil {
-            mockView = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 568))
+            mockView = UIView(frame: MockUIViewController.mockWindowSize)
         }
         view = mockView
     }
 
-    // MARK: - Navigation Controller Support
+    // MARK: Navigation Controller Support
 
     private var _navigationController: UINavigationController?
 
@@ -130,14 +136,14 @@ public class MockUIViewController: UIViewController {
         set { _navigationController = newValue }
     }
 
-    // MARK: - Helper Methods
+    // MARK: Helper Methods
 
     public func reset() {
         presentCalled = false
         presentedView = nil
         presentAnimated = false
         presentCompletion = nil
-        
+
         dismissCalled = false
         dismissAnimated = false
         dismissCompletion = nil
