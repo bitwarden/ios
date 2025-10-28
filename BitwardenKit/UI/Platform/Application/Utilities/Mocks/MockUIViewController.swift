@@ -71,6 +71,11 @@ public class MockUIViewController: UIViewController {
         completion?()
     }
     
+    // Override presentedViewController to return our tracked presented view
+    public override var presentedViewController: UIViewController? {
+        return presentedView
+    }
+    
     public override func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         dismissCalled = true
         dismissAnimated = animated
@@ -80,6 +85,9 @@ public class MockUIViewController: UIViewController {
             presentedView.beginAppearanceTransition(false, animated: animated)
             presentedView.endAppearanceTransition()
         }
+        
+        // Clear the presented view controller
+        presentedView = nil
         
         completion?()
     }
