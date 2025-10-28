@@ -1,4 +1,3 @@
-import BitwardenKit
 import Combine
 import SwiftUI
 
@@ -15,7 +14,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
 
     /// The current state of the store. This is updated from a `Processor` and is able to be
     /// observed by a view.
-    @Published private(set) var state: State
+    @Published public private(set) var state: State
 
     /// A closure that is called when an effect is performed by the view.
     private var perform: ((Effect) async -> Void)?
@@ -91,8 +90,10 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///
     /// - Parameters:
     ///   - state: The store's initial state.
-    ///   - map: A closure that provides a mapping from an action sent by the child store to the
+    ///   - mapAction: A closure that provides a mapping from an action sent by the child store to the
     ///     parent store's action.
+    ///   - mapEffect: A closure that provides a mapping from an effect emitted from the child store
+    ///     to the parent store's effect.
     /// - Returns: A child `Store` created from an existing `Store`.
     ///
     open func child<ChildState, ChildAction, ChildEffect>(

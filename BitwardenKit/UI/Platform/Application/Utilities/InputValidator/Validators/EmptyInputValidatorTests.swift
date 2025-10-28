@@ -1,6 +1,5 @@
+import BitwardenKit
 import XCTest
-
-@testable import AuthenticatorShared
 
 class EmptyInputValidatorTests: BitwardenTestCase {
     // MARK: Tests

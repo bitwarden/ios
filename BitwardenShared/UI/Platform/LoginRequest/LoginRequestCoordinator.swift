@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A coordinator that manages navigation for the login request view.
 ///
 final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
