@@ -2163,6 +2163,63 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password using the master
+    // password unlock data.
+    func test_unlockVaultWithPassword_masterPasswordUnlockData() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
+                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                    salt: "SALT",
+                ),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(600_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .masterPasswordUnlock(
+                    password: "password",
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: 600_000),
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                        salt: "SALT",
+                    ),
+                ),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `logout` throws an error with no accounts.
     func test_logout_noAccounts() async {
         stateService.accounts = []

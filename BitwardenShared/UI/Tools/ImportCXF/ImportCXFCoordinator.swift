@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A coordinator that manages navigation for the Credential Exchange import flow.

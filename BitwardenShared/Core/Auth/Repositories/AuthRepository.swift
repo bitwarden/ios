@@ -940,6 +940,9 @@ extension DefaultAuthRepository: AuthRepository {
                 method: method,
             ),
         )
+
+        // Remove admin pending login request if exists
+        try await authService.setPendingAdminLoginRequest(nil, userId: nil)
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -991,7 +994,24 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
         guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
-        try await unlockVault(method: .password(password: password, userKey: encUserKey))
+
+        let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock
+        let unlockMethod: InitUserCryptoMethod = if let masterPasswordUnlock {
+            .masterPasswordUnlock(
+                password: password,
+                masterPasswordUnlock: MasterPasswordUnlockData(responseModel: masterPasswordUnlock),
+            )
+        } else {
+            .password(password: password, userKey: encUserKey)
+        }
+        try await unlockVault(method: unlockMethod)
+
+        let hashedPassword = try await authService.hashPassword(
+            password: password,
+            purpose: .localAuthorization,
+        )
+        try await stateService.setMasterPasswordHash(hashedPassword)
+        await updateKdfToMinimumsIfNeeded(password: password)
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
@@ -1119,27 +1139,6 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")
-
-        switch method {
-        case .authRequest:
-            // Remove admin pending login request if exists
-            try await authService.setPendingAdminLoginRequest(nil, userId: nil)
-        case let .password(password, _):
-            let hashedPassword = try await authService.hashPassword(
-                password: password,
-                purpose: .localAuthorization,
-            )
-            try await stateService.setMasterPasswordHash(hashedPassword)
-            await updateKdfToMinimumsIfNeeded(password: password)
-        case .decryptedKey,
-             .deviceKey,
-             .keyConnector,
-             .masterPasswordUnlock,
-             .pin,
-             .pinEnvelope:
-            // No-op: nothing extra to do.
-            break
-        }
 
         try await configurePinUnlockIfNeeded(method: method)
 
@@ -1277,7 +1276,7 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
                 await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
             }
-        case.pinEnvelope:
+        case .pinEnvelope:
             break
         }
     }

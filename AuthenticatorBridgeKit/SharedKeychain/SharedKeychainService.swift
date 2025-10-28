@@ -29,7 +29,7 @@ public protocol SharedKeychainService: AnyObject {
 // MARK: - SharedKeychainServiceError
 
 /// Enum with possible error cases that can be thrown from `SharedKeychainService`.
-public enum SharedKeychainServiceError: Error, Equatable, CustomNSError {
+public enum SharedKeychainServiceError: Error, Equatable, CustomNSError, Sendable {
     /// When a `KeychainService` is unable to locate an auth key for a given storage key.
     ///
     /// - Parameter KeychainItem: The potential storage key for the auth key.

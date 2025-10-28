@@ -182,10 +182,10 @@
 "SyncVaultNow" = "Đồng bộ kho lưu trữ ngay";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Đăng nhập hai bước";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Mở khóa bằng sinh trắc học";
+"UnlockWithFaceID" = "Mở khóa bằng Face ID";
+"UnlockWithTouchID" = "Mở khóa bằng Touch ID";
+"UnlockWithOpticID" = "Mở khóa bằng Optic ID";
 "UnlockWithPIN" = "Mở khóa bằng mã PIN";
 "Validating" = "Đang xác nhận";
 "VerificationCode" = "Mã xác minh";
