@@ -1,7 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>bitwarden/renovate-config"],
-  "enabledManagers": ["bundler", "github-actions", "mint", "swift"],
+  "enabledManagers": ["bundler", "github-actions", "mint", "regex", "swift"],
+  "regexManagers": [
+    {
+      "fileMatch": ["\\.github/workflows/test\\.yml$", "\\.github/workflows/test-bwa\\.yml$"],
+      "matchStrings": [
+        "uses: codecov/codecov-action@[a-f0-9]+(?:[^\\n]*\\n){1,10}[^\\n]*version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "getsentry/prevent-cli",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "packageRules": [
     {
       "groupName": "bundler minor",
