@@ -815,21 +815,22 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool,
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let accountKeys = try await stateService.getAccountEncryptionKeys()
-        let accountPrivateKeys = accountKeys.accountKeys
         let email = account.profile.email
         let kdf = account.kdf
         let requestUserKey: String
         let requestKeys: KeysRequestModel?
         let requestPasswordHash: String
+        let accountPrivateKeys: PrivateKeysResponseModel?
         let encryptedPrivateKey: String
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
             let passwordResult = try await clientService.crypto().makeUpdatePassword(newPassword: password)
+            let accountKeys = try await stateService.getAccountEncryptionKeys()
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
+            accountPrivateKeys = accountKeys.accountKeys
             encryptedPrivateKey = accountKeys.encryptedPrivateKey
         } else {
             let keys = try await clientService.auth().makeRegisterKeys(
@@ -848,6 +849,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPrivateKey: keys.keys.private,
                 publicKey: keys.keys.public,
             )
+            accountPrivateKeys = nil
             encryptedPrivateKey = keys.keys.private
         }
 
@@ -868,6 +870,9 @@ extension DefaultAuthRepository: AuthRepository {
         ))
         try await stateService.setUserHasMasterPassword(true)
 
+        // The vault needs to be unlocked before attempting to enroll the user in admin password reset.
+        try await unlockVaultWithPassword(password: password)
+
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
                 organizationId: organizationId,
@@ -886,8 +891,6 @@ extension DefaultAuthRepository: AuthRepository {
                 userId: account.profile.userId,
             )
         }
-
-        try await unlockVaultWithPassword(password: password)
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
