@@ -65,7 +65,7 @@ public class AlertTextField {
     /// control event of a `UITextField`. It synchronizes the text field's content with
     /// the internal `text` property and triggers the optional `onTextChanged` callback.
     ///
-    /// - Parameter:
+    /// - Parameters:
     ///   - textField: The `UITextField` whose content has changed.
     @objc
     public func textChanged(in textField: UITextField) {
