@@ -1,4 +1,3 @@
-import BitwardenKit
 import OSLog
 import UIKit
 
