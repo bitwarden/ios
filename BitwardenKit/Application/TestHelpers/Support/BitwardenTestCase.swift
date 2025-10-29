@@ -31,9 +31,6 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
     /// changes to the view that require the view to exist within a window or are dependent on safe
     /// area layouts.
     ///
-    /// This is currently in the `BitwardenShared` copy of `BitwardenTestCase`
-    /// because it relies on `UIView.addConstrained(:)`, which is still in `BitwardenShared`.
-    ///
     /// - Parameters:
     ///     - view: The `UIView` to add to a root view controller.
     ///
