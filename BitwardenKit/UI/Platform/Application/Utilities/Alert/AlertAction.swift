@@ -12,7 +12,7 @@ public class AlertAction {
     public let handler: ((AlertAction, [AlertTextField]) async -> Void)?
 
     /// Condition that determines if the action should be enabled. Defaults to always enabled.
-    var shouldEnableAction: (([AlertTextField]) -> Bool)?
+    public var shouldEnableAction: (([AlertTextField]) -> Bool)?
 
     /// The style of the action.
     public let style: UIAlertAction.Style
