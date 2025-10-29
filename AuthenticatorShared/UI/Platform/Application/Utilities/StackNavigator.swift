@@ -287,28 +287,6 @@ extension UINavigationController: StackNavigator {
         present(controller, animated: animated, onCompletion: onCompletion)
     }
 
-    public func present(
-        _ viewController: UIViewController,
-        animated: Bool,
-        overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil,
-    ) {
-        var presentedChild = presentedViewController
-        var availablePresenter: UIViewController? = self
-        while presentedChild != nil {
-            availablePresenter = presentedChild
-            presentedChild = presentedChild?.presentedViewController
-        }
-        if overFullscreen {
-            viewController.modalPresentationStyle = .overFullScreen
-        }
-        availablePresenter?.present(
-            viewController,
-            animated: animated,
-            completion: onCompletion,
-        )
-    }
-
     public func replace<Content: View>(_ view: Content, animated: Bool) {
         let animated = self.view.window != nil ? animated : false
         setViewControllers([UIHostingController(rootView: view)], animated: animated)
