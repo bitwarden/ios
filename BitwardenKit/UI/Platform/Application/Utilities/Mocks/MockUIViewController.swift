@@ -93,18 +93,6 @@ public class MockUIViewController: UIViewController {
         view = mockView
     }
 
-    // MARK: Mock Hierarchy
-
-    private func setUpMockHierarchy() {
-        // Create a mock window to avoid issues with view hierarchy
-        mockWindow = UIWindow(frame: MockUIViewController.mockWindowSize)
-        mockWindow?.rootViewController = self
-
-        // Create a mock view
-        mockView = UIView(frame: mockWindow?.frame ?? .zero)
-        view = mockView
-    }
-
     // MARK: UIViewController Overrides
 
     override public func present(
@@ -143,6 +131,7 @@ public class MockUIViewController: UIViewController {
 
     // MARK: Helper Methods
 
+    /// Resets and clears all local variables, to prepare the mock for reuse.
     public func reset() {
         presentCalled = false
         presentedView = nil
@@ -156,5 +145,18 @@ public class MockUIViewController: UIViewController {
         pushViewControllerCalled = false
         pushedViewController = nil
         popViewControllerCalled = false
+    }
+
+    // MARK: Mock Hierarchy
+
+    /// Sets up a `UIWindow` and `UIView` to use as mocks in the view hierarchy.
+    private func setUpMockHierarchy() {
+        // Create a mock window to avoid issues with view hierarchy
+        mockWindow = UIWindow(frame: MockUIViewController.mockWindowSize)
+        mockWindow?.rootViewController = self
+
+        // Create a mock view
+        mockView = UIView(frame: mockWindow?.frame ?? .zero)
+        view = mockView
     }
 }
