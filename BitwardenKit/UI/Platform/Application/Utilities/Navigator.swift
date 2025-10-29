@@ -1,4 +1,3 @@
-import BitwardenKit
 import SwiftUI
 
 // MARK: - Navigator
@@ -12,7 +11,7 @@ public protocol Navigator: AlertPresentable, AnyObject {
     /// A flag indicating if this navigator is currently presenting a view modally.
     var isPresenting: Bool { get }
 
-    /// The root view controller of this `Navigator` {. 
+    /// The root view controller of this `Navigator`.
     var rootViewController: UIViewController? { get }
 
     // MARK: Methods
@@ -33,9 +32,9 @@ public protocol Navigator: AlertPresentable, AnyObject {
     )
 }
 
-extension Navigator {
+public extension Navigator {
     /// A flag indicating if this navigator is currently presenting a view modally.
-    public var isPresenting: Bool {
+    var isPresenting: Bool {
         rootViewController?.presentedViewController != nil
     }
 
