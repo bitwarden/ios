@@ -1,7 +1,6 @@
-import BitwardenKit
 import UIKit
 
-extension UIViewController {
+public extension UIViewController {
     /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
     ///
     /// - Parameters:
@@ -10,7 +9,7 @@ extension UIViewController {
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
     ///   - onCompletion: A closure to call on completion.
     ///
-    public func present(
+    func present(
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
@@ -18,7 +17,7 @@ extension UIViewController {
     ) {
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
-        while presentedChild != nil {
+        while presentedChild != nil, presentedChild?.isBeingDismissed == false {
             availablePresenter = presentedChild
             presentedChild = presentedChild?.presentedViewController
         }

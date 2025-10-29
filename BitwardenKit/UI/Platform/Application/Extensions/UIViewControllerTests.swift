@@ -1,6 +1,5 @@
+import BitwardenKit
 import XCTest
-
-@testable import AuthenticatorShared
 
 class UIViewControllerTests: BitwardenTestCase {
     /// `topmostViewController` returns the top view controller for a view controller.

@@ -25,8 +25,9 @@ runs:
         _SIMULATOR_NAME: ${{ inputs.simulator-name }}
         _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
       run: |
+        SIMULATOR_VERSION_WITHOUT_PATCH=$(echo "$_SIMULATOR_VERSION" | cut -d. -f1,2)
         echo "Listing simulator devices:"
-        SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
+        SIMULATORS=$(xcrun simctl list devices "iOS $SIMULATOR_VERSION_WITHOUT_PATCH" available)
         echo "$SIMULATORS"
         DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
         echo "--------------------------------"
