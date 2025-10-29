@@ -130,6 +130,8 @@ jobs:
           simulator-version: ${{ env._SIMULATOR_VERSION }}
 
       - name: Build
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
             xcrun xcodebuild build-for-testing \
@@ -157,6 +159,7 @@ jobs:
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 1 \
               -retry-tests-on-failure \
+              -test-iterations 1 \
               -test-repetition-relaunch-enabled YES \
               -quiet
             kill $PYEETD_PID

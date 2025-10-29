@@ -135,13 +135,15 @@ jobs:
           simulator-version: ${{ env._SIMULATOR_VERSION }}
 
       - name: Build
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
           python Scripts/pyeetd/main.py & PYEETD_PID=$!
           xcrun xcodebuild build-for-testing \
             -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=26.0.1" \
+            -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
             -quiet
@@ -162,6 +164,7 @@ jobs:
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
             -retry-tests-on-failure \
+            -test-iterations 1 \
             -test-repetition-relaunch-enabled YES \
             -quiet
           kill "$PYEETD_PID"
