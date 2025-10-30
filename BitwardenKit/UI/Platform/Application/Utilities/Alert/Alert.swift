@@ -9,22 +9,22 @@ public class Alert {
     // MARK: Properties
 
     /// A list of actions that the user can tap on in the alert.
-    var alertActions: [AlertAction] = []
+    public var alertActions: [AlertAction] = []
 
     /// A list of text fields that the user can use to enter text.
-    var alertTextFields: [AlertTextField] = []
+    public var alertTextFields: [AlertTextField] = []
 
     /// The message that is displayed in the alert.
-    let message: String?
+    public let message: String?
 
     /// The preferred action for the user to take in the alert, which emphasis is given.
-    var preferredAction: AlertAction?
+    public var preferredAction: AlertAction?
 
     /// The alert's style.
-    let preferredStyle: UIAlertController.Style
+    public let preferredStyle: UIAlertController.Style
 
     /// The title of the message that is displayed at the top of the alert.
-    let title: String?
+    public let title: String?
 
     // MARK: Initialization
 
@@ -60,7 +60,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func add(_ action: AlertAction) -> Self {
+    public func add(_ action: AlertAction) -> Self {
         alertActions.append(action)
         return self
     }
@@ -72,7 +72,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func add(_ textField: AlertTextField) -> Self {
+    public func add(_ textField: AlertTextField) -> Self {
         alertTextFields.append(textField)
         return self
     }
@@ -86,7 +86,7 @@ public class Alert {
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     @discardableResult
-    func addPreferred(_ action: AlertAction) -> Self {
+    public func addPreferred(_ action: AlertAction) -> Self {
         alertActions.append(action)
         preferredAction = action
         return self
@@ -94,44 +94,73 @@ public class Alert {
 
     /// Creates a `UIAlertController` from the `Alert` that can be presented in the view.
     ///
+    /// - Parameter onDismissed: An optional closure that is called when the alert is dismissed.
     /// - Returns An initialized `UIAlertController` that has the `AlertAction`s added.
     ///
     @MainActor
-    func createAlertController() -> UIAlertController {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
-        alertTextFields.forEach { alertTextField in
-            alert.addTextField { textField in
-                textField.placeholder = alertTextField.placeholder
-                textField.tintColor = Asset.Colors.primaryBitwarden.color
-                textField.keyboardType = alertTextField.keyboardType
-                textField.isSecureTextEntry = alertTextField.isSecureTextEntry
-                textField.autocapitalizationType = alertTextField.autocapitalizationType
-                textField.autocorrectionType = alertTextField.autocorrectionType
-                textField.text = alertTextField.text
+    public func createAlertController(onDismissed: (() -> Void)? = nil) -> UIAlertController {
+        let alertController = AlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alertController.onDismissed = onDismissed
+
+        let shouldUpdateActions = alertActions.contains { $0.shouldEnableAction != nil }
+
+        addTextFields(to: alertController, updateActionsIfNeeded: shouldUpdateActions)
+        addActions(to: alertController)
+
+        return alertController
+    }
+
+    private func addTextFields(to alertController: UIAlertController, updateActionsIfNeeded: Bool) {
+        for alertTextField in alertTextFields {
+            alertController.addTextField { textField in
+                self.configure(textField, with: alertTextField)
+
                 textField.addTarget(
                     alertTextField,
                     action: #selector(AlertTextField.textChanged(in:)),
                     for: .editingChanged,
                 )
             }
-        }
 
-        alertActions.forEach { alertAction in
+            if updateActionsIfNeeded {
+                alertTextField.onTextChanged = { [weak self, weak alertController] in
+                    guard let self, let alertController else { return }
+
+                    for (index, alertAction) in alertActions.enumerated() {
+                        guard let shouldEnable = alertAction.shouldEnableAction else { continue }
+                        if index < alertController.actions.count {
+                            alertController.actions[index].isEnabled = shouldEnable(alertTextFields)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func addActions(to alertController: UIAlertController) {
+        for alertAction in alertActions {
             let action = UIAlertAction(title: alertAction.title, style: alertAction.style) { _ in
                 Task {
                     await alertAction.handler?(alertAction, self.alertTextFields)
                 }
             }
 
-            alert.addAction(action)
+            action.isEnabled = alertAction.shouldEnableAction?(alertTextFields) ?? true
+            alertController.addAction(action)
 
             if let preferredAction, preferredAction === alertAction {
-                alert.preferredAction = action
+                alertController.preferredAction = action
             }
         }
-        alert.view.tintColor = Asset.Colors.primaryBitwarden.color
+    }
 
-        return alert
+    private func configure(_ textField: UITextField, with model: AlertTextField) {
+        textField.placeholder = model.placeholder
+        textField.keyboardType = model.keyboardType
+        textField.isSecureTextEntry = model.isSecureTextEntry
+        textField.autocapitalizationType = model.autocapitalizationType
+        textField.autocorrectionType = model.autocorrectionType
+        textField.text = model.text
     }
 }
 
@@ -164,5 +193,24 @@ extension Alert: Hashable {
         hasher.combine(preferredAction)
         hasher.combine(preferredStyle)
         hasher.combine(title)
+    }
+}
+
+// MARK: - AlertController
+
+/// An `UIAlertController` subclass that allows for setting a closure to be notified when the alert
+/// controller is dismissed.
+///
+private class AlertController: UIAlertController {
+    // MARK: Properties
+
+    /// A closure that is called when the alert controller has been dismissed.
+    var onDismissed: (() -> Void)?
+
+    // MARK: UIViewController
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        onDismissed?()
     }
 }
