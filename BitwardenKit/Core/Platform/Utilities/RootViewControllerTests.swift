@@ -1,7 +1,8 @@
 import BitwardenKitMocks
+import BitwardenKit
 import XCTest
 
-@testable import BitwardenShared
+//@testable import BitwardenShared
 
 // MARK: - RootViewControllerTests
 

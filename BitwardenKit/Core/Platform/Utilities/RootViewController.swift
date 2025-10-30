@@ -1,4 +1,3 @@
-import BitwardenKit
 import UIKit
 
 /// The root view controller for the app.
@@ -19,6 +18,8 @@ public class RootViewController: UIViewController {
     ///
     public var childViewController: UIViewController? {
         didSet {
+            dismiss(animated: false)
+
             if let fromViewController = oldValue {
                 fromViewController.willMove(toParent: nil)
                 fromViewController.view.removeFromSuperview()
