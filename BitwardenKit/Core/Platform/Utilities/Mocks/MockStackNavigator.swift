@@ -1,5 +1,4 @@
 import BitwardenKit
-import BitwardenShared
 import SwiftUI
 
 final class MockStackNavigator: StackNavigator {
