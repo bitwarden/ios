@@ -18,7 +18,7 @@ public enum AppTheme: String, Menuable, Sendable {
     // MARK: Type Properties
 
     /// The ordered list of options to display in the menu.
-    static let allCases: [AppTheme] = [.default, .light, .dark]
+    public static let allCases: [AppTheme] = [.default, .light, .dark]
 
     // MARK: Properties
 
