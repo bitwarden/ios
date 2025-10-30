@@ -164,7 +164,7 @@ public class MockUIViewController: UIViewController {
     }
 
     /// Dismisses the currently presented view controller and tracks the dismissal details for testing.
-    /// 
+    ///
     /// - Parameters:
     ///   - animated: Whether to animate the dismissal.
     ///   - completion: A completion handler to call after the dismissal finishes.

@@ -1,7 +1,7 @@
+import BitwardenKit
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
-
-@testable import BitwardenShared
 
 // MARK: - StackNavigatorTests
 
@@ -14,7 +14,7 @@ class StackNavigatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        subject = UINavigationController()
+        subject = MockUINavigationController()
         setKeyWindowRoot(viewController: subject)
     }
 
