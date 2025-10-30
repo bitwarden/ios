@@ -1,8 +1,7 @@
-import BitwardenKit
 import UIKit
 
 #if DEBUG
-extension Alert {
+public extension Alert {
     static func fixture(
         title: String = "🍎",
         message: String? = "🥝",
@@ -20,7 +19,7 @@ extension Alert {
     }
 }
 
-extension AlertAction {
+public extension AlertAction {
     static func ok(
         title: String = "OK",
         style: UIAlertAction.Style = .default,
@@ -50,7 +49,7 @@ extension AlertAction {
     }
 }
 
-extension AlertTextField {
+public extension AlertTextField {
     static func fixture(
         id: String = "field",
         autocapitalizationType: UITextAutocapitalizationType = .allCharacters,

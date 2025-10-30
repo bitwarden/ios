@@ -401,7 +401,7 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         // No-Op for the AddEditSendItemProcessor.
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
     }
 

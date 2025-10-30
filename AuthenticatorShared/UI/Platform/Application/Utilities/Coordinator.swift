@@ -34,7 +34,7 @@ public protocol Coordinator<Route, Event>: AnyObject {
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert)
+    func showAlert(_ alert: BitwardenKit.Alert)
 
     /// Shows the loading overlay view.
     ///
@@ -141,7 +141,7 @@ extension Coordinator where Self: HasNavigator {
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         navigator?.present(alert)
     }
 

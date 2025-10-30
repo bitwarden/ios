@@ -1,7 +1,7 @@
 import BitwardenResources
 import UIKit
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 enum AlertError: LocalizedError {
     case alertActionNotFound(title: String)
@@ -17,7 +17,7 @@ enum AlertError: LocalizedError {
     }
 }
 
-extension Alert {
+public extension Alert {
     /// Simulates tapping the cancel button of the alert.
     func tapCancel() async throws {
         try await tapAction(title: Localizations.cancel)

@@ -1,6 +1,7 @@
+import BitwardenKitMocks
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 // MARK: - AlertPresentableTests
 
@@ -14,7 +15,7 @@ class AlertPresentableTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        rootViewController = UIViewController()
+        rootViewController = MockUIViewController()
         subject = AlertPresentableSubject()
         subject.rootViewController = rootViewController
         setKeyWindowRoot(viewController: rootViewController)
@@ -33,6 +34,18 @@ class AlertPresentableTests: BitwardenTestCase {
     func test_present() {
         subject.present(Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotNil(rootViewController.presentedViewController as? UIAlertController)
+    }
+
+    /// `present(_:)` presents a `UIAlertController` and calls the `onDismissed` closure when it's been dismissed.
+    @MainActor
+    func test_present_onDismissed() {
+        var onDismissedCalled = false
+        subject.present(Alert(title: "🍎", message: "🥝", preferredStyle: .alert)) {
+            onDismissedCalled = true
+        }
+        rootViewController.dismiss(animated: false)
+        waitFor(rootViewController.presentedViewController == nil)
+        XCTAssertTrue(onDismissedCalled)
     }
 }
 
