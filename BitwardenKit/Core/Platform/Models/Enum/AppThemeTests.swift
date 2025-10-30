@@ -14,6 +14,11 @@ class AppThemeTests: BitwardenTestCase {
         XCTAssertEqual(AppTheme("gibberish"), .default)
     }
 
+    /// `allCases` contains all themes in the expected order.
+    func test_allCases() {
+        XCTAssertEqual(AppTheme.allCases, [.default, .light, .dark])
+    }
+
     /// `defaultValueLocalizedName` has the expected value.
     func test_defaultValueLocalizedName() {
         XCTAssertEqual(AppTheme.defaultValueLocalizedName, Localizations.defaultSystem)
