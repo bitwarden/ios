@@ -1,8 +1,7 @@
+import BitwardenKit
 import BitwardenResources
 import UIKit
 import XCTest
-
-@testable import AuthenticatorShared
 
 class AppThemeTests: BitwardenTestCase {
     // MARK: Tests
