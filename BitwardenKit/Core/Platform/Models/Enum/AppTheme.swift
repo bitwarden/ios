@@ -75,7 +75,7 @@ public enum AppTheme: String, Menuable, Sendable {
 
     // MARK: Initialization
 
-    /// Initialize a `ThemeOption`.`
+    /// Initialize a `ThemeOption`.
     ///
     /// - Parameter appTheme: The raw value string of the custom selection, or `nil` for default.
     ///
