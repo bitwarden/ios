@@ -12,7 +12,7 @@ inputs:
 
 outputs:
   simulator-id:
-    description: 'The UDID of the booted simulator device'
+    description: 'The identifier of the booted simulator device'
     value: ${{ steps.boot.outputs.device-id }}
 
 runs:
