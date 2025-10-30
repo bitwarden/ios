@@ -1,8 +1,7 @@
+import BitwardenKit
 import BitwardenResources
 import UIKit
 import XCTest
-
-@testable import AuthenticatorShared
 
 class AppThemeTests: BitwardenTestCase {
     // MARK: Tests
@@ -13,6 +12,16 @@ class AppThemeTests: BitwardenTestCase {
         XCTAssertEqual(AppTheme(nil), .default)
         XCTAssertEqual(AppTheme("light"), .light)
         XCTAssertEqual(AppTheme("gibberish"), .default)
+    }
+
+    /// `allCases` contains all themes in the expected order.
+    func test_allCases() {
+        XCTAssertEqual(AppTheme.allCases, [.default, .light, .dark])
+    }
+
+    /// `defaultValueLocalizedName` has the expected value.
+    func test_defaultValueLocalizedName() {
+        XCTAssertEqual(AppTheme.defaultValueLocalizedName, Localizations.defaultSystem)
     }
 
     /// `localizedName` has the expected values.

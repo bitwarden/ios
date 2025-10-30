@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import UIKit
 
@@ -6,7 +5,7 @@ import UIKit
 
 /// An enum listing the display theme options.
 ///
-public enum AppTheme: String, Menuable {
+public enum AppTheme: String, Menuable, Sendable {
     /// Use the dark theme.
     case dark
 
@@ -19,7 +18,7 @@ public enum AppTheme: String, Menuable {
     // MARK: Type Properties
 
     /// The ordered list of options to display in the menu.
-    static let allCases: [AppTheme] = [.default, .light, .dark]
+    public static let allCases: [AppTheme] = [.default, .light, .dark]
 
     // MARK: Properties
 
@@ -39,7 +38,7 @@ public enum AppTheme: String, Menuable {
     }
 
     /// The color theme to set the status bar to.
-    var statusBarStyle: UIStatusBarStyle {
+    public var statusBarStyle: UIStatusBarStyle {
         switch self {
         case .dark:
             .lightContent
@@ -51,7 +50,7 @@ public enum AppTheme: String, Menuable {
     }
 
     /// The value to use to actually set the app's theme.
-    var userInterfaceStyle: UIUserInterfaceStyle {
+    public var userInterfaceStyle: UIUserInterfaceStyle {
         switch self {
         case .dark:
             .dark
@@ -63,7 +62,7 @@ public enum AppTheme: String, Menuable {
     }
 
     /// The value to save to the local storage.
-    var value: String? {
+    public var value: String? {
         switch self {
         case .dark:
             "dark"
@@ -76,11 +75,11 @@ public enum AppTheme: String, Menuable {
 
     // MARK: Initialization
 
-    /// Initialize a `ThemeOption`.`
+    /// Initialize an `AppTheme`.
     ///
     /// - Parameter appTheme: The raw value string of the custom selection, or `nil` for default.
     ///
-    init(_ appTheme: String?) {
+    public init(_ appTheme: String?) {
         if let appTheme {
             self = .init(rawValue: appTheme) ?? .default
         } else {
