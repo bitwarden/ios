@@ -2,7 +2,7 @@
 
 import BitwardenKit
 
-extension FeatureFlag: @retroactive CaseIterable {
+extension FeatureFlag {
     /// A test feature flag that has no initial value.
     public static let testFeatureFlag = FeatureFlag(
         rawValue: "test-feature-flag",
