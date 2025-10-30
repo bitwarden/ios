@@ -1,9 +1,9 @@
 import UIKit
 
-/// The root view controller for the app.
+/// The root view controller for the apps.
 ///
-/// This view controller is the entry point into the application, and all screens are presented within this view
-/// controller.
+/// This view controller is the entry point into each application, and all screens for each app
+/// are presented within this view controller.
 ///
 public class RootViewController: UIViewController {
     /// The app's theme.
