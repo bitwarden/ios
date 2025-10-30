@@ -154,12 +154,12 @@ jobs:
               -scheme Bitwarden \
               -configuration Debug \
               -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
-              -resultBundlePath $_TESTS_RESULT_BUNDLE_PATH \
+              -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 1 \
               -quiet
-            kill $PYEETD_PID
+            kill "$PYEETD_PID"
 
       - name: Print Logs Summary
         if: always()
