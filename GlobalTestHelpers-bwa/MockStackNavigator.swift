@@ -1,4 +1,5 @@
 import AuthenticatorShared
+import BitwardenKit
 import SwiftUI
 
 final class MockStackNavigator: StackNavigator {
@@ -22,7 +23,7 @@ final class MockStackNavigator: StackNavigator {
     }
 
     var actions: [NavigationAction] = []
-    var alerts: [AuthenticatorShared.Alert] = []
+    var alerts: [BitwardenKit.Alert] = []
     var isEmpty = true
     var isPresenting: Bool { actions.last?.type == .presented }
     var rootViewController: UIViewController?
@@ -67,7 +68,7 @@ final class MockStackNavigator: StackNavigator {
         return viewControllersToPop
     }
 
-    func present(_ alert: AuthenticatorShared.Alert) {
+    func present(_ alert: BitwardenKit.Alert) {
         alerts.append(alert)
     }
 

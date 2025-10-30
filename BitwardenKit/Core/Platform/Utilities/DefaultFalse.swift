@@ -2,11 +2,11 @@
 /// useful for decoding a boolean value which may not be present in the response.
 ///
 @propertyWrapper
-struct DefaultFalse: Codable, Hashable {
+public struct DefaultFalse: Codable, Hashable {
     // MARK: Properties
 
     /// The wrapped value.
-    var wrappedValue: Bool
+    public var wrappedValue: Bool
 
     // MARK: Initialization
 
@@ -14,27 +14,27 @@ struct DefaultFalse: Codable, Hashable {
     ///
     /// - Parameter wrappedValue: The value that is contained in the property wrapper.
     ///
-    init(wrappedValue: Bool) {
+    public init(wrappedValue: Bool) {
         self.wrappedValue = wrappedValue
     }
 
     // MARK: Decodable
 
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         wrappedValue = try container.decode(Bool.self)
     }
 
     // MARK: Encodable
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         try wrappedValue.encode(to: encoder)
     }
 }
 
 // MARK: - KeyedDecodingContainer
 
-extension KeyedDecodingContainer {
+public extension KeyedDecodingContainer {
     /// When decoding a `DefaultFalse` wrapped value, if the property doesn't exist, default to `false`.
     ///
     /// - Parameters:

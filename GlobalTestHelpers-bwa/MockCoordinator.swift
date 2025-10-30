@@ -8,7 +8,7 @@ enum MockCoordinatorError: Error {
 }
 
 class MockCoordinator<Route, Event>: Coordinator {
-    var alertShown = [Alert]()
+    var alertShown = [BitwardenKit.Alert]()
     var contexts: [AnyObject?] = []
     var events = [Event]()
     var isLoadingOverlayShowing = false
@@ -31,7 +31,7 @@ class MockCoordinator<Route, Event>: Coordinator {
         contexts.append(context)
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         alertShown.append(alert)
     }
 

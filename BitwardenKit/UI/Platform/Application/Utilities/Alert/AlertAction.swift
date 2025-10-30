@@ -9,13 +9,16 @@ public class AlertAction {
     // MARK: Properties
 
     /// An optional handler that is called when the user taps on the action from the alert.
-    let handler: ((AlertAction, [AlertTextField]) async -> Void)?
+    public let handler: ((AlertAction, [AlertTextField]) async -> Void)?
+
+    /// Condition that determines if the action should be enabled. Defaults to always enabled.
+    public var shouldEnableAction: (([AlertTextField]) -> Bool)?
 
     /// The style of the action.
-    let style: UIAlertAction.Style
+    public let style: UIAlertAction.Style
 
     /// The title of the alert action to display in the alert.
-    let title: String
+    public let title: String
 
     // MARK: Initialization
 
@@ -25,13 +28,16 @@ public class AlertAction {
     ///   - title: The title of the alert action.
     ///   - style: The style of the alert action to use when creating a `UIAlertAction`.
     ///   - handler: The handler that is called when the user taps on the action in the alert.
+    ///   - shouldEnableAction: Condition that determines if the action should be enabled. Defaults to always enabled.
     ///
     public init(
         title: String,
         style: UIAlertAction.Style,
         handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
     ) {
         self.title = title
+        self.shouldEnableAction = shouldEnableAction
         self.style = style
         self.handler = handler
     }
@@ -42,13 +48,17 @@ public class AlertAction {
     ///   - title: The title of the alert action.
     ///   - style: The style of the alert action to use when creating a `UIAlertAction`.
     ///   - handler: The handler that is called when the user taps on the action in the alert.
+    ///   - shouldEnableAction: Condition that determines if the action should be enabled.
+    ///   Defaults to always enabled.
     ///
     public init(
         title: String,
         style: UIAlertAction.Style,
         handler: @escaping (AlertAction) async -> Void,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
     ) {
         self.title = title
+        self.shouldEnableAction = shouldEnableAction
         self.style = style
         self.handler = { action, _ in
             await handler(action)
