@@ -158,9 +158,6 @@ jobs:
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 1 \
-              -retry-tests-on-failure \
-              -test-iterations 1 \
-              -test-repetition-relaunch-enabled YES \
               -quiet
             kill $PYEETD_PID
 
