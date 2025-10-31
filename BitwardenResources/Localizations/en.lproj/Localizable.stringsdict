@@ -6,7 +6,7 @@
 	<key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>Bitwarden could not decrypt %#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
+		<string>%#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
 		<key>vaultitems</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
@@ -14,9 +14,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d vault item</string>
+			<string>Bitwarden could not decrypt %d vault item</string>
 			<key>other</key>
-			<string>%d vault items</string>
+			<string>Bitwarden could not decrypt %d vault items</string>
 		</dict>
 	</dict>
 	<!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
