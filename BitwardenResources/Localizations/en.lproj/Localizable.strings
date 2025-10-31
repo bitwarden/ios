@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importing…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
-"ItemsSuccessfullyImported" = "%1$@ items successfully imported";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
 "RetryImport" = "Retry import";
 "ShowVault" = "Show vault";

@@ -53,6 +53,23 @@
 			<string>%d items</string>
 		</dict>
 	</dict>
+	<!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+	<key>XItemsSuccessfullyImported</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@items@ successfully imported</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d item</string>
+			<key>other</key>
+			<string>%d items</string>
+		</dict>
+	</dict>
 	<!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
 	<key>XHours</key>
 	<dict>
