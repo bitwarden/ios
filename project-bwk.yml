@@ -66,6 +66,7 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         excludes:
@@ -82,6 +83,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         includes:
@@ -102,6 +104,7 @@ targets:
       base:
         ENABLE_TESTING_SEARCH_PATHS: YES
         INFOPLIST_FILE: AuthenticatorBridgeKit/MocksInfo.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         includes:

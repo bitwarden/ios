@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 /// A scroll view that contains the guided tour content.

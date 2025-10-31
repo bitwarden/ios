@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Imposta Bitwarden come il tuo fornitore delle passkey nelle impostazioni del dispositivo.";
 "AvoidAmbiguousCharacters" = "Evita caratteri ambigui";
 "BitwardenAppExtension" = "Estensione app di Bitwarden";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "Il modo più semplice per aggiungere nuovi login alla tua cassaforte è usare l'estensione di Bitwarden. Scopri di più su come usare l'estensione di Bitwarden nelle impostazioni.";
 "BitwardenAppExtensionDescription" = "Usa Bitwarden su Safari e altre app per riempire automaticamente i tuoi login.";
 "BitwardenAutofillService" = "Servizio di riempimento automatico di Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Usa il servizio di accessibilità Bitwarden per riempire automaticamente i tuoi login.";

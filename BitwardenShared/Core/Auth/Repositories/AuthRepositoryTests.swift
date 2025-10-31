@@ -1171,14 +1171,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword() async throws {
         let account = Account.fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
-        clientService.mockCrypto.makeUpdatePasswordResult = .success(
-            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
-        )
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: .fixture(),
-            encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY",
-        )
+        // Account encryption keys don't exist until after a MP has been set for non-TDE users.
+        stateService.accountEncryptionKeys["1"] = nil
         stateService.activeAccount = account
 
         try await subject.setMasterPassword(
@@ -1206,7 +1200,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
-                accountKeys: .fixture(),
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "encryptedUserKey",
             ),
@@ -1301,6 +1295,60 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             requests[2].url.absoluteString,
             "https://example.com/api/organizations/1234/users/1/reset-password-enrollment",
+        )
+    }
+
+    /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
+    /// unlocks the vault.
+    func test_setMasterPassword_TDE() async throws {
+        let account = Account.fixtureWithTDE()
+        client.result = .httpSuccess(testData: .emptyResponse)
+        clientService.mockCrypto.makeUpdatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY",
+        )
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "NEW_PASSWORD",
+            masterPasswordHint: "HINT",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
+            resetPasswordAutoEnroll: false,
+        )
+
+        XCTAssertEqual(clientService.mockCrypto.makeUpdatePasswordNewPassword, "NEW_PASSWORD")
+
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 1)
+
+        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                accountKeys: .fixture(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY",
+            ),
+        )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                privateKey: "PRIVATE_KEY",
+                signingKey: nil,
+                securityState: nil,
+                method: .password(password: "NEW_PASSWORD", userKey: "NEW_KEY"),
+            ),
         )
     }
 
@@ -2113,6 +2161,63 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
         XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password using the master
+    // password unlock data.
+    func test_unlockVaultWithPassword_masterPasswordUnlockData() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
+                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                    salt: "SALT",
+                ),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(600_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .masterPasswordUnlock(
+                    password: "password",
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: 600_000),
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                        salt: "SALT",
+                    ),
+                ),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `logout` throws an error with no accounts.

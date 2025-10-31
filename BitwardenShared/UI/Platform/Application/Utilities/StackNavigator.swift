@@ -96,7 +96,7 @@ public protocol StackNavigator: Navigator {
     func setNavigationBarHidden(_: Bool, animated: Bool)
 }
 
-extension StackNavigator {
+public extension StackNavigator {
     /// Dismisses the view that was presented modally by the navigator. Animation is controlled by
     /// `UI.animated`.
     ///

@@ -128,17 +128,10 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
-        run: |
-          echo "Listing simulator devices:"
-          SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
-          echo "$SIMULATORS"
-          DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
-          echo "--------------------------------"
-          echo "👀 Updating dyld_shared_cache:"
-          xcrun simctl runtime dyld_shared_cache update --all
-          echo "--------------------------------"
-          echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-          xcrun simctl bootstatus "$DEVICE_ID" -b
+        uses: ./.github/actions/boot-simulator
+        with:
+          simulator-name: ${{ env._SIMULATOR_NAME }}
+          simulator-version: ${{ env._SIMULATOR_VERSION }}
 
       - name: Build
         run: |
@@ -223,6 +216,7 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
+          version: v11.2.3 # Do not bump until this is fixed: https://github.com/getsentry/prevent-cli/issues/101
 
       - name: Comment PR if tests failed
         if: steps.upload-to-codecov.outcome == 'failure'
