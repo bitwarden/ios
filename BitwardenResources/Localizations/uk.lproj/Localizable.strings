@@ -131,8 +131,6 @@
 "LastSync" = "Остання синхронізація:";
 "Length" = "Довжина";
 "Lock" = "Блокувати";
-"OneHour" = "1 година";
-"FourHours" = "4 години";
 "Immediately" = "Негайно";
 "VaultTimeout" = "Час очікування сховища";
 "VaultTimeoutAction" = "Дія після часу очікування сховища";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Ваше сховище заблоковане. Для продовження виконайте перевірку.";
 "Dark" = "Темна";
 "Light" = "Світла";
-"TenSeconds" = "10 секунд";
-"ThirtySeconds" = "30 секунд";
-"TwentySeconds" = "20 секунд";
 "ClearClipboard" = "Очистити буфер обміну";
 "ClearClipboardDescription" = "Автоматично очищати скопійовані значення з буфера обміну.";
 "DefaultUriMatchDetection" = "Типове виявлення збігів URI";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Відправлення видалено";
 "SendUpdated" = "Відправлення збережено";
 "NewSendCreated" = "Відправлення створено";
-"OneDay" = "1 день";
-"TwoDays" = "2 дні";
-"ThreeDays" = "3 дні";
-"SevenDays" = "7 днів";
-"ThirtyDays" = "30 днів";
 "Custom" = "Власний";
 "ShareOnSave" = "Поділитися цим відправленням після збереження";
 "SendDisabledWarning" = "У зв'язку з політикою компанії, ви можете лише видалити наявне відправлення.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Одна година й %1$@ хвилин";
 "XHoursAndOneMinute" = "%1$@ години й одна хвилина";
 "XHoursAndYMinutes" = "%1$@ години й %2$@ хвилин";
-"XHours" = "%1$@ годин";
 "PasskeyManagementExplanationLong" = "Використовуйте Bitwarden для збереження нових ключів доступу та виконуйте вхід за допомогою збережених у сховищі ключів доступу.";
 "AutofillServicesExplanationLong" = "Для автозаповнення даних входу в інших програмах на вашому пристрої використовується Android Autofill Framework.";
 "UseInlineAutofillExplanationLong" = "Використовуйте вбудоване автозаповнення, якщо його підтримує ваша клавіатура. Інакше, використовуйте типову функцію накладання.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Тривалість запису";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Записи автоматично видаляться через 30 днів. Bitwarden може отримати до них доступ лише якщо ви ними поділитесь.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Щоб дізнатися про те, які дані записуються, відвідайте **[Довідковий центр Bitwarden](%1$@)**.";
-"OneWeek" = "1 тиждень";
 "ShowMore" = "Розгорнути";
 "ShowLess" = "Згорнути";
 "ItemNameX" = "Назва запису, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Докладніше](%1$@)";
 "LocalCodes" = "Локальні коди";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Потрібна допомога? Відвідайте наш довідковий центр.";
-"NinetySeconds" = "90 секунд";
 "NoAskMe" = "Ні, запитувати щоразу";
 "NoCodes" = "У вас немає кодів для показу";
 "None" = "Немає";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Встановити \"Зберегти локально\" типовою функцією збереження?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Встановити \"Зберегти в Bitwarden\" типовою функцією збереження?";
 "SignInUsingUniqueCodes" = "Входьте з використанням унікальних кодів";
-"SixtySeconds" = "60 секунд";
 "Skip" = "Пропустити";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Зберігайте всі паролі та синхронізуйте коди підтвердження безпосередньо з програмою Authenticator.";

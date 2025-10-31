@@ -41,4 +41,4 @@
 "Design a secure passphrase via ${applicationName}" = "Design a secure passphrase via ${applicationName}";
 "Develop a ${applicationName} secret phrase" = "Develop a ${applicationName} secret phrase";
 "Compose a new ${applicationName} passphrase" = "Compose a new ${applicationName} passphrase";
-"${applicationName}, generate a strong passphrase" = "${applicationName}, generate a strong passphrase";
+"${applicationName}, generate a strong passphrase" = "${applicationName}, generer en stærk adgangssætning";

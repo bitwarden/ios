@@ -131,8 +131,6 @@
 "LastSync" = "Son eşitleme:";
 "Length" = "Uzunluk";
 "Lock" = "Kilitle";
-"OneHour" = "1 saat";
-"FourHours" = "4 saat";
 "Immediately" = "Hemen";
 "VaultTimeout" = "Kasa zaman aşımı";
 "VaultTimeoutAction" = "Kasa zaman aşımı eylemi";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın.";
 "Dark" = "Koyu";
 "Light" = "Açık";
-"TenSeconds" = "10 saniye";
-"ThirtySeconds" = "30 saniye";
-"TwentySeconds" = "20 saniye";
 "ClearClipboard" = "Panoyu temizle";
 "ClearClipboardDescription" = "Kopyalanan değerleri panodan otomatik olarak temizle.";
 "DefaultUriMatchDetection" = "Varsayılan URI eşleşme tespiti";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send silindi";
 "SendUpdated" = "Send kaydedildi";
 "NewSendCreated" = "Send oluşturuldu";
-"OneDay" = "1 gün";
-"TwoDays" = "2 gün";
-"ThreeDays" = "3 gün";
-"SevenDays" = "7 gün";
-"ThirtyDays" = "30 gün";
 "Custom" = "Özel";
 "ShareOnSave" = "Bu Send'i kaydettikten sonra paylaş";
 "SendDisabledWarning" = "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "1 saat %1$@ dakika";
 "XHoursAndOneMinute" = "%1$@ saat 1 dakika";
 "XHoursAndYMinutes" = "%1$@ saat %2$@ dakika";
-"XHours" = "%1$@ saat";
 "PasskeyManagementExplanationLong" = "Bitwarden'ı yeni anahtarlar kaydetmek ve kasadaki anahtarlar ile giriş yapmak için kullanabilirsiniz.";
 "AutofillServicesExplanationLong" = "Cihazınızdaki diğer uygulamalarda hesap bilgilerini doldurmak için Android Otomatik Doldurma Sistemi kullanılır.";
 "UseInlineAutofillExplanationLong" = "Seçtiğiniz klavye destekliyorsa satır içi otomatik doldurma kullanılır. Aksi halde varsayılan üstünde gösterme kullanılır.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Log kayıt süresi";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Günlükler 30 gün sonra otomatik olarak silinecektir. Bitwarden günlük verilerinize yalnızca siz paylaştığınızda erişebilir.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Nelerin günlüğe kaydedilip kaydedilmediğine ilişkin ayrıntılar için **[Bitwarden yardım merkezi](%1$@)** adresini ziyaret edin.";
-"OneWeek" = "1 hafta";
 "ShowMore" = "Daha fazla göster";
 "ShowLess" = "Daha az göster";
 "ItemNameX" = "Kayıt adı, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Daha fazla bilgi alın](%1$@)";
 "LocalCodes" = "Yerel kodlar";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Yardıma mı ihtiyacınız var? Yardım merkezimizi ziyaret edin.";
-"NinetySeconds" = "90 saniye";
 "NoAskMe" = "Hayır, bana sor";
 "NoCodes" = "Görüntülenecek hiç kodunuz yok";
 "None" = "Yok";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Varsayılan kayıt seçeneğiniz “Yerel olarak kaydet” olarak ayarlansın mı?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Varsayılan kayıt seçeneğiniz “Bitwarden'a kaydet” olarak ayarlansın mı?";
 "SignInUsingUniqueCodes" = "Benzersiz kodlarla oturum açın";
-"SixtySeconds" = "60 saniye";
 "Skip" = "Atla";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Tüm giriş bilgilerinizi saklayın ve doğrulama kodlarını Authenticator uygulamasıyla senkronize edin.";

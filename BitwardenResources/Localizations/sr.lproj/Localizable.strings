@@ -131,8 +131,6 @@
 "LastSync" = "Задња синронизација:";
 "Length" = "Дужина";
 "Lock" = "Закључај";
-"OneHour" = "1 сат";
-"FourHours" = "4 сата";
 "Immediately" = "Одмах";
 "VaultTimeout" = "Тајмаут сефа";
 "VaultTimeoutAction" = "Акција на тајмаут сефа";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Ваш сеф је закључан. Потврдите идентитет како бисте наставили.";
 "Dark" = "Тамна";
 "Light" = "Светла";
-"TenSeconds" = "10 секунди";
-"ThirtySeconds" = "30 секунди";
-"TwentySeconds" = "20 секунди";
 "ClearClipboard" = "Обриши оставу";
 "ClearClipboardDescription" = "Аутоматски обришите копиране вредности из оставе.";
 "DefaultUriMatchDetection" = "Стандардно налажење УРЛ";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Слање је обрисано.";
 "SendUpdated" = "Слање измењено.";
 "NewSendCreated" = "Креирано је ново слање.";
-"OneDay" = "1 дан";
-"TwoDays" = "2 дана";
-"ThreeDays" = "3 дана";
-"SevenDays" = "7 дана";
-"ThirtyDays" = "30 дана";
 "Custom" = "Друго";
 "ShareOnSave" = "Share this upon save.
 Поделите овај „Send“ после сачувања.";
@@ -842,7 +832,6 @@
 "OneHourAndXMinute" = "Један сат и %1$@ минута";
 "XHoursAndOneMinute" = "%1$@ сата/и и један минута";
 "XHoursAndYMinutes" = "%1$@ сата/и и %2$@ минута";
-"XHours" = "%1$@ сати/а";
 "PasskeyManagementExplanationLong" = "Употребити Bitwarden да сачувате нове приступне кључеве и пријавите се са приступним кључевима ускладиштеним у вашем трезору.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework се користи за помоћ при попуњавању података за пријаву у друге апликације на вашем уређају.";
 "UseInlineAutofillExplanationLong" = "Користите ауто-попуњавање на линији ако га ваша изабрана тастатура подржава. У супротном, користите подразумевано преклапање.";
@@ -1148,7 +1137,6 @@
 "LoggingDuration" = "Трајање извештаја";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Записи ће бити аутоматски обрисани после 30 дана. Bitwarden може да приступи вашим подацима записа само када их поделите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "За детаље о томе шта се бележи, а шта не, посетите **[Цentar за помоћ Bitwarden-а](%1$@)**.";
-"OneWeek" = "1 недеља";
 "ShowMore" = "Прикажи више";
 "ShowLess" = "Прикажи мање";
 "ItemNameX" = "Име ставке, %1$@";
@@ -1243,7 +1231,6 @@
 "LearnMoreLink" = "[Сазнај више](%1$@)";
 "LocalCodes" = "Локални кодови";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Треба ли помоћ? Посетите наш центар за помоћ за упутства.";
-"NinetySeconds" = "90 секунди";
 "NoAskMe" = "Не, питај ме";
 "NoCodes" = "Немате никакве кодове за приказ";
 "None" = "Ниједан";
@@ -1261,7 +1248,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Подесите „Сачувај локално“ као подразумевану опцију чувања?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Подесите „Сачувај у Bitwarden“ као подразумевану опцију чувања?";
 "SignInUsingUniqueCodes" = "Пријавите се користећи јединствене кодове";
-"SixtySeconds" = "60 секунди";
 "Skip" = "Прескочи";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Чувајте све своје пријаве и синхронизујте верификационе кôдове директно са апликацијом Authenticator.";

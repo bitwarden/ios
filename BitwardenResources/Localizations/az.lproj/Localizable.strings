@@ -131,8 +131,6 @@
 "LastSync" = "Son sinxr:";
 "Length" = "Uzunluq";
 "Lock" = "Kilidlə";
-"OneHour" = "1 saat";
-"FourHours" = "4 saat";
 "Immediately" = "Dərhal";
 "VaultTimeout" = "Seyf vaxtının bitməsi";
 "VaultTimeoutAction" = "Seyf vaxtının bitmə əməliyyatı";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Seyfiniz kilidlənib. Davam etmək üçün kimliyinizi doğrulayın.";
 "Dark" = "Tünd";
 "Light" = "Açıq";
-"TenSeconds" = "10 saniyə";
-"ThirtySeconds" = "30 saniyə";
-"TwentySeconds" = "20 saniyə";
 "ClearClipboard" = "Lövhəni təmizlə";
 "ClearClipboardDescription" = "Kopyalanmış dəyərləri lövhədən avtomatik təmizlə.";
 "DefaultUriMatchDetection" = "İlkin URI uyuşma aşkarlaması";
@@ -584,11 +579,6 @@
 "SendDeleted" = "\"Send\" silindi.";
 "SendUpdated" = "\"Send\" güncəlləndi.";
 "NewSendCreated" = "Yeni \"Send\" yaradıldı.";
-"OneDay" = "1 gün";
-"TwoDays" = "2 gün";
-"ThreeDays" = "3 gün";
-"SevenDays" = "7 gün";
-"ThirtyDays" = "30 gün";
 "Custom" = "Özəl";
 "ShareOnSave" = "Bu \"Send\"i saxladıqdan sonra paylaş.";
 "SendDisabledWarning" = "Müəssisə siyasətinə görə, yalnız mövcud \"Send\"i silə bilərsiniz.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Bir saat %1$@ dəqiqə";
 "XHoursAndOneMinute" = "%1$@ saat bir dəqiqə";
 "XHoursAndYMinutes" = "%1$@ saat %2$@ dəqiqə";
-"XHours" = "%1$@ saat";
 "PasskeyManagementExplanationLong" = "Yeni keçid açarlarını saxlamaq və seyfinizdəki keçid açarları ilə giriş etmək üçün Bitwarden-i istifadə edin.";
 "AutofillServicesExplanationLong" = "Android Avto-doldurma Çərçivəsi, cihazınızdakı digər tətbiqlərə giriş məlumatlarının doldurulmasına kömək etmək üçün istifadə olunur.";
 "UseInlineAutofillExplanationLong" = "Seçdiyiniz klaviatura dəstəkləyirsə sətirdaxili avto-doldurmanı istifadə edin. Əks halda, ilkin örtük istifadə edin.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Jurnala yazma müddəti";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Qeydlər 30 gün sonra avtomatik silinəcək. Bitwarden, jurnal verilərinizə yalnız siz paylaşdığınız zaman erişə bilər.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Nəyin yazılıb-yazılmadığını öyrənmək üçün **[Bitwarden kömək mərkəzini](%1$@)** ziyarət edin.";
-"OneWeek" = "1 həftə";
 "ShowMore" = "Daha çox göstər";
 "ShowLess" = "Daha az göstər";
 "ItemNameX" = "Elementin adı, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Daha ətraflı](%1$@)";
 "LocalCodes" = "Daxili anbardakı kodlar";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Kömək lazımdır? Rəhbərlik üçün Kömək Mərkəzimizi ziyarət edin.";
-"NinetySeconds" = "90 saniyə";
 "NoAskMe" = "Xeyr, məndən soruş";
 "NoCodes" = "Göstəriləcək heç bir kodunuz yoxdur";
 "None" = "Yoxdur";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "İlkin saxlama seçiminiz olaraq \"Daxili anbarda saxla\" ayarlansın?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "İlkin saxlama seçiminiz olaraq \"Bitwarden-də saxla\" ayarlansın?";
 "SignInUsingUniqueCodes" = "Unikal kodları istifadə edərək hesabınıza daxil olun";
-"SixtySeconds" = "60 saniyə";
 "Skip" = "Ötür";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Bütün girişlərinizi saxlayın və doğrulama kodlarını birbaşa Authenticator tətbiqi ilə sinxronlaşdırın.";
