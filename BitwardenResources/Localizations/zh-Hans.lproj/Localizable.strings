@@ -131,8 +131,6 @@
 "LastSync" = "上次同步：";
 "Length" = "长度";
 "Lock" = "锁定";
-"OneHour" = "1 小时";
-"FourHours" = "4 小时";
 "Immediately" = "立即";
 "VaultTimeout" = "密码库超时";
 "VaultTimeoutAction" = "密码库超时动作";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "您的密码库已锁定。请验证您的身份以继续。";
 "Dark" = "深色";
 "Light" = "浅色";
-"TenSeconds" = "10 秒";
-"ThirtySeconds" = "30 秒";
-"TwentySeconds" = "20 秒";
 "ClearClipboard" = "清除剪贴板";
 "ClearClipboardDescription" = "自动清除复制到剪贴板的值。";
 "DefaultUriMatchDetection" = "默认的 URI 匹配检测方式";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send 已删除";
 "SendUpdated" = "Send 已保存";
 "NewSendCreated" = "Send 已创建";
-"OneDay" = "1 天";
-"TwoDays" = "2 天";
-"ThreeDays" = "3 天";
-"SevenDays" = "7 天";
-"ThirtyDays" = "30 天";
 "Custom" = "自定义";
 "ShareOnSave" = "保存时分享此 Send";
 "SendDisabledWarning" = "由于某个企业策略，您只能删除现有的 Send。";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "1 小时 %1$@ 分钟";
 "XHoursAndOneMinute" = "%1$@ 小时 1 分钟";
 "XHoursAndYMinutes" = "%1$@ 小时 %2$@ 分钟";
-"XHours" = "%1$@ 小时";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
 "AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
 "UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "日志记录持续时间";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您分享它时，Bitwarden 才能访问您的日志数据。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "要了解哪些内容会被记录、哪些不会被记录，请访问 **[Bitwarden 帮助中心](%1$@)**。";
-"OneWeek" = "1 周";
 "ShowMore" = "显示更多";
 "ShowLess" = "显示更少";
 "ItemNameX" = "项目名称，%1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[了解更多](%1$@)";
 "LocalCodes" = "本地代码";
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要帮助吗？请访问我们的帮助中心获取指导。";
-"NinetySeconds" = "90 秒";
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "将「本地保存」设置为您的默认保存选项吗？";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "将「保存到 Bitwarden」设置为您的默认保存选项吗？";
 "SignInUsingUniqueCodes" = "使用唯一的代码登录";
-"SixtySeconds" = "60 秒";
 "Skip" = "跳过";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "保存您所有的登录信息并直接与验证器 App 同步验证码。";

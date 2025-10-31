@@ -131,8 +131,6 @@
 "LastSync" = "Posledná synchronizácia:";
 "Length" = "Dĺžka";
 "Lock" = "Zámok";
-"OneHour" = "1 hodina";
-"FourHours" = "4 hodiny";
 "Immediately" = "Okamžite";
 "VaultTimeout" = "Časový limit pre trezor";
 "VaultTimeoutAction" = "Akcia pri vypršaní času pre trezor";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu.";
 "Dark" = "Tmavý";
 "Light" = "Svetlý";
-"TenSeconds" = "10 sekúnd";
-"ThirtySeconds" = "30 sekúnd";
-"TwentySeconds" = "20 sekúnd";
 "ClearClipboard" = "Vymazať schránku";
 "ClearClipboardDescription" = "Automaticky vymazať skopírované hodnoty zo schránky.";
 "DefaultUriMatchDetection" = "Predvolený spôsob zisťovania zhody URI";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send bol odstránený.";
 "SendUpdated" = "Send bol aktualizovaný.";
 "NewSendCreated" = "Nový Send bol vytvorený.";
-"OneDay" = "1 deň";
-"TwoDays" = "2 dni";
-"ThreeDays" = "3 dni";
-"SevenDays" = "7 dní";
-"ThirtyDays" = "30 dní";
 "Custom" = "Vlastné";
 "ShareOnSave" = "Po uložení zdieľať tento Send";
 "SendDisabledWarning" = "Z dôvodu podnikovej politiky môžete odstrániť iba existujúci Send.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Jedna hodina a %1$@ minút";
 "XHoursAndOneMinute" = "%1$@ hodín a jedna minúta";
 "XHoursAndYMinutes" = "%1$@ hodín a %2$@ minút";
-"XHours" = "%1$@ hodín";
 "PasskeyManagementExplanationLong" = "Používajte Bitwarden na ukladanie nových prístupových kľúčov a prihlasovanie pomocou prístupových kľúčov uložených v trezore.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework sa používa na uľahčenie vyplňovania prihlasovacích údajov do iných aplikácií na vašom zariadení.";
 "UseInlineAutofillExplanationLong" = "Použite zabudované automatické vypĺňanie, ak ho vybraná klávesnica podporuje. V opačnom prípade použite predvolené automatické vyplnenie.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Trvanie logovania";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logy sa po 30 dňoch automaticky odstránia. Bitwarden má prístup k údajom logovania len keď ich zdieľate.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Pre viac informácií, čo je a nie je logované, navštívte **[Centrum pomoci Bitwarden](%1$@)**.";
-"OneWeek" = "1 týždeň";
 "ShowMore" = "Zobraziť viac";
 "ShowLess" = "Zobraziť menej";
 "ItemNameX" = "Názov položky, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Viac informácií](%1$@)";
 "LocalCodes" = "Miestne kódy";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potrebujete pomoc? Navštívte naše centrum pomoci a získajte informácie.";
-"NinetySeconds" = "90 sekúnd";
 "NoAskMe" = "Nie, opýtať sa ma";
 "NoCodes" = "Nemáte žiadne kódy na zobrazenie";
 "None" = "Žiadne";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Nastaviť \"Uložiť lokálne\" ako predvolené ukladanie?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Nastaviť \"Uložiť do Bitwardenu\" ako predvolené ukladanie?";
 "SignInUsingUniqueCodes" = "Prihláste sa pomocou jedinečných kódov";
-"SixtySeconds" = "60 sekúnd";
 "Skip" = "Preskočiť";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Ukladajte všetky svoje prihlasovacie údaje a synchronizujte overovacie kódy priamo s aplikáciou Authenticator.";

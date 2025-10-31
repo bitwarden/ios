@@ -131,8 +131,6 @@
 "LastSync" = "Zuletzt synchronisiert:";
 "Length" = "Länge";
 "Lock" = "Sperren";
-"OneHour" = "1 Stunde";
-"FourHours" = "4 Stunden";
 "Immediately" = "Sofort";
 "VaultTimeout" = "Tresor-Timeout";
 "VaultTimeoutAction" = "Aktion bei Tresor-Timeout";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Dein Tresor ist gesperrt. Verifiziere deine Identität, um fortzufahren.";
 "Dark" = "Dunkel";
 "Light" = "Hell";
-"TenSeconds" = "10 Sekunden";
-"ThirtySeconds" = "30 Sekunden";
-"TwentySeconds" = "20 Sekunden";
 "ClearClipboard" = "Zwischenablage leeren";
 "ClearClipboardDescription" = "Kopierte Einträge automatisch aus der Zwischenablage löschen.";
 "DefaultUriMatchDetection" = "Standard URI-Übereinstimmungserkennung";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send gelöscht";
 "SendUpdated" = "Send gespeichert";
 "NewSendCreated" = "Neues Send erstellt";
-"OneDay" = "1 Tag";
-"TwoDays" = "2 Tage";
-"ThreeDays" = "3 Tage";
-"SevenDays" = "7 Tage";
-"ThirtyDays" = "30 Tage";
 "Custom" = "Benutzerdefiniert";
 "ShareOnSave" = "Dieses Send beim Speichern teilen";
 "SendDisabledWarning" = "Aufgrund einer Unternehmensrichtlinie kannst du nur ein bestehendes Send löschen.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Eine Stunde und %1$@ Minuten";
 "XHoursAndOneMinute" = "%1$@ Stunden und eine Minute";
 "XHoursAndYMinutes" = "%1$@ Stunden und %2$@ Minuten";
-"XHours" = "%1$@ Stunden";
 "PasskeyManagementExplanationLong" = "Verwende Bitwarden, um neue Passkeys zu speichern und dich mit Passkeys aus deinem Tresor anzumelden.";
 "AutofillServicesExplanationLong" = "Das Android Autofill Framework wird verwendet, um Zugangsdaten in andere Apps auf deinem Gerät auszufüllen.";
 "UseInlineAutofillExplanationLong" = "Inline Auto-Ausfüllen verwenden, falls deine ausgewählte Tastatur dies unterstützt. Andernfalls wird das Standard Auto-Ausfüllen-Overlay verwendet.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Dauer der Protokollierung";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Protokolle werden nach 30 Tagen automatisch gelöscht. Bitwarden kann nur auf deine Protokolldaten zugreifen, wenn du sie teilst.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Für Details über das, was protokolliert wird und was nicht, besuche das **[Bitwarden Hilfezentrum](%1$@)**.";
-"OneWeek" = "1 Woche";
 "ShowMore" = "Mehr anzeigen";
 "ShowLess" = "Weniger anzeigen";
 "ItemNameX" = "Eintragsname, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Mehr erfahren](%1$@)";
 "LocalCodes" = "Lokale Codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Benötigst du Hilfe? Besuch unser Hilfe-Zentrum für Unterstützung.";
-"NinetySeconds" = "90 Sekunden";
 "NoAskMe" = "Nein, frag mich";
 "NoCodes" = "Keine Codes zum Anzeigen vorhanden";
 "None" = "Keine";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "\"Lokal speichern\" als deine Standard-Speicheroption festlegen?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "\"In Bitwarden speichern\" als deine Standard-Speicheroption festlegen?";
 "SignInUsingUniqueCodes" = "Mit eindeutigen Codes anmelden";
-"SixtySeconds" = "60 Sekunden";
 "Skip" = "Überspringen";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Speicher alle deine Zugangsdaten und synchronisiere Verifizierungscodes direkt mit der Authenticator-App.";

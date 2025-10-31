@@ -131,8 +131,6 @@
 "LastSync" = "Последно синхронизиране:";
 "Length" = "Дължина";
 "Lock" = "Заключване";
-"OneHour" = "1 час";
-"FourHours" = "4 часа";
 "Immediately" = "Незабавно";
 "VaultTimeout" = "Време за достъп";
 "VaultTimeoutAction" = "Действие при изтичане на времето";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Трезорът е заключен. Потвърдете самоличността си, за да продължите.";
 "Dark" = "Тъмен";
 "Light" = "Светъл";
-"TenSeconds" = "10 секунди";
-"ThirtySeconds" = "30 секунди";
-"TwentySeconds" = "20 секунди";
 "ClearClipboard" = "Изчистване на буфера";
 "ClearClipboardDescription" = "Автоматично изчистване на буфера след поставяне на стойността.";
 "DefaultUriMatchDetection" = "Стандартно засичане на съвпадения на адреси";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Изпратеното е изтрито.";
 "SendUpdated" = "Изпратеното е редактирано.";
 "NewSendCreated" = "Създадено е ново изпращане.";
-"OneDay" = "1 ден";
-"TwoDays" = "2 дни";
-"ThreeDays" = "3 дни";
-"SevenDays" = "7 дни";
-"ThirtyDays" = "30 дни";
 "Custom" = "По избор";
 "ShareOnSave" = "Споделяне на изпратеното при запис.";
 "SendDisabledWarning" = "Поради политика на организация, може само да изтривате съществуващи изпращания.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Един час и %1$@ минути";
 "XHoursAndOneMinute" = "%1$@ часа и една минута";
 "XHoursAndYMinutes" = "%1$@ часа и %2$@ минути";
-"XHours" = "%1$@ часа";
 "PasskeyManagementExplanationLong" = "Използване на Битуорден за запазване на новите секретни ключове и вписване с такива запазени в трезора.";
 "AutofillServicesExplanationLong" = "Подсистемата за автоматично попълване на Андроид се използва за попълване на данните за вход в други приложения на устройството.";
 "UseInlineAutofillExplanationLong" = "Използвайте вграденото автоматично попълване, ако избраната от Вас клавиатура го поддържа. Иначе използвайте слоя по подразбиране.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Продължителност на записа в журнала";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Журналите се изтриват автоматично след 30 дни. Битуорден може да получи достъп до информацията в журналите само, ако я споделите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "За подробности какво се записва в журнала и какво – не, посетете **[помощния център на Битуорден](%1$@)**.";
-"OneWeek" = "1 седмица";
 "ShowMore" = "Показване на повече";
 "ShowLess" = "Показване на по-малко";
 "ItemNameX" = "Име на елемента, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Научете повече](%1$@)";
 "LocalCodes" = "Кодове, налични на това устройство";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Имате ли нужда от помощ? Посетете помощния център за насоки.";
-"NinetySeconds" = "90 секунди";
 "NoAskMe" = "Не, питайте ме";
 "NoCodes" = "Нямате кодове за показване";
 "None" = "Няма";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Искате ли да зададете „запазване на текущото устройство“ като стандартна настройка за запазване?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Искате ли да зададете „запазване в Битуорден“ като стандартна настройка за запазване?";
 "SignInUsingUniqueCodes" = "Вписвайте се с уникални кодове";
-"SixtySeconds" = "60 секунди";
 "Skip" = "Пропускане";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Съхранявайте всички свои данни за вписване и синхронизирайте кодовете си за удостоверяване директно с приложението за удостоверяване.";

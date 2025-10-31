@@ -131,8 +131,6 @@
 "LastSync" = "Последняя синхронизация:";
 "Length" = "Длина";
 "Lock" = "Блокировка";
-"OneHour" = "1 час";
-"FourHours" = "4 часа";
 "Immediately" = "Немедленно";
 "VaultTimeout" = "Тайм-аут хранилища";
 "VaultTimeoutAction" = "Действие по тайм-ауту хранилища";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Ваше хранилище заблокировано. Подтвердите свою личность, чтобы продолжить";
 "Dark" = "Темная";
 "Light" = "Светлая";
-"TenSeconds" = "10 секунд";
-"ThirtySeconds" = "30 секунд";
-"TwentySeconds" = "20 секунд";
 "ClearClipboard" = "Очистить буфер обмена";
 "ClearClipboardDescription" = "Автоматически удалять скопированные значения из буфера обмена.";
 "DefaultUriMatchDetection" = "Обнаружение совпадения URI по умолчанию";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send удалена";
 "SendUpdated" = "Send сохранена";
 "NewSendCreated" = "Send создана";
-"OneDay" = "1 день";
-"TwoDays" = "2 дня";
-"ThreeDays" = "3 дня";
-"SevenDays" = "7 дней";
-"ThirtyDays" = "30 дней";
 "Custom" = "Пользовательский";
 "ShareOnSave" = "Поделиться Send после сохранения.";
 "SendDisabledWarning" = "В соответствии с корпоративной политикой вы можете удалить только существующую Send.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Один час и %1$@ минут";
 "XHoursAndOneMinute" = "%1$@ часов и одна минута";
 "XHoursAndYMinutes" = "%1$@ часов и %2$@ минут";
-"XHours" = "%1$@ часов";
 "PasskeyManagementExplanationLong" = "Использовать Bitwarden для сохранения новых passkeys и авторизации при помощи passkeys, хранящимися в вашем хранилище.";
 "AutofillServicesExplanationLong" = "Использовать фреймворк автозаполнения Android для заполнения информации о входе в другие приложения на устройстве
 
@@ -1149,7 +1138,6 @@
 "LoggingDuration" = "Продолжительность записи логов";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Логи автоматически удаляются через 30 дней. Bitwarden может получить доступ к данным журнала только в том случае, если вы их предоставите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Для получения подробной информации о том, что логируется, а что нет, посетите **[Справочный центр Bitwarden](%1$@)**.";
-"OneWeek" = "1 неделя";
 "ShowMore" = "Больше";
 "ShowLess" = "Меньше";
 "ItemNameX" = "Название элемента %1$@";
@@ -1244,7 +1232,6 @@
 "LearnMoreLink" = "[Подробнее](%1$@)";
 "LocalCodes" = "Локальные коды";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Нужна помощь? Посетите наш Центр Поддержки.";
-"NinetySeconds" = "90 секунд";
 "NoAskMe" = "Нет, спросить меня";
 "NoCodes" = "У вас нет кодов для отображения";
 "None" = "Нет";
@@ -1262,7 +1249,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Установить “Сохранить локально” в качестве параметра сохранения по умолчанию?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Установить “Сохранить в Bitwarden” в качестве параметра сохранения по умолчанию?";
 "SignInUsingUniqueCodes" = "Авторизуйтесь с помощью уникальных кодов";
-"SixtySeconds" = "60 секунд";
 "Skip" = "Пропустить";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Храните все свои логины и синхронизируйте коды подтверждения непосредственно с приложением Authenticator.";
