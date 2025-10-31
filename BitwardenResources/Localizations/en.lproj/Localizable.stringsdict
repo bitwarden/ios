@@ -19,6 +19,23 @@
 			<string>%d days</string>
 		</dict>
 	</dict>
+	<!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+	<key>XItems</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@items@</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d item</string>
+			<key>other</key>
+			<string>%d items</string>
+		</dict>
+	</dict>
 	<!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
 	<key>XHours</key>
 	<dict>
