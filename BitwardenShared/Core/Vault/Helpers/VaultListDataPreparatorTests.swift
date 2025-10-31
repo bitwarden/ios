@@ -208,6 +208,269 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns `nil` when no ciphers passed.
+    func test_prepareAutofillCombinedMultipleData_noCiphers() async throws {
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+        XCTAssertNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns `nil`
+    /// when filter passed doesn't have the URI to filter.
+    func test_prepareAutofillCombinedMultipleData_noFilterUri() async throws {
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [.fixture()],
+            filter: VaultListFilter(),
+            withFido2Credentials: nil,
+        )
+        XCTAssertNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data for a cipher
+    /// with login and no Fido2.
+    func test_prepareAutofillCombinedMultipleData_returnsPreparedDataForLoginNoFido2() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            login: .fixture(
+                hasFido2: false,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        fido2Credentials: [],
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data for a cipher
+    /// with login and Fido2.
+    func test_prepareAutofillCombinedMultipleData_returnsPreparedDataForLoginWithFido2() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: true,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    id: "1",
+                    login: .fixture(
+                        fido2Credentials: [.fixture()],
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: [.fixture(id: "1")],
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addFido2Item",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data for a cipher
+    /// with login and Fido2 but no Fido2 credentials provided.
+    func test_prepareAutofillCombinedMultipleData_returnsDataWithFido2NoCredentialsProvided() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: true,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    id: "1",
+                    login: .fixture(
+                        fido2Credentials: [.fixture()],
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data for a cipher
+    /// with login and Fido2 but cipher ID doesn't match credentials.
+    func test_prepareAutofillCombinedMultipleData_returnsDataWithFido2NonMatchingCredentials() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: true,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    id: "1",
+                    login: .fixture(
+                        fido2Credentials: [.fixture()],
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: [.fixture(id: "2")],
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data filtering out
+    /// cipher as it doesn't pass restrict item type policy.
+    @MainActor
+    func test_prepareAutofillCombinedMultipleData_doesNotPassRestrictItemPolicy() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            organizationId: "1",
+            type: .card(.fixture()),
+        )
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(organizationId: "1"),
+        ]
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(type: .card),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data filtering out
+    /// cipher as it's deleted.
+    @MainActor
+    func test_prepareAutofillCombinedMultipleData_deletedCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            deletedDate: .now,
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data filtering out
+    /// cipher as it's not a login type.
+    @MainActor
+    func test_prepareAutofillCombinedMultipleData_nonLoginCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .card(.fixture()),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(type: .card),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the prepared data filtering out
+    /// cipher as it doesn't match the URI.
+    @MainActor
+    func test_prepareAutofillCombinedMultipleData_nonMatchingCipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: false,
+                uris: [.fixture(uri: "https://other.com", match: .exact)],
+            ),
+        )
+        cipherMatchingHelper.doesCipherMatchReturnValue = CipherMatchResult.none
+
+        let result = try await subject.prepareAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://other.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(uri: "https://example.com"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     /// `prepareData(from:collections:folders:filter:)` returns `nil` when no ciphers passed.
     func test_prepareData_noCiphers() async throws {
         let result = try await subject.prepareData(

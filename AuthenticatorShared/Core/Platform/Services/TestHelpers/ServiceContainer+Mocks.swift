@@ -26,7 +26,7 @@ extension ServiceContainer {
         stateService: StateService = MockStateService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
         totpExpirationManagerFactory: TOTPExpirationManagerFactory = MockTOTPExpirationManagerFactory(),
-        totpService: TOTPService = MockTOTPService()
+        totpService: TOTPService = MockTOTPService(),
     ) -> ServiceContainer {
         ServiceContainer(
             application: application,
@@ -48,7 +48,7 @@ extension ServiceContainer {
             stateService: stateService,
             timeProvider: timeProvider,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
-            totpService: totpService
+            totpService: totpService,
         )
     }
 }

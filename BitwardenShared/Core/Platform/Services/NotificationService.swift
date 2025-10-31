@@ -398,4 +398,4 @@ class DefaultNotificationService: NotificationService {
             errorReporter.log(error: error)
         }
     }
-}
+} // swiftlint:disable:this file_length

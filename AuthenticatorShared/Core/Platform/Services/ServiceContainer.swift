@@ -251,7 +251,7 @@ public class ServiceContainer: Services {
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
         )
 
         let sharedDataStore = AuthenticatorBridgeDataStore(

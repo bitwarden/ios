@@ -723,9 +723,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let collectionHelper = DefaultCollectionHelper(organizationService: organizationService)
 
+        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
+            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
+                authRepository: authRepository,
+                stateService: stateService,
+                userVerificationHelper: DefaultUserVerificationHelper(
+                    authRepository: authRepository,
+                    errorReporter: errorReporter,
+                    localAuthService: localAuthService,
+                ),
+                userVerificationRunner: DefaultUserVerificationRunner(),
+            ),
+        )
+
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             folderService: folderService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
@@ -773,19 +787,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService,
-        )
-
-        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
-            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
-                authRepository: authRepository,
-                stateService: stateService,
-                userVerificationHelper: DefaultUserVerificationHelper(
-                    authRepository: authRepository,
-                    errorReporter: errorReporter,
-                    localAuthService: localAuthService,
-                ),
-                userVerificationRunner: DefaultUserVerificationRunner(),
-            ),
         )
 
         #if DEBUG
