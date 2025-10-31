@@ -18,6 +18,7 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
         subject = DefaultVaultListDirectorStrategyFactory(
             cipherService: MockCipherService(),
             collectionService: MockCollectionService(),
+            fido2UserInterfaceHelper: MockFido2UserInterfaceHelper(),
             folderService: MockFolderService(),
             vaultListBuilderFactory: MockVaultListSectionsBuilderFactory(),
             vaultListDataPreparator: MockVaultListDataPreparator(),
@@ -31,6 +32,13 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `make(filter:)` returns `CombinedMultipleAutofillVaultListDirectorStrategy` when
+    /// filtering by mode `.combinedMultipleSections`.
+    func test_make_returnsCombinedMultipleAutofillVaultListDirectorStrategy() {
+        let stragegy = subject.make(filter: VaultListFilter(mode: .combinedMultipleSections))
+        XCTAssertTrue(stragegy is CombinedMultipleAutofillVaultListDirectorStrategy)
+    }
 
     /// `make(filter:)` returns `CombinedSingleAutofillVaultListDirectorStrategy` when
     /// filtering by mode `.combinedSingleSection`.

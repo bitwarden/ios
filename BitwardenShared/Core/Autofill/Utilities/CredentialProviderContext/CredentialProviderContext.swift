@@ -18,6 +18,8 @@ public protocol CredentialProviderContext {
     var flowWithUserInteraction: Bool { get }
     /// The `ASCredentialServiceIdentifier` array depending on the `ExtensionMode`.
     var serviceIdentifiers: [ASCredentialServiceIdentifier] { get }
+    /// The URI of the credential to autofill.
+    var uri: String? { get }
 }
 
 /// Default implementation of `CredentialProviderContext`.
@@ -86,6 +88,33 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             serviceIdentifiers
         default:
             []
+        }
+    }
+
+    public var uri: String? {
+        guard let serviceIdentifier = serviceIdentifiers.first else {
+            // WORKAROUND: In the Fido2 + Passwords vault list flow the OS is not sending
+            // the appropriate `serviceIdentifiers` therefore we cannot get the `URI` to filter
+            // so we use the `relyingPartyIdentifier` as the `URI` to filter instead as the
+            // temporary fix for this as it might be similar to the original `URI`.
+            // If at some point the OS fixes that problem, then this would be automatically sorted out
+            // as it wouldn't enter this block of the flow and use the previous working approach
+            // of getting it from the `serviceIdentifiers`.
+            if case let .autofillFido2VaultList(_, passkeyParameters) = extensionMode,
+               !passkeyParameters.relyingPartyIdentifier.isEmpty {
+                return passkeyParameters.relyingPartyIdentifier
+            }
+
+            return nil
+        }
+
+        return switch serviceIdentifier.type {
+        case .domain:
+            "https://" + serviceIdentifier.identifier
+        case .URL:
+            serviceIdentifier.identifier
+        @unknown default:
+            serviceIdentifier.identifier
         }
     }
 
