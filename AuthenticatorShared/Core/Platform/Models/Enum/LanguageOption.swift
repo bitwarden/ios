@@ -67,7 +67,7 @@ public enum LanguageOption: Equatable {
             "nn-NO",
             "or",
             "pl",
-            "pt-BT",
+            "pt-BR",
             "pt-PT",
             "ro",
             "ru",
