@@ -4,7 +4,7 @@ import SwiftUI
 import ViewInspector
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class IllustratedMessageViewTests: BitwardenTestCase {
     // MARK: Tests
