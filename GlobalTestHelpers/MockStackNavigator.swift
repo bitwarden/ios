@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenShared
 import SwiftUI
 
@@ -25,7 +26,7 @@ final class MockStackNavigator: StackNavigator {
 
     var actions: [NavigationAction] = []
     var alertOnDismissed: (() -> Void)?
-    var alerts: [BitwardenShared.Alert] = []
+    var alerts: [BitwardenKit.Alert] = []
     var isEmpty = true
     var isNavigationBarHidden = false
     var isPresenting = false
@@ -71,11 +72,11 @@ final class MockStackNavigator: StackNavigator {
         return viewControllersToPop
     }
 
-    func present(_ alert: BitwardenShared.Alert) {
+    func present(_ alert: BitwardenKit.Alert) {
         alerts.append(alert)
     }
 
-    func present(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
+    func present(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
         alerts.append(alert)
         alertOnDismissed = onDismissed
     }

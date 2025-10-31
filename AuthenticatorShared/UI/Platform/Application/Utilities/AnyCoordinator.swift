@@ -60,7 +60,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         doNavigate(route, context)
     }
 
-    open func showAlert(_ alert: Alert) {
+    open func showAlert(_ alert: BitwardenKit.Alert) {
         doShowAlert(alert)
     }
 
