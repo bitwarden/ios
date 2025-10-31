@@ -1,7 +1,6 @@
-import XCTest
-
+import BitwardenKit
 import BitwardenResources
-@testable import BitwardenShared
+import XCTest
 
 class ClearClipboardValueTests: BitwardenTestCase {
     // MARK: Tests
@@ -9,9 +8,9 @@ class ClearClipboardValueTests: BitwardenTestCase {
     /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(ClearClipboardValue.never.localizedName, Localizations.never)
-        XCTAssertEqual(ClearClipboardValue.tenSeconds.localizedName, Localizations.tenSeconds)
-        XCTAssertEqual(ClearClipboardValue.twentySeconds.localizedName, Localizations.twentySeconds)
-        XCTAssertEqual(ClearClipboardValue.thirtySeconds.localizedName, Localizations.thirtySeconds)
+        XCTAssertEqual(ClearClipboardValue.tenSeconds.localizedName, Localizations.xSeconds(10))
+        XCTAssertEqual(ClearClipboardValue.twentySeconds.localizedName, Localizations.xSeconds(20))
+        XCTAssertEqual(ClearClipboardValue.thirtySeconds.localizedName, Localizations.xSeconds(30))
         XCTAssertEqual(ClearClipboardValue.oneMinute.localizedName, Localizations.xMinutes(1))
         XCTAssertEqual(ClearClipboardValue.twoMinutes.localizedName, Localizations.xMinutes(2))
         XCTAssertEqual(ClearClipboardValue.fiveMinutes.localizedName, Localizations.xMinutes(5))
