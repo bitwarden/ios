@@ -1,4 +1,5 @@
 import AuthenticatorShared
+import BitwardenKit
 import UIKit
 
 final class MockRootNavigator: RootNavigator {
