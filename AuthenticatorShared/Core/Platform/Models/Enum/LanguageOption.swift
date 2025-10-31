@@ -82,8 +82,8 @@ public enum LanguageOption: Equatable {
             "tr",
             "uk",
             "vi",
-            "zh-CN",
-            "zh-TW",
+            "zh-Hans",
+            "zh-Hant",
         ]
 
     // MARK: Properties
