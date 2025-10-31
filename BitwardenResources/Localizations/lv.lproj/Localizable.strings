@@ -462,9 +462,9 @@
 "AutofillBlockedUris" = "Automātiskā aizpilde aizturētajos URI";
 "AskToAddLogin" = "Vaicāt, lai pievienotu pieteikšanās vienumu";
 "AskToAddLoginDescription" = "Ask to add an item if one isn’t found in your vault.";
-"OnRestart" = "Pārsāknējot lietotni";
+"OnRestart" = "Pēc lietotnes atkārtotas palaišanas";
 "AutofillServiceNotEnabled" = "Automātiskā aizpilde padara drošu piekļuvi Bitwarden galbātavai vienkāršu no citām tīmekļvietnēm un lietotnēm. Izskatās, ka nav iespējota Bitwarden automātiskā aizpildīšana. To var izdarīt iestatījumu sadaļā.";
-"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes pārsāknēšanas.";
+"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes palaišanas no jauna.";
 "Capitalize" = "Izmantot lielos sākumburtus";
 "IncludeNumber" = "Iekļaut ciparu";
 "Download" = "Lejupielādēt";
@@ -752,7 +752,7 @@
 "NoPendingRequests" = "Nav neapstiprinātu pieprasījumu";
 "EnableCamerPermissionToUseTheScanner" = "Nodrošināt atļauju izmantot kameru, lai lietotu nolasītāju";
 "Language" = "Valoda";
-"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums pārsāknēt lietotni, lai redzētu izmaiņas";
+"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums palaist lietotni no jauna, lai redzētu izmaiņas";
 "LanguageChangeRequiresAppRestart" = "Pēc valodas maiņas ir nepieciešams pārsāknēt lietotni";
 "DefaultSystem" = "Noklusējuma (sistēmas)";
 "Important" = "Svarīgi";
