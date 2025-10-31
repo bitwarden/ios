@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -6,37 +5,37 @@ import Foundation
 
 /// A data model containing the metadata associated with a flight recorder log.
 ///
-struct FlightRecorderLogMetadata: Equatable, Identifiable {
+public struct FlightRecorderLogMetadata: Equatable, Identifiable {
     // MARK: Properties
 
     /// The duration for how long the flight recorder was enabled for the log.
-    let duration: FlightRecorderLoggingDuration
+    public let duration: FlightRecorderLoggingDuration
 
     /// The date when the flight recorder for this log stops/stopped logging.
-    let endDate: Date
+    public let endDate: Date
 
     /// The date when the flight recorder log will expire and be deleted.
-    let expirationDate: Date
+    public let expirationDate: Date
 
     /// The size of the log file.
-    let fileSize: String
+    public let fileSize: String
 
     /// A unique identifier for the log.
-    let id: String
+    public let id: String
 
     /// Whether this represents the active log.
-    let isActiveLog: Bool
+    public let isActiveLog: Bool
 
     /// The date when the flight recorder for this log was turned on.
-    let startDate: Date
+    public let startDate: Date
 
     /// A URL to the log file on disk.
-    let url: URL
+    public let url: URL
 
     // MARK: Computed Properties
 
     /// The formatted date range for when the flight recorder was enabled for the log.
-    var formattedLoggingDateRange: String {
+    public var formattedLoggingDateRange: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         dateFormatter.timeZone = .autoupdatingCurrent
@@ -44,11 +43,33 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
     }
 
     /// The accessibility label for the logging date range.
-    var loggingDateRangeAccessibilityLabel: String {
+    public var loggingDateRangeAccessibilityLabel: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         return Localizations.dateRangeXToY(dateFormatter.string(from: startDate), dateFormatter.string(from: endDate))
+    }
+
+    // MARK: Initialization
+
+    public init(
+        duration: FlightRecorderLoggingDuration,
+        endDate: Date,
+        expirationDate: Date,
+        fileSize: String,
+        id: String,
+        isActiveLog: Bool,
+        startDate: Date,
+        url: URL,
+    ) {
+        self.duration = duration
+        self.endDate = endDate
+        self.expirationDate = expirationDate
+        self.fileSize = fileSize
+        self.id = id
+        self.isActiveLog = isActiveLog
+        self.startDate = startDate
+        self.url = url
     }
 
     // MARK: Methods
@@ -58,7 +79,7 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
     /// - Parameter currentDate: The current date used to calculate how many days until the log expires.
     /// - Returns: The formatted expiration date.
     ///
-    func formattedExpiration(currentDate: Date = .now) -> String? {
+    public func formattedExpiration(currentDate: Date = .now) -> String? {
         guard !isActiveLog else { return nil }
 
         let daysTilExpiration = Calendar.current.dateComponents(

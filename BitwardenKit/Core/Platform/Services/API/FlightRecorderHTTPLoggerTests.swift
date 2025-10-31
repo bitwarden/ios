@@ -1,8 +1,9 @@
+import BitwardenKitMocks
 import Networking
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class FlightRecorderHTTPLoggerTests: BitwardenTestCase {
     // MARK: Properties

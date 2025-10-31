@@ -28,6 +28,13 @@ public protocol HasErrorReporter {
     var errorReporter: ErrorReporter { get }
 }
 
+/// Protocol for an object that provides a `FlightRecorder`.
+///
+public protocol HasFlightRecorder {
+    /// The service used by the application for recording temporary debug logs.
+    var flightRecorder: FlightRecorder { get }
+}
+
 /// Protocol for an object that provides a `TimeProvider`.
 ///
 public protocol HasTimeProvider {

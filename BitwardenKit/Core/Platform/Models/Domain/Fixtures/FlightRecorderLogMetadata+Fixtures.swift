@@ -1,8 +1,9 @@
 import Foundation
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
-extension FlightRecorderLogMetadata {
+public extension FlightRecorderLogMetadata {
+    // swiftlint:disable:next missing_docs
     static func fixture(
         duration: FlightRecorderLoggingDuration = .twentyFourHours,
         endDate: Date = Date(year: 2025, month: 4, day: 4),

@@ -4,7 +4,7 @@ import Foundation
 
 /// A protocol for an object that is used to perform filesystem tasks.
 ///
-protocol FileManagerProtocol: AnyObject {
+public protocol FileManagerProtocol: AnyObject {
     /// Appends the given data to the file at the specified URL.
     ///
     /// - Parameters:
@@ -55,22 +55,22 @@ protocol FileManagerProtocol: AnyObject {
 // MARK: - FileManager + FileManagerProtocol
 
 extension FileManager: FileManagerProtocol {
-    func append(_ data: Data, to url: URL) throws {
+    public func append(_ data: Data, to url: URL) throws {
         let handle = try FileHandle(forWritingTo: url)
         try handle.seekToEnd()
         try handle.write(contentsOf: data)
         try handle.close()
     }
 
-    func createDirectory(at url: URL, withIntermediateDirectories: Bool) throws {
+    public func createDirectory(at url: URL, withIntermediateDirectories: Bool) throws {
         try createDirectory(at: url, withIntermediateDirectories: withIntermediateDirectories, attributes: nil)
     }
 
-    func setIsExcludedFromBackup(_ value: Bool, to url: URL) throws {
+    public func setIsExcludedFromBackup(_ value: Bool, to url: URL) throws {
         try url.setIsExcludedFromBackup(value)
     }
 
-    func write(_ data: Data, to url: URL) throws {
+    public func write(_ data: Data, to url: URL) throws {
         try data.write(to: url)
     }
 }

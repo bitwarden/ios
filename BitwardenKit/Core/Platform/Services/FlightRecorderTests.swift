@@ -4,7 +4,7 @@ import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 // swiftlint:disable file_length
 
@@ -15,7 +15,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var errorReporter: MockErrorReporter!
     var fileManager: MockFileManager!
     var logURL: URL!
-    var stateService: MockStateService!
+    var stateService: MockFlightRecorderStateService!
     var subject: FlightRecorder!
     var timeProvider: MockTimeProvider!
 
@@ -42,7 +42,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appInfoService = MockAppInfoService()
         errorReporter = MockErrorReporter()
         fileManager = MockFileManager()
-        stateService = MockStateService()
+        stateService = MockFlightRecorderStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 1, day: 1)))
 
         logURL = try XCTUnwrap(FileManager.default.flightRecorderLogURL()

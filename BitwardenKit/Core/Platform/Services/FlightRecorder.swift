@@ -1,4 +1,3 @@
-import BitwardenKit
 @preconcurrency import Combine
 import Foundation
 import OSLog
@@ -10,7 +9,7 @@ import OSLog
 /// A protocol for a service which can temporarily be enabled to collect logs for debugging to a
 /// local file.
 ///
-protocol FlightRecorder: Sendable, BitwardenLogger {
+public protocol FlightRecorder: Sendable, BitwardenLogger {
     /// A publisher which publishes the active log of the flight recorder.
     ///
     /// - Returns: A publisher for the active log of the flight recorder.
@@ -64,11 +63,25 @@ protocol FlightRecorder: Sendable, BitwardenLogger {
     func setFlightRecorderBannerDismissed() async
 }
 
-extension FlightRecorder {
+public extension FlightRecorder {
+    /// Appends a message to the active log, if logging is currently enabled.
+    ///
+    /// - Parameters:
+    ///   - message: The message to append to the active log.
+    ///   - file: The file that called the log method.
+    ///   - line: The line number in the file that called the log method.
+    ///
     func log(_ message: String, file: String = #file, line: UInt = #line) async {
         await log(message, file: file, line: line)
     }
 
+    /// Appends a message to the active log, if logging is currently enabled.
+    ///
+    /// - Parameters:
+    ///   - message: The message to append to the active log.
+    ///   - file: The file that called the log method.
+    ///   - line: The line number in the file that called the log method.
+    ///
     nonisolated func log(_ message: String, file: String, line: UInt) {
         Task {
             await log(message, file: file, line: line)
@@ -165,7 +178,7 @@ extension FlightRecorderError: Equatable {
 
 /// A default implementation of a `FlightRecorder`.
 ///
-actor DefaultFlightRecorder {
+public actor DefaultFlightRecorder {
     // MARK: Private Properties
 
     /// A subject containing the flight recorder data. This serves as a cache of the data after it
@@ -190,7 +203,7 @@ actor DefaultFlightRecorder {
     private let fileManager: FileManagerProtocol
 
     /// The service used by the application to manage account state.
-    private let stateService: StateService
+    private let stateService: FlightRecorderStateService
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
@@ -213,12 +226,12 @@ actor DefaultFlightRecorder {
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The service used to get the present time.
     ///
-    init(
+    public init(
         appInfoService: AppInfoService,
         disableLogLifecycleTimerForTesting: Bool = false,
         errorReporter: ErrorReporter,
         fileManager: FileManagerProtocol = FileManager.default,
-        stateService: StateService,
+        stateService: FlightRecorderStateService,
         timeProvider: TimeProvider,
     ) {
         self.appInfoService = appInfoService
@@ -419,12 +432,12 @@ actor DefaultFlightRecorder {
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
-    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never> {
+    public func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never> {
         _ = await getFlightRecorderData() // Ensure data has already been loaded to the subject.
         return dataSubject.map { $0?.activeLog }.eraseToAnyPublisher()
     }
 
-    func deleteInactiveLogs() async throws {
+    public func deleteInactiveLogs() async throws {
         guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
         }
@@ -437,7 +450,7 @@ extension DefaultFlightRecorder: FlightRecorder {
         await setFlightRecorderData(data)
     }
 
-    func deleteLog(_ log: FlightRecorderLogMetadata) async throws {
+    public func deleteLog(_ log: FlightRecorderLogMetadata) async throws {
         guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
         }
@@ -453,13 +466,13 @@ extension DefaultFlightRecorder: FlightRecorder {
         await setFlightRecorderData(data)
     }
 
-    func disableFlightRecorder() async {
+    public func disableFlightRecorder() async {
         guard var data = await getFlightRecorderData() else { return }
         data.activeLog = nil
         await setFlightRecorderData(data)
     }
 
-    func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async throws {
+    public func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async throws {
         let log = FlightRecorderData.LogMetadata(duration: duration, startDate: timeProvider.presentTime)
         try await createLogFile(for: log)
 
@@ -468,7 +481,7 @@ extension DefaultFlightRecorder: FlightRecorder {
         await setFlightRecorderData(data)
     }
 
-    func fetchLogs() async throws -> [FlightRecorderLogMetadata] {
+    public func fetchLogs() async throws -> [FlightRecorderLogMetadata] {
         guard let data = await getFlightRecorderData() else { return [] }
         return try data.allLogs.map { log in
             try FlightRecorderLogMetadata(
@@ -484,12 +497,12 @@ extension DefaultFlightRecorder: FlightRecorder {
         }
     }
 
-    func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {
+    public func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {
         _ = await getFlightRecorderData() // Ensure data has already been loaded to the subject.
         return dataSubject.map { $0?.activeLog != nil }.eraseToAnyPublisher()
     }
 
-    func log(_ message: String, file: String, line: UInt) async {
+    public func log(_ message: String, file: String, line: UInt) async {
         guard var data = await getFlightRecorderData(), let log = data.activeLog else { return }
         Logger.flightRecorder.debug("\(message)")
         do {
@@ -506,7 +519,7 @@ extension DefaultFlightRecorder: FlightRecorder {
         }
     }
 
-    func setFlightRecorderBannerDismissed() async {
+    public func setFlightRecorderBannerDismissed() async {
         guard var data = await getFlightRecorderData(), data.activeLog != nil else { return }
         data.activeLog?.isBannerDismissed = true
         await setFlightRecorderData(data)

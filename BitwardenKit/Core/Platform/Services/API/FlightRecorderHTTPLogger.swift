@@ -4,7 +4,7 @@ import Networking
 
 /// An `HTTPLogger` that logs HTTP requests and responses to the flight recorder.
 ///
-final class FlightRecorderHTTPLogger: HTTPLogger {
+public final class FlightRecorderHTTPLogger: HTTPLogger {
     // MARK: Properties
 
     /// The service used by the application for recording temporary debug logs.
@@ -16,19 +16,19 @@ final class FlightRecorderHTTPLogger: HTTPLogger {
     ///
     /// - Parameter flightRecorder: The service used by the application for recording temporary debug logs.
     ///
-    init(flightRecorder: FlightRecorder) {
+    public init(flightRecorder: FlightRecorder) {
         self.flightRecorder = flightRecorder
     }
 
     // MARK: HTTPLogger
 
-    func logRequest(_ httpRequest: HTTPRequest) async {
+    public func logRequest(_ httpRequest: HTTPRequest) async {
         await flightRecorder.log(
             "Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)",
         )
     }
 
-    func logResponse(_ httpResponse: HTTPResponse) async {
+    public func logResponse(_ httpResponse: HTTPResponse) async {
         await flightRecorder.log(
             "Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)",
         )

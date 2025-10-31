@@ -209,13 +209,6 @@ protocol HasFileAPIService {
     var fileAPIService: FileAPIService { get }
 }
 
-/// Protocol for an object that provides a `FlightRecorder`.
-///
-protocol HasFlightRecorder {
-    /// The service used by the application for recording temporary debug logs.
-    var flightRecorder: FlightRecorder { get }
-}
-
 /// Protocol for an object that provides a `GeneratorRepository`.
 ///
 protocol HasGeneratorRepository {

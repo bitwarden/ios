@@ -98,7 +98,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used by the application for recording temporary debug logs.
-    let flightRecorder: FlightRecorder
+    public let flightRecorder: FlightRecorder
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository

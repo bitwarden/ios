@@ -1,7 +1,7 @@
+import BitwardenResources
 import XCTest
 
-import BitwardenResources
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class FlightRecorderLogMetadataTests: BitwardenTestCase {
     // MARK: Properties
