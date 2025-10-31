@@ -37,7 +37,6 @@ public enum LanguageOption: Equatable, Sendable {
             "el",
             "en",
             "en-GB",
-            "eo",
             "en-IN",
             "es",
             "et",
