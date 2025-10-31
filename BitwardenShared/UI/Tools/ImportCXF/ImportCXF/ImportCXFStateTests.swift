@@ -65,7 +65,7 @@ class ImportCXFStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.pleaseDoNotCloseTheApp)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
-        XCTAssertEqual(subject.message, Localizations.itemsSuccessfullyImported(1))
+        XCTAssertEqual(subject.message, Localizations.xItemsSuccessfullyImported(1))
 
         subject.status = .failure(message: "Something went wrong")
         XCTAssertEqual(subject.message, "Something went wrong")
