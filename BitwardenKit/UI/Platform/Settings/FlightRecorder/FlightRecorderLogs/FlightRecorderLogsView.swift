@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -53,7 +52,7 @@ struct FlightRecorderLogsView: View {
             logsList
         } else {
             IllustratedMessageView(
-                image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
+                image: SharedAsset.Illustrations.secureDevices.swiftUIImage,
                 style: .mediumImage,
                 message: Localizations.noLogsRecorded,
             )

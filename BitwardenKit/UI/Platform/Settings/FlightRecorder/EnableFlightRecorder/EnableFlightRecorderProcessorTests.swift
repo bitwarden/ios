@@ -2,12 +2,12 @@ import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class EnableFlightRecorderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var coordinator: MockCoordinator<FlightRecorderRoute, Void>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
     var subject: EnableFlightRecorderProcessor!

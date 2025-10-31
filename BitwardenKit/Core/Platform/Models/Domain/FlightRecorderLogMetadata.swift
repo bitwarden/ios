@@ -9,33 +9,33 @@ public struct FlightRecorderLogMetadata: Equatable, Identifiable {
     // MARK: Properties
 
     /// The duration for how long the flight recorder was enabled for the log.
-    public let duration: FlightRecorderLoggingDuration
+    let duration: FlightRecorderLoggingDuration
 
     /// The date when the flight recorder for this log stops/stopped logging.
-    public let endDate: Date
+    let endDate: Date
 
     /// The date when the flight recorder log will expire and be deleted.
-    public let expirationDate: Date
+    let expirationDate: Date
 
     /// The size of the log file.
-    public let fileSize: String
+    let fileSize: String
 
     /// A unique identifier for the log.
     public let id: String
 
     /// Whether this represents the active log.
-    public let isActiveLog: Bool
+    let isActiveLog: Bool
 
     /// The date when the flight recorder for this log was turned on.
-    public let startDate: Date
+    let startDate: Date
 
     /// A URL to the log file on disk.
-    public let url: URL
+    let url: URL
 
     // MARK: Computed Properties
 
     /// The formatted date range for when the flight recorder was enabled for the log.
-    public var formattedLoggingDateRange: String {
+    var formattedLoggingDateRange: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         dateFormatter.timeZone = .autoupdatingCurrent
@@ -43,33 +43,11 @@ public struct FlightRecorderLogMetadata: Equatable, Identifiable {
     }
 
     /// The accessibility label for the logging date range.
-    public var loggingDateRangeAccessibilityLabel: String {
+    var loggingDateRangeAccessibilityLabel: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         return Localizations.dateRangeXToY(dateFormatter.string(from: startDate), dateFormatter.string(from: endDate))
-    }
-
-    // MARK: Initialization
-
-    public init(
-        duration: FlightRecorderLoggingDuration,
-        endDate: Date,
-        expirationDate: Date,
-        fileSize: String,
-        id: String,
-        isActiveLog: Bool,
-        startDate: Date,
-        url: URL,
-    ) {
-        self.duration = duration
-        self.endDate = endDate
-        self.expirationDate = expirationDate
-        self.fileSize = fileSize
-        self.id = id
-        self.isActiveLog = isActiveLog
-        self.startDate = startDate
-        self.url = url
     }
 
     // MARK: Methods
@@ -79,7 +57,7 @@ public struct FlightRecorderLogMetadata: Equatable, Identifiable {
     /// - Parameter currentDate: The current date used to calculate how many days until the log expires.
     /// - Returns: The formatted expiration date.
     ///
-    public func formattedExpiration(currentDate: Date = .now) -> String? {
+    func formattedExpiration(currentDate: Date = .now) -> String? {
         guard !isActiveLog else { return nil }
 
         let daysTilExpiration = Calendar.current.dateComponents(

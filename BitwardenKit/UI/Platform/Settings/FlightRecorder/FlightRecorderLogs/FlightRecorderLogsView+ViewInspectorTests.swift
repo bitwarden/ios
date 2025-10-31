@@ -1,10 +1,10 @@
 // swiftlint:disable:this file_name
-import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class FlightRecorderLogsViewTests: BitwardenTestCase {
     // MARK: Properties

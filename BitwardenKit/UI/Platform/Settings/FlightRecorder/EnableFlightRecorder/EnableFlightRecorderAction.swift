@@ -1,5 +1,3 @@
-import BitwardenKit
-
 // MARK: - EnableFlightRecorderAction
 
 /// Actions handled by the `EnableFlightRecorderProcessor`.

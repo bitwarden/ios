@@ -20,6 +20,7 @@ xcassets:
   inputs:
     - BitwardenResources/Colors.xcassets
     - BitwardenResources/Icons.xcassets
+    - BitwardenResources/Illustrations.xcassets
   outputs:
     - templateName: swift5
       output: SharedAssets.swift

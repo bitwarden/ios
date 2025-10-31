@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: - EnableFlightRecorderProcessor
@@ -18,7 +17,7 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+    private let coordinator: AnyCoordinator<FlightRecorderRoute, Void>
 
     /// The services used by this processor.
     private let services: Services
@@ -33,7 +32,7 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        coordinator: AnyCoordinator<FlightRecorderRoute, Void>,
         services: Services,
         state: EnableFlightRecorderState,
     ) {

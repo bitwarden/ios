@@ -26,7 +26,7 @@ public enum FlightRecorderLoggingDuration: CaseIterable, Codable, Menuable {
     }
 
     /// A short string representation of the duration (e.g. 1h, 8h, 1w).
-    public var shortDescription: String {
+    var shortDescription: String {
         switch self {
         case .oneHour: "1h"
         case .eightHours: "8h"

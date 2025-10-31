@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 

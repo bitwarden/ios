@@ -1,5 +1,3 @@
-import BitwardenKit
-
 // MARK: - EnableFlightRecorderState
 
 /// An object that defines the current state of the `EnableFlightRecorderView`.
