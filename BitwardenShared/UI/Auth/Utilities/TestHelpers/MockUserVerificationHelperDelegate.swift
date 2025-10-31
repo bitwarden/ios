@@ -1,14 +1,15 @@
+import BitwardenKit
 import Foundation
 import XCTest
 
 @testable import BitwardenShared
 
 class MockUserVerificationHelperDelegate: UserVerificationDelegate {
-    var alertShown = [Alert]()
-    var alertShownHandler: ((Alert) async throws -> Void)?
+    var alertShown = [BitwardenKit.Alert]()
+    var alertShownHandler: ((BitwardenKit.Alert) async throws -> Void)?
     var alertOnDismissed: (() -> Void)?
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         alertShown.append(alert)
         Task {
             do {
@@ -19,7 +20,7 @@ class MockUserVerificationHelperDelegate: UserVerificationDelegate {
         }
     }
 
-    func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
+    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
         showAlert(alert)
         alertOnDismissed = onDismissed
     }

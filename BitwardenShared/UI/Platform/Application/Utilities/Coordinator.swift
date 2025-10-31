@@ -36,7 +36,7 @@ protocol Coordinator<Route, Event>: AnyObject {
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert)
+    func showAlert(_ alert: BitwardenKit.Alert)
 
     /// Shows the alert.
     ///
@@ -44,7 +44,7 @@ protocol Coordinator<Route, Event>: AnyObject {
     ///   - alert: The alert to show.
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?)
 
     /// Shows an alert for an error that occurred.
     ///
@@ -167,7 +167,7 @@ extension Coordinator {
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         showAlert(alert, onDismissed: nil)
     }
 

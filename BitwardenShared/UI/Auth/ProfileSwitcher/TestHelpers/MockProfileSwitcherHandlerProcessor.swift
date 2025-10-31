@@ -5,7 +5,7 @@ import BitwardenKitMocks
 class MockProfileSwitcherHandlerProcessor:
     MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>,
     ProfileSwitcherHandler {
-    var alertsShown = [BitwardenShared.Alert]()
+    var alertsShown = [BitwardenKit.Alert]()
     var allowLockAndLogout = true
     var dismissProfileSwitcherCalled = false
     var handleAuthEvents = [AuthEvent]()
@@ -31,7 +31,7 @@ class MockProfileSwitcherHandlerProcessor:
 
     func showAddAccount() {}
 
-    func showAlert(_ alert: BitwardenShared.Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         alertsShown.append(alert)
     }
 

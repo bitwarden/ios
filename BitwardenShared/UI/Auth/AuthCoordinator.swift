@@ -467,6 +467,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator.setNavigationBarHidden(false, animated: false)
             stackNavigator.replace(view, animated: false)
         }
+
+        if stackNavigator.isPresenting == true {
+            stackNavigator.dismiss()
+        }
     }
 
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
