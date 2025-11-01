@@ -442,9 +442,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(logs[0].fileSize, "")
         XCTAssertEqual(errorReporter.errors.count, 1)
-        let error = try XCTUnwrap(errorReporter.errors.first as? NSError)
-        XCTAssertEqual(error.domain, "General Error: Flight Recorder File Size Error")
-        XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
+        let error = try XCTUnwrap(errorReporter.errors.first as? FlightRecorderError)
+        XCTAssertEqual(error, FlightRecorderError.fileSizeError(BitwardenTestError.example))
     }
 
     /// `fetchLogs()` return an empty list if there's no flight recorder data on the device.
@@ -535,9 +534,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
         XCTAssertEqual(errorReporter.errors.count, 1)
-        let error = try XCTUnwrap(errorReporter.errors.first as? NSError)
-        XCTAssertEqual(error.domain, "General Error: Flight Recorder Remove Log Error")
-        XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
+        let error = try XCTUnwrap(errorReporter.errors.first as? FlightRecorderError)
+        XCTAssertEqual(error, .removeExpiredLogError(BitwardenTestError.example))
         try XCTAssertEqual(
             fileManager.removeItemURLs,
             [FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName)],
@@ -613,9 +611,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.log("Hello world!")
 
         XCTAssertEqual(errorReporter.errors.count, 1)
-        let error = try XCTUnwrap(errorReporter.errors.last as? NSError)
-        XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
-        XCTAssertEqual(error.domain, "General Error: Flight Recorder Log Error")
+        let error = try XCTUnwrap(errorReporter.errors.last as? FlightRecorderError)
+        XCTAssertEqual(error, .writeMessageError(BitwardenTestError.example))
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [activeLog]))
     }
 
