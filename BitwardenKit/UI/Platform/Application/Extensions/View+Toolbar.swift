@@ -1,11 +1,23 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 /// Helper functions extended off the `View` protocol for supporting buttons and menus in toolbars.
 ///
-extension View {
+public extension View {
     // MARK: Buttons
+
+    /// Returns a toolbar button configured for adding an item.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` configured for adding an item.
+    ///
+    func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
+        toolbarButton(asset: SharedAsset.Icons.plus16, label: Localizations.add, action: action)
+            .hidden(hidden)
+            .accessibilityIdentifier("AddItemButton")
+    }
 
     /// Returns a toolbar button configured for cancelling an operation in a view.
     ///
@@ -116,7 +128,7 @@ extension View {
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `Button` for displaying an image in a toolbar.
     ///
-    func toolbarButton(asset: ImageAsset, label: String, action: @escaping () -> Void) -> some View {
+    func toolbarButton(asset: SharedImageAsset, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(asset: asset, label: Text(label))
                 .imageStyle(.toolbarIcon)
@@ -184,6 +196,19 @@ extension View {
     }
 
     // MARK: Toolbar Items
+
+    /// A `ToolbarItem` for views with an add button.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the add button is tapped.
+    /// - Returns: A `ToolbarItem` with an add button.
+    ///
+    func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            addToolbarButton(hidden: hidden, action: action)
+        }
+    }
 
     /// A `ToolbarItem` for views with a cancel text button.
     ///
