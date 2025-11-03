@@ -108,6 +108,20 @@ enum FlightRecorderError: Error {
 extension FlightRecorderError: CustomNSError {
     static var errorDomain: String { "FlightRecorderError" }
 
+    var errorCode: Int {
+        // NOTE: New cases should be appended (vs alphabetized) to this switch statement with an
+        // incremented integer. This ensures the code for existing errors doesn't change.
+        switch self {
+        case .dataUnavailable: 1
+        case .deletionNotPermitted: 2
+        case .fileSizeError: 3
+        case .logLifecycleTimerError: 4
+        case .logNotFound: 5
+        case .removeExpiredLogError: 6
+        case .writeMessageError: 7
+        }
+    }
+
     var errorUserInfo: [String: Any] {
         var userInfo: [String: Any] = [
             "Error Type": String(reflecting: self),
