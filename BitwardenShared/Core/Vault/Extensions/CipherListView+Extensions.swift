@@ -2,10 +2,15 @@ import BitwardenResources
 import BitwardenSdk
 
 extension CipherListView {
-    /// Determines whether the cipher can be used when autofilling passwords having valid data.
+    /// Determines whether the cipher can be used in basic password autofill operations.
+    ///
+    /// A cipher qualifies for basic login autofill if it's a login type and contains at least one
+    /// of the following copyable fields: username, password, or TOTP code.
+    ///
+    /// - Returns: `true` if the cipher can be used for basic password autofill, `false` otherwise.
     var canBeUsedInBasicLoginAutofill: Bool {
         type.isLogin && copyableFields.contains { copyableField in
-            return switch copyableField {
+            switch copyableField {
             case .loginPassword, .loginTotp, .loginUsername:
                 true
             default:

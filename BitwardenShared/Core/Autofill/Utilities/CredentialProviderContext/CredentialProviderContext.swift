@@ -93,13 +93,14 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
 
     public var uri: String? {
         guard let serviceIdentifier = serviceIdentifiers.first else {
-            // WORKAROUND: In the Fido2 + Passwords vault list flow the OS is not sending
-            // the appropriate `serviceIdentifiers` therefore we cannot get the `URI` to filter
-            // so we use the `relyingPartyIdentifier` as the `URI` to filter instead as the
-            // temporary fix for this as it might be similar to the original `URI`.
-            // If at some point the OS fixes that problem, then this would be automatically sorted out
-            // as it wouldn't enter this block of the flow and use the previous working approach
-            // of getting it from the `serviceIdentifiers`.
+            // WORKAROUND: iOS does not consistently send `serviceIdentifiers` in the Fido2 + Passwords
+            // vault list flow (.autofillFido2VaultList). As a fallback, we use the `relyingPartyIdentifier`
+            // as the URI for filtering, which provides similar functionality.
+            //
+            // This fallback should be retained even if Apple fixes the primary issue, as it ensures
+            // resilience against future OS regressions and edge cases.
+            //
+            // Related: iOS Autofill API behavior - serviceIdentifiers may be empty in certain contexts.
             if case let .autofillFido2VaultList(_, passkeyParameters) = extensionMode,
                !passkeyParameters.relyingPartyIdentifier.isEmpty {
                 return passkeyParameters.relyingPartyIdentifier
