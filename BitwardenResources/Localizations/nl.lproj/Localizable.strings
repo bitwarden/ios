@@ -131,8 +131,6 @@
 "LastSync" = "Laatste synchronisatie:";
 "Length" = "Lengte";
 "Lock" = "Vergrendelen";
-"OneHour" = "1 uur";
-"FourHours" = "4 uur";
 "Immediately" = "Onmiddellijk";
 "VaultTimeout" = "Time-out van de kluis";
 "VaultTimeoutAction" = "Actie bij time-out";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Je kluis is vergrendeld. Bevestig je identiteit om door te gaan.";
 "Dark" = "Donker";
 "Light" = "Licht";
-"TenSeconds" = "10 seconden";
-"ThirtySeconds" = "30 seconden";
-"TwentySeconds" = "20 seconden";
 "ClearClipboard" = "Klembord wissen";
 "ClearClipboardDescription" = "Gekopieerde waarden automatisch van het klembord wissen.";
 "DefaultUriMatchDetection" = "Standaard URI-overeenkomstdetectie";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send verwijderd";
 "SendUpdated" = "Send bijgewerkt";
 "NewSendCreated" = "Send aangemaakt";
-"OneDay" = "1 dag";
-"TwoDays" = "2 dagen";
-"ThreeDays" = "3 dagen";
-"SevenDays" = "7 dagen";
-"ThirtyDays" = "30 dagen";
 "Custom" = "Aangepast";
 "ShareOnSave" = "Deze Send bij het opslaan delen";
 "SendDisabledWarning" = "Als gevolg van een ondernemingsbeleid kun je alleen een bestaande Send verwijderen.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Een uur en %1$@ minuten";
 "XHoursAndOneMinute" = "%1$@ uur en een minuut";
 "XHoursAndYMinutes" = "%1$@ uur en %2$@ minuten";
-"XHours" = "%1$@ uur";
 "PasskeyManagementExplanationLong" = "Gebruik Bitwarden voor het opslaan van nieuwe passkeys en inloggen met passkeys die zijn opgeslagen in je kluis.";
 "AutofillServicesExplanationLong" = "Het Android Autofill Framework helpt het het invullen van inloggegevens in andere apps op je apparaat.";
 "UseInlineAutofillExplanationLong" = "Gebruik inline automatisch aanvullen als het geselecteerde toetsenbord dit ondersteunt. Gebruik anders de standaard overlay.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Duur van het loggen";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "We verwijderen logs automatisch na 30 dagen. Bitwarden heeft alleen toegang tot je loggegevens als je deze deelt.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Wil je meer weten over wat wel en niet wordt gelogd, bezoek dan het **[Bitwarden helpcentrum](%1$@)**.";
-"OneWeek" = "1 week";
 "ShowMore" = "Meer weergeven";
 "ShowLess" = "Minder weergeven";
 "ItemNameX" = "Itemnaam, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Meer informatie](%1$@)";
 "LocalCodes" = "Lokale codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Hulp nodig? Bezoek ons Helpcentrum voor hulp.";
-"NinetySeconds" = "90 seconden";
 "NoAskMe" = "Nee, vraag het me";
 "NoCodes" = "Je hebt geen codes om weer te geven";
 "None" = "Geen";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "\"Lokaal opslaan\" instellen als je standaard opslaan-optie?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "\"Opslaan in Bitwarden\" instellen als je standaard opslaan-optie?";
 "SignInUsingUniqueCodes" = "Inloggen met unieke codes";
-"SixtySeconds" = "60 seconden";
 "Skip" = "Overslaan";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Sla al je logins op en synchroniseer verificatiecodes direct met de Authenticator app.";

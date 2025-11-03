@@ -131,8 +131,6 @@
 "LastSync" = "Pēdējā sinhronizēšana:";
 "Length" = "Garums";
 "Lock" = "Aizslēgt";
-"OneHour" = "1 stunda";
-"FourHours" = "4 stundas";
 "Immediately" = "Nekavējoties";
 "VaultTimeout" = "Glabātavas noildze";
 "VaultTimeoutAction" = "Glabātavas noildzes darbība";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Glabātava ir aizslēgta. Jāapstiprina identitāte, lai turpinātu.";
 "Dark" = "Tumšs";
 "Light" = "Gaišs";
-"TenSeconds" = "10 sekundes";
-"ThirtySeconds" = "30 sekundes";
-"TwentySeconds" = "20 sekundes";
 "ClearClipboard" = "Notīrīt starpliktuvi";
 "ClearClipboardDescription" = "Automātiski noņemt starpliktuvē ievietotās vērtības.";
 "DefaultUriMatchDetection" = "Noklusējuma URI atbilstības noteikšana";
@@ -462,9 +457,9 @@
 "AutofillBlockedUris" = "Automātiskā aizpilde aizturētajos URI";
 "AskToAddLogin" = "Vaicāt, lai pievienotu pieteikšanās vienumu";
 "AskToAddLoginDescription" = "Ask to add an item if one isn’t found in your vault.";
-"OnRestart" = "Pārsāknējot lietotni";
+"OnRestart" = "Pēc lietotnes atkārtotas palaišanas";
 "AutofillServiceNotEnabled" = "Automātiskā aizpilde padara drošu piekļuvi Bitwarden galbātavai vienkāršu no citām tīmekļvietnēm un lietotnēm. Izskatās, ka nav iespējota Bitwarden automātiskā aizpildīšana. To var izdarīt iestatījumu sadaļā.";
-"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes pārsāknēšanas.";
+"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes palaišanas no jauna.";
 "Capitalize" = "Izmantot lielos sākumburtus";
 "IncludeNumber" = "Iekļaut ciparu";
 "Download" = "Lejupielādēt";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send izdzēsts";
 "SendUpdated" = "Send saglabāts";
 "NewSendCreated" = "Send izveidots";
-"OneDay" = "1 diena";
-"TwoDays" = "2 dienas";
-"ThreeDays" = "3 dienas";
-"SevenDays" = "7 dienas";
-"ThirtyDays" = "30 dienas";
 "Custom" = "Pielāgots";
 "ShareOnSave" = "Kopīgot šo Send pēc saglabāšanas";
 "SendDisabledWarning" = "Uzņēmuma nosacījumu dēļ ir iespējams dzēst tikai esošu Send.";
@@ -752,7 +742,7 @@
 "NoPendingRequests" = "Nav neapstiprinātu pieprasījumu";
 "EnableCamerPermissionToUseTheScanner" = "Nodrošināt atļauju izmantot kameru, lai lietotu nolasītāju";
 "Language" = "Valoda";
-"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums pārsāknēt lietotni, lai redzētu izmaiņas";
+"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums palaist lietotni no jauna, lai redzētu izmaiņas";
 "LanguageChangeRequiresAppRestart" = "Pēc valodas maiņas ir nepieciešams pārsāknēt lietotni";
 "DefaultSystem" = "Noklusējuma (sistēmas)";
 "Important" = "Svarīgi";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Viena stunda un %1$@ minūtes";
 "XHoursAndOneMinute" = "%1$@ stundas un viena minūte";
 "XHoursAndYMinutes" = "%1$@ stundas un %2$@ minūtes";
-"XHours" = "%1$@ stundas";
 "PasskeyManagementExplanationLong" = "Bitwarden ir izmantojams, lai saglabātu jaunas piekļuves atslēgas un pieteiktos ar tām, kas atrodas glabātavā.";
 "AutofillServicesExplanationLong" = "Android automātiskās aizpildes ietvars tiek izmantots, lai palīdzētu aizpildīt pieteikšanās informāciju citās ierīces lietotnēs.";
 "UseInlineAutofillExplanationLong" = "Iekļautā automātiskā aizpilde ir izmantojama, ja izvēlētā tastatūra to nodrošina. Citādi ir jāizmanto noklusējuma pārklājums.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Žurnalēšanas ilgums";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Žurnāli tiks automātiski izdzēsti pēc 30 dienām. Bitwarden var piekļūt žurnālu datiem tikai tad, kad tos kopīgo.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Lai uzzinātu vairāk par to, kas tiek un netiek žurnalēts, jāapmeklē **[Bitwarden palīdzības centrs](%1$@)**.";
-"OneWeek" = "1 nedēļa";
 "ShowMore" = "Rādīt vairāk";
 "ShowLess" = "Rādīt mazāk";
 "ItemNameX" = "Vienuma nosaukums, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Local codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 seconds";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Pieteitkties ar neatkārtojamiem kodiem";
-"SixtySeconds" = "60 seconds";
 "Skip" = "Izlaist";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";

@@ -5,7 +5,7 @@ import OSLog
 /// A protocol for defining a default value for a `Decodable` type if an invalid or missing value
 /// is received.
 ///
-protocol DefaultValueProvider: Decodable {
+public protocol DefaultValueProvider: Decodable {
     /// The default value to use if the value to decode is invalid or missing.
     static var defaultValue: Self { get }
 }
@@ -17,17 +17,27 @@ protocol DefaultValueProvider: Decodable {
 /// decoding failure if an invalid value is received.
 ///
 @propertyWrapper
-struct DefaultValue<T: DefaultValueProvider> {
+public struct DefaultValue<T: DefaultValueProvider> {
     // MARK: Properties
 
     /// The wrapped value.
-    let wrappedValue: T
+    public let wrappedValue: T
+
+    // MARK: Initialization
+
+    /// Creates a new `DefaultValue` with the specified wrapped value.
+    ///
+    /// - Parameter wrappedValue: The value to wrap.
+    ///
+    public init(wrappedValue: T) {
+        self.wrappedValue = wrappedValue
+    }
 }
 
 // MARK: - Decodable
 
 extension DefaultValue: Decodable {
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         do {
             wrappedValue = try container.decode(T.self)
@@ -62,7 +72,7 @@ extension DefaultValue: Decodable {
 // MARK: - Encodable
 
 extension DefaultValue: Encodable where T: Encodable {
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(wrappedValue)
     }
@@ -78,7 +88,7 @@ extension DefaultValue: Hashable where T: Hashable {}
 
 // MARK: - KeyedDecodingContainer
 
-extension KeyedDecodingContainer {
+public extension KeyedDecodingContainer {
     /// When decoding a `DefaultValue` wrapped value, if the property doesn't exist, default to the
     /// type's default value.
     ///
