@@ -1,9 +1,6 @@
-import BitwardenKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import XCTest
-
-//@testable import BitwardenShared
 
 // MARK: - RootViewControllerTests
 
@@ -42,13 +39,13 @@ class RootViewControllerTests: BitwardenTestCase {
     /// `childViewController` dismisses a presented view controller before swapping between
     /// different view controllers.
     func test_childViewController_withPresentedViewController() {
-        let viewController1 = UIViewController()
+        let viewController1 = MockUIViewController()
         subject.childViewController = viewController1
         viewController1.present(UIViewController(), animated: false)
         XCTAssertTrue(subject.children.contains(viewController1))
         XCTAssertNotNil(viewController1.presentedViewController)
 
-        let viewController2 = UIViewController()
+        let viewController2 = MockUIViewController()
         subject.childViewController = viewController2
         XCTAssertTrue(subject.children.contains(viewController2))
         XCTAssertFalse(subject.children.contains(viewController1))

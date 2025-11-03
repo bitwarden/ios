@@ -1,29 +1,30 @@
 import BitwardenKit
-import BitwardenShared
 import UIKit
 
-final class MockRootNavigator: RootNavigator {
-    var alerts: [Alert] = []
-    var appTheme: AppTheme = .default
-    var navigatorShown: Navigator?
-    var rootViewController: UIViewController?
+public final class MockRootNavigator: RootNavigator {
+    public var alerts: [Alert] = []
+    public var appTheme: AppTheme = .default
+    public var navigatorShown: Navigator?
+    public var rootViewController: UIViewController?
 
-    func present(_ alert: Alert) {
+    public init() {}
+
+    public func present(_ alert: Alert) {
         alerts.append(alert)
     }
 
-    func present(_ alert: Alert, onDismissed: (() -> Void)?) {
+    public func present(_ alert: Alert, onDismissed: (() -> Void)?) {
         alerts.append(alert)
     }
 
-    func present(
+    public func present(
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?,
     ) {}
 
-    func show(child: Navigator) {
+    public func show(child: Navigator) {
         navigatorShown = child
     }
 }
