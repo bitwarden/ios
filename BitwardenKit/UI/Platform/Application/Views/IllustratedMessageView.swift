@@ -273,6 +273,7 @@ private extension IllustratedMessageStyle {
 // MARK: - IllustratedMessageStyle Constants
 
 public extension IllustratedMessageStyle {
+    /// A style with a large title text and a tinted icon image.
     static let largeTextTintedIcon = IllustratedMessageStyle(
         imageColor: SharedAsset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
@@ -286,6 +287,7 @@ public extension IllustratedMessageStyle {
         titleTextStyle: .hugeTitle,
     )
 
+    /// A style with a medium-sized image.
     static let mediumImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
@@ -301,6 +303,7 @@ public extension IllustratedMessageStyle {
         titleTextStyle: .title2,
     )
 
+    /// A style with a small-sized image.
     static let smallImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(

@@ -4,7 +4,7 @@ import SwiftUI
 
 /// An `OrientationBasedValue` encapsulates values that might be different
 /// for rendering based on orientation, such as image size or space between text.
-struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
+public struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
     // MARK: Properties
 
     /// The dimension size in portrait mode.
@@ -20,7 +20,7 @@ struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
     ///   - portrait: The value in portrait mode.
     ///   - landscape: The value in landscape mode.
     ///
-    init(portrait: T, landscape: T) {
+    public init(portrait: T, landscape: T) {
         self.portrait = portrait
         self.landscape = landscape
     }
@@ -29,7 +29,7 @@ struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
     /// - Parameters:
     ///   - both: The value in both portrait and landscape mode.
     ///
-    init(both: T) {
+    public init(both: T) {
         portrait = both
         landscape = both
     }
@@ -38,7 +38,7 @@ struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
 
     /// Convenience function for getting the correct value based on the orientation.
     ///
-    func value(_ verticalSizeClass: UserInterfaceSizeClass) -> T {
+    public func value(_ verticalSizeClass: UserInterfaceSizeClass) -> T {
         verticalSizeClass == .regular ? portrait : landscape
     }
 }
