@@ -11,7 +11,7 @@ class LanguageOptionTests: BitwardenTestCase {
         let allCases = LanguageOption.allCases
         XCTAssertEqual(allCases.first, .default)
         XCTAssertEqual(allCases[1], .custom(languageCode: "af"))
-        XCTAssertEqual(allCases.count, 63)
+        XCTAssertEqual(allCases.count, 63) // "default" + "en" + crowdin provided languages
     }
 
     /// `init` returns the correct values.
