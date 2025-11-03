@@ -131,8 +131,6 @@
 "LastSync" = "آخرین همگام‌سازی:";
 "Length" = "طول";
 "Lock" = "قفل";
-"OneHour" = "۱ ساعت";
-"FourHours" = "۴ ساعت";
 "Immediately" = "بلافاصله";
 "VaultTimeout" = "متوقف شدن گاو‌صندوق";
 "VaultTimeoutAction" = "عمل متوقف شدن گاو‌صندوق";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "گاوصندوق شما قفل شده است. برای ادامه هویت خود را تأیید کنید.";
 "Dark" = "تیره";
 "Light" = "روشن";
-"TenSeconds" = "۱۰ ثانیه";
-"ThirtySeconds" = "۳۰ ثانیه";
-"TwentySeconds" = "۲۰ ثانیه";
 "ClearClipboard" = "پاکسازی حافظه موقت";
 "ClearClipboardDescription" = "به صورت خودکار، مقادیر کپی شده را از حافظه موقت پاک کن.";
 "DefaultUriMatchDetection" = "بررسی مطابقت نشانی اینترنتی پیش‌فرض";
@@ -585,11 +580,6 @@
 "SendDeleted" = "ارسال حذف شد";
 "SendUpdated" = "ارسال ذخیره شد";
 "NewSendCreated" = "ارسال ساخته شد";
-"OneDay" = "۱ روز";
-"TwoDays" = "۲ روز";
-"ThreeDays" = "۳ روز";
-"SevenDays" = "۷ روز";
-"ThirtyDays" = "۳۰ روز";
 "Custom" = "سفارشی";
 "ShareOnSave" = "اشتراک گذاری این ارسال بعد از ذخیره کردن";
 "SendDisabledWarning" = "به دلیل سیاست سازمانی، شما فقط می‌توانید ارسال موجود را حذف کنید.";
@@ -843,7 +833,6 @@
 "OneHourAndXMinute" = "یک ساعت و %1$@ دقیقه";
 "XHoursAndOneMinute" = "%1$@ ساعت و یک دقیقه";
 "XHoursAndYMinutes" = "%1$@ ساعت و %2$@ دقیقه";
-"XHours" = "%1$@ ساعت";
 "PasskeyManagementExplanationLong" = "از Bitwarden برای ذخیره کلیدهای عبور جدید استفاده کنید و با کلیدهای عبور ذخیره شده در گاوصندوق خود وارد شوید.";
 "AutofillServicesExplanationLong" = "چارچوب پر کردن خودکار اندروید برای کمک به پر کردن اطلاعات ورود به سیستم در سایر برنامه‌های دستگاه شما استفاده می‌شود.";
 "UseInlineAutofillExplanationLong" = "اگر صفحه کلید انتخابی شما از آن پشتیبانی می‌کند، از پر کردن خودکار درون خطی استفاده کنید. در غیر این صورت، از لایه پیش‌فرض استفاده کنید.";
@@ -1149,7 +1138,6 @@
 "LoggingDuration" = "مدت زمان ثبت گزارش‌ها";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "گزارش‌ها به‌صورت خودکار پس از ۳۰ روز حذف می‌شوند. Bitwarden تنها زمانی می‌تواند به داده‌های گزارش شما دسترسی پیدا کند که خودتان آن‌ها را به اشتراک بگذارید.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "برای اطلاعات بیشتر درباره اینکه چه مواردی ثبت می‌شوند و چه مواردی ثبت نمی‌شوند، به **[مرکز راهنمای Bitwarden](%1$@)** مراجعه کنید.";
-"OneWeek" = "۱ هفته";
 "ShowMore" = "نمایش بیشتر";
 "ShowLess" = "نمایش کمتر";
 "ItemNameX" = "نام مورد، %1$@";
@@ -1244,7 +1232,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Local codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 seconds";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
@@ -1262,7 +1249,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Sign in using unique codes";
-"SixtySeconds" = "60 seconds";
 "Skip" = "Skip";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";

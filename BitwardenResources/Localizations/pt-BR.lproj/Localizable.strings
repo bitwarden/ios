@@ -131,8 +131,6 @@
 "LastSync" = "Última sincronização:";
 "Length" = "Comprimento";
 "Lock" = "Bloquear";
-"OneHour" = "1 hora";
-"FourHours" = "4 horas";
 "Immediately" = "Imediatamente";
 "VaultTimeout" = "Tempo limite do cofre";
 "VaultTimeoutAction" = "Ação do tempo limite do cofre";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Seu cofre está trancado. Verifique sua identidade para continuar.";
 "Dark" = "Escuro";
 "Light" = "Claro";
-"TenSeconds" = "10 segundos";
-"ThirtySeconds" = "30 segundos";
-"TwentySeconds" = "20 segundos";
 "ClearClipboard" = "Limpar a Área de Transferência";
 "ClearClipboardDescription" = "Limpar automaticamente valores copiados da sua área de transferência.";
 "DefaultUriMatchDetection" = "Detecção de Correspondência de URI Padrão";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send excluído";
 "SendUpdated" = "Send atualizado";
 "NewSendCreated" = "Send criado";
-"OneDay" = "1 dia";
-"TwoDays" = "2 dias";
-"ThreeDays" = "3 dias";
-"SevenDays" = "7 dias";
-"ThirtyDays" = "30 dias";
 "Custom" = "Personalizado";
 "ShareOnSave" = "Compartilhe este Send após salvar";
 "SendDisabledWarning" = "Devido a uma política corporativa, você só é capaz de excluir um Send existente.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Uma hora e %1$@ minutos";
 "XHoursAndOneMinute" = "%1$@ horas e um minuto";
 "XHoursAndYMinutes" = "%1$@ horas e %2$@ minutos";
-"XHours" = "%1$@ horas";
 "PasskeyManagementExplanationLong" = "Usar o Bitwarden para salvar chaves de acesso novas e fazer login com chaves de acesso armazenadas no seu cofre.";
 "AutofillServicesExplanationLong" = "O Framework de Preenchimento Automático do Android é usado para ajudar a preencher informações de login em outros aplicativos do seu dispositivo.";
 "UseInlineAutofillExplanationLong" = "Usar o preenchimento automático interno se o teclado selecionado o suporta. Caso contrário, a sobreposição padrão será usada.";
@@ -1147,7 +1136,6 @@
 "LoggingDuration" = "Duração do registro";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Os logs serão excluídos automaticamente após 30 dias. O Bitwarden só será capaz de acessar os seus dados de log quando você compartilhá-los.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Para obter detalhes sobre o que está e não está logado, visite o **[Centro de Ajuda do Bitwarden](%1$@)**.";
-"OneWeek" = "1 semana";
 "ShowMore" = "Mostrar mais";
 "ShowLess" = "Mostrar menos";
 "ItemNameX" = "Nome do item, %1$@";
@@ -1242,7 +1230,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Códigos locais";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Precisa de ajuda? Visite nosso Centro de Ajuda para obter orientações.";
-"NinetySeconds" = "90 segundos";
 "NoAskMe" = "Não, me pergunte";
 "NoCodes" = "Você não tem nenhum item para exibir";
 "None" = "Nenhum";
@@ -1260,7 +1247,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Definir \"Salvar localmente\" como sua opção de salvamento padrão?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Defina \"Save to Bitwarden\" como sua opção de salvamento padrão?";
 "SignInUsingUniqueCodes" = "Fazer login usando códigos únicos";
-"SixtySeconds" = "60 segundos";
 "Skip" = "Pular";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Armazene todos os seus logins e sincronize códigos de verificação diretamente com o app Autenticador.";
