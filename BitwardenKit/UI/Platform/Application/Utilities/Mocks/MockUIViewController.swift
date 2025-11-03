@@ -43,17 +43,6 @@ public class MockUIViewController: UIViewController {
     /// The completion handler passed to the `dismiss` method.
     public var dismissCompletion: (() -> Void)?
 
-    // MARK: Navigation Tracking
-
-    /// Indicates whether the `pushViewController` method has been called.
-    public var pushViewControllerCalled = false
-
-    /// The view controller that was pushed, if any.
-    public var pushedViewController: UIViewController?
-
-    /// Indicates whether the `popViewController` method has been called.
-    public var popViewControllerCalled = false
-
     // MARK: Navigation Controller Support
 
     /// Internal storage for a navigation controller.
@@ -105,6 +94,11 @@ public class MockUIViewController: UIViewController {
             bundle: nibBundleOrNil,
         )
         setUpMockHierarchy()
+    }
+
+    /// Initializes the mock navigation controller with a nil nib name and bundle.
+    public init() {
+        super.init(nibName: nil, bundle: nil)
     }
 
     /// Initializes the mock view controller from a coder.
@@ -197,9 +191,7 @@ public class MockUIViewController: UIViewController {
         dismissAnimated = false
         dismissCompletion = nil
 
-        pushViewControllerCalled = false
-        pushedViewController = nil
-        popViewControllerCalled = false
+        _navigationController = nil
     }
 
     // MARK: Mock Hierarchy
