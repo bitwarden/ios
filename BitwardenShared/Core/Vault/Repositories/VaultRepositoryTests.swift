@@ -262,6 +262,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedMultipleSections` mode.
     func test_ciphersAutofillPublisher_mode_combinedMultipleSections() async throws {
+        // swiftlint:disable:previous function_body_length
         let expectedSections = [
             VaultListSection(
                 id: Localizations.passkeysForX("myApp.com"),

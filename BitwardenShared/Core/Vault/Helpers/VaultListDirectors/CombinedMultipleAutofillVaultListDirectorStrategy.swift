@@ -45,12 +45,12 @@ struct CombinedMultipleAutofillVaultListDirectorStrategy: VaultListDirectorStrat
     ///   - filter: Filter to be used to build the sections.
     ///   - withFido2Credentials: Available Fido2 credentials to build the vault list section.
     /// - Returns: Sections to be displayed to the user.
-    func build(
+    private func build(
         from ciphers: [Cipher],
         filter: VaultListFilter,
         withFido2Credentials fido2Credentials: [CipherView]?,
     ) async throws -> VaultListData {
-        guard let preparedData = try await vaultListDataPreparator.prepareAutofillCombinedMultipleData(
+        guard let preparedData = await vaultListDataPreparator.prepareAutofillCombinedMultipleData(
             from: ciphers,
             filter: filter,
             withFido2Credentials: fido2Credentials,

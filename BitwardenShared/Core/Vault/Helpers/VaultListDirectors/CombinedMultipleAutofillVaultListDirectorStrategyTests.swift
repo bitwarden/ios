@@ -140,4 +140,34 @@ class CombinedMultipleAutofillVaultListDirectorStrategyTests: BitwardenTestCase 
             "addAutofillCombinedMultipleSection",
         ])
     }
+
+    /// `build(filter:)` returns sections without Fido2 section when Fido2 credentials exist but rpID is nil.
+    @MainActor
+    func test_build_withFido2CredentialsButNilRpID_doesNotAddFido2Section() async throws {
+        cipherService.ciphersSubject.value = [.fixture(id: "1")]
+        let fido2Credentials: [CipherView] = [.fixture(id: "1"), .fixture(id: "2")]
+        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.value = fido2Credentials
+
+        vaultListDataPreparator.prepareAutofillCombinedMultipleDataReturnValue = VaultListPreparedData()
+
+        vaultListSectionsBuilder.buildReturnValue = VaultListData(
+            sections: [
+                VaultListSection(id: "TestID1", items: [.fixture()], name: "Test1"),
+            ],
+        )
+
+        var iteratorPublisher = try await subject.build(
+            filter: VaultListFilter(
+                mode: .combinedMultipleSections,
+                rpID: nil,
+            ),
+        ).makeAsyncIterator()
+        let result = try await iteratorPublisher.next()
+        let vaultListData = try XCTUnwrap(result)
+
+        XCTAssertEqual(vaultListData.sections.map(\.id), ["TestID1"])
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "addAutofillCombinedMultipleSection",
+        ])
+    }
 }
