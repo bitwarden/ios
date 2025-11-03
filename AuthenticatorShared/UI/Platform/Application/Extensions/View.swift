@@ -3,15 +3,6 @@ import SwiftUI
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
-    @ViewBuilder var navStackWrapped: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
-            NavigationStack { self }
-        } else {
-            NavigationView { self }
-                .navigationViewStyle(.stack)
-        }
-    }
-
     /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
     ///
     func dismissKeyboardImmediately() -> some View {
@@ -58,24 +49,6 @@ extension View {
         if let newValue = F(rawValue: nextValue) {
             field.wrappedValue = newValue
         }
-    }
-
-    /// Applies a custom navigation bar title and title display mode to a view.
-    ///
-    /// - Parameters:
-    ///   - title: The navigation bar title.
-    ///   - titleDisplayMode: The navigation bar title display mode.
-    ///
-    /// - Returns: A view with a custom navigation bar.
-    ///
-    func navigationBar(
-        title: String,
-        titleDisplayMode: NavigationBarItem.TitleDisplayMode,
-    ) -> some View {
-        modifier(NavigationBarViewModifier(
-            title: title,
-            navigationBarTitleDisplayMode: titleDisplayMode,
-        ))
     }
 
     /// Applies the `ScrollViewModifier` to a view.
