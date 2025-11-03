@@ -222,28 +222,74 @@ public extension StackNavigator {
 // MARK: - UINavigationController
 
 extension UINavigationController: StackNavigator {
+    /// Returns whether the navigation controller's stack is empty.
+    ///
+    /// - Returns: `true` if there are no view controllers in the stack, `false` otherwise.
     public var isEmpty: Bool {
         viewControllers.isEmpty
     }
 
+    /// Returns the root view controller of the navigation stack.
+    ///
+    /// For UINavigationController, this returns the navigation controller itself
+    /// as it serves as the root container for the navigation stack.
+    ///
+    /// - Returns: The navigation controller instance.
     public var rootViewController: UIViewController? {
         self
     }
 
+    /// Dismisses the modally presented view controller without a completion handler.
+    ///
+    /// This is a convenience method that calls the system's dismiss method
+    /// with a nil completion handler.
+    ///
+    /// - Parameters:
+    ///   - animated: Whether the dismissal should be animated.
     public func dismiss(animated: Bool) {
         dismiss(animated: animated, completion: nil)
     }
 
+    /// Pops the top view controller from the navigation stack.
+    ///
+    /// Removes and returns the top view controller from the navigation stack.
+    /// If the stack only contains the root view controller, this method does nothing
+    /// and returns nil.
+    ///
+    /// - Parameters:
+    ///   - animated: Whether the pop transition should be animated.
+    /// - Returns: The view controller that was popped, or nil if no controller was popped.
     @discardableResult
     public func pop(animated: Bool) -> UIViewController? {
         popViewController(animated: animated)
     }
 
+    /// Pops all view controllers except the root view controller.
+    ///
+    /// Removes all view controllers from the stack except the root view controller
+    /// and returns an array of the popped controllers.
+    ///
+    /// - Parameters:
+    ///   - animated: Whether the pop transition should be animated.
+    /// - Returns: An array of view controllers that were popped from the stack.
+    ///           Returns an empty array if no controllers were popped.
     @discardableResult
     public func popToRoot(animated: Bool) -> [UIViewController] {
         popToRootViewController(animated: animated) ?? []
     }
 
+    /// Pushes a SwiftUI view onto the navigation stack.
+    ///
+    /// Wraps the provided SwiftUI view in a UIHostingController and pushes it
+    /// onto the navigation stack. Automatically disables animation if the
+    /// navigation controller is not currently in a window to prevent animation
+    /// issues during initial setup.
+    ///
+    /// - Parameters:
+    ///   - view: The SwiftUI view to push onto the stack.
+    ///   - animated: Whether the push transition should be animated.
+    ///   - hidesBottomBar: Whether the bottom bar (tab bar) should be hidden
+    ///                     when this view controller is displayed.
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         let viewController = UIHostingController(rootView: view)
         viewController.hidesBottomBarWhenPushed = hidesBottomBar
@@ -251,11 +297,38 @@ extension UINavigationController: StackNavigator {
         push(viewController, animated: animated)
     }
 
+    /// Pushes a view controller onto the navigation stack.
+    ///
+    /// Adds the specified view controller to the top of the navigation stack.
+    /// Automatically disables animation if the navigation controller is not
+    /// currently in a window to prevent animation issues during initial setup.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to push onto the stack.
+    ///   - animated: Whether the push transition should be animated.
     public func push(_ viewController: UIViewController, animated: Bool) {
         let animated = view.window != nil ? animated : false
         pushViewController(viewController, animated: animated)
     }
 
+    /// Presents a SwiftUI view modally.
+    ///
+    /// Wraps the provided SwiftUI view in a UIHostingController and presents it modally.
+    /// Optionally embeds the view in a new navigation controller and configures
+    /// various presentation options. Automatically disables animation if the
+    /// navigation controller is not currently in a window to prevent animation issues
+    /// during initial setup.
+    ///
+    /// - Parameters:
+    ///   - view: The SwiftUI view to present modally.
+    ///   - animated: Whether the presentation should be animated.
+    ///   - embedInNavigationController: Whether to wrap the view in a new
+    ///                                  navigation controller.
+    ///   - isModalInPresentation: Whether the modal enforces modal behavior,
+    ///                            preventing interactive dismissal.
+    ///   - overFullscreen: Whether the modal should use full-screen presentation
+    ///                     with a clear background.
+    ///   - onCompletion: Optional closure called after presentation completes.
     public func present<Content: View>(
         _ view: Content,
         animated: Bool,
@@ -283,6 +356,16 @@ extension UINavigationController: StackNavigator {
         present(controller, animated: animated, onCompletion: onCompletion)
     }
 
+    /// Replaces the entire navigation stack with a single SwiftUI view.
+    ///
+    /// Removes all existing view controllers from the navigation stack and
+    /// replaces them with a single new view controller containing the specified
+    /// SwiftUI view. Automatically disables animation if the navigation controller
+    /// is not currently in a window to prevent animation issues during initial setup.
+    ///
+    /// - Parameters:
+    ///   - view: The SwiftUI view that will become the new root of the stack.
+    ///   - animated: Whether the replacement should be animated.
     public func replace<Content: View>(_ view: Content, animated: Bool) {
         let animated = self.view.window != nil ? animated : false
         setViewControllers([UIHostingController(rootView: view)], animated: animated)
