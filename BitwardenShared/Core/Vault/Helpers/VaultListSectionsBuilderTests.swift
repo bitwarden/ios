@@ -50,13 +50,13 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
+            Section[Passkeys for example.com]: Passkeys for example.com
+              - Cipher: Fido2-1
+              - Cipher: zFido2-2
             Section[Passwords for example.com]: Passwords for example.com
               - Cipher: Password-1
               - Cipher: Password-2
               - Cipher: Password-3
-            Section[Passkeys for example.com]: Passkeys for example.com
-              - Cipher: Fido2-1
-              - Cipher: zFido2-2
             """
         }
     }

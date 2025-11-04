@@ -116,6 +116,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     // MARK: Methods
 
     func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder {
+        if !preparedData.fido2Items.isEmpty, let rpID {
+            vaultListData.sections.append(VaultListSection(
+                id: Localizations.passkeysForX(rpID),
+                items: preparedData.fido2Items.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: Localizations.passkeysForX(rpID),
+            ))
+        }
+
         if !preparedData.groupItems.isEmpty {
             let passwordsSectionName = if let rpID {
                 Localizations.passwordsForX(rpID)
@@ -127,14 +135,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 id: passwordsSectionName,
                 items: preparedData.groupItems.sorted(using: VaultListItem.defaultSortDescriptor),
                 name: passwordsSectionName,
-            ))
-        }
-
-        if !preparedData.fido2Items.isEmpty, let rpID {
-            vaultListData.sections.append(VaultListSection(
-                id: Localizations.passkeysForX(rpID),
-                items: preparedData.fido2Items.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.passkeysForX(rpID),
             ))
         }
 

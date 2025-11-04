@@ -103,7 +103,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             // Related: iOS Autofill API behavior - serviceIdentifiers may be empty in certain contexts.
             if case let .autofillFido2VaultList(_, passkeyParameters) = extensionMode,
                !passkeyParameters.relyingPartyIdentifier.isEmpty {
-                return passkeyParameters.relyingPartyIdentifier
+                return passkeyParameters.relyingPartyIdentifier.httpsNormalized()
             }
 
             return nil

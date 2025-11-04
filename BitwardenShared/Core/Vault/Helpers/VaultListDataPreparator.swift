@@ -201,16 +201,15 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            if decryptedCipher.type.loginListView?.hasFido2 == true {
-                preparedDataBuilder = await preparedDataBuilder.addFido2Item(cipher: decryptedCipher)
-            }
-
-            if decryptedCipher.canBeUsedInBasicLoginAutofill {
+            guard decryptedCipher.type.loginListView?.hasFido2 == true else {
                 preparedDataBuilder = await preparedDataBuilder.addItem(
                     forGroup: .login,
                     with: decryptedCipher,
                 )
+                return
             }
+
+            preparedDataBuilder = await preparedDataBuilder.addFido2Item(cipher: decryptedCipher)
         }
 
         return preparedDataBuilder.build()

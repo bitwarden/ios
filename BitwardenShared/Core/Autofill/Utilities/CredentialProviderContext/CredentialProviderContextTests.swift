@@ -327,11 +327,18 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `getter:uri` returns relying party identifier as fallback for autofillFido2VaultList
-    /// when service identifiers are empty.
+    /// when service identifiers are empty, normalized with HTTPS prefix.
     func test_uri_autofillFido2VaultList_relyingPartyFallback() {
         let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "passkey.example.com")
         let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
-        XCTAssertEqual(subject.uri, "passkey.example.com")
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
+    }
+
+    /// `getter:uri` returns relying party identifier normalized, preserving existing HTTPS scheme.
+    func test_uri_autofillFido2VaultList_relyingPartyWithHttpsScheme() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "https://passkey.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
     }
 
     /// `getter:uri` returns the service identifier URI when available for autofillFido2VaultList,

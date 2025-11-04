@@ -126,7 +126,8 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher with login and Fido2.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data for a cipher with login and Fido2,
+    /// adding it only to Fido2 items (not to group items, unlike the multiple mode).
     func test_prepareAutofillCombinedSingleData_returnsPreparedDataForLoginWithFido2() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             login: .fixture(
@@ -152,7 +153,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
             "addFido2Item",
-            "addItemForGroup",
         ])
         XCTAssertNotNil(result)
     }
@@ -184,12 +184,16 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data filtering out
-    /// cipher as it doesn't have any copyable login fields.
+    /// `prepareAutofillCombinedSingleData(from:filter:)` returns the prepared data including
+    /// ciphers without copyable login fields.
     @MainActor
     func test_prepareAutofillCombinedSingleData_noCopyableLoginFields() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
+            login: .fixture(
+                hasFido2: false,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
             copyableFields: [],
         )
         cipherMatchingHelper.doesCipherMatchReturnValue = .exact
@@ -207,6 +211,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "addItemForGroup",
         ])
         XCTAssertNotNil(result)
     }

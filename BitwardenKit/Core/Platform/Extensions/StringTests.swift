@@ -47,6 +47,42 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
 
+    /// `httpsNormalized()` adds HTTPS prefix when no scheme is present.
+    func test_httpsNormalized_addsHttpsPrefix() {
+        XCTAssertEqual("example.com".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("bitwarden.com".httpsNormalized(), "https://bitwarden.com")
+        XCTAssertEqual("sub.domain.example.com".httpsNormalized(), "https://sub.domain.example.com")
+    }
+
+    /// `httpsNormalized()` removes trailing slash.
+    func test_httpsNormalized_removesTrailingSlash() {
+        XCTAssertEqual("example.com/".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("https://example.com/".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("http://example.com/".httpsNormalized(), "http://example.com")
+    }
+
+    /// `httpsNormalized()` preserves existing HTTPS scheme.
+    func test_httpsNormalized_preservesHttpsScheme() {
+        XCTAssertEqual("https://example.com".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("https://bitwarden.com".httpsNormalized(), "https://bitwarden.com")
+        XCTAssertEqual("https://example.com:8080".httpsNormalized(), "https://example.com:8080")
+    }
+
+    /// `httpsNormalized()` preserves existing HTTP scheme.
+    func test_httpsNormalized_preservesHttpScheme() {
+        XCTAssertEqual("http://example.com".httpsNormalized(), "http://example.com")
+        XCTAssertEqual("http://bitwarden.com".httpsNormalized(), "http://bitwarden.com")
+        XCTAssertEqual("http://localhost:8080".httpsNormalized(), "http://localhost:8080")
+    }
+
+    /// `httpsNormalized()` handles URLs with paths correctly.
+    func test_httpsNormalized_withPaths() {
+        XCTAssertEqual("example.com/path".httpsNormalized(), "https://example.com/path")
+        XCTAssertEqual("https://example.com/path".httpsNormalized(), "https://example.com/path")
+        XCTAssertEqual("example.com/path/to/resource".httpsNormalized(), "https://example.com/path/to/resource")
+        XCTAssertEqual("https://example.com/path/".httpsNormalized(), "https://example.com/path")
+    }
+
     /// `isValidURL` returns `true` for a valid URL.
     func test_isBitwardenAppScheme() {
         XCTAssertTrue("bitwarden".isBitwardenAppScheme)
