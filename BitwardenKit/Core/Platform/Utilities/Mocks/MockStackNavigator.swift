@@ -1,17 +1,18 @@
-import AuthenticatorShared
 import BitwardenKit
 import SwiftUI
 
-final class MockStackNavigator: StackNavigator {
-    struct NavigationAction {
-        var type: NavigationType
-        var view: Any?
-        var animated: Bool
-        var hidesBottomBar: Bool?
-        var overFullscreen: Bool?
+public final class MockStackNavigator: StackNavigator {
+    public struct NavigationAction {
+        public var type: NavigationType
+        public var view: Any?
+        public var animated: Bool
+        public var embedInNavigationController: Bool?
+        public var hidesBottomBar: Bool?
+        public var isModalInPresentation: Bool?
+        public var overFullscreen: Bool?
     }
 
-    enum NavigationType {
+    public enum NavigationType {
         case dismissed
         case dismissedWithCompletionHandler
         case pushed
@@ -22,24 +23,28 @@ final class MockStackNavigator: StackNavigator {
         case replaced
     }
 
-    var actions: [NavigationAction] = []
-    var alerts: [BitwardenKit.Alert] = []
-    var isEmpty = true
-    var isPresenting: Bool { actions.last?.type == .presented }
-    var rootViewController: UIViewController?
+    public var actions: [NavigationAction] = []
+    public var alertOnDismissed: (() -> Void)?
+    public var alerts: [BitwardenKit.Alert] = []
+    public var isEmpty = true
+    public var isNavigationBarHidden = false
+    public var isPresenting = false
+    public var rootViewController: UIViewController?
 
-    var viewControllersToPop: [UIViewController] = []
+    public var viewControllersToPop: [UIViewController] = []
 
-    func dismiss(animated: Bool) {
+    public init() {}
+
+    public func dismiss(animated: Bool) {
         actions.append(NavigationAction(type: .dismissed, animated: animated))
     }
 
-    func dismiss(animated: Bool, completion: (() -> Void)?) {
+    public func dismiss(animated: Bool, completion: (() -> Void)?) {
         completion?()
         actions.append(NavigationAction(type: .dismissedWithCompletionHandler, animated: animated))
     }
 
-    func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
+    public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         actions.append(NavigationAction(
             type: .pushed,
             view: view,
@@ -48,7 +53,7 @@ final class MockStackNavigator: StackNavigator {
         ))
     }
 
-    func push(_ viewController: UIViewController, animated: Bool) {
+    public func push(_ viewController: UIViewController, animated: Bool) {
         actions.append(NavigationAction(
             type: .pushed,
             view: viewController,
@@ -57,24 +62,31 @@ final class MockStackNavigator: StackNavigator {
     }
 
     @discardableResult
-    func pop(animated: Bool) -> UIViewController? {
+    public func pop(animated: Bool) -> UIViewController? {
         actions.append(NavigationAction(type: .popped, animated: animated))
         return viewControllersToPop.last
     }
 
     @discardableResult
-    func popToRoot(animated: Bool) -> [UIViewController] {
+    public func popToRoot(animated: Bool) -> [UIViewController] {
         actions.append(NavigationAction(type: .poppedToRoot, animated: animated))
         return viewControllersToPop
     }
 
-    func present(_ alert: BitwardenKit.Alert) {
+    public func present(_ alert: BitwardenKit.Alert) {
         alerts.append(alert)
     }
 
-    func present<Content: View>(
+    public func present(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
+        alerts.append(alert)
+        alertOnDismissed = onDismissed
+    }
+
+    public func present<Content: View>( // swiftlint:disable:this function_parameter_count
         _ view: Content,
         animated: Bool,
+        embedInNavigationController: Bool,
+        isModalInPresentation: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?,
     ) {
@@ -84,12 +96,14 @@ final class MockStackNavigator: StackNavigator {
                 type: .presented,
                 view: view,
                 animated: animated,
+                embedInNavigationController: embedInNavigationController,
+                isModalInPresentation: isModalInPresentation,
                 overFullscreen: overFullscreen,
             ),
         )
     }
 
-    func present(
+    public func present(
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
@@ -106,7 +120,11 @@ final class MockStackNavigator: StackNavigator {
         )
     }
 
-    func replace<Content: View>(_ view: Content, animated: Bool) {
+    public func setNavigationBarHidden(_ hidden: Bool, animated: Bool) {
+        isNavigationBarHidden = hidden
+    }
+
+    public func replace<Content: View>(_ view: Content, animated: Bool) {
         actions.append(NavigationAction(type: .replaced, view: view, animated: animated))
     }
 }

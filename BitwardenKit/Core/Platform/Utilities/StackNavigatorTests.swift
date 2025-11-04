@@ -1,7 +1,7 @@
+import BitwardenKit
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
-
-@testable import BitwardenShared
 
 // MARK: - StackNavigatorTests
 
@@ -14,7 +14,7 @@ class StackNavigatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        subject = UINavigationController()
+        subject = MockUINavigationController()
         setKeyWindowRoot(viewController: subject)
     }
 
@@ -63,14 +63,7 @@ class StackNavigatorTests: BitwardenTestCase {
     /// `present(_:animated:)` presents the hosted view on existing presented views.
     @MainActor
     func test_present_onPresentedView() {
-        subject.present(EmptyView(), animated: false, embedInNavigationController: false)
-        subject.present(ScrollView<EmptyView> {}, animated: false, embedInNavigationController: false)
-        XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
-        waitFor(subject.presentedViewController?.presentedViewController != nil)
-        XCTAssertTrue(
-            subject.presentedViewController?.presentedViewController
-                is UIHostingController<ScrollView<EmptyView>>,
-        )
+        // This test in in `BitwardenShared.StackNavigatorHostedTests` because it requires a host app.
     }
 
     /// `present(_:animated:)` presents the hosted view without embedding it in a navigation controller.

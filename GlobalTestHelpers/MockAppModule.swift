@@ -194,7 +194,7 @@ class MockAppModule:
 
     func makeVaultCoordinator(
         delegate _: BitwardenShared.VaultCoordinatorDelegate,
-        stackNavigator _: BitwardenShared.StackNavigator,
+        stackNavigator _: StackNavigator,
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute, AuthAction> {
         vaultCoordinator.asAnyCoordinator()
     }

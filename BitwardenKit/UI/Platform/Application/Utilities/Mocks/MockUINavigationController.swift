@@ -2,11 +2,9 @@ import BitwardenKit
 import UIKit
 import XCTest
 
-// MARK: - MockUIViewController
+// MARK: - MockUINavigationController
 
-/// A mock UIViewController that can be used in tests that normally rely on the existence of a host app
-/// because of details about how UIViewControllers present/dismiss other UIViewControllers.
-public class MockUIViewController: UIViewController {
+public class MockUINavigationController: UINavigationController {
     // MARK: Static properties
 
     /// A size for the `mockWindow` and `mockView` objects to have.
@@ -42,6 +40,26 @@ public class MockUIViewController: UIViewController {
 
     /// The completion handler passed to the `dismiss` method.
     public var dismissCompletion: (() -> Void)?
+
+    // MARK: Push/Pop Tracking
+
+    /// Indicates whether the `pushViewController` method has been called.
+    public var pushViewControllerCalled = false
+
+    /// The view controller that was pushed, if any.
+    public var pushedViewController: UIViewController?
+
+    /// Indicates whether the push operation was animated.
+    public var pushAnimated = false
+
+    /// Indicates whether the `popViewController` method has been called.
+    public var popViewControllerCalled = false
+
+    /// The view controller that was popped, if any.
+    var poppedViewController: UIViewController?
+
+    /// Indicates whether the pop operation was animated.
+    var popAnimated = false
 
     // MARK: Navigation Controller Support
 
@@ -80,12 +98,12 @@ public class MockUIViewController: UIViewController {
 
     // MARK: Initialization
 
-    /// Initializes the mock view controller with the specified nib name and bundle.
+    /// Initializes the mock navigation controller with the specified nib name and bundle.
     ///
     /// - Parameters:
     ///   - nibNameOrNil: The name of the nib file to load, or nil if no nib should be loaded.
     ///   - nibBundleOrNil: The bundle containing the nib file, or nil for the main bundle.
-    override init(
+    override public init(
         nibName nibNameOrNil: String?,
         bundle nibBundleOrNil: Bundle?,
     ) {
@@ -99,6 +117,16 @@ public class MockUIViewController: UIViewController {
     /// Initializes the mock navigation controller with a nil nib name and bundle.
     public init() {
         super.init(nibName: nil, bundle: nil)
+    }
+
+    /// Initializes the mock navigation controller with a root view controller.
+    ///
+    /// - Parameters:
+    ///   - rootViewController: The view controller to use as the root of the navigation stack.
+    override public init(rootViewController: UIViewController) {
+        super.init(nibName: nil, bundle: nil)
+        // Set viewControllers array directly to avoid hierarchy issues
+        viewControllers = [rootViewController]
     }
 
     /// Initializes the mock view controller from a coder.
@@ -118,7 +146,7 @@ public class MockUIViewController: UIViewController {
         super.viewDidLoad()
         // Ensure we have a view even if loadView wasn't called
         if view == nil {
-            view = UIView(frame: MockUIViewController.mockWindowSize)
+            view = UIView(frame: MockUINavigationController.mockWindowSize)
         }
     }
 
@@ -126,7 +154,7 @@ public class MockUIViewController: UIViewController {
     /// Sets up a mock view with the predefined mock window size.
     override public func loadView() {
         if mockView == nil {
-            mockView = UIView(frame: MockUIViewController.mockWindowSize)
+            mockView = UIView(frame: MockUINavigationController.mockWindowSize)
         }
         view = mockView
     }
@@ -178,6 +206,44 @@ public class MockUIViewController: UIViewController {
         completion?()
     }
 
+    override public func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        pushViewControllerCalled = true
+        pushedViewController = viewController
+        pushAnimated = animated
+
+        // Add to view controllers array
+        var controllers = viewControllers
+        controllers.append(viewController)
+        viewControllers = controllers
+
+        // Simulate appearance transitions safely
+        DispatchQueue.main.async {
+            viewController.beginAppearanceTransition(true, animated: animated)
+            viewController.endAppearanceTransition()
+        }
+    }
+
+    @discardableResult
+    override public func popViewController(animated: Bool) -> UIViewController? {
+        popViewControllerCalled = true
+        popAnimated = animated
+
+        guard viewControllers.count > 1 else { return nil }
+
+        var controllers = viewControllers
+        let poppedVC = controllers.removeLast()
+        poppedViewController = poppedVC
+        viewControllers = controllers
+
+        // Simulate appearance transitions safely
+        DispatchQueue.main.async {
+            poppedVC.beginAppearanceTransition(false, animated: animated)
+            poppedVC.endAppearanceTransition()
+        }
+
+        return poppedVC
+    }
+
     // MARK: Helper Methods
 
     /// Resets and clears all local variables, to prepare the mock for reuse.
@@ -191,6 +257,14 @@ public class MockUIViewController: UIViewController {
         dismissAnimated = false
         dismissCompletion = nil
 
+        pushViewControllerCalled = false
+        pushedViewController = nil
+        pushAnimated = false
+
+        popViewControllerCalled = false
+        poppedViewController = nil
+        popAnimated = false
+
         _navigationController = nil
     }
 
@@ -199,7 +273,7 @@ public class MockUIViewController: UIViewController {
     /// Sets up a `UIWindow` and `UIView` to use as mocks in the view hierarchy.
     private func setUpMockHierarchy() {
         // Create a mock window to avoid issues with view hierarchy
-        mockWindow = UIWindow(frame: MockUIViewController.mockWindowSize)
+        mockWindow = UIWindow(frame: MockUINavigationController.mockWindowSize)
         mockWindow?.rootViewController = self
 
         // Create a mock view
