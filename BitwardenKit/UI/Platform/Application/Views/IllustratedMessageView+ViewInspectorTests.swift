@@ -4,7 +4,7 @@ import SwiftUI
 import ViewInspector
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class IllustratedMessageViewTests: BitwardenTestCase {
     // MARK: Tests
@@ -14,7 +14,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     func test_button_tap() throws {
         var tapped = false
         let subject = IllustratedMessageView(
-            image: Asset.Images.Illustrations.biometricsPhone,
+            image: SharedAsset.Icons.unlocked24,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,

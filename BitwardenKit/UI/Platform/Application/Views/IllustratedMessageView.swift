@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -7,7 +6,7 @@ import SwiftUI
 /// A view that renders a message view with an image on top. This support displaying a square image,
 /// title, and message.
 ///
-struct IllustratedMessageView<Accessory: View>: View {
+public struct IllustratedMessageView<Accessory: View>: View {
     // MARK: Properties
 
     /// An optional accessory to display after the message, such as a button.
@@ -30,7 +29,7 @@ struct IllustratedMessageView<Accessory: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         dynamicStackView {
             image
                 .resizable()
@@ -73,7 +72,7 @@ struct IllustratedMessageView<Accessory: View>: View {
     ///   - message: The message to display.
     ///   - accessory: An optional accessory view to display.
     ///
-    init(
+    public init(
         image: Image,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
@@ -96,30 +95,7 @@ struct IllustratedMessageView<Accessory: View>: View {
     ///   - message: The message to display.
     ///   - accessory: An optional accessory view to display.
     ///
-    init(
-        image: ImageAsset,
-        style: IllustratedMessageStyle = .smallImage,
-        title: String? = nil,
-        message: String,
-        @ViewBuilder accessory: () -> Accessory,
-    ) {
-        self.accessory = accessory()
-        self.image = image.swiftUIImage
-        self.message = message
-        self.style = style
-        self.title = title
-    }
-
-    /// Initialize a `IllustratedMessageView`.
-    ///
-    /// - Parameters:
-    ///   - image: The image asset to display.
-    ///   - style: The style of the message view.
-    ///   - title: The title to display.
-    ///   - message: The message to display.
-    ///   - accessory: An optional accessory view to display.
-    ///
-    init(
+    public init(
         image: SharedImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
@@ -148,7 +124,7 @@ struct IllustratedMessageView<Accessory: View>: View {
     }
 }
 
-extension IllustratedMessageView where Accessory == EmptyView {
+public extension IllustratedMessageView where Accessory == EmptyView {
     /// Initialize a `IllustratedMessageView`.
     ///
     /// - Parameters:
@@ -165,27 +141,6 @@ extension IllustratedMessageView where Accessory == EmptyView {
     ) {
         accessory = nil
         self.image = image
-        self.message = message
-        self.style = style
-        self.title = title
-    }
-
-    /// Initialize a `IllustratedMessageView`.
-    ///
-    /// - Parameters:
-    ///   - image: The image asset to display.
-    ///   - style: The style of the message view.
-    ///   - title: The title to display.
-    ///   - message: The message to display.
-    ///
-    init(
-        image: ImageAsset,
-        style: IllustratedMessageStyle = .smallImage,
-        title: String? = nil,
-        message: String,
-    ) {
-        accessory = nil
-        self.image = image.swiftUIImage
         self.message = message
         self.style = style
         self.title = title
@@ -218,7 +173,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 #if DEBUG
 #Preview("SmallImage") {
     IllustratedMessageView(
-        image: Asset.Images.Illustrations.biometricsPhone,
+        image: SharedAsset.Icons.plus24,
         style: .smallImage,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
@@ -227,7 +182,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 
 #Preview("MediumImage") {
     IllustratedMessageView(
-        image: Asset.Images.Illustrations.biometricsPhone,
+        image: SharedAsset.Icons.plus24,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
@@ -236,7 +191,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 
 #Preview("MediumImage With Button") {
     IllustratedMessageView(
-        image: Asset.Images.Illustrations.biometricsPhone,
+        image: SharedAsset.Icons.plus24,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
@@ -263,7 +218,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
 
 /// A `IllustratedMessageStyle` contains the metrics for rendering a `IllustratedMessageView`.
 ///
-struct IllustratedMessageStyle: Sendable {
+public struct IllustratedMessageStyle: Sendable {
     // MARK: Properties
 
     /// A foreground tint to apply to the image. Only applied if this has a value.
@@ -317,7 +272,8 @@ private extension IllustratedMessageStyle {
 
 // MARK: - IllustratedMessageStyle Constants
 
-extension IllustratedMessageStyle {
+public extension IllustratedMessageStyle {
+    /// A style with a large title text and a tinted icon image.
     static let largeTextTintedIcon = IllustratedMessageStyle(
         imageColor: SharedAsset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
@@ -331,6 +287,7 @@ extension IllustratedMessageStyle {
         titleTextStyle: .hugeTitle,
     )
 
+    /// A style with a medium-sized image.
     static let mediumImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
@@ -346,6 +303,7 @@ extension IllustratedMessageStyle {
         titleTextStyle: .title2,
     )
 
+    /// A style with a small-sized image.
     static let smallImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
