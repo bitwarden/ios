@@ -16,9 +16,9 @@ typealias Services = HasAppInfoService
     & HasNotificationCenterService
     & HasPasteboardService
     & HasStateService
-    & HasTimeProvider
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
+    & HasTimeProvider
 
 /// Protocol for an object that provides an `Application`
 ///

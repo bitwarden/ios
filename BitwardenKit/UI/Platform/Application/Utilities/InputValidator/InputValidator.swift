@@ -1,4 +1,4 @@
-// - MARK: Input Validator
+// MARK: Input Validator
 
 /// A protocol for an object that handles validating input for a field.
 ///

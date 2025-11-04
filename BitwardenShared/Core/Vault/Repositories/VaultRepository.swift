@@ -1329,7 +1329,7 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func ciphersAutofillPublisher( // swiftlint:disable:this function_body_length
+    func ciphersAutofillPublisher(
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
         group: VaultListGroup? = nil,
@@ -1346,13 +1346,14 @@ extension DefaultVaultRepository: VaultRepository {
                     group: group,
                 ),
             )
-        case .combinedSingleSection, .passwords:
+        case .combinedMultipleSections, .combinedSingleSection, .passwords:
             try await vaultListPublisher(
                 filter: VaultListFilter(
                     addTOTPGroup: false,
                     addTrashGroup: false,
                     filterType: .allVaults,
                     mode: mode,
+                    rpID: rpID,
                     uri: uri,
                 ),
             )
@@ -1364,30 +1365,6 @@ extension DefaultVaultRepository: VaultRepository {
                     group: .totp,
                 ),
             )
-        default:
-            try await Publishers.CombineLatest(
-                cipherService.ciphersPublisher(),
-                availableFido2CredentialsPublisher,
-            )
-            .asyncTryMap { ciphers, availableFido2Credentials in
-                let decryptedCiphers = try await self.clientService.vault().ciphers()
-                    .decryptListWithFailures(ciphers: ciphers).successes
-                let matchingCiphers = await DefaultCipherMatchingHelper(
-                    settingsService: self.settingsService,
-                    stateService: self.stateService,
-                )
-                .ciphersMatching(uri: uri, ciphers: decryptedCiphers)
-
-                return try await self.createAutofillListSections(
-                    availableFido2Credentials: availableFido2Credentials,
-                    from: matchingCiphers,
-                    mode: mode,
-                    rpID: rpID,
-                    searchText: nil,
-                )
-            }
-            .eraseToAnyPublisher()
-            .values
         }
     }
 
