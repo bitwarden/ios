@@ -1,25 +1,61 @@
 import Foundation
 import SwiftUI
 import ViewInspector
+import XCTest
+
+// swiftlint:disable file_length
+
+/// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
+/// `ActionCard` without needing to know the details of it's implementation.
+///
+public struct ActionCardType: BaseViewType {
+    public static var typePrefix: String = "ActionCard"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenShared.ActionCard",
+    ]
+}
 
 /// A generic type wrapper around `AsyncButton` to allow `ViewInspector` to find instances of `AsyncButton` without
 /// needing to know the type of its `Label`.
 ///
-struct AsyncButtonType: BaseViewType {
-    static var typePrefix: String = "AsyncButton"
+public struct AsyncButtonType: BaseViewType {
+    public static var typePrefix: String = "AsyncButton"
 
-    static var namespacedPrefixes: [String] = [
+    public static var namespacedPrefixes: [String] = [
         "BitwardenKit.AsyncButton",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
+/// without needing to know the details of it's implementation.
+///
+public struct BitwardenSliderType: BaseViewType {
+    public static var typePrefix: String = "BitwardenSlider"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenKit.BitwardenSlider",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenStepper` to allow `ViewInspector` to find instances of
+/// `BitwardenStepper` without needing to know the details of it's implementation.
+///
+public struct BitwardenStepperType: BaseViewType {
+    public static var typePrefix: String = "BitwardenStepper"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenKit.BitwardenStepper",
     ]
 }
 
 /// A generic type wrapper around `BitwardenTextField` to allow `ViewInspector` to find instances of
 /// `BitwardenTextField` without needing to know the details of it's implementation.
 ///
-struct BitwardenTextFieldType: BaseViewType {
-    static var typePrefix: String = "BitwardenTextField"
+public struct BitwardenTextFieldType: BaseViewType {
+    public static var typePrefix: String = "BitwardenTextField"
 
-    static var namespacedPrefixes: [String] = [
+    public static var namespacedPrefixes: [String] = [
         "BitwardenKit.BitwardenTextField",
     ]
 }
@@ -27,10 +63,10 @@ struct BitwardenTextFieldType: BaseViewType {
 /// A generic type wrapper around ` BitwardenMenuFieldType` to allow `ViewInspector` to find instances of
 /// ` BitwardenMenuFieldType` without needing to know the details of it's implementation.
 ///
-struct BitwardenMenuFieldType: BaseViewType {
-    static var typePrefix: String = "BitwardenMenuField"
+public struct BitwardenMenuFieldType: BaseViewType {
+    public static var typePrefix: String = "BitwardenMenuField"
 
-    static var namespacedPrefixes: [String] = [
+    public static var namespacedPrefixes: [String] = [
         "BitwardenKit.BitwardenMenuField",
     ]
 }
@@ -39,29 +75,75 @@ struct BitwardenMenuFieldType: BaseViewType {
 /// instances of `BitwardenMultilineTextField` without needing to know the details of it's
 /// implementation.
 ///
-struct BitwardenMultilineTextFieldType: BaseViewType {
-    static var typePrefix: String = "BitwardenMultilineTextField"
+public struct BitwardenMultilineTextFieldType: BaseViewType {
+    public static var typePrefix: String = "BitwardenMultilineTextField"
 
-    static var namespacedPrefixes: [String] = [
+    public static var namespacedPrefixes: [String] = [
         "AuthenticatorShared.BitwardenMultilineTextField",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenUITextViewType` to allow `ViewInspector` to find
+/// instances of `BitwardenUITextViewType` without needing to know the details of it's
+/// implementation.
+///
+public struct BitwardenUITextViewType: BaseViewType {
+    public static var typePrefix: String = "BitwardenUITextView"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenKit.BitwardenUITextView",
+    ]
+}
+
+/// A generic type wrapper around `FloatingActionButton` to allow `ViewInspector` to find instances
+/// of `FloatingActionButton` without needing to know the details of it's implementation.
+///
+public struct FloatingActionButtonType: BaseViewType {
+    public static var typePrefix: String = "FloatingActionButton"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenShared.FloatingActionButton",
+    ]
+}
+
+/// A generic type wrapper around `LoadingView` to allow `ViewInspector` to find instances of
+/// `LoadingView` without needing to know the details of it's implementation.
+///
+public struct LoadingViewType: BaseViewType {
+    public static var typePrefix: String = "LoadingView"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenShared.LoadingView",
     ]
 }
 
 /// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
 /// `SettingsMenuField` without needing to know the details of it's implementation.
 ///
-struct SettingsMenuFieldType: BaseViewType {
-    static var typePrefix: String = "SettingsMenuField"
+public struct SettingsMenuFieldType: BaseViewType {
+    public static var typePrefix: String = "SettingsMenuField"
 
-    static var namespacedPrefixes: [String] = [
+    public static var namespacedPrefixes: [String] = [
         "BitwardenKit.SettingsMenuField",
     ]
 }
 
 // MARK: InspectableView
 
-extension InspectableView {
+public extension InspectableView {
     // MARK: Methods
+
+    /// Attempts to locate an action card with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a button.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: An async button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(actionCard title: String) throws -> InspectableView<ActionCardType> {
+        try find(ActionCardType.self, containing: title)
+    }
 
     /// Attempts to locate an async button with the provided title.
     ///
@@ -110,21 +192,6 @@ extension InspectableView {
         try find(BitwardenMenuFieldType.self, containing: title, locale: locale)
     }
 
-    /// Attempts to locate a bitwarden multiline text field with the provided title.
-    ///
-    /// - Parameters:
-    ///   - title: The title to use while searching for a text field.
-    ///   - locale: The locale for text extraction.
-    /// - Returns: A `BitwardenMultilineTextFieldType`, if one can be located.
-    /// - Throws: Throws an error if a view was unable to be located.
-    ///
-    func find(
-        bitwardenMultilineTextField title: String,
-        locale: Locale = .testsDefault,
-    ) throws -> InspectableView<BitwardenMultilineTextFieldType> {
-        try find(BitwardenMultilineTextFieldType.self, containing: title, locale: locale)
-    }
-
     /// Attempts to locate a bitwarden text field with the provided title.
     ///
     /// - Parameters:
@@ -140,19 +207,36 @@ extension InspectableView {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
     }
 
-    /// Attempts to locate a bitwarden text field with the provided accessibility label.
+    /// Attempts to locate an floating action button with the provided accessibility identifier.
     ///
-    /// - Parameters:
-    ///   - accessibilityLabel: The accessibility label to use while searching for a button.
-    ///   - locale: The locale for text extraction.
-    /// - Returns: A `BitwardenTextFieldType`, if one can be located.
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to use while searching for
+    ///     a floating action button.
+    /// - Returns: A floating action button, if one can be located.
     /// - Throws: Throws an error if a view was unable to be located.
     ///
     func find(
-        bitwardenTextFieldWithAccessibilityLabel accessibilityLabel: String,
+        floatingActionButtonWithAccessibilityIdentifier accessibilityIdentifier: String,
+    ) throws -> InspectableView<FloatingActionButtonType> {
+        try find(FloatingActionButtonType.self) { view in
+            try view.accessibilityIdentifier() == accessibilityIdentifier
+        }
+    }
+
+    /// Attempts to locate a generic view with the provided accessibility label.
+    ///
+    /// - Parameters:
+    ///   - type: The type of the view to locate.
+    ///   - accessibilityLabel: The accessibility label to use while searching for the text field.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: An `InspectableView` of the specified type, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find<T>(
+        type: T.Type,
+        accessibilityLabel: String,
         locale: Locale = .testsDefault,
-    ) throws -> InspectableView<BitwardenTextFieldType> {
-        try find(BitwardenTextFieldType.self) { view in
+    ) throws -> InspectableView<T> {
+        try find(T.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
@@ -240,8 +324,8 @@ extension InspectableView {
     func find(
         sliderWithAccessibilityLabel accessibilityLabel: String,
         locale: Locale = .testsDefault,
-    ) throws -> InspectableView<ViewType.Slider> {
-        try find(ViewType.Slider.self) { view in
+    ) throws -> InspectableView<BitwardenSliderType> {
+        try find(BitwardenSliderType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
@@ -273,9 +357,31 @@ extension InspectableView {
             try view.accessibilityIdentifier() == "CancelButton"
         }
     }
+
+    /// Attempts to locate the toolbar close default button.
+    ///
+    /// - Returns: A close toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findCloseToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "CloseButton"
+        }
+    }
+
+    /// Attempts to locate the toolbar save default button.
+    ///
+    /// - Returns: A save toolbar button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func findSaveToolbarButton() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self) { view in
+            try view.accessibilityIdentifier() == "SaveButton"
+        }
+    }
 }
 
-extension InspectableView where View == AsyncButtonType {
+public extension InspectableView where View == AsyncButtonType {
     /// Simulates a tap on an `AsyncButton`. This method is asynchronous and allows the entire `async` `action` on the
     /// button to run before returning.
     ///
@@ -293,7 +399,7 @@ extension InspectableView where View == AsyncButtonType {
     }
 }
 
-extension InspectableView where View == BitwardenTextFieldType {
+public extension InspectableView where View == BitwardenTextFieldType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
     func inputBinding() throws -> Binding<String> {
@@ -309,7 +415,7 @@ extension InspectableView where View == BitwardenTextFieldType {
     }
 }
 
-extension InspectableView where View == BitwardenMultilineTextFieldType {
+public extension InspectableView where View == BitwardenMultilineTextFieldType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
     func inputBinding() throws -> Binding<String> {
@@ -325,7 +431,45 @@ extension InspectableView where View == BitwardenMultilineTextFieldType {
     }
 }
 
-extension InspectableView where View == BitwardenMenuFieldType {
+public extension InspectableView where View == BitwardenSliderType {
+    /// Simulates a drag gesture on the slider to set a new value.
+    ///
+    func setValue(_ value: Double) throws {
+        let mirror = Mirror(reflecting: self)
+        if let valueBinding = mirror.descendant("content", "view", "_value") as? Binding<Double>,
+           let range = mirror.descendant("content", "view", "range") as? ClosedRange<Double>,
+           let step = mirror.descendant("content", "view", "step") as? Double {
+            // Calculate the new value based on the fraction
+            let newValue = (range.upperBound - range.lowerBound + step) * value + range.lowerBound
+
+            // Set the new value
+            valueBinding.wrappedValue = newValue
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_value",
+                type: String(describing: BitwardenSliderType.self),
+            )
+        }
+    }
+}
+
+public extension InspectableView where View == BitwardenUITextViewType {
+    /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
+    ///
+    func inputBinding() throws -> Binding<String> {
+        let mirror = Mirror(reflecting: self)
+        if let binding = mirror.descendant("content", "view", "_text") as? Binding<String> {
+            return binding
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_text",
+                type: String(describing: BitwardenUITextViewType.self),
+            )
+        }
+    }
+}
+
+public extension InspectableView where View == BitwardenMenuFieldType {
     /// Selects a new value in the menu field.
     ///
     func select(newValue: any Hashable) throws {
@@ -334,11 +478,38 @@ extension InspectableView where View == BitwardenMenuFieldType {
     }
 }
 
-extension InspectableView where View == SettingsMenuFieldType {
+public extension InspectableView where View == SettingsMenuFieldType {
     /// Selects a new value in the menu field.
     ///
     func select(newValue: any Hashable) throws {
         let picker = try find(ViewType.Picker.self)
         try picker.select(value: newValue)
+    }
+}
+
+public extension InspectableView where View == BitwardenStepperType {
+    /// Decrements the stepper.
+    ///
+    func decrement() throws {
+        let button = try find(buttonWithId: "decrement")
+        try button.tap()
+    }
+
+    /// Increments the stepper.
+    ///
+    func increment() throws {
+        let button = try find(buttonWithId: "increment")
+        try button.tap()
+    }
+}
+
+public extension InspectableView where View == FloatingActionButtonType {
+    /// Simulates a tap on an `AsyncButton` within a `FloatingActionButton`. This method is
+    /// asynchronous and allows the entire `async` `action` on the button to run before returning.
+    ///
+    @MainActor
+    func tap() async throws {
+        let button = try find(AsyncButtonType.self)
+        try await button.tap()
     }
 }
