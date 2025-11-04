@@ -6,7 +6,7 @@ import XCTest
 // swiftlint:disable file_length
 
 /// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
-/// `ActionCard` without needing to know the details of it's implementation.
+/// `ActionCard` without needing to know the details of its implementation.
 ///
 public struct ActionCardType: BaseViewType {
     public static var typePrefix: String = "ActionCard"
@@ -28,7 +28,7 @@ public struct AsyncButtonType: BaseViewType {
 }
 
 /// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
-/// without needing to know the details of it's implementation.
+/// without needing to know the details of its implementation.
 ///
 public struct BitwardenSliderType: BaseViewType {
     public static var typePrefix: String = "BitwardenSlider"
@@ -39,7 +39,7 @@ public struct BitwardenSliderType: BaseViewType {
 }
 
 /// A generic type wrapper around `BitwardenStepper` to allow `ViewInspector` to find instances of
-/// `BitwardenStepper` without needing to know the details of it's implementation.
+/// `BitwardenStepper` without needing to know the details of its implementation.
 ///
 public struct BitwardenStepperType: BaseViewType {
     public static var typePrefix: String = "BitwardenStepper"
@@ -50,7 +50,7 @@ public struct BitwardenStepperType: BaseViewType {
 }
 
 /// A generic type wrapper around `BitwardenTextField` to allow `ViewInspector` to find instances of
-/// `BitwardenTextField` without needing to know the details of it's implementation.
+/// `BitwardenTextField` without needing to know the details of its implementation.
 ///
 public struct BitwardenTextFieldType: BaseViewType {
     public static var typePrefix: String = "BitwardenTextField"
@@ -61,7 +61,7 @@ public struct BitwardenTextFieldType: BaseViewType {
 }
 
 /// A generic type wrapper around ` BitwardenMenuFieldType` to allow `ViewInspector` to find instances of
-/// ` BitwardenMenuFieldType` without needing to know the details of it's implementation.
+/// ` BitwardenMenuFieldType` without needing to know the details of its implementation.
 ///
 public struct BitwardenMenuFieldType: BaseViewType {
     public static var typePrefix: String = "BitwardenMenuField"
@@ -72,7 +72,7 @@ public struct BitwardenMenuFieldType: BaseViewType {
 }
 
 /// A generic type wrapper around `BitwardenMultilineTextField` to allow `ViewInspector` to find
-/// instances of `BitwardenMultilineTextField` without needing to know the details of it's
+/// instances of `BitwardenMultilineTextField` without needing to know the details of its
 /// implementation.
 ///
 public struct BitwardenMultilineTextFieldType: BaseViewType {
@@ -84,7 +84,7 @@ public struct BitwardenMultilineTextFieldType: BaseViewType {
 }
 
 /// A generic type wrapper around `BitwardenUITextViewType` to allow `ViewInspector` to find
-/// instances of `BitwardenUITextViewType` without needing to know the details of it's
+/// instances of `BitwardenUITextViewType` without needing to know the details of its
 /// implementation.
 ///
 public struct BitwardenUITextViewType: BaseViewType {
@@ -96,7 +96,7 @@ public struct BitwardenUITextViewType: BaseViewType {
 }
 
 /// A generic type wrapper around `FloatingActionButton` to allow `ViewInspector` to find instances
-/// of `FloatingActionButton` without needing to know the details of it's implementation.
+/// of `FloatingActionButton` without needing to know the details of its implementation.
 ///
 public struct FloatingActionButtonType: BaseViewType {
     public static var typePrefix: String = "FloatingActionButton"
@@ -107,7 +107,7 @@ public struct FloatingActionButtonType: BaseViewType {
 }
 
 /// A generic type wrapper around `LoadingView` to allow `ViewInspector` to find instances of
-/// `LoadingView` without needing to know the details of it's implementation.
+/// `LoadingView` without needing to know the details of its implementation.
 ///
 public struct LoadingViewType: BaseViewType {
     public static var typePrefix: String = "LoadingView"
@@ -118,7 +118,7 @@ public struct LoadingViewType: BaseViewType {
 }
 
 /// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
-/// `SettingsMenuField` without needing to know the details of it's implementation.
+/// `SettingsMenuField` without needing to know the details of its implementation.
 ///
 public struct SettingsMenuFieldType: BaseViewType {
     public static var typePrefix: String = "SettingsMenuField"
