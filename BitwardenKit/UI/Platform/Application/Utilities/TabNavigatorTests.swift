@@ -3,8 +3,6 @@ import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
-@testable import BitwardenShared
-
 class TabNavigatorTests: BitwardenTestCase {
     // MARK: Types
 
