@@ -6,6 +6,7 @@ import XCTest
 
 @testable import BitwardenKit
 
+@MainActor
 class IllustratedMessageViewTests: BitwardenTestCase {
     // MARK: Tests
 
@@ -29,7 +30,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     /// Test snapshots of the mediumImage style.
     func disabletest_snapshot_mediumImage() {
         let subject = IllustratedMessageView(
-            image: Asset.Images.Illustrations.biometricsPhone,
+            image: SharedAsset.Icons.unlocked24,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
@@ -46,7 +47,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     /// Test snapshots of the mediumImage style with a button.
     func disabletest_snapshot_mediumImage_withButton() {
         let subject = IllustratedMessageView(
-            image: Asset.Images.Illustrations.biometricsPhone,
+            image: SharedAsset.Icons.unlocked24,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
@@ -69,7 +70,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     /// Test snapshots of the smallImage style.
     func disabletest_snapshot_smallImage() {
         let subject = IllustratedMessageView(
-            image: Asset.Images.Illustrations.biometricsPhone,
+            image: SharedAsset.Icons.unlocked24,
             style: .smallImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
