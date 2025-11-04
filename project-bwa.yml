@@ -236,8 +236,6 @@ targets:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
-        excludes:
-          - "**/InspectableView.*"
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -266,8 +264,6 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers-bwa
-        excludes:
-          - "**/InspectableView.*"
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
