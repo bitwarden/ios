@@ -7,7 +7,7 @@ import Foundation
 public enum ExternalLinksConstants {
     // MARK: Properties
 
-    /// A link the Bitwarden's help page for the Flight Recorder.
+    /// A link to Bitwarden's help page for the Flight Recorder.
     public static let flightRecorderHelp = URL(string: "https://bitwarden.com/help/flight-recorder")!
 
     /// A link to Bitwarden's general help and feedback page.
