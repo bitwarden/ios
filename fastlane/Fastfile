@@ -497,7 +497,8 @@ platform :ios do |options|
       UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
       UI.message("✅ Validation passed")
       UI.message("✅ Release notes prepared for #{locales.count} locales")
-      UI.message("✅ Release notes: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
+      UI.message("✅ Release notes: ")
+      UI.message("#{formatted_changelog}")
       UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
       next # ← EXITS HERE in dry run
     end
