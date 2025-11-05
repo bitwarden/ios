@@ -122,10 +122,10 @@ jobs:
           run: |
             if [ "$DRY_RUN" = "true" ]; then
               echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
-              echo "📦 Would publish build $VERSION_CODE to Mac App Store"
+              echo "📦 Would publish build $VERSION_CODE to iOS App Store"
             else
-              echo "🚀 PRODUCTION MODE - Publishing to Mac App Store"
-              echo "📦 Publishing build $VERSION_CODE to Mac App Store"
+              echo "🚀 PRODUCTION MODE - Publishing to iOS App Store"
+              echo "📦 Publishing build $VERSION_CODE to iOS App Store"
             fi
 
             if [ "$PRODUCT" = "Password Manager" ]; then
