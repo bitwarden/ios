@@ -65,7 +65,7 @@ struct ImportCXFState: Equatable, Sendable {
         case .importing:
             Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
-            Localizations.itemsSuccessfullyImported(total)
+            Localizations.xItemsSuccessfullyImported(total)
         case let .failure(message):
             message
         }
