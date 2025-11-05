@@ -26,10 +26,13 @@ struct PasswordStrengthIndicator: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
+                    let fillWidth = passwordTextCount >= requiredTextCount
+                        ? geometry.size.width * passwordStrength.strengthPercent
+                        : 0
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
-                        .frame(width: geometry.size.width * passwordStrength.strengthPercent, alignment: .leading)
-                        .animation(.easeIn, value: passwordStrength.strengthPercent)
+                        .frame(width: fillWidth, alignment: .leading)
+                        .animation(.easeIn, value: fillWidth)
                 }
                 .frame(height: 4)
             }
@@ -55,9 +58,11 @@ struct PasswordStrengthIndicator: View {
 
                 Spacer()
 
-                Text(passwordStrength.text ?? "")
-                    .foregroundColor(Color(asset: passwordStrength.color))
-                    .styleGuide(.footnote)
+                if passwordTextCount >= requiredTextCount {
+                    Text(passwordStrength.text ?? "")
+                        .foregroundColor(Color(asset: passwordStrength.color))
+                        .styleGuide(.footnote)
+                }
             }
         }
     }
