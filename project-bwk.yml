@@ -294,8 +294,6 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
     sources:
       - path: ViewInspectorTestHelpers
-        excludes:
-          - "**/Info.plist"
     dependencies:
       - package: ViewInspector
 
