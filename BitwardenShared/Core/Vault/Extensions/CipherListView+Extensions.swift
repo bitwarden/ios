@@ -9,7 +9,11 @@ extension CipherListView {
     ///
     /// - Returns: `true` if the cipher can be used for basic password autofill, `false` otherwise.
     var canBeUsedInBasicLoginAutofill: Bool {
-        type.isLogin && copyableFields.contains { copyableField in
+        guard type.isLogin else {
+            return false
+        }
+
+        let hasCopyableLoginField = copyableFields.contains { copyableField in
             switch copyableField {
             case .loginPassword, .loginTotp, .loginUsername:
                 true
@@ -17,6 +21,22 @@ extension CipherListView {
                 false
             }
         }
+
+        if hasCopyableLoginField {
+            return true
+        }
+
+        // Older logins created before `copyableFields` existed never had metadata populated. Fall back to the
+        // decrypted list view data so legacy items still appear in autofill scenarios such as passkey creation.
+        guard copyableFields.isEmpty else {
+            return false
+        }
+
+        let login = type.loginListView
+        let hasLegacyUsername = !(login?.username?.isEmpty ?? true)
+        let hasLegacyTotp = login?.totp != nil
+
+        return hasLegacyUsername || hasLegacyTotp
     }
 
     /// Whether the cipher passes the `.restrictItemTypes` policy based on the organizations restricted.

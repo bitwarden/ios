@@ -66,6 +66,17 @@ class CipherListViewExtensionsTests: BitwardenTestCase {
         )
     }
 
+    /// `canBeUsedInBasicLoginAutofill` returns `true` for legacy logins without copyable metadata but with a username.
+    func test_canBeUsedInBasicLoginAutofill_legacyUsernameFallback() {
+        let login = BitwardenSdk.LoginListView.fixture(username: "legacy@example.com")
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(login),
+                copyableFields: [],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
     /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has multiple login fields.
     func test_canBeUsedInBasicLoginAutofill_hasMultipleLoginFields() {
         XCTAssertTrue(
