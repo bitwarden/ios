@@ -27,9 +27,7 @@ extension Alert {
         let message = if isFromCipherTap {
             Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong
         } else {
-            cipherIds.count == 1
-                ? Localizations.bitwardenCouldNotDecryptOneVaultItemDescriptionLong
-                : Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(cipherIds.count)
+            Localizations.bitwardenCouldNotDecryptXVaultItemsDescriptionLong(cipherIds.count)
         }
 
         return Alert(

@@ -210,6 +210,7 @@ targets:
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
+      - target: ViewInspectorTestHelpers
       - package: ViewInspector
     randomExecutionOrder: true
   BitwardenResources:
@@ -284,4 +285,15 @@ targets:
     dependencies:
       - target: Networking
       - package: SnapshotTesting
+  ViewInspectorTestHelpers:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: ViewInspectorTestHelpers
+    dependencies:
+      - package: ViewInspector
 
