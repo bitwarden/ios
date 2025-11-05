@@ -452,7 +452,15 @@ platform :ios do |options|
   desc "Submit iOS app to the App Store"
   lane :release_to_production do |options|
 
-    changelog = options[:changelog]
+    changelog = options[:changelog] || "Bug fixes and improvements"
+    
+    formatted_changelog = changelog
+      .split('.')
+      .map(&:strip)
+      .reject(&:empty?)
+      .map { |item| "• #{item}" }
+      .join("\n")
+
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
@@ -466,7 +474,7 @@ platform :ios do |options|
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", changelog)
+      File.write("#{dir}/release_notes.txt", formatted_changelog)
     end
 
     notes = locales.each_with_object({}) do |locale, hash|
