@@ -1,31 +1,32 @@
 import BitwardenKit
-import BitwardenShared
 import UIKit
 
-final class MockTabNavigator: TabNavigator {
-    var navigators: [Navigator] = []
-    var navigatorForTabValue: Int?
-    var navigatorForTabReturns: Navigator?
-    var rootViewController: UIViewController?
-    var selectedIndex: Int = 0
+public final class MockTabNavigator: TabNavigator {
+    public var navigators: [Navigator] = []
+    public var navigatorForTabValue: Int?
+    public var navigatorForTabReturns: Navigator?
+    public var rootViewController: UIViewController?
+    public var selectedIndex: Int = 0
 
-    func setChildren(_ navigators: [Navigator]) {
+    public init() {}
+
+    public func setChildren(_ navigators: [Navigator]) {
         self.navigators = navigators
     }
 
-    func navigator<Tab: TabRepresentable>(for tab: Tab) -> Navigator? {
+    public func navigator<Tab: TabRepresentable>(for tab: Tab) -> Navigator? {
         navigatorForTabValue = tab.index
         return navigatorForTabReturns
     }
 
-    func present(
+    public func present(
         _ viewController: UIViewController,
         animated: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?,
     ) {}
 
-    func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
+    public func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
         navigators = tabs
             .sorted { $0.key.index < $1.key.index }
             .map(\.value)

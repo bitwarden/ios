@@ -3,7 +3,9 @@ import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
-class TabNavigatorTests: BitwardenTestCase {
+@testable import BitwardenShared
+
+class BitwardenTabBarControllerTests: BitwardenTestCase {
     // MARK: Types
 
     enum TestRoute: Int, Equatable, Hashable, TabRepresentable {
@@ -54,13 +56,13 @@ class TabNavigatorTests: BitwardenTestCase {
 
     // MARK: Properties
 
-    var subject: SomethingSomething!
+    var subject: BitwardenTabBarController!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        subject = SomethingSomething()
+        subject = BitwardenTabBarController()
         setKeyWindowRoot(viewController: subject)
     }
 
