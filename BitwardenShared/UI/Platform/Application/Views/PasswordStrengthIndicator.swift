@@ -17,6 +17,13 @@ struct PasswordStrengthIndicator: View {
     /// The required text count for the password
     let requiredTextCount: Int
 
+    // MARK: Computed Properties
+
+    /// Whether the entered password has met the minimum length required.
+    var hasPasswordMinimumLength: Bool {
+        passwordTextCount >= requiredTextCount
+    }
+
     // MARK: View
 
     var body: some View {
@@ -26,7 +33,7 @@ struct PasswordStrengthIndicator: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
-                    let fillWidth = passwordTextCount >= requiredTextCount
+                    let fillWidth = hasPasswordMinimumLength
                         ? geometry.size.width * passwordStrength.strengthPercent
                         : 0
                     RoundedRectangle(cornerRadius: 2)
@@ -39,7 +46,7 @@ struct PasswordStrengthIndicator: View {
 
             HStack {
                 HStack(spacing: 4) {
-                    if passwordTextCount >= requiredTextCount {
+                    if hasPasswordMinimumLength {
                         Image(asset: SharedAsset.Icons.check12)
                             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
@@ -58,7 +65,7 @@ struct PasswordStrengthIndicator: View {
 
                 Spacer()
 
-                if passwordTextCount >= requiredTextCount {
+                if hasPasswordMinimumLength {
                     Text(passwordStrength.text ?? "")
                         .foregroundColor(Color(asset: passwordStrength.color))
                         .styleGuide(.footnote)
