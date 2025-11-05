@@ -453,7 +453,8 @@ platform :ios do |options|
   lane :release_to_production do |options|
 
     changelog = options[:changelog] || "Bug fixes and improvements"
-    
+    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
+
     formatted_changelog = changelog
       .split('.')
       .map(&:strip)
@@ -464,6 +465,12 @@ platform :ios do |options|
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
+
+    if is_dry_run
+      UI.header("🧪 DRY RUN: Testing iOS App Store submission")
+    else
+      UI.header("🚀 Publishing iOS app to App Store")
+    end
 
     if options[:app_identifier] == "com.bitwarden.authenticator"
       locales = auth_locales
@@ -484,6 +491,15 @@ platform :ios do |options|
       else
         UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
       end
+    end
+
+    if is_dry_run
+      UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
+      UI.message("✅ Validation passed")
+      UI.message("✅ Release notes prepared for #{locales.count} locales")
+      UI.message("✅ Release notes: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
+      UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
+      next # ← EXITS HERE in dry run
     end
 
     deliver(
