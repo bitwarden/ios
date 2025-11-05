@@ -459,7 +459,7 @@ platform :ios do |options|
       .split('.')
       .map(&:strip)
       .reject(&:empty?)
-      .map { |item| "• #{item}" }
+      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
       .join("\n")
 
     auth_locales = ["en-US"]
