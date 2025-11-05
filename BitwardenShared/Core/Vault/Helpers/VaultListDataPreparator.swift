@@ -178,11 +178,23 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         from ciphers: [Cipher],
         filter: VaultListFilter,
     ) async -> VaultListPreparedData? {
-        guard !ciphers.isEmpty, let uri = filter.uri else {
+        guard !ciphers.isEmpty else {
             return nil
         }
 
-        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
+        // WORKAROUND: During passkey registration, iOS doesn't provide the relying party identifier
+        // through standard channels in iOS 17. If the URI is nil, we still show all login items
+        // to allow users to select an existing entry to add a passkey to.
+        //
+        // This is acceptable because:
+        // 1. The user explicitly initiated passkey creation for a specific site
+        // 2. Showing all logins allows them to find and select the correct entry
+        // 3. The search functionality will still work to filter by name/username
+        let cipherMatchingHelper: CipherMatchingHelper? = if let uri = filter.uri, !uri.isEmpty {
+            await cipherMatchingHelperFactory.make(uri: uri)
+        } else {
+            nil
+        }
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
         let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
@@ -196,9 +208,12 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
-            guard matchResult != .none else {
-                return
+            // If we have a URI matcher, use it to filter. Otherwise, include all login items.
+            if let cipherMatchingHelper {
+                let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+                guard matchResult != .none else {
+                    return
+                }
             }
 
             guard decryptedCipher.type.loginListView?.hasFido2 == true else {

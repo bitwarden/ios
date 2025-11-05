@@ -77,11 +77,27 @@ extension AutofillAppExtensionDelegate {
             return parameters.relyingPartyIdentifier
         case let .registerFido2Credential(passkeyRequest):
             guard #available(iOSApplicationExtension 17.0, *),
-                  let asPasskeyRequest = passkeyRequest as? ASPasskeyCredentialRequest,
-                  let credentialIdentity = asPasskeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
+                  let asPasskeyRequest = passkeyRequest as? ASPasskeyCredentialRequest else {
                 return nil
             }
-            return credentialIdentity.relyingPartyIdentifier
+
+            // For authentication requests, the rpID is available through credentialIdentity
+            if let credentialIdentity = asPasskeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
+                return credentialIdentity.relyingPartyIdentifier
+            }
+
+            // For registration requests (iOS 18+), try to get rpID from the request properties
+            // Note: In iOS 17, during registration the credentialIdentity is nil, and we need
+            // to rely on the CredentialProviderContext fallback to extract rpID from serviceIdentifiers
+            // or from the processor's workaround.
+            if #available(iOSApplicationExtension 18.0, *) {
+                // In iOS 18+, ASPasskeyCredentialRequest for registration may have additional
+                // properties to access the relying party identifier. Check for these properties.
+                // As of iOS 18, the API doesn't provide a direct property for registration requests,
+                // so this remains nil and we rely on the fallback in CredentialProviderContext.
+            }
+
+            return nil
         default:
             return nil
         }

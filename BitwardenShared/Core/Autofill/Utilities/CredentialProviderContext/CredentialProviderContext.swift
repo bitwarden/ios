@@ -106,6 +106,12 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
                 return passkeyParameters.relyingPartyIdentifier.httpsNormalized()
             }
 
+            // Note: During passkey registration (.registerFido2Credential), iOS does not provide
+            // serviceIdentifiers in iOS 17, and the ASPasskeyCredentialRequest doesn't expose the
+            // relyingPartyIdentifier for registration requests. This returns nil, which is handled
+            // by VaultListDataPreparator.prepareAutofillCombinedSingleData() by showing all login
+            // items without URI filtering, allowing users to select the correct entry for passkey creation.
+
             return nil
         }
 
