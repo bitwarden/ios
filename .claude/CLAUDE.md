@@ -10,7 +10,7 @@ Core directives for maintaining code quality and consistency in the Bitwarden iO
 2. **Follow Code Style**: ALWAYS follow https://contributing.bitwarden.com/contributing/code-style/swift
 3. **Follow Testing Guidelines**: Analyzing or implementing tests MUST follow guidelines in `./../Docs/Testing.md`.
 4. **Best Practices**: Follow Swift / SwiftUI general best practices (value over reference types, guard clauses, extensions, protocol oriented programming)
-5. **Document Everything**: Everything in the code requires DocC documentation except for protocol properties/functions implementations as the docs for them will be in the protocol.
+5. **Document Everything**: Everything in the code requires DocC documentation except for protocol properties/functions implementations as the docs for them will be in the protocol. Additionally, mocks do not need DocC documentation, because the docs for the public interface will be in the protocol.
 6. **Dependency Management**: Use `ServiceContainer` as established in the project
 7. **Use Established Patterns**: Leverage existing components before creating new ones
 8. **File References**: Use file:line_number format when referencing code
@@ -37,7 +37,7 @@ Core directives for maintaining code quality and consistency in the Bitwarden iO
 
 1. Follow existing code style in surrounding files
 2. Write tests alongside implementation
-3. Add DocC to everything except protocol implementations
+3. Add DocC to everything except protocol implementations and mocks
 4. Validate against architecture guidelines
 
 ### After Implementation
