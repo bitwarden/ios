@@ -1081,7 +1081,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ImportingEllipsis" = "Importerar...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
-"ItemsSuccessfullyImported" = "%1$@ artiklar har importerats framgångsrikt";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
 "RetryImport" = "Importera igen";
 "ShowVault" = "Visa valv";
@@ -1103,7 +1102,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SendNameRequired" = "Skicka namn (obligatoriskt)";
 "CheckPasswordForDataBreaches" = "Kontrollera lösenord för dataintrång";
 "PrivateNote" = "Privat notering";
-"XItems" = "%1$@ artiklar";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Det går inte att ta bort den här användaren eftersom den är ensam ägare till minst en organisation. Ta bort dessa organisationer eller uppgradera en annan användare.";
 "APasskeyAlreadyExistsForThisApplication" = "Det finns redan en passerkod för den här applikationen.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Det finns redan en nyckel för den här applikationen, men ett fel uppstod när den laddades.";
@@ -1195,8 +1193,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "PasswordLastUpdated" = "Lösenord senast uppdaterat: %1$@";
 "DecryptionError" = "Dekrypteringsfel";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden kunde inte avkryptera detta valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden kunde inte avkryptera ett valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden kunde inte avkryptera %1$@ valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
 "CopyErrorReport" = "Kopiera felrapport";
 "ErrorCannotDecrypt" = "[fel: kan inte dekryptera]";
 "AccountName" = "Kontonamn";

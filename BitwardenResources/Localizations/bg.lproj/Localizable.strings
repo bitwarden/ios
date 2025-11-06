@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Внасяне…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Наистина ли искате да прекъснете процеса на внасяне?";
 "ImportFailed" = "Внасянето не беше успешно";
-"ItemsSuccessfullyImported" = "%1$@ елемента бяха внесени успешно";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Имаше грешка при внасянето на паролите.\n\nНе бяха изтрити никакви данни.";
 "RetryImport" = "Опит за повторно внасяне";
 "ShowVault" = "Показване на трезора";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Име на Изпращането (задължително)";
 "CheckPasswordForDataBreaches" = "Проверка дали паролата е засегната от пробиви";
 "PrivateNote" = "Лична бележка";
-"XItems" = "%1$@ елемента";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Този потребител не може да бъде изтрит, тъй като е единственият собственик на поне една организация. Трябва да изтриете съответните организации или да повишите друг потребител.";
 "APasskeyAlreadyExistsForThisApplication" = "За това приложение вече съществува секретен ключ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "За това приложение вече съществува секретен ключ, но имаше грешка при зареждането му.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Последна промяна на паролата: %1$@";
 "DecryptionError" = "Грешка при дешифриране";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Битуорден не може да дешифрира този елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Битуорден не може да дешифрира 1 елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Битуорден не може да дешифрира %1$@ елемента от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
 "CopyErrorReport" = "Копиране на доклада за грешката";
 "ErrorCannotDecrypt" = "[грешка: не може да се дешифрира]";
 "AccountName" = "Име на акаунта";

@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "A importar…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Tem a certeza de que pretende cancelar o processo de importação?";
 "ImportFailed" = "Falha na importação";
-"ItemsSuccessfullyImported" = "%1$@ itens importados com sucesso";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Ocorreu um problema ao importar todas as suas palavras-passe.\n\nNão foram eliminados quaisquer dados.";
 "RetryImport" = "Tentar a importação novamente";
 "ShowVault" = "Mostrar cofre";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Nome do Send (obrigatório)";
 "CheckPasswordForDataBreaches" = "Verificar a palavra-passe para detetar violações de dados";
 "PrivateNote" = "Nota privada";
-"XItems" = "%1$@ itens";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de pelo menos uma organização. Por favor, elimine estas organizações ou atualize outro utilizador.";
 "APasskeyAlreadyExistsForThisApplication" = "Já existe uma chave de acesso para esta aplicação.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Já existe uma chave de acesso para esta aplicação, mas ocorreu um erro ao carregá-la.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Última atualização da palavra-passe: %1$@";
 "DecryptionError" = "Erro de desencriptação";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar este item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "O Bitwarden não conseguiu desencriptar 1 item do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "O Bitwarden não conseguiu desencriptar %1$@ itens do cofre. Copie e partilhe este relatório de erro com o serviço de apoio ao cliente para evitar perdas de dados adicionais.";
 "CopyErrorReport" = "Copiar relatório de erros";
 "ErrorCannotDecrypt" = "[erro: não é possível desencriptar]";
 "AccountName" = "Nome da conta";

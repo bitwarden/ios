@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "استيراد...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "هل أنت متأكد من أنك تريد إلغاء عملية الاستيراد؟";
 "ImportFailed" = "فشل الاستيراد";
-"ItemsSuccessfullyImported" = "تم استيراد %1$@ عناصر بنجاح";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "حدثت مشكلة أثناء استيراد جميع كلمات المرور الخاصة بك.\n\nلم يتم حذف أي بيانات.";
 "RetryImport" = "إعادة محاولة الاستيراد";
 "ShowVault" = "إظهار المخزن";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "إرسال الاسم (مطلوب)";
 "CheckPasswordForDataBreaches" = "تحقق من كلمة المرور لخروقات البيانات";
 "PrivateNote" = "ملاحظة خاصة";
-"XItems" = "%1$@ عناصر";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "لا يمكن حذف هذا المستخدم لأنه المالك الوحيد لمنظمة واحدة على الأقل. الرجاء حذف هذه المنظمات أو ترقية مستخدم آخر.";
 "APasskeyAlreadyExistsForThisApplication" = "يوجد بالفعل مفتاح مرور لهذا التطبيق.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "يوجد بالفعل مفتاح مرور لهذا التطبيق ولكن حدث خطأ أثناء تحميله.";
@@ -1195,8 +1193,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "خطأ فك التشفير";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "اسم الحساب";
