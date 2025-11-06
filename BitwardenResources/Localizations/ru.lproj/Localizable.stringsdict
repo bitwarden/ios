@@ -2,6 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- An error report if there are issues decrypting vault items. -->
+    <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@vaultitems@. Скопируйте и передайте этот отчет об ошибке в службу поддержки клиентов, чтобы избежать дополнительной потери данных.</string>
+      <key>vaultitems</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Bitwarden не смог расшифровать %d элемент хранилища</string>
+        <key>few</key>
+        <string>Bitwarden не смог расшифровать %d элемента хранилища</string>
+        <key>many</key>
+        <string>Bitwarden не смог расшифровать %d элементов хранилища</string>
+        <key>other</key>
+        <string>Bitwarden не смог расшифровать %d элемента хранилища</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -14,13 +35,55 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d день</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d дня</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d дней</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d дня</string>
+      </dict>
+    </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@</string>
+      <key>items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d элемент</string>
+        <key>few</key>
+        <string>%d элемента</string>
+        <key>many</key>
+        <string>%d элементов</string>
+        <key>other</key>
+        <string>%d элемента</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@ успешно импортированы</string>
+      <key>items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d элемент</string>
+        <key>few</key>
+        <string>%d элемента</string>
+        <key>many</key>
+        <string>%d элементов</string>
+        <key>other</key>
+        <string>%d элемента</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -35,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d час</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d часа</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d часов</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d часа</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -77,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d секунда</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d секунды</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d секунд</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d секунды</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -98,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d неделя</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d недели</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d недель</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d недели</string>
       </dict>
     </dict>
   </dict>

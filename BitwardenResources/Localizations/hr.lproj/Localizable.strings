@@ -1081,7 +1081,6 @@
 "ImportingEllipsis" = "Uvoz...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
-"ItemsSuccessfullyImported" = "%1$@ stavki uspješno uvezeno";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
 "RetryImport" = "Ponovno pokušaj uvesti";
 "ShowVault" = "Prikaži trezor";
@@ -1103,7 +1102,6 @@
 "SendNameRequired" = "Naziv Senda (obavezno)";
 "CheckPasswordForDataBreaches" = "Provjeri je li lozinka procurila";
 "PrivateNote" = "Privatna bilješka";
-"XItems" = "%1$@ stavki";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nije moguće izbrisati ovog korisnika je isti jedini vlasnik barem jedne organizacije. Treba ili obrisati organizaciju ili drugog korisnika postaviti za vlasnika.";
 "APasskeyAlreadyExistsForThisApplication" = "Za ovu aplikaciju već postoji pristupni ključ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Za ovu aplikaciju već postoji pristupni ključ, ali je došlo do greške kod njegova učitavanja.";
@@ -1195,8 +1193,6 @@
 "PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
 "DecryptionError" = "Pogreška pri dešifriranju";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati ovu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati jednu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nije mogao dešifrirati ovoliko stavki trezora: %1$@. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
 "CopyErrorReport" = "Kopiraj izvješće o pogrešci";
 "ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";
 "AccountName" = "Naziv računa";
