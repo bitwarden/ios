@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - TabNavigator
 
-/// A navigator that displays a child navigators in a tab interface.
+/// A navigator that displays a child navigator in a tab interface.
 ///
 @MainActor
 public protocol TabNavigator: Navigator {
