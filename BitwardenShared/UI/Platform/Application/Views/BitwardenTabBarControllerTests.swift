@@ -1,10 +1,11 @@
+import BitwardenKit
 import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
 
-class TabNavigatorTests: BitwardenTestCase {
+class BitwardenTabBarControllerTests: BitwardenTestCase {
     // MARK: Types
 
     enum TestRoute: Int, Equatable, Hashable, TabRepresentable {
