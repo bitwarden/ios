@@ -1,15 +1,15 @@
 import BitwardenKit
 import XCTest
 
-class MockRouter<Event, Route>: Router {
-    var events = [Event]()
-    var routeForEvent: (Event) -> Route
+public class MockRouter<Event, Route>: Router {
+    public var events = [Event]()
+    public var routeForEvent: (Event) -> Route
 
-    init(routeForEvent: @escaping (Event) -> Route) {
+    public init(routeForEvent: @escaping (Event) -> Route) {
         self.routeForEvent = routeForEvent
     }
 
-    func handleAndRoute(_ event: Event) async -> Route {
+    public func handleAndRoute(_ event: Event) async -> Route {
         events.append(event)
         return routeForEvent(event)
     }
