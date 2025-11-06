@@ -1,6 +1,5 @@
+import BitwardenKit
 import XCTest
-
-@testable import BitwardenShared
 
 class MockRouter<Event, Route>: Router {
     var events = [Event]()
