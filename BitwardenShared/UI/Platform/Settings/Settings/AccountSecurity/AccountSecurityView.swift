@@ -147,13 +147,10 @@ struct AccountSecurityView: View {
     private var sessionTimeoutSection: some View {
         SectionView(Localizations.sessionTimeout, contentSpacing: 8) {
             VStack(spacing: 16) {
-                if let policyTimeoutMessage = store.state.policyTimeoutMessage {
-                    InfoContainer(policyTimeoutMessage)
-                }
-
                 ContentBlock(dividerLeadingPadding: 16) {
                     BitwardenMenuField(
                         title: Localizations.sessionTimeout,
+                        footer: store.state.policyTimeoutMessage,
                         accessibilityIdentifier: "VaultTimeoutChooser",
                         options: store.state.availableTimeoutOptions,
                         selection: store.binding(
@@ -161,22 +158,26 @@ struct AccountSecurityView: View {
                             send: AccountSecurityAction.sessionTimeoutValueChanged,
                         ),
                     )
+                    .disabled(store.state.isSessionTimeoutPickerDisabled)
 
                     if store.state.isShowingCustomTimeout {
                         SettingsPickerField(
-                            title: Localizations.custom,
+                            title: "",
+                            footer: store.state.policyTimeoutCustomMessage,
                             customTimeoutValue: store.state.customTimeoutString,
                             pickerValue: store.binding(
                                 get: \.customTimeoutValueSeconds,
                                 send: AccountSecurityAction.customTimeoutValueSecondsChanged,
                             ),
-                            hasDivider: false,
+                            hasDivider: true,
                             customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel,
                         )
                     }
-
+                }
+                ContentBlock(dividerLeadingPadding: 16) {
                     BitwardenMenuField(
                         title: Localizations.sessionTimeoutAction,
+                        footer: store.state.policyTimeoutActionMessage,
                         accessibilityIdentifier: "VaultTimeoutActionChooser",
                         options: store.state.availableTimeoutActions,
                         selection: store.binding(

@@ -1293,3 +1293,6 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"XMinutes" = "%1$@ minute(s)";

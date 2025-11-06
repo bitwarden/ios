@@ -14,6 +14,9 @@ public struct SettingsPickerField: View {
     /// The custom session timeout value.
     let customTimeoutValue: String
 
+    /// The footer text displayed below the toggle.
+    let footer: String?
+
     /// Whether the menu field should have a bottom divider.
     let hasDivider: Bool
 
@@ -68,6 +71,17 @@ public struct SettingsPickerField: View {
                         .padding(.leading, 16)
                 }
             }
+
+            if footer != nil {
+                Group {
+                    if let footer {
+                        Text(footer)
+                            .styleGuide(.subheadline)
+                            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                    }
+                }
+                .padding(.vertical, 12)
+            }
         }
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
@@ -78,6 +92,7 @@ public struct SettingsPickerField: View {
     ///
     /// - Parameters:
     ///   - title: The title of the field.
+    ///   - footer: The footer text displayed below the menu field.
     ///   - customTimeoutValue: The custom session timeout value.
     ///   - pickerValue: The date picker value.
     ///   - hasDivider: Whether or not the field has a bottom edge divider.
@@ -85,6 +100,7 @@ public struct SettingsPickerField: View {
     ///
     public init(
         title: String,
+        footer: String? = nil,
         customTimeoutValue: String,
         pickerValue: Binding<Int>,
         hasDivider: Bool = true,
@@ -92,6 +108,7 @@ public struct SettingsPickerField: View {
     ) {
         self.customTimeoutAccessibilityLabel = customTimeoutAccessibilityLabel
         self.customTimeoutValue = customTimeoutValue
+        self.footer = footer
         self.hasDivider = hasDivider
         _pickerValue = pickerValue
         self.title = title
@@ -103,6 +120,7 @@ public struct SettingsPickerField: View {
 #Preview {
     SettingsPickerField(
         title: "Custom",
+        footer: nil,
         customTimeoutValue: "1:00",
         pickerValue: .constant(1),
         customTimeoutAccessibilityLabel: "one hour, zero minutes",
