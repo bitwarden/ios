@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - BitwardenTabBarController
 
-/// A `UITabBarController` subclass confirming to `TabBavigator`. This class manages
+/// A `UITabBarController` subclass confirming to `TabNavigator`. This class manages
 /// a set of tabs and handles dynamic appearance changes between light/dark mode.
 ///
 class BitwardenTabBarController: UITabBarController, TabNavigator {
