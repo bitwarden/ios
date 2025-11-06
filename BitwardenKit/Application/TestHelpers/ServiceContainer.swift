@@ -1,6 +1,8 @@
 import BitwardenKit
 import BitwardenKitMocks
 
+/// The services provided by the test `ServiceContainer`.
+///
 typealias Services = HasConfigService
     & HasEnvironmentService
     & HasErrorReporter
