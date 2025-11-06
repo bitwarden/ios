@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A wrapper around a `Toggle` that is customized based on the Bitwarden design system.
 ///
-struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
+public struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     // MARK: Properties
 
     /// The accessibility identifier for the toggle.
@@ -29,7 +29,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Toggle(isOn: $isOn) {
                 titleContent
@@ -66,7 +66,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     ///   - isOn: A binding for whether the toggle is on.
     ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
     ///
-    init(
+    public init(
         _ title: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
@@ -87,7 +87,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     ///   - isOn: A binding for whether the toggle is on.
     ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
     ///
-    init(
+    public init(
         _ title: String,
         footer: String,
         isOn: Binding<Bool>,
@@ -109,7 +109,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
     ///   - footerContent: The footer content displayed below the toggle.
     ///
-    init(
+    public init(
         _ title: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
@@ -132,7 +132,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     ///   - accessibilityLabel: The accessibility label for the toggle.
     ///   - title: The content to display in the title of the toggle.
     ///
-    init(
+    public init(
         footer: String? = nil,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
