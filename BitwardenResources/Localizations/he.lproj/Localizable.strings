@@ -1082,7 +1082,6 @@
 "ImportingEllipsis" = "מייבא...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "האם אתה בטוח שברצונך לבטל את תהליך הייבוא?";
 "ImportFailed" = "ייבוא ​​נכשל";
-"ItemsSuccessfullyImported" = "%1$@ פריטים יובאו בהצלחה";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "הייתה בעיה בייבוא של כל הסיסמאות שלך.\n\nלא נמחקו נתונים.";
 "RetryImport" = "נסה ייבוא מחדש";
 "ShowVault" = "הצג כספת";
@@ -1104,7 +1103,6 @@
 "SendNameRequired" = "שם סֵנְד (נדרש)";
 "CheckPasswordForDataBreaches" = "בדוק סיסמה לאיתור פרצות נתונים";
 "PrivateNote" = "הערה פרטית";
-"XItems" = "%1$@ פריטים";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "לא ניתן למחוק משתמש זה בגלל שהוא הבעלים היחיד של לפחות ארגון אחד. נא למחוק את הארגונים האלה או לשדרג משתמש אחר.";
 "APasskeyAlreadyExistsForThisApplication" = "מפתח גישה כבר קיים עבור יישום זה.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "מפתח גישה כבר קיים עבור יישום זה אבל אירעה שגיאה בעת טעינתו.";
@@ -1196,8 +1194,6 @@
 "PasswordLastUpdated" = "הסיסמה עודכנה לאחרונה: %1$@";
 "DecryptionError" = "שגיאת פענוח";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden לא יכל לפענח את פריט כספת זה. העתק ושתף דוח שגיאה זה עם הצלחת לקוח כדי להימנע מאיבוד נתונים נוסף.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden לא יכל לפענח פריט כספת אחד. העתק ושתף דוח שגיאה זה עם הצלחת לקוח כדי להימנע מאיבוד נתונים נוסף.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden לא יכל לפענח %1$@ פריטי כספת. העתק ושתף דוח שגיאה זה עם הצלחת לקוח כדי להימנע מאיבוד נתונים נוסף.";
 "CopyErrorReport" = "העתק דוח שגיאה";
 "ErrorCannotDecrypt" = "[שגיאה: לא ניתן לפענח]";
 "AccountName" = "שם חשבון";

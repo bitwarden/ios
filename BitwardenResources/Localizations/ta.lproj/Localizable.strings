@@ -1081,7 +1081,6 @@
 "ImportingEllipsis" = "இறக்குமதி செய்கிறது...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "நீங்கள் இறக்குமதி செயல்முறையை ரத்துசெய்ய விரும்புகிறீர்களா?";
 "ImportFailed" = "இறக்குமதி தோல்வியடைந்தது";
-"ItemsSuccessfullyImported" = "%1$@ பொருட்கள் வெற்றிகரமாக இறக்குமதி செய்யப்பட்டன";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "உங்கள் எல்லா கடவுச்சொற்களையும் இறக்குமதி செய்வதில் ஒரு சிக்கல் ஏற்பட்டது.\n\nதரவு எதுவும் நீக்கப்படவில்லை.";
 "RetryImport" = "மீண்டும் இறக்குமதி செய்";
 "ShowVault" = "பெட்டகத்தைக் காட்டு";
@@ -1103,7 +1102,6 @@
 "SendNameRequired" = "அனுப்பு பெயர் (தேவை)";
 "CheckPasswordForDataBreaches" = "தரவு மீறல்களுக்கு கடவுச்சொல்லைச் சரிபார்க்கவும்";
 "PrivateNote" = "தனிப்பட்ட குறிப்பு";
-"XItems" = "%1$@ பொருட்கள்";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "இந்த பயனர் குறைந்தபட்சம் ஒரு அமைப்பின் ஒரே உரிமையாளராக இருப்பதால், இந்த பயனரை நீக்க முடியாது. தயவுசெய்து இந்த அமைப்புகளை நீக்குங்கள் அல்லது மற்றொரு பயனரை மேம்படுத்தவும்.";
 "APasskeyAlreadyExistsForThisApplication" = "இந்த பயன்பாட்டிற்கு ஒரு பாஸ்கீ ஏற்கனவே உள்ளது.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "இந்த பயன்பாட்டிற்கு ஒரு பாஸ்கீ ஏற்கனவே உள்ளது ஆனால் அதை ஏற்றும்போது ஒரு பிழை ஏற்பட்டது.";
@@ -1195,8 +1193,6 @@
 "PasswordLastUpdated" = "கடவுச்சொல் கடைசியாக புதுப்பிக்கப்பட்டது: %1$@";
 "DecryptionError" = "மறையாக்கத் திறத்தல் பிழை";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "பிட்வார்டனால் இந்த பெட்டகப் பொருளை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "பிட்வார்டனால் 1 பெட்டகப் பொருளை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "பிட்வார்டனால் %1$@ பெட்டகப் பொருட்களை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
 "CopyErrorReport" = "பிழை அறிக்கையை நகலெடு";
 "ErrorCannotDecrypt" = "[பிழை: மறையாக்கத் திறக்க முடியாது]";
 "AccountName" = "கணக்கின் பெயர்";

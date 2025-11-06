@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importování...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Opravdu chcete zrušit proces importu?";
 "ImportFailed" = "Import selhal";
-"ItemsSuccessfullyImported" = "%1$@ položek bylo úspěšně importováno";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo k potížím při importu všech Vašich hesel.\n\nŽádná data nebyla smazána.";
 "RetryImport" = "Opakovat import";
 "ShowVault" = "Zobrazit trezor";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Název Send (vyžadován)";
 "CheckPasswordForDataBreaches" = "Kontrola hesla pro případ narušení bezpečnosti dat";
 "PrivateNote" = "Soukromá poznámka";
-"XItems" = "%1$@ položek";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tohoto uživatele nelze smazat, protože je jediným vlastníkem alespoň jedné organizace. Smažte tyto organizace nebo aktualizujte jiného uživatele.";
 "APasskeyAlreadyExistsForThisApplication" = "Přístupový klíč pro tuto aplikaci již existuje.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pro tuto aplikaci již existuje přístupový klíč, ale při načítání došlo k chybě.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Poslední aktualizace hesla: %1$@";
 "DecryptionError" = "Chyba dešifrování";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat tuto položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat 1 položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nemohl dešifrovat %1$@ položek trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
 "CopyErrorReport" = "Zkopírovat zprávu o chybě";
 "ErrorCannotDecrypt" = "[chyba: nelze dešifrovat]";
 "AccountName" = "Název účtu";

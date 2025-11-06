@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
 "ImportFailed" = "Importación falida";
-"ItemsSuccessfullyImported" = "Importáronse con éxito %1$@ entradas";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Houbo un problema ó importar os contrasinais.\n\nNon se eliminou ningún dato.";
 "RetryImport" = "Volver intentalo";
 "ShowVault" = "Amosar caixa forte";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Nome do Send (requirido)";
 "CheckPasswordForDataBreaches" = "Comprobar contrasinal en filtracións de datos";
 "PrivateNote" = "Nota privada";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "Xa existe unha Clave de acceso para esta aplicación.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Erro de descifrado";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Nome da conta";

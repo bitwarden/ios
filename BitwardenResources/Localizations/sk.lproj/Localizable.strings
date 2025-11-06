@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importujem...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Naozaj chcete prerušiť priebeh importu?";
 "ImportFailed" = "Import zlyhal";
-"ItemsSuccessfullyImported" = "%1$@ položiek bolo úspešne importovaných";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Import všetkých vašich hesiel zlyhal.\n\nNeboli vymazané žiadne dáta.";
 "RetryImport" = "Opakovať import";
 "ShowVault" = "Zobraziť trezor";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Názov Sendu (povinné)";
 "CheckPasswordForDataBreaches" = "Skontrolovať kompromitáciu hesla";
 "PrivateNote" = "Súkromná poznámka";
-"XItems" = "Položky: %1$@";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tohto používateľa nie je možné vymazať, pretože je jediným vlastníkom najmenej jednej organizácie. Odstráňte tieto organizácie, alebo povýšte iného používateľa.";
 "APasskeyAlreadyExistsForThisApplication" = "Pre túto aplikáciu už existuje prístupový kľúč.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pre túto aplikáciu už existuje prístupový kľúč, ale počas jej načítavania sa vyskytla chyba.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Naposledy upravené heslo: %1$@";
 "DecryptionError" = "Chyba dešifrovania";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nedokázal dešifrovať túto položku trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nedokázal dešifrovať 1 položku trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nedokázal dešifrovať položky (%1$@) trezoru. Skopírujte a zdieľajte toto hlásenie o chybe s oddelením Customer Success, aby ste zabránili ďalšej strate údajov.";
 "CopyErrorReport" = "Kopírovať hlásenie o chybe";
 "ErrorCannotDecrypt" = "[chyba: nedá sa dešifrovať]";
 "AccountName" = "Názov účtu";

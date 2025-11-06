@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Daxilə köçürülür...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Daxilə köçürmə prosesini ləğv etmək istədiyinizə əminsiniz?";
 "ImportFailed" = "Daxilə köçürmə uğursuz oldu";
-"ItemsSuccessfullyImported" = "%1$@ element uğurla daxilə köçürüldü";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bütün parollarınızı daxilə köçürərkən problem baş verdi.\n\nHeç bir veri silinmədi.";
 "RetryImport" = "Yenidən daxilə köçürməyə çalış";
 "ShowVault" = "Seyfi göstər";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send adı (tələb olunur)";
 "CheckPasswordForDataBreaches" = "Veri pozuntularına qarşı parolları yoxla";
 "PrivateNote" = "Özəl not";
-"XItems" = "%1$@ element";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Bu istifadəçi silinə bilmir, çünki ən azı bir təşkilatın tək sahibidir. Lütfən bu təşkilatları silin və ya başqa bir istifadəçini yüksəldin.";
 "APasskeyAlreadyExistsForThisApplication" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur, ancaq yüklənərkən bir xəta baş verdi.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Son parol güncəlləməsi: %1$@";
 "DecryptionError" = "Şifrə açma xətası";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden, bu seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden, 1 seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden, %1$@ seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
 "CopyErrorReport" = "Xəta hesabatını kopyala";
 "ErrorCannotDecrypt" = "[xəta: şifrə açıla bilmir]";
 "AccountName" = "Hesab adı";
