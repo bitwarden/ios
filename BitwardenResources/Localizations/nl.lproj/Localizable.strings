@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importeren...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Weet u zeker dat je het importproces wilt annuleren?";
 "ImportFailed" = "Importeren is mislukt";
-"ItemsSuccessfullyImported" = "%1$@ items succesvol geïmporteerd";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Er ging iets mis bij het importeren van al je wachtwoorden.\n\nEr zijn geen gegevens verwijderd.";
 "RetryImport" = "Import opnieuw proberen";
 "ShowVault" = "Kluis weergeven";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send naam (verplicht)";
 "CheckPasswordForDataBreaches" = "Controleer wachtwoord op datalekken";
 "PrivateNote" = "Privénotitie";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Kan deze gebruiker niet verwijderen omdat het de enige eigenaar is van ten minste één organisatie. Verwijder deze organisatie(s) of upgrade een andere gebruiker.";
 "APasskeyAlreadyExistsForThisApplication" = "Er bestaat al een passkey voor deze applicatie.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Er bestaat al een passkey voor deze applicatie, maar er is een fout opgetreden tijdens het laden ervan.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Wachtwoord laatst bijgewerkt: %1$@";
 "DecryptionError" = "Ontsleutelingsfout";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden kon het onderstaande kluisitem niet ontsleutelen. Kopieer deze foutenrapporte en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden kon één kluisitem niet ontsleutelen. Kopieer deze foutenrapporte en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden kon %1$@ kluisitems niet ontsleutelen. Kopieer deze foutenrapportage en stuur het door naar klantondersteuning om meer dataverlies te voorkomen.";
 "CopyErrorReport" = "Foutrapportage kopiëren";
 "ErrorCannotDecrypt" = "[fout: kan niet ontsleutelen]";
 "AccountName" = "Accountnaam";

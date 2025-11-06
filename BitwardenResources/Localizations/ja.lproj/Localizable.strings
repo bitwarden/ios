@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "インポート中…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "インポート処理をキャンセルしてもよろしいですか？";
 "ImportFailed" = "インポート失敗";
-"ItemsSuccessfullyImported" = "%1$@ 項目を正常にインポートしました";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "すべてのパスワードをインポートする際に問題が発生しました。\n\nデータは一切削除されてません。";
 "RetryImport" = "インポートをリトライする";
 "ShowVault" = "保管庫を表示";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send の名前 (必須)";
 "CheckPasswordForDataBreaches" = "パスワードが漏洩していないか確認する";
 "PrivateNote" = "非公開メモ";
-"XItems" = "%1$@ 項目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "このアプリにはすでにパスキーが存在します。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "このアプリのパスキーは既に存在しますが、読み込み中にエラーが発生しました。";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "復号エラー";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "アカウント名";

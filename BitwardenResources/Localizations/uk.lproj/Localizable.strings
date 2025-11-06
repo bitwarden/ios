@@ -69,7 +69,7 @@
 "Tools" = "Інструменти";
 "UseFingerprintToUnlock" = "Розблокуйте відбитком пальця";
 "UseThisButtonToGenerateANewUniquePassword" = "Використовуйте цю кнопку, щоб згенерувати новий унікальний пароль.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам потрібно налаштувати ключ автентифікації лише для входів, які потребують двоетапної перевірки за допомогою коду. Ключ буде постійно генерувати шестизначні коди, які ви можете використовувати, щоб увійти.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам потрібно налаштувати ключі автентифікації лише для записів, які потребують двоетапної перевірки за допомогою коду. Цей ключ постійно генеруватиме коди з 6 цифр, які можна використовувати для входу.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Використовуйте генератор для створення надійних паролів, парольних фраз та імен користувачів.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Парольні фрази легше запам'ятовуються і вводяться, порівняно з випадковими паролями. Їх доцільно використовувати для входу в облікові записи, де автозаповнення недоступне, як-от телевізійні служби потокової трансляції.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Унікальні імена користувачів додають ще один рівень безпеки й запобігають знаходженню ваших облікових записів хакерами.";
@@ -174,7 +174,7 @@
 "ItemUpdated" = "Запис збережено";
 "Submitting" = "Відправлення…";
 "Syncing" = "Синхронізація…";
-"SyncingLogins" = "Синхронізація записів...";
+"SyncingLogins" = "Синхронізація записів…";
 "SyncingComplete" = "Синхронізацію завершено";
 "SyncingFailed" = "Збій синхронізації";
 "SyncVaultNow" = "Синхронізувати зараз";
@@ -206,10 +206,10 @@
 "Off" = "Вимк";
 "On" = "Увімк";
 "Status" = "Стан";
-"BitwardenAutofillServiceAlert2" = "Найлегшим способом додавання нових записів у сховище є використання служби автозаповнення Bitwarden. Дізнайтеся більше про використання служби автозаповнення Bitwarden в меню \"Налаштування\".";
+"BitwardenAutofillServiceAlert2" = "Найлегшим способом додавання нових записів до сховища є використання служби автозаповнення Bitwarden. Дізнайтеся більше про використання служби автозаповнення Bitwarden в меню \"Налаштування\".";
 "Autofill" = "Автозаповнення";
 "AutofillOrView" = "Автоматично заповнити чи переглянути запис?";
-"BitwardenAutofillServiceMatchConfirm" = "Ви дійсно хочете використати цей запис для автозаповнення? Він не повністю відповідає \"%1$@\".";
+"BitwardenAutofillServiceMatchConfirm" = "Ви дійсно хочете використати цей запис для автозаповнення? Він не цілком відповідає \"%1$@\".";
 "MatchingItems" = "Відповідні записи";
 "PossibleMatchingItems" = "Можливі відповідні записи";
 "Search" = "Пошук";
@@ -249,7 +249,7 @@
 "CopyTotp" = "Копіювати TOTP";
 "CopyTotpAutomaticallyDescription" = "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення.";
 "CopyTotpAutomatically" = "Автоматично копіювати коди TOTP";
-"PremiumRequired" = "Для використання цієї функції необхідна передплата преміум.";
+"PremiumRequired" = "Для використання цієї функції необхідна передплата Premium.";
 "AttachementAdded" = "Вкладення додано";
 "AttachmentDeleted" = "Вкладення видалено";
 "ChooseFile" = "Обрати файл";
@@ -458,7 +458,7 @@
 "AskToAddLogin" = "Запитувати про додавання запису";
 "AskToAddLoginDescription" = "Запитувати про додавання запису, якщо його немає у вашому сховищі.";
 "OnRestart" = "Під час перезапуску програми";
-"AutofillServiceNotEnabled" = "Автозаповнення дає змогу безпечно отримувати доступ до вашого сховища Bitwarden з інших вебсайтів та програм. Схоже, ви не активували функцію автозаповнення Bitwarden. Увімкніть автозаповнення на екрані налаштувань.";
+"AutofillServiceNotEnabled" = "Автозаповнення дає змогу безпечно отримувати доступ до вашого сховища Bitwarden з інших вебсайтів та програм. Здається, ви не активували функцію автозаповнення Bitwarden. Увімкніть автозаповнення в меню \"Налаштування\".";
 "ThemeAppliedOnRestart" = "Зміни теми застосуються після перезапуску програми.";
 "Capitalize" = "Великі літери";
 "IncludeNumber" = "Включити число";
@@ -469,7 +469,7 @@
 "BiometricsDirection" = "Біометрична перевірка";
 "Biometrics" = "біометрією";
 "UseBiometricsToUnlock" = "Використовувати біометрію для розблокування";
-"AccessibilityOverlayPermissionAlert" = "Bitwarden потребує вашої уваги – знайдіть \"Служба доступності автозаповнення\" в налаштуваннях Bitwarden";
+"AccessibilityOverlayPermissionAlert" = "Bitwarden потребує вашої уваги. Знайдіть \"Служба доступності автозаповнення\" в налаштуваннях Bitwarden.";
 "BitwardenAutofillServiceOverlayPermission" = "3. У налаштуваннях Android для Bitwarden перейдіть до \"Накладання інших програм\" (розділ Розширені) і змініть положення перемикача для активації накладання.";
 "OverlayPermission" = "Дозвіл";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Відкрити налаштування дозволів накладання";
@@ -508,7 +508,7 @@
 "EnableSyncOnRefresh" = "Дозволити синхронізацію жестом";
 "EnableSyncOnRefreshDescription" = "Синхронізація сховища жестом Потягнути донизу.";
 "LogInSso" = "Єдиний корпоративний вхід (SSO)";
-"LogInSsoSummary" = "Quickly log in using your organization’s single sign-on portal. Please enter your organization’s identifier to begin.";
+"LogInSsoSummary" = "Швидкий вхід з використанням порталу єдиного входу вашої організації. Для початку введіть ідентифікатор організації.";
 "OrgIdentifier" = "Ідентифікатор організації";
 "LoginSsoError" = "Наразі неможливо увійти з SSO";
 "SetMasterPassword" = "Встановити головний пароль";
@@ -525,7 +525,7 @@
 "Loading" = "Завантаження";
 "AcceptPoliciesError" = "Умови користування та політика приватності не погоджені.";
 "PrivacyPolicy" = "Політика приватності";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden потребує вашої уваги. Увімкніть \"Накладання\" в \"Службах автозаповнення\" в налаштуваннях Bitwarden";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden потребує вашої уваги. Увімкніть \"Накладання\" в \"Службах автозаповнення\" у налаштуваннях Bitwarden.";
 "PasskeyManagement" = "Керування ключами доступу";
 "AutofillServices" = "Служби автозаповнення";
 "InlineAutofill" = "Використовувати вбудоване автозаповнення";
@@ -538,7 +538,7 @@
 "DrawOver" = "Використовувати накладання";
 "DrawOverDescription" = "Якщо увімкнено, дозволяє службі спеціальних можливостей Bitwarden показувати спливне повідомлення при виборі полів входу.";
 "DrawOverDescription2" = "Якщо увімкнено, служба доступності Bitwarden показуватиме спливне сповіщення під час вибору полів входу, щоб допомогти автоматично заповнити ваші облікові дані.";
-"DrawOverDescription3" = "If turned on, accessibility will show a popup to augment the Autofill Service for older apps that don’t support the Android Autofill Framework.";
+"DrawOverDescription3" = "Якщо ввімкнено, служба доступності покаже спливне повідомлення, щоб викликати службу автозаповнення для старіших програм, які не підтримують Android Autofill Framework.";
 "PersonalOwnershipSubmitError" = "Згідно з політикою компанії, вам заборонено зберігати записи в особистому сховищі. Змініть опцію власника на організацію та виберіть серед доступних збірок.";
 "PersonalOwnershipPolicyInEffect" = "Політика організації впливає на ваші параметри власності.";
 "Send" = "Відправлення";
@@ -585,7 +585,7 @@
 "AboutSend" = "Про відправлення";
 "HideEmail" = "Приховувати мою адресу електронної пошти від отримувачів";
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
-"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли через Send, необхідна передплата преміум.";
+"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли через Send, необхідна передплата Premium.";
 "SendFileEmailVerificationRequired" = "Для відправлення файлів необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі.";
 "PasswordPrompt" = "Повторний запит головного пароля";
 "PasswordConfirmation" = "Підтвердження головного пароля";
@@ -603,7 +603,7 @@
 "LeaveOrganization" = "Покинути організацію";
 "LeaveOrganizationName" = "Покинути %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "To continue, have your FIDO2 WebAuthn compatible security key ready, then follow the instructions after clicking “Authenticate WebAuthn” on the next screen.";
+"Fido2Instruction" = "Щоб продовжити, приготуйте свій ключ безпеки FIDO2, сумісний з WebAuthn, потім дотримуйтесь настанов після натискання \"Автентифікація WebAuthn\" на наступному екрані.";
 "Fido2Desc" = "Автентифікація з використанням FIDO2 WebAuthn. Ви можете пройти автентифікацію за допомогою зовнішнього ключа безпеки.";
 "Fido2AuthenticateWebAuthn" = "Автентифікація WebAuthn";
 "Fido2ReturnToApp" = "Повернутися до програми";
@@ -656,7 +656,7 @@
 "All" = "Усі";
 "Totp" = "TOTP";
 "VerificationCodes" = "Коди підтвердження";
-"PremiumSubscriptionRequired" = "Необхідна передплата преміум";
+"PremiumSubscriptionRequired" = "Необхідна передплата Premium";
 "CannotAddAuthenticatorKey" = "Не вдається додати ключ автентифікації?";
 "ScanQRCode" = "Сканувати QR-код";
 "CannotScanQRCode" = "Не вдається сканувати QR-код?";
@@ -711,8 +711,8 @@
 "EmailType" = "Тип е-пошти";
 "WebsiteRequired" = "Вебсайт (обов'язково)";
 "UnknownXErrorMessage" = "Сталася невідома помилка %1$@.";
-"PlusAddressedEmailDescription" = "Use your email provider’s subaddress capabilities";
-"CatchAllEmailDescription" = "Use your domain’s configured catch-all inbox.";
+"PlusAddressedEmailDescription" = "Використовуйте розширені можливості адрес вашого провайдера електронної пошти";
+"CatchAllEmailDescription" = "Використовуйте можливості Catch-All власного домену.";
 "ForwardedEmailDescription" = "Згенеруйте псевдонім е-пошти зі стороннім сервісом пересилання.";
 "Random" = "Випадково";
 "ConnectToWatch" = "Під'єднати годинник";
@@ -874,7 +874,7 @@
 "ErrorReadingPasskey" = "Помилка читання ключа доступу";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "Сталася помилка під час створення ключа доступу для %1$@. Повторіть спробу пізніше.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "Виникла проблема під час читання ключа доступу для %1$@. Повторіть спробу пізніше.";
-"VerifyingIdentityEllipsis" = "Verifying identity…";
+"VerifyingIdentityEllipsis" = "Перевірка даних…";
 "Passwords" = "Паролі";
 "UnknownAccount" = "Невідомий обліковий запис";
 "SetUpAutofill" = "Налаштувати автозаповнення";
@@ -882,7 +882,7 @@
 "SetUpAutoFillDescriptionLong" = "Щоб налаштувати автозаповнення паролів та керувати ключами доступу, зробіть Bitwarden своїм бажаним провайдером у параметрах iOS.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Відкрийте Параметри > Паролі > Параметри паролів";
 "SecondDotTurnOnAutoFill" = "2. Увімкніть автозаповнення";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Оберіть Bitwarden для паролів і ключів доступу";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Ваш ключ доступу буде збережено в сховищі Bitwarden";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Ваш ключ доступу буде збережено в сховищі Bitwarden для %1$@";
 "PasskeysNotSupportedForThisApp" = "Ця програма не підтримує ключі доступу";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Триває імпортування...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ви дійсно хочете скасувати процес імпортування?";
 "ImportFailed" = "Не вдалося імпортувати";
-"ItemsSuccessfullyImported" = "%1$@ записів успішно імпортовано";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Виникла проблема під час імпортування ваших паролів.\n\nЖодних даних не видалено.";
 "RetryImport" = "Повторити імпорт";
 "ShowVault" = "Показати сховище";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Назва відправлення (обов'язково)";
 "CheckPasswordForDataBreaches" = "Перевірити пароль у витоках даних";
 "PrivateNote" = "Приватна нотатка";
-"XItems" = "%1$@ записів";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Неможливо видалити цього користувача, оскільки він є єдиним власником принаймні однієї організації. Спершу видаліть ці організації або надайте повноваження іншому користувачу.";
 "APasskeyAlreadyExistsForThisApplication" = "Ключ доступу для цієї програми вже існує.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ключ доступу для цієї програми вже існує, але під час його завантаження виникла помилка.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Пароль востаннє оновлено: %1$@";
 "DecryptionError" = "Помилка розшифрування";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden не вдалося розшифрувати цей елемент сховища. Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden не вдалося розшифрувати 1 елемент сховища. Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden не вдалося розшифрувати елементи (%1$@) сховища. Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.";
 "CopyErrorReport" = "Копіювати звіт про помилку";
 "ErrorCannotDecrypt" = "[помилка: неможливо розшифрувати]";
 "AccountName" = "Назва облікового запису";
@@ -1263,19 +1259,19 @@
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Це можна змінити будь-коли в налаштуваннях.";
 "SelectAccount" = "Select account";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
-"Accounts" = "Accounts";
+"Accounts" = "Облікові записи";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Функція виявлення збігів URI керує ідентифікацією пропозицій автозаповнення Bitwarden.";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "\"Починається з\" – це функція для досвідчених користувачів, використання якої може призвести до розкриття облікових даних.";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "Регулярний вираз – це функція для досвідчених користувачів, неправильне використання якої може призвести до розкриття облікових даних.";
-"StartsWithAdvanced" = "Starts with (advanced)";
-"RegularExpressionAdvanced" = "Regular expression (advanced)";
+"StartsWithAdvanced" = "Починається з";
+"RegularExpressionAdvanced" = "Регулярний вираз";
 "AreYouSureYouWantToUseX" = "Ви дійсно хочете використовувати “%1$@”?";
 "KeepYourCredentialsSecure" = "Захистіть свої облікові дані";
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Докладніше про захист облікових даних під час використання “%1$@”.";
-"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Starts with” is an advanced option with increased risk of exposing credentials.";
-"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Починається з** – це функція для досвідчених користувачів, використання якої може призвести до розкриття облікових даних.";
+"WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Регулярний вираз** – це функція для досвідчених користувачів, неправильне використання якої може призвести до розкриття облікових даних.";
 "DefaultX" = "Типово (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Updating…";
+"Updating" = "Оновлення…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";

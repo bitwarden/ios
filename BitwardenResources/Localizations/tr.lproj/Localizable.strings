@@ -120,7 +120,7 @@
 "ExtensionSetup" = "Artık hesaplarınıza Safari, Chrome ve diğer desteklenen uygulamalardan kolayca ulaşabilirsiniz.";
 "ExtensionSetup2" = "Safari ve Chrome'da paylaşım simgesini kullanarak Bitwarden'ı bulun. (İpucu: Paylaş menüsünün alt satırının sağ tarafına bakın.)";
 "ExtensionTapIcon" = "Uzantıyı açmak için menüdeki Bitwarden simgesine dokunun.";
-"ExtensionTurnOn" = "To turn on Bitwarden in Safari and other apps, tap the “more” icon on the bottom row of the menu.";
+"ExtensionTurnOn" = "Bitwarden'ı Safari'de ve diğer uygulamalarda açmak için, menünün son sırasındaki \"daha fazla\" düğmesine tıklayın.";
 "Favorite" = "Favori";
 "Fingerprint" = "Parmak izi";
 "GeneratePassword" = "Parola oluştur";
@@ -162,7 +162,7 @@
 "PasswordHint" = "Parola ipucu";
 "PasswordHintAlert" = "Size ana parolanızın ipucunu içeren bir e-posta gönderdik.";
 "PasswordOverrideAlert" = "Mevcut parolanın üzerine kaydetmek istediğinize emin misiniz?";
-"PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
+"PushNotificationAlert" = "Bitwarden, anlık bildirimleri kullanarak kasanızı otomatik olarak eşitlemede tutar. Mümkün olabilecek en iyi deneyim için, devamındaki onaylama mesajında \"İzin Ver\" seçeneğini seçip anlık bildirimlere izin verin.";
 "RateTheApp" = "Uygulamaya puan verin";
 "RateTheAppDescription" = "İyi bir yorum yazarak bizi destekleyebilirsiniz.";
 "RegeneratePassword" = "Yeni parola oluştur";
@@ -230,7 +230,7 @@
 "UseAnotherTwoStepMethod" = "Başka bir iki aşamalı giriş yöntemini kullan";
 "VerificationEmailNotSent" = "Doğrulama e-postası gönderilemedi. Yeniden deneyin.";
 "VerificationEmailSent" = "Doğrulama e-postası gönderildi";
-"YubiKeyInstruction" = "To continue, hold your YubiKey NEO against the back of the device or insert your YubiKey into your device’s USB port, then touch its button.";
+"YubiKeyInstruction" = "Devam etmek için, cihazın arkasına YubiKey NEO'yu tutun veya cihazın USB girişine YubiKey'i takın, ardından düğmesine basın.";
 "YubiKeyTitle" = "YubiKey güvenlik anahtarı";
 "AddNewAttachment" = "Yeni dosya ekle";
 "Attachments" = "Dosyalar";
@@ -374,11 +374,11 @@
 "AutofillSetup2" = "Başka otomatik doldurma uygulamalarınız varsa ve artık onları kullanmayı düşünmüyorsanız Ayarlar'dan onları devre dışı bırakmanızı öneririz.";
 "BitwardenAutofillDescription" = "Parolalarınızı hızlıca otomatik doldurmak için kasanıza doğrudan klavyeden erişin.";
 "AutofillTurnOn" = "Cihazınızda otomatik parola doldurmayı açmak için şu talimatları izleyin:";
-"AutofillTurnOn1" = "1. Go to the iOS “Settings” app";
-"AutofillTurnOn2" = "2. Tap “Passwords”";
-"AutofillTurnOn3" = "3. Tap “AutoFill Passwords”";
+"AutofillTurnOn1" = "1. iOS \"Ayarlar\" uygulamasına girin";
+"AutofillTurnOn2" = "2. \"Parolalar\"a basın";
+"AutofillTurnOn3" = "3. “Parolaları Otomatik Doldur”u Seçin";
 "AutofillTurnOn4" = "4. Otomatik doldurmayı açın";
-"AutofillTurnOn5" = "5. Select “Bitwarden”";
+"AutofillTurnOn5" = "5. “Bitwarden”ı seçin";
 "PasswordAutofill" = "Otomatik parola doldurma";
 "BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
 "InvalidEmail" = "Geçersiz e-posta adresi.";
@@ -874,7 +874,7 @@
 "ErrorReadingPasskey" = "Geçiş anahtarı okuma hatası";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "%1$@ için geçiş anahtarı oluşturulamadı. Daha sonra tekrar deneyin.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "%1$@ için geçiş anahtarı okunamadı. Daha sonra tekrar deneyin.";
-"VerifyingIdentityEllipsis" = "Verifying identity…";
+"VerifyingIdentityEllipsis" = "Kimlik doğrulanıyor…";
 "Passwords" = "Parolalar";
 "UnknownAccount" = "Bilinmeyen hesap";
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
@@ -882,7 +882,7 @@
 "SetUpAutoFillDescriptionLong" = "Otomatik parola doldurma ve anahtar yönetimi için, iOS ayarlarında Bitwarden'ı tercih edilen sağlayıcı olarak belirleyin.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Cihazınızda Ayarlar > Parolalar > Parola Seçenekleri kısmına gidin";
 "SecondDotTurnOnAutoFill" = "2. Otomatik doldurmayı açın";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. “Bitwarden”ı seçip şifre ve parolalarınız için kullanın";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "%1$@ için geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "PasskeysNotSupportedForThisApp" = "Bu uygulamada geçiş anahtarları desteklenmiyor";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "İçe aktarılıyor…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "İçe aktarma işlemini iptal etmek istediğinize emin misiniz?";
 "ImportFailed" = "İçe aktarma başarısız oldu";
-"ItemsSuccessfullyImported" = "%1$@ kayıt başarıyla içe aktarıldı";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Tüm parolalarınızı içe aktarırken bir sorun oluştu.\n\nHiçbir veri silinmedi.";
 "RetryImport" = "İçe aktarmayı yeniden dene";
 "ShowVault" = "Kasayı göster";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send adı (gerekli)";
 "CheckPasswordForDataBreaches" = "Parolayı veri ihlallerine karşı kontrol et";
 "PrivateNote" = "Özel not";
-"XItems" = "%1$@ kayıt";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Bu kullanıcı, en az bir kuruluşun tek sahibi olduğu için silinemez. Lütfen bu kuruluşları silin veya başka bir kullanıcıyı yükseltin.";
 "APasskeyAlreadyExistsForThisApplication" = "Bu uygulama için bir geçiş anahtarı zaten mevcut.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Bu uygulama için bir anahtar zaten mevcut ancak yüklenirken bir hata oluştu.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Son parola güncellemesi: %1$@";
 "DecryptionError" = "Deşifre hatası";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden, bu kasa öğesinin şifresini çözemedi. Ek veri kaybını önlemek için bu hata raporunu kopyalayıp müşteri başarı ekibiyle paylaşın.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden, 1 kasa öğesinin şifresini çözemedi. Ek veri kaybını önlemek için bu hata raporunu kopyalayıp müşteri başarı ekibiyle paylaşın.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden, %1$@ kasa öğesinin şifresini çözemedi. Ek veri kaybını önlemek için bu hata raporunu kopyalayıp müşteri başarı ekibiyle paylaşın.";
 "CopyErrorReport" = "Hata raporunu kopyala";
 "ErrorCannotDecrypt" = "[hata: deşifre edilemiyor]";
 "AccountName" = "Hesap adı";

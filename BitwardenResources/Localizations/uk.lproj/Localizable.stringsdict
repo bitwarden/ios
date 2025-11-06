@@ -2,6 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- An error report if there are issues decrypting vault items. -->
+    <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
+      <key>vaultitems</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Bitwarden could not decrypt %d vault item</string>
+        <key>few</key>
+        <string>Bitwarden could not decrypt %d vault items</string>
+        <key>many</key>
+        <string>Bitwarden could not decrypt %d vault items</string>
+        <key>other</key>
+        <string>Bitwarden could not decrypt %d vault items</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -23,6 +44,48 @@
         <string>%d days</string>
       </dict>
     </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@</string>
+      <key>items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d item</string>
+        <key>few</key>
+        <string>%d items</string>
+        <key>many</key>
+        <string>%d items</string>
+        <key>other</key>
+        <string>%d items</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@ записів успішно імпортовано</string>
+      <key>items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d item</string>
+        <key>few</key>
+        <string>%d items</string>
+        <key>many</key>
+        <string>%d items</string>
+        <key>other</key>
+        <string>%d items</string>
+      </dict>
+    </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
     <key>XHours</key>
     <dict>
@@ -35,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d година</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d години</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d годин</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d годин</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -56,13 +119,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d хвилина</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d хвилини</string>
         <key>many</key>
-        <string>%d minutes</string>
+        <string>%d хвилин</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d хвилин</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -77,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d секунда</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d секунди</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d секунд</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d секунд</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -98,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d тиждень</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d тижні</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d тижнів</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d тижнів</string>
       </dict>
     </dict>
   </dict>

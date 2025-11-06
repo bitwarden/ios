@@ -1082,7 +1082,6 @@
 "ImportingEllipsis" = "Импорт…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Вы уверены, что хотите отменить импорт?";
 "ImportFailed" = "Не удалось импортировать";
-"ItemsSuccessfullyImported" = "%1$@ элементов успешно импортированы";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Возникла проблема с импортом всех ваших паролей.\n\nНикакие данные не были удалены.";
 "RetryImport" = "Повторить импорт";
 "ShowVault" = "Показать хранилище";
@@ -1104,7 +1103,6 @@
 "SendNameRequired" = "Название Send (требуется)";
 "CheckPasswordForDataBreaches" = "Проверить пароль на скомпрометированность";
 "PrivateNote" = "Приватная заметка";
-"XItems" = "Элементов: %1$@";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Невозможно удалить этого пользователя, поскольку он является единственным владельцем по крайней мере одной организации. Пожалуйста, удалите эти организации или обновите другого пользователя.";
 "APasskeyAlreadyExistsForThisApplication" = "Для данного приложения уже существует passkey.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Passkey уже существует для этого приложения, но при его загрузке произошла ошибка.";
@@ -1196,8 +1194,6 @@
 "PasswordLastUpdated" = "Последнее обновление пароля: %1$@";
 "DecryptionError" = "Ошибка расшифровки";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden не удалось расшифровать этот элемент хранилища. Скопируйте и передайте этот отчет об ошибке в службу поддержки клиентов, чтобы избежать дополнительной потери данных.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden не удалось расшифровать 1 элемент хранилища. Скопируйте и передайте этот отчет об ошибке в службу поддержки клиентов, чтобы избежать дополнительной потери данных.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden не удалось расшифровать %1$@ элементов хранилища. Скопируйте и передайте этот отчет об ошибке в службу поддержки клиентов, чтобы избежать дополнительной потери данных.";
 "CopyErrorReport" = "Скопировать отчет об ошибке";
 "ErrorCannotDecrypt" = "[ошибка: невозможно расшифровать]";
 "AccountName" = "Название аккаунта";
