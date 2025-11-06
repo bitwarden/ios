@@ -9,7 +9,9 @@ extension ExternalLinksConstants {
     // MARK: Properties
 
     /// A link to Apple's guide on backing up iPhone.
-    static let backupInformation = URL(string: "https://support.apple.com/guide/iphone/back-up-iphone-iph3ecf67d29/ios")!
+    static let backupInformation = URL(
+        string: "https://support.apple.com/guide/iphone/back-up-iphone-iph3ecf67d29/ios",
+    )!
 
     /// A link to the password manager app within the app store.
     static let passwordManagerLink = URL(string: "https://itunes.apple.com/app/id1137397744?mt=8")!
