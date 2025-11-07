@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 import MachO // dyld
 
@@ -7,7 +6,7 @@ import MachO // dyld
 /// A helper object to build error reports to provide detailed error information to share about the
 /// error that occurred.
 ///
-protocol ErrorReportBuilder {
+public protocol ErrorReportBuilder {
     /// Returns a string containing detailed error information to share about an error that occurred.
     ///
     /// - Parameters:
@@ -23,7 +22,7 @@ protocol ErrorReportBuilder {
 
 /// A default implementation of `ErrorReportBuilder` which provides detailed information about an error.
 ///
-struct DefaultErrorReportBuilder {
+public struct DefaultErrorReportBuilder {
     // MARK: Properties
 
     /// The service used by the application to manage account state.
@@ -80,7 +79,7 @@ struct DefaultErrorReportBuilder {
 // MARK: DefaultErrorReportBuilder + ErrorReportBuilder
 
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
-    func buildShareErrorLog(for error: Error, callStack: String) async -> String {
+    public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         let userId = await (try? activeAccountStateProvider.getActiveAccountId()) ?? "n/a"
         return """
         \(error as NSError)
