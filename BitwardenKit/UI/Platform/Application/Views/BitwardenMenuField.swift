@@ -120,10 +120,11 @@ public struct BitwardenMenuField<
                             )
                             .foregroundColor(isEnabled
                                 ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
-                                .onSizeChanged { size in
-                                    titleWidth = size.width
-                                }
+                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                            )
+                            .onSizeChanged { size in
+                                titleWidth = size.width
+                            }
                     }
 
                     Text(selection.localizedName)
@@ -150,20 +151,21 @@ public struct BitwardenMenuField<
         .styleGuide(.body)
         .foregroundColor(isEnabled
             ? SharedAsset.Colors.textPrimary.swiftUIColor
-            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
-            .frame(minHeight: 64)
-            .accessibilityIdentifier(accessibilityIdentifier ?? "")
-            .overlay {
-                if let titleAccessoryContent {
-                    titleAccessoryContent
-                        .frame(
-                            maxWidth: .infinity,
-                            maxHeight: .infinity,
-                            alignment: .topLeading,
-                        )
-                        .offset(x: titleWidth + 4, y: 12)
-                }
+            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+        )
+        .frame(minHeight: 64)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
+        .overlay {
+            if let titleAccessoryContent {
+                titleAccessoryContent
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading,
+                    )
+                    .offset(x: titleWidth + 4, y: 12)
             }
+        }
     }
 
     // MARK: Initialization

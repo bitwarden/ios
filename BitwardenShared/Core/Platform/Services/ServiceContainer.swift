@@ -70,16 +70,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let clientService: ClientService
 
     /// The service to get server-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
+    public let environmentService: EnvironmentService
 
     /// A helper for building an error report containing the details of an error that occurred.
     let errorReportBuilder: ErrorReportBuilder
 
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to record and send events.
     let eventService: EventService
@@ -164,7 +164,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let textAutofillHelperFactory: TextAutofillHelperFactory
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
 
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
