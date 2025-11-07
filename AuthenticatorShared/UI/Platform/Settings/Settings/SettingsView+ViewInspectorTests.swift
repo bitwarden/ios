@@ -73,6 +73,34 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .exportItemsTapped)
     }
 
+    /// The flight recorder toggle turns logging on and off.
+    @MainActor
+    func test_flightRecorder_toggle_tap() async throws {
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
+
+        try toggle.tap()
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(true))])
+        processor.effects.removeAll()
+
+        processor.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
+        try toggle.tap()
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(false))])
+    }
+
+    /// Tapping the flight recorder view recorded logs button dispatches the
+    /// `.viewFlightRecorderLogsTapped` action.
+    @MainActor
+    func test_flightRecorder_viewRecordedLogsButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.viewRecordedLogs)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .flightRecorder(.viewLogsTapped))
+    }
+
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
     @MainActor
     func test_helpCenterButton_tap() throws {
