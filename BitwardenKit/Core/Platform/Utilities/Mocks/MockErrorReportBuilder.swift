@@ -6,6 +6,8 @@ public class MockErrorReportBuilder: ErrorReportBuilder {
     public var buildShareErrorLogError: Error?
     public var buildShareErrorLogReturnValue: String = "Bitwarden Error Report"
 
+    public init() {}
+
     public func buildShareErrorLog(for error: Error, callStack: String) -> String {
         buildShareErrorLogCallStack = callStack
         buildShareErrorLogError = error
