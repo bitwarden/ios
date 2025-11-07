@@ -40,7 +40,7 @@ public struct DefaultErrorReportBuilder {
     ///   - appInfoService: The service used by the application to get info about the app
     ///     and device it's running on.
     ///
-    init(
+    public init(
         activeAccountStateProvider: ActiveAccountStateProvider,
         appInfoService: AppInfoService,
     ) {
