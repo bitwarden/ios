@@ -30,7 +30,7 @@ struct DefaultErrorReportBuilder {
     private let appInfoService: AppInfoService
 
     /// The service used by the application to manage account state.
-    private let stateService: StateService
+    private let activeAccountIDProvider: ActiveAccountIDProvider
 
     // MARK: Initialization
 
@@ -41,9 +41,9 @@ struct DefaultErrorReportBuilder {
     ///     and device it's running on.
     ///   - stateService: The service used by the application to manage account state.
     ///
-    init(appInfoService: AppInfoService, stateService: StateService) {
+    init(appInfoService: AppInfoService, activeAccountIDProvider: ActiveAccountIDProvider) {
         self.appInfoService = appInfoService
-        self.stateService = stateService
+        self.activeAccountIDProvider = activeAccountIDProvider
     }
 
     // MARK: Private
@@ -78,7 +78,7 @@ struct DefaultErrorReportBuilder {
 
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
     func buildShareErrorLog(for error: Error, callStack: String) async -> String {
-        let userId = await (try? stateService.getActiveAccountId()) ?? "n/a"
+        let userId = await (try? activeAccountIDProvider.getActiveAccountId()) ?? "n/a"
         return """
         \(error as NSError)
         \(error.localizedDescription)
