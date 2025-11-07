@@ -447,8 +447,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService,
         )
         let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
-            stateService: stateService,
         )
 
         let configService = DefaultConfigService(

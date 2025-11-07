@@ -1,10 +1,4 @@
-public protocol ConfigStateService: AnyObject {
-    /// Gets the active account id.
-    ///
-    /// - Returns: The active user account id.
-    ///
-    func getActiveAccountId() async throws -> String
-
+public protocol ConfigStateService: ActiveAccountStateProvider {
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?

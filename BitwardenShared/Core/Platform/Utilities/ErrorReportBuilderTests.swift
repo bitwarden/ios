@@ -26,7 +26,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         appInfoService = MockAppInfoService()
         stateService = MockStateService()
 
-        subject = DefaultErrorReportBuilder(appInfoService: appInfoService, stateService: stateService)
+        subject = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
+            appInfoService: appInfoService,
+        )
     }
 
     override func tearDown() {

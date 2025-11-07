@@ -144,7 +144,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ConfigStateService {
+actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService {
     // MARK: Properties
 
     /// The language option currently selected for the app.
