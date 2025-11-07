@@ -12,7 +12,7 @@ public struct ActionCardType: BaseViewType {
     public static var typePrefix: String = "ActionCard"
 
     public static var namespacedPrefixes: [String] = [
-        "BitwardenShared.ActionCard",
+        "BitwardenKit.ActionCard",
     ]
 }
 

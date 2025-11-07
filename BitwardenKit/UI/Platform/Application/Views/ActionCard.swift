@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -6,12 +5,12 @@ import SwiftUI
 
 /// A view that displays a card representing an action that the user needs to take.
 ///
-struct ActionCard<LeadingContent: View>: View {
+public struct ActionCard<LeadingContent: View>: View {
     // MARK: Types
 
     /// A data model containing the properties for a button within an action card.
     ///
-    struct ButtonState {
+    public struct ButtonState {
         // MARK: Properties
 
         /// An action to perform when the button is tapped.
@@ -28,7 +27,7 @@ struct ActionCard<LeadingContent: View>: View {
         ///   - title: The title of the button.
         ///   - action: An action to perform when the button is tapped.
         ///
-        init(title: String, action: @escaping () async -> Void) {
+        public init(title: String, action: @escaping () async -> Void) {
             self.action = action
             self.title = title
         }
@@ -53,7 +52,7 @@ struct ActionCard<LeadingContent: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 8) {
                 if let leadingContent {
@@ -110,7 +109,7 @@ struct ActionCard<LeadingContent: View>: View {
     ///   - dismissButtonState: State that describes the dismiss button.
     ///   - leadingContent: Content that is displayed at the leading edge of the title and message.
     ///
-    init(
+    public init(
         title: String,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
@@ -132,7 +131,7 @@ struct ActionCard<LeadingContent: View>: View {
     ///   - actionButtonState: State that describes the action button.
     ///   - dismissButtonState: State that describes the dismiss button.
     ///
-    init(
+    public init(
         title: String,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,

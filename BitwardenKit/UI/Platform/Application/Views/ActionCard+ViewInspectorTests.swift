@@ -1,8 +1,9 @@
 // swiftlint:disable:this file_name
 import SwiftUI
+import ViewInspectorTestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 final class ActionCardTests: BitwardenTestCase {
     // MARK: Tests
