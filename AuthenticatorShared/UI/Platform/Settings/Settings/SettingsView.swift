@@ -102,7 +102,7 @@ struct SettingsView: View {
                     store.send(.backupTapped)
                 }
 
-                syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
+                syncWithPasswordManagerRow
 
                 if store.state.shouldShowDefaultSaveOption {
                     defaultSaveOption
@@ -181,6 +181,38 @@ struct SettingsView: View {
         }
     }
 
+    /// The settings row for syncing with the Password Manager app.
+    private var syncWithPasswordManagerRow: some View {
+        Button {
+            store.send(.syncWithBitwardenAppTapped)
+        } label: {
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localizations.syncWithBitwardenApp)
+                        .styleGuide(.body)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                    Text(LocalizedStringKey(
+                        Localizations.learnMoreLink(
+                            ExternalLinksConstants.totpSyncHelp,
+                        ),
+                    ))
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.leading)
+
+                SharedAsset.Icons.externalLink16.swiftUIImage
+                    .imageStyle(.rowIcon)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    }
+
     /// The application's color theme picker view.
     private var theme: some View {
         BitwardenMenuField(
@@ -234,44 +266,6 @@ struct SettingsView: View {
             SharedAsset.Icons.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
-    }
-
-    /// The settings row for syncing with the Password Manager app.
-    private func syncWithPasswordManagerRow(hasDivider: Bool) -> some View {
-        Button {
-            store.send(.syncWithBitwardenAppTapped)
-        } label: {
-            VStack(spacing: 0) {
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(Localizations.syncWithBitwardenApp)
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-
-                        Text(LocalizedStringKey(
-                            Localizations.learnMoreLink(
-                                ExternalLinksConstants.totpSyncHelp,
-                            ),
-                        ))
-                        .styleGuide(.subheadline)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .multilineTextAlignment(.leading)
-
-                    SharedAsset.Icons.externalLink16.swiftUIImage
-                        .imageStyle(.rowIcon)
-                }
-                .padding(16)
-
-                if hasDivider {
-                    Divider()
-                        .padding(.leading, 16)
-                }
-            }
-        }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 }
 
