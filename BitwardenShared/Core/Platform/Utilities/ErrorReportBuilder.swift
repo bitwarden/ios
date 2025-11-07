@@ -26,24 +26,27 @@ protocol ErrorReportBuilder {
 struct DefaultErrorReportBuilder {
     // MARK: Properties
 
-    /// The service used by the application to get info about the app and device it's running on.
-    private let appInfoService: AppInfoService
-
     /// The service used by the application to manage account state.
     private let activeAccountStateProvider: ActiveAccountStateProvider
+
+    /// The service used by the application to get info about the app and device it's running on.
+    private let appInfoService: AppInfoService
 
     // MARK: Initialization
 
     /// Initialize an `ErrorReportBuilder`.
     ///
     /// - Parameters:
+    ///   - activeAccountStateProvider: Object that provides the active account state.
     ///   - appInfoService: The service used by the application to get info about the app
     ///     and device it's running on.
-    ///   - stateService: The service used by the application to manage account state.
     ///
-    init(appInfoService: AppInfoService, activeAccountStateProvider: ActiveAccountStateProvider) {
-        self.appInfoService = appInfoService
+    init(
+        activeAccountStateProvider: ActiveAccountStateProvider,
+        appInfoService: AppInfoService,
+    ) {
         self.activeAccountStateProvider = activeAccountStateProvider
+        self.appInfoService = appInfoService
     }
 
     // MARK: Private
