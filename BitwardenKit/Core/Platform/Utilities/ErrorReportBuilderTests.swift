@@ -1,8 +1,7 @@
+import BitwardenKit
 import BitwardenKitMocks
 import InlineSnapshotTesting
 import XCTest
-
-@testable import BitwardenShared
 
 class ErrorReportBuilderTests: BitwardenTestCase {
     // MARK: Properties
