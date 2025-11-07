@@ -1,4 +1,4 @@
-public protocol ConfigStateService: ActiveAccountIDProvider {
+public protocol ConfigStateService: ActiveAccountStateProvider {
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?
