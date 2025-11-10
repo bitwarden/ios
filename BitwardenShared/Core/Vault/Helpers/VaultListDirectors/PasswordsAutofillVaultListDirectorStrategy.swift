@@ -39,7 +39,7 @@ struct PasswordsAutofillVaultListDirectorStrategy: VaultListDirectorStrategy {
     ) async throws -> VaultListData {
         guard !ciphers.isEmpty else { return VaultListData() }
 
-        guard let preparedData = try await vaultListDataPreparator.prepareAutofillPasswordsData(
+        guard let preparedData = await vaultListDataPreparator.prepareAutofillPasswordsData(
             from: ciphers,
             filter: filter,
         ) else {

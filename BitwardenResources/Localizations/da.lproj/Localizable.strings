@@ -11,7 +11,7 @@
 "CopyUsername" = "Kopiér brugernavn";
 "Credits" = "Tak til";
 "Delete" = "Slet";
-"DeleteAll" = "Delete all";
+"DeleteAll" = "Slet alt";
 "Deleting" = "Deleting…";
 "DoYouReallyWantToDelete" = "Er du sikker på, at du vil slette? Dette kan ikke fortrydes.";
 "Edit" = "Redigér";
@@ -55,11 +55,11 @@
 "Name" = "Navn";
 "No" = "Nej";
 "Notes" = "Notater";
-"OK" = "OK";
+"OK" = "Ok";
 "Password" = "Adgangskode";
 "Save" = "Gem";
 "Move" = "Flyt";
-"Saving" = "Saving…";
+"Saving" = "Gemmer…";
 "Settings" = "Indstillinger";
 "Show" = "Vis";
 "ItemDeleted" = "Element slettet";
@@ -73,7 +73,7 @@
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unikke brugernavne tilføje et ekstra lag af sikkerhed og kan medvirke til at hindre hackere i at finde brugerkonti.";
-"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Brug disse indstillinger til at justere din adgangskode til at opfylde dit websteds krav.";
 "AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Man skal tilføje en webadresse for at bruge autofyldning for at tilgå denne konto.";
 "Username" = "Brugernavn";
@@ -131,8 +131,6 @@
 "LastSync" = "Seneste synkronisering:";
 "Length" = "Længde";
 "Lock" = "Lås";
-"OneHour" = "1 time";
-"FourHours" = "4 timer";
 "Immediately" = "Straks";
 "VaultTimeout" = "Boks-timeout";
 "VaultTimeoutAction" = "Boks-timeout handling";
@@ -232,7 +230,7 @@
 "UseAnotherTwoStepMethod" = "Brug en anden to-trins-loginmetode";
 "VerificationEmailNotSent" = "Kunne ikke sende bekræftelses-email. Prøv igen.";
 "VerificationEmailSent" = "Bekræftelses-email sendt.";
-"YubiKeyInstruction" = "To continue, hold your YubiKey NEO against the back of the device or insert your YubiKey into your device’s USB port, then touch its button.";
+"YubiKeyInstruction" = "For at fortsætte, holde YubiKey NEO mod bagsiden af enheden eller isæt den i enhedens USB-port og tryk på dens knap.";
 "YubiKeyTitle" = "YubiKey sikkerhedsnøgle";
 "AddNewAttachment" = "Tilføj ny vedhæftning";
 "Attachments" = "Vedhæftninger";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Din boks er låst. Bekræft din identitet for at fortsætte.";
 "Dark" = "Mørk";
 "Light" = "Lys";
-"TenSeconds" = "10 sekunder";
-"ThirtySeconds" = "30 sekunder";
-"TwentySeconds" = "20 sekunder";
 "ClearClipboard" = "Ryd udklipsholder";
 "ClearClipboardDescription" = "Fjern automatisk kopierede data fra din udklipsholder.";
 "DefaultUriMatchDetection" = "Standard URI-matchdetektering";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send slettet";
 "SendUpdated" = "Send gemt";
 "NewSendCreated" = "Send oprettet";
-"OneDay" = "1 dag";
-"TwoDays" = "2 dage";
-"ThreeDays" = "3 dage";
-"SevenDays" = "7 dage";
-"ThirtyDays" = "30 dage";
 "Custom" = "Tilpasset";
 "ShareOnSave" = "Del denne Send, når den gemmes";
 "SendDisabledWarning" = "Du kan grundet en virksomhedspolitik kun slette en eksisterende Send.";
@@ -613,7 +603,7 @@
 "LeaveOrganization" = "Forlad organisation";
 "LeaveOrganizationName" = "Forlad %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "To continue, have your FIDO2 WebAuthn compatible security key ready, then follow the instructions after clicking “Authenticate WebAuthn” on the next screen.";
+"Fido2Instruction" = "For at fortsætte, skal man have sin FIDO2 WebAuthn-kompatible sikkerhedsnøgle klar, klikke på 'Godkend WebAuthn' på næste skærmbillede og følge vejledningen.";
 "Fido2Desc" = "Godkendelse ved hjælp af FIDO2 WebAuthn, du kan godkende ved hjælp af en ekstern sikkerhedsnøgle.";
 "Fido2AuthenticateWebAuthn" = "Godkend WebAuthn";
 "Fido2ReturnToApp" = "Vend tilbage til app";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "En time og %1$@ minutter";
 "XHoursAndOneMinute" = "%1$@ timer og et minut";
 "XHoursAndYMinutes" = "%1$@ timer and %2$@ minutter";
-"XHours" = "%1$@ timer";
 "PasskeyManagementExplanationLong" = "Brug Bitwarden til at gemme nye adgangsnøgler og logge ind med adgangsnøgler gemt i boksen.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework bruges til at hjælpe med at udfylde loginoplysninger i andre apps på enheden.";
 "UseInlineAutofillExplanationLong" = "Brug inline-autofyld, hvis det valgte tastatur understøtter det, ellers brug standardoverlejring.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sikker på, at importprocessen skal afbrydes?";
 "ImportFailed" = "Import mislykkedes";
-"ItemsSuccessfullyImported" = "%1$@ emner er importeret";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Der opstod et problem ved import af alle adgangskoderne.\n\nIngen data blev slettet.";
 "RetryImport" = "Forsøg at importere igen";
 "ShowVault" = "Vis boks";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send navn (obligatorisk)";
 "CheckPasswordForDataBreaches" = "Tjek adgangskode for datalæk";
 "PrivateNote" = "Privat notat";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "En adgangsnøgle findes allerede til denne applikation.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Logging duration";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
-"OneWeek" = "1 week";
 "ShowMore" = "Show more";
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Dekrypteringsfejl";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Kontonavn";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Lokale koder";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 sekunder";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "Der er ingen koder at vise";
 "None" = "Intet";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Log ind ved vha. unikke koder";
-"SixtySeconds" = "60 sekunder";
 "Skip" = "Overspring";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Gem alle logins og synk bekræftelseskoder direkte med Authenticator-appen.";

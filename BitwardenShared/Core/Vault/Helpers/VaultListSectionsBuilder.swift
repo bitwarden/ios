@@ -9,6 +9,11 @@ import OSLog
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListSectionsBuilder { // sourcery: AutoMockable
+    /// Adds a section with passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// - Parameter rpID: The relying party identifier of the Fido2 request.
+    /// - Returns: The builder for fluent code.
+    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder
+
     /// Adds a section with passwords and Fido2 items for Autofill vault list in a combined single section.
     /// - Returns: The builder for fluent code.
     func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder
@@ -109,6 +114,32 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
     }
 
     // MARK: Methods
+
+    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder {
+        if !preparedData.fido2Items.isEmpty, let rpID {
+            vaultListData.sections.append(VaultListSection(
+                id: Localizations.passkeysForX(rpID),
+                items: preparedData.fido2Items.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: Localizations.passkeysForX(rpID),
+            ))
+        }
+
+        if !preparedData.groupItems.isEmpty {
+            let passwordsSectionName = if let rpID {
+                Localizations.passwordsForX(rpID)
+            } else {
+                Localizations.passwords
+            }
+
+            vaultListData.sections.append(VaultListSection(
+                id: passwordsSectionName,
+                items: preparedData.groupItems.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: passwordsSectionName,
+            ))
+        }
+
+        return self
+    }
 
     func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder {
         guard !preparedData.groupItems.isEmpty || !preparedData.fido2Items.isEmpty else {
@@ -370,4 +401,4 @@ struct VaultListPreparedData {
     /// Organization Ids with `.restrictItemTypes` policy enabled.
     var restrictedOrganizationIds: [String] = []
     var totpItemsCount: Int = 0
-}
+} // swiftlint:disable:this file_length

@@ -16,9 +16,9 @@ typealias Services = HasAppInfoService
     & HasNotificationCenterService
     & HasPasteboardService
     & HasStateService
-    & HasTimeProvider
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
+    & HasTimeProvider
 
 /// Protocol for an object that provides an `Application`
 ///
@@ -54,25 +54,11 @@ protocol HasCameraService {
     var cameraService: CameraService { get }
 }
 
-/// Protocol for an object that provides a `ConfigService`.
-///
-protocol HasConfigService {
-    /// The service to get server-specified configuration.
-    var configService: ConfigService { get }
-}
-
 /// Protocol for an object that provides a `CryptographyService`
 ///
 protocol HasCryptographyService {
     /// The service used by the application to encrypt and decrypt items
     var cryptographyService: CryptographyService { get }
-}
-
-/// Protocol for an object that provides an `ErrorReporter`.
-///
-protocol HasErrorReporter {
-    /// The service used by the application to report non-fatal errors.
-    var errorReporter: ErrorReporter { get }
 }
 
 /// Protocol for an object that provides an `ExportItemsService`.
@@ -115,13 +101,6 @@ protocol HasStateService {
 protocol HasTOTPService {
     /// A service used to validate authentication keys and generate TOTP codes.
     var totpService: TOTPService { get }
-}
-
-/// Protocol for an object that provides a `TimeProvider`.
-///
-protocol HasTimeProvider {
-    /// Provides the present time for TOTP Code Calculation.
-    var timeProvider: TimeProvider { get }
 }
 
 /// Protocol for an object that provides a `TOTPExpirationManagerFactory`.

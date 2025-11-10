@@ -131,8 +131,6 @@
 "LastSync" = "Viimeisin synkronointi:";
 "Length" = "Pituus";
 "Lock" = "Lukitse";
-"OneHour" = "1 tunti";
-"FourHours" = "4 tuntia";
 "Immediately" = "Välittömästi";
 "VaultTimeout" = "Holvin aikakatkaisu";
 "VaultTimeoutAction" = "Holvin aikakatkaisutoiminto";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi.";
 "Dark" = "Tumma";
 "Light" = "Vaalea";
-"TenSeconds" = "10 sekuntia";
-"ThirtySeconds" = "30 sekuntia";
-"TwentySeconds" = "20 sekuntia";
 "ClearClipboard" = "Tyhjennä leikepöytä";
 "ClearClipboardDescription" = "Poista kopioidut arvot leikepöydältä automaattisesti.";
 "DefaultUriMatchDetection" = "URI:n oletuarvoinen tunnistustapa";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send poistettiin";
 "SendUpdated" = "Send tallennettiin";
 "NewSendCreated" = "Send luotiin";
-"OneDay" = "1 päivä";
-"TwoDays" = "2 päivää";
-"ThreeDays" = "3 päivää";
-"SevenDays" = "7 päivää";
-"ThirtyDays" = "30 päivää";
 "Custom" = "Mukautettu";
 "ShareOnSave" = "Jaa Send tallennettaessa";
 "SendDisabledWarning" = "Yrityskäytännön vuoksi voit poistaa vain olemassa olevan Sendin.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Tunti ja %1$@ minuuttia";
 "XHoursAndOneMinute" = "%1$@ tuntia ja minuutti";
 "XHoursAndYMinutes" = "%1$@ tuntia %2$@ minuuttia";
-"XHours" = "%1$@ tuntia";
 "PasskeyManagementExplanationLong" = "Käytä Bitwardenia uusien pääsyavainten tallennukseen ja kirjaudu palveluihin holviisi aiemmin tallennetuilla avaimilla.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework -rajapintaa käytetään täytettäessä kirjautumistietoja laitteen muihin sovelluksiin.";
 "UseInlineAutofillExplanationLong" = "Tekstinsisäistä automattitäyttöä käytetään, jos aktiivinen näppäimistö tukee sitä. Muussa tapauksessa käytetään ponnahdusvalintaa.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Tuodaan...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Haluatko varmasti peruuttaa tuontiprosessin?";
 "ImportFailed" = "Tuonti epäonnistui";
-"ItemsSuccessfullyImported" = "%1$@ kohdetta tuotu onnistuneesti";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Kaikkien salasanojesi tuonnissa tapahtui virhe.\n\nTietoja ei poistettu.";
 "RetryImport" = "Yritä tuontia uudelleen";
 "ShowVault" = "Näytä holvi";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send-nimi (pakollinen)";
 "CheckPasswordForDataBreaches" = "Tarkasta salasana tietomurtojen varalta";
 "PrivateNote" = "Yksityinen muistiinpano";
-"XItems" = "%1$@ kohdetta";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Käyttäjää ei voi poistaa, koska se on ainakin yhden organisaation ainoa omistaja. Poista nämä organisaatiot tai päivitä eri käyttäjä.";
 "APasskeyAlreadyExistsForThisApplication" = "Tälle sovellukselle löytyy jo pääsyavain.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Tällä sovellukselle löytyy jo pääsyavain, mutta sitä ladattaessa tapahtui virhe.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Lokikirjauksen kesto";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Lokitiedot poistetaan automaattisesti 30 päivän kuluttua. Bitwarden voi tarkastella lokitietojasi vain, jos jaat ne.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Näet lokiin kirjatattavat tiedot **[Bitwardenin tukikeskuksesta](%1$@)**.";
-"OneWeek" = "1 viikko";
 "ShowMore" = "Näytä enemmän";
 "ShowLess" = "Näytä vähemmän";
 "ItemNameX" = "Kohteen nimi, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Virhe salauksen purussa";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Tilin nimi";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Lue lisää](%1$@)";
 "LocalCodes" = "Paikalliset koodit";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Tarvitseko apua? Katso, voiko Tukikeskuksemme auttaa.";
-"NinetySeconds" = "90 sekuntia";
 "NoAskMe" = "Ei, kysy minulta";
 "NoCodes" = "Sinulla ei ole näytettäviä kohteita.";
 "None" = "Ei mitään";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Aseta paikallinen tallennus oletustallennusasetukseksesi?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Haluatko laittaa Bitwarden-sovellukseen tallennuksen oletusasetukseksesi?";
 "SignInUsingUniqueCodes" = "Kirjaudu sisään käyttäen kertaluontoisia koodeja";
-"SixtySeconds" = "60 sekuntia";
 "Skip" = "Ohita";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Varastoi kaikki kirjautumistietosi ja synkronoi vahvistuskoodit suoraan todentajasovelluksella.";

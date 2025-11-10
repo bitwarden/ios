@@ -452,10 +452,25 @@ platform :ios do |options|
   desc "Submit iOS app to the App Store"
   lane :release_to_production do |options|
 
-    changelog = options[:changelog]
+    changelog = options[:changelog] || "Bug fixes and improvements"
+    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
+
+    formatted_changelog = changelog
+      .split('.')
+      .map(&:strip)
+      .reject(&:empty?)
+      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
+      .join("\n")
+
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
     metadata_path = options[:metadata_path]
+
+    if is_dry_run
+      UI.header("🧪 DRY RUN: Testing iOS App Store submission")
+    else
+      UI.header("🚀 Publishing iOS app to App Store")
+    end
 
     if options[:app_identifier] == "com.bitwarden.authenticator"
       locales = auth_locales
@@ -466,7 +481,7 @@ platform :ios do |options|
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", changelog)
+      File.write("#{dir}/release_notes.txt", formatted_changelog)
     end
 
     notes = locales.each_with_object({}) do |locale, hash|
@@ -476,6 +491,16 @@ platform :ios do |options|
       else
         UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
       end
+    end
+
+    if is_dry_run
+      UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
+      UI.message("✅ Validation passed")
+      UI.message("✅ Release notes prepared for #{locales.count} locales")
+      UI.message("✅ Release notes: ")
+      UI.message("#{formatted_changelog}")
+      UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
+      next # ← EXITS HERE in dry run
     end
 
     deliver(

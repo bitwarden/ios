@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 import UIKit
@@ -129,7 +130,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,

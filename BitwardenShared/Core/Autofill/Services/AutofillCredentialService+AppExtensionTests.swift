@@ -103,7 +103,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase {
 
     /// `syncIdentities(vaultLockStatus:)` doesn't update the credential identity store with the identities
     /// from the user's vault when the app context is `.appExtension`.
-    func test_syncIdentities_appExtensionContext() { // swiftlint:disable:this function_body_length
+    func test_syncIdentities_appExtensionContext() {
         prepareDataForIdentitiesReplacement()
 
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))

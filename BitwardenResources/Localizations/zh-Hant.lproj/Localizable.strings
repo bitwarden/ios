@@ -131,8 +131,6 @@
 "LastSync" = "上次同步於：";
 "Length" = "長度";
 "Lock" = "鎖定";
-"OneHour" = "1 小時";
-"FourHours" = "4 小時";
 "Immediately" = "立即";
 "VaultTimeout" = "密碼庫逾時時間";
 "VaultTimeoutAction" = "密碼庫逾時動作";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "您的密碼庫已鎖定。請驗證身分以繼續。";
 "Dark" = "深色";
 "Light" = "淺色";
-"TenSeconds" = "10 秒鐘";
-"ThirtySeconds" = "30 秒鐘";
-"TwentySeconds" = "20 秒鐘";
 "ClearClipboard" = "清除剪貼簿";
 "ClearClipboardDescription" = "自動清除剪貼簿中複製的值。";
 "DefaultUriMatchDetection" = "預設的 URI 一致性偵測方式";
@@ -584,11 +579,6 @@
 "SendDeleted" = "已刪除 Send";
 "SendUpdated" = "已更新 Send。";
 "NewSendCreated" = "已建立新的 Send";
-"OneDay" = "1 天";
-"TwoDays" = "2 天";
-"ThreeDays" = "3 天";
-"SevenDays" = "7 天";
-"ThirtyDays" = "30 天";
 "Custom" = "自訂";
 "ShareOnSave" = "儲存時共用此 Send";
 "SendDisabledWarning" = "由於企業原則限制，您只能刪除現有的 Send。";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "1 小時 %1$@ 分鐘";
 "XHoursAndOneMinute" = "%1$@ 小時 1 分鐘";
 "XHoursAndYMinutes" = "%1$@ 小時 %2$@ 分鐘";
-"XHours" = "%1$@ 小時";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 來保存新的通行密鑰(passkey) 和 使用儲存在密碼庫中的通行密鑰(passkey) 來登入。";
 "AutofillServicesExplanationLong" = "Android 自動填入框架能協助在裝置上的其他應用程式當中，填入登入資訊。";
 "UseInlineAutofillExplanationLong" = "如果您選擇的鍵盤支持，請使用内嵌式自動填入。若不支持，請使用預設疊層。";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "匯入中……";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "您確定要中止匯入程序？";
 "ImportFailed" = "匯入失敗";
-"ItemsSuccessfullyImported" = "成功匯入了 %1$@ 個項目。";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "在匯入您的密碼時發生部分問題。\n\n沒有刪除任何資料。";
 "RetryImport" = "重試匯入";
 "ShowVault" = "顯示密碼庫";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send 名稱（必填）";
 "CheckPasswordForDataBreaches" = "檢查密碼是否出現於資料外洩事件中";
 "PrivateNote" = "私人備註";
-"XItems" = "%1$@ 個項目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "無法刪除此使用者，因為它是至少一個組織的唯一擁有者。請先刪除這些組織或升級";
 "APasskeyAlreadyExistsForThisApplication" = "用於這個應用程式的密碼金鑰已經存在。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此應用程式已存在通行金鑰，但載入時發生錯誤。";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "記錄時間";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日誌會在 30 天後自動刪除。Bitwarden 只有在您分享時才能存取您的日誌資料。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "如需了解哪些內容會被記錄、哪些不會，請前往**[Bitwarden 說明中心](%1$@)**。";
-"OneWeek" = "1 週";
 "ShowMore" = "顯示更多";
 "ShowLess" = "顯示較少";
 "ItemNameX" = "項目名稱，%1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "密碼最後更新於：%1$@";
 "DecryptionError" = "解密發生錯誤";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 無法解密此保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden 無法解密此保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden 無法解密 %1$@ 個保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
 "CopyErrorReport" = "複製錯誤報告";
 "ErrorCannotDecrypt" = "[錯誤：無法解密]";
 "AccountName" = "帳戶名稱";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[瞭解更多](%1$@)";
 "LocalCodes" = "本地代碼";
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要協助嗎？請造訪我們的說明中心以取得指引。";
-"NinetySeconds" = "90 秒鐘";
 "NoAskMe" = "不，詢問我";
 "NoCodes" = "您沒有任何可顯示的驗證碼";
 "None" = "無";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "將「儲存到本機」設為預設儲存選項？";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "將「儲存到 Bitwarden」設為預設儲存選項？";
 "SignInUsingUniqueCodes" = "使用一次性代碼登入";
-"SixtySeconds" = "60 秒鐘";
 "Skip" = "略過";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "將您所有的登入資料儲存並與驗證碼直接同步至驗證器應用程式。";

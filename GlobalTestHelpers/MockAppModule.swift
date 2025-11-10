@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import UIKit
 
 @testable import BitwardenShared
@@ -76,7 +77,7 @@ class MockAppModule:
         authCoordinator.asAnyCoordinator()
     }
 
-    func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
+    func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
     }
 
@@ -183,19 +184,19 @@ class MockAppModule:
 
     func makeTabCoordinator( // swiftlint:disable:this function_parameter_count
         errorReporter _: ErrorReporter,
-        rootNavigator _: BitwardenShared.RootNavigator,
-        settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
-        tabNavigator _: BitwardenShared.TabNavigator,
-        vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate,
-        vaultRepository _: BitwardenShared.VaultRepository,
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
+        rootNavigator _: RootNavigator,
+        settingsDelegate _: SettingsCoordinatorDelegate,
+        tabNavigator _: TabNavigator,
+        vaultDelegate _: VaultCoordinatorDelegate,
+        vaultRepository _: VaultRepository,
+    ) -> AnyCoordinator<TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(
-        delegate _: BitwardenShared.VaultCoordinatorDelegate,
-        stackNavigator _: BitwardenShared.StackNavigator,
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute, AuthAction> {
+        delegate _: VaultCoordinatorDelegate,
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<VaultRoute, AuthAction> {
         vaultCoordinator.asAnyCoordinator()
     }
 

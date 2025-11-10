@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportLoginsModule
 
 /// An object that builds coordinators for the import logins views.
