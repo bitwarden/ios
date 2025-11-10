@@ -118,9 +118,10 @@ public struct BitwardenMenuField<
                                 includeLinePadding: false,
                                 includeLineSpacing: false,
                             )
-                            .foregroundColor(isEnabled
-                                ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                            .foregroundColor(
+                                isEnabled
+                                    ? SharedAsset.Colors.textSecondary.swiftUIColor
+                                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
                             )
                             .onSizeChanged { size in
                                 titleWidth = size.width
@@ -149,9 +150,10 @@ public struct BitwardenMenuField<
             }
         }
         .styleGuide(.body)
-        .foregroundColor(isEnabled
-            ? SharedAsset.Colors.textPrimary.swiftUIColor
-            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor
+        .foregroundColor(
+            isEnabled
+                ? SharedAsset.Colors.textPrimary.swiftUIColor
+                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
         )
         .frame(minHeight: 64)
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
