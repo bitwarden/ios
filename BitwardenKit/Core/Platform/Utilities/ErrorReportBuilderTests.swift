@@ -100,8 +100,8 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """
-            BitwardenKit.ActiveAccountStateProviderError.noActiveAccount
-            No account found. Please log in again if you continue to see this error.
+            TestHelpers.BitwardenTestError.example
+            An example error used to test throwing capabilities.
 
             Stack trace:
             0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
@@ -135,8 +135,8 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """
-            BitwardenKit.ActiveAccountStateProviderError.noActiveAccount
-            No account found. Please log in again if you continue to see this error.
+            TestHelpers.BitwardenTestError.example
+            An example error used to test throwing capabilities.
 
             Stack trace:
             0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
