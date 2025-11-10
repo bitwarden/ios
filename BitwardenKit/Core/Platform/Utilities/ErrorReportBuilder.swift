@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 import MachO // dyld
 
@@ -7,7 +6,7 @@ import MachO // dyld
 /// A helper object to build error reports to provide detailed error information to share about the
 /// error that occurred.
 ///
-protocol ErrorReportBuilder {
+public protocol ErrorReportBuilder {
     /// Returns a string containing detailed error information to share about an error that occurred.
     ///
     /// - Parameters:
@@ -23,7 +22,7 @@ protocol ErrorReportBuilder {
 
 /// A default implementation of `ErrorReportBuilder` which provides detailed information about an error.
 ///
-struct DefaultErrorReportBuilder {
+public struct DefaultErrorReportBuilder {
     // MARK: Properties
 
     /// The service used by the application to manage account state.
@@ -41,7 +40,7 @@ struct DefaultErrorReportBuilder {
     ///   - appInfoService: The service used by the application to get info about the app
     ///     and device it's running on.
     ///
-    init(
+    public init(
         activeAccountStateProvider: ActiveAccountStateProvider,
         appInfoService: AppInfoService,
     ) {
@@ -57,6 +56,7 @@ struct DefaultErrorReportBuilder {
     private func binaryImageAddresses() -> String {
         // A list of images to match against to filter out of the full list of images.
         let matchingImageNames = [
+            "Authenticator",
             "Bitwarden",
         ]
 
@@ -70,7 +70,7 @@ struct DefaultErrorReportBuilder {
                 else { return nil }
 
                 // Calculate a variable number of spaces to vertically align the header addresses in the output.
-                let spaces = String(repeating: " ", count: max(24 - lastNameComponent.count, 1))
+                let spaces = String(repeating: " ", count: max(28 - lastNameComponent.count, 1))
                 return "\(lastNameComponent):\(spaces)\(header)"
             }
             .joined(separator: "\n")
@@ -80,7 +80,7 @@ struct DefaultErrorReportBuilder {
 // MARK: DefaultErrorReportBuilder + ErrorReportBuilder
 
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
-    func buildShareErrorLog(for error: Error, callStack: String) async -> String {
+    public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         let userId = await (try? activeAccountStateProvider.getActiveAccountId()) ?? "n/a"
         return """
         \(error as NSError)
