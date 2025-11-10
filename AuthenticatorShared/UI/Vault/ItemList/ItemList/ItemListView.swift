@@ -7,7 +7,7 @@ import SwiftUI
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-private struct SearchableItemListView: View { // swiftlint:disable:this type_body_length
+private struct SearchableItemListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
