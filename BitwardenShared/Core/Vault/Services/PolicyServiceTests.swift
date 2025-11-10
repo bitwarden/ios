@@ -387,8 +387,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertEqual(policyValues?.action, .lock)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertEqual(policyValues?.timeoutAction, .lock)
     }
 
     /// `fetchTimeoutPolicyValues()` returns `nil` if the user is exempt from policies in the organization.
@@ -411,8 +411,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertNil(policyValues?.action)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertNil(policyValues?.timeoutAction)
     }
 
     /// `organizationsApplyingPolicyToUser(_:)` returns the organization IDs which apply the policy.

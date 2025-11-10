@@ -94,11 +94,21 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
     @MainActor
     func test_perform_appeared_timeoutPolicyEnabled() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
-
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 60),
+            ),
+        )
+        stateService.userHasMasterPassword[userId] = true
         await subject.perform(.appeared)
 
-        XCTAssertTrue(subject.state.isTimeoutPolicyEnabled)
+        XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
         XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
         XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
         XCTAssertEqual(subject.state.policyTimeoutValue, 60)
@@ -118,7 +128,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut),
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                subject.state.customTimeoutMessage,
+            ),
         )
     }
 
@@ -126,12 +138,21 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// but the policy doesn't return an action.
     @MainActor
     func test_perform_appeared_timeoutPolicyEnabled_noPolicyAction() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((nil, 61))
-
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: nil,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 61),
+            ),
+        )
+        stateService.userHasMasterPassword[userId] = true
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.isTimeoutActionPolicyEnabled)
-        XCTAssertTrue(subject.state.isTimeoutPolicyEnabled)
+        XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
         XCTAssertFalse(subject.state.isSessionTimeoutActionDisabled)
         XCTAssertEqual(subject.state.policyTimeoutValue, 61)
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
@@ -148,13 +169,24 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .custom(-100),
             ],
         )
-        XCTAssertEqual(subject.state.policyTimeoutMessage, Localizations.vaultTimeoutPolicyInEffect(1, 1))
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                subject.state.customTimeoutMessage,
+            ),
+        )
     }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
     @MainActor
     func test_perform_appeared_timeoutPolicyEnabled_oddTime() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 61))
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .lock,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 61),
+            ),
+        )
 
         await subject.perform(.appeared)
 
@@ -174,7 +206,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock),
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                subject.state.customTimeoutMessage,
+            ),
         )
     }
 
@@ -772,7 +806,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_receive_sessionTimeoutValueChanged_policy_exceedsLimit() throws {
         let account = Account.fixture()
         authRepository.activeAccount = account
-        subject.state.isTimeoutPolicyEnabled = true
+        subject.state.isPolicyTimeoutEnabled = true
         subject.state.policyTimeoutValue = 1
 
         subject.receive(.sessionTimeoutValueChanged(.fourHours))
@@ -790,7 +824,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account = Account.fixture()
         authRepository.activeAccount = account
         authRepository.setVaultTimeoutError = BitwardenTestError.example
-        subject.state.isTimeoutPolicyEnabled = true
+        subject.state.isPolicyTimeoutEnabled = true
         subject.state.policyTimeoutValue = 60
 
         subject.receive(.sessionTimeoutValueChanged(.fourHours))

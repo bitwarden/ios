@@ -88,12 +88,12 @@ public enum SessionTimeoutType: Codable, Equatable, Hashable, Sendable {
             self = .never
         case .onAppRestart:
             self = .onAppRestart
-        case .oneMinute,
+        case .fifteenMinutes,
              .fiveMinutes,
-             .fifteenMinutes,
-             .thirtyMinutes,
+             .fourHours,
              .oneHour,
-             .fourHours:
+             .oneMinute,
+             .thirtyMinutes:
             self = .predefined
         }
     }

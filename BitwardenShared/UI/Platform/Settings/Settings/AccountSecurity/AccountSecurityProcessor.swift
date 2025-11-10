@@ -118,9 +118,9 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-                state.policyTimeoutAction = policy.action
-                state.policyTimeoutType = policy.type
-                state.policyTimeoutValue = policy.value
+                state.policyTimeoutAction = policy.timeoutAction
+                state.policyTimeoutType = policy.timeoutType ?? SessionTimeoutType.custom
+                state.policyTimeoutValue = policy.timeoutValue?.rawValue ?? 0
                 state.isPolicyTimeoutEnabled = true
             }
 

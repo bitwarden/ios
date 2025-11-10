@@ -454,9 +454,9 @@ extension DefaultSyncService {
     private func checkVaultTimeoutPolicy() async throws {
         guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
 
-        let action = timeoutPolicyValues.action
-        let type = timeoutPolicyValues.type
-        let value = timeoutPolicyValues.value
+        let action = timeoutPolicyValues.timeoutAction
+        let type = timeoutPolicyValues.timeoutType
+        guard let value = timeoutPolicyValues.timeoutValue?.rawValue else { return }
 
         let timeoutAction = try await stateService.getTimeoutAction()
         let timeoutValue = try await stateService.getVaultTimeout()

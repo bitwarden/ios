@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 @testable import BitwardenShared
 
@@ -20,7 +21,7 @@ class MockPolicyService: PolicyService {
 
     var isSendHideEmailDisabledByPolicy = false
 
-    var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int)?, Error> = .success(nil)
+    var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
     var organizationsApplyingPolicyToUserResult: [PolicyType: [String]] = [:]
 
@@ -55,10 +56,7 @@ class MockPolicyService: PolicyService {
         isSendHideEmailDisabledByPolicy
     }
 
-    func fetchTimeoutPolicyValues() async throws -> (
-        action: SessionTimeoutAction?,
-        value: Int,
-    )? {
+    func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {
         try fetchTimeoutPolicyValuesResult.get()
     }
 

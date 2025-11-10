@@ -18,7 +18,7 @@ protocol PolicyService: AnyObject {
     ///
     /// - Returns: The timeout value in minutes, and the action to take upon timeout.
     ///
-    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, type: SessionTimeoutType?, value: Int)?
+    func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy?
 
     /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
     /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
@@ -266,18 +266,18 @@ extension DefaultPolicyService {
         return true
     }
 
-    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, type: SessionTimeoutType?, value: Int)? {
+    func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {
         let policies = await policiesApplyingToUser(.maximumVaultTimeout)
         guard !policies.isEmpty else { return nil }
 
         var timeoutAction: SessionTimeoutAction?
         var timeoutType: SessionTimeoutType?
-        var timeoutValue = 0
+        var timeoutValue: SessionTimeoutValue?
 
         for policy in policies {
             // This is never null, but maybe it should be revised
             guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
-            timeoutValue = policyTimeoutValue
+            timeoutValue = SessionTimeoutValue(rawValue: policyTimeoutValue)
 
             // Legacy servers may not send this value.
             // In that case, we will present to the user the custom type.
@@ -288,7 +288,7 @@ extension DefaultPolicyService {
             // If the policy's timeout action is not lock or logOut, there is no policy timeout action.
             // In that case, we would present both timeout action options to the user.
             guard let action = policy[.action]?.stringValue, action == "lock" || action == "logOut" else {
-                return (nil, timeoutType, timeoutValue)
+                return SessionTimeoutPolicy(timeoutAction: nil, timeoutType: timeoutType, timeoutValue: timeoutValue)
             }
             switch action {
             case "lock":
@@ -299,7 +299,7 @@ extension DefaultPolicyService {
                 timeoutAction = nil
             }
         }
-        return (timeoutAction, timeoutType, timeoutValue)
+        return SessionTimeoutPolicy(timeoutAction: timeoutAction, timeoutType: timeoutType, timeoutValue: timeoutValue)
     }
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
