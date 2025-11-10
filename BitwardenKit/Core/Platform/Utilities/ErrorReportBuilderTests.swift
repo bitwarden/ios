@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 class ErrorReportBuilderTests: BitwardenTestCase {
@@ -94,7 +95,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     /// no active account.
     func test_buildShareErrorLog_noActiveUser() async {
         let errorReport = await subject.buildShareErrorLog(
-            for: ActiveAccountStateProviderError.noActiveAccount,
+            for: BitwardenTestError.example,
             callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
@@ -129,7 +130,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     func test_buildShareErrorLog_stateServiceError() async {
         activeAccountStateProvider.activeAccountId = "1"
         let errorReport = await subject.buildShareErrorLog(
-            for: ActiveAccountStateProviderError.noActiveAccount,
+            for: BitwardenTestError.example,
             callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {

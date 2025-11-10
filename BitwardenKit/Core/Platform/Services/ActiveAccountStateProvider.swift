@@ -12,19 +12,3 @@ public protocol ActiveAccountStateProvider: AnyObject { // sourcery: AutoMockabl
     ///
     func getActiveAccountId() async throws -> String
 }
-
-// MARK: - ActiveAccountStateProviderError
-
-/// The errors thrown from a `ActiveAccountStateProvider`.
-///
-public enum ActiveAccountStateProviderError: LocalizedError {
-    /// There isn't an active account.
-    case noActiveAccount
-
-    public var errorDescription: String? {
-        switch self {
-        case .noActiveAccount:
-            Localizations.noAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError
-        }
-    }
-}
