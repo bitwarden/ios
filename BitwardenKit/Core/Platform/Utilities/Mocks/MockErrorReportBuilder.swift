@@ -8,7 +8,7 @@ public class MockErrorReportBuilder: ErrorReportBuilder {
 
     public init() {}
 
-    public func buildShareErrorLog(for error: Error, callStack: String) -> String {
+    public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         buildShareErrorLogCallStack = callStack
         buildShareErrorLogError = error
         return buildShareErrorLogReturnValue

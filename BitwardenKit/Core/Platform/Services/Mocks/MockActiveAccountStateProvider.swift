@@ -7,7 +7,7 @@ public class MockActiveAccountStateProvider: ActiveAccountStateProvider {
     public init() {}
 
     public func getActiveAccountId() async throws -> String {
-        guard let activeAccountId else { throw BitwardenTestError.example }
+        guard let activeAccountId else { throw ActiveAccountStateProviderError.noActiveAccount }
         return activeAccountId
     }
 }
