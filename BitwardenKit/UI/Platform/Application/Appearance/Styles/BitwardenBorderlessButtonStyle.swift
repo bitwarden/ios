@@ -60,7 +60,7 @@ public extension ButtonStyle where Self == BitwardenBorderlessButtonStyle {
         shouldFillWidth: Bool = true,
         size: ButtonStyleSize,
     ) -> BitwardenBorderlessButtonStyle {
-        BitwardenBorderlessButtonStyle(size: size)
+        BitwardenBorderlessButtonStyle(shouldFillWidth: shouldFillWidth, size: size)
     }
 }
 
