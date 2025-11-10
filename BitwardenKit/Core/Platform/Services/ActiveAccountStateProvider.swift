@@ -1,3 +1,7 @@
+import Foundation
+
+// MARK: - ActiveAccountStateProvider
+
 /// Protocol wrapping information about the currently active account.
 /// In practice, this is the `StateService` in each app.
 public protocol ActiveAccountStateProvider: AnyObject { // sourcery: AutoMockable
@@ -6,4 +10,13 @@ public protocol ActiveAccountStateProvider: AnyObject { // sourcery: AutoMockabl
     /// - Returns: The active user account id.
     ///
     func getActiveAccountId() async throws -> String
+}
+
+// MARK: - ActiveAccountStateProviderError
+
+/// The errors thrown from a `ActiveAccountStateProvider`.
+///
+public enum ActiveAccountStateProviderError: LocalizedError {
+    /// There isn't an active account.
+    case noActiveAccount
 }

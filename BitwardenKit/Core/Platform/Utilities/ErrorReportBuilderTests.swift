@@ -7,7 +7,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     // MARK: Properties
 
     var appInfoService: MockAppInfoService!
-    var stateService: MockStateService!
+    var activeAccountStateProvider: MockActiveAccountStateProvider!
     var subject: ErrorReportBuilder!
 
     let exampleCallStack: String = """
@@ -22,11 +22,11 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        activeAccountStateProvider = MockActiveAccountStateProvider()
         appInfoService = MockAppInfoService()
-        stateService = MockStateService()
 
         subject = DefaultErrorReportBuilder(
-            activeAccountStateProvider: stateService,
+            activeAccountStateProvider: activeAccountStateProvider,
             appInfoService: appInfoService,
         )
     }
@@ -34,8 +34,8 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        activeAccountStateProvider = nil
         appInfoService = nil
-        stateService = nil
         subject = nil
     }
 
@@ -47,7 +47,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             case ciphers
         }
 
-        stateService.activeAccount = .fixture()
+        activeAccountStateProvider.activeAccountId = "123"
 
         let errorReport = await subject.buildShareErrorLog(
             for: DecodingError.keyNotFound(
@@ -95,7 +95,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     /// no active account.
     func test_buildShareErrorLog_noActiveUser() async {
         let errorReport = await subject.buildShareErrorLog(
-            for: StateServiceError.noActiveAccount,
+            for: ActiveAccountStateProviderError.noActiveAccount,
             callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
@@ -129,9 +129,9 @@ class ErrorReportBuilderTests: BitwardenTestCase {
 
     /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
     func test_buildShareErrorLog_stateServiceError() async {
-        stateService.activeAccount = .fixture()
+        activeAccountStateProvider.activeAccountId = "123"
         let errorReport = await subject.buildShareErrorLog(
-            for: StateServiceError.noActiveAccount,
+            for: ActiveAccountStateProviderError.noActiveAccount,
             callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
