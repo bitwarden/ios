@@ -142,7 +142,7 @@ private struct SearchableItemListView: View {
             },
         ) {
             Image(decorative: SharedAsset.Icons.shield24)
-                .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                 .frame(width: 24, height: 24)
         }
         .padding(.top, 16)
@@ -164,7 +164,7 @@ private struct SearchableItemListView: View {
             },
         ) {
             Image(decorative: SharedAsset.Icons.arrowSync24)
-                .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                 .frame(width: 24, height: 24)
         }
         .padding(.top, 16)
