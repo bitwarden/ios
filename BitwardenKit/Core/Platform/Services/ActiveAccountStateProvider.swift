@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - ActiveAccountStateProvider
@@ -19,4 +20,11 @@ public protocol ActiveAccountStateProvider: AnyObject { // sourcery: AutoMockabl
 public enum ActiveAccountStateProviderError: LocalizedError {
     /// There isn't an active account.
     case noActiveAccount
+
+    public var errorDescription: String? {
+        switch self {
+        case .noActiveAccount:
+            Localizations.noAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError
+        }
+    }
 }

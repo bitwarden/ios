@@ -47,7 +47,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             case ciphers
         }
 
-        activeAccountStateProvider.activeAccountId = "123"
+        activeAccountStateProvider.activeAccountId = "1"
 
         let errorReport = await subject.buildShareErrorLog(
             for: DecodingError.keyNotFound(
@@ -73,13 +73,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            Bitwarden:               0x0000000000000000
-            Bitwarden.debug.dylib:   0x0000000000000000
-            BitwardenShared:         0x0000000000000000
-            BitwardenKit:            0x0000000000000000
-            BitwardenResources:      0x0000000000000000
-            BitwardenSharedTests:    0x0000000000000000
-            BitwardenKitMocks:       0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKitMocks: 0x0000000000000000
+            BitwardenKit:                0x0000000000000000
+            BitwardenKitMocks:           0x0000000000000000
+            BitwardenResources:          0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
 
             User ID: 1
             📝 Bitwarden 1.0 (1)
@@ -100,7 +99,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """
-            BitwardenShared.StateServiceError.noActiveAccount
+            BitwardenKit.ActiveAccountStateProviderError.noActiveAccount
             No account found. Please log in again if you continue to see this error.
 
             Stack trace:
@@ -110,13 +109,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            Bitwarden:               0x0000000000000000
-            Bitwarden.debug.dylib:   0x0000000000000000
-            BitwardenShared:         0x0000000000000000
-            BitwardenKit:            0x0000000000000000
-            BitwardenResources:      0x0000000000000000
-            BitwardenSharedTests:    0x0000000000000000
-            BitwardenKitMocks:       0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKitMocks: 0x0000000000000000
+            BitwardenKit:                0x0000000000000000
+            BitwardenKitMocks:           0x0000000000000000
+            BitwardenResources:          0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
 
             User ID: n/a
             📝 Bitwarden 1.0 (1)
@@ -129,14 +127,14 @@ class ErrorReportBuilderTests: BitwardenTestCase {
 
     /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
     func test_buildShareErrorLog_stateServiceError() async {
-        activeAccountStateProvider.activeAccountId = "123"
+        activeAccountStateProvider.activeAccountId = "1"
         let errorReport = await subject.buildShareErrorLog(
             for: ActiveAccountStateProviderError.noActiveAccount,
             callStack: exampleCallStack,
         )
         assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
             """
-            BitwardenShared.StateServiceError.noActiveAccount
+            BitwardenKit.ActiveAccountStateProviderError.noActiveAccount
             No account found. Please log in again if you continue to see this error.
 
             Stack trace:
@@ -146,13 +144,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            Bitwarden:               0x0000000000000000
-            Bitwarden.debug.dylib:   0x0000000000000000
-            BitwardenShared:         0x0000000000000000
-            BitwardenKit:            0x0000000000000000
-            BitwardenResources:      0x0000000000000000
-            BitwardenSharedTests:    0x0000000000000000
-            BitwardenKitMocks:       0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKitMocks: 0x0000000000000000
+            BitwardenKit:                0x0000000000000000
+            BitwardenKitMocks:           0x0000000000000000
+            BitwardenResources:          0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
 
             User ID: 1
             📝 Bitwarden 1.0 (1)

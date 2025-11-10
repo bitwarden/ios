@@ -56,6 +56,7 @@ public struct DefaultErrorReportBuilder {
     private func binaryImageAddresses() -> String {
         // A list of images to match against to filter out of the full list of images.
         let matchingImageNames = [
+            "Authenticator",
             "Bitwarden",
         ]
 
@@ -69,7 +70,7 @@ public struct DefaultErrorReportBuilder {
                 else { return nil }
 
                 // Calculate a variable number of spaces to vertically align the header addresses in the output.
-                let spaces = String(repeating: " ", count: max(24 - lastNameComponent.count, 1))
+                let spaces = String(repeating: " ", count: max(28 - lastNameComponent.count, 1))
                 return "\(lastNameComponent):\(spaces)\(header)"
             }
             .joined(separator: "\n")
