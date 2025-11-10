@@ -43,7 +43,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_download() throws {
+    func test_actionCard_close_download() async throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
             loadingState: .data([ItemListSection.fixture()]),
@@ -54,16 +54,15 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider,
         )
 
-        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
-
-        waitFor(!processor.effects.isEmpty)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.downloadTheBitwardenApp)
+        try await actionCard.find(asyncButton: Localizations.close).tap()
 
         XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerDownload))
     }
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_sync() throws {
+    func test_actionCard_close_sync() async throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
             loadingState: .data([]),
@@ -74,9 +73,8 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider,
         )
 
-        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
-
-        waitFor(!processor.effects.isEmpty)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.syncWithTheBitwardenApp)
+        try await actionCard.find(asyncButton: Localizations.close).tap()
 
         XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerSync))
     }
