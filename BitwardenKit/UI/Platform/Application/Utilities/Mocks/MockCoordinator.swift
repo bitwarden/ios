@@ -1,8 +1,6 @@
 import BitwardenKit
 import XCTest
 
-@testable import BitwardenShared
-
 enum MockCoordinatorError: Error {
     case alertRouteNotFound
 }
