@@ -1277,4 +1277,5 @@
 "EncryptionSettingsUpdated" = "Encryption settings updated";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToXAndY" = "Your organization has set the default session timeout to %1$@ and %2$@.";
 "XMinutes" = "%1$@ minute(s)";

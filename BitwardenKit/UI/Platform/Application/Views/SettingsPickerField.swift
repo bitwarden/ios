@@ -80,7 +80,7 @@ public struct SettingsPickerField: View {
                             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
             }
         }
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)

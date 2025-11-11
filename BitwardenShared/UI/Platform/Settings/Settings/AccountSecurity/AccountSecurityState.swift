@@ -223,7 +223,7 @@ struct AccountSecurityState: Equatable {
         guard isPolicyTimeoutEnabled, let policy = policyTimeoutType else { return nil }
         switch policyTimeoutType {
         case .custom:
-            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(customTimeoutMessage)
+            return customTimeoutMessage
         case .immediately:
             return Localizations.thisSettingIsManagedByYourOrganization
         case .never:
@@ -231,7 +231,7 @@ struct AccountSecurityState: Equatable {
         case .onAppRestart:
             return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(policy.timeoutType)
         default:
-            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(customTimeoutMessage)
+            return customTimeoutMessage
         }
     }
 
@@ -256,17 +256,25 @@ struct AccountSecurityState: Equatable {
     var customTimeoutMessage: String {
         switch (policyTimeoutHours, policyTimeoutMinutes) {
         case let (hours, minutes) where hours > 0 && minutes > 0:
-            Localizations.xHoursAndYMinutes(
-                policyTimeoutHours,
-                policyTimeoutMinutes,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
             )
         case let (hours, _) where hours > 0:
-            Localizations.xHours(
-                policyTimeoutHours,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
             )
         default:
-            Localizations.xMinutes(
-                policyTimeoutMinutes,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
             )
         }
     }
