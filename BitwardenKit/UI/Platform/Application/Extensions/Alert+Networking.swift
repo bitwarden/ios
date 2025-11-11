@@ -1,11 +1,9 @@
-import BitwardenKit
 import BitwardenResources
-import BitwardenSdk
 import Foundation
 
 // MARK: Alert+Networking
 
-extension Alert {
+public extension Alert {
     /// An alert shown to the user when they aren't connected to the internet.
     ///
     /// - Parameter tryAgain: An action allowing the user to retry the request.
