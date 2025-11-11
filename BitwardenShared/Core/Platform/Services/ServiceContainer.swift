@@ -76,7 +76,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     public let environmentService: EnvironmentService
 
     /// A helper for building an error report containing the details of an error that occurred.
-    let errorReportBuilder: ErrorReportBuilder
+    public let errorReportBuilder: ErrorReportBuilder
 
     /// The service used by the application to report non-fatal errors.
     public let errorReporter: ErrorReporter

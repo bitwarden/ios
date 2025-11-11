@@ -7,6 +7,13 @@ public protocol HasConfigService {
     var configService: ConfigService { get }
 }
 
+/// Protocol for an object that provides an `ErrorReportBuilder`.
+///
+public protocol HasErrorReportBuilder {
+    /// A helper for building an error report containing the details of an error that occurred.
+    var errorReportBuilder: ErrorReportBuilder { get }
+}
+
 /// Protocol for an object that provides an `EnvironmentService`.
 ///
 public protocol HasEnvironmentService {
