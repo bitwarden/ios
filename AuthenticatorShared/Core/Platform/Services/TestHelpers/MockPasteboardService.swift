@@ -1,4 +1,5 @@
 @testable import AuthenticatorShared
+import BitwardenKit
 
 class MockPasteboardService: PasteboardService {
     var clearClipboardValue: ClearClipboardValue = .never

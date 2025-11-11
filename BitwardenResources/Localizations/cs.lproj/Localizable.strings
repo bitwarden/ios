@@ -131,8 +131,6 @@
 "LastSync" = "Poslední synchronizace:";
 "Length" = "Délka";
 "Lock" = "Zamknout";
-"OneHour" = "1 hodina";
-"FourHours" = "4 hodiny";
 "Immediately" = "Okamžitě";
 "VaultTimeout" = "Časový limit trezoru";
 "VaultTimeoutAction" = "Akce při vypršení časového limitu trezoru";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Váš trezor je uzamčen. Pro pokračování ověřte svou identitu.";
 "Dark" = "Tmavý";
 "Light" = "Světlý";
-"TenSeconds" = "10 sekund";
-"ThirtySeconds" = "30 sekund";
-"TwentySeconds" = "20 sekund";
 "ClearClipboard" = "Vymazat schránku";
 "ClearClipboardDescription" = "Automaticky vymaže zkopírované hodnoty z Vaší schránky.";
 "DefaultUriMatchDetection" = "Výchozí zjišťování shody URI";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send byl smazán";
 "SendUpdated" = "Send byl uložen";
 "NewSendCreated" = "Send byl vytvořen";
-"OneDay" = "1 den";
-"TwoDays" = "2 dny";
-"ThreeDays" = "3 dny";
-"SevenDays" = "7 dnů";
-"ThirtyDays" = "30 dnů";
 "Custom" = "Vlastní";
 "ShareOnSave" = "Sdílet tento Send po uložení";
 "SendDisabledWarning" = "Z důvodu podnikových zásad můžete smazat pouze existující Send.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Jedna hodina a %1$@ minut";
 "XHoursAndOneMinute" = "%1$@ hodin a jedna minuta";
 "XHoursAndYMinutes" = "%1$@ hodin a %2$@ minut";
-"XHours" = "%1$@ hodin";
 "PasskeyManagementExplanationLong" = "Použijte Bitwarden pro ukládání nových přístupových klíčů a přihlašování se pomocí přístupových klíčů uložených ve Vašem trezoru.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework se používá k vyplnění přihlašovacích údajů do jiných aplikací na Vašem zařízení.";
 "UseInlineAutofillExplanationLong" = "Pokud to Vaše vybraná klávesnice podporuje, použije se inline automatické vyplňování. V opačném případě se použije výchozí překrytí.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Importování...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Opravdu chcete zrušit proces importu?";
 "ImportFailed" = "Import selhal";
-"ItemsSuccessfullyImported" = "%1$@ položek bylo úspěšně importováno";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo k potížím při importu všech Vašich hesel.\n\nŽádná data nebyla smazána.";
 "RetryImport" = "Opakovat import";
 "ShowVault" = "Zobrazit trezor";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Název Send (vyžadován)";
 "CheckPasswordForDataBreaches" = "Kontrola hesla pro případ narušení bezpečnosti dat";
 "PrivateNote" = "Soukromá poznámka";
-"XItems" = "%1$@ položek";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tohoto uživatele nelze smazat, protože je jediným vlastníkem alespoň jedné organizace. Smažte tyto organizace nebo aktualizujte jiného uživatele.";
 "APasskeyAlreadyExistsForThisApplication" = "Přístupový klíč pro tuto aplikaci již existuje.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pro tuto aplikaci již existuje přístupový klíč, ale při načítání došlo k chybě.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Doba logování";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logy budou automaticky smazány po 30 dnech. Bitwarden má přístup k Vašim logům jen pokud je sdílíte.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Pro podrobnosti o tom, co je a není logováno, navštivte **[centrum nápovědy Bitwardenu](%1$@)**.";
-"OneWeek" = "1 týden";
 "ShowMore" = "Zobrazit více";
 "ShowLess" = "Zobrazit méně";
 "ItemNameX" = "Název položky, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Poslední aktualizace hesla: %1$@";
 "DecryptionError" = "Chyba dešifrování";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat tuto položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nemohl dešifrovat 1 položku trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nemohl dešifrovat %1$@ položek trezoru. Zkopírujte a sdílejte tuto zprávu o chybě s oddělením zákaznické podpory, abyste předešli další ztrátě dat.";
 "CopyErrorReport" = "Zkopírovat zprávu o chybě";
 "ErrorCannotDecrypt" = "[chyba: nelze dešifrovat]";
 "AccountName" = "Název účtu";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Další informace](%1$@)";
 "LocalCodes" = "Místní kódy";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potřebujete pomoc? Navštivte naše centrum nápovědy pro další informace.";
-"NinetySeconds" = "90 sekund";
 "NoAskMe" = "Ne, zeptat se mě";
 "NoCodes" = "Nemáte žádné kódy k zobrazení";
 "None" = "Žádné";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Nastavit \"Uložit místně\" jako výchozí volba ukládání?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Nastavit \"Uložit do Bitwardenu\" jako výchozí volba ukládání?";
 "SignInUsingUniqueCodes" = "Přihlašujte se pomocí jedinečných kódů";
-"SixtySeconds" = "60 sekund";
 "Skip" = "Přeskočit";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Uložte všechny Vaše přihlašovací údaje a synchronizujte ověřovací kódy přímo s ověřovací aplikací.";

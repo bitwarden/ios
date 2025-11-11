@@ -42,13 +42,13 @@ public class ServiceContainer: Services {
     let clientService: ClientService
 
     /// The service to get locally-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to export items.
     let exportItemsService: ExportItemsService
@@ -69,7 +69,7 @@ public class ServiceContainer: Services {
     let stateService: StateService
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
 
     /// The factory to create TOTP expiration managers.
     let totpExpirationManagerFactory: TOTPExpirationManagerFactory
@@ -251,7 +251,7 @@ public class ServiceContainer: Services {
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
         )
 
         let sharedDataStore = AuthenticatorBridgeDataStore(

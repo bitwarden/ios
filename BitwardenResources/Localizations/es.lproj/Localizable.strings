@@ -131,8 +131,6 @@
 "LastSync" = "Última sincronización:";
 "Length" = "Longitud";
 "Lock" = "Bloquear";
-"OneHour" = "1 hora";
-"FourHours" = "4 horas";
 "Immediately" = "Inmediatamente";
 "VaultTimeout" = "Tiempo de espera de la caja fuerte";
 "VaultTimeoutAction" = "Acción de tiempo de espera de la caja fuerte";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Tu caja fuerte está bloqueada. Verifica tu identidad para continuar.";
 "Dark" = "Oscuro";
 "Light" = "Claro";
-"TenSeconds" = "10 segundos";
-"ThirtySeconds" = "30 segundos";
-"TwentySeconds" = "20 segundos";
 "ClearClipboard" = "Limpiar el portapapeles";
 "ClearClipboardDescription" = "Borrar automáticamente los valores copiados de tu portapapeles.";
 "DefaultUriMatchDetection" = "Detección por defecto de coincidencia de URI";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send eliminado";
 "SendUpdated" = "Send guardado";
 "NewSendCreated" = "Send creado";
-"OneDay" = "1 día";
-"TwoDays" = "2 días";
-"ThreeDays" = "3 días";
-"SevenDays" = "7 días";
-"ThirtyDays" = "30 días";
 "Custom" = "Personalizado";
 "ShareOnSave" = "Compartir este Send al guardarlo";
 "SendDisabledWarning" = "Debido a una política empresarial, sólo puede eliminar un Send existente.";
@@ -842,7 +832,6 @@
 "OneHourAndXMinute" = "Una hora y %1$@ minutos";
 "XHoursAndOneMinute" = "%1$@ horas y un minuto";
 "XHoursAndYMinutes" = "%1$@ horas y %2$@ minutos";
-"XHours" = "%1$@ horas";
 "PasskeyManagementExplanationLong" = "Usa Bitwarden para guardar nuevas claves de acceso e iniciar sesión con las claves de acceso almacenadas en tu caja fuerte.";
 "AutofillServicesExplanationLong" = "El Framework de Autofill de Android se utiliza para ayudar a rellenar información de inicio de sesión en otras aplicaciones en tu dispositivo.";
 "UseInlineAutofillExplanationLong" = "Utilice el autocompletado en línea si tu teclado seleccionado lo soporta. De otra manera, utilice la superposición por defecto.";
@@ -1092,7 +1081,6 @@
 "ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
-"ItemsSuccessfullyImported" = "%1$@ items successfully imported";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
 "RetryImport" = "Retry import";
 "ShowVault" = "Show vault";
@@ -1114,7 +1102,6 @@
 "SendNameRequired" = "Enviar nombre (requerido)";
 "CheckPasswordForDataBreaches" = "Propietario";
 "PrivateNote" = "Nota privada";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "Ya existe una clave de acceso para esta aplicación.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1148,7 +1135,6 @@
 "LoggingDuration" = "Duración del registro";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
-"OneWeek" = "1 semana";
 "ShowMore" = "Mostrar más";
 "ShowLess" = "Mostrar menos";
 "ItemNameX" = "Item name, %1$@";
@@ -1207,8 +1193,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Error de descifrado";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Nombre de la cuenta";
@@ -1243,7 +1227,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Códigos locales";
 "NeedHelpVisitOurHelpCenterForGuidance" = "¿Necesitas ayuda? Visita nuestro Centro de Ayuda para obtener orientación.";
-"NinetySeconds" = "90 segundos";
 "NoAskMe" = "No, pregúntame";
 "NoCodes" = "No tienes ningún código para mostrar";
 "None" = "Ninguno";
@@ -1261,7 +1244,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "¿Establecer \"Guardar localmente\" como tu opción de guardado predeterminada?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "¿Establecer \"Guardar en Bitwarden\" como tu opción de guardado predeterminada?";
 "SignInUsingUniqueCodes" = "Inicia sesión utilizando códigos únicos";
-"SixtySeconds" = "60 segundos";
 "Skip" = "Omitir";
 "Steam" = "Vapor";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Almacena todos tus inicios de sesión y sincroniza los códigos de verificación directamente con la aplicación Authenticator.";

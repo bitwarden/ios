@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: AppModule
 
 /// An object that builds coordinators for the app.

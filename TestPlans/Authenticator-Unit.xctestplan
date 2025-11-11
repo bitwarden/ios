@@ -31,6 +31,13 @@
   "testTargets" : [
     {
       "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "11D20029373CEF56CBBCF0AA",
+        "name" : "AuthenticatorBridgeKitTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:Authenticator.xcodeproj",
         "identifier" : "F78877F8DDC2314213F71321",
         "name" : "AuthenticatorTests"

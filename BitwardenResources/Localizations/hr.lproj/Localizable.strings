@@ -131,8 +131,6 @@
 "LastSync" = "Posljednja sinkronizacija:";
 "Length" = "Duljina";
 "Lock" = "Zaključaj";
-"OneHour" = "1 sat";
-"FourHours" = "4 sata";
 "Immediately" = "Odmah";
 "VaultTimeout" = "Istek trezora";
 "VaultTimeoutAction" = "Nakon isteka trezora";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak.";
 "Dark" = "Tamna";
 "Light" = "Svijetla";
-"TenSeconds" = "10 sekundi";
-"ThirtySeconds" = "30 sekundi";
-"TwentySeconds" = "20 sekundi";
 "ClearClipboard" = "Očisti međuspremnik";
 "ClearClipboardDescription" = "Vremenski period automatskog pražnjenja međuspremnika.";
 "DefaultUriMatchDetection" = "Zadano otkrivanje URI podudaranja";
@@ -585,11 +580,6 @@
 "SendDeleted" = "Send izbrisan";
 "SendUpdated" = "Send ažuriran";
 "NewSendCreated" = "Novi Send stvoren";
-"OneDay" = "1 dan";
-"TwoDays" = "2 dana";
-"ThreeDays" = "3 dana";
-"SevenDays" = "7 dana";
-"ThirtyDays" = "30 dana";
 "Custom" = "Prilagođeno";
 "ShareOnSave" = "Dijeli Send nakon spremanja";
 "SendDisabledWarning" = "Pravila tvrtke omogućuju brisanje samo postojećeg Senda";
@@ -842,7 +832,6 @@
 "OneHourAndXMinute" = "1:%1$@ h";
 "XHoursAndOneMinute" = "%1$@ sat/i i jedna minuta";
 "XHoursAndYMinutes" = "%1$@:%2$@ h";
-"XHours" = "%1$@:00 h";
 "PasskeyManagementExplanationLong" = "Koristi Bitwarden za spremanje novih pristupnih ključeva i prijavu pristupnim ključevima spremljenima u tvoj trezor.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework se koristi za pomoć pri ispunjavanju prijava, platnih kartica i identifikacijskih podataka u drugim aplikacijama na tvojem uređaju.";
 "UseInlineAutofillExplanationLong" = "Koristi izravnu auto-ispunu ako ga tvoja odabrana tipkovnica podržava. U suprotnom, koristit će se zadana usluga auto-ispune.";
@@ -1092,7 +1081,6 @@
 "ImportingEllipsis" = "Uvoz...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
-"ItemsSuccessfullyImported" = "%1$@ stavki uspješno uvezeno";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
 "RetryImport" = "Ponovno pokušaj uvesti";
 "ShowVault" = "Prikaži trezor";
@@ -1114,7 +1102,6 @@
 "SendNameRequired" = "Naziv Senda (obavezno)";
 "CheckPasswordForDataBreaches" = "Provjeri je li lozinka procurila";
 "PrivateNote" = "Privatna bilješka";
-"XItems" = "%1$@ stavki";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nije moguće izbrisati ovog korisnika je isti jedini vlasnik barem jedne organizacije. Treba ili obrisati organizaciju ili drugog korisnika postaviti za vlasnika.";
 "APasskeyAlreadyExistsForThisApplication" = "Za ovu aplikaciju već postoji pristupni ključ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Za ovu aplikaciju već postoji pristupni ključ, ali je došlo do greške kod njegova učitavanja.";
@@ -1148,7 +1135,6 @@
 "LoggingDuration" = "Trajanje zapisivanja";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Zapisnici će se automatski izbrisati nakon 30 dana. Bitwarden može pristupiti tvojim podacima zapisnika samo kada ih podijeliš.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Za detalje o tome što se bilježi, a što ne, posjeti **[Bitwarden centar za pomoć](%1$@)**.";
-"OneWeek" = "1 tjedan";
 "ShowMore" = "Prikaži više";
 "ShowLess" = "Pokaži manje";
 "ItemNameX" = "Naziv stavke, %1$@";
@@ -1207,8 +1193,6 @@
 "PasswordLastUpdated" = "Zadnje ažuriranje lozinke: %1$@";
 "DecryptionError" = "Pogreška pri dešifriranju";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati ovu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nije mogao dešifrirati jednu stavku trezora. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nije mogao dešifrirati ovoliko stavki trezora: %1$@. Kopiraj i podijeli ovu grešku s odjelom korisničke podrške za izbjegavanje dodatnog gubitka podataka.";
 "CopyErrorReport" = "Kopiraj izvješće o pogrešci";
 "ErrorCannotDecrypt" = "[greška: dešifriranje nije moguće]";
 "AccountName" = "Naziv računa";
@@ -1243,7 +1227,6 @@
 "LearnMoreLink" = "[Saznaj više](%1$@)";
 "LocalCodes" = "Lokalni kodovi";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Trebaš pomoć? Za smjernice, posjeti naš centar za pomoć.";
-"NinetySeconds" = "90 sekundi";
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nema kodova za prikaz";
 "None" = "Nijedno";
@@ -1261,7 +1244,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Podesiti „Spremi lokalno” kao tvoju zadanu opciju spremanja?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Podasiti „Spremi u Bitwarden” kao tvoju zadanu opciju spremanja?";
 "SignInUsingUniqueCodes" = "Prijava korištenjem jedinstvenih kodova";
-"SixtySeconds" = "60 sekundi";
 "Skip" = "Preskoči";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Pohrani sve svoje prijave i sinkroniziraj kôdove za provjeru izravno s aplikacijom Autentifikator.";

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: AuthRouterRedirects
 
 extension AuthRouter {

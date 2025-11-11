@@ -191,7 +191,7 @@ extension LandingProcessor: ProfileSwitcherHandler {
         // No-Op for the landing processor.
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
     }
 

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PasswordAutoFillModule
 
 /// An object that builds coordinators for the password autofill flow.

@@ -51,7 +51,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     ) async throws -> VaultListData {
         guard !ciphers.isEmpty else { return VaultListData() }
 
-        guard let preparedData = try await vaultListDataPreparator.prepareData(
+        guard let preparedData = await vaultListDataPreparator.prepareData(
             from: ciphers,
             collections: collections,
             folders: folders,

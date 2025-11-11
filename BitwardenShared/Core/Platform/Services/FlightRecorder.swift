@@ -87,8 +87,78 @@ enum FlightRecorderError: Error {
     /// Deletion of the log isn't permitted if the log is the active log.
     case deletionNotPermitted
 
+    /// Unable to determine the log's file size.
+    case fileSizeError(Error)
+
+    /// Error waiting for next flight recorder log lifecycle.
+    case logLifecycleTimerError(Error)
+
     /// The specified log wasn't found in the stored flight recorder data.
     case logNotFound
+
+    /// Unable to remove file for expired log.
+    case removeExpiredLogError(Error)
+
+    /// Unable to write message to log.
+    case writeMessageError(Error)
+}
+
+// MARK: - FlightRecorderError + CustomNSError
+
+extension FlightRecorderError: CustomNSError {
+    static var errorDomain: String { "FlightRecorderError" }
+
+    var errorCode: Int {
+        // NOTE: New cases should be appended (vs alphabetized) to this switch statement with an
+        // incremented integer. This ensures the code for existing errors doesn't change.
+        switch self {
+        case .dataUnavailable: 1
+        case .deletionNotPermitted: 2
+        case .fileSizeError: 3
+        case .logLifecycleTimerError: 4
+        case .logNotFound: 5
+        case .removeExpiredLogError: 6
+        case .writeMessageError: 7
+        }
+    }
+
+    var errorUserInfo: [String: Any] {
+        var userInfo: [String: Any] = [
+            "Error Type": String(reflecting: self),
+        ]
+
+        switch self {
+        case let .fileSizeError(underlyingError),
+             let .logLifecycleTimerError(underlyingError),
+             let .removeExpiredLogError(underlyingError),
+             let .writeMessageError(underlyingError):
+            userInfo[NSUnderlyingErrorKey] = underlyingError
+        default:
+            break
+        }
+
+        return userInfo
+    }
+}
+
+// MARK: - FlightRecorderError + Equatable
+
+extension FlightRecorderError: Equatable {
+    static func == (lhs: FlightRecorderError, rhs: FlightRecorderError) -> Bool {
+        switch (lhs, rhs) {
+        case (.dataUnavailable, .dataUnavailable),
+             (.deletionNotPermitted, .deletionNotPermitted),
+             (.logNotFound, .logNotFound):
+            true
+        case let (.fileSizeError(lhsError), .fileSizeError(rhsError)),
+             let (.logLifecycleTimerError(lhsError), .logLifecycleTimerError(rhsError)),
+             let (.removeExpiredLogError(lhsError), .removeExpiredLogError(rhsError)),
+             let (.writeMessageError(lhsError), .writeMessageError(rhsError)):
+            String(reflecting: lhsError) == String(reflecting: rhsError)
+        default:
+            false
+        }
+    }
 }
 
 // MARK: - DefaultFlightRecorder
@@ -214,11 +284,7 @@ actor DefaultFlightRecorder {
                 } catch is CancellationError {
                     // No-op: don't log or alert for cancellation errors.
                 } catch {
-                    await self?.errorReporter.log(error: BitwardenError.generalError(
-                        type: "Flight Recorder Log Lifecycle Timer Error",
-                        message: "Error waiting for next flight recorder log lifecycle",
-                        error: error,
-                    ))
+                    await self?.errorReporter.log(error: FlightRecorderError.logLifecycleTimerError(error))
                 }
             }
         }
@@ -266,11 +332,7 @@ actor DefaultFlightRecorder {
             do {
                 try removeLog(at: fileURL(for: log))
             } catch {
-                errorReporter.log(error: BitwardenError.generalError(
-                    type: "Flight Recorder Remove Log Error",
-                    message: "Unable to remove file for expired log",
-                    error: error,
-                ))
+                errorReporter.log(error: FlightRecorderError.removeExpiredLogError(error))
             }
 
             data.inactiveLogs.remove(at: index)
@@ -298,11 +360,7 @@ actor DefaultFlightRecorder {
             error.code == NSFileReadNoSuchFileError {
             return ""
         } catch {
-            errorReporter.log(error: BitwardenError.generalError(
-                type: "Flight Recorder File Size Error",
-                message: "Unable to determine the log's file size",
-                error: error,
-            ))
+            errorReporter.log(error: FlightRecorderError.fileSizeError(error))
             return ""
         }
     }
@@ -444,12 +502,7 @@ extension DefaultFlightRecorder: FlightRecorder {
             data.activeLog = nil
             await setFlightRecorderData(data)
 
-            let fileName = URL(fileURLWithPath: file).lastPathComponent
-            errorReporter.log(error: BitwardenError.generalError(
-                type: "Flight Recorder Log Error",
-                message: "\(fileName):\(line) Unable to write message to log: \(message)",
-                error: error,
-            ))
+            errorReporter.log(error: FlightRecorderError.writeMessageError(error))
         }
     }
 

@@ -131,8 +131,6 @@
 "LastSync" = "Viimane sünkroniseerimine:";
 "Length" = "Pikkus";
 "Lock" = "Lukusta";
-"OneHour" = "1 tunni pärast";
-"FourHours" = "4 tunni pärast";
 "Immediately" = "Koheselt";
 "VaultTimeout" = "Hoidla ajalõpp";
 "VaultTimeoutAction" = "Hoidla ajalõpu tegevus";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Hoidla on lukus. Jätkamiseks kinnita oma identiteet.";
 "Dark" = "Tume";
 "Light" = "Hele";
-"TenSeconds" = "10 sekundi pärast";
-"ThirtySeconds" = "30 sekundi pärast";
-"TwentySeconds" = "20 sekundi pärast";
 "ClearClipboard" = "Lõikelaua puhastamine";
 "ClearClipboardDescription" = "Puhastab automaatselt lõikelauale kopeeritud sisu.";
 "DefaultUriMatchDetection" = "Vaike URI sobivuse tuvastamine";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send on kustutatud.";
 "SendUpdated" = "Send on uuendatud.";
 "NewSendCreated" = "Uus Send on loodud.";
-"OneDay" = "1 päev";
-"TwoDays" = "2 päeva";
-"ThreeDays" = "3 päeva";
-"SevenDays" = "7 päeva";
-"ThirtyDays" = "30 päeva";
 "Custom" = "Kohandatud";
 "ShareOnSave" = "Jaga seda Sendi salvestamise ajal.";
 "SendDisabledWarning" = "Ettevõtte poliitika kohaselt saad ainult olemasolevat Sendi kustutada.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Üks tund ja %1$@ minutit";
 "XHoursAndOneMinute" = "%1$@ tundi ja üks minut";
 "XHoursAndYMinutes" = "%1$@ tundi ja %2$@ minutit";
-"XHours" = "%1$@ tundi";
 "PasskeyManagementExplanationLong" = "Kasuta Bitwardenit uute pääsuvõtmete salvestamiseks hoidlas ja nendega sisse logimiseks.";
 "AutofillServicesExplanationLong" = "Android Autofill Raamistiku kasutatakse teistesse rakendustesse sisselogimisel andmete automaatse täitmise lihtsustamiseks.";
 "UseInlineAutofillExplanationLong" = "Kasuta automaatset täitmist hüpikuna veebisaidi sees, kui su klaviatuur lubab seda. Muidu kasuta vaikeseadet.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Importimine...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
-"ItemsSuccessfullyImported" = "%1$@ items successfully imported";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
 "RetryImport" = "Retry import";
 "ShowVault" = "Show vault";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send name (required)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Logging duration";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
-"OneWeek" = "1 week";
 "ShowMore" = "Show more";
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Viga dekrüpteerimisel";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Konto nimi";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Local codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 seconds";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "Puudub";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Logi sisse kasutades unikaalseid koode";
-"SixtySeconds" = "60 seconds";
 "Skip" = "Jäta vahele";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Hoiusta kõiki oma kasutajakonto andmeid ja sünkroniseeri oma kinnituskoode otse Authenticatori rakenduse kaudu.";

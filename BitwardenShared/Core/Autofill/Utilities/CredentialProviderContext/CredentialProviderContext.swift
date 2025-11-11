@@ -18,6 +18,8 @@ public protocol CredentialProviderContext {
     var flowWithUserInteraction: Bool { get }
     /// The `ASCredentialServiceIdentifier` array depending on the `ExtensionMode`.
     var serviceIdentifiers: [ASCredentialServiceIdentifier] { get }
+    /// The URI of the credential to autofill.
+    var uri: String? { get }
 }
 
 /// Default implementation of `CredentialProviderContext`.
@@ -86,6 +88,34 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             serviceIdentifiers
         default:
             []
+        }
+    }
+
+    public var uri: String? {
+        guard let serviceIdentifier = serviceIdentifiers.first else {
+            // WORKAROUND: iOS does not consistently send `serviceIdentifiers` in the Fido2 + Passwords
+            // vault list flow (.autofillFido2VaultList). As a fallback, we use the `relyingPartyIdentifier`
+            // as the URI for filtering, which provides similar functionality.
+            //
+            // This fallback should be retained even if Apple fixes the primary issue, as it ensures
+            // resilience against future OS regressions and edge cases.
+            //
+            // Related: iOS Autofill API behavior - serviceIdentifiers may be empty in certain contexts.
+            if case let .autofillFido2VaultList(_, passkeyParameters) = extensionMode,
+               !passkeyParameters.relyingPartyIdentifier.isEmpty {
+                return passkeyParameters.relyingPartyIdentifier.httpsNormalized()
+            }
+
+            return nil
+        }
+
+        return switch serviceIdentifier.type {
+        case .domain:
+            "https://" + serviceIdentifier.identifier
+        case .URL:
+            serviceIdentifier.identifier
+        @unknown default:
+            serviceIdentifier.identifier
         }
     }
 
