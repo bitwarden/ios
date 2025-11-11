@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: - AnyCoordinator
@@ -104,7 +103,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
 
 // MARK: - Coordinator Extensions
 
-extension Coordinator {
+public extension Coordinator {
     /// Wraps this coordinator in an instance of `AnyCoordinator`.
     ///
     /// - Returns: An `AnyCoordinator` instance wrapping this coordinator.
