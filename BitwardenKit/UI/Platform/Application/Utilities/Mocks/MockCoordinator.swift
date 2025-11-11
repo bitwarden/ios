@@ -1,47 +1,49 @@
 import BitwardenKit
 import XCTest
 
-enum MockCoordinatorError: Error {
+public enum MockCoordinatorError: Error {
     case alertRouteNotFound
 }
 
-class MockCoordinator<Route, Event>: Coordinator {
-    var alertShown = [BitwardenKit.Alert]()
-    var alertOnDismissed: (() -> Void)?
-    var contexts: [AnyObject?] = []
-    var errorAlertsShown = [Error]()
-    var errorAlertsWithRetryShown = [(error: Error, retry: () async -> Void)]()
-    var events = [Event]()
-    var isLoadingOverlayShowing = false
-    var isStarted: Bool = false
-    var loadingOverlaysShown = [LoadingOverlayState]()
-    var toastsShown = [Toast]()
-    var routes: [Route] = []
+public class MockCoordinator<Route, Event>: Coordinator {
+    public var alertShown = [BitwardenKit.Alert]()
+    public var alertOnDismissed: (() -> Void)?
+    public var contexts: [AnyObject?] = []
+    public var errorAlertsShown = [Error]()
+    public var errorAlertsWithRetryShown = [(error: Error, retry: () async -> Void)]()
+    public var events = [Event]()
+    public var isLoadingOverlayShowing = false
+    public var isStarted: Bool = false
+    public var loadingOverlaysShown = [LoadingOverlayState]()
+    public var toastsShown = [Toast]()
+    public var routes: [Route] = []
 
-    func handleEvent(_ event: Event, context: AnyObject?) async {
+    public init() {}
+
+    public func handleEvent(_ event: Event, context: AnyObject?) async {
         events.append(event)
         contexts.append(context)
     }
 
-    func hideLoadingOverlay() {
+    public func hideLoadingOverlay() {
         isLoadingOverlayShowing = false
     }
 
-    func navigate(to route: Route, context: AnyObject?) {
+    public func navigate(to route: Route, context: AnyObject?) {
         routes.append(route)
         contexts.append(context)
     }
 
-    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
+    public func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
         alertShown.append(alert)
         alertOnDismissed = onDismissed
     }
 
-    func showErrorAlert(error: any Error) async {
+    public func showErrorAlert(error: any Error) async {
         errorAlertsShown.append(error)
     }
 
-    func showErrorAlert(
+    public func showErrorAlert(
         error: any Error,
         tryAgain: (() async -> Void)?,
         onDismissed: (() -> Void)?,
@@ -54,16 +56,16 @@ class MockCoordinator<Route, Event>: Coordinator {
         alertOnDismissed = onDismissed
     }
 
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
+    public func showLoadingOverlay(_ state: LoadingOverlayState) {
         isLoadingOverlayShowing = true
         loadingOverlaysShown.append(state)
     }
 
-    func showToast(_ title: String, subtitle: String?, additionalBottomPadding: CGFloat) {
+    public func showToast(_ title: String, subtitle: String?, additionalBottomPadding: CGFloat) {
         toastsShown.append(Toast(title: title, subtitle: subtitle))
     }
 
-    func start() {
+    public func start() {
         isStarted = true
     }
 }
