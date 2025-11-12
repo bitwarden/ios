@@ -28,6 +28,9 @@ import Combine
 /// combining passwords + Fido2 credentials in one section.
 /// - `CombinedMultipleAutofillVaultListDirectorStrategy`: Autofill extension vault list view
 /// combining passwords + Fido2 credentials in different sections.
+/// - `SearchVaultListDirectorStrategy`: Search results for vault list views
+/// - `SearchCombinedMultipleAutofillListDirectorStrategy`: Search results for Autofill extension vault list
+/// combining passwords + Fido2 credentials in different sections.
 ///
 /// ## Example Usage
 /// ```swift
