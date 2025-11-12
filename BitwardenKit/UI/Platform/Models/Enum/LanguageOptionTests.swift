@@ -1,7 +1,6 @@
-import XCTest
-
+import BitwardenKit
 import BitwardenResources
-@testable import BitwardenShared
+import XCTest
 
 class LanguageOptionTests: BitwardenTestCase {
     // MARK: Tests
