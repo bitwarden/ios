@@ -133,6 +133,35 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
     }
+    
+    /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy type is immediately.
+    @MainActor
+    func test_perform_appeared_timeoutImmediatelyPolicyEnabled() async throws {
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        // The server sends 480 minutes as default but must be ignored when type is not nil
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: .immediately,
+                timeoutValue: SessionTimeoutValue(rawValue: 480),
+            ),
+        )
+        stateService.userHasMasterPassword[userId] = true
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
+        XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
+        XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
+        XCTAssertEqual(subject.state.policyTimeoutType, SessionTimeoutType.immediately)
+        XCTAssertEqual(subject.state.availableTimeoutOptions, [.immediately])
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.thisSettingIsManagedByYourOrganization,
+        )
+    }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled,
     /// but the policy doesn't return an action.

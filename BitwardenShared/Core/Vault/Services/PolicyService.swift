@@ -275,7 +275,6 @@ extension DefaultPolicyService {
         var timeoutValue: SessionTimeoutValue?
 
         for policy in policies {
-            // This is never null, but maybe it should be revised
             guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
             timeoutValue = SessionTimeoutValue(rawValue: policyTimeoutValue)
 
@@ -293,7 +292,7 @@ extension DefaultPolicyService {
             switch action {
             case "lock":
                 timeoutAction = .lock
-            case "logout":
+            case "logOut":
                 timeoutAction = .logout
             default:
                 timeoutAction = nil

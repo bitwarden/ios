@@ -177,6 +177,26 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 60))
     }
 
+    /// `fetchSync()` updates the user's timeout action and value
+    /// if the user's timeout value is greater than the policy's.
+    func test_checkVaultTimeoutPolicy_setActionForOnAppRestartType() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
+
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: .onAppRestart,
+                timeoutValue: SessionTimeoutValue(rawValue: 60),
+            ),
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(stateService.timeoutAction["1"], .logout)
+    }
+
     /// `fetchSync()` updates the user's timeout action and value - if the timeout value is set to
     /// never, it is set to the maximum timeout allowed by the policy.
     func test_checkVaultTimeoutPolicy_valueNever() async throws {
