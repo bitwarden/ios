@@ -55,10 +55,10 @@ The iOS repository contains two main apps: Bitwarden Password Manager and Bitwar
 - `BitwardenWatchShared`: Models and encoding/decoding logic for communicating between the iOS and watchOS apps.
 - `Networking`: A local Swift package that implements the app's networking layer on top of `URLSession`.
 
-### Test Helpers
+### Test Helper Targets
 
 - `GlobalTestHelpers`: Shared functionality between the app's test targets.
-- `BitwardenKitMocks`: Mock implementations for BitwardenKit components.
+- `BitwardenKitMocks`: Mock implementations for BitwardenKit components. Anything in a `Mocks` folder will get picked up for this.
 - `AuthenticatorBridgeKitMocks`: Mock implementations for AuthenticatorBridgeKit components.
 - `TestHelpers`: Additional test utilities and helpers.
 - `ViewInspectorTestHelpers`: ViewInspector-specific test helpers for UI testing.
