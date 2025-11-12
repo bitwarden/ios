@@ -166,13 +166,6 @@ protocol HasDeviceAPIService {
     var deviceAPIService: DeviceAPIService { get }
 }
 
-/// Protocol for an object that provides an `ErrorReportBuilder`.
-///
-protocol HasErrorReportBuilder {
-    /// A helper for building an error report containing the details of an error that occurred.
-    var errorReportBuilder: ErrorReportBuilder { get }
-}
-
 /// Protocol for an object that provides an `EventService`.
 ///
 protocol HasEventService {

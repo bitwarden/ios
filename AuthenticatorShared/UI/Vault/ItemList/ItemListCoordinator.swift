@@ -13,6 +13,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         & ItemListModule
 
     typealias Services = HasTimeProvider
+        & HasErrorAlertServices.ErrorAlertServices
         & ItemListProcessor.Services
         & HasTOTPExpirationManagerFactory
 
@@ -134,3 +135,10 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension ItemListCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
