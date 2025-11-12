@@ -58,8 +58,8 @@ The iOS repository contains two main apps: Bitwarden Password Manager and Bitwar
 ### Test Helper Targets
 
 - `GlobalTestHelpers`: Shared functionality between the app's test targets.
-- `BitwardenKitMocks`: Mock implementations for BitwardenKit components. Anything in a `Mocks` folder will get picked up for this.
-- `AuthenticatorBridgeKitMocks`: Mock implementations for AuthenticatorBridgeKit components.
+- `BitwardenKitMocks`: Mock implementations for BitwardenKit components. Files placed in a `Mocks` folder in `BitwardenKit` will be automatically included in this target.
+- `AuthenticatorBridgeKitMocks`: Mock implementations for AuthenticatorBridgeKit components. Files placed in a `Mocks` folder in `AuthenticatorBridgeKit` will be automatically included in this target.
 - `TestHelpers`: Additional test utilities and helpers.
 - `ViewInspectorTestHelpers`: ViewInspector-specific test helpers for UI testing.
 
