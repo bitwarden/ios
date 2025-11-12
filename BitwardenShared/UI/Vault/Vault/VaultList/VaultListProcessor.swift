@@ -429,12 +429,15 @@ extension VaultListProcessor {
             return
         }
         do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: state.searchVaultFilterType,
+                    searchText: searchText,
+                ),
             )
-            for try await ciphers in result {
-                state.searchResults = ciphers
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
+                state.searchResults = items
             }
         } catch {
             services.errorReporter.log(error: error)

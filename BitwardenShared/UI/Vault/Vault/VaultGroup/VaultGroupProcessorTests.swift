@@ -252,19 +252,35 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_perform_search() {
         let searchResult: [CipherListView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
+        vaultRepository.vaultListSubject.value = VaultListData(
+            sections: [
+                VaultListSection(
+                    id: "SearchResults",
+                    items: searchResult.compactMap { VaultListItem(cipherListView: $0) },
+                    name: "",
+                ),
+            ],
+        )
         subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         let task = Task {
             await subject.perform(.search("example"))
         }
         waitFor(!subject.state.searchResults.isEmpty)
         XCTAssertEqual(
-            vaultRepository.searchVaultListFilterType?.filterType,
+            vaultRepository.vaultListFilter?.filterType,
             .organization(.fixture(id: "id1")),
         )
         XCTAssertEqual(
             subject.state.searchResults,
             try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))],
+        )
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .organization(.fixture(id: "id1")),
+                group: .login,
+                searchText: "example",
+            ),
         )
 
         task.cancel()
@@ -273,7 +289,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` throws error and error is logged.
     @MainActor
     func test_perform_search_error() async {
-        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -345,10 +361,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ),
         )
-        vaultRepository.searchVaultListSubject.send([
-            expired,
-            stable,
-        ])
+        vaultRepository.vaultListSubject.send(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "",
+                        items: [expired, stable],
+                        name: "",
+                    ),
+                ],
+            ),
+        )
         waitFor(subject.state.searchResults.count == 2)
         task.cancel()
 
@@ -405,10 +428,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ),
         )
-        vaultRepository.searchVaultListSubject.send([
-            expired,
-            stable,
-        ])
+        vaultRepository.vaultListSubject.send(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "",
+                        items: [expired, stable],
+                        name: "",
+                    ),
+                ],
+            ),
+        )
         waitFor(subject.state.searchResults.count == 2)
         task.cancel()
 

@@ -60,6 +60,17 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
+    /// Adds a search result item to the prepared exact/fuzzy data.
+    /// - Parameters:
+    ///   - matchResult: The match result of the cipher search.
+    ///   - cipher: The target cipher.
+    ///   - group: The group filter, if any.
+    /// - Returns: This same instance builder for fluent coding.
+    func addSearchResultItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView,
+        for group: VaultListGroup?,
+    ) async -> VaultListPreparedDataBuilder
     /// Builds the prepared data.
     func build() -> VaultListPreparedData
     /// Increments the cipher type count in the prepared data.
@@ -82,7 +93,7 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
 // MARK: - DefaultVaultListPreparedDataBuilder
 
 /// Default implementation of `VaultListPreparedDataBuilder`.
-class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
+class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's ciphers.
@@ -264,6 +275,28 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return self
     }
 
+    func addSearchResultItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView,
+        for group: VaultListGroup?,
+    ) async -> VaultListPreparedDataBuilder {
+        guard matchResult != .none,
+              let vaultListItem = await buildVaultListItemForGroupOrDefault(cipher: cipher, group: group) else {
+            return self
+        }
+
+        switch matchResult {
+        case .exact:
+            preparedData.exactMatchItems.append(vaultListItem)
+        case .fuzzy:
+            preparedData.fuzzyMatchItems.append(vaultListItem)
+        case .none:
+            break
+        }
+
+        return self
+    }
+
     func build() -> VaultListPreparedData {
         preparedData
     }
@@ -326,6 +359,23 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     // MARK: Private methods
 
+    /// Builds the `VaultListItem` for the given `group` or returns the default `VaultListItem` for a given cipher.
+    /// - Parameters:
+    ///   - cipher: The cipher to build the vault list item.
+    ///   - group: The group to build the item for, if passed.
+    /// - Returns: The built `VaultListItem` for the `cipher` and `group`.
+    func buildVaultListItemForGroupOrDefault(cipher: CipherListView, group: VaultListGroup?) async -> VaultListItem? {
+        if case .totp = group {
+            guard await shouldIncludeTOTP(cipher: cipher) else {
+                return nil
+            }
+
+            return await totpItem(for: cipher)
+        }
+
+        return VaultListItem(cipherListView: cipher)
+    }
+
     private func getHasPremiumFeaturesAccess() async -> Bool {
         guard let hasPremiumFeaturesAccess else {
             hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
@@ -383,4 +433,4 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             ),
         )
     }
-}
+} // swiftlint:disable:this file_length

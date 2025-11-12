@@ -565,9 +565,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "incrementTOTPCount",
             "addCipherDecryptionFailure",
             "addFolderItem",
@@ -592,9 +592,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
@@ -621,9 +621,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
@@ -647,9 +647,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
@@ -673,9 +673,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "incrementTOTPCount",
             "addCipherDecryptionFailure",
             "addFolderItem",
@@ -704,9 +704,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "incrementCipherDeletedCount",
         ])
         XCTAssertNotNil(result)
@@ -740,9 +740,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
@@ -766,9 +766,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
@@ -786,9 +786,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         // should not call incrementCollectionCount and addItemForGroup
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
     }
@@ -808,9 +808,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "addFolderItem",
             "addItemForGroup",
         ])
@@ -832,9 +832,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "incrementCollectionCount",
             "addItemForGroup",
         ])
@@ -875,9 +875,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -1027,9 +1027,9 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
             "prepareFolders",
             "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)

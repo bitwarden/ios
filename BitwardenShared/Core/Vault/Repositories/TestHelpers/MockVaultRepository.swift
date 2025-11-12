@@ -98,12 +98,6 @@ class MockVaultRepository: VaultRepository {
     var saveAttachmentFileName: String?
     var saveAttachmentResult: Result<CipherView, Error> = .success(.fixture())
 
-    var searchCipherAutofillPublisherCalledWithGroup: VaultListGroup? // swiftlint:disable:this identifier_name
-    var searchCipherAutofillSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
-
-    var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
-    var searchVaultListFilterType: VaultListFilter?
-
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
 
@@ -283,27 +277,6 @@ class MockVaultRepository: VaultRepository {
     func saveAttachment(cipherView _: CipherView, fileData _: Data, fileName: String) async throws -> CipherView {
         saveAttachmentFileName = fileName
         return try saveAttachmentResult.get()
-    }
-
-    func searchCipherAutofillPublisher( // swiftlint:disable:this function_parameter_count
-        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
-        mode: BitwardenShared.AutofillListMode,
-        filter: BitwardenShared.VaultListFilter,
-        group: BitwardenShared.VaultListGroup?,
-        rpID: String?,
-        searchText: String,
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
-        searchCipherAutofillPublisherCalledWithGroup = group
-        return searchCipherAutofillSubject.eraseToAnyPublisher().values
-    }
-
-    func searchVaultListPublisher(
-        searchText _: String,
-        group: VaultListGroup?,
-        filter: BitwardenShared.VaultListFilter,
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        searchVaultListFilterType = filter
-        return searchVaultListSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {

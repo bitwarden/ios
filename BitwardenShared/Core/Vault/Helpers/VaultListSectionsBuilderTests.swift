@@ -492,6 +492,165 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    // MARK: addSearchResultsSection Tests
+
+    /// `addSearchResultsSection()` adds a search results section with exact and fuzzy match items combined.
+    func test_addSearchResultsSection_exactAndFuzzyMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact-2")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact-3")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Exact-1
+              - Cipher: Exact-2
+              - Cipher: Exact-3
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` adds a search results section with only exact match items when no fuzzy items.
+    func test_addSearchResultsSection_onlyExactMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Item-C")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Item-A")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Item-B")),
+            ],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Item-A
+              - Cipher: Item-B
+              - Cipher: Item-C
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` adds a search results section with only fuzzy match items when no exact items.
+    func test_addSearchResultsSection_onlyFuzzyMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Fuzzy-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Fuzzy-1")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
+              - Cipher: Fuzzy-3
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` doesn't add a section when there are no exact or fuzzy match items.
+    func test_addSearchResultsSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` sorts items alphabetically by name, with exact matches first.
+    func test_addSearchResultsSection_sortingOrder() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Zebra")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Apple")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Banana")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "4", name: "Xylophone")),
+                .fixture(cipherListView: .fixture(id: "5", name: "Cherry")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Mango")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Apple
+              - Cipher: Banana
+              - Cipher: Zebra
+              - Cipher: Cherry
+              - Cipher: Mango
+              - Cipher: Xylophone
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` correctly handles single exact match item.
+    func test_addSearchResultsSection_singleExactMatch() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "SingleItem")),
+            ],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: SingleItem
+            """
+        }
+    }
+
+    /// `addSearchResultsSection()` correctly handles single fuzzy match item.
+    func test_addSearchResultsSection_singleFuzzyMatch() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "FuzzyItem")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: FuzzyItem
+            """
+        }
+    }
+
     /// `build()` returns the built sections.
     /// Using this test also to verify that sections get appended and to verify fluent code usage of the builder.
     func test_build() async throws { // swiftlint:disable:this function_body_length

@@ -786,7 +786,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_search() {
         let searchResult: [CipherListView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [
+            VaultListSection(
+                id: "",
+                items: searchResult.compactMap { VaultListItem(cipherListView: $0) },
+                name: "",
+            ),
+        ])
         let task = Task {
             await subject.perform(.search("example"))
         }
@@ -803,7 +809,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(.search)` throws error and error is logged.
     @MainActor
     func test_perform_search_error() async {
-        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)

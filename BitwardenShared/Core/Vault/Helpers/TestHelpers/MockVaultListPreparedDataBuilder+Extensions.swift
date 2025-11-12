@@ -36,6 +36,10 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("addNoFolderItem")
             return self
         }
+        addSearchResultItemClosure = { _, _, _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("addSearchResultItem")
+            return self
+        }
         incrementCipherTypeCountClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("incrementCipherTypeCount")
             return self

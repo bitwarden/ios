@@ -28,7 +28,23 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     /// The helper used to prepare data for the vault list builder.
     let vaultListDataPreparator: VaultListDataPreparator
 
-    func make(filter: VaultListFilter) -> VaultListDirectorStrategy {
+    func make(filter: VaultListFilter) -> VaultListDirectorStrategy { // swiftlint:disable:this function_body_length
+        guard filter.searchText == nil else {
+            if case .combinedMultipleSections = filter.mode {
+                return SearchCombinedMultipleAutofillListDirectorStrategy(
+                    builderFactory: vaultListBuilderFactory,
+                    cipherService: cipherService,
+                    fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                    vaultListDataPreparator: vaultListDataPreparator,
+                )
+            }
+            return SearchVaultListDirectorStrategy(
+                builderFactory: vaultListBuilderFactory,
+                cipherService: cipherService,
+                vaultListDataPreparator: vaultListDataPreparator,
+            )
+        }
+
         switch filter.mode {
         case .combinedMultipleSections:
             return CombinedMultipleAutofillVaultListDirectorStrategy(

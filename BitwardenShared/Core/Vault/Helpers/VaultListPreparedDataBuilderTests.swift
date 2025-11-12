@@ -490,4 +490,151 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
         XCTAssertEqual(preparedData.restrictedOrganizationIds, restrictedOrganizationIds)
     }
+
+    // MARK: addSearchResultItem Tests
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds an exact match item to the prepared data
+    /// when match result is exact and no group is specified.
+    func test_addSearchResultItem_exactMatch_noGroup() async {
+        let cipher = CipherListView.fixture(id: "1")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds a fuzzy match item to the prepared data
+    /// when match result is fuzzy and no group is specified.
+    func test_addSearchResultItem_fuzzyMatch_noGroup() async {
+        let cipher = CipherListView.fixture(id: "2")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add an item to the prepared data
+    /// when match result is none.
+    func test_addSearchResultItem_noneMatch() async {
+        let cipher = CipherListView.fixture(id: "3")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .none, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds an exact match TOTP item to the prepared data
+    /// when match result is exact and group is TOTP.
+    func test_addSearchResultItem_exactMatch_totpGroup() async {
+        let cipher = CipherListView.fixture(id: "1", type: .login(.fixture(totp: "123456")))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds a fuzzy match TOTP item to the prepared data
+    /// when match result is fuzzy and group is TOTP.
+    func test_addSearchResultItem_fuzzyMatch_totpGroup() async {
+        let cipher = CipherListView.fixture(id: "2", type: .login(.fixture(totp: "654321")))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add a TOTP item when the cipher
+    /// has no TOTP configured.
+    func test_addSearchResultItem_totpGroup_noTOTP() async {
+        let cipher = CipherListView.fixture(id: "3", type: .login(.fixture(totp: nil)))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add a TOTP item when the user
+    /// does not have premium access.
+    func test_addSearchResultItem_totpGroup_noPremiumAccess() async {
+        let cipher = CipherListView.fixture(id: "4", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds multiple items correctly when called multiple times
+    /// with different match results.
+    func test_addSearchResultItem_multipleItems() async {
+        let cipher1 = CipherListView.fixture(id: "1")
+        let cipher2 = CipherListView.fixture(id: "2")
+        let cipher3 = CipherListView.fixture(id: "3")
+        let cipher4 = CipherListView.fixture(id: "4")
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher1, for: nil)
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher2, for: nil)
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher3, for: nil)
+            .addSearchResultItem(withMatchResult: .none, cipher: cipher4, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 2)
+        XCTAssertEqual(preparedData.exactMatchItems.map(\.id), ["1", "2"])
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "3")
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds items for different group types correctly.
+    func test_addSearchResultItem_differentGroups() async {
+        let loginCipher = CipherListView.fixture(id: "1", type: .login(.fixture()))
+        let cardCipher = CipherListView.fixture(id: "2", type: .card(.fixture()))
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: loginCipher, for: .login)
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cardCipher, for: .card)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add an item when cipher has nil ID.
+    func test_addSearchResultItem_nilCipherId() async {
+        let cipher = CipherListView.fixture(id: nil)
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
 }
