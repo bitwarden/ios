@@ -37,7 +37,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     ///
     /// - Parameter coordinator: The coordinator to wrap.
     ///
-    init<C: Coordinator>(_ coordinator: C)
+    public init<C: Coordinator>(_ coordinator: C)
         where C.Event == Event,
         C.Route == Route {
         doHideLoadingOverlay = { coordinator.hideLoadingOverlay() }

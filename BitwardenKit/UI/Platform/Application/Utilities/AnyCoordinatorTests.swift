@@ -1,22 +1,35 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
-
 // MARK: - AnyCoordinatorTests
 
 class AnyCoordinatorTests: BitwardenTestCase {
+    // MARK: Types
+
+    enum TestAuthRoute: Equatable {
+        case landing
+    }
+
+    enum TestEvent: Equatable {
+        case didStart
+    }
+
+    enum TestRoute: Equatable {
+        case auth(TestAuthRoute)
+    }
+
     // MARK: Properties
 
-    var coordinator: MockCoordinator<AppRoute, AppEvent>!
-    var subject: AnyCoordinator<AppRoute, AppEvent>!
+    var coordinator: MockCoordinator<TestRoute, TestEvent>!
+    var subject: AnyCoordinator<TestRoute, TestEvent>!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        coordinator = MockCoordinator<AppRoute, AppEvent>()
+        coordinator = MockCoordinator<TestRoute, TestEvent>()
         subject = AnyCoordinator(coordinator)
     }
 

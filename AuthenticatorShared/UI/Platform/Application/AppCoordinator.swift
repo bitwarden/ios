@@ -191,3 +191,9 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         showTab(route: .itemList(.list))
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

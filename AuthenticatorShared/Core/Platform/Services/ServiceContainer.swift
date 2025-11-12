@@ -47,6 +47,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// A helper for building an error report containing the details of an error that occurred.
+    public let errorReportBuilder: ErrorReportBuilder
+
     /// The service used by the application to report non-fatal errors.
     public let errorReporter: ErrorReporter
 
@@ -93,6 +96,8 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - errorReportBuilder: A helper for building an error report containing the details of an
+    ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
     ///   - importItemsService: The service to import items.
@@ -115,6 +120,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
         importItemsService: ImportItemsService,
@@ -136,6 +142,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
         self.importItemsService = importItemsService
@@ -184,6 +191,11 @@ public class ServiceContainer: Services {
 
         let apiService = APIService(
             environmentService: environmentService,
+        )
+
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
+            appInfoService: appInfoService,
         )
 
         let timeProvider = CurrentTime()
@@ -305,6 +317,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
             importItemsService: importItemsService,
