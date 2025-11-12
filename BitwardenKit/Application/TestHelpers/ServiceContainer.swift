@@ -13,15 +13,15 @@ typealias Services = HasConfigService
 ///
 class ServiceContainer: Services {
     let configService: ConfigService
-    let errorReportBuilder: any ErrorReportBuilder
     let environmentService: EnvironmentService
+    let errorReportBuilder: any ErrorReportBuilder
     let errorReporter: ErrorReporter
     let timeProvider: TimeProvider
 
     required init(
         configService: ConfigService,
-        errorReportBuilder: ErrorReportBuilder,
         environmentService: EnvironmentService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         timeProvider: TimeProvider,
     ) {
@@ -43,8 +43,8 @@ extension ServiceContainer {
     ) -> ServiceContainer {
         self.init(
             configService: configService,
-            errorReportBuilder: errorReportBuilder,
             environmentService: environmentService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             timeProvider: timeProvider,
         )
