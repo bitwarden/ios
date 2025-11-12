@@ -72,7 +72,12 @@ struct AccountSecurityState: Equatable {
     var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
 
     /// The timeout options to show when the policy for maximum timeout value is in effect.
-    var availableTimeoutOptions: [SessionTimeoutValue] = SessionTimeoutValue.allCases
+    var availableTimeoutOptions: [SessionTimeoutValue] {
+        computeAvailableTimeoutOptions(
+            type: policyTimeoutType,
+            value: policyTimeoutValue,
+        )
+    }
 
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
@@ -97,36 +102,9 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-
+    
     /// The policy's maximum vault timeout value.
-    /// When set, all timeout values greater than this are no longer shown.
-    var policyTimeoutValue: Int = 0 {
-        didSet {
-            availableTimeoutOptions = SessionTimeoutValue.allCases.filter { option in
-                switch policyTimeoutType {
-                case .never:
-                    return true
-                case .onAppRestart:
-                    return option != .never
-                case .immediately:
-                    return option == .immediately
-                case .custom:
-                    if option.isCustomPlaceholder { return true }
-                    guard let time = option.minutesValue else { return false }
-                    return time <= policyTimeoutValue
-                case nil,
-                     .predefined:
-                    if policyTimeoutValue > 0 {
-                        if option.isCustomPlaceholder { return true }
-                        guard let time = option.minutesValue else { return false }
-                        return time <= policyTimeoutValue
-                    } else {
-                        return true
-                    }
-                }
-            }
-        }
-    }
+    var policyTimeoutValue: Int = 0
 
     /// The policy's timeout action, if set.
     var policyTimeoutAction: SessionTimeoutAction?
@@ -276,6 +254,40 @@ struct AccountSecurityState: Equatable {
                     policyTimeoutMinutes,
                 ),
             )
+        }
+    }
+    
+    /// Returns the available timeout options based on policy type and value.
+    ///
+    /// - Parameters:
+    ///   - type: The policy's timeout type, if set.
+    ///   - value: The policy's maximum vault timeout value.
+    /// - Returns: Filtered array of available session timeout values.
+    private func computeAvailableTimeoutOptions(
+        type: SessionTimeoutType?,
+        value: Int
+    ) -> [SessionTimeoutValue] {
+        SessionTimeoutValue.allCases.filter { option in
+            switch type {
+            case .never:
+                return true
+            case .onAppRestart:
+                return option != .never
+            case .immediately:
+                return option == .immediately
+            case .custom:
+                if option.isCustomPlaceholder { return true }
+                guard let time = option.minutesValue else { return false }
+                return time <= value
+            case nil, .predefined:
+                if value > 0 {
+                    if option.isCustomPlaceholder { return true }
+                    guard let time = option.minutesValue else { return false }
+                    return time <= value
+                } else {
+                    return true
+                }
+            }
         }
     }
 }

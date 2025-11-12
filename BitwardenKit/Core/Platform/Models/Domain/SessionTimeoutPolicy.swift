@@ -14,10 +14,12 @@ public struct SessionTimeoutPolicy {
 
     // MARK: Initialization
 
-    /// Initialize `EnvironmentURLData` with the specified URLs.
+    /// Initialize `SessionTimeoutPolicy` with the specified values.
     ///
     /// - Parameters:
-    ///   - api: The URL for the API.
+    ///   - timeoutAction: The action to perform on session timeout.
+    ///   - timeoutType: The type of session timeout.
+    ///   - timeoutValue: The session timeout value.
     public init(
         timeoutAction: SessionTimeoutAction?,
         timeoutType: SessionTimeoutType?,
