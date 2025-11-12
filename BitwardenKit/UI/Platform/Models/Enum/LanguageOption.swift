@@ -20,6 +20,8 @@ public enum LanguageOption: Equatable, Sendable {
     /// Ideally we could dynamically fetch all the language codes available as localizable files
     /// by calling `Bundle.main.localizations`, but since the Bundle currently doesn't
     /// return reliable results for some reason, we have to hard-code the languages for now.
+    ///
+    /// These languages should also be specified in the application's `Info.plist` file.
     private static let languageCodes =
         [
             "af",
