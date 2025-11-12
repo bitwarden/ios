@@ -320,24 +320,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         return self
     }
 
-    func addSearchResultsCombinedMultipleSection() -> VaultListSectionsBuilder {
-        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
-            return self
-        }
-
-        let matchingItems = preparedData.exactMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
-            + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
-
-        vaultListData.sections.append(
-            VaultListSection(
-                id: "SearchResults",
-                items: matchingItems,
-                name: "",
-            ),
-        )
-        return self
-    }
-
     func addSearchResultsSection() -> VaultListSectionsBuilder {
         guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
             return self
