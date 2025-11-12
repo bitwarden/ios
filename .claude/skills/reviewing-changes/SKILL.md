@@ -36,6 +36,7 @@ Systematically check each area against Bitwarden standards documented in `CLAUDE
    - Unit tests for business logic and utility functions
    - Snapshot/View inspector tests for user-facing features when applicable
    - Test coverage for edge cases and error scenarios
+   - Mocks either rely on Sourcery's `AutoMockable` trait or are in a `Mocks` folder.
 
 5. **Security**: Given Bitwarden's security-focused nature
    - Proper handling of sensitive data
