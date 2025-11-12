@@ -4,8 +4,6 @@ import BitwardenResources
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
-
 // MARK: - CoordinatorTests
 
 @MainActor
