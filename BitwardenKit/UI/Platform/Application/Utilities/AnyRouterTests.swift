@@ -1,20 +1,31 @@
+import BitwardenKit
+import BitwardenKitMocks
 import XCTest
-
-@testable import AuthenticatorShared
 
 // MARK: - AnyRouterTests
 
 class AnyRouterTests: BitwardenTestCase {
+    // MARK: Types
+
+    enum TestEvent: Equatable {
+        case didStart
+    }
+
+    enum TestRoute: Equatable {
+        case complete
+        case landing
+    }
+
     // MARK: Properties
 
-    var router: MockRouter<AuthEvent, AuthRoute>!
-    var subject: AnyRouter<AuthEvent, AuthRoute>!
+    var router: MockRouter<TestEvent, TestRoute>!
+    var subject: AnyRouter<TestEvent, TestRoute>!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        router = MockRouter(routeForEvent: { _ in .vaultUnlock })
+        router = MockRouter(routeForEvent: { _ in .landing })
         subject = router.asAnyRouter()
     }
 
@@ -31,7 +42,7 @@ class AnyRouterTests: BitwardenTestCase {
     func test_handleAndRoute() async {
         var didStart = false
         router.routeForEvent = { event in
-            guard case .didStart = event else { return .vaultUnlock }
+            guard case .didStart = event else { return .landing }
             didStart = true
             return .complete
         }

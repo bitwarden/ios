@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importálás...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
-"ItemsSuccessfullyImported" = "%1$@ elem sikeresen importálásra került.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
 "RetryImport" = "Importálás újra próbálása";
 "ShowVault" = "Széf megjelenítése";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send név (kötelező)";
 "CheckPasswordForDataBreaches" = "A jelszó ellenőrzése, hogy nem történt-e adatszivárgás";
 "PrivateNote" = "Személyes jegyzet";
-"XItems" = "%1$@ elem";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Ez a felhasználó nem törölhető, mert legalább egy szervezet kizárólagos tulajdonosa. Töröljük ezeket a szervezeteket vagy térjünk át másik felhasználóra.";
 "APasskeyAlreadyExistsForThisApplication" = "Az alkalmazáshoz már létezik hozzáférési kulcs.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Már létezik jelszó ehhez az alkalmazáshoz, de hiba történt a betöltése során.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Jelszó utolsó frissítés: %1$@";
 "DecryptionError" = "Visszafejtési hiba";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nem tudta visszafejteni ezt a széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "A Bitwarden nem tudott visszafejteni 1 széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "A Bitwarden nem tudta visszafejteni %1$@ suéf elemet. Másoljuk és osszil meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
 "CopyErrorReport" = "Hibajelentés másolása";
 "ErrorCannotDecrypt" = "[hiba: nem fejlthető vissza]";
 "AccountName" = "Fióknév";

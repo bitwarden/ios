@@ -159,39 +159,11 @@ protocol HasClientService {
     var clientService: ClientService { get }
 }
 
-/// Protocol for an object that provides a `ConfigService`.
-///
-protocol HasConfigService {
-    /// The service to get server-specified configuration.
-    var configService: ConfigService { get }
-}
-
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
-}
-
-/// Protocol for an object that provides an `EnvironmentService`.
-///
-protocol HasEnvironmentService {
-    /// The service used by the application to manage the environment settings.
-    var environmentService: EnvironmentService { get }
-}
-
-/// Protocol for an object that provides an `ErrorReportBuilder`.
-///
-protocol HasErrorReportBuilder {
-    /// A helper for building an error report containing the details of an error that occurred.
-    var errorReportBuilder: ErrorReportBuilder { get }
-}
-
-/// Protocol for an object that provides an `ErrorReporter`.
-///
-protocol HasErrorReporter {
-    /// The service used by the application to report non-fatal errors.
-    var errorReporter: ErrorReporter { get }
 }
 
 /// Protocol for an object that provides an `EventService`.
@@ -366,13 +338,6 @@ protocol HasSystemDevice {
 protocol HasTextAutofillHelperFactory {
     /// Helper to create `TextAutofillHelper`s`.
     var textAutofillHelperFactory: TextAutofillHelperFactory { get }
-}
-
-/// Protocol for an object that provides a `TimeProvider`.
-///
-protocol HasTimeProvider {
-    /// Provides the present time for TOTP Code Calculation.
-    var timeProvider: TimeProvider { get }
 }
 
 /// Protocol for an object that provides a `TOTPExpirationManagerFactory`.

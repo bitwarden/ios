@@ -1,10 +1,9 @@
-import BitwardenKit
 import Foundation
 import UIKit
 
 /// A protocol for an object that performs navigation via routes.
 @MainActor
-protocol Coordinator<Route, Event>: AnyObject {
+public protocol Coordinator<Route, Event>: AnyObject {
     // MARK: Types
 
     associatedtype Event
@@ -84,7 +83,7 @@ protocol Coordinator<Route, Event>: AnyObject {
 /// A protocol for an object that has a `Navigator`.
 ///
 @MainActor
-protocol HasNavigator {
+public protocol HasNavigator {
     /// A weak reference to this item's `Navigator`. This value should be `weak`, otherwise a retain
     /// cycle might be introduced.
     var navigator: Navigator? { get }
@@ -93,7 +92,7 @@ protocol HasNavigator {
 /// A protocol for an object that has a `StackNavigator`.
 ///
 @MainActor
-protocol HasStackNavigator: HasNavigator {
+public protocol HasStackNavigator: HasNavigator {
     /// A weak reference to this item's `StackNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
     var stackNavigator: StackNavigator? { get }
@@ -102,7 +101,7 @@ protocol HasStackNavigator: HasNavigator {
 /// A protocol for an object that has a `TabNavigator`.
 ///
 @MainActor
-protocol HasTabNavigator: HasNavigator {
+public protocol HasTabNavigator: HasNavigator {
     /// A weak reference to this item's `TabNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
     var tabNavigator: TabNavigator? { get }
@@ -111,7 +110,7 @@ protocol HasTabNavigator: HasNavigator {
 /// A protocol for an object that has a `RootNavigator`.
 ///
 @MainActor
-protocol HasRootNavigator: HasNavigator {
+public protocol HasRootNavigator: HasNavigator {
     /// A weak reference to this item's `RootNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
     var rootNavigator: RootNavigator? { get }
@@ -120,7 +119,7 @@ protocol HasRootNavigator: HasNavigator {
 /// A protocol for an object that has a `Router`.
 ///
 @MainActor
-protocol HasRouter<Event, Route> {
+public protocol HasRouter<Event, Route> {
     associatedtype Event
     associatedtype Route
 
@@ -135,7 +134,7 @@ protocol HasRouter<Event, Route> {
 /// need to be implemented in each coordinator across the app.
 ///
 @MainActor
-protocol HasErrorAlertServices: Coordinator, HasNavigator {
+public protocol HasErrorAlertServices: Coordinator, HasNavigator {
     typealias ErrorAlertServices = HasErrorReportBuilder
 
     /// The services needed to build an alert for an error that occurred.
@@ -144,7 +143,7 @@ protocol HasErrorAlertServices: Coordinator, HasNavigator {
 
 // MARK: Extensions
 
-extension Coordinator {
+public extension Coordinator {
     /// Handles events that may require asynchronous management.
     ///
     /// - Parameter event: The event for which the coordinator handle.
@@ -181,7 +180,7 @@ extension Coordinator {
     }
 }
 
-extension Coordinator where Self.Event == Void {
+public extension Coordinator where Self.Event == Void {
     /// Provide a default No-Op when a coordinator does not use events.
     ///
     func handleEvent(_ event: Void, context: AnyObject?) async {
@@ -189,7 +188,7 @@ extension Coordinator where Self.Event == Void {
     }
 }
 
-extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
+public extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
     /// Shows an alert for an error that occurred.
     ///
     /// - Parameters:
@@ -221,7 +220,7 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
     }
 }
 
-extension Coordinator where Self: HasNavigator {
+public extension Coordinator where Self: HasNavigator {
     /// Hides the loading overlay view.
     ///
     func hideLoadingOverlay() {
@@ -265,7 +264,7 @@ extension Coordinator where Self: HasNavigator {
     }
 }
 
-extension Coordinator where Self: HasRouter {
+public extension Coordinator where Self: HasRouter {
     /// Passes an `Event` to the router, which prepares a route
     ///  that the coordinator uses for navigation.
     ///
@@ -277,17 +276,17 @@ extension Coordinator where Self: HasRouter {
     }
 }
 
-extension HasStackNavigator {
+public extension HasStackNavigator {
     /// The stack navigator.
     var navigator: Navigator? { stackNavigator }
 }
 
-extension HasTabNavigator {
+public extension HasTabNavigator {
     /// The tab navigator.
     var navigator: Navigator? { tabNavigator }
 }
 
-extension HasRootNavigator {
+public extension HasRootNavigator {
     /// The root navigator.
     var navigator: Navigator? { rootNavigator }
 }

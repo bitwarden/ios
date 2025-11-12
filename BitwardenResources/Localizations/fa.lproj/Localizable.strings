@@ -1082,7 +1082,6 @@
 "ImportingEllipsis" = "در حال وارد کردن...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "آیا مطمئن هستید که می‌خواهید فرایند درون ریزی داده‌ها را لغو کنید؟";
 "ImportFailed" = "درون ریزی ناموفق بود";
-"ItemsSuccessfullyImported" = "%1$@ مورد با موفقیت وارد شدند";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "در درون ریزی همه کلمات عبور شما مشکلی پیش آمد.\n\nاطلاعاتی حذف نشده است.";
 "RetryImport" = "درون ریزی مجدد";
 "ShowVault" = "نمایش گاوصندوق";
@@ -1104,7 +1103,6 @@
 "SendNameRequired" = "نام ارسال (الزامی)";
 "CheckPasswordForDataBreaches" = "بررسی کلمه عبور برای نقض‌های داده";
 "PrivateNote" = "یادداشت خصوصی";
-"XItems" = "%1$@ مورد";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "امکان حذف این کاربر وجود ندارد زیرا تنها مالک حداقل یک سازمان است. لطفاً این سازمان‌ها را حذف کنید یا مالکیت را به کاربر دیگری منتقل کنید.";
 "APasskeyAlreadyExistsForThisApplication" = "یک کلید عبور از قبل برای این برنامه وجود دارد.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "برای این برنامه قبلاً یک کلید عبور وجود دارد اما هنگام بارگذاری آن خطایی رخ داده است.";
@@ -1196,8 +1194,6 @@
 "PasswordLastUpdated" = "کلمه عبور آخرین بار به‌روزرسانی شده: %1$@";
 "DecryptionError" = "خطای رمزگشایی";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Account name";

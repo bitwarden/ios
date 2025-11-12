@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Tuodaan...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Haluatko varmasti peruuttaa tuontiprosessin?";
 "ImportFailed" = "Tuonti epäonnistui";
-"ItemsSuccessfullyImported" = "%1$@ kohdetta tuotu onnistuneesti";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Kaikkien salasanojesi tuonnissa tapahtui virhe.\n\nTietoja ei poistettu.";
 "RetryImport" = "Yritä tuontia uudelleen";
 "ShowVault" = "Näytä holvi";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send-nimi (pakollinen)";
 "CheckPasswordForDataBreaches" = "Tarkasta salasana tietomurtojen varalta";
 "PrivateNote" = "Yksityinen muistiinpano";
-"XItems" = "%1$@ kohdetta";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Käyttäjää ei voi poistaa, koska se on ainakin yhden organisaation ainoa omistaja. Poista nämä organisaatiot tai päivitä eri käyttäjä.";
 "APasskeyAlreadyExistsForThisApplication" = "Tälle sovellukselle löytyy jo pääsyavain.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Tällä sovellukselle löytyy jo pääsyavain, mutta sitä ladattaessa tapahtui virhe.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Virhe salauksen purussa";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Tilin nimi";

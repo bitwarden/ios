@@ -110,7 +110,6 @@ jobs:
 
         - name: Upload app to with Fastlane
           id: publish
-          if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
             VERSION_NAME: ${{inputs.build-version}}
@@ -119,7 +118,16 @@ jobs:
             CHANGELOG: ${{ inputs.changelog }}
             FASTLANE_ENABLE_BETA_DELIVER_SYNC_SCREENSHOTS: true
             SUBMIT_RELEASE: ${{ inputs.submit-release }}
+            DRY_RUN: ${{ inputs.dry-run }}
           run: |
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
+              echo "📦 Would publish build $VERSION_CODE to iOS App Store"
+            else
+              echo "🚀 PRODUCTION MODE - Publishing to iOS App Store"
+              echo "📦 Publishing build $VERSION_CODE to iOS App Store"
+            fi
+
             if [ "$PRODUCT" = "Password Manager" ]; then
               PACKAGE_NAME="com.8bit.bitwarden"
               METADATA_PATH="metadata_bwpm_prod"
@@ -139,7 +147,8 @@ jobs:
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
               metadata_path:"$METADATA_PATH" \
-              submit_release:"$SUBMIT_RELEASE"
+              submit_release:"$SUBMIT_RELEASE" \
+              dry_run:"$DRY_RUN"
 
         - name: Enable Publish Github Release Workflow
           if: ${{ steps.publish.conclusion == 'success' }}

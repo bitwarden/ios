@@ -1,4 +1,4 @@
-import BitwardenKit
+import Foundation
 
 // MARK: - AnyCoordinator
 
@@ -17,13 +17,16 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     private let doNavigate: (Route, AnyObject?) -> Void
 
     /// A closure that wraps the `showAlert(_:)` method.
-    private let doShowAlert: (Alert) -> Void
+    private let doShowAlert: (Alert, (() -> Void)?) -> Void
+
+    /// A closure that wraps the `showErrorAlert(error:tryAgain:onDismissed:)` method.
+    private let doShowErrorAlert: (Error, (() async -> Void)?, (() -> Void)?) async -> Void
 
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
 
-    /// A closure that wraps the `showToast(_:)` method.
-    private let doShowToast: (String) -> Void
+    /// A closure that wraps the `showToast(title:subtitle:additionalBottomPadding:)` method.
+    private let doShowToast: (String, String?, CGFloat) -> Void
 
     /// A closure that wraps the `start()` method.
     private let doStart: () -> Void
@@ -44,9 +47,10 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         doNavigate = { route, context in
             coordinator.navigate(to: route, context: context)
         }
-        doShowAlert = { coordinator.showAlert($0) }
+        doShowAlert = { coordinator.showAlert($0, onDismissed: $1) }
+        doShowErrorAlert = { await coordinator.showErrorAlert(error: $0, tryAgain: $1, onDismissed: $2) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
-        doShowToast = { coordinator.showToast($0) }
+        doShowToast = { coordinator.showToast($0, subtitle: $1, additionalBottomPadding: $2) }
         doStart = { coordinator.start() }
     }
 
@@ -60,8 +64,20 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         doNavigate(route, context)
     }
 
-    open func showAlert(_ alert: BitwardenKit.Alert) {
-        doShowAlert(alert)
+    open func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
+        doShowAlert(alert, onDismissed)
+    }
+
+    func showErrorAlert(error: Error) async {
+        await doShowErrorAlert(error, nil, nil)
+    }
+
+    public func showErrorAlert(
+        error: Error,
+        tryAgain: (() async -> Void)? = nil,
+        onDismissed: (() -> Void)? = nil,
+    ) async {
+        await doShowErrorAlert(error, tryAgain, onDismissed)
     }
 
     open func showLoadingOverlay(_ state: LoadingOverlayState) {
@@ -76,8 +92,8 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         doHideLoadingOverlay()
     }
 
-    open func showToast(_ text: String) {
-        doShowToast(text)
+    open func showToast(_ title: String, subtitle: String? = nil, additionalBottomPadding: CGFloat = 0) {
+        doShowToast(title, subtitle, additionalBottomPadding)
     }
 
     open func start() {

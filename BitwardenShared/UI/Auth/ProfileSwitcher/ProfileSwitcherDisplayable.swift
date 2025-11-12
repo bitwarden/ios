@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ProfileSwitcherDisplayable
 
 /// A protocol for objects that can display a profile switcher.

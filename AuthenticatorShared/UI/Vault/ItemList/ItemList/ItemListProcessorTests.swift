@@ -444,10 +444,11 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTFail("There is no onExpiration closure for the first item in the factory")
             return
         }
-        onExpiration([firstItemRefreshed])
+        onExpiration([firstItem])
 
-        waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
-        XCTAssertEqual(subject.state.searchResults, authItemRepository.refreshedTotpCodes)
+        waitFor { subject.state.searchResults == [firstItemRefreshed] }
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, [firstItem])
+        XCTAssertEqual(subject.state.searchResults, [firstItemRefreshed])
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared

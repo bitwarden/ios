@@ -117,17 +117,6 @@ public struct LoadingViewType: BaseViewType {
     ]
 }
 
-/// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
-/// `SettingsMenuField` without needing to know the details of its implementation.
-///
-public struct SettingsMenuFieldType: BaseViewType {
-    public static var typePrefix: String = "SettingsMenuField"
-
-    public static var namespacedPrefixes: [String] = [
-        "BitwardenKit.SettingsMenuField",
-    ]
-}
-
 // MARK: InspectableView
 
 public extension InspectableView {
@@ -300,21 +289,6 @@ public extension InspectableView {
         try find(ViewType.SecureField.self, containing: label)
     }
 
-    /// Attempts to locate a settings menu field with the provided title.
-    ///
-    /// - Parameters:
-    ///   - title: The title to use while searching for a menu field.
-    ///   - locale: The locale for text extraction.
-    /// - Returns: A `SettingsMenuField`, if one can be located.
-    /// - Throws: Throws an error if a view was unable to be located.
-    ///
-    func find(
-        settingsMenuField title: String,
-        locale: Locale = .testsDefault,
-    ) throws -> InspectableView<SettingsMenuFieldType> {
-        try find(SettingsMenuFieldType.self, containing: title, locale: locale)
-    }
-
     /// Attempts to locate a slider with the provided accessibility label.
     ///
     /// - Parameter accessibilityLabel: The accessibility label to use while searching for a slider.
@@ -470,15 +444,6 @@ public extension InspectableView where View == BitwardenUITextViewType {
 }
 
 public extension InspectableView where View == BitwardenMenuFieldType {
-    /// Selects a new value in the menu field.
-    ///
-    func select(newValue: any Hashable) throws {
-        let picker = try find(ViewType.Picker.self)
-        try picker.select(value: newValue)
-    }
-}
-
-public extension InspectableView where View == SettingsMenuFieldType {
     /// Selects a new value in the menu field.
     ///
     func select(newValue: any Hashable) throws {
