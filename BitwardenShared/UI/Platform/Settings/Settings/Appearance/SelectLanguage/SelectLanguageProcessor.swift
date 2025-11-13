@@ -16,7 +16,8 @@ protocol SelectLanguageDelegate: AnyObject {
 final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectLanguageAction, Void> {
     // MARK: Types
 
-    typealias Services = HasStateService
+    typealias Services = HasLanguageStateService
+        & HasStateService
 
     // MARK: Properties
 
@@ -73,6 +74,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
         // Save the value.
         state.currentLanguage = languageOption
         services.stateService.appLanguage = languageOption
+        services.languageStateService.appLanguage = languageOption
         delegate?.languageSelected(languageOption)
 
         // Show the confirmation alert and close the view after the user clicks ok.
