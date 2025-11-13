@@ -73,7 +73,7 @@ struct AccountSecurityState: Equatable {
 
     /// The timeout options to show when the policy for maximum timeout value is in effect.
     var availableTimeoutOptions: [SessionTimeoutValue] {
-        computeAvailableTimeoutOptions(
+        availableTimeoutOptions(
             type: policyTimeoutType,
             value: policyTimeoutValue,
         )
@@ -263,7 +263,7 @@ struct AccountSecurityState: Equatable {
     ///   - type: The policy's timeout type, if set.
     ///   - value: The policy's maximum vault timeout value.
     /// - Returns: Filtered array of available session timeout values.
-    private func computeAvailableTimeoutOptions(
+    private func availableTimeoutOptions(
         type: SessionTimeoutType?,
         value: Int
     ) -> [SessionTimeoutValue] {

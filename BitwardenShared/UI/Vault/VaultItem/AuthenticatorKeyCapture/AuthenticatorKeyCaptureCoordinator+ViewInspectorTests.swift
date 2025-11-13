@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 import AVFoundation
+import BitwardenKit
 import BitwardenKitMocks
 import SwiftUI
 import XCTest

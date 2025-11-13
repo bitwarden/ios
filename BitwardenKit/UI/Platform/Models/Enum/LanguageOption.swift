@@ -15,11 +15,13 @@ public enum LanguageOption: Equatable, Sendable {
     // MARK: Type Properties
 
     /// All the language options.
-    static let allCases: [LanguageOption] = [.default] + languageCodes.map { .custom(languageCode: $0) }
+    public static let allCases: [LanguageOption] = [.default] + languageCodes.map { .custom(languageCode: $0) }
 
     /// Ideally we could dynamically fetch all the language codes available as localizable files
     /// by calling `Bundle.main.localizations`, but since the Bundle currently doesn't
     /// return reliable results for some reason, we have to hard-code the languages for now.
+    ///
+    /// These languages should also be specified in the application's `Info.plist` file.
     private static let languageCodes =
         [
             "af",
@@ -89,7 +91,7 @@ public enum LanguageOption: Equatable, Sendable {
     // MARK: Properties
 
     /// The title of the language option as it appears in the list of options.
-    var title: String {
+    public var title: String {
         switch self {
         case .default:
             Localizations.defaultSystem
@@ -106,7 +108,7 @@ public enum LanguageOption: Equatable, Sendable {
     }
 
     /// The two letter language code representation of the language, or `nil` for the system default.
-    var value: String? {
+    public var value: String? {
         switch self {
         case .default:
             nil
@@ -121,7 +123,7 @@ public enum LanguageOption: Equatable, Sendable {
     ///
     /// - Parameter languageCode: The language code of the custom selection, or `nil` for default.
     ///
-    init(_ languageCode: String?) {
+    public init(_ languageCode: String?) {
         if let languageCode {
             self = .custom(languageCode: languageCode)
         } else {

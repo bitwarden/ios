@@ -6,8 +6,6 @@ import Networking
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
-
 // MARK: - Alert+NetworkingTests
 
 class AlertNetworkingTests: BitwardenTestCase {
