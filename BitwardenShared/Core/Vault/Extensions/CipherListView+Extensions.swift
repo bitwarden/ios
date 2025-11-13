@@ -70,7 +70,7 @@ extension CipherListView {
         }
 
         if name.lowercased()
-            .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+            .folding(options: .diacriticInsensitive, locale: .current).contains(query) {
             return .exact
         }
 
@@ -82,7 +82,7 @@ extension CipherListView {
         // Fuzzy match other fields: Login Username, Card Brand, Last 4 card numbers, Identity full name.
         // This can all be done here since how the SDK builds the cipher's subtitle.
         if subtitle.lowercased()
-            .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+            .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
             return .fuzzy
         }
 

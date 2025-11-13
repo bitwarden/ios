@@ -260,13 +260,13 @@ class DefaultSendRepository: SendRepository {
             // Search the sends.
             activeSends.forEach { sendView in
                 if sendView.name.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) {
                     matchedSends.append(sendView)
                 } else if sendView.text?.text?.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
                     lowPriorityMatchedSends.append(sendView)
                 } else if sendView.file?.fileName.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
                     lowPriorityMatchedSends.append(sendView)
                 }
             }

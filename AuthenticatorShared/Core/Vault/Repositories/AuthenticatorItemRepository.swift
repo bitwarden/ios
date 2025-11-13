@@ -401,7 +401,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             return sections.flatMap(\.items)
                 .filter { item in
                     item.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .folding(options: .diacriticInsensitive, locale: .current)
                         .contains(query)
                 }
                 .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
