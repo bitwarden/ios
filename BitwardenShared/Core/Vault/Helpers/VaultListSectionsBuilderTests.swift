@@ -583,7 +583,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` sorts items alphabetically by name, with exact matches first.
+    /// `addSearchResultsSection()` sorts exact and fuzzy match items together alphabetically by name.
     func test_addSearchResultsSection_sortingOrder() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -605,10 +605,10 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             Section[SearchResults]: 
               - Cipher: Apple
               - Cipher: Banana
-              - Cipher: Zebra
               - Cipher: Cherry
               - Cipher: Mango
               - Cipher: Xylophone
+              - Cipher: Zebra
             """
         }
     }
