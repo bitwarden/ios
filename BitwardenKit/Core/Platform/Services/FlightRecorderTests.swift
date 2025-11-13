@@ -45,8 +45,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService = MockFlightRecorderStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 1, day: 1)))
 
-        logURL = try XCTUnwrap(FileManager.default.flightRecorderLogURL()
-            .appendingPathComponent("flight_recorder_2025-01-01-00-00-00.txt"))
+        logURL = try flightRecorderLogURL().appendingPathComponent("flight_recorder_2025-01-01-00-00-00.txt")
 
         subject = makeSubject()
     }
@@ -124,8 +123,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try XCTAssertEqual(
             fileManager.removeItemURLs,
             [
-                FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName),
-                FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog2.fileName),
+                flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName),
+                flightRecorderLogURL().appendingPathComponent(inactiveLog2.fileName),
             ],
         )
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
@@ -326,11 +325,10 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             activeLog: activeLog,
             inactiveLogs: [inactiveLog1, inactiveLog2],
         )
-        let flightRecorderLogURL = try FileManager.default.flightRecorderLogURL()
 
         let logs = try await subject.fetchLogs()
 
-        XCTAssertEqual(
+        try XCTAssertEqual(
             logs,
             [
                 FlightRecorderLogMetadata.fixture(
@@ -341,7 +339,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     id: activeLog.id,
                     isActiveLog: true,
                     startDate: Date(year: 2025, month: 1, day: 1),
-                    url: flightRecorderLogURL.appendingPathComponent(activeLog.fileName),
+                    url: flightRecorderLogURL().appendingPathComponent(activeLog.fileName),
                 ),
                 FlightRecorderLogMetadata.fixture(
                     duration: .oneHour,
@@ -351,7 +349,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     id: inactiveLog1.id,
                     isActiveLog: false,
                     startDate: Date(year: 2025, month: 1, day: 2),
-                    url: flightRecorderLogURL.appendingPathComponent(inactiveLog1.fileName),
+                    url: flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName),
                 ),
                 FlightRecorderLogMetadata.fixture(
                     duration: .oneWeek,
@@ -361,7 +359,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     id: inactiveLog2.id,
                     isActiveLog: false,
                     startDate: Date(year: 2025, month: 1, day: 3),
-                    url: flightRecorderLogURL.appendingPathComponent(inactiveLog2.fileName),
+                    url: flightRecorderLogURL().appendingPathComponent(inactiveLog2.fileName),
                 ),
             ],
         )
@@ -483,7 +481,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Expired active log is removed.
         try XCTAssertEqual(
             fileManager.removeItemURLs,
-            [FileManager.default.flightRecorderLogURL().appendingPathComponent(activeLog.fileName)],
+            [flightRecorderLogURL().appendingPathComponent(activeLog.fileName)],
         )
         XCTAssertEqual(
             stateService.flightRecorderData,
@@ -515,7 +513,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Expired inactive log is removed.
         try XCTAssertEqual(
             fileManager.removeItemURLs,
-            [FileManager.default.flightRecorderLogURL().appendingPathComponent(expiredLog.fileName)],
+            [flightRecorderLogURL().appendingPathComponent(expiredLog.fileName)],
         )
         XCTAssertEqual(
             stateService.flightRecorderData,
@@ -538,7 +536,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(error, .removeExpiredLogError(BitwardenTestError.example))
         try XCTAssertEqual(
             fileManager.removeItemURLs,
-            [FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName)],
+            [flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName)],
         )
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData())
     }
@@ -663,5 +661,12 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let appendedMessage = try String(data: XCTUnwrap(fileManager.appendDataData), encoding: .utf8)
         XCTAssertEqual(appendedMessage, "2025-01-01T00:00:00Z: Hello world!\n")
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
+    }
+
+    // MARK: Private
+
+    /// Returns an unwrapped URL to the directory containing flight recorder logs.
+    private func flightRecorderLogURL() throws -> URL {
+        try XCTUnwrap(FileManager.default.flightRecorderLogURL())
     }
 }

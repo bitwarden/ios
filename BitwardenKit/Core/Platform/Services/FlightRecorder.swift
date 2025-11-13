@@ -94,6 +94,9 @@ public extension FlightRecorder {
 /// An enumeration of errors thrown by a `FlightRecorder`.
 ///
 enum FlightRecorderError: Error {
+    /// The container URL for the app group is unavailable.
+    case containerURLUnavailable
+
     /// The stored flight recorder data doesn't exist.
     case dataUnavailable
 
@@ -132,6 +135,7 @@ extension FlightRecorderError: CustomNSError {
         case .logNotFound: 5
         case .removeExpiredLogError: 6
         case .writeMessageError: 7
+        case .containerURLUnavailable: 8
         }
     }
 
@@ -159,7 +163,8 @@ extension FlightRecorderError: CustomNSError {
 extension FlightRecorderError: Equatable {
     static func == (lhs: FlightRecorderError, rhs: FlightRecorderError) -> Bool {
         switch (lhs, rhs) {
-        case (.dataUnavailable, .dataUnavailable),
+        case (.containerURLUnavailable, .containerURLUnavailable),
+             (.dataUnavailable, .dataUnavailable),
              (.deletionNotPermitted, .deletionNotPermitted),
              (.logNotFound, .logNotFound):
             true
@@ -384,7 +389,10 @@ public actor DefaultFlightRecorder {
     /// - Returns: A URL for the log file.
     ///
     private func fileURL(for log: FlightRecorderData.LogMetadata) throws -> URL {
-        try FileManager.default.flightRecorderLogURL().appendingPathComponent(log.fileName)
+        guard let baseURL = try FileManager.default.flightRecorderLogURL() else {
+            throw FlightRecorderError.containerURLUnavailable
+        }
+        return baseURL.appendingPathComponent(log.fileName)
     }
 
     /// Gets the `FlightRecorderData`. If the data has already been loaded, it will be returned
