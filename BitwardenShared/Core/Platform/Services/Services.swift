@@ -2,8 +2,6 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 
-// swiftlint:disable file_length
-
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
     & HasAccountAPIService
