@@ -17,7 +17,6 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
     // MARK: Types
 
     typealias Services = HasLanguageStateService
-        & HasStateService
 
     // MARK: Properties
 
@@ -73,7 +72,6 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
 
         // Save the value.
         state.currentLanguage = languageOption
-        services.stateService.appLanguage = languageOption
         services.languageStateService.appLanguage = languageOption
         delegate?.languageSelected(languageOption)
 
