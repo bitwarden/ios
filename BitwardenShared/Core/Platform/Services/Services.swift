@@ -2,8 +2,6 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 
-// swiftlint:disable file_length
-
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
     & HasAccountAPIService
@@ -207,13 +205,6 @@ protocol HasFido2UserInterfaceHelper {
 protocol HasFileAPIService {
     /// The service used by the application to make file-related API requests.
     var fileAPIService: FileAPIService { get }
-}
-
-/// Protocol for an object that provides a `FlightRecorder`.
-///
-protocol HasFlightRecorder {
-    /// The service used by the application for recording temporary debug logs.
-    var flightRecorder: FlightRecorder { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.

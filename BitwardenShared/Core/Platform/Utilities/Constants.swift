@@ -26,10 +26,6 @@ extension Constants {
     /// The URL for the web vault if the user account doesn't have one specified.
     static let defaultWebVaultHost = "bitwarden.com"
 
-    /// The number of days that a flight recorder log will remain on the device after the end date
-    /// before being automatically deleted.
-    static let flightRecorderLogExpirationDays = 30
-
     /// The length of a masked password.
     static let hiddenPasswordLength = 8
 
