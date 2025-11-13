@@ -159,7 +159,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
                         policyTimeoutAction: .logout,
                         sessionTimeoutAction: .logout,
                         sessionTimeoutValue: .custom(1),
-                        
                     ),
                 ),
             ),

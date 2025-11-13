@@ -256,7 +256,7 @@ struct AccountSecurityState: Equatable {
             )
         }
     }
-    
+
     /// Returns the available timeout options based on policy type and value.
     ///
     /// - Parameters:
@@ -265,7 +265,7 @@ struct AccountSecurityState: Equatable {
     /// - Returns: Filtered array of available session timeout values.
     private func availableTimeoutOptions(
         type: SessionTimeoutType?,
-        value: Int
+        value: Int,
     ) -> [SessionTimeoutValue] {
         SessionTimeoutValue.allCases.filter { option in
             switch type {

@@ -106,11 +106,14 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+
         await subject.perform(.appeared)
+        subject.state.sessionTimeoutValue = .custom(60)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
         XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
         XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
+        XCTAssertTrue(subject.state.isShowingCustomTimeout)
         XCTAssertEqual(subject.state.policyTimeoutValue, 60)
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
         XCTAssertEqual(subject.state.policyTimeoutMinutes, 0)
@@ -127,13 +130,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ],
         )
         XCTAssertEqual(
-            subject.state.policyTimeoutMessage,
+            subject.state.policyTimeoutCustomMessage,
             Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
                 Localizations.xHours(1),
             ),
         )
     }
-    
+
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy type is immediately.
     @MainActor
     func test_perform_appeared_timeoutImmediatelyPolicyEnabled() async throws {
@@ -155,11 +158,101 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
         XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
         XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
+        XCTAssertTrue(subject.state.isSessionTimeoutPickerDisabled)
         XCTAssertEqual(subject.state.policyTimeoutType, SessionTimeoutType.immediately)
         XCTAssertEqual(subject.state.availableTimeoutOptions, [.immediately])
         XCTAssertEqual(
+            subject.state.policyTimeoutActionMessage,
+            Localizations.thisSettingIsManagedByYourOrganization,
+        )
+        XCTAssertEqual(
             subject.state.policyTimeoutMessage,
             Localizations.thisSettingIsManagedByYourOrganization,
+        )
+    }
+
+    /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy type is immediately.
+    @MainActor
+    func test_perform_appeared_timeoutNeverPolicyEnabled() async throws {
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        // The server sends 480 minutes as default but must be ignored when type is not nil
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: .never,
+                timeoutValue: SessionTimeoutValue(rawValue: 480),
+            ),
+        )
+        stateService.userHasMasterPassword[userId] = true
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
+        XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
+        XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
+        XCTAssertEqual(subject.state.policyTimeoutType, SessionTimeoutType.never)
+        XCTAssertEqual(
+            subject.state.availableTimeoutOptions,
+            [
+                .immediately,
+                .oneMinute,
+                .fiveMinutes,
+                .fifteenMinutes,
+                .thirtyMinutes,
+                .oneHour,
+                .fourHours,
+                .onAppRestart,
+                .never,
+                .custom(-100),
+            ],
+        )
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX("never"),
+        )
+    }
+
+    /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy type is immediately.
+    @MainActor
+    func test_perform_appeared_timeoutOnAppRestartPolicyEnabled() async throws {
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        // The server sends 480 minutes as default but must be ignored when type is not nil
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: .onAppRestart,
+                timeoutValue: SessionTimeoutValue(rawValue: 480),
+            ),
+        )
+        stateService.userHasMasterPassword[userId] = true
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
+        XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
+        XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
+        XCTAssertEqual(subject.state.policyTimeoutType, SessionTimeoutType.onAppRestart)
+        XCTAssertEqual(
+            subject.state.availableTimeoutOptions,
+            [
+                .immediately,
+                .oneMinute,
+                .fiveMinutes,
+                .fifteenMinutes,
+                .thirtyMinutes,
+                .oneHour,
+                .fourHours,
+                .onAppRestart,
+                .custom(-100),
+            ],
+        )
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX("on app restart"),
         )
     }
 
