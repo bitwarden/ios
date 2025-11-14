@@ -19,6 +19,9 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
+    
+    /// Flag to enable/disable not logging out when a user's KDF settings are changed.
+    static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
     public static var allCases: [FeatureFlag] {
         [
@@ -27,6 +30,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cipherKeyEncryption,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
+            .noLogoutOnKdfChange,
         ]
     }
 }

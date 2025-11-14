@@ -122,7 +122,7 @@ class AboutProcessorTests: BitwardenTestCase {
 
         await subject.perform(.toggleFlightRecorder(true))
 
-        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.enableFlightRecorder)])
     }
 
     /// `receive(_:)` with `.clearAppReviewURL` clears the app review URL in the state.
@@ -232,7 +232,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_viewFlightRecorderLogsTapped() {
         subject.receive(.viewFlightRecorderLogsTapped)
 
-        XCTAssertEqual(coordinator.routes, [.flightRecorderLogs])
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.flightRecorderLogs)])
     }
 
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault
