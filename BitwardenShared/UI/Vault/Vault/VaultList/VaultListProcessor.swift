@@ -429,12 +429,15 @@ extension VaultListProcessor {
             return
         }
         do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: state.searchVaultFilterType,
+                    searchText: searchText,
+                ),
             )
-            for try await ciphers in result {
-                state.searchResults = ciphers
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
+                state.searchResults = items
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -516,7 +519,12 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository
-                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
+                .vaultListPublisher(
+                    filter: VaultListFilter(
+                        filterType: state.vaultFilterType,
+                        options: [.addTOTPGroup, .addTrashGroup],
+                    ),
+                ) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 
