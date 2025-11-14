@@ -231,7 +231,7 @@ class VaultListViewTests: BitwardenTestCase {
     /// `.navigateToFlightRecorderSettings` action.
     @MainActor
     func test_toastBannerGoToSettings_tap() async throws {
-        processor.state.isFlightRecorderToastBannerVisible = true
+        processor.state.flightRecorderToastBanner.isToastBannerVisible = true
         let button = try subject.inspect().find(button: Localizations.goToSettings)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])

@@ -80,8 +80,8 @@ class VaultListViewTests: BitwardenTestCase {
     @MainActor
     func disabletest_snapshot_flightRecorderToastBanner() {
         processor.state.loadingState = .data([])
-        processor.state.isFlightRecorderToastBannerVisible = true
-        processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
+        processor.state.flightRecorderToastBanner.isToastBannerVisible = true
+        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
             duration: .twentyFourHours,
             startDate: Date(year: 2025, month: 4, day: 3),
         )
