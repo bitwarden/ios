@@ -45,18 +45,30 @@ class AboutViewTests: BitwardenTestCase {
 
     /// The flight recorder toggle turns logging on and off.
     @MainActor
-    func test_flightRecorderToggle_tap() async throws {
+    func test_flightRecorder_toggle_tap() async throws {
         let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
 
         try toggle.tap()
         try await waitForAsync { !self.processor.effects.isEmpty }
-        XCTAssertEqual(processor.effects, [.toggleFlightRecorder(true)])
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(true))])
         processor.effects.removeAll()
 
-        processor.state.flightRecorderActiveLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        processor.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
         try toggle.tap()
         try await waitForAsync { !self.processor.effects.isEmpty }
-        XCTAssertEqual(processor.effects, [.toggleFlightRecorder(false)])
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(false))])
+    }
+
+    /// Tapping the flight recorder view recorded logs button dispatches the
+    /// `.viewFlightRecorderLogsTapped` action.
+    @MainActor
+    func test_flightRecorder_viewRecordedLogsButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.viewRecordedLogs)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .flightRecorder(.viewLogsTapped))
     }
 
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
@@ -81,14 +93,6 @@ class AboutViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: version)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
-    }
-
-    /// Tapping the view recorded logs button dispatches the `.viewFlightRecorderLogsTapped` action.
-    @MainActor
-    func test_viewRecordedLogsButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.viewRecordedLogs)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .viewFlightRecorderLogsTapped)
     }
 
     /// Tapping the web vault button dispatches the `.webVaultTapped` action.
