@@ -507,7 +507,7 @@
 "AccountBiometricInvalidatedExtension" = "Das Entsperren von Auto-Ausfüllen über Biometrie ist für dieses Konto deaktiviert, bis das Master-Passwort verifiziert wurde.";
 "EnableSyncOnRefresh" = "Synchronisation beim Aktualisieren aktivieren";
 "EnableSyncOnRefreshDescription" = "Tresor durch Runterziehen Geste synchronisieren.";
-"LogInSso" = "Enterprise Single-Sign-On";
+"LogInSso" = "Enterprise Single Sign-On";
 "LogInSsoSummary" = "Melde dich schnell über das Single Sign-On-Portal deiner Organisation an. Bitte gib die Organisationskennung ein, um zu beginnen.";
 "OrgIdentifier" = "Organisationskennung";
 "LoginSsoError" = "Anmeldung mit SSO derzeit nicht möglich";

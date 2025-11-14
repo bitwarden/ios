@@ -180,10 +180,10 @@
 "SyncVaultNow" = "Синхронизуј сеф одмах";
 "TouchID" = "Додирни ИД";
 "TwoStepLogin" = "Дво-коракна лозинка";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Откључај биометријом";
+"UnlockWithFaceID" = "Откључај са Face ID";
+"UnlockWithTouchID" = "Откључај са Touch ID";
+"UnlockWithOpticID" = "Откључај са Optic ID";
 "UnlockWithPIN" = "Откључај са ПИН кодом";
 "Validating" = "Проверавање";
 "VerificationCode" = "Верификациони код";
