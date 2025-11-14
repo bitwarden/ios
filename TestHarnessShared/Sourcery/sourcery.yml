@@ -1,0 +1,18 @@
+sources:
+  - ..
+
+templates:
+  - ../../Sourcery/Templates/AutoMockable.stencil
+
+output:
+  Generated
+
+exclude:
+  - Generated
+  - Tests
+  - TestHelpers
+  - Fixtures
+
+args:
+  autoMockableImports: ["BitwardenKit"]
+  autoMockableTestableImports: ["TestHarnessShared"]

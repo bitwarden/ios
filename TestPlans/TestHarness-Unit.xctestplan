@@ -1,0 +1,33 @@
+{
+  "configurations" : [
+    {
+      "id" : "00000000-0000-0000-0000-000000000001",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+      }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TestHarness.xcodeproj",
+      "identifier" : "TestHarness",
+      "name" : "TestHarness"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "BitwardenKitTests",
+        "NetworkingTests"
+      ],
+      "target" : {
+        "containerPath" : "container:TestHarness.xcodeproj",
+        "identifier" : "TestHarnessSharedTests",
+        "name" : "TestHarnessSharedTests"
+      }
+    }
+  ],
+  "version" : 1
+}
