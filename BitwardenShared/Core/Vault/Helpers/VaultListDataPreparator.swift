@@ -255,7 +255,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            if filter.addTOTPGroup {
+            if filter.options.contains(.addTOTPGroup) {
                 preparedDataBuilder = await preparedDataBuilder.incrementTOTPCount(cipher: decryptedCipher)
             }
 

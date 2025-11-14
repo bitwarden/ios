@@ -238,22 +238,11 @@ class VaultItemSelectionProcessor: StateProcessor<
                 filter: VaultListFilter(
                     filterType: .allVaults,
                     group: .login,
+                    options: [.isInPickerMode],
                     searchText: searchName,
                 ),
             ) {
-                guard let items = vaultListData.sections.first?.items,
-                      !items.isEmpty else {
-                    state.vaultListSections = []
-                    continue
-                }
-
-                state.vaultListSections = [
-                    VaultListSection(
-                        id: Localizations.matchingItems,
-                        items: items,
-                        name: Localizations.matchingItems,
-                    ),
-                ]
+                state.vaultListSections = vaultListData.sections
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

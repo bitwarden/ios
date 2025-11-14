@@ -11,11 +11,10 @@ class VaultListFilterTests: BitwardenTestCase {
     func test_init_defaults() {
         let subject = VaultListFilter()
 
-        XCTAssertTrue(subject.addTOTPGroup)
-        XCTAssertTrue(subject.addTrashGroup)
         XCTAssertEqual(subject.filterType, .allVaults)
         XCTAssertNil(subject.group)
         XCTAssertNil(subject.mode)
+        XCTAssertEqual(subject.options, [])
         XCTAssertNil(subject.rpID)
         XCTAssertNil(subject.searchText)
         XCTAssertNil(subject.uri)
@@ -24,21 +23,19 @@ class VaultListFilterTests: BitwardenTestCase {
     /// `init` with custom parameters initializes with expected values.
     func test_init_customParameters() {
         let subject = VaultListFilter(
-            addTOTPGroup: false,
-            addTrashGroup: false,
             filterType: .myVault,
             group: .card,
             mode: .all,
+            options: [.addTOTPGroup, .addTrashGroup],
             rpID: "example.com",
             searchText: "test",
             uri: "https://example.com",
         )
 
-        XCTAssertFalse(subject.addTOTPGroup)
-        XCTAssertFalse(subject.addTrashGroup)
         XCTAssertEqual(subject.filterType, .myVault)
         XCTAssertEqual(subject.group, .card)
         XCTAssertEqual(subject.mode, .all)
+        XCTAssertEqual(subject.options, [.addTOTPGroup, .addTrashGroup])
         XCTAssertEqual(subject.rpID, "example.com")
         XCTAssertEqual(subject.searchText, "test")
         XCTAssertEqual(subject.uri, "https://example.com")

@@ -519,7 +519,12 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository
-                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
+                .vaultListPublisher(
+                    filter: VaultListFilter(
+                        filterType: state.vaultFilterType,
+                        options: [.addTOTPGroup, .addTrashGroup],
+                    ),
+                ) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 

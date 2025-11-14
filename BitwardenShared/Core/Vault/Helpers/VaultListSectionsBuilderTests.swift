@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import InlineSnapshotTesting
 import XCTest
 
@@ -494,7 +495,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: addSearchResultsSection Tests
 
-    /// `addSearchResultsSection()` adds a search results section with exact and fuzzy match items combined.
+    /// `addSearchResultsSection(options:)` adds a search results section with exact and fuzzy match items combined.
     func test_addSearchResultsSection_exactAndFuzzyMatches() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -508,7 +509,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             ],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -522,7 +523,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` adds a search results section with only exact match items when no fuzzy items.
+    /// `addSearchResultsSection(options:)` adds a search results section with only exact match items
+    /// when no fuzzy items.
     func test_addSearchResultsSection_onlyExactMatches() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -533,7 +535,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             fuzzyMatchItems: [],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -545,7 +547,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` adds a search results section with only fuzzy match items when no exact items.
+    /// `addSearchResultsSection(options:)` adds a search results section with only fuzzy match items
+    /// when no exact items.
     func test_addSearchResultsSection_onlyFuzzyMatches() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [],
@@ -556,7 +559,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             ],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -568,14 +571,14 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` doesn't add a section when there are no exact or fuzzy match items.
+    /// `addSearchResultsSection(options:)` doesn't add a section when there are no exact or fuzzy match items.
     func test_addSearchResultsSection_empty() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [],
             fuzzyMatchItems: [],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -583,7 +586,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` sorts exact and fuzzy match items together alphabetically by name.
+    /// `addSearchResultsSection(options:)` sorts exact and fuzzy match items together alphabetically by name.
     func test_addSearchResultsSection_sortingOrder() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -598,7 +601,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             ],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -613,7 +616,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` correctly handles single exact match item.
+    /// `addSearchResultsSection(options:)` correctly handles single exact match item.
     func test_addSearchResultsSection_singleExactMatch() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -622,7 +625,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             fuzzyMatchItems: [],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
@@ -632,7 +635,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addSearchResultsSection()` correctly handles single fuzzy match item.
+    /// `addSearchResultsSection(options:)` correctly handles single fuzzy match item.
     func test_addSearchResultsSection_singleFuzzyMatch() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [],
@@ -641,12 +644,41 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             ],
         ))
 
-        let vaultListData = subject.addSearchResultsSection().build()
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[SearchResults]: 
               - Cipher: FuzzyItem
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` adds a search results section with exact and fuzzy match items combined
+    /// in picker mode.
+    func test_addSearchResultsSection_exactAndFuzzyMatchesPickerMode() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact-2")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact-3")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: [.isInPickerMode]).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[\(Localizations.matchingItems)]: \(Localizations.matchingItems)
+              - Cipher: Exact-1
+              - Cipher: Exact-2
+              - Cipher: Exact-3
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
             """
         }
     }

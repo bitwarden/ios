@@ -791,8 +791,6 @@ extension DefaultVaultRepository: VaultRepository {
         case .all:
             try await vaultListPublisher(
                 filter: VaultListFilter(
-                    addTOTPGroup: false,
-                    addTrashGroup: false,
                     filterType: .allVaults,
                     group: group,
                 ),
@@ -800,8 +798,6 @@ extension DefaultVaultRepository: VaultRepository {
         case .combinedMultipleSections, .combinedSingleSection, .passwords:
             try await vaultListPublisher(
                 filter: VaultListFilter(
-                    addTOTPGroup: false,
-                    addTrashGroup: false,
                     filterType: .allVaults,
                     mode: mode,
                     rpID: rpID,
@@ -811,8 +807,6 @@ extension DefaultVaultRepository: VaultRepository {
         case .totp:
             try await vaultListPublisher(
                 filter: VaultListFilter(
-                    addTOTPGroup: false,
-                    addTrashGroup: false,
                     group: .totp,
                 ),
             )

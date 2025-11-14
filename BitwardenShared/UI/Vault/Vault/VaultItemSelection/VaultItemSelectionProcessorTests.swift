@@ -266,9 +266,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
         let expectedSection = VaultListSection(
-            id: "",
+            id: Localizations.matchingItems,
             items: vaultItems,
-            name: "",
+            name: Localizations.matchingItems,
         )
         vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
@@ -288,6 +288,15 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                     name: Localizations.matchingItems,
                 ),
             ],
+        )
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                options: [.isInPickerMode],
+                searchText: "Example",
+            ),
         )
     }
 

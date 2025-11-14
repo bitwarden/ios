@@ -9,7 +9,7 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!

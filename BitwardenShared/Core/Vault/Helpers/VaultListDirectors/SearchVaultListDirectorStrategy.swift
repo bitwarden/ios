@@ -47,7 +47,7 @@ struct SearchVaultListDirectorStrategy: VaultListDirectorStrategy {
         }
 
         return builderFactory.make(withData: preparedData)
-            .addSearchResultsSection()
+            .addSearchResultsSection(options: filter.options)
             .build()
     }
 }

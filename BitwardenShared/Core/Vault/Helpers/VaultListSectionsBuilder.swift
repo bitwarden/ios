@@ -46,8 +46,9 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     func addGroupSection() -> VaultListSectionsBuilder
 
     /// Adds a section with search results items.
+    /// - Parameter options: The vault list options configured.
     /// - Returns: The builder for fluent code.
-    func addSearchResultsSection() -> VaultListSectionsBuilder
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder
 
     /// Adds a section with TOTP items.
     /// - Returns: The builder for fluent code.
@@ -320,18 +321,26 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         return self
     }
 
-    func addSearchResultsSection() -> VaultListSectionsBuilder {
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder {
         guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
             return self
         }
 
         let matchingItems = preparedData.exactMatchItems + preparedData.fuzzyMatchItems
 
+        var sectionID = "SearchResults"
+        var sectionName = ""
+
+        if options.contains(.isInPickerMode) {
+            sectionID = Localizations.matchingItems
+            sectionName = Localizations.matchingItems
+        }
+
         vaultListData.sections.append(
             VaultListSection(
-                id: "SearchResults",
+                id: sectionID,
                 items: matchingItems.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: "",
+                name: sectionName,
             ),
         )
         return self

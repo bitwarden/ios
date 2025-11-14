@@ -561,7 +561,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true),
+            filter: VaultListFilter(options: [.addTOTPGroup]),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -588,7 +588,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: false),
+            filter: VaultListFilter(options: []),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -617,7 +617,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture()],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true, filterType: .myVault),
+            filter: VaultListFilter(filterType: .myVault, options: [.addTOTPGroup]),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -669,7 +669,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             from: [.fixture(organizationId: "1", type: .card)],
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
-            filter: VaultListFilter(addTOTPGroup: true),
+            filter: VaultListFilter(options: [.addTOTPGroup]),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [

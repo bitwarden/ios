@@ -44,7 +44,7 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addCollectionsSection")
             return self
         }
-        addSearchResultsSectionClosure = { () -> VaultListSectionsBuilder in
+        addSearchResultsSectionClosure = { _ -> VaultListSectionsBuilder in
             helper.recordCall("addSearchResultsSection")
             return self
         }
