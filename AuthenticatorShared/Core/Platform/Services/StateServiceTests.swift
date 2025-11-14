@@ -58,4 +58,14 @@ class StateServiceTests: BitwardenTestCase {
         await subject.setFlightRecorderData(flightRecorderData)
         XCTAssertEqual(appSettingsStore.flightRecorderData, flightRecorderData)
     }
+
+    /// `setFlightRecorderData(_:)` clears the data when nil is passed.
+    func test_setFlightRecorderData_nil() async throws {
+        let flightRecorderData = FlightRecorderData()
+        await subject.setFlightRecorderData(flightRecorderData)
+        XCTAssertEqual(appSettingsStore.flightRecorderData, flightRecorderData)
+
+        await subject.setFlightRecorderData(nil)
+        XCTAssertNil(appSettingsStore.flightRecorderData)
+    }
 }
