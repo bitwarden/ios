@@ -29,6 +29,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The coordinator used to navigate to `ItemListRoute`s.
     private var itemListCoordinator: AnyCoordinator<ItemListRoute, ItemListEvent>?
 
+    /// A delegate of the `ItemListCoordinator`.
+    private weak var itemListDelegate: ItemListCoordinatorDelegate?
+
     /// The module used to create child coordinators.
     private let module: Module
 
@@ -44,20 +47,20 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     ///
     /// - Parameters:
     ///   - errorReporter: The error reporter used by the tab coordinator.
+    ///   - itemListDelegate: A delegate of the `ItemListCoordinator`.
     ///   - module: The module used to create child coordinators.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
-    ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
-    ///   - vaultDelegate: A delegate of the `VaultCoordinator`.
-    ///   - vaultRepository: A vault repository used to the vault tab title.
     ///
     init(
         errorReporter: ErrorReporter,
+        itemListDelegate: ItemListCoordinatorDelegate,
         module: Module,
         rootNavigator: RootNavigator,
         tabNavigator: TabNavigator,
     ) {
         self.errorReporter = errorReporter
+        self.itemListDelegate = itemListDelegate
         self.module = module
         self.rootNavigator = rootNavigator
         self.tabNavigator = tabNavigator
@@ -81,13 +84,14 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     }
 
     func start() {
-        guard let rootNavigator, let tabNavigator else { return }
+        guard let itemListDelegate, let rootNavigator, let tabNavigator else { return }
 
         rootNavigator.show(child: tabNavigator)
 
         let itemListNavigator = UINavigationController()
         itemListNavigator.navigationBar.prefersLargeTitles = true
         itemListCoordinator = module.makeItemListCoordinator(
+            delegate: itemListDelegate,
             stackNavigator: itemListNavigator,
         )
 

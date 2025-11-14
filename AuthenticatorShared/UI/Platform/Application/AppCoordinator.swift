@@ -133,6 +133,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
+                itemListDelegate: self,
                 rootNavigator: rootNavigator,
                 tabNavigator: tabNavigator,
             )
@@ -196,4 +197,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
 extension AppCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - ItemListCoordinatorDelegate
+
+extension AppCoordinator: ItemListCoordinatorDelegate {
+    func switchToSettingsTab(route: SettingsRoute) {
+        showTab(route: .settings(route))
+    }
 }

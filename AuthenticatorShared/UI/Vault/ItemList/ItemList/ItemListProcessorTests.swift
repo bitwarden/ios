@@ -20,6 +20,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
@@ -40,6 +41,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
@@ -59,6 +61,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             cameraService: cameraService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
@@ -81,6 +84,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         cameraService = nil
         configService = nil
         errorReporter = nil
+        flightRecorder = nil
         notificationCenterService = nil
         pasteboardService = nil
         totpService = nil
@@ -300,6 +304,15 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(pasteboardService.copiedString)
     }
 
+    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
+    @MainActor
+    func test_perform_dismissFlightRecorderToastBanner() async {
+        await subject.perform(.dismissFlightRecorderToastBanner)
+
+        XCTAssertFalse(subject.state.flightRecorderToastBanner.isToastBannerVisible)
+        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
+    }
+
     /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
     /// store and launches the Bitwarden app via the new item  deep link.
     @MainActor
@@ -449,6 +462,24 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor { subject.state.searchResults == [firstItemRefreshed] }
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, [firstItem])
         XCTAssertEqual(subject.state.searchResults, [firstItemRefreshed])
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
+    /// the flight recorder banner if the user hasn't dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
+        try await waitForAsync { self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, true)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { !self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, false)
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
@@ -637,6 +668,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.url = .example
         subject.receive(.clearURL)
         XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.
+    @MainActor
+    func test_receive_navigateToFlightRecorderSettings() {
+        subject.receive(.navigateToFlightRecorderSettings)
+
+        XCTAssertEqual(coordinator.routes.last, .flightRecorderSettings)
     }
 
     /// `refreshTOTPCodes(for:)` does nothing if state.loadingState is nil

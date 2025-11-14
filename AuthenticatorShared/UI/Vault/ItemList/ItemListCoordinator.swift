@@ -2,6 +2,20 @@ import BitwardenKit
 import OSLog
 import SwiftUI
 
+// MARK: - ItemListCoordinatorDelegate
+
+/// A delegate of `ItemListCoordinator` that is notified when navigation events occur that
+/// require coordination with other parts of the app.
+///
+@MainActor
+public protocol ItemListCoordinatorDelegate: AnyObject {
+    /// Called when the user needs to switch to the settings tab and navigate to a `SettingsRoute`.
+    ///
+    /// - Parameter route: The route to navigate to in the settings tab.
+    ///
+    func switchToSettingsTab(route: SettingsRoute)
+}
+
 // MARK: - ItemListCoordinator
 
 /// A coordinator that manages navigation on the Item List screen.
@@ -12,12 +26,15 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     typealias Module = AuthenticatorItemModule
         & ItemListModule
 
-    typealias Services = HasTimeProvider
-        & HasErrorAlertServices.ErrorAlertServices
-        & ItemListProcessor.Services
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
+        & HasTimeProvider
         & HasTOTPExpirationManagerFactory
+        & ItemListProcessor.Services
 
     // MARK: - Private Properties
+
+    /// The delegate for this coordinator, notified for navigation to other parts of the app.
+    private weak var delegate: ItemListCoordinatorDelegate?
 
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
@@ -35,15 +52,18 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `ItemListCoordinator`.
     ///
     ///  - Parameters:
+    ///   - delegate: The delegate for this coordinator, notified for navigation to other parts of the app.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        delegate: ItemListCoordinatorDelegate,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator,
     ) {
+        self.delegate = delegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -65,6 +85,8 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
             break
         case let .editItem(item):
             showItem(route: .editAuthenticatorItem(item), delegate: context as? AuthenticatorItemOperationDelegate)
+        case .flightRecorderSettings:
+            delegate?.switchToSettingsTab(route: .settings)
         case .list:
             showList()
         case .setupTotpManual:
@@ -141,4 +163,3 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
 extension ItemListCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
 }
-

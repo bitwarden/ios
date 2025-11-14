@@ -21,6 +21,9 @@ enum ItemListAction: Equatable {
     ///
     case itemPressed(_ item: ItemListItem)
 
+    /// The user tapped the go to settings button in the flight recorder banner.
+    case navigateToFlightRecorderSettings
+
     /// The user has started or stopped searching.
     case searchStateChanged(isSearching: Bool)
 
