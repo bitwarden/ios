@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Ange Bitwarden som din leverantör av inloggningsnycklar i enhetsinställningarna.";
 "AvoidAmbiguousCharacters" = "Undvik tvetydiga tecken";
 "BitwardenAppExtension" = "Bitwarden apptillägg";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "Det enklaste sättet att lägga till nya inloggningar i ditt valv är från Bitwarden-appens tillägg. Läs mer om hur du använder Bitwarden-appens tillägg genom att gå till skärmen ”Inställningar”.";
 "BitwardenAppExtensionDescription" = "Använd Bitwarden i Safari och andra appar för att autofylla dina inloggningar.";
 "BitwardenAutofillService" = "Bitwardens hjälpmedelsservice för automatisk ifyllnad";
 "BitwardenAutofillAccessibilityServiceDescription" = "Använd Bitwardens tillgänglighetstjänst för att fylla i dina inloggningar automatiskt.";
@@ -120,7 +120,7 @@
 "ExtensionSetup" = "Dina inloggningar är nu lättillgängliga i Safari, Chrome och andra appar som stöds.";
 "ExtensionSetup2" = "Inuti Safari och Chrome hittar du Bitwarden genom att trycka på dela-ikonen (hjälp: skrolla till höger på den nedersta raden i dela-menyn).";
 "ExtensionTapIcon" = "Tryck på Bitwarden-ikonen i menyn för att öppna tillägget.";
-"ExtensionTurnOn" = "To turn on Bitwarden in Safari and other apps, tap the “more” icon on the bottom row of the menu.";
+"ExtensionTurnOn" = "För att aktivera Bitwarden i Safari och andra appar, tryck på ikonen ”mer” i menyns nedre rad.";
 "Favorite" = "Favorit";
 "Fingerprint" = "Fingeravtryck";
 "GeneratePassword" = "Generera lösenord";
@@ -131,8 +131,6 @@
 "LastSync" = "Senaste synkronisering:";
 "Length" = "Längd";
 "Lock" = "Lås";
-"OneHour" = "1 timme";
-"FourHours" = "4 timmar";
 "Immediately" = "Omedelbart";
 "VaultTimeout" = "Valvets tidsgräns";
 "VaultTimeoutAction" = "Åtgärd när valvets tidsgräns överskrids";
@@ -156,7 +154,7 @@
 "NoItemsTap" = "Det finns inga objekt i ditt valv för den här webbplatsen. Tryck för att skapa ett.";
 "NoUsernamePasswordConfigured" = "Den här inloggningen har inte ett användarnamn eller lösenord angivet.";
 "OKGotIt" = "OK, jag förstår!";
-"OptionDefaults" = "Option defaults are set from the main Bitwarden app’s password generator tool.";
+"OptionDefaults" = "Standardinställningarna för alternativen anges i lösenordsgeneratorn i Bitwardens huvudapp.";
 "Options" = "Alternativ";
 "Other" = "Annat";
 "PasswordGenerated" = "Lösenord skapat";
@@ -164,7 +162,7 @@
 "PasswordHint" = "Lösenordsledtråd";
 "PasswordHintAlert" = "Vi har skickat e-post till dig med en ledtråd för ditt huvudlösenord.";
 "PasswordOverrideAlert" = "Är du säker på att du vill skriva över det nuvarande lösenordet?";
-"PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
+"PushNotificationAlert" = "Bitwarden håller ditt valv automatiskt synkroniserat med hjälp av push-meddelanden. För bästa möjliga upplevelse, välj ”Tillåt” när du blir ombedd att tillåta push-meddelanden.";
 "RateTheApp" = "Betygsätt appen";
 "RateTheAppDescription" = "Överväg gärna att hjälpa oss genom att ge oss en bra recension!";
 "RegeneratePassword" = "Återskapa lösenord";
@@ -182,10 +180,10 @@
 "SyncVaultNow" = "Synkronisera valv nu";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tvåfaktorsautentisering";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Lås upp med biometri";
+"UnlockWithFaceID" = "Lås upp med Face ID";
+"UnlockWithTouchID" = "Lås upp med Touch ID";
+"UnlockWithOpticID" = "Lås upp med optiskt ID";
 "UnlockWithPIN" = "Lås upp med PIN-kod";
 "Validating" = "Validerar";
 "VerificationCode" = "Verifieringskod";
@@ -201,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "När du väljer ett inmatningsfält och ser en Bitwarden autofyll-överlagring kan du trycka på den för att starta autofylltjänsten.";
 "BitwardenAutofillServiceNotificationContent" = "Tryck på detta meddelande för att autofylla ett objekt från ditt valv.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Öppna tillgänglighetsinställningar";
-"BitwardenAutofillServiceStep1" = "1. On the Android Accessibility Settings screen, touch “Bitwarden” under the Services heading.";
+"BitwardenAutofillServiceStep1" = "1. På Androids skärm för hjälpmedelsinställningar, tryck på “Bitwarden” under Tjänster.";
 "BitwardenAutofillServiceStep2" = "2. Växla till på-läget och tryck på OK för att acceptera.";
 "Disabled" = "Inaktiverad";
 "Enabled" = "Aktiverad";
@@ -233,7 +231,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "UseAnotherTwoStepMethod" = "Använd en annan inloggningsmetod för tvåstegsverifiering";
 "VerificationEmailNotSent" = "Kunde inte skicka verifierings-mejl. Försök igen.";
 "VerificationEmailSent" = "Verifieringsmeddelande har skickats";
-"YubiKeyInstruction" = "To continue, hold your YubiKey NEO against the back of the device or insert your YubiKey into your device’s USB port, then touch its button.";
+"YubiKeyInstruction" = "För att fortsätta, håll din YubiKey NEO mot baksidan av enheten eller sätt in din YubiKey i enhetens USB-port, tryck sedan på dess knapp.";
 "YubiKeyTitle" = "YubiKey säkerhetsnyckel";
 "AddNewAttachment" = "Lägg till ny bilaga";
 "Attachments" = "Bilagor";
@@ -379,11 +377,11 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "AutofillTurnOn" = "Följ dessa instruktioner för att ställa in autofyllning av lösenord på din enhet:";
 "AutofillTurnOn1" = "1. Gå till iOS-appen “Inställningar”";
 "AutofillTurnOn2" = "2. Tryck på “Lösenord”";
-"AutofillTurnOn3" = "3. Tap “AutoFill Passwords”";
+"AutofillTurnOn3" = "3. Tryck på ”Autofyll lösenord”";
 "AutofillTurnOn4" = "4. Sätt på autofyll";
 "AutofillTurnOn5" = "5. Välj “Bitwarden”";
 "PasswordAutofill" = "Autofyllning av lösenord";
-"BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
+"BitwardenAutofillAlert2" = "Det enklaste sättet att lägga till nya inloggningar till ditt valv är genom att använda tillägget Bitwarden Lösenordshanterare. Läs mer om hur du använder tillägget Bitwarden Lösenordshanterare genom att navigera till skärmen ”Inställningar”.";
 "InvalidEmail" = "Ogiltig e-postadress.";
 "Cards" = "Kort";
 "Identities" = "Identiteter";
@@ -440,9 +438,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "VaultLockedIdentity" = "Ditt valv är låst. Bekräfta din identitet för att fortsätta.";
 "Dark" = "Mörkt";
 "Light" = "Ljust";
-"TenSeconds" = "10 sekunder";
-"ThirtySeconds" = "30 sekunder";
-"TwentySeconds" = "20 sekunder";
 "ClearClipboard" = "Rensa urklipp";
 "ClearClipboardDescription" = "Rensa automatiskt kopierade värden från urklipp.";
 "DefaultUriMatchDetection" = "Standardmatchning för URI";
@@ -462,7 +457,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SolarizedDark" = "Solarized Dark";
 "AutofillBlockedUris" = "Autofyll blockerade URI:er";
 "AskToAddLogin" = "Be om att lägga till inloggning";
-"AskToAddLoginDescription" = "Ask to add an item if one isn’t found in your vault.";
+"AskToAddLoginDescription" = "Fråga om att lägga till ett objekt om det inte hittas i ditt valv.";
 "OnRestart" = "Vid omstart av appen";
 "AutofillServiceNotEnabled" = "Autofyll gör det enkelt att på ett säkert sätt komma åt ditt Bitwarden-valv från andra webbplatser och appar. Det ser ut som att du inte har ställt in en autofylltjänst för Bitwarden. Ställ in autofyll för Bitwarden från skärmen \"Inställningar\".";
 "ThemeAppliedOnRestart" = "Ditt tema ändras när appen startas om.";
@@ -476,10 +471,10 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "Biometrics" = "Biometri";
 "UseBiometricsToUnlock" = "Använd biometri för att låsa upp";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden behöver uppmärksamhet - Se \"Autofyll Accessibility Service\" från Bitwardens inställningar";
-"BitwardenAutofillServiceOverlayPermission" = "3. On the Android App Settings screen for Bitwarden, go to the “Display over other apps” options (under Advanced) and tap the toggle to allow overlay support.";
+"BitwardenAutofillServiceOverlayPermission" = "3. På Android-appens inställningsskärm för Bitwarden, gå till “Rita över andra appar” alternativ (under Avancerat) och tryck på växla för att tillåta överlagringsstöd.";
 "OverlayPermission" = "Behörighet";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Öppna behörighetsinställningar för visning över andra appar";
-"BitwardenAutofillServiceStep3" = "3. On the Android App Settings screen for Bitwarden, select “Display over other apps” (under “Advanced”) and switch on the toggle to allow the overlay.";
+"BitwardenAutofillServiceStep3" = "3. På Android-appens inställningsskärm för Bitwarden, välj “Rita över andra appar” (under “Avancerat”) och aktivera detta för att tillåta överlagring.";
 "Denied" = "Nekad";
 "Granted" = "Beviljad";
 "FileFormat" = "Filformat";
@@ -490,7 +485,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ExportVaultWarning" = "Denna export innehåller ditt valv i ett okrypterat format. Du bör inte lagra eller skicka den exporterade filen över osäkra kanaler (t.ex. e-post). Radera den omedelbart när du är färdig med den.";
 "ExportVaultConfirmationTitle" = "Bekräfta export av valv";
 "Warning" = "Varning";
-"ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you’ll need to export from the web vault.";
+"ExportVaultFailure" = "Det gick inte att exportera ditt valv. Om problemet kvarstår, måste du exportera från webbvalvet.";
 "ExportVaultSuccess" = "Valvet exporterades";
 "Clone" = "Klona";
 "PasswordGeneratorPolicyInEffect" = "En eller flera organisationspolicyer påverkar dina generatorinställningar";
@@ -514,7 +509,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "EnableSyncOnRefresh" = "Aktivera synkronisering vid uppdatering";
 "EnableSyncOnRefreshDescription" = "Synkronisera valv genom att dra ned.";
 "LogInSso" = "Single Sign-On för företag";
-"LogInSsoSummary" = "Quickly log in using your organization’s single sign-on portal. Please enter your organization’s identifier to begin.";
+"LogInSsoSummary" = "Logga in snabbt med din organisations enkla inloggningsportal. Ange din organisations identifierare för att börja.";
 "OrgIdentifier" = "Organisationens identifierare";
 "LoginSsoError" = "Det gick för närvarande inte att logga in med SSO";
 "SetMasterPassword" = "Ange huvudlösenord";
@@ -544,7 +539,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "DrawOver" = "Använd överlappning";
 "DrawOverDescription" = "Om aktiverad tillåts Bitwardens tillgänglighetstjänst att visa ett popup-fönster när inloggningsfält är valda.";
 "DrawOverDescription2" = "Om den är aktiverad kommer Bitwardens tillgänglighetstjänst att visa en popup när inloggningsfält väljs för att hjälpa till med automatisk ifyllning av dina inloggningar.";
-"DrawOverDescription3" = "If turned on, accessibility will show a popup to augment the Autofill Service for older apps that don’t support the Android Autofill Framework.";
+"DrawOverDescription3" = "Om aktiverad, kommer tillgängligheten att visa en popupruta för att förstärka Autofill-tjänsten för äldre appar som inte har stöd för Android Autofill Framework.";
 "PersonalOwnershipSubmitError" = "På grund av en av företagets policyer är du begränsad från att spara objekt till ditt personliga valv. Ändra ägarskap till en organisation och välj från tillgängliga samlingar.";
 "PersonalOwnershipPolicyInEffect" = "En organisationspolicy påverkar dina ägarskapsalternativ.";
 "Send" = "Send";
@@ -585,11 +580,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SendDeleted" = "Send har raderats";
 "SendUpdated" = "Send har sparats";
 "NewSendCreated" = "Ny Send har skapats";
-"OneDay" = "1 dag";
-"TwoDays" = "2 dagar";
-"ThreeDays" = "3 dagar";
-"SevenDays" = "7 dagar";
-"ThirtyDays" = "30 dagar";
 "Custom" = "Anpassad";
 "ShareOnSave" = "Dela denna Send när den har sparats";
 "SendDisabledWarning" = "På grund av en företagspolicy kan du bara radera en befintlig Send.";
@@ -614,7 +604,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LeaveOrganization" = "Lämna organisation";
 "LeaveOrganizationName" = "Lämna %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "To continue, have your FIDO2 WebAuthn compatible security key ready, then follow the instructions after clicking “Authenticate WebAuthn” on the next screen.";
+"Fido2Instruction" = "För att fortsätta, ha din FIDO2 WebAuthn-kompatibla säkerhetsnyckel redo. Följ sedan instruktionerna efter att ha klickat på “Autentisera WebAuthn” på nästa skärm.";
 "Fido2Desc" = "Autentisering med FIDO2 WebAuthn, du kan autentisera med en extern säkerhetsnyckel.";
 "Fido2AuthenticateWebAuthn" = "Autentisera WebAuthn";
 "Fido2ReturnToApp" = "Återvänd till app";
@@ -722,8 +712,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "EmailType" = "E-posttyp";
 "WebsiteRequired" = "Webbplats (krävs)";
 "UnknownXErrorMessage" = "Okänt %1$@ fel uppstod.";
-"PlusAddressedEmailDescription" = "Use your email provider’s subaddress capabilities";
-"CatchAllEmailDescription" = "Use your domain’s configured catch-all inbox.";
+"PlusAddressedEmailDescription" = "Använd din e-postleverantörs underadressförmågor";
+"CatchAllEmailDescription" = "Använd din domäns konfigurerade catch-all-inkorg.";
 "ForwardedEmailDescription" = "Skapa ett e-postalias med en extern vidarebefordranstjänst.";
 "Random" = "Slumpmässig";
 "ConnectToWatch" = "Anslut till Watch";
@@ -842,7 +832,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "OneHourAndXMinute" = "En timme och %1$@ minuter";
 "XHoursAndOneMinute" = "%1$@ timmar och en minut";
 "XHoursAndYMinutes" = "%1$@ timmar och %2$@ minuter";
-"XHours" = "%1$@ timmar";
 "PasskeyManagementExplanationLong" = "Använd Bitwarden för att spara nya inloggningsnycklar och logga in med inloggningsnycklar sparade i ditt valv.";
 "AutofillServicesExplanationLong" = "Androids autofyll-ramverk används för att fylla i inloggningsuppgifter i appar på din enhet.";
 "UseInlineAutofillExplanationLong" = "Använd autofyll inbyggt i tangentbordet om ditt tangentbord stöder det. Annars, använd popup-fönstret.";
@@ -894,7 +883,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SetUpAutoFillDescriptionLong" = "För att ställa in autofyllning av lösenord och hantering av inloggningsnyckel, ställ in Bitwarden som din föredragna leverantör i iOS-inställningarna.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Gå till din enhets Inställningar > Lösenord > Lösenordsalternativ";
 "SecondDotTurnOnAutoFill" = "2. Slå på AutoFyll";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Välj ”Bitwarden” att använda för lösenord och inloggningsnycklar";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Din inloggningsnyckel kommer att sparas i ditt Bitwarden-valv";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Din inloggningsnyckel kommer att sparas i ditt Bitwarden-valv för %1$@";
 "PasskeysNotSupportedForThisApp" = "Inloggningsnycklar stöds inte för denna app";
@@ -1092,7 +1081,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ImportingEllipsis" = "Importerar...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
-"ItemsSuccessfullyImported" = "%1$@ artiklar har importerats framgångsrikt";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
 "RetryImport" = "Importera igen";
 "ShowVault" = "Visa valv";
@@ -1114,7 +1102,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SendNameRequired" = "Skicka namn (obligatoriskt)";
 "CheckPasswordForDataBreaches" = "Kontrollera lösenord för dataintrång";
 "PrivateNote" = "Privat notering";
-"XItems" = "%1$@ artiklar";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Det går inte att ta bort den här användaren eftersom den är ensam ägare till minst en organisation. Ta bort dessa organisationer eller uppgradera en annan användare.";
 "APasskeyAlreadyExistsForThisApplication" = "Det finns redan en passerkod för den här applikationen.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Det finns redan en nyckel för den här applikationen, men ett fel uppstod när den laddades.";
@@ -1148,7 +1135,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LoggingDuration" = "Loggningens varaktighet";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Loggar raderas automatiskt efter 30 dagar. Bitwarden kan endast komma åt dina loggdata när du delar dem.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "För mer information om vad som loggas och inte, besök **[Bitwardens hjälpcenter](%1$@)**.";
-"OneWeek" = "1 vecka";
 "ShowMore" = "Visa mer";
 "ShowLess" = "Visa mindre";
 "ItemNameX" = "Artikelns namn, %1$@";
@@ -1207,8 +1193,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "PasswordLastUpdated" = "Lösenord senast uppdaterat: %1$@";
 "DecryptionError" = "Dekrypteringsfel";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden kunde inte avkryptera detta valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden kunde inte avkryptera ett valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden kunde inte avkryptera %1$@ valvobjekt. Kopiera och dela denna felrapport med kundtjänst för att undvika ytterligare dataförlust.";
 "CopyErrorReport" = "Kopiera felrapport";
 "ErrorCannotDecrypt" = "[fel: kan inte dekryptera]";
 "AccountName" = "Kontonamn";
@@ -1243,7 +1227,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LearnMoreLink" = "[Läs mer](%1$@)";
 "LocalCodes" = "Lokala koder";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Behöver du hjälp? Besök vårt Hjälpcenter för assistans.";
-"NinetySeconds" = "90 sekunder";
 "NoAskMe" = "Nej, fråga mig";
 "NoCodes" = "Du har inga koder att visa";
 "None" = "Ingen";
@@ -1261,7 +1244,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SetSaveLocallyAsYourDefaultSaveOption" = "Ställ in \"Spara lokalt\" som ditt standardalternativ?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Ställ in \"Spara till Bitwarden\" som din standardalternativ?";
 "SignInUsingUniqueCodes" = "Logga in med unika koder";
-"SixtySeconds" = "60 sekunder";
 "Skip" = "Hoppa över";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Spara alla inloggningar och synkronisera verifieringskoder direkt med Authenticator-appen.";

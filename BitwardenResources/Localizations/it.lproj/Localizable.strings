@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Imposta Bitwarden come il tuo fornitore delle passkey nelle impostazioni del dispositivo.";
 "AvoidAmbiguousCharacters" = "Evita caratteri ambigui";
 "BitwardenAppExtension" = "Estensione app di Bitwarden";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "Il modo più semplice per aggiungere nuovi login alla tua cassaforte è usare l'estensione di Bitwarden. Scopri di più su come usare l'estensione di Bitwarden nelle impostazioni.";
 "BitwardenAppExtensionDescription" = "Usa Bitwarden su Safari e altre app per riempire automaticamente i tuoi login.";
 "BitwardenAutofillService" = "Servizio di riempimento automatico di Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Usa il servizio di accessibilità Bitwarden per riempire automaticamente i tuoi login.";
@@ -131,8 +131,6 @@
 "LastSync" = "Ultima sincronizzazione:";
 "Length" = "Lunghezza";
 "Lock" = "Blocca";
-"OneHour" = "1 ora";
-"FourHours" = "4 ore";
 "Immediately" = "Immediatamente";
 "VaultTimeout" = "Timeout cassaforte";
 "VaultTimeoutAction" = "Azione timeout cassaforte";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "La tua cassaforte è bloccata. Verifica la tua identità per continuare.";
 "Dark" = "Scuro";
 "Light" = "Chiaro";
-"TenSeconds" = "10 secondi";
-"ThirtySeconds" = "30 secondi";
-"TwentySeconds" = "20 secondi";
 "ClearClipboard" = "Cancella appunti";
 "ClearClipboardDescription" = "Cancella automaticamente i valori copiati dagli appunti.";
 "DefaultUriMatchDetection" = "Rilevamento di corrispondenza URI predefinito";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send eliminato";
 "SendUpdated" = "Send salvato";
 "NewSendCreated" = "Send creato";
-"OneDay" = "1 giorno";
-"TwoDays" = "2 giorni";
-"ThreeDays" = "3 giorni";
-"SevenDays" = "7 giorni";
-"ThirtyDays" = "30 giorni";
 "Custom" = "Personalizzato";
 "ShareOnSave" = "Condividi il Send dopo il salvataggio";
 "SendDisabledWarning" = "A causa di una politica aziendale, puoi eliminare solo Send esistenti.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Un'ora e %1$@ minuti";
 "XHoursAndOneMinute" = "%1$@ ore e un minuto";
 "XHoursAndYMinutes" = "%1$@ ore e %2$@ minuti";
-"XHours" = "%1$@ ore";
 "PasskeyManagementExplanationLong" = "Usa Bitwarden per salvare nuove passkey ed accedere con le passkey memorizzate nella tua cassaforte.";
 "AutofillServicesExplanationLong" = "La struttura di riempimento automatico di Android è usata per aiutare a inserire le tue credenziali su altre app nel tuo dispositivo.";
 "UseInlineAutofillExplanationLong" = "Usa il riempimento automatico in linea se la tua tastiera lo supporta. Altrimenti, usa la sovrapposizione predefinita.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Importazione...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
-"ItemsSuccessfullyImported" = "%1$@ elementi importati con successo";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
 "RetryImport" = "Riprova";
 "ShowVault" = "Mostra cassaforte";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Invia nome (richiesto)";
 "CheckPasswordForDataBreaches" = "Controlla la parola d'accesso per le violazioni dei dati";
 "PrivateNote" = "Nota privata";
-"XItems" = "%1$@ elementi";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Impossibile eliminare questo utente perché è l'unico proprietario di almeno un'organizzazione. Si prega di eliminare queste organizzazioni o aggiornare un altro utente.";
 "APasskeyAlreadyExistsForThisApplication" = "Esiste già una chiave di accesso per questa applicazione.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Esiste già una chiave di accesso per questa applicazione, ma si è verificato un errore durante il caricamento.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Durata del tracciamento (log)";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Le registrazioni (log) saranno eliminate automaticamente dopo 30 giorni. Bitwarden può accedere ai dati dei log solo quando li condividi.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Per maggiori dettagli sui dati memorizzati dal tracciamento, visita il **[Centro di aiuto Bitwarden](%1$@)**.";
-"OneWeek" = "1 settimana";
 "ShowMore" = "Mostra altro";
 "ShowLess" = "Mostra meno";
 "ItemNameX" = "Nome dell'elemento, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Ultimo aggiornamento della password: %1$@";
 "DecryptionError" = "Errore di decrittazione";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare questo elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare un elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden non può decrittare %1$@ elementi. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
 "CopyErrorReport" = "Copia il testo della segnalazione";
 "ErrorCannotDecrypt" = "[errore: impossibile decrittare]";
 "AccountName" = "Nome account";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Scopri di più](%1$@)";
 "LocalCodes" = "Codici locali";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Hai bisogno di aiuto? Visita il nostro Centro Assistenza per la guida.";
-"NinetySeconds" = "90 secondi";
 "NoAskMe" = "No, chiedimelo";
 "NoCodes" = "Non hai nessun codice da visualizzare";
 "None" = "Niente";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Impostare \"Salva localmente\" come opzione di salvataggio predefinita?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Impostare \"Salva su Bitwarden\" come opzione di salvataggio predefinita?";
 "SignInUsingUniqueCodes" = "Accedi utilizzando codici univoci";
-"SixtySeconds" = "60 secondi";
 "Skip" = "Salta";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Memorizza tutti i login e sincronizza i codici di verifica direttamente con l'app Authenticator.";

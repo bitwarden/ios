@@ -17,6 +17,13 @@ struct PasswordStrengthIndicator: View {
     /// The required text count for the password
     let requiredTextCount: Int
 
+    // MARK: Computed Properties
+
+    /// Whether the entered password has met the minimum length required.
+    var hasPasswordMinimumLength: Bool {
+        passwordTextCount >= requiredTextCount
+    }
+
     // MARK: View
 
     var body: some View {
@@ -26,17 +33,20 @@ struct PasswordStrengthIndicator: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
+                    let fillWidth = hasPasswordMinimumLength
+                        ? geometry.size.width * passwordStrength.strengthPercent
+                        : 0
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
-                        .frame(width: geometry.size.width * passwordStrength.strengthPercent, alignment: .leading)
-                        .animation(.easeIn, value: passwordStrength.strengthPercent)
+                        .frame(width: fillWidth, alignment: .leading)
+                        .animation(.easeIn, value: fillWidth)
                 }
                 .frame(height: 4)
             }
 
             HStack {
                 HStack(spacing: 4) {
-                    if passwordTextCount >= requiredTextCount {
+                    if hasPasswordMinimumLength {
                         Image(asset: SharedAsset.Icons.check12)
                             .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
@@ -55,9 +65,11 @@ struct PasswordStrengthIndicator: View {
 
                 Spacer()
 
-                Text(passwordStrength.text ?? "")
-                    .foregroundColor(Color(asset: passwordStrength.color))
-                    .styleGuide(.footnote)
+                if hasPasswordMinimumLength {
+                    Text(passwordStrength.text ?? "")
+                        .foregroundColor(Color(asset: passwordStrength.color))
+                        .styleGuide(.footnote)
+                }
             }
         }
     }

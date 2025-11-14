@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportCXFModule
 
 /// An object that builds coordinators for the Credential Exchange import flow.

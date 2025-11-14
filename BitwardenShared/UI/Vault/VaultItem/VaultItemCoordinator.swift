@@ -443,16 +443,3 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 extension VaultItemCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
 }
-
-// MARK: - View Extension
-
-extension View {
-    @ViewBuilder var navStackWrapped: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
-            NavigationStack { self }
-        } else {
-            NavigationView { self }
-                .navigationViewStyle(.stack)
-        }
-    }
-}

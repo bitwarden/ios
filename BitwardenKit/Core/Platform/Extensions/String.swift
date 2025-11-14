@@ -139,6 +139,38 @@ public extension String {
         }
     }
 
+    /// Returns a normalized URL string with an HTTPS scheme and no trailing slash.
+    ///
+    /// This method performs two normalization operations:
+    /// 1. Removes any trailing slash from the URL
+    /// 2. Prefixes the URL with `https://` if no scheme (`http://` or `https://`) is present
+    ///
+    /// If the URL already has an `http://` or `https://` scheme, it is preserved as-is
+    /// (after removing any trailing slash).
+    ///
+    /// - Returns: A normalized URL string suitable for consistent URL matching and comparison.
+    ///
+    /// # Examples
+    /// ```swift
+    /// "example.com".httpsNormalized()        // "https://example.com"
+    /// "example.com/".httpsNormalized()       // "https://example.com"
+    /// "http://example.com".httpsNormalized() // "http://example.com"
+    /// "https://example.com/".httpsNormalized() // "https://example.com"
+    /// ```
+    ///
+    func httpsNormalized() -> String {
+        let stringUrl = if hasSuffix("/") {
+            String(dropLast())
+        } else {
+            self
+        }
+
+        guard stringUrl.starts(with: "https://") || stringUrl.starts(with: "http://") else {
+            return "https://" + stringUrl
+        }
+        return stringUrl
+    }
+
     /// Creates a new string that has been encoded for use in a url or request header.
     ///
     /// - Returns: A `String` encoded for use in a url or request header.

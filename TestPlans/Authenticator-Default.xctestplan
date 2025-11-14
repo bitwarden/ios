@@ -28,6 +28,13 @@
   "testTargets" : [
     {
       "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "11D20029373CEF56CBBCF0AA",
+        "name" : "AuthenticatorBridgeKitTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:Authenticator.xcodeproj",
         "identifier" : "FFECA5139B78B2961268F363",
         "name" : "AuthenticatorSharedSnapshotTests"

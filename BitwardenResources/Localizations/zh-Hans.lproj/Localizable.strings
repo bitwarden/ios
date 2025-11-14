@@ -118,7 +118,7 @@
 "ExtensionInstantAccess" = "即时访问您的密码！";
 "ExtensionReady" = "您已经准备好登录了！";
 "ExtensionSetup" = "现在可以在 Safari、Chrome 以及其他支持的 App 中方便地访问您的登录项目了。";
-"ExtensionSetup2" = "在 Safari 和 Chrome 中，使用共享图标寻找 Bitwarden（提示：在菜单最下面一行的右边）。";
+"ExtensionSetup2" = "在 Safari 和 Chrome 中，使用分享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
 "ExtensionTapIcon" = "点击菜单中的 Bitwarden 图标以启动此扩展。";
 "ExtensionTurnOn" = "要在 Safari 和其他 App 中打开 Bitwarden ，请点击菜单底部的「更多」图标。";
 "Favorite" = "收藏";
@@ -131,12 +131,10 @@
 "LastSync" = "上次同步：";
 "Length" = "长度";
 "Lock" = "锁定";
-"OneHour" = "1 小时";
-"FourHours" = "4 小时";
 "Immediately" = "立即";
-"VaultTimeout" = "密码库超时时间";
+"VaultTimeout" = "密码库超时";
 "VaultTimeoutAction" = "密码库超时动作";
-"VaultTimeoutLogOutConfirmation" = "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？";
+"VaultTimeoutLogOutConfirmation" = "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？";
 "LoggingIn" = "正在登录…";
 "LogInToBitwarden" = "登录到 Bitwarden";
 "Manage" = "管理";
@@ -179,7 +177,7 @@
 "SyncingLogins" = "正在同步登录…";
 "SyncingComplete" = "同步完成";
 "SyncingFailed" = "同步失败";
-"SyncVaultNow" = "立即同步";
+"SyncVaultNow" = "立即同步密码库";
 "TouchID" = "触控 ID";
 "TwoStepLogin" = "两步登录";
 "UnlockWithBiometrics" = "使用生物识别解锁";
@@ -439,12 +437,9 @@
 "VaultLockedIdentity" = "您的密码库已锁定。请验证您的身份以继续。";
 "Dark" = "深色";
 "Light" = "浅色";
-"TenSeconds" = "10 秒";
-"ThirtySeconds" = "30 秒";
-"TwentySeconds" = "20 秒";
 "ClearClipboard" = "清除剪贴板";
 "ClearClipboardDescription" = "自动清除复制到剪贴板的值。";
-"DefaultUriMatchDetection" = "默认的 URI 匹配检测方式";
+"DefaultUriMatchDetection" = "默认 URI 匹配检测";
 "DefaultUriMatchDetectionDescription" = "选择在执行诸如自动填充之类的操作时对登录进行 URI 匹配检测的默认方式。";
 "Theme" = "主题";
 "ThemeDescription" = "更改应用程序的颜色主题。";
@@ -455,7 +450,7 @@
 "ExitConfirmation" = "确定要退出 Bitwarden 吗？";
 "PINRequireMasterPasswordRestart" = "您希望当应用程序重启时，要求使用主密码解锁吗？";
 "PINRequireBioOrMasterPasswordRestart" = "您希望当应用程序重启时，要求使用 %1$@ 或主密码解锁吗？";
-"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "应用程序重新启动时，您想要求生物识别或主密码解锁吗？";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "您希望当应用程序重启时，要求使用生物识别或主密码解锁吗？";
 "Black" = "黑色";
 "Nord" = "冷色";
 "SolarizedDark" = "过曝暗";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send 已删除";
 "SendUpdated" = "Send 已保存";
 "NewSendCreated" = "Send 已创建";
-"OneDay" = "1 天";
-"TwoDays" = "2 天";
-"ThreeDays" = "3 天";
-"SevenDays" = "7 天";
-"ThirtyDays" = "30 天";
 "Custom" = "自定义";
 "ShareOnSave" = "保存时分享此 Send";
 "SendDisabledWarning" = "由于某个企业策略，您只能删除现有的 Send。";
@@ -619,10 +609,10 @@
 "Fido2ReturnToApp" = "返回 App";
 "Fido2CheckBrowser" = "请确保您的默认浏览器支持 WebAuthn，然后重试。";
 "ResetPasswordAutoEnrollInviteWarning" = "此组织有一个企业策略，将为您自动注册密码重置。注册后将允许组织管理员更改您的主密码。";
-"VaultTimeoutPolicyInEffect" = "您的组织策略已将您最大允许的密码库超时时间设置为 %1$@ 小时 %2$@ 分钟。";
-"VaultTimeoutPolicyWithActionInEffect" = "您的组织策略正在影响您的密码库超时时间。最大允许的密码库超时时间是 %1$@ 小时 %2$@ 分钟。您的密码库超时动作被设置为 %3$@。";
+"VaultTimeoutPolicyInEffect" = "您的组织策略已将您最大允许的密码库超时设置为 %1$@ 小时 %2$@ 分钟。";
+"VaultTimeoutPolicyWithActionInEffect" = "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 %1$@ 小时 %2$@ 分钟。您的密码库超时动作被设置为 %3$@。";
 "VaultTimeoutActionPolicyInEffect" = "您的组织策略已将您的密码库超时动作设置为 %1$@。";
-"VaultTimeoutToLarge" = "您的密码库超时时间超出了组织设置的限制。";
+"VaultTimeoutToLarge" = "您的密码库超时超出了您组织设置的限制。";
 "DisablePersonalVaultExportPolicyInEffect" = "一个或多个组织策略阻止您导出个人密码库。";
 "AddAccount" = "添加账户";
 "AccountUnlocked" = "已解锁";
@@ -807,7 +797,7 @@
 "YouWillBeNotifiedOnceApproved" = "批准后，您将收到通知。";
 "TroubleLoggingIn" = "登录遇到问题吗？";
 "LoggingInAsX" = "正以 %1$@ 身份登录";
-"VaultTimeoutActionChangedToLogOut" = "密码库超时动作已更改为注销";
+"VaultTimeoutActionChangedToLogOut" = "密码库超时动作已更改为「注销」";
 "BlockAutoFill" = "屏蔽自动填充";
 "AutoFillWillNotBeOfferedForTheseURIs" = "不会为这些 URI 提供自动填充。";
 "NewBlockedURI" = "新增屏蔽的 URI";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "1 小时 %1$@ 分钟";
 "XHoursAndOneMinute" = "%1$@ 小时 1 分钟";
 "XHoursAndYMinutes" = "%1$@ 小时 %2$@ 分钟";
-"XHours" = "%1$@ 小时";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
 "AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
 "UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
-"ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
 "RetryImport" = "重试导入";
 "ShowVault" = "显示密码库";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send 名称（必填）";
 "CheckPasswordForDataBreaches" = "检查数据泄露中的密码";
 "PrivateNote" = "私密备注";
-"XItems" = "%1$@ 个项目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "无法删除此用户，因为它是至少一个组织的唯一所有者。请删除这些组织或升级其他用户。";
 "APasskeyAlreadyExistsForThisApplication" = "此应用程序已存在一个通行密钥。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此应用程序已存在一个通行密钥，但加载时发生错误。";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "日志记录持续时间";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您分享它时，Bitwarden 才能访问您的日志数据。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "要了解哪些内容会被记录、哪些不会被记录，请访问 **[Bitwarden 帮助中心](%1$@)**。";
-"OneWeek" = "1 周";
 "ShowMore" = "显示更多";
 "ShowLess" = "显示更少";
 "ItemNameX" = "项目名称，%1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "密码最后更新于：%1$@";
 "DecryptionError" = "解密错误";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 无法解密此密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden 无法解密 1 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden 无法解密 %1$@ 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
 "CopyErrorReport" = "复制错误报告";
 "ErrorCannotDecrypt" = "[错误：无法解密]";
 "AccountName" = "账户名称";
@@ -1216,7 +1200,7 @@
 "AddCode" = "添加代码";
 "Advanced" = "高级";
 "Algorithm" = "算法";
-"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "允许验证器 App 在设置中同步以查看您的所有验证码。";
+"AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "在设置中允许验证器 App 同步，以在此处查看您的所有验证码。";
 "Backup" = "备份";
 "BitwardenAuthenticator" = "Bitwarden Authenticator";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator 数据已备份，并且可以使用您的定期设备备份恢复。";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[了解更多](%1$@)";
 "LocalCodes" = "本地代码";
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要帮助吗？请访问我们的帮助中心获取指导。";
-"NinetySeconds" = "90 秒";
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "将「本地保存」设置为您的默认保存选项吗？";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "将「保存到 Bitwarden」设置为您的默认保存选项吗？";
 "SignInUsingUniqueCodes" = "使用唯一的代码登录";
-"SixtySeconds" = "60 秒";
 "Skip" = "跳过";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "保存您所有的登录信息并直接与验证器 App 同步验证码。";

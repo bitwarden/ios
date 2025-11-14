@@ -1,3 +1,4 @@
+import BitwardenKit
 import UIKit
 
 #if DEBUG

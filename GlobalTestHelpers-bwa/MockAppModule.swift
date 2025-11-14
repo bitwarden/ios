@@ -1,5 +1,6 @@
 @testable import AuthenticatorShared
 import BitwardenKit
+import BitwardenKitMocks
 
 // MARK: - MockAppModule
 
@@ -55,7 +56,7 @@ class MockAppModule:
     }
 
     func makeItemListCoordinator(
-        stackNavigator _: AuthenticatorShared.StackNavigator,
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         itemListCoordinator.asAnyCoordinator()
     }

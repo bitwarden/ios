@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ProfileSwitcherProcessor
 
 /// The processor used to manage state and handle actions for the profile switcher sheet.

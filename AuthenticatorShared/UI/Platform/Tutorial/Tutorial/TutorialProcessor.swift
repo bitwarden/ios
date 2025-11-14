@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - TutorialProcessor
 
 /// The processer used to manage state and handle actions for the tutorial screen.

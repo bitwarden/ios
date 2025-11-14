@@ -131,8 +131,6 @@
 "LastSync" = "கடந்த ஒத்திசைவு:";
 "Length" = "நீளம்";
 "Lock" = "பூட்டு";
-"OneHour" = "௧ மணிநேரம்";
-"FourHours" = "௪ மணிநேரம்";
 "Immediately" = "உடனடியாக";
 "VaultTimeout" = "பெட்டக நேரமுடிவு";
 "VaultTimeoutAction" = "பெட்டக நேரமுடிவு செயல்";
@@ -440,9 +438,6 @@
 "VaultLockedIdentity" = "உம் பெட்டகம் பூட்டப்பட்டுள்ளது. தொடர உம் அடையாளத்தைச் சரிபார்.";
 "Dark" = "இருள்";
 "Light" = "ஒளி";
-"TenSeconds" = "௧௦ விநாடிகள்";
-"ThirtySeconds" = "௩௦ விநாடிகள்";
-"TwentySeconds" = "௨௦ விநாடிகள்";
 "ClearClipboard" = "நகலகத்தைத் துடை";
 "ClearClipboardDescription" = "நகலெடுத்த மதிப்புகளை உம் நகலகத்திலிருந்து தானாக துடை.";
 "DefaultUriMatchDetection" = "இயல்புநிலை உரலிப்பொருத்தங்கண்டறிதல்";
@@ -585,11 +580,6 @@
 "SendDeleted" = "Send அழிக்கப்பட்டது";
 "SendUpdated" = "Send சேமிக்கப்பட்டது";
 "NewSendCreated" = "Send உருவானது";
-"OneDay" = "௧ நாள்";
-"TwoDays" = "௨ நாட்கள்";
-"ThreeDays" = "௩ நாட்கள்";
-"SevenDays" = "௭ நாட்கள்";
-"ThirtyDays" = "௩௦ நாட்கள்";
 "Custom" = "தனிபயன்";
 "ShareOnSave" = "சேமிக்கையில் இந்த Send ஐப் பகிர்";
 "SendDisabledWarning" = "முனைவக கொள்ளையால், உம்மால் இருக்கின்ற Sendஐ மட்டுமே அழிக்கவியலும்.";
@@ -842,7 +832,6 @@
 "OneHourAndXMinute" = "ஒரு மணிநேரம் மற்றும் %1$@ நிமிடங்கள்";
 "XHoursAndOneMinute" = "%1$@ மணிநேரம் மற்றும் ஒரு நிமிடம்";
 "XHoursAndYMinutes" = "%1$@ மணிநேரம் மற்றும் %2$@ நிமிடங்கள்";
-"XHours" = "%1$@ மணிநேரம்";
 "PasskeyManagementExplanationLong" = "புதிய கடவுக்குறியீடுகளைச் சேமிக்கவும், உங்கள் பெட்டகத்தில் சேமிக்கப்பட்ட கடவுக்குறியீடுகளுடன் உள்நுழையவும் Bitwarden-ஐப் பயன்படுத்தவும்.";
 "AutofillServicesExplanationLong" = "தானியங்கு நிரப்புதல் சேவைகள் விளக்கம் இன்னுங்கூடுதலான.";
 "UseInlineAutofillExplanationLong" = "தானியங்கு நிரப்புதலை பயன்படுத்தவும்.";
@@ -1092,7 +1081,6 @@
 "ImportingEllipsis" = "இறக்குமதி செய்கிறது...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "நீங்கள் இறக்குமதி செயல்முறையை ரத்துசெய்ய விரும்புகிறீர்களா?";
 "ImportFailed" = "இறக்குமதி தோல்வியடைந்தது";
-"ItemsSuccessfullyImported" = "%1$@ பொருட்கள் வெற்றிகரமாக இறக்குமதி செய்யப்பட்டன";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "உங்கள் எல்லா கடவுச்சொற்களையும் இறக்குமதி செய்வதில் ஒரு சிக்கல் ஏற்பட்டது.\n\nதரவு எதுவும் நீக்கப்படவில்லை.";
 "RetryImport" = "மீண்டும் இறக்குமதி செய்";
 "ShowVault" = "பெட்டகத்தைக் காட்டு";
@@ -1114,7 +1102,6 @@
 "SendNameRequired" = "அனுப்பு பெயர் (தேவை)";
 "CheckPasswordForDataBreaches" = "தரவு மீறல்களுக்கு கடவுச்சொல்லைச் சரிபார்க்கவும்";
 "PrivateNote" = "தனிப்பட்ட குறிப்பு";
-"XItems" = "%1$@ பொருட்கள்";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "இந்த பயனர் குறைந்தபட்சம் ஒரு அமைப்பின் ஒரே உரிமையாளராக இருப்பதால், இந்த பயனரை நீக்க முடியாது. தயவுசெய்து இந்த அமைப்புகளை நீக்குங்கள் அல்லது மற்றொரு பயனரை மேம்படுத்தவும்.";
 "APasskeyAlreadyExistsForThisApplication" = "இந்த பயன்பாட்டிற்கு ஒரு பாஸ்கீ ஏற்கனவே உள்ளது.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "இந்த பயன்பாட்டிற்கு ஒரு பாஸ்கீ ஏற்கனவே உள்ளது ஆனால் அதை ஏற்றும்போது ஒரு பிழை ஏற்பட்டது.";
@@ -1148,7 +1135,6 @@
 "LoggingDuration" = "பதிவு கால அளவு";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "பதிவுகள் 30 நாட்களுக்குப் பிறகு தானாகவே நீக்கப்படும். நீங்கள் பகிரும்போது மட்டுமே பிட்வார்டன் உங்கள் பதிவுத் தரவை அணுக முடியும்.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "என்ன பதிவு செய்யப்படுகிறது மற்றும் என்ன பதிவு செய்யப்படுவதில்லை என்பது பற்றிய விவரங்களுக்கு, **[பிட்வார்டன் உதவி மையத்திற்கு](%1$@)** செல்லவும்.";
-"OneWeek" = "1 வாரம்";
 "ShowMore" = "மேலும் காட்டு";
 "ShowLess" = "குறைவாக காட்டு";
 "ItemNameX" = "பொருள் பெயர், %1$@";
@@ -1207,8 +1193,6 @@
 "PasswordLastUpdated" = "கடவுச்சொல் கடைசியாக புதுப்பிக்கப்பட்டது: %1$@";
 "DecryptionError" = "மறையாக்கத் திறத்தல் பிழை";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "பிட்வார்டனால் இந்த பெட்டகப் பொருளை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "பிட்வார்டனால் 1 பெட்டகப் பொருளை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "பிட்வார்டனால் %1$@ பெட்டகப் பொருட்களை மறையாக்கத் திறக்க முடியவில்லை. கூடுதல் தரவு இழப்பைத் தவிர்க்க இந்த பிழை அறிக்கையை நகலெடுத்து வாடிக்கையாளர் வெற்றியுடன் பகிரவும்.";
 "CopyErrorReport" = "பிழை அறிக்கையை நகலெடு";
 "ErrorCannotDecrypt" = "[பிழை: மறையாக்கத் திறக்க முடியாது]";
 "AccountName" = "கணக்கின் பெயர்";
@@ -1243,7 +1227,6 @@
 "LearnMoreLink" = "[மேலும் அறிக](%1$@)";
 "LocalCodes" = "உள்ளூர் குறியீடுகள்";
 "NeedHelpVisitOurHelpCenterForGuidance" = "உதவி வேண்டுமா? வழிகாட்டுதலுக்கு எங்கள் உதவி மையத்தைப் பார்வையிடவும்.";
-"NinetySeconds" = "90 வினாடிகள்";
 "NoAskMe" = "வேண்டாம், என்னிடம் கேள்";
 "NoCodes" = "உங்களிடம் காண்பிக்கக் குறியீடுகள் இல்லை";
 "None" = "ஏதுமில்லை";
@@ -1261,7 +1244,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "“உள்ளூர் அளவில் சேமி” என்பதை உங்கள் இயல்புநிலைச் சேமிப்பு விருப்பமாக அமைக்கவா?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "“Bitwarden-ல் சேமி” என்பதை உங்கள் இயல்புநிலைச் சேமிப்பு விருப்பமாக அமைக்கவா?";
 "SignInUsingUniqueCodes" = "தனித்துவமான குறியீடுகளைப் பயன்படுத்தி உள்நுழைக";
-"SixtySeconds" = "60 வினாடிகள்";
 "Skip" = "தவிர்";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "உங்கள் அனைத்து உள்நுழைவுகளையும் சேமித்து, சரிபார்ப்புக் குறியீடுகளை அங்கீகரிப்புப் பயன்பாட்டுடன் நேரடியாக ஒத்திசைக்கவும்.";

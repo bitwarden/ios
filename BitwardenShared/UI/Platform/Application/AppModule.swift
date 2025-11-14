@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: AppModule
 
 /// An object that builds coordinators for the app.
@@ -58,5 +60,19 @@ extension DefaultAppModule: AppModule {
             rootNavigator: navigator,
             services: services,
         ).asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + FlightRecorderModule
+
+extension DefaultAppModule: FlightRecorderModule {
+    public func makeFlightRecorderCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        FlightRecorderCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
     }
 }

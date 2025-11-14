@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A coordinator that manages navigation for the debug menu.
@@ -7,6 +8,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAppSettingsStore
         & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
 
     // MARK: Private Properties
 
@@ -64,4 +66,10 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         let view = DebugMenuView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension DebugMenuCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

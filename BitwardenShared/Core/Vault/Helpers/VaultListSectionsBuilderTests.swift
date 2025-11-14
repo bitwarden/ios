@@ -32,6 +32,115 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
+    /// `addAutofillCombinedMultipleSection()` adds separate sections for passwords and Fido2 items with rpID.
+    func test_addAutofillCombinedMultipleSection() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+                .fixture(cipherListView: .fixture(id: "6", name: "zFido2-2"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Password-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passkeys for example.com]: Passkeys for example.com
+              - Cipher: Fido2-1
+              - Cipher: zFido2-2
+            Section[Passwords for example.com]: Passwords for example.com
+              - Cipher: Password-1
+              - Cipher: Password-2
+              - Cipher: Password-3
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only passwords section when no rpID provided.
+    func test_addAutofillCombinedMultipleSection_noRpID() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-1")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: nil).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passwords]: Passwords
+              - Cipher: Password-1
+              - Cipher: Password-2
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only passwords section when Fido2 items exist but no rpID.
+    func test_addAutofillCombinedMultipleSection_onlyPasswords() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passwords for example.com]: Passwords for example.com
+              - Cipher: Password-1
+              - Cipher: Password-3
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only Fido2 section when no passwords but rpID provided.
+    func test_addAutofillCombinedMultipleSection_onlyFido2() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Fido2-2"), fido2CredentialAutofillView: .fixture()),
+                .fixture(cipherListView: .fixture(id: "2", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passkeys for example.com]: Passkeys for example.com
+              - Cipher: Fido2-1
+              - Cipher: Fido2-2
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` doesn't add any sections when no items available.
+    func test_addAutofillCombinedMultipleSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [],
+            groupItems: [],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            """
+        }
+    }
+
     /// `addAutofillCombinedSingleSection()` adds a vault section combinining passwords and Fido2 items.
     func test_addAutofillCombinedSingleSection() {
         setUpSubject(withData: VaultListPreparedData(

@@ -1,6 +1,8 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
+import ViewInspectorTestHelpers
 import XCTest
 
 // MARK: - SettingsViewTests
@@ -58,7 +60,7 @@ class SettingsViewTests: BitwardenTestCase {
     func test_defaultSaveOptionChanged_updateValue() throws {
         processor.state.shouldShowDefaultSaveOption = true
         processor.state.defaultSaveOption = .none
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOption)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.defaultSaveOption)
         try menuField.select(newValue: DefaultSaveOption.saveToBitwarden)
         XCTAssertEqual(processor.dispatchedActions.last, .defaultSaveChanged(.saveToBitwarden))
     }
@@ -100,7 +102,7 @@ class SettingsViewTests: BitwardenTestCase {
     func test_sessionTimeoutValue_updateValue() throws {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
         processor.state.sessionTimeoutValue = .never
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.sessionTimeout)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.sessionTimeout)
         try menuField.select(newValue: SessionTimeoutValue.fifteenMinutes)
 
         waitFor(!processor.effects.isEmpty)

@@ -17,6 +17,7 @@ extension ServiceContainer {
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         cryptographyService: CryptographyService = MockCryptographyService(),
+        errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         exportItemsService: ExportItemsService = MockExportItemsService(),
         importItemsService: ImportItemsService = MockImportItemsService(),
@@ -25,6 +26,7 @@ extension ServiceContainer {
         pasteboardService: PasteboardService = MockPasteboardService(),
         stateService: StateService = MockStateService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
+        totpExpirationManagerFactory: TOTPExpirationManagerFactory = MockTOTPExpirationManagerFactory(),
         totpService: TOTPService = MockTOTPService(),
     ) -> ServiceContainer {
         ServiceContainer(
@@ -38,6 +40,7 @@ extension ServiceContainer {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
             importItemsService: importItemsService,
@@ -46,6 +49,7 @@ extension ServiceContainer {
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
     }

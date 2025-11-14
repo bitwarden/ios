@@ -815,21 +815,22 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool,
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let accountKeys = try await stateService.getAccountEncryptionKeys()
-        let accountPrivateKeys = accountKeys.accountKeys
         let email = account.profile.email
         let kdf = account.kdf
         let requestUserKey: String
         let requestKeys: KeysRequestModel?
         let requestPasswordHash: String
+        let accountPrivateKeys: PrivateKeysResponseModel?
         let encryptedPrivateKey: String
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
             let passwordResult = try await clientService.crypto().makeUpdatePassword(newPassword: password)
+            let accountKeys = try await stateService.getAccountEncryptionKeys()
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
+            accountPrivateKeys = accountKeys.accountKeys
             encryptedPrivateKey = accountKeys.encryptedPrivateKey
         } else {
             let keys = try await clientService.auth().makeRegisterKeys(
@@ -848,6 +849,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPrivateKey: keys.keys.private,
                 publicKey: keys.keys.public,
             )
+            accountPrivateKeys = nil
             encryptedPrivateKey = keys.keys.private
         }
 
@@ -868,6 +870,9 @@ extension DefaultAuthRepository: AuthRepository {
         ))
         try await stateService.setUserHasMasterPassword(true)
 
+        // The vault needs to be unlocked before attempting to enroll the user in admin password reset.
+        try await unlockVaultWithPassword(password: password)
+
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
                 organizationId: organizationId,
@@ -886,8 +891,6 @@ extension DefaultAuthRepository: AuthRepository {
                 userId: account.profile.userId,
             )
         }
-
-        try await unlockVaultWithPassword(password: password)
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
@@ -937,6 +940,9 @@ extension DefaultAuthRepository: AuthRepository {
                 method: method,
             ),
         )
+
+        // Remove admin pending login request if exists
+        try await authService.setPendingAdminLoginRequest(nil, userId: nil)
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -988,7 +994,24 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
         guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
-        try await unlockVault(method: .password(password: password, userKey: encUserKey))
+
+        let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock
+        let unlockMethod: InitUserCryptoMethod = if let masterPasswordUnlock {
+            .masterPasswordUnlock(
+                password: password,
+                masterPasswordUnlock: MasterPasswordUnlockData(responseModel: masterPasswordUnlock),
+            )
+        } else {
+            .password(password: password, userKey: encUserKey)
+        }
+        try await unlockVault(method: unlockMethod)
+
+        let hashedPassword = try await authService.hashPassword(
+            password: password,
+            purpose: .localAuthorization,
+        )
+        try await stateService.setMasterPasswordHash(hashedPassword)
+        await updateKdfToMinimumsIfNeeded(password: password)
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
@@ -1116,27 +1139,6 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")
-
-        switch method {
-        case .authRequest:
-            // Remove admin pending login request if exists
-            try await authService.setPendingAdminLoginRequest(nil, userId: nil)
-        case let .password(password, _):
-            let hashedPassword = try await authService.hashPassword(
-                password: password,
-                purpose: .localAuthorization,
-            )
-            try await stateService.setMasterPasswordHash(hashedPassword)
-            await updateKdfToMinimumsIfNeeded(password: password)
-        case .decryptedKey,
-             .deviceKey,
-             .keyConnector,
-             .masterPasswordUnlock,
-             .pin,
-             .pinEnvelope:
-            // No-op: nothing extra to do.
-            break
-        }
 
         try await configurePinUnlockIfNeeded(method: method)
 
@@ -1274,7 +1276,7 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
                 await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
             }
-        case.pinEnvelope:
+        case .pinEnvelope:
             break
         }
     }

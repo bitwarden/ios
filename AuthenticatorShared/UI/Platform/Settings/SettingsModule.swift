@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SettingsModule
 
 /// An object that builds coordinators for the settings tab.

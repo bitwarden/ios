@@ -25,3 +25,13 @@ extension BitwardenSdk.InitUserCryptoMethod {
         }
     }
 }
+
+extension BitwardenSdk.MasterPasswordUnlockData {
+    init(responseModel model: MasterPasswordUnlockResponseModel) {
+        self.init(
+            kdf: model.kdf.sdkKdf,
+            masterKeyWrappedUserKey: model.masterKeyEncryptedUserKey,
+            salt: model.salt,
+        )
+    }
+}

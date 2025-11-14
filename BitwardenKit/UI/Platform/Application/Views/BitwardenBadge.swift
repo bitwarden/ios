@@ -51,7 +51,7 @@ public struct BitwardenBadge: View {
     ///
     /// - Parameters:
     ///   - badgeValue: The value to display in the badge.
-    ///   
+    ///
     public init(badgeValue: String) {
         self.badgeValue = badgeValue
     }

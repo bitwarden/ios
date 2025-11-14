@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - TutorialCoordinator
@@ -11,6 +12,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     typealias Module = DefaultAppModule
 
     typealias Services = HasErrorReporter
+        & HasErrorAlertServices.ErrorAlertServices
         & HasStateService
 
     // MARK: Private Properties
@@ -76,3 +78,10 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(view)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension TutorialCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+

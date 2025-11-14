@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// An enum describing the type of collection assigned to user(s) or group(s).
 ///
 enum CollectionType: Int, Codable {

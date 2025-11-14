@@ -109,4 +109,11 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             (value as? UINavigationController)?.tabBarItem.accessibilityIdentifier = key.accessibilityIdentifier
         }
     }
+
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        errorReporter.log(error: BitwardenError.generalError(
+            type: "TabCoordinator: `showErrorAlert` Not Supported",
+            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator.",
+        ))
+    }
 }

@@ -9,8 +9,8 @@ struct MasterPasswordUnlockResponseModel: Codable, Equatable, Hashable {
     let kdf: KdfConfig
 
     /// The user's encrypted user key, encrypted with the master key.
-    let masterKeyEncryptedUserKey: String?
+    let masterKeyEncryptedUserKey: String
 
     /// The cryptographic salt used in key derivation.
-    let salt: String?
+    let salt: String
 }

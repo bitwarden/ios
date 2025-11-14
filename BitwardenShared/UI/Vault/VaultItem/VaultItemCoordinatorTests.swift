@@ -1,4 +1,6 @@
 import AVFoundation
+import BitwardenKit
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 

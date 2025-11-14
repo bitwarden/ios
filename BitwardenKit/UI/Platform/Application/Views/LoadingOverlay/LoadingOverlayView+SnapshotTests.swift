@@ -3,7 +3,7 @@ import SnapshotTesting
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class LoadingOverlayViewTests: BitwardenTestCase {
     // MARK: Tests

@@ -131,8 +131,6 @@
 "LastSync" = "Utolsó szinkronizálás:";
 "Length" = "Hossz";
 "Lock" = "Lezárás";
-"OneHour" = "1 óra";
-"FourHours" = "4 óra";
 "Immediately" = "Azonnal";
 "VaultTimeout" = "Széf időkifutás";
 "VaultTimeoutAction" = "Széf időkifutás művelet";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "A széf zárolásra került. A folytatáshoz ellenőrizni kell az azonosítást.";
 "Dark" = "Sötét";
 "Light" = "Világos";
-"TenSeconds" = "10 másodperc";
-"ThirtySeconds" = "30 másodperc";
-"TwentySeconds" = "20 másodperc";
 "ClearClipboard" = "Vágólap ürítése";
 "ClearClipboardDescription" = "Automatikusan törli a vágólapra másolt értékeket.";
 "DefaultUriMatchDetection" = "URI-egyezések alapértelmezett felismerése";
@@ -584,11 +579,6 @@
 "SendDeleted" = "A Send elem törlésre került.";
 "SendUpdated" = "A Send elem frissítésre került.";
 "NewSendCreated" = "Az új Send elem létrejött.";
-"OneDay" = "1 nap";
-"TwoDays" = "2 nap";
-"ThreeDays" = "3 nap";
-"SevenDays" = "7 nap";
-"ThirtyDays" = "30 nap";
 "Custom" = "Egyedi";
 "ShareOnSave" = "A Send elem megosztása mentéskor.";
 "SendDisabledWarning" = "A vállalati házirend miatt csak egy meglévő Send elem törölhető.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Egy óra és %1$@ perc";
 "XHoursAndOneMinute" = "%1$@ óra és egy perc";
 "XHoursAndYMinutes" = "%1$@ óra és %2$@ perc";
-"XHours" = "%1$@ óra";
 "PasskeyManagementExplanationLong" = "A Bitwarden használata az új belépőkulcsok mentéséhez és bejelentkezés a széfben tárolt belépőkulcskkal.";
 "AutofillServicesExplanationLong" = "Az Android automatikus kitöltési keretrendszere segít a bejelentkezési adatok kitöltésében az eszközön lévő más alkalmazásokba.";
 "UseInlineAutofillExplanationLong" = "Használjuk a sorközi automatikus kitöltést, ha a kiválasztott billentyűzet azt támogatja. Ellenkező esetben használjuk az alapértelmezett átfedést.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Importálás...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
-"ItemsSuccessfullyImported" = "%1$@ elem sikeresen importálásra került.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
 "RetryImport" = "Importálás újra próbálása";
 "ShowVault" = "Széf megjelenítése";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send név (kötelező)";
 "CheckPasswordForDataBreaches" = "A jelszó ellenőrzése, hogy nem történt-e adatszivárgás";
 "PrivateNote" = "Személyes jegyzet";
-"XItems" = "%1$@ elem";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Ez a felhasználó nem törölhető, mert legalább egy szervezet kizárólagos tulajdonosa. Töröljük ezeket a szervezeteket vagy térjünk át másik felhasználóra.";
 "APasskeyAlreadyExistsForThisApplication" = "Az alkalmazáshoz már létezik hozzáférési kulcs.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Már létezik jelszó ehhez az alkalmazáshoz, de hiba történt a betöltése során.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Naplózási időtartaam";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "A naplók 30 nap elteltével automatikusan törlődnek. A Bitwarden csak akkor fér hozzá a naplóadatokhoz, ha megosztjuk vele azokat.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "A naplózott és nem naplózott részletekért keressük fel a **[Bitwarden súgóját](%1$@)**.";
-"OneWeek" = "1 hét";
 "ShowMore" = "Több mutatása";
 "ShowLess" = "Kevesebb mutatása";
 "ItemNameX" = "Elem név, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Jelszó utolsó frissítés: %1$@";
 "DecryptionError" = "Visszafejtési hiba";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nem tudta visszafejteni ezt a széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "A Bitwarden nem tudott visszafejteni 1 széf elemet. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "A Bitwarden nem tudta visszafejteni %1$@ suéf elemet. Másoljuk és osszil meg ezt a hibajelentést az ügyfél sikerrel, hogy elkerüljük a további adatvesztést.";
 "CopyErrorReport" = "Hibajelentés másolása";
 "ErrorCannotDecrypt" = "[hiba: nem fejlthető vissza]";
 "AccountName" = "Fióknév";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[További információ](%1$@)";
 "LocalCodes" = "Helyi kódok";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Segítségre szorulunk? Látogassunk el Súgóba útmutatásért.";
-"NinetySeconds" = "90 másodperc";
 "NoAskMe" = "Nem, rákérdezés";
 "NoCodes" = "Nincs megjeleníthető kód.";
 "None" = "Nincs";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "A \"Helyi mentés\" beállítása alapértelmezett mentési lehetőségként?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "A \"Mentés Bitwardenbe\" beállítása alapértelmezett mentési lehetőségként?";
 "SignInUsingUniqueCodes" = "Bejelentkezés egyedi kódok használatával";
-"SixtySeconds" = "60 másodperc";
 "Skip" = "Kihagyás";
 "Steam" = "Folyam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Tároljuk az összes bejelentkezést és szinkronizáljuk az ellenőrző kódokat közvetlenül a Hitelesítő alkalmazással.";

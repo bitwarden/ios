@@ -96,8 +96,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             rememberOrgIdentifierAndNavigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
             rememberOrgIdentifierAndNavigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
-        case AuthError.requireUpdatePassword:
-            rememberOrgIdentifierAndNavigate(to: .updateMasterPassword)
         case AuthError.requireDecryptionOptions:
             rememberOrgIdentifierAndNavigate(to: .showLoginDecryptionOptions(
                 organizationIdentifier: state.identifierText,
@@ -200,8 +198,11 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
     func singleSignOnCompleted(code: String) {
         // Complete the login process using the single sign on information.
-        Task {
+        Task { @MainActor in
             do {
+                // The delay is necessary in order to ensure the alert displays over the WebAuth view.
+                try await Task.sleep(forSeconds: UI.duration(0.5))
+
                 // Use the code to authenticate the user with Bitwarden.
                 let unlockMethod = try await self.services.authService.loginWithSingleSignOn(
                     code: code,
@@ -220,7 +221,6 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
                     await coordinator.handleEvent(.didCompleteAuth)
-                    coordinator.navigate(to: .dismiss)
                 case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
@@ -238,30 +238,21 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             orgIdentifier: state.identifierText,
                         )
                         await coordinator.handleEvent(.didCompleteAuth)
-                        coordinator.navigate(to: .dismiss)
                     } catch StateServiceError.noEncryptedPrivateKey {
-                        // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-                        Task { @MainActor in
-                            try await Task.sleep(forSeconds: UI.duration(0.5))
-                            coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
-                                await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
-                            })
-                        }
+                        coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
+                            await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
+                        })
                     }
                 }
             } catch {
-                // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-                Task { @MainActor in
-                    try await Task.sleep(forSeconds: UI.duration(0.5))
-                    await self.handleError(error)
-                }
+                await self.handleError(error)
             }
         }
     }
 
     func singleSignOnErrored(error: Error) {
-        // The delay is necessary in order to ensure the alert displays over the WebAuth view.
         Task { @MainActor in
+            // The delay is necessary in order to ensure the alert displays over the WebAuth view.
             try await Task.sleep(forSeconds: UI.duration(0.5))
             await self.handleError(error)
         }

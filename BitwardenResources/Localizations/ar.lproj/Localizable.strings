@@ -131,8 +131,6 @@
 "LastSync" = "آخر مزامنة:";
 "Length" = "الطول";
 "Lock" = "قفل";
-"OneHour" = "ساعة واحدة";
-"FourHours" = "4 ساعات";
 "Immediately" = "فورًا";
 "VaultTimeout" = "مهلة الخزانة";
 "VaultTimeoutAction" = "إجراء مهلة الخزانة";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "خزانتك مقفلة. تحقق من هويتك للمتابعة.";
 "Dark" = "داكن";
 "Light" = "فاتح";
-"TenSeconds" = "10 ثوانِ";
-"ThirtySeconds" = "30 ثانية";
-"TwentySeconds" = "20 ثانية";
 "ClearClipboard" = "مسح الحافظة";
 "ClearClipboardDescription" = "مسح القيم المنسوخة تلقائيًا من حافظتك.";
 "DefaultUriMatchDetection" = "كشف تطابق الرابط الافتراضي";
@@ -584,11 +579,6 @@
 "SendDeleted" = "تم حذف الإرسال.";
 "SendUpdated" = "تم تحديث الإرسال.";
 "NewSendCreated" = "تم إنشاء إرسال جديد.";
-"OneDay" = "يوم واحد";
-"TwoDays" = "يومان";
-"ThreeDays" = "3 أيام";
-"SevenDays" = "7 أيام";
-"ThirtyDays" = "30 يوماً";
 "Custom" = "مُخصّص";
 "ShareOnSave" = "شارك هذا الإرسال عند الحفظ";
 "SendDisabledWarning" = "بسبب سياسة المؤسسة، يمكنك فقط حذف إرسال موجود بالفعل.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "ساعة واحدة و %1$@ دقيقة";
 "XHoursAndOneMinute" = "%1$@ ساعات ودقيقة واحدة";
 "XHoursAndYMinutes" = "%1$@ ساعات و %2$@ دقيقة";
-"XHours" = "%1$@ ساعات";
 "PasskeyManagementExplanationLong" = "استخدم بت واردن لحفظ مفاتيح المرور الجديدة وتسجيل الدخول باستخدام مفاتيح المرور المخزنة في خزانتك.";
 "AutofillServicesExplanationLong" = "يتم استخدام إطار التعبئة التلقائية لأندرويد للمساعدة في ملء معلومات تسجيل الدخول في تطبيقات أخرى على جهازك.";
 "UseInlineAutofillExplanationLong" = "استخدم التعبئة التلقائية المضمنة إذا كانت لوحة المفاتيح المحددة تدعمها. وإلا استخدم التراكب الافتراضي.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "استيراد...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "هل أنت متأكد من أنك تريد إلغاء عملية الاستيراد؟";
 "ImportFailed" = "فشل الاستيراد";
-"ItemsSuccessfullyImported" = "تم استيراد %1$@ عناصر بنجاح";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "حدثت مشكلة أثناء استيراد جميع كلمات المرور الخاصة بك.\n\nلم يتم حذف أي بيانات.";
 "RetryImport" = "إعادة محاولة الاستيراد";
 "ShowVault" = "إظهار المخزن";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "إرسال الاسم (مطلوب)";
 "CheckPasswordForDataBreaches" = "تحقق من كلمة المرور لخروقات البيانات";
 "PrivateNote" = "ملاحظة خاصة";
-"XItems" = "%1$@ عناصر";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "لا يمكن حذف هذا المستخدم لأنه المالك الوحيد لمنظمة واحدة على الأقل. الرجاء حذف هذه المنظمات أو ترقية مستخدم آخر.";
 "APasskeyAlreadyExistsForThisApplication" = "يوجد بالفعل مفتاح مرور لهذا التطبيق.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "يوجد بالفعل مفتاح مرور لهذا التطبيق ولكن حدث خطأ أثناء تحميله.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "مدة التسجيل";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "سيتم حذف السجلات تلقائيًا بعد 30 يومًا. بت واردن قادر على الوصول إلى بيانات السجل الخاص بك فقط عند مشاركته.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "للحصول على تفاصيل حول ما هو ولا يتم تسجيله، قم بزيارة **[مركز مساعدة بت واردن](%1$@)**.";
-"OneWeek" = "أسبوع واحد";
 "ShowMore" = "إظهار المزيد";
 "ShowLess" = "إظهار أقل";
 "ItemNameX" = "اسم العنصر، %1$@";
@@ -1207,8 +1193,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "خطأ فك التشفير";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "اسم الحساب";
@@ -1243,7 +1227,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "الرموز المحلية";
 "NeedHelpVisitOurHelpCenterForGuidance" = "بحاجة إلى مساعدة؟ زر مركز المساعدة للحصول على التوجيه.";
-"NinetySeconds" = "90 ثانية";
 "NoAskMe" = "لا، اسألني";
 "NoCodes" = "ليس لديك أي رموز لعرضها";
 "None" = "لا شَيْء";
@@ -1261,7 +1244,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "تعيين \"حفظ محليا\" كخيار حفظ افتراضي؟";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "تعيين \"حفظ إلى Bitwarden\" كخيار حفظ افتراضي؟";
 "SignInUsingUniqueCodes" = "تسجيل الدخول باستخدام الرموز الفريدة";
-"SixtySeconds" = "60 ثانية";
 "Skip" = "تخطي";
 "Steam" = "ستيم";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "تخزين جميع تسجيلات الدخول الخاصة بك ومزامنة رموز التحقق مباشرة مع تطبيق المصادقة.";

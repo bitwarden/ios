@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 // MARK: - Alert + Settings

@@ -21,16 +21,6 @@ enum CipherMatchResult {
 /// A helper to handle filtering ciphers that match a URI.
 ///
 protocol CipherMatchingHelper { // sourcery: AutoMockable
-    /// Returns the list of ciphers that match the URI.
-    ///
-    /// - Parameters:
-    ///   - uri: The URI used to filter the list of ciphers.
-    ///   - ciphers: The list of ciphers to filter.
-    /// - Returns: The list of ciphers that match the URI.
-    ///
-    @available(*, deprecated) // TODO: PM-24290 remove
-    func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView]
-
     /// Returns the result of checking if a cipher matches the prepared URI.
     ///
     /// - Parameters:
@@ -83,34 +73,6 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
     }
 
     // MARK: Methods
-
-    func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView] {
-        uriToMatch = uri
-        guard let uriToMatch, !uriToMatch.isEmpty else {
-            return []
-        }
-
-        (matchingDomains, matchingFuzzyDomains) = await getMatchingDomains(matchUri: uriToMatch)
-
-        defaultMatchType = await stateService.getDefaultUriMatchType()
-
-        let matchingCiphers = ciphers.reduce(
-            into: (exact: [CipherListView], fuzzy: [CipherListView])([], []),
-        ) { result, cipher in
-            let match = doesCipherMatch(cipher: cipher)
-            switch match {
-            case .exact:
-                result.exact.append(cipher)
-            case .fuzzy:
-                result.fuzzy.append(cipher)
-            case .none:
-                // No-op: don't add non-matching ciphers.
-                break
-            }
-        }
-
-        return matchingCiphers.exact + matchingCiphers.fuzzy
-    }
 
     func doesCipherMatch(cipher: CipherListView) -> CipherMatchResult {
         guard let uriToMatch,

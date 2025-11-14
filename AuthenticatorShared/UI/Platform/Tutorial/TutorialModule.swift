@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - TutorialModule
 
 /// An object that builds tutorial coordinators

@@ -735,7 +735,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         }
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator?.showAlert(alert)
     }
 

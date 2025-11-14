@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// An object that is notified when the debug menu is dismissed.

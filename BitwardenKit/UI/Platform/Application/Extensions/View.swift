@@ -5,6 +5,21 @@ import SwiftUI
 /// Helper functions for fundamental `View` manipulation.
 ///
 public extension View {
+    // MARK: Computed Properties
+
+    /// Wraps the view in a `NavigationStack`.
+    ///
+    @ViewBuilder var navStackWrapped: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            NavigationStack { self }
+        } else {
+            NavigationView { self }
+                .navigationViewStyle(.stack)
+        }
+    }
+
+    // MARK: Methods
+
     /// Apply an arbitrary block of modifiers to a view. This is particularly useful
     /// if the modifiers in question might only be available on particular versions
     /// of iOS.

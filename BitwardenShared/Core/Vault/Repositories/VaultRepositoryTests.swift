@@ -263,104 +263,88 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedMultipleSections` mode.
     func test_ciphersAutofillPublisher_mode_combinedMultipleSections() async throws {
         // swiftlint:disable:previous function_body_length
-        let expectedCipher = Cipher.fixture(
-            id: "1",
-            login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
-            name: "Bitwarden",
-        )
-
-        let cipherFixtures: [Cipher] = [
-            expectedCipher,
-            .fixture(
-                creationDate: Date(year: 2024, month: 1, day: 1),
-                id: "2",
-                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                name: "Example",
-                revisionDate: Date(year: 2024, month: 1, day: 1),
-            ),
-            .fixture(id: "3", login: .fixture(), name: "Café", type: .login),
-            .fixture(id: "4"),
-        ]
-
-        let ciphers: [Cipher] = [
-            expectedCipher,
-            cipherFixtures[1],
-        ]
-        cipherService.ciphersSubject.value = ciphers
-
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        let expectedCiphersInFido2Section = [
-            CipherListView(cipher: expectedCipher),
-            CipherListView(cipher: cipherFixtures[2]),
-            CipherListView(cipher: cipherFixtures[3]),
-        ]
-        cipherService.fetchCipherByIdResult = { cipherId in
-            switch cipherId {
-            case "1":
-                .success(expectedCipher)
-            case "3":
-                .success(cipherFixtures[2])
-            case "4":
-                .success(cipherFixtures[3])
-            default:
-                .success(.fixture())
-            }
-        }
-
-        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
-            CipherView(cipher: expectedCipher),
-            CipherView(cipher: cipherFixtures[2]),
-            CipherView(cipher: cipherFixtures[3]),
-        ])
-
-        let expectedRpID = "myApp.com"
-        var iterator = try await subject.ciphersAutofillPublisher(
-            availableFido2CredentialsPublisher: fido2UserInterfaceHelper
-                .availableCredentialsForAuthenticationPublisher(),
-            mode: .combinedMultipleSections,
-            rpID: expectedRpID,
-            uri: "https://example.com",
-        ).makeAsyncIterator()
-        let vaultListData = try await iterator.next()
-        let sections = try XCTUnwrap(vaultListData?.sections)
-
-        XCTAssertEqual(
-            sections[0],
+        let expectedSections = [
             VaultListSection(
-                id: Localizations.passkeysForX(expectedRpID),
-                items: expectedCiphersInFido2Section.map { cipherView in
+                id: Localizations.passkeysForX("myApp.com"),
+                items: [
                     VaultListItem(
-                        cipherListView: cipherView,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipherView.id ?? "",
-                            rpId: expectedRpID,
+                        cipherListView: .fixture(
+                            id: "1",
+                            login: .fixture(
+                                fido2Credentials: [.fixture()],
+                                uris: [.fixture(uri: "https://example.com", match: .exact)],
+                            ),
+                            name: "Example 1",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
                         ),
-                    )!
-                },
-                name: Localizations.passkeysForX(expectedRpID),
+                        fido2CredentialAutofillView: .fixture(
+                            credentialId: Data(repeating: 123, count: 16),
+                            cipherId: "1",
+                            rpId: "myApp.com",
+                        ),
+                    )!,
+                    VaultListItem(
+                        cipherListView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                fido2Credentials: [.fixture()],
+                                uris: [.fixture(uri: "https://example.com", match: .exact)],
+                            ),
+                            name: "Example 3",
+                            creationDate: Date(year: 2024, month: 1, day: 1),
+                            revisionDate: Date(year: 2024, month: 1, day: 1),
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            credentialId: Data(repeating: 123, count: 16),
+                            cipherId: "3",
+                            rpId: "myApp.com",
+                        ),
+                    )!,
+                ],
+                name: Localizations.passkeysForX("myApp.com"),
             ),
-        )
-        XCTAssertEqual(
-            sections[1],
             VaultListSection(
-                id: Localizations.passwordsForX(expectedRpID),
+                id: Localizations.passwordsForX("myApp.com"),
                 items: [
                     VaultListItem(
                         cipherListView: .fixture(
                             id: "2",
                             login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
-                            name: "Example",
+                            name: "Example 2",
                             creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1),
                         ),
                     )!,
                 ],
-                name: Localizations.passwordsForX(expectedRpID),
+                name: Localizations.passwordsForX("myApp.com"),
             ),
-        )
+        ]
+
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
+
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: fido2UserInterfaceHelper
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .combinedMultipleSections,
+            rpID: "myApp.com",
+            uri: "https://example.com",
+        ).makeAsyncIterator()
+        let publishedSections = try await iterator.next()?.sections
+
+        try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
+            """
+            Section[Passkeys for myApp.com]: Passkeys for myApp.com
+              - Cipher: Example 1
+              - Cipher: Example 3
+            Section[Passwords for myApp.com]: Passwords for myApp.com
+              - Cipher: Example 2
+            """
+        }
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`

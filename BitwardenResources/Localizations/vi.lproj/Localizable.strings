@@ -131,8 +131,6 @@
 "LastSync" = "Đồng bộ lúc:";
 "Length" = "Độ dài";
 "Lock" = "Khóa";
-"OneHour" = "1 giờ";
-"FourHours" = "4 giờ";
 "Immediately" = "Tức thì";
 "VaultTimeout" = "Đóng kho sau";
 "VaultTimeoutAction" = "Hành động sau khi đóng kho";
@@ -182,10 +180,10 @@
 "SyncVaultNow" = "Đồng bộ kho lưu trữ ngay";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Đăng nhập hai bước";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Mở khóa bằng sinh trắc học";
+"UnlockWithFaceID" = "Mở khóa bằng Face ID";
+"UnlockWithTouchID" = "Mở khóa bằng Touch ID";
+"UnlockWithOpticID" = "Mở khóa bằng Optic ID";
 "UnlockWithPIN" = "Mở khóa bằng mã PIN";
 "Validating" = "Đang xác nhận";
 "VerificationCode" = "Mã xác minh";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Kho của bạn đã bị khóa. Xác minh danh tính của bạn để mở khóa.";
 "Dark" = "Tối";
 "Light" = "Sáng";
-"TenSeconds" = "10 giây";
-"ThirtySeconds" = "30 giây";
-"TwentySeconds" = "20 giây";
 "ClearClipboard" = "Xóa bảng nhớ tạm";
 "ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.";
 "DefaultUriMatchDetection" = "Cách nhận diện đường dẫn (URI)";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Đã xóa Send";
 "SendUpdated" = "Đã lưu Send";
 "NewSendCreated" = "Đã tạo Send";
-"OneDay" = "1 ngày";
-"TwoDays" = "2 ngày";
-"ThreeDays" = "3 ngày";
-"SevenDays" = "7 ngày";
-"ThirtyDays" = "30 ngày";
 "Custom" = "Tùy chỉnh";
 "ShareOnSave" = "Chia sẻ Send này khi lưu";
 "SendDisabledWarning" = "Do chính sách doanh nghiệp, bạn chỉ có thể xóa những Send hiện có.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Một giờ %1$@ phút";
 "XHoursAndOneMinute" = "%1$@ giờ một phút";
 "XHoursAndYMinutes" = "%1$@ giờ %2$@ phút";
-"XHours" = "%1$@ giờ";
 "PasskeyManagementExplanationLong" = "Sử dụng Bitwarden để lưu các mã khóa mới và đăng nhập bằng các mã khóa đã lưu trong kho của bạn.";
 "AutofillServicesExplanationLong" = "Khung Tự động điền của Android được sử dụng để hỗ trợ việc điền thông tin đăng nhập vào các ứng dụng khác trên thiết bị của bạn.";
 "UseInlineAutofillExplanationLong" = "Sử dụng tính năng tự động điền cùng dòng nếu bàn phím bạn sử dụng hỗ trợ tính năng này. Nếu không, dùng giao diện phủ mặc định.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Đang nhập…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bạn có chắc chắn muốn hủy quá trình nhập không?";
 "ImportFailed" = "Nhập thất bại";
-"ItemsSuccessfullyImported" = "Đã nhập thành công %1$@ mục";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Có vấn đề khi nhập tất cả mật khẩu của bạn.\n\nKhông có dữ liệu nào bị xóa.";
 "RetryImport" = "Thử xuất lại";
 "ShowVault" = "Xem kho";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Tên Send (bắt buộc)";
 "CheckPasswordForDataBreaches" = "Kiểm tra xem mật khẩu có bị lộ";
 "PrivateNote" = "Ghi chú riêng tư";
-"XItems" = "%1$@ mục";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Không thể xóa người dùng này vì người dùng này là chủ sở hữu duy nhất của ít nhất một tổ chức. Vui lòng xóa các tổ chức này hoặc nâng cấp quyền người dùng khác.";
 "APasskeyAlreadyExistsForThisApplication" = "Ứng dụng này đã có mã khóa.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ứng dụng này đã có mã khóa nhưng đã xảy ra lỗi khi tải nó.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Thời gian ghi nhật ký";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Nhật ký sẽ được tự động xóa sau 30 ngày. Bitwarden chỉ có thể truy cập dữ liệu nhật ký của bạn khi bạn chia sẻ nó.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Để biết chi tiết về những gì được và không được ghi lại, hãy truy cập **[Trung tâm hỗ trợ Bitwarden](%1$@)**.";
-"OneWeek" = "1 tuần";
 "ShowMore" = "Xem thêm";
 "ShowLess" = "Thu gọn";
 "ItemNameX" = "Tên mục, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Mật khẩu được cập nhật lần cuối: %1$@";
 "DecryptionError" = "Lỗi giải mã";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden không thể giải mã mục này trong kho. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden không thể giải mã 1 mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden không thể giải mã %1$@ mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
 "CopyErrorReport" = "Sao chép báo lỗi";
 "ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";
 "AccountName" = "Tên tài khoản";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Tìm hiểu thêm](%1$@)";
 "LocalCodes" = "Mã cục bộ";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Cần hỗ trợ? Hãy truy cập Trung tâm Hỗ trợ của chúng tôi để được hướng dẫn.";
-"NinetySeconds" = "90 giây";
 "NoAskMe" = "Không, hãy hỏi tôi";
 "NoCodes" = "Bạn không có mã nào để hiển thị";
 "None" = "Không có";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Đặt “Lưu cục bộ” làm tùy chọn lưu mặc định của bạn?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Đặt “Lưu vào Bitwarden” làm tùy chọn lưu mặc định của bạn?";
 "SignInUsingUniqueCodes" = "Đăng nhập bằng mã duy nhất";
-"SixtySeconds" = "60 giây";
 "Skip" = "Bỏ qua";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Lưu trữ tất cả thông tin đăng nhập của bạn và đồng bộ mã xác minh trực tiếp với ứng dụng Authenticator.";

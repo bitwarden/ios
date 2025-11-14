@@ -131,8 +131,6 @@
 "LastSync" = "Última sincronització:";
 "Length" = "Longitud";
 "Lock" = "Bloqueja";
-"OneHour" = "1 hora";
-"FourHours" = "4 hores";
 "Immediately" = "Immediatament";
 "VaultTimeout" = "Temps d'espera de la caixa forta";
 "VaultTimeoutAction" = "Acció quan acabe el temps d'espera de la caixa forta";
@@ -181,7 +179,7 @@
 "SyncingFailed" = "Ha fallat la sincronització.";
 "SyncVaultNow" = "Sincronitza la caixa forta ara";
 "TouchID" = "Touch ID";
-"TwoStepLogin" = "Inici de sessió en dues passes";
+"TwoStepLogin" = "Inici de sessió en dos passos";
 "UnlockWithBiometrics" = "Unlock with biometrics";
 "UnlockWithFaceID" = "Unlock with Face ID";
 "UnlockWithTouchID" = "Unlock with Touch ID";
@@ -224,12 +222,12 @@
 "EnterVerificationCodeApp" = "Introduïu el codi de verificació de 6 dígits de l'aplicació autenticadora.";
 "EnterVerificationCodeEmail" = "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a %1$@.";
 "LoginUnavailable" = "Inici de sessió no disponible";
-"NoTwoStepAvailable" = "Aquest compte té l'inici de sessió en dues passes habilitat, però, cap dels proveïdors de dues passes configurats és compatible amb aquest dispositiu. Utilitzeu un dispositiu compatible i afegiu proveïdors addicionals que s'adapten millor als dispositius (com ara una aplicació d'autenticació).";
+"NoTwoStepAvailable" = "Aquest compte té l'inici de sessió en dos passos habilitat, però, cap dels proveïdors configurats és compatible amb aquest dispositiu. Utilitzeu un dispositiu compatible i afegiu proveïdors addicionals que s'adapten millor als dispositius (com ara una aplicació d'autenticació).";
 "RecoveryCodeTitle" = "Codi de recuperació";
 "RememberMe" = "Recorda'm";
 "SendVerificationCodeAgain" = "Envia el codi de verificació altra vegada";
-"TwoStepLoginOptions" = "Opcions d'inici de sessió en dues passes";
-"UseAnotherTwoStepMethod" = "Utilitzeu un altre mètode d'inici de sessió en dues passes";
+"TwoStepLoginOptions" = "Opcions d'inici de sessió en dos passos";
+"UseAnotherTwoStepMethod" = "Utilitzeu un altre mètode d'inici de sessió en dos passos";
 "VerificationEmailNotSent" = "No s'ha pogut enviar el correu electrònic de verificació. Torneu-ho a provar.";
 "VerificationEmailSent" = "Correu de verificació enviat";
 "YubiKeyInstruction" = "To continue, hold your YubiKey NEO against the back of the device or insert your YubiKey into your device’s USB port, then touch its button.";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "La caixa forta està bloquejada. Comproveu la vostra identitat per continuar.";
 "Dark" = "Fosc";
 "Light" = "Clar";
-"TenSeconds" = "10 segons";
-"ThirtySeconds" = "30 segons";
-"TwentySeconds" = "20 segons";
 "ClearClipboard" = "Buida el porta-retalls";
 "ClearClipboardDescription" = "Esborra automàticament els valors copiats del porta-retalls.";
 "DefaultUriMatchDetection" = "Detecció de coincidències URI per defecte";
@@ -584,11 +579,6 @@
 "SendDeleted" = "S'ha suprimit el Send.";
 "SendUpdated" = "S'ha guardat el Send";
 "NewSendCreated" = "S'ha creat un Send nou";
-"OneDay" = "1 dia";
-"TwoDays" = "2 dies";
-"ThreeDays" = "3 dies";
-"SevenDays" = "7 days";
-"ThirtyDays" = "30 dies";
 "Custom" = "Personalitzat";
 "ShareOnSave" = "Comparteix aquest Send en guardar.";
 "SendDisabledWarning" = "A causa d'una política empresarial, només podeu suprimir un Send existent.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Una hora i %1$@ minuts";
 "XHoursAndOneMinute" = "%1$@ hores i un minut";
 "XHoursAndYMinutes" = "%1$@ hores i %2$@ minuts";
-"XHours" = "%1$@ hores";
 "PasskeyManagementExplanationLong" = "Utilitzeu Bitwarden per guardar claus de pas noves i iniciar sessió amb les claus emmagatzemades a la vostra caixa forta.";
 "AutofillServicesExplanationLong" = "El marc d'emplenament automàtic d'Android s'utilitza per ajudar a omplir la informació d'inici de sessió a altres aplicacions del vostre dispositiu.";
 "UseInlineAutofillExplanationLong" = "Utilitzeu l'emplenament automàtic en línia si el vostre teclat seleccionat ho admet. En cas contrari, utilitzeu la superposició predeterminada.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "S'està important...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
-"ItemsSuccessfullyImported" = "%1$@ items successfully imported";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
 "RetryImport" = "Retry import";
 "ShowVault" = "Show vault";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Nom del Send (obligatori)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Nota privada";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "Ja hi ha una clau de pas per a aquesta aplicació.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Logging duration";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
-"OneWeek" = "1 setmana";
 "ShowMore" = "Show more";
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Error de desxifrat";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Nom del compte";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Local codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 Segons";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "No teniu cap codi per mostrar";
 "None" = "Cap";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Inicieu la sessió amb codis únics";
-"SixtySeconds" = "60 Segons";
 "Skip" = "Omet";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";

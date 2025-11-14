@@ -114,7 +114,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshVault:
             await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
-            state.searchResults = await searchVault(for: text)
+            await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
         case .streamFlightRecorderLog:
@@ -419,14 +419,14 @@ extension VaultListProcessor {
         )
     }
 
-    /// Searches the vault using the provided string, and returns any matching results.
+    /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
-    /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) async -> [VaultListItem] {
+    private func searchVault(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
@@ -434,12 +434,11 @@ extension VaultListProcessor {
                 filter: VaultListFilter(filterType: state.searchVaultFilterType),
             )
             for try await ciphers in result {
-                return ciphers
+                state.searchResults = ciphers
             }
         } catch {
             services.errorReporter.log(error: error)
         }
-        return []
     }
 
     /// Sets the user's import logins progress.
@@ -641,7 +640,7 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         coordinator.navigate(to: .addAccount)
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
     }
 

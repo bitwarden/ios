@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PreventAccountLockProcessor
 
 /// The processor used to manage state and handle actions for the prevent account lock screen.

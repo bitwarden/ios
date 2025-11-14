@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AppearanceState
 
 /// An object that defines the current state of the `AppearanceView`.

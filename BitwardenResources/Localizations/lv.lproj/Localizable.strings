@@ -131,8 +131,6 @@
 "LastSync" = "Pēdējā sinhronizēšana:";
 "Length" = "Garums";
 "Lock" = "Aizslēgt";
-"OneHour" = "1 stunda";
-"FourHours" = "4 stundas";
 "Immediately" = "Nekavējoties";
 "VaultTimeout" = "Glabātavas noildze";
 "VaultTimeoutAction" = "Glabātavas noildzes darbība";
@@ -182,10 +180,10 @@
 "SyncVaultNow" = "Sinhronizēt glabātavu";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Divpakāpju pieteikšanās";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Atslēgt ar biometriju";
+"UnlockWithFaceID" = "Atslēgt ar Face ID";
+"UnlockWithTouchID" = "Atslēgt ar Touch ID";
+"UnlockWithOpticID" = "Atslēgt ar Optic ID";
 "UnlockWithPIN" = "Atslēgt ar PIN kodu";
 "Validating" = "Pārbauda";
 "VerificationCode" = "Apliecinājuma kods";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Glabātava ir aizslēgta. Jāapstiprina identitāte, lai turpinātu.";
 "Dark" = "Tumšs";
 "Light" = "Gaišs";
-"TenSeconds" = "10 sekundes";
-"ThirtySeconds" = "30 sekundes";
-"TwentySeconds" = "20 sekundes";
 "ClearClipboard" = "Notīrīt starpliktuvi";
 "ClearClipboardDescription" = "Automātiski noņemt starpliktuvē ievietotās vērtības.";
 "DefaultUriMatchDetection" = "Noklusējuma URI atbilstības noteikšana";
@@ -462,9 +457,9 @@
 "AutofillBlockedUris" = "Automātiskā aizpilde aizturētajos URI";
 "AskToAddLogin" = "Vaicāt, lai pievienotu pieteikšanās vienumu";
 "AskToAddLoginDescription" = "Ask to add an item if one isn’t found in your vault.";
-"OnRestart" = "Pārsāknējot lietotni";
+"OnRestart" = "Pēc lietotnes atkārtotas palaišanas";
 "AutofillServiceNotEnabled" = "Automātiskā aizpilde padara drošu piekļuvi Bitwarden galbātavai vienkāršu no citām tīmekļvietnēm un lietotnēm. Izskatās, ka nav iespējota Bitwarden automātiskā aizpildīšana. To var izdarīt iestatījumu sadaļā.";
-"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes pārsāknēšanas.";
+"ThemeAppliedOnRestart" = "Izskata izmaiņas tiks pielietotas pēc lietotnes palaišanas no jauna.";
 "Capitalize" = "Izmantot lielos sākumburtus";
 "IncludeNumber" = "Iekļaut ciparu";
 "Download" = "Lejupielādēt";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Send izdzēsts";
 "SendUpdated" = "Send saglabāts";
 "NewSendCreated" = "Send izveidots";
-"OneDay" = "1 diena";
-"TwoDays" = "2 dienas";
-"ThreeDays" = "3 dienas";
-"SevenDays" = "7 dienas";
-"ThirtyDays" = "30 dienas";
 "Custom" = "Pielāgots";
 "ShareOnSave" = "Kopīgot šo Send pēc saglabāšanas";
 "SendDisabledWarning" = "Uzņēmuma nosacījumu dēļ ir iespējams dzēst tikai esošu Send.";
@@ -752,7 +742,7 @@
 "NoPendingRequests" = "Nav neapstiprinātu pieprasījumu";
 "EnableCamerPermissionToUseTheScanner" = "Nodrošināt atļauju izmantot kameru, lai lietotu nolasītāju";
 "Language" = "Valoda";
-"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums pārsāknēt lietotni, lai redzētu izmaiņas";
+"LanguageChangeXDescription" = "Valoda tika nomainīta uz %1$@. Lūgums palaist lietotni no jauna, lai redzētu izmaiņas";
 "LanguageChangeRequiresAppRestart" = "Pēc valodas maiņas ir nepieciešams pārsāknēt lietotni";
 "DefaultSystem" = "Noklusējuma (sistēmas)";
 "Important" = "Svarīgi";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Viena stunda un %1$@ minūtes";
 "XHoursAndOneMinute" = "%1$@ stundas un viena minūte";
 "XHoursAndYMinutes" = "%1$@ stundas un %2$@ minūtes";
-"XHours" = "%1$@ stundas";
 "PasskeyManagementExplanationLong" = "Bitwarden ir izmantojams, lai saglabātu jaunas piekļuves atslēgas un pieteiktos ar tām, kas atrodas glabātavā.";
 "AutofillServicesExplanationLong" = "Android automātiskās aizpildes ietvars tiek izmantots, lai palīdzētu aizpildīt pieteikšanās informāciju citās ierīces lietotnēs.";
 "UseInlineAutofillExplanationLong" = "Iekļautā automātiskā aizpilde ir izmantojama, ja izvēlētā tastatūra to nodrošina. Citādi ir jāizmanto noklusējuma pārklājums.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Ievieto...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vai tiešām atcelt ievietošanu?";
 "ImportFailed" = "Ievietošana neizdevās";
-"ItemsSuccessfullyImported" = "%1$@ vienumi ievietoti sekmīgi";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bija sarežģījums ar visu paroļu ievietošanu.\n\nNekādi dati netika izdzēsti.";
 "RetryImport" = "Atkārtot ievietošanu";
 "ShowVault" = "Rādīt glabātavu";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Send nosaukums (nepieciešams)";
 "CheckPasswordForDataBreaches" = "Pārbaudīt, vai parole ir datu noplūdēs";
 "PrivateNote" = "Personiska piezīme";
-"XItems" = "%1$@ vienumi";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nevar izdzēst šo lietotāju, jo viņš ir vienīgais īpašnieks vismaz vienai apvienībai. Lūgums izdzēst šīs apvienības vai paaugstināt citu lietotāju.";
 "APasskeyAlreadyExistsForThisApplication" = "Šai lietotnei jau pastāv piekļuves atslēga.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Šai lietotnei jau pastāv piekļuves atslēga, bet atgadījās kļūda tās ielādēšanas laikā.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Žurnalēšanas ilgums";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Žurnāli tiks automātiski izdzēsti pēc 30 dienām. Bitwarden var piekļūt žurnālu datiem tikai tad, kad tos kopīgo.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Lai uzzinātu vairāk par to, kas tiek un netiek žurnalēts, jāapmeklē **[Bitwarden palīdzības centrs](%1$@)**.";
-"OneWeek" = "1 nedēļa";
 "ShowMore" = "Rādīt vairāk";
 "ShowLess" = "Rādīt mazāk";
 "ItemNameX" = "Vienuma nosaukums, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Parole pēdējoreiz atjaunināta: %1$@";
 "DecryptionError" = "Atšifrēšanas kļūda";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt šo glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt 1 glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nevarēja atšifrēt %1$@ glabātavas vienumus. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
 "CopyErrorReport" = "Ievietot kļūdas ziņojumu starpliktuvē";
 "ErrorCannotDecrypt" = "[kļūda: nevar atšifrēt]";
 "AccountName" = "Konta nosaukums";
@@ -1238,11 +1222,10 @@
 "ItemsImported" = "Verification codes imported";
 "Key" = "Atslēga";
 "KeyReadError" = "Cannot read key.";
-"LaunchTutorial" = "Launch tutorial";
+"LaunchTutorial" = "Palaist apmācību";
 "LearnMoreLink" = "[Learn more](%1$@)";
 "LocalCodes" = "Local codes";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
-"NinetySeconds" = "90 seconds";
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
@@ -1259,8 +1242,7 @@
 "SecureYourAssetsWithBitwardenAuthenticator" = "Aizsargā savus kontus ar Bitwarden autentificētāju";
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
-"SignInUsingUniqueCodes" = "Sign in using unique codes";
-"SixtySeconds" = "60 seconds";
+"SignInUsingUniqueCodes" = "Pieteitkties ar neatkārtojamiem kodiem";
 "Skip" = "Izlaist";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";
@@ -1272,7 +1254,7 @@
 "UnexpectedDataFormat" = "Unexpected Data Format";
 "UseYourDeviceCameraToScanCodes" = "Izmanto savas ierīces kameru, lai nolasītu kodus";
 "VerificationCodeAdded" = "Apliecināšanas kods pievienots";
-"WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
+"WhenUsingTwoStepVerification" = "Kad tiek izmantota divpakāpju apliecināšana, būs jāievada savs lietotājvārds un parole un šajā lietotnēm izveidots kods.";
 "YesSetDefault" = "Yes, set default";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
 "SelectAccount" = "Atlasīt kontu";

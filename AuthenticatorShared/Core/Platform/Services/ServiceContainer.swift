@@ -42,13 +42,16 @@ public class ServiceContainer: Services {
     let clientService: ClientService
 
     /// The service to get locally-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// A helper for building an error report containing the details of an error that occurred.
+    public let errorReportBuilder: ErrorReportBuilder
+
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to export items.
     let exportItemsService: ExportItemsService
@@ -69,7 +72,10 @@ public class ServiceContainer: Services {
     let stateService: StateService
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
+
+    /// The factory to create TOTP expiration managers.
+    let totpExpirationManagerFactory: TOTPExpirationManagerFactory
 
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
@@ -90,6 +96,8 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - errorReportBuilder: A helper for building an error report containing the details of an
+    ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
     ///   - importItemsService: The service to import items.
@@ -98,6 +106,7 @@ public class ServiceContainer: Services {
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
+    ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
@@ -111,6 +120,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
         importItemsService: ImportItemsService,
@@ -119,6 +129,7 @@ public class ServiceContainer: Services {
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
+        totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -131,6 +142,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
         self.importItemsService = importItemsService
@@ -139,6 +151,7 @@ public class ServiceContainer: Services {
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
         self.stateService = stateService
+        self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
     }
 
@@ -180,7 +193,13 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
         )
 
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
+            appInfoService: appInfoService,
+        )
+
         let timeProvider = CurrentTime()
+        let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -298,6 +317,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
             importItemsService: importItemsService,
@@ -306,6 +326,7 @@ public class ServiceContainer: Services {
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
     }

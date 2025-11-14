@@ -226,9 +226,9 @@ class DefaultNotificationService: NotificationService {
                 guard let data: LogoutNotification = notificationData.data() else { return }
 
                 if data.reason == .kdfChange,
-                   // TODO: PM-26960 Remove user ID check with forceUpdateKdfSettings feature flag.
+                   // TODO: PM-26960 Remove user ID check with noLogoutOnKdfChange feature flag.
                    data.userId == userId,
-                   await configService.getFeatureFlag(.forceUpdateKdfSettings) {
+                   await configService.getFeatureFlag(.noLogoutOnKdfChange) {
                     // Don't log the user out for KDF changes.
                     break
                 }
@@ -398,4 +398,4 @@ class DefaultNotificationService: NotificationService {
             errorReporter.log(error: error)
         }
     }
-}
+} // swiftlint:disable:this file_length

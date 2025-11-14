@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CredentialProviderContextTests: BitwardenTestCase {
+class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `getter:authCompletionRoute` the corresponding route depending on the context mode.
@@ -293,6 +293,103 @@ class CredentialProviderContextTests: BitwardenTestCase {
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         XCTAssertEqual(subject6.serviceIdentifiers, expectedIdentifiers)
+    }
+
+    /// `getter:uri` returns the URI with https prefix when service identifier is a domain.
+    func test_uri_domain() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "example.com",
+            type: .domain,
+        )
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([serviceIdentifier]))
+        XCTAssertEqual(subject.uri, "https://example.com")
+    }
+
+    /// `getter:uri` returns the URI as-is when service identifier is a URL.
+    func test_uri_url() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "https://example.com/path",
+            type: .URL,
+        )
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([serviceIdentifier]))
+        XCTAssertEqual(subject.uri, "https://example.com/path")
+    }
+
+    /// `getter:uri` returns the first service identifier when multiple identifiers exist.
+    func test_uri_multipleServiceIdentifiers() {
+        let identifiers = [
+            ASCredentialServiceIdentifier.fixture(identifier: "first.com", type: .domain),
+            ASCredentialServiceIdentifier.fixture(identifier: "second.com", type: .domain),
+            ASCredentialServiceIdentifier.fixture(identifier: "third.com", type: .domain),
+        ]
+        let subject = DefaultCredentialProviderContext(.autofillVaultList(identifiers))
+        XCTAssertEqual(subject.uri, "https://first.com")
+    }
+
+    /// `getter:uri` returns relying party identifier as fallback for autofillFido2VaultList
+    /// when service identifiers are empty, normalized with HTTPS prefix.
+    func test_uri_autofillFido2VaultList_relyingPartyFallback() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "passkey.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
+    }
+
+    /// `getter:uri` returns relying party identifier normalized, preserving existing HTTPS scheme.
+    func test_uri_autofillFido2VaultList_relyingPartyWithHttpsScheme() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "https://passkey.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
+    }
+
+    /// `getter:uri` returns the service identifier URI when available for autofillFido2VaultList,
+    /// ignoring the relying party identifier.
+    func test_uri_autofillFido2VaultList_withServiceIdentifiers() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "actual.example.com",
+            type: .domain,
+        )
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "fallback.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([serviceIdentifier], parameters))
+        XCTAssertEqual(subject.uri, "https://actual.example.com")
+    }
+
+    /// `getter:uri` returns nil when autofillFido2VaultList has empty service identifiers
+    /// and empty relying party identifier.
+    func test_uri_autofillFido2VaultList_emptyRelyingParty() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertNil(subject.uri)
+    }
+
+    /// `getter:uri` returns nil when no service identifiers and not autofillFido2VaultList mode.
+    func test_uri_nil() {
+        let subject1 = DefaultCredentialProviderContext(.autofillCredential(.fixture(), userInteraction: false))
+        XCTAssertNil(subject1.uri)
+
+        let subject2 = DefaultCredentialProviderContext(
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
+        )
+        XCTAssertNil(subject2.uri)
+
+        let subject3 = DefaultCredentialProviderContext(.configureAutofill)
+        XCTAssertNil(subject3.uri)
+
+        let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
+        XCTAssertNil(subject4.uri)
+
+        let subject5 = DefaultCredentialProviderContext(
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false),
+        )
+        XCTAssertNil(subject5.uri)
+
+        let subject6 = DefaultCredentialProviderContext(.autofillText)
+        XCTAssertNil(subject6.uri)
+    }
+
+    /// `getter:uri` returns nil when service identifiers are empty for autofillVaultList.
+    func test_uri_autofillVaultList_empty() {
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([]))
+        XCTAssertNil(subject.uri)
     }
 }
 

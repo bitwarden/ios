@@ -8,6 +8,96 @@ import XCTest
 class CipherListViewExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `canBeUsedInBasicLoginAutofill` returns `false` when the cipher is not a login type.
+    func test_canBeUsedInBasicLoginAutofill_nonLoginType() {
+        XCTAssertFalse(CipherListView.fixture(type: .card(.fixture())).canBeUsedInBasicLoginAutofill)
+        XCTAssertFalse(CipherListView.fixture(type: .identity).canBeUsedInBasicLoginAutofill)
+        XCTAssertFalse(CipherListView.fixture(type: .secureNote).canBeUsedInBasicLoginAutofill)
+        XCTAssertFalse(CipherListView.fixture(type: .sshKey).canBeUsedInBasicLoginAutofill)
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `false` when the login has no copyable login fields.
+    func test_canBeUsedInBasicLoginAutofill_noLoginFields() {
+        XCTAssertFalse(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `false` when the login has only non-login copyable fields.
+    func test_canBeUsedInBasicLoginAutofill_onlyNonLoginFields() {
+        XCTAssertFalse(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.cardNumber, .cardSecurityCode],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has a username field.
+    func test_canBeUsedInBasicLoginAutofill_hasUsername() {
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginUsername],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has a password field.
+    func test_canBeUsedInBasicLoginAutofill_hasPassword() {
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginPassword],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has a TOTP field.
+    func test_canBeUsedInBasicLoginAutofill_hasTotp() {
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginTotp],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has multiple login fields.
+    func test_canBeUsedInBasicLoginAutofill_hasMultipleLoginFields() {
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginUsername, .loginPassword, .loginTotp],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginUsername, .loginPassword],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
+    /// `canBeUsedInBasicLoginAutofill` returns `true` when the login has login fields mixed with other fields.
+    func test_canBeUsedInBasicLoginAutofill_hasLoginFieldsWithOtherFields() {
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.loginUsername, .cardNumber],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+        XCTAssertTrue(
+            CipherListView.fixture(
+                type: .login(.fixture()),
+                copyableFields: [.cardSecurityCode, .loginPassword, .identityUsername],
+            ).canBeUsedInBasicLoginAutofill,
+        )
+    }
+
     /// `passesRestrictItemTypesPolicy(_:)` passes the policy when there are no organization IDs.
     func test_passesRestrictItemTypesPolicy_noOrgIds() {
         XCTAssertTrue(CipherListView.fixture().passesRestrictItemTypesPolicy([]))

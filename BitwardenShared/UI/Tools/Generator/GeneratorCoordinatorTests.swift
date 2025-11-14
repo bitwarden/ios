@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 

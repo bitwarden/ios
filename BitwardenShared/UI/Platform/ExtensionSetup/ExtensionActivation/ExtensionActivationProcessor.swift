@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExtensionActivationProcessor
 
 /// The processor used to manage state and handle actions for the extension activation screen.

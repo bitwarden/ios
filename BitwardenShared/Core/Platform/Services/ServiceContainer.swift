@@ -70,16 +70,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let clientService: ClientService
 
     /// The service to get server-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
+    public let environmentService: EnvironmentService
 
     /// A helper for building an error report containing the details of an error that occurred.
-    let errorReportBuilder: ErrorReportBuilder
+    public let errorReportBuilder: ErrorReportBuilder
 
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to record and send events.
     let eventService: EventService
@@ -98,7 +98,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used by the application for recording temporary debug logs.
-    let flightRecorder: FlightRecorder
+    public let flightRecorder: FlightRecorder
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
@@ -164,7 +164,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let textAutofillHelperFactory: TextAutofillHelperFactory
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
 
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
@@ -447,8 +447,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService,
         )
         let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
-            stateService: stateService,
         )
 
         let configService = DefaultConfigService(
@@ -723,9 +723,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let collectionHelper = DefaultCollectionHelper(organizationService: organizationService)
 
+        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
+            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
+                authRepository: authRepository,
+                stateService: stateService,
+                userVerificationHelper: DefaultUserVerificationHelper(
+                    authRepository: authRepository,
+                    errorReporter: errorReporter,
+                    localAuthService: localAuthService,
+                ),
+                userVerificationRunner: DefaultUserVerificationRunner(),
+            ),
+        )
+
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             folderService: folderService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
@@ -773,19 +787,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService,
-        )
-
-        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
-            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
-                authRepository: authRepository,
-                stateService: stateService,
-                userVerificationHelper: DefaultUserVerificationHelper(
-                    authRepository: authRepository,
-                    errorReporter: errorReporter,
-                    localAuthService: localAuthService,
-                ),
-                userVerificationRunner: DefaultUserVerificationRunner(),
-            ),
         )
 
         #if DEBUG

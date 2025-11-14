@@ -131,8 +131,6 @@
 "LastSync" = "Последно синхронизиране:";
 "Length" = "Дължина";
 "Lock" = "Заключване";
-"OneHour" = "1 час";
-"FourHours" = "4 часа";
 "Immediately" = "Незабавно";
 "VaultTimeout" = "Време за достъп";
 "VaultTimeoutAction" = "Действие при изтичане на времето";
@@ -182,10 +180,10 @@
 "SyncVaultNow" = "Синхронизиране сега";
 "TouchID" = "Удостоверяване с докосване (Touch ID)";
 "TwoStepLogin" = "Двустепенно удостоверяване";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Отключване с биометрични данни";
+"UnlockWithFaceID" = "Отключване с лицево разпознаване";
+"UnlockWithTouchID" = "Отключване с пръстов отпечатък";
+"UnlockWithOpticID" = "Отключване с проверка на ириса";
 "UnlockWithPIN" = "Отключване с ПИН";
 "Validating" = "Потвърждаване";
 "VerificationCode" = "Код за потвърждаване";
@@ -439,9 +437,6 @@
 "VaultLockedIdentity" = "Трезорът е заключен. Потвърдете самоличността си, за да продължите.";
 "Dark" = "Тъмен";
 "Light" = "Светъл";
-"TenSeconds" = "10 секунди";
-"ThirtySeconds" = "30 секунди";
-"TwentySeconds" = "20 секунди";
 "ClearClipboard" = "Изчистване на буфера";
 "ClearClipboardDescription" = "Автоматично изчистване на буфера след поставяне на стойността.";
 "DefaultUriMatchDetection" = "Стандартно засичане на съвпадения на адреси";
@@ -584,11 +579,6 @@
 "SendDeleted" = "Изпратеното е изтрито.";
 "SendUpdated" = "Изпратеното е редактирано.";
 "NewSendCreated" = "Създадено е ново изпращане.";
-"OneDay" = "1 ден";
-"TwoDays" = "2 дни";
-"ThreeDays" = "3 дни";
-"SevenDays" = "7 дни";
-"ThirtyDays" = "30 дни";
 "Custom" = "По избор";
 "ShareOnSave" = "Споделяне на изпратеното при запис.";
 "SendDisabledWarning" = "Поради политика на организация, може само да изтривате съществуващи изпращания.";
@@ -841,7 +831,6 @@
 "OneHourAndXMinute" = "Един час и %1$@ минути";
 "XHoursAndOneMinute" = "%1$@ часа и една минута";
 "XHoursAndYMinutes" = "%1$@ часа и %2$@ минути";
-"XHours" = "%1$@ часа";
 "PasskeyManagementExplanationLong" = "Използване на Битуорден за запазване на новите секретни ключове и вписване с такива запазени в трезора.";
 "AutofillServicesExplanationLong" = "Подсистемата за автоматично попълване на Андроид се използва за попълване на данните за вход в други приложения на устройството.";
 "UseInlineAutofillExplanationLong" = "Използвайте вграденото автоматично попълване, ако избраната от Вас клавиатура го поддържа. Иначе използвайте слоя по подразбиране.";
@@ -1091,7 +1080,6 @@
 "ImportingEllipsis" = "Внасяне…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Наистина ли искате да прекъснете процеса на внасяне?";
 "ImportFailed" = "Внасянето не беше успешно";
-"ItemsSuccessfullyImported" = "%1$@ елемента бяха внесени успешно";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Имаше грешка при внасянето на паролите.\n\nНе бяха изтрити никакви данни.";
 "RetryImport" = "Опит за повторно внасяне";
 "ShowVault" = "Показване на трезора";
@@ -1113,7 +1101,6 @@
 "SendNameRequired" = "Име на Изпращането (задължително)";
 "CheckPasswordForDataBreaches" = "Проверка дали паролата е засегната от пробиви";
 "PrivateNote" = "Лична бележка";
-"XItems" = "%1$@ елемента";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Този потребител не може да бъде изтрит, тъй като е единственият собственик на поне една организация. Трябва да изтриете съответните организации или да повишите друг потребител.";
 "APasskeyAlreadyExistsForThisApplication" = "За това приложение вече съществува секретен ключ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "За това приложение вече съществува секретен ключ, но имаше грешка при зареждането му.";
@@ -1147,7 +1134,6 @@
 "LoggingDuration" = "Продължителност на записа в журнала";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Журналите се изтриват автоматично след 30 дни. Битуорден може да получи достъп до информацията в журналите само, ако я споделите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "За подробности какво се записва в журнала и какво – не, посетете **[помощния център на Битуорден](%1$@)**.";
-"OneWeek" = "1 седмица";
 "ShowMore" = "Показване на повече";
 "ShowLess" = "Показване на по-малко";
 "ItemNameX" = "Име на елемента, %1$@";
@@ -1206,8 +1192,6 @@
 "PasswordLastUpdated" = "Последна промяна на паролата: %1$@";
 "DecryptionError" = "Грешка при дешифриране";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Битуорден не може да дешифрира този елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Битуорден не може да дешифрира 1 елемент от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Битуорден не може да дешифрира %1$@ елемента от трезора. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.";
 "CopyErrorReport" = "Копиране на доклада за грешката";
 "ErrorCannotDecrypt" = "[грешка: не може да се дешифрира]";
 "AccountName" = "Име на акаунта";
@@ -1242,7 +1226,6 @@
 "LearnMoreLink" = "[Научете повече](%1$@)";
 "LocalCodes" = "Кодове, налични на това устройство";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Имате ли нужда от помощ? Посетете помощния център за насоки.";
-"NinetySeconds" = "90 секунди";
 "NoAskMe" = "Не, питайте ме";
 "NoCodes" = "Нямате кодове за показване";
 "None" = "Няма";
@@ -1260,7 +1243,6 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Искате ли да зададете „запазване на текущото устройство“ като стандартна настройка за запазване?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Искате ли да зададете „запазване в Битуорден“ като стандартна настройка за запазване?";
 "SignInUsingUniqueCodes" = "Вписвайте се с уникални кодове";
-"SixtySeconds" = "60 секунди";
 "Skip" = "Пропускане";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Съхранявайте всички свои данни за вписване и синхронизирайте кодовете си за удостоверяване директно с приложението за удостоверяване.";

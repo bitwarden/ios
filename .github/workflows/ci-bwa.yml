@@ -42,18 +42,18 @@ on:
         type: boolean
         default: true
       xcode-version:
-          description: "Xcode Version Override - e.g. '15.2'"
-          type: string
+        description: "Xcode Version Override - e.g. '15.2'"
+        type: string
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   version:
     name: Calculate Version Name and Number
     uses: bitwarden/ios/.github/workflows/_version.yml@main
     with:
+      app_codename: "bwa"
       base_version_number: 30
       version_name: ${{ inputs.version-name }}
       version_number: ${{ inputs.version-number }}
@@ -63,6 +63,8 @@ jobs:
   build-manual:
     name: Build Manual - ${{ inputs.build-mode }}
     needs: version
+    permissions:
+      id-token: write
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
@@ -78,6 +80,8 @@ jobs:
   build-public:
     name: Build CI
     needs: version
+    permissions:
+      id-token: write
     if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// API response model for a profile organization.

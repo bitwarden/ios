@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -9,7 +10,7 @@ enum AuthenticatorItemRoute: Equatable {
     ///
     /// - Parameter alert: The alert to display.
     ///
-    case alert(_ alert: Alert)
+    case alert(_ alert: BitwardenKit.Alert)
 
     /// A route to dismiss the screen currently presented modally.
     ///

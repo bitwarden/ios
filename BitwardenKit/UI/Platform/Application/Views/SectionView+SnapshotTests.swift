@@ -2,7 +2,7 @@
 import SnapshotTesting
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class SectionViewTests: BitwardenTestCase {
     // MARK: Tests

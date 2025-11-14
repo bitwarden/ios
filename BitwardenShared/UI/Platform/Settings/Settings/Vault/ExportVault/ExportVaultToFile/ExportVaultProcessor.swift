@@ -121,7 +121,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     ///    - password: The password used to validate the export.
     ///
     private func exportVault(format: ExportFormatType, password: String) async throws {
-        var exportFormat: ExportFileType = switch format {
+        let exportFormat: ExportFileType = switch format {
         case .csv:
             .csv
         case .json:
