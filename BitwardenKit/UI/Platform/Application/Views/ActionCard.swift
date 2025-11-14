@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -6,12 +5,12 @@ import SwiftUI
 
 /// A view that displays a card representing an action that the user needs to take.
 ///
-struct ActionCard<LeadingContent: View>: View {
+public struct ActionCard<LeadingContent: View>: View {
     // MARK: Types
 
     /// A data model containing the properties for a button within an action card.
     ///
-    struct ButtonState {
+    public struct ButtonState {
         // MARK: Properties
 
         /// An action to perform when the button is tapped.
@@ -28,7 +27,7 @@ struct ActionCard<LeadingContent: View>: View {
         ///   - title: The title of the button.
         ///   - action: An action to perform when the button is tapped.
         ///
-        init(title: String, action: @escaping () async -> Void) {
+        public init(title: String, action: @escaping () async -> Void) {
             self.action = action
             self.title = title
         }
@@ -48,12 +47,15 @@ struct ActionCard<LeadingContent: View>: View {
     /// The message to display in the card, below the title.
     let message: String?
 
+    /// State that describes the secondary button.
+    let secondaryButtonState: ButtonState?
+
     /// The title of the card.
     let title: String
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 8) {
                 if let leadingContent {
@@ -82,9 +84,18 @@ struct ActionCard<LeadingContent: View>: View {
                 }
             }
 
-            if let actionButtonState {
-                AsyncButton(actionButtonState.title, action: actionButtonState.action)
-                    .buttonStyle(.primary(size: .medium))
+            if actionButtonState != nil || secondaryButtonState != nil {
+                VStack(spacing: 4) {
+                    if let actionButtonState {
+                        AsyncButton(actionButtonState.title, action: actionButtonState.action)
+                            .buttonStyle(.primary(size: .medium))
+                    }
+
+                    if let secondaryButtonState {
+                        AsyncButton(secondaryButtonState.title, action: secondaryButtonState.action)
+                            .buttonStyle(.bitwardenBorderless(size: .medium))
+                    }
+                }
             }
         }
         .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
@@ -108,19 +119,22 @@ struct ActionCard<LeadingContent: View>: View {
     ///   - message: The message to display in the card.
     ///   - actionButtonState: State that describes the action button.
     ///   - dismissButtonState: State that describes the dismiss button.
+    ///   - secondaryButtonState: State that describes the secondary button.
     ///   - leadingContent: Content that is displayed at the leading edge of the title and message.
     ///
-    init(
+    public init(
         title: String,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil,
+        secondaryButtonState: ButtonState? = nil,
         @ViewBuilder leadingContent: () -> LeadingContent,
     ) {
         self.actionButtonState = actionButtonState
         self.dismissButtonState = dismissButtonState
         self.leadingContent = leadingContent()
         self.message = message
+        self.secondaryButtonState = secondaryButtonState
         self.title = title
     }
 
@@ -131,17 +145,20 @@ struct ActionCard<LeadingContent: View>: View {
     ///   - message: The message to display in the card.
     ///   - actionButtonState: State that describes the action button.
     ///   - dismissButtonState: State that describes the dismiss button.
+    ///   - secondaryButtonState: State that describes the secondary button.
     ///
-    init(
+    public init(
         title: String,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil,
+        secondaryButtonState: ButtonState? = nil,
     ) where LeadingContent == EmptyView {
         self.actionButtonState = actionButtonState
         self.dismissButtonState = dismissButtonState
         leadingContent = nil
         self.message = message
+        self.secondaryButtonState = secondaryButtonState
         self.title = title
     }
 }
@@ -161,6 +178,14 @@ struct ActionCard<LeadingContent: View>: View {
             message: "Message",
             actionButtonState: ActionCard.ButtonState(title: "Tap me!") {},
             dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {},
+        )
+
+        ActionCard(
+            title: "Title",
+            message: "Message",
+            actionButtonState: ActionCard.ButtonState(title: "Tap me!") {},
+            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {},
+            secondaryButtonState: ActionCard.ButtonState(title: "Secondary button") {},
         )
 
         ActionCard(
