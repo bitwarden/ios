@@ -214,7 +214,7 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
-          version: v11.2.3 # Do not bump until this is fixed: https://github.com/getsentry/prevent-cli/issues/101
+          version: v11.2.4 # Do not bump until this is fixed: https://github.com/getsentry/prevent-cli/issues/101
 
       - name: Comment PR if tests failed
         if: steps.upload-to-codecov.outcome == 'failure'
