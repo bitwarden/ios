@@ -58,7 +58,6 @@ jobs:
       version_name: ${{ inputs.version-name }}
       version_number: ${{ inputs.version-number }}
       patch_version: ${{ inputs.patch_version && '999' || '' }}
-    secrets: inherit
 
   build-manual:
     name: Build Manual - ${{ inputs.build-mode }}
