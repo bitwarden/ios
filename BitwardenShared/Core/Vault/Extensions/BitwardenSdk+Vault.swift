@@ -356,6 +356,7 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
+            data: nil,
         )
     }
 }
