@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SelectLanguageAction
 
 /// Actions that can be processed by a `SelectLanguageProcessor`.

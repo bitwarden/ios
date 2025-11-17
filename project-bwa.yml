@@ -151,7 +151,6 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   AuthenticatorShared:
@@ -237,8 +236,6 @@ targets:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
-        excludes:
-          - "**/InspectableView.*"
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -267,8 +264,6 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers-bwa
-        excludes:
-          - "**/InspectableView.*"
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -308,5 +303,6 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - target: BitwardenKit/ViewInspectorTestHelpers
       - package: ViewInspector
     randomExecutionOrder: true

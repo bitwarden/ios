@@ -12,6 +12,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     typealias Module = AuthenticatorItemModule
 
     typealias Services = HasAuthenticatorItemRepository
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasTimeProvider
 
@@ -117,4 +118,10 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
             )
         }
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AuthenticatorItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

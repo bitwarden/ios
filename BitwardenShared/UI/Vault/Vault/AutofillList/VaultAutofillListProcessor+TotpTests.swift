@@ -114,7 +114,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
             items: items,
             name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))

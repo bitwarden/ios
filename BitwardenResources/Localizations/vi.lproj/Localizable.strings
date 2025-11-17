@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Đang nhập…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bạn có chắc chắn muốn hủy quá trình nhập không?";
 "ImportFailed" = "Nhập thất bại";
-"ItemsSuccessfullyImported" = "Đã nhập thành công %1$@ mục";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Có vấn đề khi nhập tất cả mật khẩu của bạn.\n\nKhông có dữ liệu nào bị xóa.";
 "RetryImport" = "Thử xuất lại";
 "ShowVault" = "Xem kho";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Tên Send (bắt buộc)";
 "CheckPasswordForDataBreaches" = "Kiểm tra xem mật khẩu có bị lộ";
 "PrivateNote" = "Ghi chú riêng tư";
-"XItems" = "%1$@ mục";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Không thể xóa người dùng này vì người dùng này là chủ sở hữu duy nhất của ít nhất một tổ chức. Vui lòng xóa các tổ chức này hoặc nâng cấp quyền người dùng khác.";
 "APasskeyAlreadyExistsForThisApplication" = "Ứng dụng này đã có mã khóa.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ứng dụng này đã có mã khóa nhưng đã xảy ra lỗi khi tải nó.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Mật khẩu được cập nhật lần cuối: %1$@";
 "DecryptionError" = "Lỗi giải mã";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden không thể giải mã mục này trong kho. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden không thể giải mã 1 mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden không thể giải mã %1$@ mục trong kho lưu trữ. Vui lòng sao chép và chia sẻ báo cáo lỗi này với bộ phận Hỗ trợ Khách hàng để tránh mất dữ liệu thêm.";
 "CopyErrorReport" = "Sao chép báo lỗi";
 "ErrorCannotDecrypt" = "[lỗi: không thể giải mã]";
 "AccountName" = "Tên tài khoản";

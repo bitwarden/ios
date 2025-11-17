@@ -180,10 +180,10 @@
 "SyncVaultNow" = "Синхронизуј сеф одмах";
 "TouchID" = "Додирни ИД";
 "TwoStepLogin" = "Дво-коракна лозинка";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
+"UnlockWithBiometrics" = "Откључај биометријом";
+"UnlockWithFaceID" = "Откључај са Face ID";
+"UnlockWithTouchID" = "Откључај са Touch ID";
+"UnlockWithOpticID" = "Откључај са Optic ID";
 "UnlockWithPIN" = "Откључај са ПИН кодом";
 "Validating" = "Проверавање";
 "VerificationCode" = "Верификациони код";
@@ -1081,7 +1081,6 @@
 "ImportingEllipsis" = "Увожење...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
-"ItemsSuccessfullyImported" = "%1$@ ставки је успешно увежено";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Дошло је до проблема у увозу свих ваших лозинки.\n\nНиједан податак није избрисан.";
 "RetryImport" = "Покушај увожење поново";
 "ShowVault" = "Прикажи трезор";
@@ -1103,7 +1102,6 @@
 "SendNameRequired" = "Назив пошиљке (неопходно)";
 "CheckPasswordForDataBreaches" = "Провери лозинку за провалу података";
 "PrivateNote" = "Приватна белешка";
-"XItems" = "Ставке: %1$@";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Не могу да избришете овог корисника јер је једини власник најмање једне организације. Избришите ове организације или надоградите другог корисника.";
 "APasskeyAlreadyExistsForThisApplication" = "За ову апликацију већ постоји приступни кључ.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Приступни кључ већ постоји за ову апликацију, али дошло је до грешке приликом учитавања.";
@@ -1195,8 +1193,6 @@
 "PasswordLastUpdated" = "Задње ажурирање лозинке: %1$@";
 "DecryptionError" = "Грешка при декрипцији";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden није могао да дешифрира овај сеф. Копирајте и делите овај извештај о грешци са успехом купца да бисте избегли додатни губитак података.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden није могао да дешифрира 1 стљвку сефа. Копирајте и делите овај извештај о грешци са успехом купца да бисте избегли додатни губитак података.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden није успео да дешифрује ставке сефа (%1$@). Копирајте и поделите овај извештај о грешци са службом за подршку како бисте избегли додатни губитак података.";
 "CopyErrorReport" = "Копирај извештај о грешци";
 "ErrorCannotDecrypt" = "[грешка: неуспешна декрипција]";
 "AccountName" = "Име налога";

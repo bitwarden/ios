@@ -1,5 +1,6 @@
 @testable import AuthenticatorShared
 import BitwardenKit
+import BitwardenKitMocks
 
 // MARK: - MockAppModule
 

@@ -21,9 +21,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasErrorReporter
         & HasNotificationCenterService
         & HasPasteboardService
-        & HasTimeProvider
         & HasTOTPExpirationManagerFactory
         & HasTOTPService
+        & HasTimeProvider
 
     // MARK: Private Properties
 
@@ -424,7 +424,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                             captureCoordinator.navigate(
                                 to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true)),
                             )
-                        }
+                        },
                     ))
                 }
             } else {

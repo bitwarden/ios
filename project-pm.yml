@@ -221,8 +221,6 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
@@ -259,8 +257,6 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenActionExtension
       - target: BitwardenShared
@@ -296,8 +292,6 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
@@ -333,8 +327,6 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
@@ -420,8 +412,6 @@ targets:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
       - path: BitwardenShared/Sourcery/Generated
         optional: true
       - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -453,8 +443,6 @@ targets:
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
       - path: GlobalTestHelpers
-        excludes:
-          - "**/InspectableView.*"
       - path: BitwardenShared/Sourcery/Generated
         optional: true
       - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
@@ -495,6 +483,7 @@ targets:
       - target: BitwardenShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - target: BitwardenKit/ViewInspectorTestHelpers
       - package: ViewInspector
     randomExecutionOrder: true
 

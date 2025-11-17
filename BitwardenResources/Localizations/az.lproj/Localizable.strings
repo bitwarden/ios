@@ -45,7 +45,7 @@
 "LogOut" = "Çıxış";
 "LogoutConfirmation" = "Çıxış etmək istədiyinizə əminsiniz?";
 "RemoveAccount" = "Hesabı sil";
-"RemoveAccountConfirmation" = "Bu istifadəçini silmək istədiyinizə əminsiniz?";
+"RemoveAccountConfirmation" = "Bu istifadəçini xaric etmək istədiyinizə əminsiniz?";
 "AccountAlreadyAdded" = "Hesab artıq əlavə edildi";
 "SwitchToAlreadyAddedAccountConfirmation" = "Buna indi keçmək istəyirsiniz?";
 "MasterPassword" = "Ana parol";
@@ -351,7 +351,7 @@
 "FieldTypeText" = "Mətn";
 "NewCustomField" = "Yeni özəl xana";
 "SelectTypeField" = "Necə bir özəl xana əlavə etmək istəyirsiniz?";
-"Remove" = "Çıxart";
+"Remove" = "Xaric et";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Baza domeni";
 "Default" = "İlkin";
@@ -390,7 +390,7 @@
 "CheckingPassword" = "Parol yoxlanılır…";
 "CheckPassword" = "Parolunuzun oğurlanıb oğurlanmadığını yoxlayın.";
 "PasswordExposed" = "Bu parol, məlumat pozuntularında %1$@ dəfə üzə çıxıb. Dəyişdirməyi məsləhət görürük.";
-"PasswordSafe" = "Bu parol, veri pozuntularında qeydə alınmayıb. Rahatlıqla istifadə edə bilərsiniz.";
+"PasswordSafe" = "Bu parol, veri pozuntularında qeydə alınmayıb. Əmniyyətlə istifadə edə bilərsiniz.";
 "IdentityName" = "Kimlik adı";
 "Value" = "Dəyər";
 "PasswordHistory" = "Parol tarixçəsi";
@@ -662,7 +662,7 @@
 "CannotScanQRCode" = "QR kodunu skan edə bilmədiniz?";
 "EnterKeyManually" = "Kodu əllə daxil et";
 "AddTotp" = "TOTP əlavə et";
-"OnceTheKeyIsSuccessfullyEntered" = "Açar uğurla daxil edildikdən sonra, açarı güvənli şəkildə saxlamaq üçün \"TOTP əlavə et\"i seçin";
+"OnceTheKeyIsSuccessfullyEntered" = "Açar uğurla daxil edildikdən sonra, açarı əmniyyətdə saxlamaq üçün \"TOTP əlavə et\"i seçin";
 "NeverLockWarning" = "Kilid seçimlərini \"Heç vaxt\" olaraq ayarlamaq, seyfinizi cihazınıza erişimi olan hər kəsə əlçatan edir. Bu seçimi istifadə etsəniz, cihazınızı düzgün qoruduğunuza əmin olmalısınız.";
 "EnvironmentPageUrlsError" = "Daxil edilən bir və ya daha çox URL yararsızdır. Lütfən nəzər salın və yenidən saxlamağa çalışın.";
 "GenericErrorMessage" = "Tələbinizi emal edə bilmədik. Lütfən yenidən sınayın və ya bizimlə əlaqə saxlayın.";
@@ -936,7 +936,7 @@
 "SetUpLater" = "Daha sonra qur";
 "GenerateMasterPassword" = "Ana parol yarat";
 "Generate" = "Yarat";
-"WriteThisPasswordDownAndKeepItSomewhereSafe" = "Bu parolu bir yerə yazın və güvənli yerdə saxlayın.";
+"WriteThisPasswordDownAndKeepItSomewhereSafe" = "Bu parolu bir yerə yazın və əmniyyətli bir yerdə saxlayın.";
 "LearnAboutOtherWaysToPreventAccountLockout" = "Hesab kilidlənməsini önləməyin digər yolları haqqında daha ətraflı";
 "MasterPasswordHelp" = "Ana parol köməyi";
 "ASecureMemorablePassword" = "Güvənli, yaddaqalan bir parol";
@@ -956,9 +956,9 @@
 "CreateAHint" = "Bir ipucu yarat";
 "YourHintWillBeSentToYouViaEmailWhenYouRequestIt" = "Tələb etdikdə ipucunuz sizə e-poçt ilə göndəriləcək.";
 "WriteYourPasswordDown" = "Parolunuzu bir yerə yazın";
-"BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Yazdığınız parolu sirli və təhlükəsiz yerdə saxladığınıza əmin olun.";
+"BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Yazdığınız parolu gizli və əmniyyətli bir yerdə saxladığınıza əmin olun.";
 "ChooseYourMasterPassword" = "Ana parolunuzu seçin";
-"ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Məlumatlarınızı təhlükəsiz saxlamaq üçün unikal və güclü bir parol seçin.";
+"ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Məlumatlarınızı əmniyyətdə saxlamaq üçün unikal və güclü bir parol seçin.";
 "MasterPasswordRequired" = "Ana parol (tələb olunur)";
 "RetypeMasterPasswordRequired" = "Ana parolu təkrar yaz (tələb olunur)";
 "RetypeNewMasterPasswordRequired" = "Yeni ana parolu təkrar yaz (tələb olunur)";
@@ -998,7 +998,7 @@
 "Dismiss" = "Rədd et";
 "SaveAndProtectYourData" = "Verilərinizi saxlayın və qoruyun";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Seyf, yalnız parollar üçün deyil. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlaya bilərsiniz.";
-"SendSensitiveInformationSafely" = "Həssas məlumatları göndər, təhlükəsiz";
+"SendSensitiveInformationSafely" = "Send ilə həssas məlumatlar əmniyyətdədir";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrələnmiş qalacaq.";
 "NewLogin" = "Yeni giriş";
 "NewCard" = "Yeni kart";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Daxilə köçürülür...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Daxilə köçürmə prosesini ləğv etmək istədiyinizə əminsiniz?";
 "ImportFailed" = "Daxilə köçürmə uğursuz oldu";
-"ItemsSuccessfullyImported" = "%1$@ element uğurla daxilə köçürüldü";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bütün parollarınızı daxilə köçürərkən problem baş verdi.\n\nHeç bir veri silinmədi.";
 "RetryImport" = "Yenidən daxilə köçürməyə çalış";
 "ShowVault" = "Seyfi göstər";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send adı (tələb olunur)";
 "CheckPasswordForDataBreaches" = "Veri pozuntularına qarşı parolları yoxla";
 "PrivateNote" = "Özəl not";
-"XItems" = "%1$@ element";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Bu istifadəçi silinə bilmir, çünki ən azı bir təşkilatın tək sahibidir. Lütfən bu təşkilatları silin və ya başqa bir istifadəçini yüksəldin.";
 "APasskeyAlreadyExistsForThisApplication" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur, ancaq yüklənərkən bir xəta baş verdi.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Son parol güncəlləməsi: %1$@";
 "DecryptionError" = "Şifrə açma xətası";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden, bu seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden, 1 seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden, %1$@ seyf elementinin şifrəsini aça bilmədi. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.";
 "CopyErrorReport" = "Xəta hesabatını kopyala";
 "ErrorCannotDecrypt" = "[xəta: şifrə açıla bilmir]";
 "AccountName" = "Hesab adı";

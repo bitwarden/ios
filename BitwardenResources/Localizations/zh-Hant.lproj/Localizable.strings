@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "匯入中……";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "您確定要中止匯入程序？";
 "ImportFailed" = "匯入失敗";
-"ItemsSuccessfullyImported" = "成功匯入了 %1$@ 個項目。";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "在匯入您的密碼時發生部分問題。\n\n沒有刪除任何資料。";
 "RetryImport" = "重試匯入";
 "ShowVault" = "顯示密碼庫";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send 名稱（必填）";
 "CheckPasswordForDataBreaches" = "檢查密碼是否出現於資料外洩事件中";
 "PrivateNote" = "私人備註";
-"XItems" = "%1$@ 個項目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "無法刪除此使用者，因為它是至少一個組織的唯一擁有者。請先刪除這些組織或升級";
 "APasskeyAlreadyExistsForThisApplication" = "用於這個應用程式的密碼金鑰已經存在。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此應用程式已存在通行金鑰，但載入時發生錯誤。";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "密碼最後更新於：%1$@";
 "DecryptionError" = "解密發生錯誤";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 無法解密此保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden 無法解密此保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden 無法解密 %1$@ 個保險庫項目。請複製並將此錯誤報告提供給客服團隊，以避免進一步的資料遺失。";
 "CopyErrorReport" = "複製錯誤報告";
 "ErrorCannotDecrypt" = "[錯誤：無法解密]";
 "AccountName" = "帳戶名稱";

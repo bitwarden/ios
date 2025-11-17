@@ -439,7 +439,7 @@
 "Light" = "浅色";
 "ClearClipboard" = "清除剪贴板";
 "ClearClipboardDescription" = "自动清除复制到剪贴板的值。";
-"DefaultUriMatchDetection" = "默认的 URI 匹配检测方式";
+"DefaultUriMatchDetection" = "默认 URI 匹配检测";
 "DefaultUriMatchDetectionDescription" = "选择在执行诸如自动填充之类的操作时对登录进行 URI 匹配检测的默认方式。";
 "Theme" = "主题";
 "ThemeDescription" = "更改应用程序的颜色主题。";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
-"ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
 "RetryImport" = "重试导入";
 "ShowVault" = "显示密码库";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send 名称（必填）";
 "CheckPasswordForDataBreaches" = "检查数据泄露中的密码";
 "PrivateNote" = "私密备注";
-"XItems" = "%1$@ 个项目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "无法删除此用户，因为它是至少一个组织的唯一所有者。请删除这些组织或升级其他用户。";
 "APasskeyAlreadyExistsForThisApplication" = "此应用程序已存在一个通行密钥。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此应用程序已存在一个通行密钥，但加载时发生错误。";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "密码最后更新于：%1$@";
 "DecryptionError" = "解密错误";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 无法解密此密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden 无法解密 1 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden 无法解密 %1$@ 个密码库项目。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。";
 "CopyErrorReport" = "复制错误报告";
 "ErrorCannotDecrypt" = "[错误：无法解密]";
 "AccountName" = "账户名称";

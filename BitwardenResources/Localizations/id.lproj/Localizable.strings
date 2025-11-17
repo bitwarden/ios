@@ -624,7 +624,7 @@
 "AccountRemovedSuccessfully" = "Akun berhasil dihapus";
 "DeleteAccount" = "Hapus akun";
 "DeletingYourAccountIsPermanent" = "Menghapus akun Anda bersifat permanen";
-"DeleteAccountExplanation" = "Akun anda dan semua data brankas akan terhapus dan tidak dapat dipulihkan. Apakah anda yakin untuk melanjutkan?";
+"DeleteAccountExplanation" = "Akun Anda dan semua data brankas akan terhapus dan tidak dapat dipulihkan. Apakah Anda yakin untuk melanjutkan?";
 "DeletingYourAccount" = "Hapus akun anda";
 "YourAccountHasBeenPermanentlyDeleted" = "Akun Anda telah dihapus secara permanen.";
 "InvalidVerificationCode" = "Kode verifikasi tidak valid.";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Mengimpor...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Anda yakin ingin membatalkan proses impor?";
 "ImportFailed" = "Impor gagal";
-"ItemsSuccessfullyImported" = "%1$@ item berhasil diimpor";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Terjadi masalah saat mengimpor semua sandi Anda.\n\nTidak ada data yang dihapus.";
 "RetryImport" = "Coba impor ulang";
 "ShowVault" = "Tampilkan brankas";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Nama Kirim (wajib)";
 "CheckPasswordForDataBreaches" = "Periksa sandi untuk kebocoran data";
 "PrivateNote" = "Catatan pribadi";
-"XItems" = "%1$@ item";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Tidak dapat menghapus pengguna ini karena merupakan pemilik tunggal dari setidaknya satu organisasi. Harap hapus organisasi tersebut atau tingkatkan pengguna lain.";
 "APasskeyAlreadyExistsForThisApplication" = "Kunci sandi sudah ada untuk aplikasi ini.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Kunci sandi sudah ada untuk aplikasi ini, tetapi terjadi kesalahan saat memuatnya.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Sandi terakhir diperbarui: %1$@";
 "DecryptionError" = "Kesalahan dekripsi";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden tidak dapat mendekripsi item brankas ini. Salin dan bagikan laporan kesalahan ini ke tim layanan pelanggan untuk mencegah kehilangan data lebih lanjut.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden tidak dapat mendekripsi 1 item brankas. Salin dan bagikan laporan kesalahan ini ke layanan pelanggan untuk menghindari kehilangan data lebih lanjut.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden tidak dapat mendekripsi %1$@ item brankas. Salin dan bagikan laporan kesalahan ini ke tim layanan pelanggan untuk mencegah kehilangan data lebih lanjut.";
 "CopyErrorReport" = "Salin laporan kesalahan";
 "ErrorCannotDecrypt" = "[kesalahan: tidak bisa mendecrypt]";
 "AccountName" = "Nama akun";

@@ -2,6 +2,8 @@ import BitwardenResources
 import BitwardenSdk
 
 extension CipherListView {
+    // MARK: Properties
+
     /// Determines whether the cipher can be used in basic password autofill operations.
     ///
     /// A cipher qualifies for basic login autofill if it's a login type and contains at least one
@@ -17,6 +19,79 @@ extension CipherListView {
                 false
             }
         }
+    }
+
+    // MARK: Methods
+
+    /// Whether the cipher belongs to a group.
+    /// - Parameter group: The group to filter.
+    /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
+    func belongsToGroup(_ group: VaultListGroup) -> Bool {
+        switch group {
+        case .card:
+            type.isCard
+        case let .collection(id, _, _):
+            collectionIds.contains(id)
+        case let .folder(id, _):
+            folderId == id
+        case .identity:
+            type == .identity
+        case .login:
+            type.isLogin
+        case .noFolder:
+            folderId == nil
+        case .secureNote:
+            type == .secureNote
+        case .sshKey:
+            type == .sshKey
+        case .totp:
+            type.loginListView?.totp != nil
+        case .trash:
+            deletedDate != nil
+        }
+    }
+
+    /// Determines how well the cipher matches a search query.
+    ///
+    /// This method performs a multi-level search across the cipher's properties to determine
+    /// the quality of the match. The query should be preprocessed (lowercased and diacritic-folded)
+    /// before calling this method.
+    ///
+    /// - Parameter query: The preprocessed search query (lowercased and diacritic-folded).
+    ///
+    /// - Returns: A `CipherMatchResult` indicating the match quality:
+    ///   - `.exact`: The cipher name matches the query
+    ///   - `.fuzzy`: Some other cipher properties match the query
+    ///   - `.none`: No match found
+    ///
+    func matchesSearchQuery(_ query: String) -> CipherMatchResult {
+        guard !query.isEmpty else {
+            return .none
+        }
+
+        if name.lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current).contains(query) {
+            return .exact
+        }
+
+        // Fuzzy match: ID starts with query (requires minimum 8 characters for UUID prefix matching)
+        if query.count >= 8, id?.starts(with: query) == true {
+            return .fuzzy
+        }
+
+        // Fuzzy match other fields: Login Username, Card Brand, Last 4 card numbers, Identity full name.
+        // This can all be done here since how the SDK builds the cipher's subtitle.
+        if subtitle.lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
+            return .fuzzy
+        }
+
+        if type.loginListView?.uris?
+            .contains(where: { $0.uri?.lowercased().contains(query) == true }) == true {
+            return .fuzzy
+        }
+
+        return .none
     }
 
     /// Whether the cipher passes the `.restrictItemTypes` policy based on the organizations restricted.

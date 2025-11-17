@@ -20,6 +20,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasBiometricsRepository
         & HasCameraService
         & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportItemsService
         & HasImportItemsService
@@ -206,4 +207,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         stackNavigator?.present(navigationController, overFullscreen: true)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -50,14 +50,4 @@ extension View {
             field.wrappedValue = newValue
         }
     }
-
-    /// Applies the `ScrollViewModifier` to a view.
-    ///
-    /// - Parameter addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
-    ///
-    /// - Returns: A view within a `ScrollView`.
-    ///
-    func scrollView(addVerticalPadding: Bool = true) -> some View {
-        modifier(ScrollViewModifier(addVerticalPadding: addVerticalPadding))
-    }
 }

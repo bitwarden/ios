@@ -199,7 +199,7 @@
 "BitwardenAutofillServiceOverlay" = "Wenn Sie ein Eingabefeld auswählen und ein Auto-Fill-Overlay von Bitwarden sehen, können Sie darauf tippen, um den Dienst zum automatischen Ausfüllen zu starten.";
 "BitwardenAutofillServiceNotificationContent" = "Tippe auf diese Benachrichtigung, um einen Eintrag aus deinem Tresor automatisch auszufüllen.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Einstellungen für Bedienungshilfen öffnen";
-"BitwardenAutofillServiceStep1" = "1. On the Android Accessibility Settings screen, touch “Bitwarden” under the Services heading.";
+"BitwardenAutofillServiceStep1" = "1. Tippe auf „Bitwarden“ unter „Dienste“ in den Android Bedienungshilfen.";
 "BitwardenAutofillServiceStep2" = "2. Aktiviere den Schalter und tippe auf \"Ok\".";
 "Disabled" = "Deaktiviert";
 "Enabled" = "Aktiviert";
@@ -376,7 +376,7 @@
 "AutofillTurnOn" = "Um das automatische Ausfüllen von Passwörtern auf deinem Gerät einzurichten, befolge bitte diese Anweisungen:";
 "AutofillTurnOn1" = "1. Gehe in die iOS \"Einstellungen\"-App";
 "AutofillTurnOn2" = "2. Tippe auf \"Passwörter\"";
-"AutofillTurnOn3" = "3. Tap “AutoFill Passwords”";
+"AutofillTurnOn3" = "3. Tippe auf \"Passwörter automatisch ausfüllen\"";
 "AutofillTurnOn4" = "4. Schalte Automatisch ausfüllen ein";
 "AutofillTurnOn5" = "5. Wähle \"Bitwarden\"";
 "PasswordAutofill" = "Passwort automatisch ausfüllen";
@@ -507,7 +507,7 @@
 "AccountBiometricInvalidatedExtension" = "Das Entsperren von Auto-Ausfüllen über Biometrie ist für dieses Konto deaktiviert, bis das Master-Passwort verifiziert wurde.";
 "EnableSyncOnRefresh" = "Synchronisation beim Aktualisieren aktivieren";
 "EnableSyncOnRefreshDescription" = "Tresor durch Runterziehen Geste synchronisieren.";
-"LogInSso" = "Enterprise Single-Sign-On";
+"LogInSso" = "Enterprise Single Sign-On";
 "LogInSsoSummary" = "Melde dich schnell über das Single Sign-On-Portal deiner Organisation an. Bitte gib die Organisationskennung ein, um zu beginnen.";
 "OrgIdentifier" = "Organisationskennung";
 "LoginSsoError" = "Anmeldung mit SSO derzeit nicht möglich";
@@ -882,7 +882,7 @@
 "SetUpAutoFillDescriptionLong" = "Um das automatische Ausfüllen von Passwörtern und die Passkey-Verwaltung einzurichten, lege Bitwarden in den iOS-Einstellungen als deinen bevorzugten Anbieter fest.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Geh in deine Geräteeinstellungen > Passwörter > Passwortoptionen";
 "SecondDotTurnOnAutoFill" = "2. Schalte \"Automatisch ausfüllen\" ein";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select “Bitwarden” to use for passwords and passkeys";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Wähle \"Bitwarden\" für die Verwendung von Passwörtern und Passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Dein Passkey wird in deinem Bitwarden-Tresor gespeichert";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Dein Passkey wird in deinem Bitwarden-Tresor für %1$@ gespeichert";
 "PasskeysNotSupportedForThisApp" = "Passkeys werden für diese App nicht unterstützt";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Wird importiert...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bist du sicher, dass du den Importvorgang abbrechen möchtest?";
 "ImportFailed" = "Import fehlgeschlagen";
-"ItemsSuccessfullyImported" = "%1$@ Einträge erfolgreich importiert";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Es gab ein Problem beim Importieren aller Passwörter.\n\nEs wurden keine Daten gelöscht.";
 "RetryImport" = "Import wiederholen";
 "ShowVault" = "Tresor anzeigen";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send-Name (erforderlich)";
 "CheckPasswordForDataBreaches" = "Passwort auf Datendiebstahl überprüfen";
 "PrivateNote" = "Private Notiz";
-"XItems" = "%1$@ Einträge";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Dieser Benutzer kann nicht gelöscht werden, da er der einzige Eigentümer von mindestens einer Organisation ist. Bitte lösche diese Organisationen oder upgrade einen anderen Benutzer.";
 "APasskeyAlreadyExistsForThisApplication" = "Für diese Anwendung existiert bereits ein Passkey.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Für diese Anwendung existiert bereits ein Passkey, aber beim Laden ist ein Fehler aufgetreten.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Passwort zuletzt aktualisiert: %1$@";
 "DecryptionError" = "Entschlüsselungsfehler";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden konnte diesen Tresor-Eintrag nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden konnte einen Tresor-Eintrag nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden konnte %1$@ Tresor-Einträge nicht entschlüsseln. Kopiere und teile diesen Fehlerbericht mit dem Kundensupport, um zusätzlichen Datenverlust zu vermeiden.";
 "CopyErrorReport" = "Fehlerbericht kopieren";
 "ErrorCannotDecrypt" = "[Fehler: Kann nicht entschlüsseln]";
 "AccountName" = "Kontoname";

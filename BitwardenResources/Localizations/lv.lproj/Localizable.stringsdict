@@ -2,6 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- An error report if there are issues decrypting vault items. -->
+    <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@vaultitems@. Šis kļūdas ziņojums jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.</string>
+      <key>vaultitems</key>
+      <dict>
+        <key>zero</key>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumus</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumu</string>
+        <key>other</key>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumus</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -10,15 +29,53 @@
       <key>days</key>
       <dict>
         <key>zero</key>
-        <string>%d days</string>
+        <string>%d dienu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d diena</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dienas</string>
+      </dict>
+    </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@</string>
+      <key>items</key>
+      <dict>
+        <key>zero</key>
+        <string>%d vienumu</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d vienums</string>
+        <key>other</key>
+        <string>%d vienumi</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@ sekmīgi ievietots/i</string>
+      <key>items</key>
+      <dict>
+        <key>zero</key>
+        <string>%d vienumu</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d vienums</string>
+        <key>other</key>
+        <string>%d vienumi</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -29,15 +86,15 @@
       <key>hours</key>
       <dict>
         <key>zero</key>
-        <string>%d hours</string>
+        <string>%d stundu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d stunda</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d stundas</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -67,15 +124,15 @@
       <key>seconds</key>
       <dict>
         <key>zero</key>
-        <string>%d seconds</string>
+        <string>%d sekunžu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekunde</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekundes</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -86,15 +143,15 @@
       <key>weeks</key>
       <dict>
         <key>zero</key>
-        <string>%d weeks</string>
+        <string>%d nedēļu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d nedēļa</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d nedēļas</string>
       </dict>
     </dict>
   </dict>

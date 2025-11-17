@@ -42,16 +42,22 @@ public class ServiceContainer: Services {
     let clientService: ClientService
 
     /// The service to get locally-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// A helper for building an error report containing the details of an error that occurred.
+    public let errorReportBuilder: ErrorReportBuilder
+
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to export items.
     let exportItemsService: ExportItemsService
+
+    /// The service used by the application for recording temporary debug logs.
+    public let flightRecorder: FlightRecorder
 
     /// The service used to import items.
     let importItemsService: ImportItemsService
@@ -69,7 +75,7 @@ public class ServiceContainer: Services {
     let stateService: StateService
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
 
     /// The factory to create TOTP expiration managers.
     let totpExpirationManagerFactory: TOTPExpirationManagerFactory
@@ -93,8 +99,11 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - errorReportBuilder: A helper for building an error report containing the details of an
+    ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - importItemsService: The service to import items.
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
@@ -115,8 +124,10 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
+        flightRecorder: FlightRecorder,
         importItemsService: ImportItemsService,
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
@@ -136,8 +147,10 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
+        self.flightRecorder = flightRecorder
         self.importItemsService = importItemsService
         self.migrationService = migrationService
         self.notificationCenterService = notificationCenterService
@@ -186,6 +199,11 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
         )
 
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
+            appInfoService: appInfoService,
+        )
+
         let timeProvider = CurrentTime()
         let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
@@ -218,6 +236,14 @@ public class ServiceContainer: Services {
         let cryptographyService = DefaultCryptographyService(
             cryptographyKeyService: cryptographyKeyService,
         )
+
+        let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider,
+        )
+        errorReporter.add(logger: flightRecorder)
 
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
@@ -305,8 +331,10 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
+            flightRecorder: flightRecorder,
             importItemsService: importItemsService,
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,

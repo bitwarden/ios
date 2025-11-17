@@ -57,7 +57,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
             await streamFlightRecorderLog()
         case let .toggleFlightRecorder(isOn):
             if isOn {
-                coordinator.navigate(to: .enableFlightRecorder)
+                coordinator.navigate(to: .flightRecorder(.enableFlightRecorder))
             } else {
                 await services.flightRecorder.disableFlightRecorder()
             }
@@ -92,7 +92,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         case .versionTapped:
             handleVersionTapped()
         case .viewFlightRecorderLogsTapped:
-            coordinator.navigate(to: .flightRecorderLogs)
+            coordinator.navigate(to: .flightRecorder(.flightRecorderLogs))
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL

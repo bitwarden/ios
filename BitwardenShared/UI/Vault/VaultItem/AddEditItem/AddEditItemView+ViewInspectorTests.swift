@@ -5,6 +5,7 @@ import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 import ViewInspector
+import ViewInspectorTestHelpers
 import XCTest
 
 @testable import BitwardenShared

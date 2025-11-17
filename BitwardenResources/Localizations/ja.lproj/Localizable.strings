@@ -12,7 +12,7 @@
 "Credits" = "クレジット";
 "Delete" = "削除";
 "DeleteAll" = "すべて削除";
-"Deleting" = "Deleting…";
+"Deleting" = "削除中…";
 "DoYouReallyWantToDelete" = "本当に削除しますか？この操作は元に戻せません。";
 "Edit" = "編集";
 "EditFolder" = "フォルダーを編集";
@@ -59,7 +59,7 @@
 "Password" = "パスワード";
 "Save" = "保存";
 "Move" = "移動";
-"Saving" = "Saving…";
+"Saving" = "保存中…";
 "Settings" = "設定";
 "Show" = "表示";
 "ItemDeleted" = "アイテムを削除しました。";
@@ -116,7 +116,7 @@
 "ExtensionEnable" = "App Extension を有効化";
 "ExtensionInSafari" = "Safari では、共有アイコンを使って Bitwarden を見つけてください（ヒント：メニューの一番下の行を右側にスクロール）";
 "ExtensionInstantAccess" = "パスワードに素早くアクセスしましょう！";
-"ExtensionReady" = "You’re ready to log in!";
+"ExtensionReady" = "ログインする準備が出来ました！";
 "ExtensionSetup" = "Safari やChrome などの対応アプリでログイン情報に簡単にアクセスできます。";
 "ExtensionSetup2" = "Safari と Chrome では、共有アイコンを使って Bitwarden を見つけてください（ヒント：メニューの一番下の行を右側にスクロール）";
 "ExtensionTapIcon" = "メニューの Bitwarden アイコンをタップして拡張機能を起動してください。";
@@ -162,7 +162,7 @@
 "PasswordHint" = "パスワードのヒント";
 "PasswordHintAlert" = "We’ve sent you an email with your master password hint.";
 "PasswordOverrideAlert" = "現在のパスワードを上書きしてよろしいですか?";
-"PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
+"PushNotificationAlert" = "Bitwarden はプッシュ通知を使って自動的に保管庫を同期します。プッシュ通知を有効化するかどうかプロンプトが出たら「許可」を押してください。";
 "RateTheApp" = "アプリを評価";
 "RateTheAppDescription" = "良いレビューで私たちを助けてください！";
 "RegeneratePassword" = "パスワードを再生成";
@@ -180,9 +180,9 @@
 "SyncVaultNow" = "保管庫を同期する";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2段階認証";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
+"UnlockWithBiometrics" = "生体認証でロック解除";
+"UnlockWithFaceID" = "Face ID でロック解除";
+"UnlockWithTouchID" = "Touch ID でロック解除";
 "UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "PIN コードでロック解除";
 "Validating" = "認証中";
@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "インポート中…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "インポート処理をキャンセルしてもよろしいですか？";
 "ImportFailed" = "インポート失敗";
-"ItemsSuccessfullyImported" = "%1$@ 項目を正常にインポートしました";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "すべてのパスワードをインポートする際に問題が発生しました。\n\nデータは一切削除されてません。";
 "RetryImport" = "インポートをリトライする";
 "ShowVault" = "保管庫を表示";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send の名前 (必須)";
 "CheckPasswordForDataBreaches" = "パスワードが漏洩していないか確認する";
 "PrivateNote" = "非公開メモ";
-"XItems" = "%1$@ 項目";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "このアプリにはすでにパスキーが存在します。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "このアプリのパスキーは既に存在しますが、読み込み中にエラーが発生しました。";
@@ -1157,8 +1155,8 @@
 "OpenGenerator" = "Open generator";
 "OpenPasswordGenerator" = "Open password generator";
 "GeneratePassphrase" = "パスフレーズを生成";
-"AllowUniversalClipboard" = "Allow Universal Clipboard";
-"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"AllowUniversalClipboard" = "ユニバーサルクリップボードを許可";
+"UseUniversalClipboardToCopyDescriptionLong" = "ユニバーサルクリップボードを使用すると、このデバイスでコピーした内容を同じ Apple ID でサインインしている別のデバイスにペーストすることができます。";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@ は自己ホストの鍵サーバで SSO を使用しています。この組織のメンバーのログインにマスターパスワードは必要ありません。";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "復号エラー";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "アカウント名";

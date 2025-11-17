@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Ievieto...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vai tiešām atcelt ievietošanu?";
 "ImportFailed" = "Ievietošana neizdevās";
-"ItemsSuccessfullyImported" = "%1$@ vienumi ievietoti sekmīgi";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bija sarežģījums ar visu paroļu ievietošanu.\n\nNekādi dati netika izdzēsti.";
 "RetryImport" = "Atkārtot ievietošanu";
 "ShowVault" = "Rādīt glabātavu";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send nosaukums (nepieciešams)";
 "CheckPasswordForDataBreaches" = "Pārbaudīt, vai parole ir datu noplūdēs";
 "PrivateNote" = "Personiska piezīme";
-"XItems" = "%1$@ vienumi";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nevar izdzēst šo lietotāju, jo viņš ir vienīgais īpašnieks vismaz vienai apvienībai. Lūgums izdzēst šīs apvienības vai paaugstināt citu lietotāju.";
 "APasskeyAlreadyExistsForThisApplication" = "Šai lietotnei jau pastāv piekļuves atslēga.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Šai lietotnei jau pastāv piekļuves atslēga, bet atgadījās kļūda tās ielādēšanas laikā.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Parole pēdējoreiz atjaunināta: %1$@";
 "DecryptionError" = "Atšifrēšanas kļūda";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt šo glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nevarēja atšifrēt 1 glabātavas vienumu. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nevarēja atšifrēt %1$@ glabātavas vienumus. Šī kļūda jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.";
 "CopyErrorReport" = "Ievietot kļūdas ziņojumu starpliktuvē";
 "ErrorCannotDecrypt" = "[kļūda: nevar atšifrēt]";
 "AccountName" = "Konta nosaukums";

@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importazione...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
-"ItemsSuccessfullyImported" = "%1$@ elementi importati con successo";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
 "RetryImport" = "Riprova";
 "ShowVault" = "Mostra cassaforte";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Invia nome (richiesto)";
 "CheckPasswordForDataBreaches" = "Controlla la parola d'accesso per le violazioni dei dati";
 "PrivateNote" = "Nota privata";
-"XItems" = "%1$@ elementi";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Impossibile eliminare questo utente perché è l'unico proprietario di almeno un'organizzazione. Si prega di eliminare queste organizzazioni o aggiornare un altro utente.";
 "APasskeyAlreadyExistsForThisApplication" = "Esiste già una chiave di accesso per questa applicazione.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Esiste già una chiave di accesso per questa applicazione, ma si è verificato un errore durante il caricamento.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Ultimo aggiornamento della password: %1$@";
 "DecryptionError" = "Errore di decrittazione";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare questo elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden non riesce a decrittare un elemento. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden non può decrittare %1$@ elementi. Copia questa segnalazione di errore e inviala all'assistenza tecnica per evitare ulteriori perdite di dati.";
 "CopyErrorReport" = "Copia il testo della segnalazione";
 "ErrorCannotDecrypt" = "[errore: impossibile decrittare]";
 "AccountName" = "Nome account";

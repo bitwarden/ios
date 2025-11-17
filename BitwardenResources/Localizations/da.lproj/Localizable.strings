@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sikker på, at importprocessen skal afbrydes?";
 "ImportFailed" = "Import mislykkedes";
-"ItemsSuccessfullyImported" = "%1$@ emner er importeret";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Der opstod et problem ved import af alle adgangskoderne.\n\nIngen data blev slettet.";
 "RetryImport" = "Forsøg at importere igen";
 "ShowVault" = "Vis boks";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Send navn (obligatorisk)";
 "CheckPasswordForDataBreaches" = "Tjek adgangskode for datalæk";
 "PrivateNote" = "Privat notat";
-"XItems" = "%1$@ items";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "En adgangsnøgle findes allerede til denne applikation.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Password last updated: %1$@";
 "DecryptionError" = "Dekrypteringsfejl";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden could not decrypt 1 vault item. Copy and share this error report with customer success to avoid additional data loss.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden could not decrypt %1$@ vault items. Copy and share this error report with customer success to avoid additional data loss.";
 "CopyErrorReport" = "Copy error report";
 "ErrorCannotDecrypt" = "[error: cannot decrypt]";
 "AccountName" = "Kontonavn";

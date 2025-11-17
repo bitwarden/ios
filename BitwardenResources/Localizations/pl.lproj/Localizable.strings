@@ -1080,7 +1080,6 @@
 "ImportingEllipsis" = "Importowanie…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Czy na pewno chcesz anulować proces importowania?";
 "ImportFailed" = "Importowanie nie powiodło się";
-"ItemsSuccessfullyImported" = "%1$@ elementów(y) pomyślnie zaimportowane";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Wystąpił błąd podczas importowania haseł.\n\nNie usunięto żadnych danych.";
 "RetryImport" = "Ponów próbę importu";
 "ShowVault" = "Pokaż sejf";
@@ -1102,7 +1101,6 @@
 "SendNameRequired" = "Nazwa wysyłki (wymagane)";
 "CheckPasswordForDataBreaches" = "Sprawdź hasło w wyciekach danych";
 "PrivateNote" = "Prywatna notatka";
-"XItems" = "%1$@ elementów(y)";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nie można usunąć użytkownika, ponieważ jest on jedynym właścicielem co najmniej jednej organizacji. Usuń te organizacje lub zaktualizuj innego użytkownika.";
 "APasskeyAlreadyExistsForThisApplication" = "Klucz dostępu dla tej aplikacji już istnieje.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Klucz dostępu dla tej aplikacji już istnieje, ale wystąpił błąd podczas jego ładowania.";
@@ -1194,8 +1192,6 @@
 "PasswordLastUpdated" = "Ostatnia aktualizacja hasła: %1$@";
 "DecryptionError" = "Błąd odszyfrowywania";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden nie mógł odszyfrować elementu sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
-"BitwardenCouldNotDecryptOneVaultItemDescriptionLong" = "Bitwarden nie mógł odszyfrować 1 elementu sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
-"BitwardenCouldNotDecryptXVaultItemsDescriptionLong" = "Bitwarden nie mógł odszyfrować %1$@ elementów sejfu. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.";
 "CopyErrorReport" = "Kopiuj raport błędu";
 "ErrorCannotDecrypt" = "[błąd: nie można odszyfrować]";
 "AccountName" = "Nazwa konta";
