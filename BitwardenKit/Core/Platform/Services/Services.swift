@@ -35,6 +35,13 @@ public protocol HasFlightRecorder {
     var flightRecorder: FlightRecorder { get }
 }
 
+/// Protocol for an object that provides a `LanguageStateService`.
+///
+public protocol HasLanguageStateService {
+    /// The service used by the application to manage language state.
+    var languageStateService: LanguageStateService { get }
+}
+
 /// Protocol for an object that provides a `TimeProvider`.
 ///
 public protocol HasTimeProvider {
