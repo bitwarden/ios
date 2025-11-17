@@ -1458,7 +1458,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     var accountVolatileData: [String: AccountVolatileData] = [:]
 
     /// The service that persists app settings.
-    nonisolated let appSettingsStore: AppSettingsStore
+    let appSettingsStore: AppSettingsStore
 
     /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
