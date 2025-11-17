@@ -1,6 +1,4 @@
 name: TestHarness
-fileGroups:
-  - Configs-bwth
 configs:
   Debug: debug
   Release: release
