@@ -510,11 +510,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_dismissFlightRecorderToastBanner() async {
         stateService.activeAccount = .fixture()
-        subject.state.flightRecorderToastBanner.isToastBannerVisible = true
 
         await subject.perform(.dismissFlightRecorderToastBanner)
 
-        XCTAssertFalse(subject.state.flightRecorderToastBanner.isToastBannerVisible)
         XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 

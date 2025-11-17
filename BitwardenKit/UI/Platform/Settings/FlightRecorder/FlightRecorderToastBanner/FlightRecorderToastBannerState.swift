@@ -6,29 +6,23 @@ public struct FlightRecorderToastBannerState: Equatable {
     // MARK: Properties
 
     /// The active flight recorder log metadata, or `nil` if the flight recorder isn't active.
-    public var activeLog: FlightRecorderData.LogMetadata? {
-        didSet {
-            isToastBannerVisible = !(activeLog?.isBannerDismissed ?? true)
-        }
-    }
+    public var activeLog: FlightRecorderData.LogMetadata?
+
+    // MARK: Computed Properties
 
     /// Whether the flight recorder toast banner is visible.
-    public var isToastBannerVisible = false
+    public var isToastBannerVisible: Bool {
+        !(activeLog?.isBannerDismissed ?? true)
+    }
 
     // MARK: Initialization
 
     /// Initialize a `FlightRecorderToastBannerState`.
     ///
-    /// - Parameters:
-    ///   - activeLog: The active flight recorder log metadata, or `nil` if the flight recorder
+    /// - Parameter activeLog: The active flight recorder log metadata, or `nil` if the flight recorder
     ///     isn't active.
-    ///   - isToastBannerVisible: Whether the flight recorder toast banner is visible.
     ///
-    public init(
-        activeLog: FlightRecorderData.LogMetadata? = nil,
-        isToastBannerVisible: Bool = false,
-    ) {
+    public init(activeLog: FlightRecorderData.LogMetadata? = nil) {
         self.activeLog = activeLog
-        self.isToastBannerVisible = isToastBannerVisible
     }
 }
