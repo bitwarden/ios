@@ -260,13 +260,16 @@ final class VaultGroupProcessor: StateProcessor<
             return
         }
         do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                group: state.group,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: state.searchVaultFilterType,
+                    group: state.group,
+                    searchText: searchText,
+                ),
             )
-            for try await ciphers in result {
-                state.searchResults = ciphers
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
+                state.searchResults = items
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
             }
         } catch {

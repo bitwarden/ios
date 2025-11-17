@@ -56,6 +56,9 @@ public class ServiceContainer: Services {
     /// The service used to export items.
     let exportItemsService: ExportItemsService
 
+    /// The service used by the application for recording temporary debug logs.
+    public let flightRecorder: FlightRecorder
+
     /// The service used to import items.
     let importItemsService: ImportItemsService
 
@@ -100,6 +103,7 @@ public class ServiceContainer: Services {
     ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - importItemsService: The service to import items.
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
@@ -123,6 +127,7 @@ public class ServiceContainer: Services {
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
+        flightRecorder: FlightRecorder,
         importItemsService: ImportItemsService,
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
@@ -145,6 +150,7 @@ public class ServiceContainer: Services {
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
+        self.flightRecorder = flightRecorder
         self.importItemsService = importItemsService
         self.migrationService = migrationService
         self.notificationCenterService = notificationCenterService
@@ -230,6 +236,14 @@ public class ServiceContainer: Services {
         let cryptographyService = DefaultCryptographyService(
             cryptographyKeyService: cryptographyKeyService,
         )
+
+        let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider,
+        )
+        errorReporter.add(logger: flightRecorder)
 
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
@@ -320,6 +334,7 @@ public class ServiceContainer: Services {
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
+            flightRecorder: flightRecorder,
             importItemsService: importItemsService,
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,

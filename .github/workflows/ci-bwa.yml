@@ -64,6 +64,7 @@ jobs:
     name: Build Manual - ${{ inputs.build-mode }}
     needs: version
     permissions:
+      contents: read
       id-token: write
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
@@ -81,6 +82,7 @@ jobs:
     name: Build CI
     needs: version
     permissions:
+      contents: read
       id-token: write
     if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
