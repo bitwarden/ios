@@ -236,6 +236,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   in Credential Exhange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - languageStateService: The service for handling language state.
     ///   - localAuthService: The service used by the application to evaluate local auth policies.
     ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
