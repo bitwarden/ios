@@ -11,6 +11,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSelectLanguageDelegate!
+    var languageStateService: MockLanguageStateService!
     var stateService: MockStateService!
     var subject: SelectLanguageProcessor!
 
@@ -21,8 +22,10 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         delegate = MockSelectLanguageDelegate()
+        languageStateService = MockLanguageStateService()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
+            languageStateService: languageStateService,
             stateService: stateService,
         )
 
@@ -59,7 +62,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
         subject.receive(.languageTapped(.custom(languageCode: "th")))
 
         XCTAssertEqual(subject.state.currentLanguage, .custom(languageCode: "th"))
-        XCTAssertEqual(stateService.appLanguage, .custom(languageCode: "th"))
+        XCTAssertEqual(languageStateService.appLanguage, .custom(languageCode: "th"))
         XCTAssertEqual(delegate.selectedLanguage, .custom(languageCode: "th"))
         XCTAssertEqual(coordinator.alertShown.last, .languageChanged(to: LanguageOption("th").title) {})
 
