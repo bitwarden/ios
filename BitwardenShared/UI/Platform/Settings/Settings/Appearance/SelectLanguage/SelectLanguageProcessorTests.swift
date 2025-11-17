@@ -12,7 +12,6 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSelectLanguageDelegate!
     var languageStateService: MockLanguageStateService!
-    var stateService: MockStateService!
     var subject: SelectLanguageProcessor!
 
     // MARK: Setup & Teardown
@@ -23,10 +22,8 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         delegate = MockSelectLanguageDelegate()
         languageStateService = MockLanguageStateService()
-        stateService = MockStateService()
         let services = ServiceContainer.withMocks(
             languageStateService: languageStateService,
-            stateService: stateService,
         )
 
         subject = SelectLanguageProcessor(
@@ -42,7 +39,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         delegate = nil
-        stateService = nil
+        languageStateService = nil
         subject = nil
     }
 

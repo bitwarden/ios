@@ -24,6 +24,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasErrorReporter
         & HasExportItemsService
         & HasImportItemsService
+        & HasLanguageStateService
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
