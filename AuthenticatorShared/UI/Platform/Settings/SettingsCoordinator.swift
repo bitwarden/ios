@@ -12,6 +12,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = FileSelectionModule
         & FlightRecorderModule
+        & NavigatorBuilderModule
         & TutorialModule
 
     typealias Services = HasAppInfoService
@@ -132,8 +133,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             services: services,
         )
         let view = ExportItemsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows a flight recorder view.
@@ -155,8 +155,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             services: services,
         )
         let view = ImportItemsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Presents an activity controller for importing items.
@@ -173,7 +172,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     }
 
     private func showImportItemsQrCode(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
@@ -196,8 +195,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             state: SelectLanguageState(currentLanguage: currentLanguage),
         )
         let view = SelectLanguageView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the settings screen.
@@ -215,7 +213,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
             stackNavigator: navigationController,
         )

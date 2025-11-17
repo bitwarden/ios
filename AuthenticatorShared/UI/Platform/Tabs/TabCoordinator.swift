@@ -11,6 +11,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = ItemListModule
+        & NavigatorBuilderModule
         & SettingsModule
 
     // MARK: Properties
@@ -85,13 +86,13 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         rootNavigator.show(child: tabNavigator)
 
-        let itemListNavigator = UINavigationController()
+        let itemListNavigator = module.makeNavigationController()
         itemListNavigator.navigationBar.prefersLargeTitles = true
         itemListCoordinator = module.makeItemListCoordinator(
             stackNavigator: itemListNavigator,
         )
 
-        let settingsNavigator = UINavigationController()
+        let settingsNavigator = module.makeNavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
         let settingsCoordinator = module.makeSettingsCoordinator(
             stackNavigator: settingsNavigator,
