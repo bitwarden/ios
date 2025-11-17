@@ -12,9 +12,6 @@ public enum SessionTimeoutType: Codable, Equatable, Hashable, Sendable {
     /// Never time out the session.
     case never
 
-    /// Group of time out values defined by strings eg: one minute, five minutes, etc
-    case predefined
-
     /// A custom timeout value.
     case custom
 
@@ -27,8 +24,6 @@ public enum SessionTimeoutType: Codable, Equatable, Hashable, Sendable {
             "immediately"
         case .onAppRestart:
             "onAppRestart"
-        case .predefined:
-            "predefined"
         case .never:
             "never"
         case .custom:
@@ -43,8 +38,6 @@ public enum SessionTimeoutType: Codable, Equatable, Hashable, Sendable {
             "immediately"
         case .onAppRestart:
             "on app restart"
-        case .predefined:
-            "predefined"
         case .never:
             "never"
         case .custom:
@@ -94,7 +87,7 @@ public enum SessionTimeoutType: Codable, Equatable, Hashable, Sendable {
              .oneHour,
              .oneMinute,
              .thirtyMinutes:
-            self = .predefined
+            self = .custom
         }
     }
 }

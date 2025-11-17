@@ -102,7 +102,7 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-    
+
     /// The policy's maximum vault timeout value.
     var policyTimeoutValue: Int = 0
 
@@ -279,7 +279,7 @@ struct AccountSecurityState: Equatable {
                 if option.isCustomPlaceholder { return true }
                 guard let time = option.minutesValue else { return false }
                 return time <= value
-            case nil, .predefined:
+            case nil:
                 if value > 0 {
                     if option.isCustomPlaceholder { return true }
                     guard let time = option.minutesValue else { return false }

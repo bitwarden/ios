@@ -8,11 +8,11 @@ final class SessionTimeoutTypeTests: BitwardenTestCase {
     func test_initFromRawValue() {
         XCTAssertEqual(SessionTimeoutType.immediately, SessionTimeoutType(rawValue: "immediately"))
         XCTAssertEqual(SessionTimeoutType.onAppRestart, SessionTimeoutType(rawValue: "onAppRestart"))
-        //`onSystemLock` value maps to `onAppRestart` on mobile.
+        // `onSystemLock` value maps to `onAppRestart` on mobile.
         XCTAssertEqual(SessionTimeoutType.onAppRestart, SessionTimeoutType(rawValue: "onSystemLock"))
         XCTAssertEqual(SessionTimeoutType.never, SessionTimeoutType(rawValue: "never"))
         XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: "custom"))
-        //`nil` value maps to `custom` on mobile in support to legacy.
+        // `nil` value maps to `custom` on mobile in support to legacy.
         XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: nil))
     }
 
@@ -24,14 +24,14 @@ final class SessionTimeoutTypeTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .custom(123)))
     }
 
-    /// `init(value:)` returns `.predefined` for all predefined timeout values.
+    /// `init(value:)` returns `.custom` for all predefined timeout values.
     func test_initFromSessionTimeoutValue_predefined() {
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .oneMinute))
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .fiveMinutes))
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .fifteenMinutes))
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .thirtyMinutes))
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .oneHour))
-        XCTAssertEqual(SessionTimeoutType.predefined, SessionTimeoutType(value: .fourHours))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .oneMinute))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .fiveMinutes))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .fifteenMinutes))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .thirtyMinutes))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .oneHour))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(value: .fourHours))
     }
 
     /// `rawValue` returns the correct string values.
@@ -39,7 +39,6 @@ final class SessionTimeoutTypeTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutType.immediately.rawValue, "immediately")
         XCTAssertEqual(SessionTimeoutType.onAppRestart.rawValue, "onAppRestart")
         XCTAssertEqual(SessionTimeoutType.never.rawValue, "never")
-        XCTAssertEqual(SessionTimeoutType.predefined.rawValue, "predefined")
         XCTAssertEqual(SessionTimeoutType.custom.rawValue, "custom")
     }
 
@@ -48,7 +47,6 @@ final class SessionTimeoutTypeTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutType.immediately.timeoutType, "immediately")
         XCTAssertEqual(SessionTimeoutType.onAppRestart.timeoutType, "on app restart")
         XCTAssertEqual(SessionTimeoutType.never.timeoutType, "never")
-        XCTAssertEqual(SessionTimeoutType.predefined.timeoutType, "predefined")
         XCTAssertEqual(SessionTimeoutType.custom.timeoutType, "custom")
     }
 }
