@@ -182,6 +182,7 @@ public class ServiceContainer: Services {
         let cameraService = DefaultCameraService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let keychainService = DefaultKeychainService()
+        let timeProvider = CurrentTime()
 
         let keychainRepository = DefaultKeychainRepository(
             appIdService: appIdService,
@@ -193,10 +194,19 @@ public class ServiceContainer: Services {
             dataStore: dataStore,
         )
 
+        let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider,
+        )
+        errorReporter.add(logger: flightRecorder)
+
         let environmentService = DefaultEnvironmentService()
 
         let apiService = APIService(
             environmentService: environmentService,
+            flightRecorder: flightRecorder,
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(
@@ -204,7 +214,6 @@ public class ServiceContainer: Services {
             appInfoService: appInfoService,
         )
 
-        let timeProvider = CurrentTime()
         let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
         let biometricsRepository = DefaultBiometricsRepository(
@@ -236,14 +245,6 @@ public class ServiceContainer: Services {
         let cryptographyService = DefaultCryptographyService(
             cryptographyKeyService: cryptographyKeyService,
         )
-
-        let flightRecorder = DefaultFlightRecorder(
-            appInfoService: appInfoService,
-            errorReporter: errorReporter,
-            stateService: stateService,
-            timeProvider: timeProvider,
-        )
-        errorReporter.add(logger: flightRecorder)
 
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
