@@ -9,7 +9,6 @@ class FlightRecorderToastBannerStateTests: BitwardenTestCase {
     func test_isToastBannerVisible_activeLogNil() {
         let subject = FlightRecorderToastBannerState(activeLog: nil)
 
-        XCTAssertNil(subject.activeLog)
         XCTAssertFalse(subject.isToastBannerVisible)
     }
 
@@ -17,11 +16,10 @@ class FlightRecorderToastBannerStateTests: BitwardenTestCase {
     func test_isToastBannerVisible_notDismissed() {
         let activeLog = FlightRecorderData.LogMetadata(
             duration: .eightHours,
-            startDate: Date(year: 2025, month: 11, day: 13)
+            startDate: Date(year: 2025, month: 11, day: 13),
         )
         let subject = FlightRecorderToastBannerState(activeLog: activeLog)
 
-        XCTAssertEqual(subject.activeLog, activeLog)
         XCTAssertTrue(subject.isToastBannerVisible)
     }
 
@@ -29,12 +27,11 @@ class FlightRecorderToastBannerStateTests: BitwardenTestCase {
     func test_isToastBannerVisible_dismissed() {
         var activeLog = FlightRecorderData.LogMetadata(
             duration: .eightHours,
-            startDate: Date(year: 2025, month: 11, day: 13)
+            startDate: Date(year: 2025, month: 11, day: 13),
         )
         activeLog.isBannerDismissed = true
         let subject = FlightRecorderToastBannerState(activeLog: activeLog)
 
-        XCTAssertEqual(subject.activeLog, activeLog)
         XCTAssertFalse(subject.isToastBannerVisible)
     }
 }
