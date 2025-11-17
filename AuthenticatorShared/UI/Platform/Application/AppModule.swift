@@ -56,3 +56,17 @@ extension DefaultAppModule: AppModule {
         ).asAnyCoordinator()
     }
 }
+
+// MARK: - DefaultAppModule + FlightRecorderModule
+
+extension DefaultAppModule: FlightRecorderModule {
+    public func makeFlightRecorderCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        FlightRecorderCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
