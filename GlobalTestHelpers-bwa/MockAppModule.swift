@@ -1,6 +1,7 @@
 @testable import AuthenticatorShared
 import BitwardenKit
 import BitwardenKitMocks
+import UIKit
 
 // MARK: - MockAppModule
 
@@ -11,6 +12,7 @@ class MockAppModule:
     FileSelectionModule,
     FlightRecorderModule,
     ItemListModule,
+    NavigatorBuilderModule,
     TutorialModule,
     TabModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
@@ -67,6 +69,10 @@ class MockAppModule:
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         itemListCoordinator.asAnyCoordinator()
+    }
+
+    func makeNavigationController() -> UINavigationController {
+        UINavigationController()
     }
 
     func makeTabCoordinator(
