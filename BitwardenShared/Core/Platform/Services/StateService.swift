@@ -1437,7 +1437,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService { // swiftlint:disable:this type_body_length line_length
+actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService { // swiftlint:disable:this type_body_length line_length
     // MARK: Properties
 
     /// The language option currently selected for the app.

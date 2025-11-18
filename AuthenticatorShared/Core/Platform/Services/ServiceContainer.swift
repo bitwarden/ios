@@ -62,6 +62,9 @@ public class ServiceContainer: Services {
     /// The service used to import items.
     let importItemsService: ImportItemsService
 
+    /// The state service that handles language state.
+    public let languageStateService: LanguageStateService
+
     /// The service used to perform app data migrations.
     let migrationService: MigrationService
 
@@ -105,6 +108,7 @@ public class ServiceContainer: Services {
     ///   - exportItemsService: The service to export items.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - importItemsService: The service to import items.
+    ///   - languageStateService: The service for handling language state.
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
@@ -129,6 +133,7 @@ public class ServiceContainer: Services {
         exportItemsService: ExportItemsService,
         flightRecorder: FlightRecorder,
         importItemsService: ImportItemsService,
+        languageStateService: LanguageStateService,
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
@@ -152,6 +157,7 @@ public class ServiceContainer: Services {
         self.exportItemsService = exportItemsService
         self.flightRecorder = flightRecorder
         self.importItemsService = importItemsService
+        self.languageStateService = languageStateService
         self.migrationService = migrationService
         self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
@@ -336,6 +342,7 @@ public class ServiceContainer: Services {
             exportItemsService: exportItemsService,
             flightRecorder: flightRecorder,
             importItemsService: importItemsService,
+            languageStateService: stateService,
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
