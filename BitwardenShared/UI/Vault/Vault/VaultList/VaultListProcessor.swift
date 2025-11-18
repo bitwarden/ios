@@ -267,7 +267,6 @@ extension VaultListProcessor {
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
-        state.isFlightRecorderToastBannerVisible = false
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
@@ -499,8 +498,7 @@ extension VaultListProcessor {
     ///
     private func streamFlightRecorderLog() async {
         for await log in await services.flightRecorder.activeLogPublisher().values {
-            state.activeFlightRecorderLog = log
-            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
+            state.flightRecorderToastBanner.activeLog = log
         }
     }
 

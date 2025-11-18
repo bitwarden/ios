@@ -510,11 +510,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_dismissFlightRecorderToastBanner() async {
         stateService.activeAccount = .fixture()
-        subject.state.isFlightRecorderToastBannerVisible = true
 
         await subject.perform(.dismissFlightRecorderToastBanner)
 
-        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
         XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 
@@ -870,31 +868,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
 
         flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
-        try await waitForAsync { self.subject.state.isFlightRecorderToastBannerVisible }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, true)
+        try await waitForAsync { self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, true)
 
         flightRecorder.activeLogSubject.send(nil)
-        try await waitForAsync { !self.subject.state.isFlightRecorderToastBannerVisible }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
-    }
-
-    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log but doesn't
-    /// display the flight recorder banner if the user has dismissed it previously.
-    @MainActor
-    func test_perform_streamFlightRecorderLog_userDismissed() async throws {
-        stateService.activeAccount = .fixture()
-
-        let task = Task {
-            await subject.perform(.streamFlightRecorderLog)
-        }
-        defer { task.cancel() }
-
-        var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        log.isBannerDismissed = true
-        flightRecorder.activeLogSubject.send(log)
-
-        try await waitForAsync { self.subject.state.activeFlightRecorderLog != nil }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
+        try await waitForAsync { !self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, false)
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
