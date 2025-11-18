@@ -7,8 +7,6 @@ import XCTest
 
 // MARK: - SelectLanguageViewTests
 
-@testable import BitwardenShared
-
 class SelectLanguageViewTests: BitwardenTestCase {
     // MARK: Properties
 
