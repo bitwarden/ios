@@ -86,19 +86,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: Authenticator
     sources:
-      - path: Authenticator
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/swiftgen-bwa.yml"
-          - "**/GoogleService-Info.*.plist"
-          - "**/__Snapshots__/*"
-      - path: Authenticator
-        includes:
-          - "**/__Snapshots__/*"
-          - "**/GoogleService-Info.*.plist"
-        buildPhase: none
       - path: README-bwa.md
         buildPhase: none
       - path: swiftgen-bwa.yml
@@ -144,11 +136,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: Authenticator
     sources:
-      - path: Authenticator
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
@@ -167,19 +159,11 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorShared
     sources:
-      - path: AuthenticatorShared
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/Fixtures/*"
-          - "**/__Snapshots__/*"
-          - "**/Sourcery/Generated/*"
-          - "**/sourcery.yml"
-      - path: AuthenticatorShared
-        includes:
-          - "**/__Snapshots__/*"
-        buildPhase: none
       - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
@@ -248,14 +232,11 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
         INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorShared
     sources:
-      - path: AuthenticatorShared
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-        excludes:
-          - "**/*SnapshotTests.*"
-          - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
@@ -276,11 +257,11 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
         INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - SnapshotTestTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorShared
     sources:
-      - path: AuthenticatorShared
-        includes:
-          - "**/*SnapshotTests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
@@ -302,11 +283,11 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
         INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - ViewInspectorTestTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorShared
     sources:
-      - path: AuthenticatorShared
-        includes:
-          - "**/*ViewInspectorTests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator

@@ -67,14 +67,10 @@ targets:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
         SWIFT_STRICT_CONCURRENCY: complete
-    sources:
-      - path: AuthenticatorBridgeKit
-        excludes:
-          - "**/Fixtures/*"
-          - "**/Mocks/*"
-          - "**/Tests/*"
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorBridgeKit
     dependencies:
       - target: BitwardenKit
   AuthenticatorBridgeKitTests:
@@ -84,12 +80,10 @@ targets:
       base:
         INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
         SWIFT_STRICT_CONCURRENCY: complete
-    sources:
-      - path: AuthenticatorBridgeKit
-        includes:
-          - "**/Tests/*"
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorBridgeKit
     dependencies:
       - target: AuthenticatorBridgeKit
       - target: AuthenticatorBridgeKitMocks
@@ -124,21 +118,12 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: BitwardenKit/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenKit
     sources:
-      - path: BitwardenKit
-        excludes:
-          - "**/Fixtures/*"
-          - "**/Mocks/*"
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/__Snapshots__/*"
-          - "**/Sourcery/Generated/*"
-          - "**/sourcery.yml"
-      - path: BitwardenKit
-        includes:
-          - "**/__Snapshots__/*"
-          - "**/GoogleService-Info.*.plist"
-          - "**/sourcery.yml"
+      - path: BitwardenKit/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
       - package: BitwardenSdk
@@ -178,14 +163,10 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    sources:
-      - path: BitwardenKit
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-        excludes:
-          - "**/*SnapshotTests.*"
-          - "**/*ViewInspectorTests.*"
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenKit
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
@@ -201,11 +182,10 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    sources:
-      - path: BitwardenKit
-        includes:
-          - "**/*SnapshotTests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - SnapshotTestTarget
+    templateAttributes:
+      sourcesPath: BitwardenKit
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
@@ -219,11 +199,10 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    sources:
-      - path: BitwardenKit
-        includes:
-          - "**/*ViewInspectorTests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - ViewInspectorTestTarget
+    templateAttributes:
+      sourcesPath: BitwardenKit
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
