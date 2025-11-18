@@ -11,6 +11,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = FileSelectionModule
+        & FlightRecorderModule
         & TutorialModule
 
     typealias Services = HasAppInfoService
@@ -23,6 +24,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportItemsService
+        & HasFlightRecorder
         & HasImportItemsService
         & HasPasteboardService
         & HasStateService
@@ -81,6 +83,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case .exportItems:
             showExportItems()
+        case let .flightRecorder(flightRecorderRoute):
+            showFlightRecorder(route: flightRecorderRoute)
         case .importItems:
             showImportItems()
         case let .importItemsFileSelection(route):
@@ -130,6 +134,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = ExportItemsView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows a flight recorder view.
+    ///
+    /// - Parameter route: A `FlightRecorderRoute` to navigate to.
+    ///
+    private func showFlightRecorder(route: FlightRecorderRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFlightRecorderCoordinator(stackNavigator: stackNavigator)
+        coordinator.start()
+        coordinator.navigate(to: route)
     }
 
     /// Presents an activity controller for importing items.

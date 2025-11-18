@@ -11,6 +11,9 @@ enum AboutAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 
+    /// An action for the Flight Recorder feature.
+    case flightRecorder(FlightRecorderSettingsSectionAction)
+
     /// The help center button was tapped.
     case helpCenterTapped
 
@@ -31,9 +34,6 @@ enum AboutAction: Equatable {
 
     /// The version was tapped.
     case versionTapped
-
-    /// The view flight recorder logs button was tapped.
-    case viewFlightRecorderLogsTapped
 
     /// The web vault button was tapped.
     case webVaultTapped
