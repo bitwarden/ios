@@ -60,6 +60,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & LoginRequestModule
         & NavigatorBuilderModule
         & PasswordAutoFillModule
+        & SelectLanguageModule
 
     typealias Services = HasAccountAPIService
         & HasAppInfoService
@@ -481,13 +482,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the select language screen.
     ///
     private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
-        let processor = SelectLanguageProcessor(
-            coordinator: asAnyCoordinator(),
+        guard let stackNavigator else { return }
+        let coordinator = module.makeSelectLanguageCoordinator(
             delegate: delegate,
-            services: services,
-            state: SelectLanguageState(currentLanguage: currentLanguage),
+            stackNavigator: stackNavigator,
         )
-        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
+        coordinator.start()
+        coordinator.navigate(to: .showSelectLanguage)
+//        let processor = SelectLanguageProcessor(
+//            coordinator: asAnyCoordinator(),
+//            delegate: delegate,
+//            services: services,
+//            state: SelectLanguageState(currentLanguage: currentLanguage),
+//        )
+//        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
     }
 
     /// Shows the settings screen.

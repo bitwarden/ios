@@ -28,6 +28,7 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     public init(
+        delegate: SelectLanguageDelegate?,
         services: Services,
         stackNavigator: StackNavigator,
     ) {
@@ -41,6 +42,8 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
+        case .showSelectLanguage:
+            break
         }
     }
 

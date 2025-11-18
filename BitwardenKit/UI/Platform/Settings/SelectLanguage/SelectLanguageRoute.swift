@@ -3,4 +3,7 @@
 public enum SelectLanguageRoute: Equatable, Hashable, Sendable {
     /// A route that dismisses the current view.
     case dismiss
+
+    /// A route that shows the Select Language view.
+    case showSelectLanguage
 }

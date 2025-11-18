@@ -11,6 +11,7 @@ public protocol SelectLanguageModule {
     /// - Returns: A coordinator that can navigate to `SelectLanguageRoute`s.
     ///
     func makeSelectLanguageCoordinator(
+        delegate: SelectLanguageDelegate?,
         stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SelectLanguageRoute, Void>
 }
