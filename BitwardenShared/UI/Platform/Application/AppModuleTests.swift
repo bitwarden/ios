@@ -141,6 +141,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeSelectLanguageCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSelectLanguageCoordinator(
+            delegate: MockSelectLanguageDelegate(),
             stackNavigator: navigationController
         )
         coordinator.start()

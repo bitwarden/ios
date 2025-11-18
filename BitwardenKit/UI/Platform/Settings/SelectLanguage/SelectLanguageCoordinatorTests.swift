@@ -16,6 +16,7 @@ class SelectLanguageCoordinatorTests: BitwardenTestCase {
         stackNavigator = MockStackNavigator()
 
         subject = SelectLanguageCoordinator(
+            delegate: nil,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator,
         )
@@ -38,5 +39,16 @@ class SelectLanguageCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.open(currentLanguage:)` presents the Select Language view.
+    @MainActor
+    func test_navigateTo_flightRecorderLogs() throws {
+        subject.navigate(to: .open(currentLanguage: LanguageOption("es")))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelectLanguageView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 }

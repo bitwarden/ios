@@ -2,7 +2,7 @@
 
 /// The delegate for updating the parent view after a language has been selected.
 @MainActor
-public protocol SelectLanguageDelegate: AnyObject {
+public protocol SelectLanguageDelegate: AnyObject { // sourcery: AutoMockable
     /// A language has been selected.
     func languageSelected(_ languageOption: LanguageOption)
 }

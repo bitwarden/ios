@@ -46,7 +46,7 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
-        case .open(let currentLanguage):
+        case let .open(currentLanguage):
             let processor = SelectLanguageProcessor(
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,

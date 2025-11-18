@@ -2,7 +2,7 @@ import BitwardenResources
 
 // MARK: - Alert + Select Language
 
-extension Alert {
+public extension Alert {
     // MARK: Methods
 
     /// Show the alert notifying the user that the language has been changed.
@@ -24,5 +24,4 @@ extension Alert {
             ],
         )
     }
-
 }
