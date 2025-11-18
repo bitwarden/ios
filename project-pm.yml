@@ -376,11 +376,11 @@ targets:
       base:
         ENABLE_TESTING_SEARCH_PATHS: YES
         GENERATE_INFOPLIST_FILE: YES
+    templates:
+      - MocksTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
     sources:
-      - path: BitwardenShared
-        includes:
-          - "**/Fixtures/*"
-          - "**/Mocks/*"
       - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:

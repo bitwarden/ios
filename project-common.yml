@@ -46,13 +46,19 @@ targetTemplates:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
+  # Adds common include/excludes for mocks targets.
+  MocksTarget:
+    sources:
+      - path: ${sourcesPath}
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
   # Adds common include/excludes for snapshot test targets.
   SnapshotTestTarget:
     sources:
       - path: ${sourcesPath}
         includes:
           - "**/*SnapshotTests.*"
-          - "**/Fixtures/*"
           - "**/TestHelpers/*"
   # Adds the Sourcery pre-build script.
   SourceryTarget:
@@ -78,7 +84,6 @@ targetTemplates:
           - "**/*ViewInspectorTests.*"
         includes:
           - "**/*Tests.*"
-          - "**/Fixtures/*"
           - "**/TestHelpers/*"
   # Adds common include/excludes for ViewInspector test targets.
   ViewInspectorTestTarget:
@@ -86,5 +91,4 @@ targetTemplates:
       - path: ${sourcesPath}
         includes:
           - "**/*ViewInspectorTests.*"
-          - "**/Fixtures/*"
           - "**/TestHelpers/*"

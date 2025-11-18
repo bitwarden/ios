@@ -203,11 +203,11 @@ targets:
       base:
         ENABLE_TESTING_SEARCH_PATHS: YES
         GENERATE_INFOPLIST_FILE: YES
+    templates:
+      - MocksTarget
+    templateAttributes:
+      sourcesPath: AuthenticatorShared
     sources:
-      - path: AuthenticatorShared
-        includes:
-          - "**/Fixtures/*"
-          - "**/Mocks/*"
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:
