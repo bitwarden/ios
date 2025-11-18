@@ -135,6 +135,18 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<PasswordAutoFillView>)
     }
 
+    /// `makeSelectLanguageCoordinator()` builds the select language coordinator.
+    /// TODO: Fix this
+    @MainActor
+    func test_makeSelectLanguageCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeSelectLanguageCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 0)
+    }
+
     /// `makeSendCoordinator()` builds the send coordinator.
     @MainActor
     func test_makeSendCoordinator() {
