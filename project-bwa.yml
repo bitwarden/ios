@@ -157,6 +157,7 @@ targets:
         INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/Support/Info.plist
     templates:
       - CommonTarget
+      - SourceryTarget
     templateAttributes:
       sourcesPath: AuthenticatorShared
     sources:
@@ -164,8 +165,6 @@ targets:
         optional: true
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
         optional: true
-      - path: AuthenticatorShared/Sourcery/sourcery.yml
-        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - package: SwiftProtobuf
@@ -193,15 +192,6 @@ targets:
                  $SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/GoogleAuth.proto
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -216,8 +206,6 @@ targets:
       sourcesPath: AuthenticatorShared
     sources:
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:
@@ -243,8 +231,6 @@ targets:
       sourcesPath: AuthenticatorShared
     sources:
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:
@@ -271,8 +257,6 @@ targets:
       sourcesPath: AuthenticatorShared
     sources:
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
       - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
         optional: true
     dependencies:

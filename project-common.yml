@@ -54,6 +54,21 @@ targetTemplates:
           - "**/*SnapshotTests.*"
           - "**/Fixtures/*"
           - "**/TestHelpers/*"
+  # Adds the Sourcery pre-build script.
+  SourceryTarget:
+    sources:
+      - path: ${sourcesPath}/Sourcery/sourcery.yml
+        buildPhase: none
+    preBuildScripts:
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config ${sourcesPath}/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/${sourcesPath}/Sourcery/Generated/AutoMockable.generated.swift
   # Adds common include/excludes for test targets.
   TestTarget:
     sources:
