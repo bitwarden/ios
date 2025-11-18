@@ -150,10 +150,16 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    templates:
-      - TestTarget
-    templateAttributes:
-      sourcesPath: BitwardenKit
+    # Can't use the TestTarget template here because it includes Fixtures, but those should be excluded
+    # here and included in BitwardenKitMocks instead.
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
@@ -168,10 +174,13 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    templates:
-      - SnapshotTestTarget
-    templateAttributes:
-      sourcesPath: BitwardenKit
+    # Can't use the SnapshotTestTarget template here because it includes Fixtures, but those should be excluded
+    # here and included in BitwardenKitMocks instead.
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
@@ -185,10 +194,13 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
-    templates:
-      - ViewInspectorTestTarget
-    templateAttributes:
-      sourcesPath: BitwardenKit
+    # Can't use the ViewInspectorTestTarget template here because it includes Fixtures, but those should be excluded
+    # here and included in BitwardenKitMocks instead.
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
