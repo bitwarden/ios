@@ -346,14 +346,13 @@ targets:
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist
     templates:
       - CommonTarget
+      - SourceryTarget
     templateAttributes:
       sourcesPath: BitwardenShared
     sources:
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
       - path: BitwardenWatchShared
-      - path: BitwardenShared/Sourcery/sourcery.yml
-        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - target: BitwardenKit/AuthenticatorBridgeKit
@@ -370,15 +369,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenSharedMocks:
     type: framework
     platform: iOS

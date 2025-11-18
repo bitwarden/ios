@@ -120,26 +120,14 @@ targets:
         INFOPLIST_FILE: BitwardenKit/Info.plist
     templates:
       - CommonTarget
+      - SourceryTarget
     templateAttributes:
       sourcesPath: BitwardenKit
-    sources:
-      - path: BitwardenKit/Sourcery/sourcery.yml
-        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - package: SwiftUIIntrospect
       - target: BitwardenResources
       - target: Networking
-    preBuildScripts:
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenKitMocks:
     type: framework
     platform: iOS
