@@ -481,7 +481,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the select language screen.
     ///
-    private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
+    private func showSelectLanguage(
+        currentLanguage: LanguageOption,
+        delegate: SelectLanguageDelegate?,
+    ) {
         guard let stackNavigator else { return }
         let coordinator = module.makeSelectLanguageCoordinator(
             delegate: delegate,

@@ -4,6 +4,6 @@ public enum SelectLanguageRoute: Equatable, Hashable, Sendable {
     /// A route that dismisses the current view.
     case dismiss
 
-    /// A route that shows the Select Language view.
-    case showSelectLanguage
+    /// A route that opens the Select Language view, with a particular language having been selected.
+    case open(currentLanguage: LanguageOption)
 }
