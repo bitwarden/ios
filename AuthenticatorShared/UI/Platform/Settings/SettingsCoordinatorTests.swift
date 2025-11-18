@@ -69,6 +69,16 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportItemsView>)
     }
 
+    /// `navigate(to:)` with `.flightRecorder` starts flight recorder coordinator and navigates to
+    /// the enable flight recorder view.
+    @MainActor
+    func test_navigateTo_flightRecorder() throws {
+        subject.navigate(to: .flightRecorder(.enableFlightRecorder))
+
+        XCTAssertTrue(module.flightRecorderCoordinator.isStarted)
+        XCTAssertEqual(module.flightRecorderCoordinator.routes.last, .enableFlightRecorder)
+    }
+
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {

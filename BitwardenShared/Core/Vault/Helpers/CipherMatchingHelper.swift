@@ -1,21 +1,6 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: CipherMatchResult
-
-/// An enum describing the strength that a cipher matches a URI.
-///
-enum CipherMatchResult {
-    /// The cipher is an exact match for the URI.
-    case exact
-
-    /// The cipher is a close match for the URI.
-    case fuzzy
-
-    /// The cipher doesn't match the URI.
-    case none
-}
-
 // MARK: CipherMatchingHelper
 
 /// A helper to handle filtering ciphers that match a URI.

@@ -173,12 +173,15 @@ class VaultItemSelectionProcessor: StateProcessor<
             return
         }
         do {
-            let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                group: .login,
-                filter: VaultListFilter(filterType: .allVaults),
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: .allVaults,
+                    group: .login,
+                    searchText: searchText,
+                ),
             )
-            for try await items in searchPublisher {
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
                 state.searchResults = items
                 state.showNoResults = items.isEmpty
             }
@@ -231,23 +234,15 @@ class VaultItemSelectionProcessor: StateProcessor<
     private func streamVaultItems() async {
         guard let searchName = state.ciphersMatchingName else { return }
         do {
-            for try await items in try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchName,
-                group: .login,
-                filter: VaultListFilter(filterType: .allVaults),
+            for try await vaultListData in try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: .allVaults,
+                    group: .login,
+                    options: [.isInPickerMode],
+                    searchText: searchName,
+                ),
             ) {
-                guard !items.isEmpty else {
-                    state.vaultListSections = []
-                    continue
-                }
-
-                state.vaultListSections = [
-                    VaultListSection(
-                        id: Localizations.matchingItems,
-                        items: items,
-                        name: Localizations.matchingItems,
-                    ),
-                ]
+                state.vaultListSections = vaultListData.sections
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

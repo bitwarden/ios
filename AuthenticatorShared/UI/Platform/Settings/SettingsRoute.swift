@@ -11,6 +11,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the export items view.
     case exportItems
 
+    /// A route to a Flight Recorder view.
+    case flightRecorder(FlightRecorderRoute)
+
     /// A route to the import items view.
     case importItems
 

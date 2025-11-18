@@ -19,6 +19,7 @@ class MockStateService: StateService {
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
+    var flightRecorderData: FlightRecorderData?
     var preAuthServerConfig: ServerConfig?
     var secretKeyValues = [String: String]()
     var serverConfig = [String: ServerConfig]()
@@ -46,6 +47,10 @@ class MockStateService: StateService {
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        flightRecorderData
+    }
+
     func getPreAuthServerConfig() async -> ServerConfig? {
         preAuthServerConfig
     }
@@ -71,6 +76,10 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        flightRecorderData = data
     }
 
     func setShowWebIcons(_ showWebIcons: Bool) async {

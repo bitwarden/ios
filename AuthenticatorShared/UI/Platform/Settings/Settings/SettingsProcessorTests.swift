@@ -14,6 +14,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var flightRecorder: MockFlightRecorder!
     var pasteboardService: MockPasteboardService!
     var subject: SettingsProcessor!
 
@@ -28,6 +29,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
+        flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -37,6 +39,7 @@ class SettingsProcessorTests: BitwardenTestCase {
                 authenticatorItemRepository: authItemRepository,
                 biometricsRepository: biometricsRepository,
                 configService: configService,
+                flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
             ),
             state: SettingsState(),
@@ -52,11 +55,37 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = nil
         configService = nil
         coordinator = nil
+        flightRecorder = nil
         pasteboardService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(true))` navigates to the enable
+    /// flight recorder screen when toggled on.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_on() async {
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(true)))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.enableFlightRecorder)])
+    }
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(false))` disables the flight
+    /// recorder when toggled off.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_off() async throws {
+        subject.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(false)))
+
+        XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
+    }
 
     /// Performing `.loadData` sets the 'defaultSaveOption' to the current value in 'AppSettingsStore'.
     @MainActor
@@ -157,6 +186,26 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
     }
 
+    /// `perform(_:)` with `.streamFlightRecorderLog` subscribes to the active flight recorder log.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        let log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        flightRecorder.activeLogSubject.send(log)
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog != nil }
+        XCTAssertEqual(subject.state.flightRecorderState.activeLog, log)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog == nil }
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+    }
+
     /// Performing `.toggleUnlockWithBiometrics` with a `false` value disables biometric unlock and resets the
     /// session timeout to `.never`
     @MainActor
@@ -214,6 +263,15 @@ class SettingsProcessorTests: BitwardenTestCase {
         subject.receive(.exportItemsTapped)
 
         XCTAssertEqual(coordinator.routes.last, .exportItems)
+    }
+
+    /// `receive(_:)` with action `.flightRecorder(.viewLogsTapped)` navigates to the view flight
+    /// recorder logs screen.
+    @MainActor
+    func test_receive_flightRecorder_viewFlightRecorderLogsTapped() {
+        subject.receive(.flightRecorder(.viewLogsTapped))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.flightRecorderLogs)])
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to

@@ -125,4 +125,3 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
 extension AuthenticatorItemCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
 }
-

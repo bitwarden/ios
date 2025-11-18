@@ -954,7 +954,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 name: Localizations.passwordsForX("Bit"),
             ),
         ]
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: expectedSections)
+        vaultRepository.vaultListSubject.value = VaultListData(sections: expectedSections)
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -990,6 +990,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         XCTAssertFalse(subject.state.showNoResults)
+
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                mode: .combinedMultipleSections,
+                rpID: "myApp.com",
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers when creating Fido2 credential.

@@ -48,7 +48,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             case ciphers
         }
 
-        activeAccountStateProvider.activeAccountId = "1"
+        activeAccountStateProvider.getActiveAccountIdReturnValue = "1"
 
         let errorReport = await subject.buildShareErrorLog(
             for: DecodingError.keyNotFound(
@@ -94,6 +94,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     /// `buildShareErrorLog(for:callStack:)` builds an error report to share and handles there being
     /// no active account.
     func test_buildShareErrorLog_noActiveUser() async {
+        activeAccountStateProvider.getActiveAccountIdClosure = { throw BitwardenTestError.example }
         let errorReport = await subject.buildShareErrorLog(
             for: BitwardenTestError.example,
             callStack: exampleCallStack,
@@ -128,7 +129,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
 
     /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
     func test_buildShareErrorLog_stateServiceError() async {
-        activeAccountStateProvider.activeAccountId = "1"
+        activeAccountStateProvider.getActiveAccountIdReturnValue = "1"
         let errorReport = await subject.buildShareErrorLog(
             for: BitwardenTestError.example,
             callStack: exampleCallStack,

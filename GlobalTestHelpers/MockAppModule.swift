@@ -14,6 +14,7 @@ class MockAppModule:
     ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
+    FlightRecorderModule,
     GeneratorModule,
     ImportCXFModule,
     ImportLoginsModule,
@@ -38,6 +39,7 @@ class MockAppModule:
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
+    var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
@@ -107,6 +109,12 @@ class MockAppModule:
     ) -> AnyCoordinator<FileSelectionRoute, Void> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
+    }
+
+    func makeFlightRecorderCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        flightRecorderCoordinator.asAnyCoordinator()
     }
 
     func makeGeneratorCoordinator(

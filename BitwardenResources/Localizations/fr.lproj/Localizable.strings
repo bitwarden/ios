@@ -1191,7 +1191,7 @@
 "LastEdited" = "Dernière modification : %1$@";
 "PasswordLastUpdated" = "Dernière mise à jour du mot de passe : %1$@";
 "DecryptionError" = "Erreur de déchiffrement";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden n’a pas pu déchiffrer cet élément du coffre-fort. Copiez et partagez ce rapport d’erreur avec le service client afin d’éviter toute perte de données supplémentaire.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden n’a pas pu déchiffrer cet élément du coffre-fort. Copiez et partagez ce rapport d’erreur avec succès client afin d’éviter toute perte de données supplémentaire.";
 "CopyErrorReport" = "Copier le rapport d’erreur";
 "ErrorCannotDecrypt" = "[erreur : impossible de déchiffrer]";
 "AccountName" = "Nom du compte";
@@ -1261,17 +1261,17 @@
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "Comptes";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "La détection de correspondance d'URL gère comment Bitwarden identifie les suggestions de saisie automatique.";
-"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Starts with” is an advanced option with increased risk of exposing credentials.";
-"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "« Commence par » est une option avancée avec un risque accru d'exposer les identifiants.";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "« Expression régulière » est une option avancée avec un risque accru d'exposer les identifiants.";
 "StartsWithAdvanced" = "Commence par (avancé)";
 "RegularExpressionAdvanced" = "Expression régulière (avancé)";
-"AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
-"KeepYourCredentialsSecure" = "Keep your credentials secure";
+"AreYouSureYouWantToUseX" = "Êtes-vous sûr de vouloir utiliser “%1$@”?";
+"KeepYourCredentialsSecure" = "Gardez vos identifiants sécurisés";
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "En savoir plus sur la façon de sécuriser les identifiants en utilisant « %1$@».";
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Attention :** “Commence par” est une option avancée présentant un risque accru d’exposition des identifiants. ";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Attention :** “Expression régulière” est une option avancée présentant un risque accru d’exposition des identifiants si elle est mal utilisée.";
 "DefaultX" = "Par défaut (%1$@)";
-"UpdateYourEncryptionSettings" = "Update your encryption settings";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"UpdateYourEncryptionSettings" = "Mettre à jour vos paramètres de chiffrement";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
-"EncryptionSettingsUpdated" = "Encryption settings updated";
+"EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";

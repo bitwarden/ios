@@ -9,6 +9,7 @@ class MockAppModule:
     AuthModule,
     DebugMenuModule,
     FileSelectionModule,
+    FlightRecorderModule,
     ItemListModule,
     TutorialModule,
     TabModule {
@@ -18,6 +19,7 @@ class MockAppModule:
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, FileSelectionEvent>()
+    var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
@@ -53,6 +55,12 @@ class MockAppModule:
     ) -> AnyCoordinator<FileSelectionRoute, FileSelectionEvent> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
+    }
+
+    func makeFlightRecorderCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        flightRecorderCoordinator.asAnyCoordinator()
     }
 
     func makeItemListCoordinator(

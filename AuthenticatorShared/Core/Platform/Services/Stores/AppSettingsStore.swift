@@ -25,6 +25,9 @@ protocol AppSettingsStore: AnyObject {
     /// The default save location for new keys.
     var defaultSaveOption: DefaultSaveOption { get set }
 
+    /// The data used by the flight recorder for the active and any inactive logs.
+    var flightRecorderData: FlightRecorderData? { get set }
+
     /// Whether the user has seen the default save options prompt.
     var hasSeenDefaultSaveOptionPrompt: Bool { get }
 
@@ -310,6 +313,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case debugFeatureFlag(name: String)
         case defaultSaveOption
         case disableWebIcons
+        case flightRecorderData
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
         case lastActiveTime(userId: String)
@@ -342,6 +346,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "defaultSaveOption"
             case .disableWebIcons:
                 "disableFavicon"
+            case .flightRecorderData:
+                "flightRecorderData"
             case .hasSeenWelcomeTutorial:
                 "hasSeenWelcomeTutorial"
             case let .hasSyncedAccount(name: name):
@@ -392,6 +398,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             return value
         }
         set { store(newValue.rawValue, for: .defaultSaveOption) }
+    }
+
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
     }
 
     var hasSeenDefaultSaveOptionPrompt: Bool {
