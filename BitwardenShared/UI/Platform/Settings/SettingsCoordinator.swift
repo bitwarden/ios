@@ -489,9 +489,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let coordinator = module.makeSelectLanguageCoordinator(
             delegate: delegate,
             stackNavigator: stackNavigator,
-        )
+        ) 
         coordinator.start()
-        coordinator.navigate(to: .showSelectLanguage)
+        coordinator.navigate(to: .open(currentLanguage: currentLanguage))
 //        let processor = SelectLanguageProcessor(
 //            coordinator: asAnyCoordinator(),
 //            delegate: delegate,

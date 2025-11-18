@@ -53,6 +53,7 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
                 services: services,
                 state: SelectLanguageState(currentLanguage: currentLanguage),
             )
+            stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
         }
     }
 
