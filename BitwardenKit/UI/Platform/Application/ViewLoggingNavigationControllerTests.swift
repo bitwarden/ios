@@ -2,7 +2,7 @@ import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class ViewLoggingNavigationControllerTests: BitwardenTestCase {
     // MARK: Properties

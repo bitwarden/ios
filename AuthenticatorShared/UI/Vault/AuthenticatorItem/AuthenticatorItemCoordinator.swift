@@ -10,6 +10,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = AuthenticatorItemModule
+        & NavigatorBuilderModule
 
     typealias Services = HasAuthenticatorItemRepository
         & HasErrorAlertServices.ErrorAlertServices
@@ -81,7 +82,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
     private func presentChildAuthenticatorItemCoordinator(route: AuthenticatorItemRoute, context: AnyObject?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()

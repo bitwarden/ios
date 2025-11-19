@@ -25,6 +25,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = AuthenticatorItemModule
         & ItemListModule
+        & NavigatorBuilderModule
 
     typealias Services = HasErrorAlertServices.ErrorAlertServices
         & HasTimeProvider
@@ -102,7 +103,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
@@ -117,7 +118,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
@@ -149,7 +150,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
     private func showItem(route: AuthenticatorItemRoute, delegate: AuthenticatorItemOperationDelegate? = nil) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: route, context: delegate)
