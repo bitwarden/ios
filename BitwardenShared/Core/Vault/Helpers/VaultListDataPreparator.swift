@@ -70,6 +70,30 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
         folders: [Folder],
         filter: VaultListFilter,
     ) async -> VaultListPreparedData?
+
+    /// Prepares search data for the autofill's data on passwords + Fido2 combined in multiple sections
+    /// vault list bulider.
+    /// - Parameters:
+    ///   - ciphers: An array of `Cipher` objects to be processed.
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
+    func prepareSearchAutofillCombinedMultipleData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter,
+        withFido2Credentials fido2Credentials: [CipherView]?,
+    ) async -> VaultListPreparedData?
+
+    /// Prepares search data for the vault list builder.
+    /// - Parameters:
+    ///   - ciphers: An array of `Cipher` objects to be processed.
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    /// Returns `nil` if the vault is empty.
+    func prepareSearchData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter,
+    ) async -> VaultListPreparedData?
 }
 
 /// Default implementation of `VaultListDataPreparator`.
@@ -106,15 +130,15 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+        await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
                   decryptedCipher.deletedDate == nil,
-                  decryptedCipher.canBeUsedInBasicLoginAutofill,
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                  decryptedCipher.canBeUsedInBasicLoginAutofill else {
                 return
             }
 
@@ -141,14 +165,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+        await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
-                  decryptedCipher.deletedDate == nil,
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                  decryptedCipher.deletedDate == nil else {
                 return
             }
 
@@ -157,18 +181,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
                 return
             }
 
-            if let fido2Credentials,
-               decryptedCipher.type.loginListView?.hasFido2 == true,
-               fido2Credentials.contains(where: { $0.id == decryptedCipher.id }) {
-                preparedDataBuilder = await preparedDataBuilder.addFido2Item(cipher: decryptedCipher)
-            }
-
-            if decryptedCipher.canBeUsedInBasicLoginAutofill {
-                preparedDataBuilder = await preparedDataBuilder.addItem(
-                    forGroup: .login,
-                    with: decryptedCipher,
-                )
-            }
+            preparedDataBuilder = await preparedDataBuilder.addItemsForCombinedMultipleSections(
+                decryptedCipher: decryptedCipher,
+                withFido2Credentials: fido2Credentials,
+            )
         }
 
         return preparedDataBuilder.build()
@@ -185,14 +201,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
 
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+        await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
-                  decryptedCipher.deletedDate == nil,
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                  decryptedCipher.deletedDate == nil else {
                 return
             }
 
@@ -226,26 +242,20 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         }
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
-
-        preparedDataBuilder = preparedDataBuilder
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+        await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
-            guard filter.filterType.cipherFilter(decryptedCipher),
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
-                return
-            }
-
             guard decryptedCipher.deletedDate == nil else {
                 preparedDataBuilder = preparedDataBuilder.incrementCipherDeletedCount()
                 return
             }
 
-            if filter.addTOTPGroup {
+            if filter.options.contains(.addTOTPGroup) {
                 preparedDataBuilder = await preparedDataBuilder.incrementTOTPCount(cipher: decryptedCipher)
             }
 
@@ -272,20 +282,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         }
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
-        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
-
-        preparedDataBuilder = preparedDataBuilder
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
-        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+        await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
-            guard filter.filterType.cipherFilter(decryptedCipher),
-                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
-                return
-            }
-
             if filter.group != .trash, decryptedCipher.deletedDate != nil {
                 return
             }
@@ -308,7 +312,106 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         return preparedDataBuilder.build()
     }
 
+    func prepareSearchAutofillCombinedMultipleData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter,
+        withFido2Credentials fido2Credentials: [CipherView]?,
+    ) async -> VaultListPreparedData? {
+        guard !ciphers.isEmpty, let searchText = filter.searchText, !searchText.isEmpty else {
+            return nil
+        }
+
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+
+        await decryptAndProcessCiphersInBatch(
+            ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
+        ) { decryptedCipher in
+            guard decryptedCipher.deletedDate == nil,
+                  decryptedCipher.belongsToGroup(.login) else {
+                return
+            }
+
+            let matchResult = decryptedCipher.matchesSearchQuery(searchText)
+            guard matchResult != .none else {
+                return
+            }
+
+            preparedDataBuilder = await preparedDataBuilder.addItemsForCombinedMultipleSections(
+                decryptedCipher: decryptedCipher,
+                withFido2Credentials: fido2Credentials,
+            )
+        }
+
+        return preparedDataBuilder.build()
+    }
+
+    func prepareSearchData(
+        from ciphers: [Cipher],
+        filter: VaultListFilter,
+    ) async -> VaultListPreparedData? {
+        guard !ciphers.isEmpty, let searchText = filter.searchText, !searchText.isEmpty else {
+            return nil
+        }
+
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
+
+        await decryptAndProcessCiphersInBatch(
+            ciphers: ciphers,
+            filter: filter,
+            preparedDataBuilder: preparedDataBuilder,
+        ) { decryptedCipher in
+            if decryptedCipher.deletedDate != nil {
+                guard let group = filter.group, group == .trash else {
+                    return
+                }
+            }
+
+            if let group = filter.group, !decryptedCipher.belongsToGroup(group) {
+                return
+            }
+
+            let matchResult = decryptedCipher.matchesSearchQuery(searchText)
+            preparedDataBuilder = await preparedDataBuilder.addSearchResultItem(
+                withMatchResult: matchResult,
+                cipher: decryptedCipher,
+                for: filter.group,
+            )
+        }
+
+        return preparedDataBuilder.build()
+    }
+
     // MARK: Private
+
+    /// Decrypts `ciphers` in batch and perform process on each decrypted cipher of the batch.
+    /// This consolidates common cipher filtering on all data preparation.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to decrypt and process
+    ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list
+    ///   - preparedDataBuilder: The data builder that is used to prepare the ciphers data.
+    ///   - onCipher: The action to perform on each decrypted cipher.
+    func decryptAndProcessCiphersInBatch(
+        ciphers: [Cipher],
+        filter: VaultListFilter,
+        preparedDataBuilder: VaultListPreparedDataBuilder,
+        onCipher: (CipherListView) async throws -> Void,
+    ) async {
+        let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+
+        await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
+            ciphers: ciphers,
+        ) { decryptedCipher in
+            guard filter.filterType.cipherFilter(decryptedCipher),
+                  decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                return
+            }
+
+            try await onCipher(decryptedCipher)
+        }
+    }
 
     /// Returns the restricted organization IDs for the `.restrictItemTypes` policy and adds them
     /// to the builder.
@@ -319,3 +422,26 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         return restrictedOrganizationIds
     }
 }
+
+// MARK: VaultListPreparedDataBuilder
+
+private extension VaultListPreparedDataBuilder {
+    func addItemsForCombinedMultipleSections(
+        decryptedCipher: CipherListView,
+        withFido2Credentials fido2Credentials: [CipherView]?,
+    ) async -> VaultListPreparedDataBuilder {
+        if let fido2Credentials,
+           decryptedCipher.type.loginListView?.hasFido2 == true,
+           fido2Credentials.contains(where: { $0.id == decryptedCipher.id }) {
+            _ = await addFido2Item(cipher: decryptedCipher)
+        }
+
+        if decryptedCipher.canBeUsedInBasicLoginAutofill {
+            _ = await addItem(
+                forGroup: .login,
+                with: decryptedCipher,
+            )
+        }
+        return self
+    }
+} // swiftlint:disable:this file_length

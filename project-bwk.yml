@@ -132,15 +132,28 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/__Snapshots__/*"
+          - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
       - path: BitwardenKit
         includes:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
+          - "**/sourcery.yml"
         buildPhase: none
     dependencies:
       - package: SwiftUIIntrospect
       - target: BitwardenResources
       - target: Networking
+    preBuildScripts:
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenKitMocks:
     type: framework
     platform: iOS
@@ -153,6 +166,8 @@ targets:
         includes:
           - "**/Fixtures/*"
           - "**/Mocks/*"
+      - path: BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: BitwardenKit
       - target: TestHelpers
@@ -175,6 +190,8 @@ targets:
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
     randomExecutionOrder: true
   BitwardenKitSnapshotTests:
     type: bundle.unit-test

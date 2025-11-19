@@ -9,10 +9,11 @@ import OSLog
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListSectionsBuilder { // sourcery: AutoMockable
-    /// Adds a section with passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// Adds passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// - Parameter searchText: The text query to search ciphers.
     /// - Parameter rpID: The relying party identifier of the Fido2 request.
     /// - Returns: The builder for fluent code.
-    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder
+    func addAutofillCombinedMultipleSection(searchText: String?, rpID: String?) -> VaultListSectionsBuilder
 
     /// Adds a section with passwords and Fido2 items for Autofill vault list in a combined single section.
     /// - Returns: The builder for fluent code.
@@ -44,6 +45,11 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addGroupSection() -> VaultListSectionsBuilder
 
+    /// Adds a section with search results items.
+    /// - Parameter options: The vault list options configured.
+    /// - Returns: The builder for fluent code.
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder
+
     /// Adds a section with TOTP items.
     /// - Returns: The builder for fluent code.
     func addTOTPSection() -> VaultListSectionsBuilder
@@ -62,6 +68,13 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
 }
 
 extension VaultListSectionsBuilder {
+    /// Adds passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// - Parameter rpID: The relying party identifier of the Fido2 request.
+    /// - Returns: The builder for fluent code.
+    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder {
+        addAutofillCombinedMultipleSection(searchText: nil, rpID: rpID)
+    }
+
     /// Adds a section with available collections.
     /// - Returns: The builder for fluent code.
     func addCollectionsSection() async throws -> VaultListSectionsBuilder {
@@ -78,7 +91,7 @@ extension VaultListSectionsBuilder {
 // MARK: - DefaultVaultListSectionsBuilder
 
 /// The default vault list sections builder.
-class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
+class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used by the application to handle encryption and decryption tasks.
@@ -115,18 +128,20 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     // MARK: Methods
 
-    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder {
+    func addAutofillCombinedMultipleSection(searchText: String?, rpID: String?) -> VaultListSectionsBuilder {
         if !preparedData.fido2Items.isEmpty, let rpID {
             vaultListData.sections.append(VaultListSection(
-                id: Localizations.passkeysForX(rpID),
+                id: Localizations.passkeysForX(searchText ?? rpID),
                 items: preparedData.fido2Items.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.passkeysForX(rpID),
+                name: Localizations.passkeysForX(searchText ?? rpID),
             ))
         }
 
         if !preparedData.groupItems.isEmpty {
             let passwordsSectionName = if let rpID {
                 Localizations.passwordsForX(rpID)
+            } else if let searchText {
+                Localizations.passwordsForX(searchText)
             } else {
                 Localizations.passwords
             }
@@ -303,6 +318,31 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 ),
             )
         }
+        return self
+    }
+
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder {
+        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
+            return self
+        }
+
+        let matchingItems = preparedData.exactMatchItems + preparedData.fuzzyMatchItems
+
+        var sectionID = "SearchResults"
+        var sectionName = ""
+
+        if options.contains(.isInPickerMode) {
+            sectionID = Localizations.matchingItems
+            sectionName = Localizations.matchingItems
+        }
+
+        vaultListData.sections.append(
+            VaultListSection(
+                id: sectionID,
+                items: matchingItems.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: sectionName,
+            ),
+        )
         return self
     }
 

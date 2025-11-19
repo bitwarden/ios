@@ -14,6 +14,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     typealias Module = AuthModule
         & DebugMenuModule
         & ItemListModule
+        & NavigatorBuilderModule
         & TabModule
         & TutorialModule
 
@@ -107,7 +108,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -148,7 +149,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
             stackNavigator: navigationController,
         )
@@ -190,4 +191,10 @@ extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
         showTab(route: .itemList(.list))
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

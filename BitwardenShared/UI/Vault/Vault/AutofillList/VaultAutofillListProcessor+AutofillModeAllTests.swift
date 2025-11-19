@@ -9,7 +9,7 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
@@ -125,7 +125,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             items: items,
             name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -136,6 +136,16 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: nil,
+                mode: .all,
+                rpID: nil,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
@@ -167,7 +177,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             items: items,
             name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {
@@ -179,7 +189,16 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertEqual(vaultRepository.searchCipherAutofillPublisherCalledWithGroup, .card)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .card,
+                mode: .all,
+                rpID: nil,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.

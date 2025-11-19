@@ -62,7 +62,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
 
         var builder = builderFactory.make(withData: preparedData)
 
-        if filter.addTOTPGroup {
+        if filter.options.contains(.addTOTPGroup) {
             builder = builder.addTOTPSection()
         }
 
@@ -73,7 +73,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             .addCollectionsSection()
             .addCipherDecryptionFailureIds()
 
-        if filter.addTrashGroup {
+        if filter.options.contains(.addTrashGroup) {
             builder = builder.addTrashSection()
         }
 
